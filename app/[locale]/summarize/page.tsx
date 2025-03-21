@@ -27,17 +27,38 @@ export default function Summarize() {
 
         {/* 토글 박스 */}
         {showGuide && (
-          <div className="mb-6 text-sm text-gray-700 dark:text-gray-300 bg-yellow-50 dark:bg-yellow-900 border border-yellow-300 dark:border-yellow-700 rounded-lg p-4 leading-relaxed">
+          <div className="relative mb-6 text-sm text-gray-700 dark:text-gray-300 bg-yellow-50 dark:bg-yellow-900 border border-yellow-300 dark:border-yellow-700 rounded-lg p-4 leading-relaxed">
+            {/* 닫기 버튼 */}
+            <button
+              className="absolute top-3 right-4 text-gray-600 dark:text-gray-300 hover:text-black text-lg"
+              onClick={() => setShowGuide(false)}
+              aria-label="닫기"
+            >
+              ✕
+            </button>
+
             🎥 유튜브 영상의 자막을 복사해서 이곳에 붙여넣어 주세요.
             <br />
             ⏱ 영상 중간에 나오는 <strong>시간 표시(예: 00:03:42)</strong>는 걱정하지 마세요.
             <br />
             <strong>Brify가 자동으로 처리해드립니다.</strong>
             <br />
-            <span className="text-xs italic text-gray-600 dark:text-gray-400">
+            <span className="text-xs italic text-gray-600 dark:text-gray-400 block mt-2">
               유튜브 영상의 스크립트를 보려면 영상 플레이어 하단의 ‘··· 더보기’ 또는 ‘자막 보기’ 메뉴를 눌러주세요. <br />
               복사할 때는 스크립트의 시작 부분을 드래그한 뒤 <strong>Shift 키를 누른 채</strong> 스크립트의 마지막 부분을 클릭하면 전체 선택이 되고, <strong>Ctrl+C (또는 ⌘+C)</strong>로 복사할 수 있어요.
             </span>
+
+            {/* 튜토리얼 링크 */}
+            <div className="mt-4">
+              <a
+                href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" // 여기에 실제 영상 링크를 넣으세요
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-xs text-blue-600 dark:text-blue-400 underline hover:text-blue-800"
+              >
+                그래도 모르겠다면? 📺 동영상으로 자세히 안내해드릴게요 →
+              </a>
+            </div>
           </div>
         )}
 

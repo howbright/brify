@@ -4,8 +4,11 @@ export default function Hero() {
   return (
     <section className="bg-white dark:bg-gray-900">
       <div className="py-8 px-4 mx-auto max-w-screen-xl text-center lg:py-16 lg:px-12">
-       <Link href={"/update"} className="inline-flex justify-between items-center py-1 px-1 pr-4 mb-7 text-sm text-gray-700 bg-gray-100 rounded-full dark:bg-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700"
-          role="alert">
+        <Link
+          href={"/update"}
+          className="inline-flex justify-between items-center py-1 px-1 pr-4 mb-7 text-sm text-gray-700 bg-gray-100 rounded-full dark:bg-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700"
+          role="alert"
+        >
           <span className="text-xs bg-primary-600 rounded-full text-white px-4 py-1.5 mr-3">
             New
           </span>{" "}
@@ -26,12 +29,14 @@ export default function Hero() {
           </svg>
         </Link>
         <h1 className="mb-4 text-4xl font-extrabold tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
-        읽지 말고, 이해하세요.<br/>
-        Brify, AI 리딩 어시스턴트
+          읽지 말고, 이해하세요.
+          <br />
+          Brify, AI 리딩 어시스턴트
         </h1>
         <p className="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48 dark:text-gray-400">
-          Here at Flowbite we focus on markets where technology, innovation, and
-          capital can unlock long-term value and drive economic growth.
+          너무 길어서 읽기 힘든 블로그, 뉴스, 논문, 유튜브 영상 스크립트까지,
+          Brify는 AI가 대신 읽고 요약해드립니다. 당신은 복사만 하세요. Brify는
+          당신의 시간을 아끼고, 지식을 완성하며, 더 정확한 선택을 돕습니다.
         </p>
         <div className="flex flex-col mb-8 lg:mb-16 space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4">
           <a
