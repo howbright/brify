@@ -44,3 +44,10 @@ a {
     color-scheme: dark;
   }
 }
+
+@media (width >= 768px) {
+  .md\:text-5xl {
+      font-size: 3rem;
+      line-height: 1.2;
+  }
+}
