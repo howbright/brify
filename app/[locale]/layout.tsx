@@ -50,7 +50,6 @@ export default async function RootLayout({
         <ThemeModeScript />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Header />
         <NextIntlClientProvider>
           <Flowbite theme={{ theme: customTheme }}>{children}</Flowbite>
         </NextIntlClientProvider>

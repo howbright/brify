@@ -2,5 +2,26 @@
   "HomePage": {
     "title": "Hello world!",
     "about": "Go to the about page"
+  },
+  "login": {
+    "title": "Welcome back",
+    "google": "Log in with Google",
+    "github": "Log in with Github",
+    "or": "or",
+    "email": {
+      "label": "Email",
+      "placeholder": "name@example.com"
+    },
+    "password": {
+      "label": "Password",
+      "placeholder": "••••••••"
+    },
+    "remember": "Remember me",
+    "forgot": "Forgot password?",
+    "submit": "Sign in to your account",
+    "signup": {
+      "question": "Don’t have an account yet?",
+      "link": "Sign up here"
+    }
   }
 }

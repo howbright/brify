@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 
 export default function Summarize() {
   const t = useTranslations("HomePage");
@@ -52,14 +53,14 @@ export default function Summarize() {
             </span>
             {/* 튜토리얼 링크 */}
             <div className="mt-4">
-              <a
+              <Link
                 href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" // 여기에 실제 영상 링크를 넣으세요
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block text-xs text-blue-600 dark:text-blue-400 underline hover:text-blue-800"
               >
                 그래도 모르겠다면? 📺 동영상으로 자세히 안내해드릴게요 →
-              </a>
+              </Link>
             </div>
           </div>
         )}

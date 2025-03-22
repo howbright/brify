@@ -1,6 +1,27 @@
 {
-    "HomePage": {
-      "title": "안녕 세상아!",
-      "about": "About 페이지로 가자"
+  "HomePage": {
+    "title": "안녕 세상아!",
+    "about": "About 페이지로 가자"
+  },
+  "login": {
+    "title": "다시 오신 걸 환영해요",
+    "google": "구글 계정으로 로그인",
+    "github": "깃허브 계정으로 로그인",
+    "or": "또는",
+    "email": {
+      "label": "이메일",
+      "placeholder": "name@example.com"
+    },
+    "password": {
+      "label": "비밀번호",
+      "placeholder": "••••••••"
+    },
+    "remember": "로그인 상태 유지",
+    "forgot": "비밀번호를 잊으셨나요?",
+    "submit": "로그인하기",
+    "signup": {
+      "question": "계정이 없으신가요?",
+      "link": "회원가입 하기"
     }
   }
+}
