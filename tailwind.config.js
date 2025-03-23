@@ -20,6 +20,7 @@ module.exports = {
         'accent-blue': '#3b82f6',
         'accent-sky': '#0ea5e9',
         'accent-indigo': '#6366f1',
+        'neon': '#4cf0ff'
       },
     },
   },

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Hero3() {
   return (
-    <section className="relative bg-[#f4f7f8] text-[#1f1f1f] dark:bg-[#111827] dark:text-white py-28 px-4 overflow-hidden">
+    <section className="relative bg-[#f4f7f8] text-[#1f1f1f] dark:bg-[#111827] dark:text-white py-28 px-4 overflow-visible">
       {/* 🎨 배경 SVGs */}
       <img
         src="/images/hero1.svg"
@@ -55,13 +55,13 @@ export default function Hero3() {
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mt-4">
           <Link
             href="/summarize"
-            className="px-8 py-4 text-lg font-semibold rounded-xl bg-[#1f1f1f] text-white hover:bg-[#333] transition"
+            className="px-8 py-4 text-lg font-semibold rounded-xl bg-neon text-black border-[#333] border hover:rounded-full transition"
           >
-            ✨ 지금 요약해보기
+            지금 요약해보기
           </Link>
           <Link
             href="/guide"
-            className="px-8 py-4 text-lg font-semibold rounded-xl border-2 border-[#1f1f1f] text-[#1f1f1f] hover:bg-[#e5e7eb] transition dark:border-white dark:text-white dark:hover:bg-[#1f1f1f]"
+            className="px-8 py-4 text-lg font-semibold rounded-xl border border-[#1f1f1f] text-[#1f1f1f] hover:rounded-full transition dark:border-white dark:text-white dark:hover:bg-[#1f1f1f]"
           >
             🎥 사용 가이드 보기
           </Link>
