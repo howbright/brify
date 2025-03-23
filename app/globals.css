@@ -51,3 +51,62 @@ a {
       line-height: 1.2;
   }
 }
+@keyframes gradient-smooth {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-smooth {
+  background-size: 300% 300%;
+  animation: gradient-smooth 6s ease-in-out infinite;
+}
+
+
+@keyframes gradient-smooth {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-smooth {
+  background-size: 200% 200%;
+  animation: gradient-smooth 4s ease-in-out infinite;
+}
+
+@keyframes gradient-smooth {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-smooth {
+  background-size: 200% 200%;
+  animation: gradient-smooth 4s ease-in-out infinite;
+}
+
+.text-gradient {
+  background-image: linear-gradient(to right, #3b82f6, #6366f1, #0ea5e9);
+  /* -webkit-background-clip: text; */
+  -webkit-text-fill-color: transparent;
+}
+
+
