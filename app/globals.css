@@ -109,4 +109,28 @@ a {
   -webkit-text-fill-color: transparent;
 }
 
+@keyframes floating {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes floating-reverse {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+.animate-floating {
+  animation: floating 5s ease-in-out infinite;
+}
+.animate-floating-reverse {
+  animation: floating-reverse 5s ease-in-out infinite;
+}
+
+
 
