@@ -1,5 +1,6 @@
 "use client";
 
+import LanguageSelector from "@/components/LanguageSelector";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 
@@ -59,6 +60,7 @@ export default function Header() {
               Toggle dark mode
               <div className="tooltip-arrow" data-popper-arrow></div>
             </div>
+           <LanguageSelector/>
             {/* 로그인 버튼 */}
             <Link
               href="/login"
