@@ -19,7 +19,8 @@ export default function Login() {
                 src="/images/logo.svg"
                 className="mr-3 h-6 sm:h-9"
                 alt="Brify Logo"
-                fill
+                width={300}
+                height={300}
               />
             </Link>
 

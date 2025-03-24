@@ -5,41 +5,6 @@ import Image from "next/image";
 
 export default function Header() {
   return (
-    // <header className="sticky top-0 z-50 bg-[#fefefe] dark:bg-[#111827] bg-opacity-90 backdrop-blur-md shadow-sm transition-all">
-    //   <nav className="max-w-screen-xl mx-auto px-4 lg:px-6 py-3 flex justify-between items-center">
-    //     {/* 로고 */}
-    //     <Link href="/" className="flex items-center gap-2">
-    //       <img src="/images/logo.svg" alt="Brify Logo" className="h-8" />
-    //     </Link>
-
-    //     {/* 데스크탑 내비게이션 */}
-    //     <div className="hidden lg:flex items-center space-x-8 font-medium text-sm">
-    //       <Link href="/" className="hover:text-[#3b82f6] transition">홈</Link>
-    //       <Link href="/summarize" className="hover:text-[#3b82f6] transition">요약하기</Link>
-    //       <Link href="#" className="hover:text-[#3b82f6] transition">모아보기</Link>
-    //       <Link href="#" className="hover:text-[#3b82f6] transition">태그</Link>
-    //     </div>
-
-    //     {/* 로그인 / 회원가입 버튼 */}
-    //     <div className="flex items-center space-x-2">
-    //       {/* 로그인 */}
-    //       <Link
-    //         href="/login"
-    //         className="px-4 py-2 text-sm font-medium text-primary dark:text-white border border-primary dark:border-white bg-white dark:bg-transparent rounded-md transition-all duration-300 hover:rounded-full"
-    //       >
-    //         로그인
-    //       </Link>
-
-    //       {/* 회원가입 */}
-    //       <Link
-    //         href="/signup"
-    //         className="px-4 py-2 text-sm font-medium text-white bg-primary dark:bg-white dark:text-primary rounded-md transition-all duration-300 hover:rounded-full"
-    //       >
-    //         회원가입
-    //       </Link>
-    //     </div>
-    //   </nav>
-    // </header>
     <header>
       <nav
         id="mainNavbar"
@@ -48,7 +13,13 @@ export default function Header() {
       >
         <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl px-4">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/images/logo.svg" alt="Brify Logo" className="h-8"  fill/>
+            <Image
+              src="/images/logo.svg"
+              alt="Brify Logo"
+              className="h-8"
+              width={100}
+              height={100}
+            />
           </Link>
           <div className="flex items-center lg:order-2">
             <button
@@ -88,23 +59,21 @@ export default function Header() {
               Toggle dark mode
               <div className="tooltip-arrow" data-popper-arrow></div>
             </div>
-            <button
-              data-drawer-target="drawer-navigation"
-              data-drawer-show="drawer-navigation"
-              aria-controls="drawer-navigation"
-              className="inline-flex items-center text-white bg-primary hover:bg-primary focus:ring-4 focus:ring-primary font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 lg:mr-0 dark:bg-primary dark:hover:bg-primary focus:outline-none dark:focus:ring-primary"
+            {/* 로그인 버튼 */}
+            <Link
+              href="/login"
+              className="text-gray-700 dark:text-white hover:text-primary border border-gray-300 dark:border-gray-600 hover:border-primary focus:ring-primary font-medium rounded-lg text-sm px-4 py-2 mr-2"
             >
-              <svg
-                className="w-3.5 h-3.5 mr-2"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 16 20"
-              >
-                <path d="M16 14V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v15a3 3 0 0 0 3 3h12a1 1 0 0 0 0-2h-1v-2a2 2 0 0 0 2-2ZM4 2h2v12H4V2Zm8 16H3a1 1 0 0 1 0-2h9v2Z" />
-              </svg>
-              View pages
-            </button>
+              로그인
+            </Link>
+
+            {/* 회원가입 버튼 */}
+            <Link
+              href="/register"
+              className="text-white bg-primary hover:bg-primary-dark focus:ring-primary font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary dark:hover:bg-primary-dark focus:outline-none dark:focus:ring-primary"
+            >
+              회원가입
+            </Link>
             <button
               id="mobile-menu-button"
               data-collapse-toggle="mobile-menu-2"
