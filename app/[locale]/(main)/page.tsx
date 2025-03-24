@@ -1,13 +1,9 @@
-import Header from "@/components/layout/Header";
-import Hero from "@/components/layout/Hero";
-import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
-import For from "@/components/layout/For";
-import Hero2 from "@/components/layout/Hero2";
 import Hero3 from "@/components/Hero3";
+import For from "@/components/layout/For";
+// import { useTranslations } from "next-intl";
 
 export default function Home() {
-  const t = useTranslations("HomePage");
+  // const t = useTranslations("HomePage");
   return (
     <div>
       {/* <Hero />

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+// import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 export default function Summarize() {
-  const t = useTranslations("HomePage");
+  // const t = useTranslations("HomePage");
   const [showGuide, setShowGuide] = useState(false);
 
   return (

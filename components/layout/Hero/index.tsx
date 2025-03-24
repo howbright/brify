@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Hero() {
@@ -5,11 +6,12 @@ export default function Hero() {
     <section className="relative overflow-hidden bg-gradient-to-b from-[#f0f8ff] to-[#e8f6f1] dark:from-gray-900 dark:to-gray-800">
       {/* 배경 이미지 */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <img
+        <Image
           src="/images/hero-bg.svg"
           alt=""
           className="w-full h-full object-cover opacity-50"
           aria-hidden="true"
+          fill
         />
       </div>
 

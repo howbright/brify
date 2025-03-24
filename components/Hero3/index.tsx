@@ -1,32 +1,37 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Hero3() {
   return (
-    <section className="relative bg-[#f4f7f8] text-[#1f1f1f] dark:bg-[#111827] dark:text-white py-28 px-4 overflow-visible">
+    <section className="relative pt-44 bg-[#f4f7f8] text-[#1f1f1f] dark:bg-[#111827] dark:text-white py-28 px-4 overflow-visible">
       {/* 🎨 배경 SVGs */}
-      <img
+      <Image
         src="/images/hero1.svg"
         alt=""
-        className="absolute top-[-20px] left-[-20px] w-28 md:w-36 opacity-40 animate-floating pointer-events-none"
+        className="absolute top-[70px] left-[-20px] w-28 md:w-36 opacity-40 animate-floating pointer-events-none"
         aria-hidden="true"
+        fill
       />
-      <img
+      <Image
         src="/images/hero2.svg"
         alt=""
         className="absolute bottom-[-30px] right-[-20px] w-32 md:w-40 opacity-40 animate-floating-reverse pointer-events-none"
         aria-hidden="true"
+        fill
       />
-      <img
+      <Image
         src="/images/hero3.svg"
         alt=""
-        className="absolute top-[-30px] right-8 w-24 md:w-32 opacity-30 rotate-12 pointer-events-none"
+        className="absolute top-[100px] right-8 w-24 md:w-32 opacity-30 rotate-12 pointer-events-none"
         aria-hidden="true"
+        fill
       />
-      <img
+      <Image
         src="/images/hero5.svg"
         alt=""
         className="absolute bottom-[-20px] left-6 w-20 md:w-28 opacity-30 pointer-events-none"
         aria-hidden="true"
+        fill
       />
 
       {/* 🧠 콘텐츠 */}
@@ -55,13 +60,15 @@ export default function Hero3() {
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mt-4">
           <Link
             href="/summarize"
-            className="px-8 py-4 text-lg font-semibold rounded-xl bg-neon text-black border-[#333] border hover:rounded-full transition"
+            className="px-8 py-4 text-lg font-semibold rounded-xl bg-[#1f1f1f] text-white transition
+             hover:scale-105 hover:shadow-xl"
           >
-            지금 요약해보기
+            ✨ 지금 요약해보기
           </Link>
+
           <Link
             href="/guide"
-            className="px-8 py-4 text-lg font-semibold rounded-xl border border-[#1f1f1f] text-[#1f1f1f] hover:rounded-full transition dark:border-white dark:text-white dark:hover:bg-[#1f1f1f]"
+            className="px-8 py-4 text-lg font-semibold rounded-xl border border-[#1f1f1f] text-[#1f1f1f] hover:scale-105 hover:shadow-xl transition dark:border-white dark:text-white dark:hover:bg-[#1f1f1f]"
           >
             🎥 사용 가이드 보기
           </Link>

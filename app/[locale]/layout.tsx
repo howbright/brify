@@ -5,7 +5,6 @@ import { CustomFlowbiteTheme, ThemeModeScript } from "flowbite-react";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
-import Header from "@/components/layout/Header";
 import { Flowbite } from "flowbite-react";
 
 const customTheme: CustomFlowbiteTheme = {
