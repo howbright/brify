@@ -33,7 +33,6 @@ export default function LanguageSelector() {
     <Dropdown
       label={
         <span className="inline-flex text-sm items-center text-gray-800 dark:text-gray-300">
-          <span className="text-xl mr-2">{current?.flag}</span>
           {current?.label || currentLocale}
         </span>
       }
@@ -44,7 +43,6 @@ export default function LanguageSelector() {
       {locales.map((locale) => (
         <Dropdown.Item key={locale.code} as="button" onClick={() => handleLocaleChange(locale.code)}>
           <span className="inline-flex items-center">
-            <span className="text-xl mr-2">{locale.flag}</span>
             {locale.label}
           </span>
         </Dropdown.Item>
