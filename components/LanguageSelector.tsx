@@ -1,78 +1,55 @@
 'use client';
 
+import { usePathname, useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
-import { useState, useRef, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
-import { Link } from '@/i18n/navigation';
+import { Dropdown } from 'flowbite-react';
 
 const locales = [
-  { code: 'ko', label: '한국어', flag: '🇰🇷' },
-  { code: 'en', label: 'English (US)', flag: '🇺🇸' },
-  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
-  { code: 'it', label: 'Italiano', flag: '🇮🇹' },
-  { code: 'zh', label: '中文 (繁體)', flag: '🇨🇳' },
+  { code: 'ko', label: '한국어'},
+  { code: 'en', label: 'English'},
+//   { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
+//   { code: 'it', label: 'Italiano', flag: '🇮🇹' },
+//   { code: 'zh', label: '中文 (繁體)', flag: '🇨🇳' },
 ];
 
 export default function LanguageSelector() {
-  const currentLocale = useLocale();
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const currentLocale = useLocale();
 
-  // ✅ 외부 클릭 시 드롭다운 닫기
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  const current = locales.find((l) => l.code === currentLocale);
+
+  const handleLocaleChange = (locale: string) => {
+    document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000`;
+     // 2. 기존 locale prefix 제거하고 새 locale 붙이기
+     const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, '');
+     const newPath = `/${locale}${pathWithoutLocale}`;
+     // 3. 클라이언트 사이드 라우팅
+    router.push(newPath);
+  };
 
   return (
-    <div className="relative inline-block text-left" ref={dropdownRef}>
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="inline-flex items-center text-gray-800 dark:text-gray-300 hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-2.5 lg:px-5 py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
-      >
-        <span className="mr-2 w-5 h-5 text-xl">
-          {locales.find((l) => l.code === currentLocale)?.flag}
+    <div className='hover:bg-gray-200 px-2 rounded-md mr-4 h-9 flex justify-center items-center'>
+    <Dropdown
+      label={
+        <span className="inline-flex text-sm items-center text-gray-800 dark:text-gray-300">
+          <span className="text-xl mr-2">{current?.flag}</span>
+          {current?.label || currentLocale}
         </span>
-        {locales.find((l) => l.code === currentLocale)?.label || currentLocale}
-        <svg
-          className="ml-1 w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-
-      {open && (
-        <div className="absolute right-0 z-50 mt-2 w-48 bg-white dark:bg-gray-700 rounded shadow divide-y divide-gray-100 dark:divide-gray-600">
-          <ul className="py-1 text-sm text-gray-700 dark:text-gray-300" role="menu">
-            {locales.map((locale) => (
-              <li key={locale.code}>
-                <Link
-                  href={pathname}
-                  locale={locale.code}
-                  onClick={() => setOpen(false)}
-                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                  role="menuitem"
-                >
-                  <span className="inline-flex items-center">
-                    <span className="text-lg mr-2">{locale.flag}</span>
-                    {locale.label}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      }
+      inline
+      placement="bottom-end"
+      className="z-50"
+    >
+      {locales.map((locale) => (
+        <Dropdown.Item key={locale.code} as="button" onClick={() => handleLocaleChange(locale.code)}>
+          <span className="inline-flex items-center">
+            <span className="text-xl mr-2">{locale.flag}</span>
+            {locale.label}
+          </span>
+        </Dropdown.Item>
+      ))}
+    </Dropdown>
     </div>
   );
 }
