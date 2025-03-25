@@ -1,0 +1,41 @@
+{
+  "hero": {
+    "title1": "¿Textos o videos largos?",
+    "title2": "¡Brify va directo al grano!",
+    "description1": "Blogs, noticias, artículos, incluso YouTube —",
+    "description2": "Brify lee y resume por ti usando IA.",
+    "benefits": {
+      "time": "Ahorra tiempo",
+      "knowledge": "Obtén conocimiento",
+      "accuracy": "Toma decisiones precisas"
+    },
+    "button_summarize": "✨ Probar resumen ahora",
+    "button_guide": "🎥 Ver guía de uso"
+  },
+
+  "HomePage": {
+    "title": "¡Hola mundo!",
+    "about": "Ir a la página de información"
+  },
+  "login": {
+    "title": "Bienvenido de nuevo",
+    "google": "Iniciar sesión con Google",
+    "github": "Iniciar sesión con Github",
+    "or": "o",
+    "email": {
+      "label": "Correo electrónico",
+      "placeholder": "name@example.com"
+    },
+    "password": {
+      "label": "Contraseña",
+      "placeholder": "••••••••"
+    },
+    "remember": "Recuérdame",
+    "forgot": "¿Olvidaste tu contraseña?",
+    "submit": "Iniciar sesión en tu cuenta",
+    "signup": {
+      "question": "¿Aún no tienes una cuenta?",
+      "link": "Regístrate aquí"
+    }
+  }
+}

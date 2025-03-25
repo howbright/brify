@@ -1,0 +1,41 @@
+{
+  "hero": {
+    "title1": "长文章、长视频？",
+    "title2": "Brify帮你提炼重点！",
+    "description1": "博客、新闻、论文、YouTube 都支持 —",
+    "description2": "Brify 用 AI 帮你阅读并总结。",
+    "benefits": {
+      "time": "节省时间",
+      "knowledge": "获取知识",
+      "accuracy": "精准决策"
+    },
+    "button_summarize": "✨ 立即尝试摘要",
+    "button_guide": "🎥 查看使用指南"
+  },
+
+  "HomePage": {
+    "title": "你好，世界！",
+    "about": "前往关于页面"
+  },
+  "login": {
+    "title": "欢迎回来",
+    "google": "使用 Google 登录",
+    "github": "使用 Github 登录",
+    "or": "或",
+    "email": {
+      "label": "电子邮箱",
+      "placeholder": "name@example.com"
+    },
+    "password": {
+      "label": "密码",
+      "placeholder": "••••••••"
+    },
+    "remember": "记住我",
+    "forgot": "忘记密码？",
+    "submit": "登录到您的账户",
+    "signup": {
+      "question": "还没有账户？",
+      "link": "点击这里注册"
+    }
+  }
+}

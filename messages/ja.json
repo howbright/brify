@@ -1,0 +1,41 @@
+{
+  "hero": {
+    "title1": "長い記事も動画も",
+    "title2": "Brifyが要点をスパッと！",
+    "description1": "ブログ、ニュース、論文、YouTubeまで —",
+    "description2": "BrifyがAIで読み取って要約します。",
+    "benefits": {
+      "time": "時間節約",
+      "knowledge": "知識獲得",
+      "accuracy": "正確な選択"
+    },
+    "button_summarize": "✨ 今すぐ要約してみる",
+    "button_guide": "🎥 使い方ガイドを見る"
+  },
+
+  "HomePage": {
+    "title": "こんにちは！",
+    "about": "概要ページへ"
+  },
+  "login": {
+    "title": "おかえりなさい",
+    "google": "Googleでログイン",
+    "github": "Githubでログイン",
+    "or": "または",
+    "email": {
+      "label": "メールアドレス",
+      "placeholder": "name@example.com"
+    },
+    "password": {
+      "label": "パスワード",
+      "placeholder": "••••••••"
+    },
+    "remember": "ログイン状態を保持",
+    "forgot": "パスワードをお忘れですか？",
+    "submit": "アカウントにサインイン",
+    "signup": {
+      "question": "まだアカウントをお持ちでないですか？",
+      "link": "こちらから登録"
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "hero": {
+    "title1": "長文章、長影片？",
+    "title2": "Brify 幫你掌握重點！",
+    "description1": "部落格、新聞、論文、YouTube 全部支援 —",
+    "description2": "Brify 使用 AI 幫你閱讀與摘要。",
+    "benefits": {
+      "time": "節省時間",
+      "knowledge": "獲取知識",
+      "accuracy": "精確選擇"
+    },
+    "button_summarize": "✨ 現在就來摘要",
+    "button_guide": "🎥 查看使用教學"
+  },
+
+  "HomePage": {
+    "title": "你好，世界！",
+    "about": "前往關於頁面"
+  },
+  "login": {
+    "title": "歡迎回來",
+    "google": "使用 Google 登入",
+    "github": "使用 Github 登入",
+    "or": "或",
+    "email": {
+      "label": "電子郵件",
+      "placeholder": "name@example.com"
+    },
+    "password": {
+      "label": "密碼",
+      "placeholder": "••••••••"
+    },
+    "remember": "記住我",
+    "forgot": "忘記密碼？",
+    "submit": "登入您的帳戶",
+    "signup": {
+      "question": "還沒有帳戶？",
+      "link": "在這裡註冊"
+    }
+  }
+}

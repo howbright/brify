@@ -24,6 +24,16 @@ module.exports = {
         'neon': '#4cf0ff'
       },
     },
+    fontFamily: {
+      global: [
+        'Noto Sans',
+        'Noto Sans KR',
+        'Noto Sans JP',
+        'Noto Sans SC',
+        'Noto Sans TC',
+        'sans-serif',
+      ],
+    },
   },
   plugins: [flowbite.plugin()],
 };

@@ -5,12 +5,14 @@ import { useLocale } from 'next-intl';
 import { Dropdown } from 'flowbite-react';
 
 const locales = [
-  { code: 'ko', label: '한국어'},
-  { code: 'en', label: 'English'},
-//   { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
-//   { code: 'it', label: 'Italiano', flag: '🇮🇹' },
-//   { code: 'zh', label: '中文 (繁體)', flag: '🇨🇳' },
-];
+    { code: 'en', label: 'English' },
+    { code: 'ko', label: '한국어' },
+    { code: 'ja', label: '日本語' },
+    { code: 'zh-CN', label: '简体中文' },
+    { code: 'zh-TW', label: '繁體中文' },
+    { code: 'es', label: 'Español' },
+    { code: 'fr', label: 'Français' }
+  ];
 
 export default function LanguageSelector() {
   const pathname = usePathname();

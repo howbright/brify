@@ -1,4 +1,17 @@
 {
+  "hero": {
+    "title1": "Long articles, long videos?",
+    "title2": "Brify gets straight to the point!",
+    "description1": "Blogs, news, papers, even YouTube —",
+    "description2": "Brify reads and summarizes for you with AI.",
+    "benefits": {
+      "time": "Save time",
+      "knowledge": "Gain knowledge",
+      "accuracy": "Make smarter choices"
+    },
+    "button_summarize": "✨ Try summarizing now",
+    "button_guide": "🎥 View usage guide"
+  },
   "HomePage": {
     "title": "Hello world!",
     "about": "Go to the about page"
