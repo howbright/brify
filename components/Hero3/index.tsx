@@ -1,7 +1,12 @@
+'use client';
+
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from 'next-intl';
 
 export default function Hero3() {
+  const t = useTranslations('hero'); // 💬 'hero' namespace 사용
+
   return (
     <section className="relative pt-44 font-global bg-[#f4f7f8] text-[#1f1f1f] dark:bg-[#111827] dark:text-white py-28 px-4 overflow-visible">
       {/* 🎨 배경 SVGs */}
@@ -41,23 +46,24 @@ export default function Hero3() {
       {/* 🧠 콘텐츠 */}
       <div className="relative z-10 max-w-5xl mx-auto text-center flex flex-col items-center gap-10">
         <h1 className="text-5xl md:text-6xl font-extrabold leading-tight tracking-tight">
-          긴 글, 긴 영상도
+          {t('title1')}
           <br />
           <span className="bg-gradient-to-r from-[#0ea5e9] via-[#3b82f6] to-[#6366f1] bg-clip-text text-transparent">
-            Brify가 요점만 딱!
+            {t('title2')}
           </span>
         </h1>
 
         <p className="text-lg md:text-xl leading-relaxed max-w-3xl text-[#444] dark:text-gray-300">
-          블로그, 뉴스, 논문, 유튜브까지 —<br />
+          {t('description1')}
+          <br />
           <span className="font-semibold">
-            Brify가 AI로 대신 읽고 요약해드립니다.
+            {t('description2')}
           </span>
           <br />
           <span className="mt-4 inline-block">
-            ⏱ <strong className="text-[#0ea5e9]">시간 절약</strong>, 📚{" "}
-            <strong className="text-[#3b82f6]">지식 완성</strong>, 🎯{" "}
-            <strong className="text-[#6366f1]">정확한 선택</strong>
+            ⏱ <strong className="text-[#0ea5e9]">{t('benefits.time')}</strong>, 📚{" "}
+            <strong className="text-[#3b82f6]">{t('benefits.knowledge')}</strong>, 🎯{" "}
+            <strong className="text-[#6366f1]">{t('benefits.accuracy')}</strong>
           </span>
         </p>
 
@@ -67,14 +73,14 @@ export default function Hero3() {
             className="px-8 py-4 text-lg font-semibold rounded-xl bg-[#1f1f1f] text-white transition
              hover:scale-105 hover:shadow-xl"
           >
-            ✨ 지금 요약해보기
+            {t('button_summarize')}
           </Link>
 
           <Link
             href="/guide"
             className="px-8 py-4 text-lg font-semibold rounded-xl border border-[#1f1f1f] text-[#1f1f1f] hover:scale-105 hover:shadow-xl transition dark:border-white dark:text-white dark:hover:bg-[#1f1f1f]"
           >
-            🎥 사용 가이드 보기
+            {t('button_guide')}
           </Link>
         </div>
       </div>

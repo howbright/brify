@@ -18,15 +18,15 @@ export default function LanguageSelector() {
   const pathname = usePathname();
   const router = useRouter();
   const currentLocale = useLocale();
-
   const current = locales.find((l) => l.code === currentLocale);
+  const localeCodes = locales.map(l => l.code).join('|');
 
   const handleLocaleChange = (locale: string) => {
     document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000`;
-     // 2. 기존 locale prefix 제거하고 새 locale 붙이기
-     const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, '');
-     const newPath = `/${locale}${pathWithoutLocale}`;
-     // 3. 클라이언트 사이드 라우팅
+
+    const pathWithoutLocale = pathname.replace(new RegExp(`^/(${localeCodes})`), '');
+    const newPath = `/${locale}${pathWithoutLocale || '/'}`;
+
     router.push(newPath);
   };
 
