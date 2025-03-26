@@ -21,7 +21,7 @@
     "title": "Bienvenido de nuevo",
     "google": "Iniciar sesión con Google",
     "github": "Iniciar sesión con Github",
-    "es": "Iniciar sesión con Apple",
+    "apple": "Iniciar sesión con Apple",
     "or": "o",
     "email": {
       "label": "Correo electrónico",
@@ -33,7 +33,7 @@
     },
     "remember": "Recuérdame",
     "forgot": "¿Olvidaste tu contraseña?",
-    "submit": "Iniciar sesión en tu cuenta",
+    "submit": "Recibir enlace de acceso por correo",
     "signup": {
       "question": "¿Aún no tienes una cuenta?",
       "link": "Regístrate aquí"
@@ -59,7 +59,7 @@
       "label": "Contraseña",
       "placeholder": "Ingresa tu contraseña"
     },
-    "submit": "Registrarse",
+    "submit": "Recibir enlace de registro por correo",
     "login": {
       "question": "¿Ya tienes una cuenta?",
       "link": "Iniciar sesión"

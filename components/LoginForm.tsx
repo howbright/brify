@@ -15,7 +15,7 @@ export default function LoginForm() {
         </h1>
 
         {/* 소셜 로그인 버튼 */}
-        <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:space-x-4">
+        <div className="flex flex-col space-y-3">
           {/* Google */}
           <Link
             href="#"
@@ -59,13 +59,17 @@ export default function LoginForm() {
             {t("google")}
           </Link>
 
-          {/* GitHub */}
+          {/* Apple */}
           <Link
             href="#"
-            className="flex items-center justify-center w-full border border-gray-900 rounded-lg py-2.5 px-5 text-sm font-medium hover:bg-black hover:text-white transition-colors"
+            className="group flex items-center justify-center w-full border border-gray-900 rounded-lg py-2.5 px-5 text-sm font-medium hover:bg-black hover:text-white transition-colors"
           >
             <div className="flex gap-x-3 items-center">
-              <Icon icon="logos:apple" width={17} />
+              <Icon
+                icon="mdi:apple"
+                width={27}
+                className="text-[#333] hover:text-[#fff] group-hover:text-white transition-colors"
+              />
               <span>{t("apple")}</span>
             </div>
           </Link>
@@ -93,9 +97,9 @@ export default function LoginForm() {
 
           <button
             type="submit"
-            className="w-full bg-primary text-white border border-gray-900 rounded-lg py-2.5 text-sm font-bold uppercase hover:bg-white hover:text-black transition-colors"
+            className="w-full bg-primary hover:scale-105 hover:shadow-lg text-white border rounded-lg py-2.5 text-sm font-bold"
           >
-            매직링크 보내기
+            {t("submit")}
           </button>
           <p className="text-sm text-center text-gray-600 dark:text-gray-400">
             {t("signup.question")}{" "}

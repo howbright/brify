@@ -21,7 +21,7 @@
     "title": "Bon retour",
     "google": "Se connecter avec Google",
     "github": "Se connecter avec Github",
-    "fr": "Se connecter avec Apple",
+    "apple": "Se connecter avec Apple",
     "or": "ou",
     "email": {
       "label": "Email",
@@ -33,7 +33,7 @@
     },
     "remember": "Se souvenir de moi",
     "forgot": "Mot de passe oublié ?",
-    "submit": "Se connecter à votre compte",
+    "submit": "Recevoir le lien de connexion par e-mail",
     "signup": {
       "question": "Vous n’avez pas encore de compte ?",
       "link": "Inscrivez-vous ici"
@@ -59,7 +59,7 @@
       "label": "Mot de passe",
       "placeholder": "Entrez votre mot de passe"
     },
-    "submit": "S'inscrire",
+    "submit": "Recevoir le lien d'inscription par e-mail",
     "login": {
       "question": "Vous avez déjà un compte ?",
       "link": "Se connecter"

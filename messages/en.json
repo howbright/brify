@@ -20,7 +20,7 @@
     "title": "Welcome back",
     "google": "Sign in with Google",
     "github": "Sign in with Github",
-    "en": "Sign in with Apple",
+    "apple": "Sign in with Apple",
     "or": "or",
     "email": {
       "label": "Email",
@@ -32,7 +32,7 @@
     },
     "remember": "Remember me",
     "forgot": "Forgot password?",
-    "submit": "Sign in to your account",
+    "submit": "Get login link by email",
     "signup": {
       "question": "Don’t have an account yet?",
       "link": "Sign up here"
@@ -58,10 +58,10 @@
       "label": "Password",
       "placeholder": "Enter your password"
     },
-    "submit": "Sign Up",
+    "submit": "Get sign-up link by email",
     "login": {
       "question": "Already have an account?",
-      "link": "Log in"
+      "link": "Sing in"
     }
   }
   
