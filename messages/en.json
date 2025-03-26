@@ -36,5 +36,8 @@
       "question": "Don’t have an account yet?",
       "link": "Sign up here"
     }
+  },
+  "loading": {
+    "message": "Please wait a moment..."
   }
 }

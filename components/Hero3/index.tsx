@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from 'next-intl';
+import GradientButton from "../ui/GradientButton";
 
 export default function Hero3() {
   const t = useTranslations('hero'); // 💬 'hero' namespace 사용
@@ -48,7 +49,7 @@ export default function Hero3() {
         <h1 className="text-5xl md:text-6xl font-extrabold leading-tight tracking-tight">
           {t('title1')}
           <br />
-          <span className="bg-gradient-to-r from-[#0ea5e9] via-[#3b82f6] to-[#6366f1] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r leading-normal from-[#0ea5e9] via-[#3b82f6] to-[#6366f1] bg-clip-text text-transparent">
             {t('title2')}
           </span>
         </h1>
@@ -68,20 +69,21 @@ export default function Hero3() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mt-4">
-          <Link
+          <GradientButton label={t('button_summarize')}/>
+          {/* <Link
             href="/summarize"
             className="px-8 py-4 text-lg font-semibold rounded-xl bg-[#1f1f1f] text-white transition
              hover:scale-105 hover:shadow-xl"
           >
             {t('button_summarize')}
-          </Link>
+          </Link> */}
 
-          <Link
+          {/* <Link
             href="/guide"
             className="px-8 py-4 text-lg font-semibold rounded-xl border border-[#1f1f1f] text-[#1f1f1f] hover:scale-105 hover:shadow-xl transition dark:border-white dark:text-white dark:hover:bg-[#1f1f1f]"
           >
             {t('button_guide')}
-          </Link>
+          </Link> */}
         </div>
       </div>
     </section>

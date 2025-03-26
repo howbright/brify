@@ -45,10 +45,8 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <head>
-        <ThemeModeScript />
-      </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <ThemeModeScript />
         <NextIntlClientProvider>
           <Flowbite theme={{ theme: customTheme }}>{children}</Flowbite>
         </NextIntlClientProvider>

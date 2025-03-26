@@ -37,5 +37,8 @@
       "question": "還沒有帳戶？",
       "link": "在這裡註冊"
     }
+  },
+  "loading": {
+    "message": "請稍候..."
   }
 }

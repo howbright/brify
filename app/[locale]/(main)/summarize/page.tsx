@@ -1,15 +1,27 @@
 "use client";
 
 import { useState } from "react";
-// import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import GradientButton from "@/components/ui/GradientButton";
+import LoginPromptModal from "@/components/LoginPopupModal";
 
 export default function Summarize() {
   // const t = useTranslations("HomePage");
   const [showGuide, setShowGuide] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  const handleStartSummary = () => {
+    // 비회원이라면 팝업 열기
+    setShowModal(true);
+  };
+
+  const onSubmit = () => {};
 
   return (
-    <section className="bg-background dark:bg-[#111827] min-h-[80vh] flex items-center border-t-4 border-primary">
+    <section className="bg-[#f7f9fa] dark:bg-[#111827] min-h-[80vh] mt-10 flex items-center">
+      {/* 팝업 모달 */}
+      <LoginPromptModal show={showModal} onClose={() => setShowModal(false)} />
+
       <div className="py-20 px-6 mx-auto max-w-3xl w-full">
         {/* 헤딩 */}
         <h2 className="mb-10 text-3xl font-black text-center tracking-tight">
@@ -63,7 +75,7 @@ export default function Summarize() {
 
         {/* 입력 폼 */}
         <form action="#">
-          <div className="group relative rounded-xl bg-primary transition-all duration-300 hover:bg-gradient-to-r hover:from-accent-blue hover:via-accent-indigo hover:to-accent-sky animate-gradient-x p-[2px]">
+          <div className="group relative rounded-xl bg-gray-300 transition-all duration-300 hover:bg-gradient-to-r hover:from-accent-blue hover:via-accent-indigo hover:to-accent-sky animate-gradient-x p-[2px]">
             <div className="bg-gray-soft dark:bg-gray-800 rounded-[10px]">
               <textarea
                 id="description"
@@ -71,26 +83,22 @@ export default function Summarize() {
                 rows={16}
                 required
                 placeholder="예: 유튜브 자막, 블로그 글, 뉴스 기사 등..."
-                className="w-full h-full p-6 text-base font-mono rounded-[10px] bg-transparent text-primary placeholder-gray-500 border-none outline-none focus:outline-none
-        focus:ring-0 focus-visible:outline-none
-        dark:text-white dark:placeholder-gray-400"
+                className="w-full h-full p-6 text-base font-mono rounded-[10px] 
+    bg-white dark:bg-gray-100
+    text-black dark:text-gray-900 
+    placeholder-gray-500 dark:placeholder-gray-600
+    border-none outline-none focus:outline-none focus:ring-0"
               />
             </div>
           </div>
 
           {/* 제출 버튼 */}
           <div className="flex justify-center mt-10">
-            <button
+            <GradientButton
+              label={"✨ 요약 시작하기"}
               type="submit"
-              className="relative inline-block px-8 py-4 text-lg font-bold text-white bg-primary rounded-xl overflow-hidden group transition-all duration-300 border-2 border-transparent"
-            >
-              <span className="relative z-10">✨ 요약 시작하기</span>
-              <span
-                className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
-               bg-[length:300%_300%] bg-gradient-to-r from-accent-blue via-accent-indigo to-accent-sky
-               animate-gradient-smooth"
-              />
-            </button>
+              onClick={handleStartSummary}
+            />
           </div>
         </form>
       </div>

@@ -37,5 +37,8 @@
       "question": "Vous n’avez pas encore de compte ?",
       "link": "Inscrivez-vous ici"
     }
+  },
+  "loading": {
+    "message": "Veuillez patienter un instant..."
   }
 }

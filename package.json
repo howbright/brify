@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.0",
     "flowbite-react": "^0.10.2",
+    "lucide-react": "^0.484.0",
     "next": "15.2.3",
     "next-intl": "^4.0.2",
     "react": "^19.0.0",

@@ -1,5 +1,6 @@
 'use client';
 
+import LoginForm from '@/components/LoginForm';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -159,63 +160,7 @@ export default function Login() {
               </div>
 
               {/* 로그인 폼 */}
-              <form className="space-y-5" action="#">
-                <div>
-                  <label htmlFor="email" className="block mb-1 text-sm font-medium">
-                    {t('email.label')}
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    placeholder={t('email.placeholder')}
-                    className="w-full border border-gray-900 rounded-lg p-2.5 bg-white dark:bg-black dark:border-white/20 focus:outline-none focus:ring-1 focus:ring-black"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="password" className="block mb-1 text-sm font-medium">
-                    {t('password.label')}
-                  </label>
-                  <input
-                    type="password"
-                    id="password"
-                    placeholder={t('password.placeholder')}
-                    className="w-full border border-gray-900 rounded-lg p-2.5 bg-white dark:bg-black dark:border-white/20 focus:outline-none focus:ring-1 focus:ring-black"
-                    required
-                  />
-                </div>
-
-                <div className="flex justify-between text-sm">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      className="w-4 h-4 border border-gray-900 dark:border-white/20"
-                      required
-                    />
-                    {t('remember')}
-                  </label>
-                  <Link href="#" className="hover:underline">
-                    {t('forgot')}
-                  </Link>
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full bg-primary text-white border border-gray-900 rounded-lg py-2.5 text-sm font-bold uppercase hover:bg-white hover:text-black transition-colors"
-                >
-                  {t('submit')}
-                </button>
-
-                <p className="text-sm text-center text-gray-600 dark:text-gray-400">
-                  {t('signup.question')}{' '}
-                  <Link
-                    href="/signup"
-                    className="font-semibold hover:underline text-black dark:text-white"
-                  >
-                    {t('signup.link')}
-                  </Link>
-                </p>
-              </form>
+              <LoginForm />
             </div>
           </div>
         </div>

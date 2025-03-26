@@ -37,5 +37,8 @@
       "question": "¿Aún no tienes una cuenta?",
       "link": "Regístrate aquí"
     }
+  },
+  "loading": {
+    "message": "Por favor, espere un momento..."
   }
 }
