@@ -21,6 +21,7 @@
     "title": "Bon retour",
     "google": "Se connecter avec Google",
     "github": "Se connecter avec Github",
+    "fr": "Se connecter avec Apple",
     "or": "ou",
     "email": {
       "label": "Email",
@@ -40,5 +41,29 @@
   },
   "loading": {
     "message": "Veuillez patienter un instant..."
+  },
+  "signup": {
+    "title": "S'inscrire",
+    "google": "S'inscrire avec Google",
+    "apple": "S'inscrire avec Apple",
+    "or": "ou",
+    "name": {
+      "label": "Nom",
+      "placeholder": "Jean Dupont"
+    },
+    "email": {
+      "label": "E-mail",
+      "placeholder": "example@email.com"
+    },
+    "password": {
+      "label": "Mot de passe",
+      "placeholder": "Entrez votre mot de passe"
+    },
+    "submit": "S'inscrire",
+    "login": {
+      "question": "Vous avez déjà un compte ?",
+      "link": "Se connecter"
+    }
   }
+  
 }

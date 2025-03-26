@@ -21,6 +21,7 @@
     "title": "欢迎回来",
     "google": "使用 Google 登录",
     "github": "使用 Github 登录",
+    "zh-CN": "使用 Apple 登录",
     "or": "或",
     "email": {
       "label": "电子邮箱",
@@ -38,7 +39,30 @@
       "link": "点击这里注册"
     }
   },
-    "loading": {
-      "message": "请稍等..."
+  "loading": {
+    "message": "请稍等..."
+  },
+  "signup": {
+    "title": "注册",
+    "google": "使用 Google 注册",
+    "apple": "使用 Apple 注册",
+    "or": "或",
+    "name": {
+      "label": "姓名",
+      "placeholder": "张伟"
+    },
+    "email": {
+      "label": "电子邮件",
+      "placeholder": "example@email.com"
+    },
+    "password": {
+      "label": "密码",
+      "placeholder": "请输入密码"
+    },
+    "submit": "注册",
+    "login": {
+      "question": "已有账号？",
+      "link": "登录"
     }
+  }
 }

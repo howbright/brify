@@ -21,6 +21,7 @@
     "title": "Bienvenido de nuevo",
     "google": "Iniciar sesión con Google",
     "github": "Iniciar sesión con Github",
+    "es": "Iniciar sesión con Apple",
     "or": "o",
     "email": {
       "label": "Correo electrónico",
@@ -40,5 +41,29 @@
   },
   "loading": {
     "message": "Por favor, espere un momento..."
+  },
+  "signup": {
+    "title": "Registrarse",
+    "google": "Registrarse con Google",
+    "apple": "Registrarse con Apple",
+    "or": "o",
+    "name": {
+      "label": "Nombre",
+      "placeholder": "Juan Pérez"
+    },
+    "email": {
+      "label": "Correo electrónico",
+      "placeholder": "example@email.com"
+    },
+    "password": {
+      "label": "Contraseña",
+      "placeholder": "Ingresa tu contraseña"
+    },
+    "submit": "Registrarse",
+    "login": {
+      "question": "¿Ya tienes una cuenta?",
+      "link": "Iniciar sesión"
+    }
   }
+  
 }

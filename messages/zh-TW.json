@@ -21,6 +21,7 @@
     "title": "歡迎回來",
     "google": "使用 Google 登入",
     "github": "使用 Github 登入",
+    "zh-TW": "使用 Apple 登入",
     "or": "或",
     "email": {
       "label": "電子郵件",
@@ -40,5 +41,28 @@
   },
   "loading": {
     "message": "請稍候..."
+  },
+  "signup": {
+    "title": "註冊",
+    "google": "使用 Google 註冊",
+    "apple": "使用 Apple 註冊",
+    "or": "或是",
+    "name": {
+      "label": "姓名",
+      "placeholder": "張偉"
+    },
+    "email": {
+      "label": "電子郵件",
+      "placeholder": "example@email.com"
+    },
+    "password": {
+      "label": "密碼",
+      "placeholder": "請輸入密碼"
+    },
+    "submit": "註冊",
+    "login": {
+      "question": "已有帳號？",
+      "link": "登入"
+    }
   }
 }

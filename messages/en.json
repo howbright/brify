@@ -18,8 +18,9 @@
   },
   "login": {
     "title": "Welcome back",
-    "google": "Log in with Google",
-    "github": "Log in with Github",
+    "google": "Sign in with Google",
+    "github": "Sign in with Github",
+    "en": "Sign in with Apple",
     "or": "or",
     "email": {
       "label": "Email",
@@ -39,5 +40,29 @@
   },
   "loading": {
     "message": "Please wait a moment..."
+  },
+  "signup": {
+    "title": "Sign Up",
+    "google": "Sign up with Google",
+    "apple": "Sign up with Apple",
+    "or": "or",
+    "name": {
+      "label": "Name",
+      "placeholder": "John Doe"
+    },
+    "email": {
+      "label": "Email",
+      "placeholder": "example@email.com"
+    },
+    "password": {
+      "label": "Password",
+      "placeholder": "Enter your password"
+    },
+    "submit": "Sign Up",
+    "login": {
+      "question": "Already have an account?",
+      "link": "Log in"
+    }
   }
+  
 }

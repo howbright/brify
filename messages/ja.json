@@ -21,6 +21,7 @@
     "title": "おかえりなさい",
     "google": "Googleでログイン",
     "github": "Githubでログイン",
+    "ja": "Appleでログイン",
     "or": "または",
     "email": {
       "label": "メールアドレス",
@@ -40,5 +41,29 @@
   },
   "loading": {
     "message": "しばらくお待ちください..."
+  },
+  "signup" : {
+    "title": "サインアップ",
+    "google": "Googleアカウントで登録",
+    "apple": "Appleアカウントで登録",
+    "or": "または",
+    "name": {
+      "label": "名前",
+      "placeholder": "山田太郎"
+    },
+    "email": {
+      "label": "メールアドレス",
+      "placeholder": "example@email.com"
+    },
+    "password": {
+      "label": "パスワード",
+      "placeholder": "パスワードを入力してください"
+    },
+    "submit": "サインアップ",
+    "login": {
+      "question": "すでにアカウントをお持ちですか？",
+      "link": "ログイン"
+    }
   }
+  
 }

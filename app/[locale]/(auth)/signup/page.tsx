@@ -1,13 +1,10 @@
-'use client';
+"use client";
 
-import LoginForm from '@/components/LoginForm';
-import { Link } from '@/i18n/navigation';
-import { useTranslations } from 'next-intl';
-import Image from 'next/image';
+import SignupForm from "@/components/SignupForm";
+import { Link } from "@/i18n/navigation";
+import Image from "next/image";
 
-export default function Login() {
-  const t = useTranslations('login');
-
+export default function Signup() {
   return (
     <section className="relative pt-2 bg-[#f4f7f8] text-[#1f1f1f] dark:bg-[#111827] dark:text-white py-28 px-4 overflow-visible">
       {/* 🎨 배경 SVGs */}
@@ -46,7 +43,10 @@ export default function Login() {
       <div className="max-w-screen-xl px-4 py-8 mx-auto sm:py-16 lg:py-24 pt-20 sm:pt-24 lg:pt-32">
         <div className="lg:grid lg:gap-20 lg:items-center lg:grid-cols-12">
           <div className="hidden col-span-6 mr-auto lg:block">
-            <Link href="/" className="inline-flex items-center mb-10 text-3xl font-black uppercase tracking-tight">
+            <Link
+              href="/"
+              className="inline-flex items-center mb-10 text-3xl font-black uppercase tracking-tight"
+            >
               <Image
                 src="/images/logo.svg"
                 className="mr-3 h-12"
@@ -59,19 +59,19 @@ export default function Login() {
             <div className="space-y-8">
               {[
                 {
-                  title: 'Get started quickly',
+                  title: "Get started quickly",
                   description:
-                    'Integrate with developer-friendly APIs or choose pre-built solutions.',
+                    "Integrate with developer-friendly APIs or choose pre-built solutions.",
                 },
                 {
-                  title: 'Support any business model',
+                  title: "Support any business model",
                   description:
-                    'Host code that you don’t want to share with the world in private.',
+                    "Host code that you don’t want to share with the world in private.",
                 },
                 {
-                  title: 'Join millions of businesses',
+                  title: "Join millions of businesses",
                   description:
-                    'Flowbite is trusted by ambitious startups and enterprises of every size.',
+                    "Flowbite is trusted by ambitious startups and enterprises of every size.",
                 },
               ].map((item, idx) => (
                 <div key={idx} className="flex items-start">
@@ -86,8 +86,7 @@ export default function Login() {
               ))}
             </div>
           </div>
-
-         <LoginForm/>
+          <SignupForm />
         </div>
       </div>
     </section>
