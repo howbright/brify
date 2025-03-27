@@ -3,7 +3,8 @@
     "title1": "긴 글, 긴 영상도",
     "title2": "Brify가 요점만 딱!",
     "description1": "블로그, 뉴스, 논문, 유튜브까지 —",
-    "description2": "Brify가 AI로 대신 읽고 요약해드립니다.",
+   "description2": "중요한 내용만 <ai>AI</ai>가 보기 좋게 정리해드립니다.",
+   "description3": "<text>텍스트</text>뿐 아니라 <diagram>다이어그램</diagram>으로도 쉽게 시각화해드립니다.",
     "benefits": {
       "time": "시간 절약",
       "knowledge": "지식 완성",

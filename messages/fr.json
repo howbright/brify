@@ -3,7 +3,8 @@
     "title1": "Articles ou vidéos longs ?",
     "title2": "Brify résume l'essentiel !",
     "description1": "Blogs, actualités, recherches, YouTube —",
-    "description2": "Brify lit et résume pour vous avec l’IA.",
+    "description2": "<ai>L'IA</ai> résume clairement uniquement l’essentiel.",
+  "description3": "Non seulement le <text>texte</text>, mais aussi les <diagram>diagrammes</diagram> sont visualisés facilement.",
     "benefits": {
       "time": "Gagnez du temps",
       "knowledge": "Acquérez du savoir",

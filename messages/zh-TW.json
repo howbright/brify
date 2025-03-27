@@ -3,7 +3,8 @@
     "title1": "長文章、長影片？",
     "title2": "Brify 幫你掌握重點！",
     "description1": "部落格、新聞、論文、YouTube 全部支援 —",
-    "description2": "Brify 使用 AI 幫你閱讀與摘要。",
+    "description2": "<ai>AI</ai>只整理最重要的內容，清晰呈現。",
+    "description3": "不只是<text>文字</text>，也會透過<diagram>圖表</diagram>清楚視覺化。",
     "benefits": {
       "time": "節省時間",
       "knowledge": "獲取知識",

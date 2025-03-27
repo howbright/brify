@@ -3,7 +3,8 @@
     "title1": "Long articles, long videos?",
     "title2": "Brify gets straight to the point!",
     "description1": "Blogs, news, papers, even YouTube —",
-    "description2": "Brify reads and summarizes for you with AI.",
+     "description2": "<ai>AI</ai> neatly summarizes only what matters most.",
+  "description3": "Not just <text>text</text>, but also <diagram>diagrams</diagram> are visualized clearly.",
     "benefits": {
       "time": "Save time",
       "knowledge": "Gain knowledge",

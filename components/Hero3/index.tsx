@@ -56,18 +56,26 @@ export default function Hero3() {
 
         <p className="text-lg md:text-xl leading-loose max-w-3xl text-[#444] dark:text-gray-300">
           {t("description1")}
-          <br />
-          <span className="font-semibold text-black dark:text-white">
-            중요한 내용만{" "}
-            <span className="text-[#0ea5e9] font-semibold">AI</span>가 보기 좋게
-            정리해드립니다.
-          </span>
-          <br />
-          <span className="font-semibold text-black dark:text-white">
-            <span className="text-[#3b82f6]">텍스트</span>뿐 아니라&nbsp;
-            <span className="text-[#6366f1]">다이어그램</span>으로도 쉽게
-            시각화해드립니다.
-          </span>
+        <br />
+        <span className="text-lg md:text-xl leading-loose max-w-3xl text-[#444] dark:text-gray-300">
+          {t.rich("description2", {
+            ai: (chunks) => (
+              <span className="text-[#0ea5e9] font-semibold">{chunks}</span>
+            ),
+          })}
+        </span>
+        <br/>
+        <span className="text-lg md:text-xl leading-loose max-w-3xl text-[#444] dark:text-gray-300">
+          {t.rich("description3", {
+            text: (chunks) => (
+              <span className="text-[#3b82f6] font-semibold">{chunks}</span>
+            ),
+            diagram: (chunks) => (
+              <span className="text-[#6366f1] font-semibold">{chunks}</span>
+            ),
+            br: () => <br />,
+          })}
+        </span>
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mt-4">
