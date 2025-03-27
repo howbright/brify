@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 import GradientButton from "../ui/GradientButton";
 
 export default function Hero3() {
-  const t = useTranslations('hero'); // 💬 'hero' namespace 사용
+  const t = useTranslations("hero"); // 💬 'hero' namespace 사용
 
   return (
     <section className="relative pt-44 font-global bg-[#f4f7f8] text-[#1f1f1f] dark:bg-[#111827] dark:text-white py-28 px-4 overflow-visible">
@@ -47,29 +47,31 @@ export default function Hero3() {
       {/* 🧠 콘텐츠 */}
       <div className="relative z-10 max-w-5xl mx-auto text-center flex flex-col items-center gap-10">
         <h1 className="text-5xl md:text-6xl font-extrabold leading-tight tracking-tight">
-          {t('title1')}
+          {t("title1")}
           <br />
           <span className="bg-gradient-to-r leading-normal from-[#0ea5e9] via-[#3b82f6] to-[#6366f1] bg-clip-text text-transparent">
-            {t('title2')}
+            {t("title2")}
           </span>
         </h1>
 
-        <p className="text-lg md:text-xl leading-relaxed max-w-3xl text-[#444] dark:text-gray-300">
-          {t('description1')}
+        <p className="text-lg md:text-xl leading-loose max-w-3xl text-[#444] dark:text-gray-300">
+          {t("description1")}
           <br />
-          <span className="font-semibold">
-            {t('description2')}
+          <span className="font-semibold text-black dark:text-white">
+            중요한 내용만{" "}
+            <span className="text-[#0ea5e9] font-semibold">AI</span>가 보기 좋게
+            정리해드립니다.
           </span>
           <br />
-          <span className="mt-4 inline-block">
-            ⏱ <strong className="text-[#0ea5e9]">{t('benefits.time')}</strong>, 📚{" "}
-            <strong className="text-[#3b82f6]">{t('benefits.knowledge')}</strong>, 🎯{" "}
-            <strong className="text-[#6366f1]">{t('benefits.accuracy')}</strong>
+          <span className="font-semibold text-black dark:text-white">
+            <span className="text-[#3b82f6]">텍스트</span>뿐 아니라&nbsp;
+            <span className="text-[#6366f1]">다이어그램</span>으로도 쉽게
+            시각화해드립니다.
           </span>
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mt-4">
-          <GradientButton label={t('button_summarize')}/>
+          <GradientButton label={t("button_summarize")} />
           {/* <Link
             href="/summarize"
             className="px-8 py-4 text-lg font-semibold rounded-xl bg-[#1f1f1f] text-white transition
