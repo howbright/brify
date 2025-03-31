@@ -76,7 +76,7 @@ export default function SummaryResult({ viewType, text, tree }: Props) {
                   style={{ width: 100, height: 70 }}
                   className="!top-2 !right-2 !w-[100px] !h-[70px] !opacity-80"
                 />
-                <Controls />
+               <Controls position="top-left" />
                 <Background />
               </ReactFlow>
             </ReactFlowProvider>
