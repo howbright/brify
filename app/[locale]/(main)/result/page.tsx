@@ -6,7 +6,10 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import SummaryResult from "@/components/SummaryResult";
 import { TreeNode } from "@/app/types/tree";
-import { summarizeAndGenerateTree, summarizeTextOnly } from "@/app/lib/gtp/summarize";
+import {
+  summarizeAndGenerateTree,
+  summarizeTextOnly,
+} from "@/app/lib/gtp/summarize";
 
 export default function ResultPage() {
   const [mounted, setMounted] = useState(false);
@@ -40,10 +43,12 @@ export default function ResultPage() {
   if (!mounted) return null;
 
   if (loading) {
-    return <p className="p-10 text-center">요약 중입니다... ⏳</p>;
+    return <p className="p-40 text-center">요약 중입니다... ⏳</p>;
   }
 
   return (
-    <SummaryResult viewType={viewType} text={text} tree={tree ?? undefined} />
+    <section className="bg-gradient-to-br from-[#fdf6e3] via-[#f5f2ff] to-[#e7f0fd]">
+      <SummaryResult viewType={viewType} text={text} tree={tree ?? undefined} />
+    </section>
   );
 }
