@@ -3,17 +3,11 @@
 "use client";
 
 import { TreeNode } from "@/app/types/tree";
-import React, { useEffect, useState } from "react";
-import ReactFlow, {
-  ReactFlowProvider,
-  Background,
-  Controls,
-  MiniMap,
-  Node,
-  Edge,
-} from "reactflow";
-import "reactflow/dist/style.css";
+import React, { useEffect, useRef, useState } from "react";
+import DiagramView from "./DiagramView";
 import { treeToFlowElements } from "@/app/lib/gtp/transformTree";
+import { Node, Edge } from "reactflow";
+import { Icon } from "@iconify/react";
 
 interface Props {
   viewType: "text" | "diagram" | "both";
@@ -22,10 +16,17 @@ interface Props {
 }
 
 export default function SummaryResult({ viewType, text, tree }: Props) {
-  const [nodes, setNodes] = useState<Node[]>([]);
-  const [edges, setEdges] = useState<Edge[]>([]);
   const [comments, setComments] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
+
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+
+  const commentRef = useRef<HTMLDivElement>(null);
+
+  const scrollToComment = () => {
+    commentRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
     if (!tree) return;
@@ -43,7 +44,7 @@ export default function SummaryResult({ viewType, text, tree }: Props) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto pt-32 px-4">
+    <div className="max-w-6xl mx-auto py-20 px-4 min-h-screen">
       <h2 className="text-2xl font-bold mb-6">요약 결과</h2>
 
       {viewType === "text" && text && (
@@ -53,15 +54,7 @@ export default function SummaryResult({ viewType, text, tree }: Props) {
       )}
 
       {viewType === "diagram" && tree && (
-        <div className="h-[600px] border rounded">
-          <ReactFlowProvider>
-            <ReactFlow nodes={nodes} edges={edges} fitView>
-              <MiniMap />
-              <Controls />
-              <Background />
-            </ReactFlow>
-          </ReactFlowProvider>
-        </div>
+        <DiagramView nodes={nodes} edges={edges} />
       )}
 
       {viewType === "both" && text && tree && (
@@ -69,30 +62,17 @@ export default function SummaryResult({ viewType, text, tree }: Props) {
           <div className="bg-white p-6 rounded-lg shadow border text-gray-800 whitespace-pre-wrap">
             {text}
           </div>
-          <div className="h-[800px] border rounded bg-white">
-            <ReactFlowProvider>
-              <ReactFlow nodes={nodes} edges={edges} fitView>
-                <MiniMap
-                  style={{ width: 100, height: 70 }}
-                  className="!top-2 !right-2 !w-[100px] !h-[70px] !opacity-80"
-                />
-               <Controls position="top-left" />
-                <Background />
-              </ReactFlow>
-            </ReactFlowProvider>
-          </div>
+          <DiagramView nodes={nodes} edges={edges} />
         </div>
       )}
 
       {/* 💬 전체 코멘트 */}
-      <div className="mt-10">
-        <h3 className="text-lg font-semibold mb-4">💬 전체 코멘트</h3>
+      <div ref={commentRef} className="mt-5">
+        {/* <h3 className="text-lg font-semibold mb-4">💬 전체 코멘트</h3>
 
         {comments.length === 0 && (
-          <p className="text-sm text-gray-500 mb-4">
-            아직 작성된 코멘트가 없습니다.
-          </p>
-        )}
+          <p className="text-sm text-gray-500 mb-4">아직 작성된 코멘트가 없습니다.</p>
+        )} */}
 
         <ul className="space-y-2 mb-6">
           {comments.map((comment, index) => (
@@ -128,6 +108,14 @@ export default function SummaryResult({ viewType, text, tree }: Props) {
           </button>
         </form>
       </div>
+      {/* 👇 스크롤 다운 버튼 */}
+      <button
+        onClick={scrollToComment}
+        className="fixed bottom-6 right-6 bg-black text-white rounded-full p-3 shadow-lg hover:bg-gray-800 transition"
+        aria-label="댓글로 이동"
+      >
+        <Icon icon="mdi:chevron-down" className="w-6 h-6" />
+      </button>
     </div>
   );
 }
