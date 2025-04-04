@@ -16,3 +16,7 @@ export interface TreeNode {
     target: string;
   }
   
+  // types.ts
+export type MyNodeData = {
+  label: string;
+};

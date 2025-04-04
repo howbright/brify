@@ -6,6 +6,7 @@ import React from "react";
 import { classicStyle, brutalistStyle, cuteStyle } from "@/styles/presets";
 
 interface DiagramStyleSelectorProps {
+  open: boolean;
   onSelect: (style: any) => void;
   onClose: () => void;
 }
@@ -13,7 +14,7 @@ interface DiagramStyleSelectorProps {
 const styleOptions = [
   {
     id: "classic",
-    label: "클래식",
+    label: "클래시크",
     style: classicStyle,
   },
   {
@@ -23,12 +24,14 @@ const styleOptions = [
   },
   {
     id: "cute",
-    label: "귀엽게",
+    label: "귀여운 스타일",
     style: cuteStyle,
   },
 ];
 
-export default function DiagramStyleSelector({ onSelect, onClose }: DiagramStyleSelectorProps) {
+export default function DiagramStyleSelector({ open, onSelect, onClose }: DiagramStyleSelectorProps) {
+  if (!open) return null;
+
   return (
     <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
       <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-xl max-w-lg w-full">

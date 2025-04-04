@@ -4,7 +4,7 @@
 
 import { TreeNode } from "@/app/types/tree";
 import React, { useEffect, useRef, useState } from "react";
-import DiagramView from "./DiagramView";
+import DiagramView from "./diagram/DiagramView";
 import { treeToFlowElements } from "@/app/lib/gtp/transformTree";
 import { Node, Edge } from "reactflow";
 import { Icon } from "@iconify/react";
