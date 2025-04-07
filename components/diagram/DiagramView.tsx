@@ -42,9 +42,9 @@ export default function DiagramView({ nodes, edges }: DiagramViewProps) {
   const styledNodes = useMemo(() => {
     return (nodes || []).map((node) => ({
       ...node,
-      type: "custom",
+      style: stylePreset.node,
     }));
-  }, [nodes]);
+  }, [nodes,stylePreset]);
 
   // const styledEdges = useMemo(() => {
   //   return (edges || []).map((edge) => ({
@@ -60,7 +60,6 @@ export default function DiagramView({ nodes, edges }: DiagramViewProps) {
         <ReactFlow
           nodes={styledNodes}
           edges={edges}
-          nodeTypes={nodeTypes}
           fitView
           panOnScroll
           panOnDrag

@@ -2,12 +2,12 @@
 
 "use client";
 
-import { TreeNode } from "@/app/types/tree";
+import { MyNodeData, TreeNode } from "@/app/types/tree";
 import React, { useEffect, useRef, useState } from "react";
 import DiagramView from "./diagram/DiagramView";
 import { treeToFlowElements } from "@/app/lib/gtp/transformTree";
-import { Node, Edge } from "reactflow";
 import { Icon } from "@iconify/react";
+import { Node, Edge } from "@xyflow/react";
 
 interface Props {
   viewType: "text" | "diagram" | "both";
@@ -19,7 +19,7 @@ export default function SummaryResult({ viewType, text, tree }: Props) {
   const [comments, setComments] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
 
-  const [nodes, setNodes] = useState<Node[]>([]);
+  const [nodes, setNodes] = useState<Node<MyNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
   const commentRef = useRef<HTMLDivElement>(null);

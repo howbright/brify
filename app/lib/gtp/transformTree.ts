@@ -19,7 +19,7 @@ export async function treeToFlowElements(
       id: node.id,
       data: { label: node.label },
       position: { x: 0, y: 0 },
-      type: "custom",
+      type: "default",
     });
 
     if (parentId) {

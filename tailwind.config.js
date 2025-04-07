@@ -2,7 +2,8 @@ const flowbite = require("flowbite-react/tailwind");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
+    darkMode: ["class"],
+    content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -11,29 +12,82 @@ module.exports = {
     require('flowbite/plugin')
   ],
   theme: {
-    extend: {
-      colors: {
-        background: '#fefefe',
-        'gray-soft': '#f4f7f8',
-        text: '#1f1f1f',
-        primary: '#3b82f6',
-        'primary-hover': '#333333',
-        'accent-blue': '#3b82f6',
-        'accent-sky': '#0ea5e9',
-        'accent-indigo': '#6366f1',
-        'neon': '#4cf0ff'
-      },
-    },
-    fontFamily: {
-      global: [
-        'Noto Sans',
-        'Noto Sans KR',
-        'Noto Sans JP',
-        'Noto Sans SC',
-        'Noto Sans TC',
-        'sans-serif',
-      ],
-    },
+  	extend: {
+  		colors: {
+  			background: 'hsl(var(--background))',
+  			'gray-soft': '#f4f7f8',
+  			text: '#1f1f1f',
+  			primary: {
+				50: '#eff6ff',
+				100: '#dbeafe',
+				200: '#bfdbfe',
+				300: '#93c5fd',
+				400: '#60a5fa',
+				500: '#3b82f6', // 기본 primary 색상
+				600: '#2563eb',
+				700: '#1d4ed8',
+				800: '#1e40af',
+				900: '#1e3a8a',
+  				DEFAULT: 'hsl(var(--primary))',
+  				foreground: 'hsl(var(--primary-foreground))'
+  			},
+  			'primary-hover': '#333333',
+  			'accent-blue': '#3b82f6',
+  			'accent-sky': '#0ea5e9',
+  			'accent-indigo': '#6366f1',
+  			neon: '#4cf0ff',
+  			foreground: 'hsl(var(--foreground))',
+  			card: {
+  				DEFAULT: 'hsl(var(--card))',
+  				foreground: 'hsl(var(--card-foreground))'
+  			},
+  			popover: {
+  				DEFAULT: 'hsl(var(--popover))',
+  				foreground: 'hsl(var(--popover-foreground))'
+  			},
+  			secondary: {
+  				DEFAULT: 'hsl(var(--secondary))',
+  				foreground: 'hsl(var(--secondary-foreground))'
+  			},
+  			muted: {
+  				DEFAULT: 'hsl(var(--muted))',
+  				foreground: 'hsl(var(--muted-foreground))'
+  			},
+  			accent: {
+  				DEFAULT: 'hsl(var(--accent))',
+  				foreground: 'hsl(var(--accent-foreground))'
+  			},
+  			destructive: {
+  				DEFAULT: 'hsl(var(--destructive))',
+  				foreground: 'hsl(var(--destructive-foreground))'
+  			},
+  			border: 'hsl(var(--border))',
+  			input: 'hsl(var(--input))',
+  			ring: 'hsl(var(--ring))',
+  			chart: {
+  				'1': 'hsl(var(--chart-1))',
+  				'2': 'hsl(var(--chart-2))',
+  				'3': 'hsl(var(--chart-3))',
+  				'4': 'hsl(var(--chart-4))',
+  				'5': 'hsl(var(--chart-5))'
+  			}
+  		},
+  		borderRadius: {
+  			lg: 'var(--radius)',
+  			md: 'calc(var(--radius) - 2px)',
+  			sm: 'calc(var(--radius) - 4px)'
+  		}
+  	},
+  	fontFamily: {
+  		global: [
+  			'Noto Sans',
+  			'Noto Sans KR',
+  			'Noto Sans JP',
+  			'Noto Sans SC',
+  			'Noto Sans TC',
+  			'sans-serif'
+  		]
+  	}
   },
-  plugins: [flowbite.plugin()],
+  plugins: [flowbite.plugin(), require("tailwindcss-animate")],
 };
