@@ -1,16 +1,16 @@
 {
   "hero": {
     "title1": "¿Textos o videos largos?",
-    "title2": "¡Brify va directo al grano!",
+    "title2": "¡Brify captura lo esencial!",
     "description1": "Blogs, noticias, artículos, incluso YouTube —",
-     "description2": "<ai>La IA</ai> resume claramente solo lo más importante.",
-  "description3": "No solo <text>texto</text>, también <diagram>diagramas</diagram> visuales fáciles de entender.",
+    "description2": "<ai>La IA</ai> destila claramente solo lo más relevante.",
+    "description3": "No solo <text>texto</text>, también <diagram>diagramas</diagram> visuales fáciles de entender.",
     "benefits": {
       "time": "Ahorra tiempo",
-      "knowledge": "Obtén conocimiento",
-      "accuracy": "Toma decisiones precisas"
+      "knowledge": "Obtén conocimiento valioso",
+      "accuracy": "Toma decisiones inteligentes"
     },
-    "button_summarize": "✨ Comenzar resumen",
+    "button_summarize": "✨ Extraer ideas clave",
     "button_guide": "🎥 Ver guía de uso"
   },
 
@@ -66,5 +66,4 @@
       "link": "Iniciar sesión"
     }
   }
-  
 }

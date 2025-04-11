@@ -1,16 +1,16 @@
 {
   "hero": {
     "title1": "长文章、长视频？",
-    "title2": "Brify帮你提炼重点！",
-    "description1": "博客、新闻、论文、YouTube 都支持 —",
-    "description2": "<ai>AI</ai>只提取重要内容并清晰整理。",
-    "description3": "不仅是<text>文本</text>，还会通过<diagram>图表</diagram>清晰可视化。",
+    "title2": "Brify帮你提炼关键信息！",
+    "description1": "博客、新闻、论文，甚至 YouTube —",
+    "description2": "<ai>AI</ai>精准提取重点内容，清晰整理呈现。",
+    "description3": "不仅整理<text>文本</text>，也通过<diagram>图表</diagram>直观可视化。",
     "benefits": {
       "time": "节省时间",
-      "knowledge": "获取知识",
-      "accuracy": "精准决策"
+      "knowledge": "获取洞见",
+      "accuracy": "做出明智决策"
     },
-    "button_summarize": "✨ 开始整理重点",
+    "button_summarize": "✨ 开始提炼重点",
     "button_guide": "🎥 查看使用指南"
   },
 
@@ -36,7 +36,7 @@
     "forgot": "忘记密码？",
     "submit": "通过邮箱接收登录链接",
     "signup": {
-      "question": "还没有账户？",
+      "question": "还没有账号？",
       "link": "点击这里注册"
     }
   },

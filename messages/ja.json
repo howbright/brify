@@ -1,17 +1,16 @@
 {
   "hero": {
-    "title1": "長い記事も動画も",
-    "title2": "Brifyが要点をスパッと！",
+    "title1": "長い記事や動画も、",
+    "title2": "Brifyが本質をとらえる！",
     "description1": "ブログ、ニュース、論文、YouTubeまで —",
-    "description2": "BrifyがAIで読み取って要約します。",
-    "description2": "重要な内容だけを<ai>AI</ai>がわかりやすく整理します。",
-  "description3": "<text>テキスト</text>だけでなく、<diagram>図解</diagram>としてもわかりやすく可視化します。",
+    "description2": "<ai>AI</ai>が本当に大切なポイントだけを、わかりやすく整理します。",
+    "description3": "<text>テキスト</text>だけでなく、<diagram>図解</diagram>としても直感的に可視化されます。",
     "benefits": {
-      "time": "時間節約",
-      "knowledge": "知識獲得",
-      "accuracy": "正確な選択"
+      "time": "時間を節約",
+      "knowledge": "知識を深める",
+      "accuracy": "より良い判断を"
     },
-    "button_summarize": "✨ 要点の整理を始める",
+    "button_summarize": "✨ 要点を抽出する",
     "button_guide": "🎥 使い方ガイドを見る"
   },
 
@@ -44,13 +43,13 @@
   "loading": {
     "message": "しばらくお待ちください..."
   },
-  "signup" : {
-    "title": "サインアップ",
+  "signup": {
+    "title": "新規登録",
     "google": "Googleアカウントで登録",
     "apple": "Appleアカウントで登録",
     "or": "または",
     "name": {
-      "label": "名前",
+      "label": "お名前",
       "placeholder": "山田太郎"
     },
     "email": {
@@ -61,11 +60,10 @@
       "label": "パスワード",
       "placeholder": "パスワードを入力してください"
     },
-    "submit": "メールでサインアップリンクを受け取る",
+    "submit": "メールで登録リンクを受け取る",
     "login": {
       "question": "すでにアカウントをお持ちですか？",
       "link": "ログイン"
     }
   }
-  
 }

@@ -1,16 +1,16 @@
 {
   "hero": {
     "title1": "Long articles, long videos?",
-    "title2": "Brify gets straight to the point!",
+    "title2": "Brify captures the essence!",
     "description1": "Blogs, news, papers, even YouTube —",
-     "description2": "<ai>AI</ai> neatly summarizes only what matters most.",
-  "description3": "Not just <text>text</text>, but also <diagram>diagrams</diagram> are visualized clearly.",
+    "description2": "<ai>AI</ai> distills only what truly matters.",
+    "description3": "Not just <text>text</text>, but also <diagram>diagrams</diagram> are clearly visualized.",
     "benefits": {
       "time": "Save time",
-      "knowledge": "Gain knowledge",
+      "knowledge": "Gain insights",
       "accuracy": "Make smarter choices"
     },
-    "button_summarize": "✨ Start summarizing",
+    "button_summarize": "✨ Start distilling insights",
     "button_guide": "🎥 View usage guide"
   },
   "HomePage": {
@@ -62,8 +62,7 @@
     "submit": "Get sign-up link by email",
     "login": {
       "question": "Already have an account?",
-      "link": "Sing in"
+      "link": "Sign in"
     }
   }
-  
 }

@@ -1,16 +1,16 @@
 {
   "hero": {
     "title1": "長文章、長影片？",
-    "title2": "Brify 幫你掌握重點！",
-    "description1": "部落格、新聞、論文、YouTube 全部支援 —",
-    "description2": "<ai>AI</ai>只整理最重要的內容，清晰呈現。",
-    "description3": "不只是<text>文字</text>，也會透過<diagram>圖表</diagram>清楚視覺化。",
+    "title2": "Brify 幫你萃取關鍵資訊！",
+    "description1": "部落格、新聞、論文，甚至 YouTube — 全部支援",
+    "description2": "<ai>AI</ai>智慧提煉最重要的內容，清楚整理呈現。",
+    "description3": "不僅整理<text>文字</text>，也透過<diagram>圖表</diagram>直觀視覺化。",
     "benefits": {
       "time": "節省時間",
-      "knowledge": "獲取知識",
-      "accuracy": "精確選擇"
+      "knowledge": "獲得洞察",
+      "accuracy": "做出明智選擇"
     },
-    "button_summarize": "✨ 開始整理重點",
+    "button_summarize": "✨ 開始萃取重點",
     "button_guide": "🎥 查看使用教學"
   },
 
