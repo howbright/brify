@@ -64,5 +64,16 @@
       "question": "Already have an account?",
       "link": "Sign in"
     }
+  },
+  "slides": {
+    "slide1": "A special way to connect with your child",
+    "slide2": "How to invest in the age of AI",
+    "slide3": "The truth about salt",
+    "slide4": "How I overcame cancer",
+    "slide5": "What’s next for real estate prices?"
+  },
+  "carouselIntro": {
+    "title": "Too many videos you’re interested in, but no time to watch?",
+    "description": "All you need is a YouTube link. Brify analyzes the full video script and delivers only the essential insights — so you can understand long videos quickly."
   }
 }

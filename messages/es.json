@@ -65,5 +65,16 @@
       "question": "¿Ya tienes una cuenta?",
       "link": "Iniciar sesión"
     }
+  },
+  "slides": {
+    "slide1": "Una forma especial de comunicarte con tu hijo",
+    "slide2": "Cómo invertir en la era de la IA",
+    "slide3": "La verdad sobre la sal",
+    "slide4": "Cómo superé el cáncer",
+    "slide5": "¿Qué pasará con los precios de los bienes raíces?"
+  },
+  "carouselIntro": {
+    "title": "¿Demasiados videos interesantes y poco tiempo para verlos?",
+    "description": "Solo necesitas un enlace de YouTube. Brify analiza todo el guion del video y te ofrece solo lo esencial. Comprende videos largos en poco tiempo."
   }
 }

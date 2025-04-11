@@ -65,5 +65,16 @@
       "question": "已有帳號？",
       "link": "登入"
     }
+  },
+  "slides": {
+    "slide1": "與孩子溝通的特別方式",
+    "slide2": "AI時代的投資該怎麼做？",
+    "slide3": "告訴你鹽的真相",
+    "slide4": "我如何戰勝了癌症",
+    "slide5": "房價會如何變化？"
+  },
+  "carouselIntro": {
+    "title": "有興趣的影片太多，卻沒時間觀看嗎？",
+    "description": "只需提供 YouTube 連結，Brify 就能分析完整影片內容，幫你快速掌握重點，節省寶貴時間。"
   }
 }

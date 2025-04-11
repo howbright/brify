@@ -1,6 +1,7 @@
 "use client";
 
 import LanguageSelector from "@/components/LanguageSelector";
+import { useSession } from "@/components/SessionProvider";
 import {
   Menubar,
   MenubarContent,
@@ -20,15 +21,7 @@ import { useEffect, useState } from "react";
 export default function Header() {
   const router = useRouter();
   const supabase = createClient();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      setIsLoggedIn(!!data.session); // 세션 있으면 로그인 상태
-    };
-    checkAuth();
-  }, [supabase]);
+  const { session, isLoading } = useSession();
   return (
     <header>
       <nav
@@ -49,7 +42,7 @@ export default function Header() {
           <div className="flex items-center lg:order-2">
             <LanguageSelector />
            
-            {!isLoggedIn && (
+            {!session && (
               <>
                 {/* 로그인 버튼 */}
                 <Link
@@ -69,7 +62,7 @@ export default function Header() {
               </>
             )}
 
-            {isLoggedIn && (
+            {session && (
               <button
                 onClick={async () => {
                   await supabase.auth.signOut();

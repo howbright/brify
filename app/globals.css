@@ -188,3 +188,42 @@ a {
 
 
 
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    120deg,
+    #3b82f6 0%,
+    #60a5fa 40%,
+    #93c5fd 60%,
+    #3b82f6 100%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: shimmer 2.5s infinite linear;
+}
+
+
+@keyframes pulse-glow {
+  0%, 100% {
+    text-shadow: 0 0 0px transparent;
+    transform: scale(1);
+  }
+  50% {
+    text-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+    transform: scale(1.04);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2.5s ease-in-out infinite;
+}
