@@ -9,7 +9,7 @@ export default function Hero3() {
   const t = useTranslations("hero"); // 💬 'hero' namespace 사용
 
   return (
-    <section className="relative pt-44 font-global bg-[#f4f7f8] text-[#1f1f1f] dark:bg-[#111827] dark:text-white py-28 px-4 overflow-visible">
+    <section className="relative pt-20 font-global bg-[#f4f7f8] text-[#1f1f1f] dark:bg-[#111827] dark:text-white py-28 px-4 overflow-visible">
       {/* 🎨 배경 SVGs */}
       <Image
         src="/images/hero1.svg"
@@ -43,6 +43,8 @@ export default function Hero3() {
         width={100}
         height={100}
       />
+
+   
 
       {/* 🧠 콘텐츠 */}
       <div className="relative z-10 max-w-5xl mx-auto text-center flex flex-col items-center gap-10">
@@ -95,6 +97,14 @@ export default function Hero3() {
             {t('button_guide')}
           </Link> */}
         </div>
+        <Image
+        src="/images/hero-main2.png"
+        alt=""
+        className="pointer-events-none"
+        aria-hidden="true"
+        width={1000}
+        height={1000}
+      />
       </div>
     </section>
   );

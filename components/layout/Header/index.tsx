@@ -88,9 +88,9 @@ export default function Header() {
                 <MenubarContent>
                   <MenubarItem  onClick={() => router.push('/')}>홈</MenubarItem>
                   <MenubarSeparator />
-                  <MenubarItem onClick={() => router.push('/summarize')}>요약하기</MenubarItem>
+                  <MenubarItem onClick={() => router.push('/summarize')}>핵심정리하기</MenubarItem>
                   <MenubarSeparator />
-                  <MenubarItem onClick={() => router.push('/')}>나의 요약</MenubarItem>
+                  <MenubarItem onClick={() => router.push('/')}>나의 핵심정리</MenubarItem>
                   <MenubarSeparator />
                   <MenubarItem onClick={() => router.push('/')}>태그</MenubarItem>
                 </MenubarContent>
@@ -113,7 +113,7 @@ export default function Header() {
                   href="/summarize"
                   className="block py-2 pr-4 pl-3 text-gray-900 border-b border-gray-100 hover:bg-gray-100 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary lg:p-0 dark:text-white lg:dark:hover:text-primary dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
                 >
-                  요약하기
+                  핵심정리하기
                 </Link>
               </li>
               <li>
@@ -121,7 +121,7 @@ export default function Header() {
                   href="/"
                   className="block py-2 pr-4 pl-3 text-gray-900 border-b border-gray-100 hover:bg-gray-100 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary lg:p-0 dark:text-white lg:dark:hover:text-primary dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
                 >
-                  나의요약
+                  나의핵심정리
                 </Link>
               </li>
               <li>

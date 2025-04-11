@@ -43,7 +43,7 @@ export default function ResultPage() {
   if (!mounted) return null;
 
   if (loading) {
-    return <p className="p-40 text-center">요약 중입니다... ⏳</p>;
+    return <p className="p-40 text-center">핵심정리 중입니다... ⏳</p>;
   }
 
   return (

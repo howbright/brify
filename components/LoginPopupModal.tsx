@@ -69,12 +69,12 @@ export default function LoginPromptModal({ show, onClose }: { show: boolean; onC
             </Link>
 
             <h2 className="text-3xl font-extrabold mb-6 leading-tight">
-              Brify는 단순한 요약기가 아닙니다.
+              Brify는 단순한 핵심정리기가 아닙니다.
             </h2>
 
             <ul className="space-y-4 text-gray-700 dark:text-gray-300 text-base">
               <li>💡 당신의 시간과 집중을 아껴주는 AI 비서</li>
-              <li>⏱ 긴 글을 10초 안에 요약</li>
+              <li>⏱ 긴 글을 10초 안에 핵심정리</li>
               <li>📺 뉴스, 블로그, 논문, 유튜브까지 지원</li>
               <li>🎯 더 빠르게 이해하고, 더 똑똑하게 선택</li>
             </ul>

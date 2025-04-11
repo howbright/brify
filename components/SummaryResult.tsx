@@ -45,7 +45,7 @@ export default function SummaryResult({ viewType, text, tree }: Props) {
 
   return (
     <div className="max-w-6xl mx-auto py-20 px-4 min-h-screen">
-      <h2 className="text-2xl font-bold mb-6">요약 결과</h2>
+      <h2 className="text-2xl font-bold mb-6">핵심정리 결과</h2>
 
       {viewType === "text" && text && (
         <div className="whitespace-pre-wrap bg-white p-6 rounded-lg shadow mb-10 border text-gray-800">

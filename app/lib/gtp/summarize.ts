@@ -1,7 +1,7 @@
 export async function summarizeTextOnly(userText: string): Promise<string> {
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(`🎓 서준석 원장님 인터뷰 요약
+      resolve(`🎓 서준석 원장님 인터뷰 핵심정리
 
 🔹 1. 공부는 쉽지 않았다
 공부가 늘 고통스럽고 힘들었다. 하기 싫지만 어쩔 수 없이 해야 했음.
@@ -74,7 +74,7 @@ export async function summarizeTextOnly(userText: string): Promise<string> {
 }
 
 export async function summarizeTextOnly2(userText: string): Promise<string> {
-  const prompt = `다음 글을 간결하게 요약해줘:\n\n${userText}`;
+  const prompt = `다음 글을 간결하게 핵심정리해줘:\n\n${userText}`;
 
   const res = await fetch("/api/summarize", {
     method: "POST",
@@ -107,7 +107,7 @@ export const summarizeAndGenerateTree = async (userText: string): Promise<any> =
       setTimeout(() => {
         resolve({
           id: "root",
-          label: "서준석 원장님 인터뷰 요약",
+          label: "서준석 원장님 인터뷰 핵심정리",
           children: [
             {
               id: "1",
@@ -190,12 +190,12 @@ export const summarizeAndGenerateTree = async (userText: string): Promise<any> =
 
 export async function summarizeAndGenerateTree2(userText: string): Promise<any> {
   const systemPrompt = `
-  너는 긴 글을 읽고 핵심 내용을 트리 형태로 정리하는 요약 도우미야.
-  아래와 같은 JSON 구조로 요약해줘:
+  너는 긴 글을 읽고 핵심 내용을 트리 형태로 정리하는 핵심정리 도우미야.
+  아래와 같은 JSON 구조로 핵심정리해줘:
   
   {
     "id": "root",
-    "label": "요약 제목",
+    "label": "핵심정리 제목",
     "children": [
       {
         "id": "1",

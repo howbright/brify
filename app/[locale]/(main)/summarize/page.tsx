@@ -26,7 +26,7 @@ export default function Summarize() {
 
   const handleSubmitOptions = async ({ source, viewType }: { source: string; viewType: "text" | "diagram" | "both" }) => {
     const userText = textareaRef.current?.value;
-    if (!userText) return alert("요약할 글을 입력해주세요.");
+    if (!userText) return alert("핵심정리할 글을 입력해주세요.");
 
     console.log("출처:", source);
     console.log("보기 방식:", viewType);
@@ -34,17 +34,17 @@ export default function Summarize() {
     try {
       if (viewType === "text") {
         const result = await summarizeTextOnly(userText);
-        console.log("요약 결과:", result);
+        console.log("핵심정리 결과:", result);
       } else if (viewType === "diagram") {
         const tree = await summarizeAndGenerateTree(userText);
         console.log("다이어그램 트리:", tree);
       } else {
         const { text, tree } = await summarizeBoth(userText);
-        console.log("요약:", text);
+        console.log("핵심정리:", text);
         console.log("트리:", tree);
       }
     } catch (e) {
-      alert("요약 중 오류가 발생했습니다.");
+      alert("핵심정리 중 오류가 발생했습니다.");
     }
   };
 
@@ -56,7 +56,7 @@ export default function Summarize() {
 
       <div className="py-20 px-6 mx-auto max-w-3xl w-full">
         <h2 className="mb-10 text-3xl font-black text-center tracking-tight">
-          요약하고 싶은 긴 글을 아래에 붙여넣어주세요
+          핵심정리하고 싶은 긴 글을 아래에 붙여넣어주세요
         </h2>
         <YouTubeTranscript/>
         {showGuide && (
@@ -109,7 +109,7 @@ export default function Summarize() {
 
           <div className="flex justify-center mt-10">
             <GradientButton
-              label={"✨ 요약 시작하기"}
+              label={"✨ 핵심정리 시작하기"}
               type="button"
               onClick={() => setShowOptions(true)}
             />

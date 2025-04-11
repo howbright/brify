@@ -23,7 +23,7 @@ export default function SummarizeOptionsDialog({ open, onClose, onSubmit }: Summ
     const textarea = document.querySelector("textarea#description") as HTMLTextAreaElement;
     const userText = textarea?.value;
     if (!userText || userText.trim() === "") {
-      alert("요약할 글을 입력해주세요.");
+      alert("핵심정리할 글을 입력해주세요.");
       return;
     }
 
@@ -42,7 +42,7 @@ export default function SummarizeOptionsDialog({ open, onClose, onSubmit }: Summ
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">요약 옵션 선택</h2>
+        <h2 className="text-xl font-bold mb-4">핵심정리 옵션 선택</h2>
 
         <label className="block mb-3">
           <span className="text-sm font-medium">출처 (선택)</span>
@@ -56,7 +56,7 @@ export default function SummarizeOptionsDialog({ open, onClose, onSubmit }: Summ
         </label>
 
         <div className="mb-4">
-          <p className="text-sm font-medium mb-2">요약 결과 보기 방식</p>
+          <p className="text-sm font-medium mb-2">핵심정리 결과 보기 방식</p>
           <div className="flex flex-col gap-2">
             <label className="inline-flex items-center">
               <input
@@ -66,7 +66,7 @@ export default function SummarizeOptionsDialog({ open, onClose, onSubmit }: Summ
                 checked={viewType === "text"}
                 onChange={() => setViewType("text")}
               />
-              <span className="ml-2">📝 요약 글</span>
+              <span className="ml-2">📝 핵심정리 글</span>
             </label>
             <label className="inline-flex items-center">
               <input
@@ -103,7 +103,7 @@ export default function SummarizeOptionsDialog({ open, onClose, onSubmit }: Summ
             onClick={handleSubmit}
             disabled={loading}
           >
-            {loading ? "요약 중..." : "요약 요청"}
+            {loading ? "핵심정리 중..." : "핵심정리 요청"}
           </button>
         </div>
       </div>

@@ -10,7 +10,7 @@ export default function PricingSection() {
           </h2>
           <p className="mb-2 text-lg font-semibold text-primary-600 dark:text-primary-400">플랜을 선택하세요</p>
           <p className="mb-5 font-normal text-gray-500 sm:text-xl dark:text-gray-400">
-            한 번의 클릭으로 요약부터 다이어그램까지 <br />
+            한 번의 클릭으로 핵심정리부터 다이어그램까지 <br />
             중요한 정보만 선명하게 남겨보세요.
           </p>
         </div>
@@ -26,9 +26,9 @@ export default function PricingSection() {
                   무료로 시작해보세요
                 </p>
                 <ul className="mb-6 space-y-3 text-left">
-                  <FeatureItem text="월 5회 요약" />
+                  <FeatureItem text="월 5회 핵심정리" />
                   <FeatureItem text="자동 다이어그램 생성" />
-                  <FeatureItem text="최근 3개 요약 저장" />
+                  <FeatureItem text="최근 3개 핵심정리 저장" />
                   <FeatureItem text="AI기반 자동 키워드 추출" />
                   <FeatureItem text="다이어그램 편집 가능" disabled />
                   <FeatureItem text="PDF 내보내기 가능" disabled />
@@ -69,9 +69,9 @@ export default function PricingSection() {
               {/* 3. 기능 리스트 */}
               <div>
                 <ul className="mb-6 space-y-3 text-left">
-                  <FeatureItem text="무제한 요약" />
+                  <FeatureItem text="무제한 핵심정리" />
                   <FeatureItem text="자동 다이어그램 생성" />
-                  <FeatureItem text="요약 무제한 저장" />
+                  <FeatureItem text="핵심정리 무제한 저장" />
                   <FeatureItem text="AI기반 자동 키워드 추출" />
                   <FeatureItem text="다이어그램 편집 가능" />
                   <FeatureItem text="PDF 내보내기 가능" />
