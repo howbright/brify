@@ -6,6 +6,7 @@ import GradientButton from "@/components/ui/GradientButton";
 import LoginPromptModal from "@/components/LoginPopupModal";
 import { summarizeAndGenerateTree, summarizeBoth, summarizeTextOnly } from "@/app/lib/gtp/summarize";
 import SummarizeOptionsDialog from "@/components/SummarizeOptionsDialog";
+import YouTubeTranscript from "@/components/YoutubeTranscript";
 // import SummarizeOptionsDialog from "@/components/SummarizeOptionsDialog";
 // import { summarizeTextOnly, summarizeAndGenerateTree, summarizeBoth } from "@/lib/gpt/summarize";
 
@@ -49,6 +50,7 @@ export default function Summarize() {
 
   return (
     <section className="bg-[#f7f9fa] dark:bg-[#111827] min-h-[80vh] mt-10 flex items-center">
+      
       <LoginPromptModal show={showModal} onClose={() => setShowModal(false)} />
       <SummarizeOptionsDialog open={showOptions} onClose={() => setShowOptions(false)} onSubmit={handleSubmitOptions} />
 
@@ -56,17 +58,7 @@ export default function Summarize() {
         <h2 className="mb-10 text-3xl font-black text-center tracking-tight">
           요약하고 싶은 긴 글을 아래에 붙여넣어주세요
         </h2>
-
-        <div className="text-right mb-4">
-          <button
-            type="button"
-            onClick={() => setShowGuide(!showGuide)}
-            className="text-sm font-medium underline underline-offset-2 text-accent-blue hover:text-primary transition"
-          >
-            유튜브 자막 복사 방법이 궁금하신가요?
-          </button>
-        </div>
-
+        <YouTubeTranscript/>
         {showGuide && (
           <div className="relative mb-8 p-4 border-2 border-primary rounded-lg bg-white dark:bg-gray-900 text-sm leading-relaxed">
             <button

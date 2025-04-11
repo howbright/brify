@@ -10,13 +10,25 @@ import {
   MenubarTrigger
 } from "@/components/ui/menubar";
 import { Link } from "@/i18n/navigation";
+import { createClient } from "@/utils/supabase/client";
 import { Icon } from "@iconify/react";
 import "flowbite";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Header() {
   const router = useRouter();
+  const supabase = createClient();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      setIsLoggedIn(!!data.session); // 세션 있으면 로그인 상태
+    };
+    checkAuth();
+  }, [supabase]);
   return (
     <header>
       <nav
@@ -36,21 +48,38 @@ export default function Header() {
           </Link>
           <div className="flex items-center lg:order-2">
             <LanguageSelector />
-            {/* 로그인 버튼 */}
-            <Link
-              href="/login"
-              className="text-gray-700 dark:text-white hover:text-primary border border-gray-300 dark:border-gray-600 hover:border-primary focus:ring-primary font-medium rounded-lg text-sm px-4 py-2 mr-2"
-            >
-              로그인
-            </Link>
+           
+            {!isLoggedIn && (
+              <>
+                {/* 로그인 버튼 */}
+                <Link
+                  href="/login"
+                  className="text-gray-700 dark:text-white hover:text-primary border border-gray-300 dark:border-gray-600 hover:border-primary font-medium rounded-lg text-sm px-4 py-2 mr-2"
+                >
+                  로그인
+                </Link>
 
-            {/* 회원가입 버튼 */}
-            <Link
-              href="/register"
-              className="text-white bg-primary hover:bg-primary-dark focus:ring-primary font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary dark:hover:bg-primary-dark focus:outline-none dark:focus:ring-primary"
-            >
-              회원가입
-            </Link>
+                {/* 회원가입 버튼 */}
+                <Link
+                  href="/signin"
+                  className="text-white bg-primary hover:bg-primary-dark focus:ring-primary font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary dark:hover:bg-primary-dark focus:outline-none dark:focus:ring-primary"
+                >
+                  회원가입
+                </Link>
+              </>
+            )}
+
+            {isLoggedIn && (
+              <button
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  router.refresh(); // 페이지 리렌더
+                }}
+                className="text-gray-700 dark:text-white hover:text-red-500 border border-gray-300 dark:border-gray-600 hover:border-red-500 font-medium rounded-lg text-sm px-4 py-2 mr-2"
+              >
+                로그아웃
+              </button>
+            )}
             <Menubar className="lg:hidden ml-2">
               <MenubarMenu>
                 <MenubarTrigger className="p-0">
