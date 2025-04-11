@@ -1,22 +1,23 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
-import ReactFlow, {
-  Background,
-  Controls,
-  ReactFlowProvider,
-  MiniMap,
-  useNodesState,
-  useEdgesState,
-  addEdge,
-  Node,
-  Edge,
-} from "reactflow";
-import "reactflow/dist/style.css";
+import { useCallback, useState } from "react";
+import '@xyflow/react/dist/style.css';
 
 import ELK from "elkjs/lib/elk.bundled.js";
 
-import { classicStyle, brutalistStyle, cuteStyle } from "../styles/presets";
+import {
+  addEdge,
+  Background,
+  Controls,
+  Edge,
+  MiniMap,
+  Node,
+  ReactFlow,
+  ReactFlowProvider,
+  useEdgesState,
+  useNodesState,
+} from "@xyflow/react";
+import { brutalistStyle, classicStyle, cuteStyle } from "../styles/presets";
 
 const elk = new ELK();
 

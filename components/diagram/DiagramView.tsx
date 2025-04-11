@@ -1,16 +1,17 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import DiagramStyleSelector from "../DiagramStyleSelector";
-import { classicStyle } from "@/styles/presets";
-import StyledNode from "./StyledNode";
-import {
-  Node as FlowNode,
-  Edge as FlowEdge,
-} from "@xyflow/react";
-import { Background, Controls, MiniMap, Panel, ReactFlow, ReactFlowProvider } from "@xyflow/react";
 import { MyNodeData } from "@/app/types/tree";
+import { classicStyle } from "@/styles/presets";
+import {
+  Background, Controls,
+  Edge as FlowEdge,
+  Node as FlowNode,
+  MiniMap, Panel, ReactFlow, ReactFlowProvider,
+} from "@xyflow/react";
 import '@xyflow/react/dist/style.css';
+import { useMemo, useState } from "react";
+import DiagramStyleSelector from "../DiagramStyleSelector";
+import StyledNode from "./StyledNode";
 
 interface DiagramViewProps {
   nodes: FlowNode<MyNodeData>[];
@@ -23,13 +24,13 @@ export default function DiagramView({ nodes, edges }: DiagramViewProps) {
   const [stylePreset, setStylePreset] = useState(classicStyle);
   const [stylePickerOpen, setStylePickerOpen] = useState(false);
 
-  const nodeTypes = useMemo(() => {
-    return {
-      custom: (props: any) => (
-        <StyledNode {...props} stylePreset={stylePreset} />
-      ),
-    };
-  }, [stylePreset]);
+  // const nodeTypes = useMemo(() => {
+  //   return {
+  //     custom: (props: any) => (
+  //       <StyledNode {...props} stylePreset={stylePreset} />
+  //     ),
+  //   };
+  // }, [stylePreset]);
 
   // const edgeTypes = useMemo(() => {
   //   return {
