@@ -227,3 +227,7 @@ a {
 .pulse-glow {
   animation: pulse-glow 2.5s ease-in-out infinite;
 }
+
+.prose h2 {
+  font-weight: 700;
+}
