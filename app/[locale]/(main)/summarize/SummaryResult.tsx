@@ -1,20 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Edge, Node as FlowNode } from "@xyflow/react";
 import { MyNodeData } from "@/app/types/tree";
 import DiagramView from "@/components/diagram/DiagramView";
 
-interface Props {
-  text: string;
-  diagram?: {
-    nodes: FlowNode<MyNodeData>[];
-    edges: Edge[];
-  };
+// 트리 → ReactFlow 변환 유틸
+function buildReactFlowFromTree(tree: any): {
+  nodes: FlowNode<MyNodeData>[];
+  edges: Edge[];
+} {
+  const nodes: FlowNode<MyNodeData>[] = [];
+  const edges: Edge[] = [];
+
+  function traverse(node: any, parentId?: string, depth = 0, index = 0) {
+    nodes.push({
+      id: node.id,
+      position: { x: depth * 300, y: index * 100 },
+      data: { label: node.label },
+    });
+
+    if (parentId) {
+      edges.push({
+        id: `${parentId}-${node.id}`,
+        source: parentId,
+        target: node.id,
+      });
+    }
+
+    node.children?.forEach((child: any, idx: number) =>
+      traverse(child, node.id, depth + 1, idx)
+    );
+  }
+
+  traverse(tree);
+
+  return { nodes, edges };
 }
 
-export default function SummaryResult({ text, diagram }: Props) {
+interface Props {
+  text: string;
+  tree?: any;
+}
+
+export default function SummaryResult({ text, tree }: Props) {
   const [tab, setTab] = useState<"text" | "diagram">("text");
+
+  const { nodes, edges } = useMemo(() => {
+    if (!tree) return { nodes: [], edges: [] };
+    return buildReactFlowFromTree(tree);
+  }, [tree]);
 
   return (
     <div className="mt-10 space-y-4">
@@ -42,15 +77,15 @@ export default function SummaryResult({ text, diagram }: Props) {
         </button>
       </div>
 
-      {/* 콘텐츠 뷰 */}
+      {/* 콘텐츠 */}
       {tab === "text" ? (
         <div className="bg-white dark:bg-black border border-gray-300 dark:border-white/20 rounded-lg p-6 text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line">
           {text || "요약 결과가 여기에 표시됩니다."}
         </div>
       ) : (
         <div>
-          {diagram ? (
-            <DiagramView nodes={diagram.nodes} edges={diagram.edges} />
+          {nodes.length > 0 ? (
+            <DiagramView nodes={nodes} edges={edges} />
           ) : (
             <p className="text-center text-gray-500 dark:text-gray-400">
               다이어그램 요약 결과가 없습니다.

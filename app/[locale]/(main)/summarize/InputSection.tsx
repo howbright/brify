@@ -1,9 +1,7 @@
-"use client";
-
 import { useState } from "react";
-import { Icon } from "@iconify/react";
-import clsx from "clsx";
 import { SourceType } from "./SourceTabs";
+import clsx from "clsx";
+import { Icon } from "@iconify/react";
 
 interface Props {
   type: SourceType;
@@ -49,7 +47,7 @@ export default function InputSection({
     (isFileMode && !fileInput);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6 w-full max-w-3xl mx-auto text-center">
       {/* 입력 필드 */}
       {isTextMode && (
         <input
@@ -61,17 +59,19 @@ export default function InputSection({
           }
           value={textInput}
           onChange={(e) => setTextInput(e.target.value)}
-          className="w-full border border-gray-300 dark:border-white/20 p-2.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary bg-white dark:bg-black"
+          className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg focus:outline-none focus:ring-primary bg-white dark:bg-black"
         />
       )}
 
       {isFileMode && (
-        <input
-          type="file"
-          accept={type === "file" ? ".pdf,.docx,.hwp,.jpg,.png" : "audio/*"}
-          onChange={(e) => setFileInput(e.target.files?.[0] ?? null)}
-          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-primary file:text-white hover:file:bg-primary-dark"
-        />
+        <div className="flex justify-center">
+          <input
+            type="file"
+            accept={type === "file" ? ".pdf,.docx,.hwp,.jpg,.png" : "audio/*"}
+            onChange={(e) => setFileInput(e.target.files?.[0] ?? null)}
+            className="block text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-primary file:text-white hover:file:bg-primary-dark transition"
+          />
+        </div>
       )}
 
       {type === "manual" && (
@@ -80,21 +80,38 @@ export default function InputSection({
           placeholder="직접 입력하거나 붙여넣기 해주세요"
           value={textInput}
           onChange={(e) => setTextInput(e.target.value)}
-          className="w-full border border-gray-300 dark:border-white/20 p-2.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary bg-white dark:bg-black"
+          className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-black"
         />
       )}
 
-      {/* 제출 버튼 */}
-      <button
-        disabled={canSubmit}
-        onClick={handleSubmit}
-        className={clsx(
-          "px-6 py-3 font-semibold rounded-lg text-white bg-primary hover:bg-primary-dark transition",
-          (canSubmit || isLoading) && "opacity-50 cursor-not-allowed"
-        )}
-      >
-        {isLoading ? "추출 중..." : "✅ 원문 추출하기"}
-      </button>
+      {/* 제출 버튼 - 중앙 정렬 */}
+      <div className="flex justify-center">
+        <button
+          disabled={canSubmit}
+          onClick={handleSubmit}
+          className={clsx(
+            "group flex items-center justify-center gap-2 px-6 py-3 font-semibold rounded-lg text-white bg-primary transition-all duration-200",
+            "hover:bg-primary-dark hover:shadow-md",
+            (canSubmit || isLoading) && "opacity-50 cursor-not-allowed"
+          )}
+        >
+          {isLoading ? (
+            <>
+              <Icon icon="lucide:loader" className="animate-spin" width={18} />
+              추출 중...
+            </>
+          ) : (
+            <>
+              <span>원문 추출하기</span>
+              <Icon
+                icon="lucide:arrow-right"
+                width={18}
+                className="transition-transform group-hover:translate-x-1"
+              />
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 }
