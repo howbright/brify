@@ -11,6 +11,8 @@ import { summarizeBoth } from "@/app/lib/gtp/summarize";
 import SummaryActions from "./SummaryActions";
 import SummaryActionsWrapper from "./SummaryActionWrapper";
 import SummaryActionsFloating from "./SummaryActionsFloating";
+import { getTagsFromText } from "@/app/lib/gtp/getTagsFromText";
+import EditableTags from "./EditableTags";
 
 // 애니메이션 설정
 const fadeInUp = {
@@ -24,6 +26,7 @@ export default function SummarizePage() {
   const [textSummary, setTextSummary] = useState("");
   const [treeSummary, setTreeSummary] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [tags, setTags] = useState<string[]>([]);
 
   const handleSummarize = async () => {
     if (!rawText) return;
@@ -32,6 +35,8 @@ export default function SummarizePage() {
       const { text, tree } = await summarizeBoth(rawText);
       setTextSummary(text);
       setTreeSummary(tree);
+      const extractedTags = await getTagsFromText(text); // ✅ 태그 추출
+      setTags(extractedTags); // ✅ 상태 업데이트
     } catch (e) {
       console.error("요약 중 오류 발생:", e);
     } finally {
@@ -95,16 +100,26 @@ export default function SummarizePage() {
       {textSummary && treeSummary && (
         <>
           <motion.section
-            className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md"
+            className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md flex flex-col items-center"
             variants={fadeInUp}
             initial="initial"
             animate="animate"
           >
+            <div className="mb-10">
+              <EditableTags tags={tags} onChange={setTags} />
+            </div>
+
+            {/* 섹션 제목 */}
             <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-white mb-4 text-center">
               이제 요약 결과를 나만의 정리 스타일로 완성해보세요.
             </h3>
 
-            <SummaryResult text={textSummary} tree={treeSummary} />
+            {/* 요약 콘텐츠 */}
+            <div className="w-full">
+              <SummaryResult text={textSummary} tree={treeSummary} />
+            </div>
+
+            {/* 툴바 */}
             <SummaryActionsFloating
               mode="text"
               text={textSummary}
@@ -114,7 +129,7 @@ export default function SummarizePage() {
               onExportPDF={() => console.log("PDF 저장")}
               onAskGPT={() => console.log("GPT 질문")}
               onCopy={(t) => navigator.clipboard.writeText(t)}
-              targetId="textView" // 요약 텍스트 뷰의 ID
+              targetId="textView"
             />
           </motion.section>
         </>
