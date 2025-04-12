@@ -80,8 +80,8 @@ export default function SummaryResult({ text, tree }: Props) {
 
       {/* 콘텐츠 */}
       {tab === "text" ? (
-        <div className="bg-white dark:bg-black border border-gray-300 dark:border-white/20 rounded-lg p-6 text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line">
-        <ReactMarkdown >
+        <div id="textView" className="bg-white dark:bg-black border border-gray-300 dark:border-white/20 rounded-lg p-6 text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line">
+        <ReactMarkdown  >
           {text || "요약 결과가 여기에 표시됩니다."}
         </ReactMarkdown>
         </div>

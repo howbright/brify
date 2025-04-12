@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
 
-interface Props {
+export interface SummaryActionsProps {
   mode: "text" | "diagram";
   text: string; // ✅ text prop 추가
   onHighlight?: () => void;
@@ -24,7 +24,7 @@ export default function SummaryActions({
   onHighlight,
   onCopy,
   text
-}: Props) {
+}: SummaryActionsProps) {
   const [open, setOpen] = useState(false);
 
   return (

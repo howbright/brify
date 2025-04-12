@@ -9,6 +9,8 @@ import SummarizeButton from "./SummarizeButton";
 import SummaryResult from "./SummaryResult";
 import { summarizeBoth } from "@/app/lib/gtp/summarize";
 import SummaryActions from "./SummaryActions";
+import SummaryActionsWrapper from "./SummaryActionWrapper";
+import SummaryActionsFloating from "./SummaryActionsFloating";
 
 // 애니메이션 설정
 const fadeInUp = {
@@ -91,39 +93,31 @@ export default function SummarizePage() {
 
       {/* Section 3: 요약 결과 */}
       {textSummary && treeSummary && (
-        <motion.section
-          className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md"
-          variants={fadeInUp}
-          initial="initial"
-          animate="animate"
-        >
-          <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-white mb-4 text-center">
-            이제 요약 결과를 나만의 정리 스타일로 완성해보세요.
-          </h3>
+        <>
+          <motion.section
+            className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md"
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+          >
+            <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-white mb-4 text-center">
+              이제 요약 결과를 나만의 정리 스타일로 완성해보세요.
+            </h3>
 
-          <SummaryResult text={textSummary} tree={treeSummary} />
-        </motion.section>
-      )}
-      {textSummary && treeSummary && (
-        <motion.div
-          className="fixed bottom-6 inset-x-4 sm:inset-x-8 z-50"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/10 rounded-xl shadow-xl px-4 py-3 flex flex-wrap justify-center gap-3 overflow-x-auto">
-            <SummaryActions
+            <SummaryResult text={textSummary} tree={treeSummary} />
+            <SummaryActionsFloating
               mode="text"
               text={textSummary}
-              onHighlight={() => console.log("✨ 하이라이트!")}
-              onRegenerate={(level) => console.log("🔄 다시 요약:", level)}
-              onExplainTerms={() => console.log("📘 전문 용어 정리")}
-              onExportPDF={() => console.log("📄 PDF로 저장")}
-              onAskGPT={() => console.log("💬 GPT에게 질문")}
+              onHighlight={() => console.log("하이라이트")}
+              onRegenerate={(level) => console.log("다시 요약:", level)}
+              onExplainTerms={() => console.log("전문 용어 정리")}
+              onExportPDF={() => console.log("PDF 저장")}
+              onAskGPT={() => console.log("GPT 질문")}
               onCopy={(t) => navigator.clipboard.writeText(t)}
+              targetId="textView" // 요약 텍스트 뷰의 ID
             />
-          </div>
-        </motion.div>
+          </motion.section>
+        </>
       )}
     </div>
   );
