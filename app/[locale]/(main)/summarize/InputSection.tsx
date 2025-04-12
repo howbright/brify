@@ -80,7 +80,7 @@ export default function InputSection({
           placeholder="직접 입력하거나 붙여넣기 해주세요"
           value={textInput}
           onChange={(e) => setTextInput(e.target.value)}
-          className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-black"
+          className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg focus:outline-none focus:ring-primary bg-white dark:bg-black"
         />
       )}
 
