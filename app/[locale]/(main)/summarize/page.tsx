@@ -1,18 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import SourceTabs, { SourceType } from "./SourceTabs";
-import InputSection from "./InputSection";
-import ExtractedText from "./ExtractedText";
-import SummarizeButton from "./SummarizeButton";
-import SummaryResult from "./SummaryResult";
-import { summarizeBoth } from "@/app/lib/gtp/summarize";
-import SummaryActions from "./SummaryActions";
-import SummaryActionsWrapper from "./SummaryActionWrapper";
-import SummaryActionsFloating from "./SummaryActionsFloating";
 import { getTagsFromText } from "@/app/lib/gtp/getTagsFromText";
+import { summarizeBoth } from "@/app/lib/gtp/summarize";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
+import { motion } from "framer-motion";
+import { useState } from "react";
 import EditableTags from "./EditableTags";
+import ExtractedText from "./ExtractedText";
+import InputSection from "./InputSection";
+import SourceTabs, { SourceType } from "./SourceTabs";
+import SummarizeButton from "./SummarizeButton";
+import SummaryActionsFloating from "./SummaryActionsFloating";
+import SummaryResult from "./SummaryResult";
 
 // 애니메이션 설정
 const fadeInUp = {
@@ -45,6 +44,7 @@ export default function SummarizePage() {
   };
 
   return (
+    <TooltipProvider  delayDuration={150}>
     <div className="w-full max-w-7xl mx-auto px-6 py-12 space-y-12">
       {/* Section 1: 소스 선택 + 입력 */}
       <motion.section
@@ -135,5 +135,6 @@ export default function SummarizePage() {
         </>
       )}
     </div>
+    </TooltipProvider>
   );
 }

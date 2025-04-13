@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Dropdown } from 'flowbite-react';
+import { Icon } from '@iconify/react'; 
 
 const locales = [
     { code: 'en', label: 'English' },
@@ -34,7 +35,8 @@ export default function LanguageSelector() {
     <div className='hover:bg-gray-200 px-2 rounded-md mr-4 h-9 flex justify-center items-center'>
     <Dropdown
       label={
-        <span className="inline-flex text-sm items-center text-gray-800 dark:text-gray-300">
+        <span className="inline-flex items-center text-sm text-gray-800 dark:text-gray-300">
+         <Icon icon="ic:baseline-language" className="mr-1 text-lg" />
           {current?.label || currentLocale}
         </span>
       }

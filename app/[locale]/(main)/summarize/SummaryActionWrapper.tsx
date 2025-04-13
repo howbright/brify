@@ -10,7 +10,7 @@ export default function SummaryActionsWrapper({
   ...actions
 }: SummaryActionsProps) {
   const { ref, inView } = useInView({
-    threshold: 0.3, // 텍스트 요약 영역이 30% 보이면 inView = true
+    threshold: 0.1, // 텍스트 요약 영역이 30% 보이면 inView = true
     triggerOnce: false,
   });
 
