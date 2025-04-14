@@ -231,3 +231,7 @@ a {
 .prose h2 {
   font-weight: 700;
 }
+
+:focus-visible {
+  outline: none !important;
+}

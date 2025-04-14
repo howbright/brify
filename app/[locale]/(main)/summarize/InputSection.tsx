@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { SourceType } from "./SourceTabs";
 import clsx from "clsx";
@@ -21,35 +23,33 @@ export default function InputSection({
 
   const handleSubmit = async () => {
     setIsLoading(true);
-
     setTimeout(() => {
-      if (type === "youtube") {
-        onExtracted("🔗 유튜브 영상에서 추출한 스크립트입니다.");
-      } else if (type === "website") {
-        onExtracted("🌐 웹사이트에서 본문을 크롤링했습니다.");
-      } else if (type === "file") {
-        onExtracted("📄 문서에서 텍스트를 추출했습니다.");
-      } else if (type === "audio") {
-        onExtracted("🎧 오디오에서 텍스트를 추출했습니다.");
-      } else if (type === "manual") {
-        onExtracted(textInput);
+      switch (type) {
+        case "youtube":
+          onExtracted("🔗 유튜브 영상에서 추출한 스크립트입니다.");
+          break;
+        case "website":
+          onExtracted("🌐 웹사이트에서 본문을 크롤링했습니다.");
+          break;
+        case "file":
+          onExtracted("📄 문서에서 텍스트를 추출했습니다.");
+          break;
+        case "manual":
+          onExtracted(textInput);
+          break;
       }
       setIsLoading(false);
     }, 1000);
   };
 
-  const isTextMode = type === "youtube" || type === "website";
-  const isFileMode = type === "file" || type === "audio";
   const canSubmit =
     isLoading ||
-    (isTextMode && !textInput) ||
-    (type === "manual" && !textInput) ||
-    (isFileMode && !fileInput);
+    (["youtube", "website", "manual"].includes(type) && !textInput) ||
+    (type === "file" && !fileInput);
 
-  return (
-    <div className="space-y-6 w-full max-w-3xl mx-auto text-center">
-      {/* 입력 필드 */}
-      {isTextMode && (
+  const renderInputField = () => {
+    if (type === "youtube" || type === "website") {
+      return (
         <input
           type="text"
           placeholder={
@@ -61,20 +61,29 @@ export default function InputSection({
           onChange={(e) => setTextInput(e.target.value)}
           className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg focus:outline-none focus:ring-primary bg-white dark:bg-black"
         />
-      )}
+      );
+    }
 
-      {isFileMode && (
-        <div className="flex justify-center">
+    if (type === "file") {
+      return (
+        <div className="space-y-2 text-center">
           <input
             type="file"
-            accept={type === "file" ? ".pdf,.docx,.hwp,.jpg,.png" : "audio/*"}
+            accept=".pdf,.docx,.hwp,.txt,.jpg,.png"
             onChange={(e) => setFileInput(e.target.files?.[0] ?? null)}
-            className="block text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-primary file:text-white hover:file:bg-primary-dark transition"
+            className="block mx-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-primary file:text-white hover:file:bg-primary-dark transition"
           />
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            PDF, DOCX, TXT 파일을 지원합니다. <br />
+            이미지 파일(JPG, PNG)은 <strong>Pro 플랜에서만 OCR 기능</strong>을
+            통해 사용 가능합니다.
+          </p>
         </div>
-      )}
+      );
+    }
 
-      {type === "manual" && (
+    if (type === "manual") {
+      return (
         <textarea
           rows={6}
           placeholder="직접 입력하거나 붙여넣기 해주세요"
@@ -82,9 +91,16 @@ export default function InputSection({
           onChange={(e) => setTextInput(e.target.value)}
           className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg focus:outline-none focus:ring-primary bg-white dark:bg-black"
         />
-      )}
+      );
+    }
 
-      {/* 제출 버튼 - 중앙 정렬 */}
+    return null;
+  };
+
+  return (
+    <div className="space-y-6 w-full max-w-3xl mx-auto text-center">
+      {renderInputField()}
+
       <div className="flex justify-center">
         <button
           disabled={canSubmit}

@@ -3,7 +3,8 @@
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
 
-export type SourceType = "youtube" | "website" | "file" | "audio" | "manual";
+// 오디오 제외된 SourceType
+export type SourceType = "youtube" | "website" | "file" | "manual";
 
 interface Props {
   selected: SourceType;
@@ -14,7 +15,6 @@ const tabList: { type: SourceType; label: string; icon: string }[] = [
   { type: "youtube", label: "YouTube", icon: "mdi:youtube" },
   { type: "website", label: "웹사이트", icon: "mdi:web" },
   { type: "file", label: "문서", icon: "mdi:file-document" },
-  { type: "audio", label: "오디오", icon: "mdi:music" },
   { type: "manual", label: "직접입력", icon: "mdi:pencil" },
 ];
 
