@@ -6,6 +6,7 @@ import { Icon } from "@iconify/react";
 import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import clsx from "clsx";
 
 export default function SignupForm() {
   const t = useTranslations("signup");
@@ -15,6 +16,7 @@ export default function SignupForm() {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [agreePrivacy, setAgreePrivacy] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error">("success");
   const [step, setStep] = useState<"email" | "otp">("email");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -34,6 +36,7 @@ export default function SignupForm() {
 
     if (!agreeTerms || !agreePrivacy) {
       setMessage("필수 약관에 동의해야 가입할 수 있습니다.");
+      setMessageType("error");
       setIsSubmitting(false);
       return;
     }
@@ -45,11 +48,14 @@ export default function SignupForm() {
 
     if (error?.message.includes("Signups not allowed")) {
       setMessage("이미 가입된 이메일입니다. 로그인해 주세요.");
+      setMessageType("error");
       setStep("otp");
     } else if (error) {
       setMessage("오류가 발생했어요: " + error.message);
+      setMessageType("error");
     } else {
       setMessage("입력하신 이메일로 인증 코드를 보냈습니다.");
+      setMessageType("success");
       setStep("otp");
     }
 
@@ -71,6 +77,7 @@ export default function SignupForm() {
 
     if (error) {
       setMessage("인증 실패: " + error.message);
+      setMessageType("error");
       setIsSubmitting(false);
       return;
     }
@@ -95,6 +102,7 @@ export default function SignupForm() {
     }
 
     setMessage("인증 성공! 환영합니다.");
+    setMessageType("success");
     router.push("/summarize");
     setIsSubmitting(false);
   };
@@ -158,6 +166,19 @@ export default function SignupForm() {
               </label>
             </div>
 
+            {message && (
+              <p
+                className={clsx(
+                  "text-sm text-center",
+                  messageType === "success"
+                    ? "text-green-600 dark:text-green-400"
+                    : "text-red-600 dark:text-red-400"
+                )}
+              >
+                {message}
+              </p>
+            )}
+
             <button
               type="submit"
               disabled={isSubmitting}
@@ -172,12 +193,9 @@ export default function SignupForm() {
                 <>코드 보내기</>
               )}
             </button>
-
-            {message && <p className="text-sm text-center text-red-600 dark:text-red-400">{message}</p>}
           </form>
         ) : (
           <form className="space-y-5" onSubmit={handleOtpSubmit}>
-            {message && <p className="text-sm text-center text-red-600 dark:text-red-400">{message}</p>}
             <div>
               <label htmlFor="token" className="block mb-1 text-sm font-medium">인증 코드</label>
               <input
@@ -190,6 +208,18 @@ export default function SignupForm() {
                 className="w-full border border-gray-900 rounded-lg p-2.5 bg-white dark:bg-black dark:border-white/20 focus:outline-none focus:ring-1 focus:ring-black"
                 required
               />
+              {message && (
+                <p
+                  className={clsx(
+                    "text-sm text-center mt-3",
+                    messageType === "success"
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-red-600 dark:text-red-400"
+                  )}
+                >
+                  {message}
+                </p>
+              )}
             </div>
             <button
               type="submit"
