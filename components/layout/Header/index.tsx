@@ -1,32 +1,53 @@
 "use client";
 
-import LanguageSelector from "@/components/LanguageSelector";
-import { useSession } from "@/components/SessionProvider";
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarTrigger
-} from "@/components/ui/menubar";
-import { Link } from "@/i18n/navigation";
-import { createClient } from "@/utils/supabase/client";
-import { Icon } from "@iconify/react";
-import "flowbite";
-import Image from "next/image";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
+import { useSession } from "@/components/SessionProvider";
+import { Link } from "@/i18n/navigation";
+import LanguageSelector from "@/components/LanguageSelector";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Icon } from "@iconify/react";
+import Image from "next/image";
 
 export default function Header() {
   const router = useRouter();
   const supabase = createClient();
   const { session, isLoading } = useSession();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<"basic" | "pro" | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (session?.user?.email) {
+        setUserEmail(session.user.email);
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single();
+
+        if (data) {
+          setUserRole(data.role);
+        }
+      }
+    };
+
+    if (session?.user) {
+      fetchProfile();
+    }
+  }, [session]);
+
   return (
     <header>
       <nav
         id="mainNavbar"
-        data-sticky="false"
-        className="bg-white dark:bg-transparent bg-whit py-2.5 fixed w-full z-40 top-0 start-0 data-[sticky=true]:bg-white data-[sticky=true]:border-b dark:data-[sticky=true]:bg-gray-800 dark:data-[sticky=true]:border-gray-700 border-b border-gray-300"
+        className="bg-white dark:bg-transparent py-2.5 fixed w-full z-40 top-0 border-b border-gray-300 dark:border-gray-700"
       >
         <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl px-4">
           <Link href="/" className="flex items-center gap-2">
@@ -38,64 +59,70 @@ export default function Header() {
               height={100}
             />
           </Link>
-          <div className="flex items-center lg:order-2">
+
+          <div className="flex items-center lg:order-2 gap-2">
             <LanguageSelector />
-           
+
             {!session && (
               <>
-                {/* 로그인 버튼 */}
                 <Link
                   href="/login"
-                  className="text-gray-700 dark:text-white hover:text-primary border border-gray-300 dark:border-gray-600 hover:border-primary font-medium rounded-lg text-sm px-4 py-2 mr-2"
+                  className="text-gray-700 dark:text-white hover:text-primary border border-gray-300 dark:border-gray-600 hover:border-primary font-medium rounded-lg text-sm px-4 py-2"
                 >
                   로그인
                 </Link>
-
-                {/* 회원가입 버튼 */}
                 <Link
                   href="/signup"
-                  className="text-white bg-primary hover:bg-primary-dark focus:ring-primary font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary dark:hover:bg-primary-dark focus:outline-none dark:focus:ring-primary"
+                  className="text-white bg-primary hover:bg-primary-dark font-medium rounded-lg text-sm px-4 py-2"
                 >
                   회원가입
                 </Link>
               </>
             )}
 
-            {session && (
-              <button
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                  router.refresh(); // 페이지 리렌더
-                }}
-                className="text-gray-700 dark:text-white hover:text-red-500 border border-gray-300 dark:border-gray-600 hover:border-red-500 font-medium rounded-lg text-sm px-4 py-2 mr-2"
-              >
-                로그아웃
-              </button>
+            {session && userEmail && (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-white/20 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10">
+                  <span className="text-sm font-medium text-gray-800 dark:text-white">{userEmail}</span>
+                  {userRole && (
+                    <span
+                      className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                        userRole === "pro"
+                          ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                          : "bg-gray-300 text-gray-800"
+                      }`}
+                    >
+                      {userRole === "pro" ? "PRO" : "BASIC"}
+                    </span>
+                  )}
+                  <Icon icon="mdi:chevron-down" width={20} />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => router.push("/summarize")}>
+                    ✏️ 나의 핵심정리
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/account")}>
+                    ⚙️ 계정 설정
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={async () => {
+                      await supabase.auth.signOut();
+                      router.refresh();
+                    }}
+                  >
+                    🚪 로그아웃
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
-            <Menubar className="lg:hidden ml-2">
-              <MenubarMenu>
-                <MenubarTrigger className="p-0">
-                  <Icon icon="ic:baseline-menu" width={32} height={32} />
-                </MenubarTrigger>
-                <MenubarContent>
-                  <MenubarItem  onClick={() => router.push('/')}>홈</MenubarItem>
-                  <MenubarSeparator />
-                  <MenubarItem onClick={() => router.push('/summarize')}>핵심정리하기</MenubarItem>
-                  <MenubarSeparator />
-                  <MenubarItem onClick={() => router.push('/')}>나의 핵심정리</MenubarItem>
-                  <MenubarSeparator />
-                  <MenubarItem onClick={() => router.push('/')}>태그</MenubarItem>
-                </MenubarContent>
-              </MenubarMenu>
-            </Menubar>
           </div>
-          <div className="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1 bg-white dark:bg-gray-800 lg:bg-transparent lg:dark:bg-transparent mt-2 lg:mt-0">
-            <ul className="flex flex-col rounded-lg font-medium lg:flex-row lg:space-x-8">
+
+          <div className="hidden lg:flex lg:order-1 mt-2 lg:mt-0">
+            <ul className="flex space-x-6 font-medium">
               <li>
                 <Link
                   href="/"
-                  className="block py-2 pr-4 pl-3 text-gray-900 border-b border-gray-100 hover:bg-gray-100 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary lg:p-0 dark:text-white lg:dark:hover:text-primary dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
-                  aria-current="page"
+                  className="text-gray-900 dark:text-white hover:text-primary"
                 >
                   홈
                 </Link>
@@ -103,7 +130,7 @@ export default function Header() {
               <li>
                 <Link
                   href="/summarize"
-                  className="block py-2 pr-4 pl-3 text-gray-900 border-b border-gray-100 hover:bg-gray-100 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary lg:p-0 dark:text-white lg:dark:hover:text-primary dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
+                  className="text-gray-900 dark:text-white hover:text-primary"
                 >
                   핵심정리하기
                 </Link>
@@ -111,7 +138,7 @@ export default function Header() {
               <li>
                 <Link
                   href="/"
-                  className="block py-2 pr-4 pl-3 text-gray-900 border-b border-gray-100 hover:bg-gray-100 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary lg:p-0 dark:text-white lg:dark:hover:text-primary dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
+                  className="text-gray-900 dark:text-white hover:text-primary"
                 >
                   나의핵심정리
                 </Link>
@@ -119,7 +146,7 @@ export default function Header() {
               <li>
                 <Link
                   href="/"
-                  className="block py-2 pr-4 pl-3 text-gray-900 border-b border-gray-100 hover:bg-gray-100 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary lg:p-0 dark:text-white lg:dark:hover:text-primary dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
+                  className="text-gray-900 dark:text-white hover:text-primary"
                 >
                   태그
                 </Link>
