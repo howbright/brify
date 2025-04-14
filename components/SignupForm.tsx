@@ -3,12 +3,13 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Icon } from "@iconify/react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
 export default function SignupForm() {
   const t = useTranslations("signup");
+
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
@@ -17,8 +18,15 @@ export default function SignupForm() {
   const [step, setStep] = useState<"email" | "otp">("email");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const otpInputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
   const router = useRouter();
+
+  useEffect(() => {
+    if (step === "otp" && otpInputRef.current) {
+      otpInputRef.current.focus();
+    }
+  }, [step]);
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,9 +40,7 @@ export default function SignupForm() {
 
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: {
-        shouldCreateUser: true,
-      },
+      options: { shouldCreateUser: true },
     });
 
     if (error?.message.includes("Signups not allowed")) {
@@ -46,6 +52,7 @@ export default function SignupForm() {
       setMessage("입력하신 이메일로 인증 코드를 보냈습니다.");
       setStep("otp");
     }
+
     setIsSubmitting(false);
   };
 
@@ -53,7 +60,10 @@ export default function SignupForm() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const { data: verifyResult, error } = await supabase.auth.verifyOtp({
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.verifyOtp({
       email,
       token,
       type: "email",
@@ -65,7 +75,7 @@ export default function SignupForm() {
       return;
     }
 
-    const user = verifyResult?.session?.user;
+    const user = session?.user;
     if (user) {
       const { error: insertError } = await supabase.from("profiles").insert({
         id: user.id,
@@ -85,8 +95,8 @@ export default function SignupForm() {
     }
 
     setMessage("인증 성공! 환영합니다.");
-    setIsSubmitting(false);
     router.push("/summarize");
+    setIsSubmitting(false);
   };
 
   return (
@@ -96,19 +106,13 @@ export default function SignupForm() {
 
         {/* 소셜 로그인 */}
         <div className="flex flex-col space-y-3">
-          <Link
-            href="#"
-            className="flex items-center justify-center w-full border border-gray-900 rounded-lg py-2.5 px-5 text-sm font-medium hover:bg-black hover:text-white transition-colors"
-          >
+          <Link href="#" className="flex items-center justify-center w-full border border-gray-900 rounded-lg py-2.5 px-5 text-sm font-medium hover:bg-black hover:text-white transition-colors">
             <div className="flex gap-x-3 items-center">
               <Icon icon="logos:google-icon" width={19} />
               <span>{t("google")}</span>
             </div>
           </Link>
-          <Link
-            href="#"
-            className="group flex items-center justify-center w-full border border-gray-900 rounded-lg py-2.5 px-5 text-sm font-medium hover:bg-black hover:text-white transition-colors"
-          >
+          <Link href="#" className="group flex items-center justify-center w-full border border-gray-900 rounded-lg py-2.5 px-5 text-sm font-medium hover:bg-black hover:text-white transition-colors">
             <div className="flex gap-x-3 items-center">
               <Icon icon="mdi:apple" width={27} className="text-[#333] group-hover:text-white transition-colors" />
               <span>{t("apple")}</span>
@@ -118,17 +122,16 @@ export default function SignupForm() {
 
         {/* Divider */}
         <div className="flex items-center text-xs font-semibold uppercase text-gray-500 tracking-wider">
-          <div className="flex-grow border-t border-gray-300"></div>
+          <div className="flex-grow border-t border-gray-300" />
           <span className="px-4">{t("or")}</span>
-          <div className="flex-grow border-t border-gray-300"></div>
+          <div className="flex-grow border-t border-gray-300" />
         </div>
 
+        {/* 이메일 인증 단계 */}
         {step === "email" ? (
           <form className="space-y-5" onSubmit={handleEmailSubmit}>
             <div>
-              <label htmlFor="email" className="block mb-1 text-sm font-medium">
-                {t("email.label")}
-              </label>
+              <label htmlFor="email" className="block mb-1 text-sm font-medium">{t("email.label")}</label>
               <input
                 type="email"
                 id="email"
@@ -142,25 +145,13 @@ export default function SignupForm() {
 
             <div className="text-sm space-y-2">
               <label className="flex items-start gap-x-2">
-                <input
-                  type="checkbox"
-                  checked={agreeTerms}
-                  onChange={() => setAgreeTerms(!agreeTerms)}
-                  className="mt-1"
-                  required
-                />
+                <input type="checkbox" checked={agreeTerms} onChange={() => setAgreeTerms(!agreeTerms)} className="mt-1" required />
                 <span>
                   <Link href="/terms" className="underline hover:text-primary">서비스 이용약관</Link>에 동의합니다. (필수)
                 </span>
               </label>
               <label className="flex items-start gap-x-2">
-                <input
-                  type="checkbox"
-                  checked={agreePrivacy}
-                  onChange={() => setAgreePrivacy(!agreePrivacy)}
-                  className="mt-1"
-                  required
-                />
+                <input type="checkbox" checked={agreePrivacy} onChange={() => setAgreePrivacy(!agreePrivacy)} className="mt-1" required />
                 <span>
                   <Link href="/privacy" className="underline hover:text-primary">개인정보 처리방침</Link>에 동의합니다. (필수)
                 </span>
@@ -181,15 +172,18 @@ export default function SignupForm() {
                 <>코드 보내기</>
               )}
             </button>
+
             {message && <p className="text-sm text-center text-red-600 dark:text-red-400">{message}</p>}
           </form>
         ) : (
           <form className="space-y-5" onSubmit={handleOtpSubmit}>
+            {message && <p className="text-sm text-center text-red-600 dark:text-red-400">{message}</p>}
             <div>
               <label htmlFor="token" className="block mb-1 text-sm font-medium">인증 코드</label>
               <input
                 type="text"
                 id="token"
+                ref={otpInputRef}
                 placeholder="이메일로 받은 6자리 코드를 입력하세요"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
@@ -211,12 +205,11 @@ export default function SignupForm() {
                 <>인증 완료</>
               )}
             </button>
-            {message && <p className="text-sm text-center text-red-600 dark:text-red-400">{message}</p>}
           </form>
         )}
 
         <p className="text-sm text-center text-gray-600 dark:text-gray-400">
-          {t("login.question")} {" "}
+          {t("login.question")}{" "}
           <Link href="/login" className="font-semibold hover:underline text-black dark:text-white">
             {t("login.link")}
           </Link>

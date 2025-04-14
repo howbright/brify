@@ -16,7 +16,6 @@ import { Icon } from "@iconify/react";
 import "flowbite";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 
 export default function Header() {
   const router = useRouter();
