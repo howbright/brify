@@ -54,7 +54,7 @@ export default function Header() {
 
                 {/* 회원가입 버튼 */}
                 <Link
-                  href="/signin"
+                  href="/signup"
                   className="text-white bg-primary hover:bg-primary-dark focus:ring-primary font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary dark:hover:bg-primary-dark focus:outline-none dark:focus:ring-primary"
                 >
                   회원가입

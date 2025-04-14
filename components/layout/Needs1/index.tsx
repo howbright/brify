@@ -27,7 +27,7 @@ const Needs1 = () => {
   ];
 
   return (
-    <section className="relative flex justify-center z-10 bg-[#e1e0e0] py-14">
+    <section className="relative flex justify-center z-10 bg-gradient-to-b from-[#fffdf7] to-[#fdf0e6] py-14">
       <div className="w-full max-w-7xl px-4">
         {/* 👉 타이틀 문구 */}
         <h2 className="text-2xl md:text-3xl font-extrabold text-center text-gray-900 dark:text-white mb-7">

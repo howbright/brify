@@ -34,7 +34,7 @@
     },
     "remember": "记住我",
     "forgot": "忘记密码？",
-    "submit": "通过邮箱接收登录链接",
+    "submit": "通过邮箱接收登录验证码",
     "signup": {
       "question": "还没有账号？",
       "link": "点击这里注册"

@@ -34,7 +34,7 @@
     },
     "remember": "Se souvenir de moi",
     "forgot": "Mot de passe oublié ?",
-    "submit": "Recevoir le lien de connexion par e-mail",
+    "submit": "Envoyer le code de connexion par e-mail",
     "signup": {
       "question": "Vous n’avez pas encore de compte ?",
       "link": "Inscrivez-vous ici"

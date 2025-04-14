@@ -34,7 +34,7 @@
     },
     "remember": "記住我",
     "forgot": "忘記密碼？",
-    "submit": "透過電子郵件接收登入連結",
+    "submit": "通過電子郵件接收登入驗證碼",
     "signup": {
       "question": "還沒有帳戶？",
       "link": "在這裡註冊"

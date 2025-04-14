@@ -34,7 +34,7 @@
     },
     "remember": "Recuérdame",
     "forgot": "¿Olvidaste tu contraseña?",
-    "submit": "Recibir enlace de acceso por correo",
+    "submit": "Enviar código de acceso por correo",
     "signup": {
       "question": "¿Aún no tienes una cuenta?",
       "link": "Regístrate aquí"

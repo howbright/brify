@@ -80,10 +80,34 @@ export default function SummaryResult({ text, tree }: Props) {
 
       {/* 콘텐츠 */}
       {tab === "text" ? (
-        <div id="textView" className="bg-white dark:bg-black border border-gray-300 dark:border-white/20 rounded-lg p-6 text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line">
-        <ReactMarkdown  >
-          {text || "요약 결과가 여기에 표시됩니다."}
-        </ReactMarkdown>
+        <div
+          id="textView"
+          className="bg-white dark:bg-black border border-gray-300 dark:border-white/20 rounded-lg p-6 text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line"
+        >
+          <ReactMarkdown
+            components={{
+              h3: ({ node, ...props }) => (
+                <h3 className="text-lg font-bold" {...props} />
+              ),
+              p: ({ node, ...props }) => (
+                <p className="text-base leading-relaxed" {...props} />
+              ),
+              ul: ({ node, ...props }) => (
+                <ul className="list-disc list-inside" {...props} />
+              ),
+              li: ({ node, ...props }) => (
+                <li className="text-base leading-relaxed" {...props} />
+              ),
+              blockquote: ({ node, ...props }) => (
+                <blockquote
+                  className="border-l-4 border-gray-300 dark:border-gray-600 pl-1 italic text-gray-600 dark:text-gray-300"
+                  {...props}
+                />
+              )
+            }}
+          >
+            {text || "요약 결과가 여기에 표시됩니다."}
+          </ReactMarkdown>
         </div>
       ) : (
         <div>

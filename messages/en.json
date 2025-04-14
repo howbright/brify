@@ -33,7 +33,7 @@
     },
     "remember": "Remember me",
     "forgot": "Forgot password?",
-    "submit": "Get login link by email",
+    "submit": "Send login code to email",
     "signup": {
       "question": "Don’t have an account yet?",
       "link": "Sign up here"
