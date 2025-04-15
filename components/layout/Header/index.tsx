@@ -60,7 +60,7 @@ export default function Header() {
           {/* 로고 */}
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/images/logo.svg"
+              src="/images/logo.png"
               alt="Brify Logo"
               className="h-8"
               width={100}

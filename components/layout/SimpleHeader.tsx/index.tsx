@@ -16,7 +16,7 @@ export default function SimpleHeader() {
         <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl px-4">
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/images/logo.svg"
+              src="/images/logo.png"
               alt="Brify Logo"
               className="h-8"
               width={100}

@@ -48,7 +48,7 @@ export default function Signup() {
               className="inline-flex items-center mb-10 text-3xl font-black uppercase tracking-tight"
             >
               <Image
-                src="/images/logo.svg"
+                src="/images/logo.png"
                 className="mr-3 h-12"
                 alt="Brify Logo"
                 width={300}

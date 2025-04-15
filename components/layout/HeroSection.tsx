@@ -89,12 +89,18 @@ export default function HeroSection() {
           >
             YouTube, 뉴스, 블로그, 논문까지 —
             <br />
-            <strong className="text-black dark:text-white">Brify</strong>가 요점만 뽑아 정리해드립니다.
+            <strong className="text-black dark:text-white">Brify</strong>가
+            요점만 뽑아 정리해드립니다.
             <br />
-            텍스트뿐 아니라 <strong className="text-black dark:text-white">다이어그램</strong>으로 시각화해 한눈에 이해!
+            텍스트뿐 아니라{" "}
+            <strong className="text-black dark:text-white">다이어그램</strong>
+            으로 시각화해 한눈에 이해!
           </motion.p>
           <motion.div variants={wordAnimation}>
-            <GradientButton label="YouTube 링크 붙여넣고 시작하기" />
+            <GradientButton label="핵심정리 시작하기" />
+            <p className="mt-2 text-sm text-primary/80">
+              링크나 파일만 있으면 요약이 바로 시작됩니다.
+            </p>
           </motion.div>
         </div>
 
