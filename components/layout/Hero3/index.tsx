@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import GradientButton from "../ui/GradientButton";
+import GradientButton from "../../ui/GradientButton";
 import { motion, useAnimation } from "framer-motion";
 import { useEffect } from "react";
 
@@ -125,14 +125,14 @@ export default function Hero3() {
                 transition: { duration: 0.6, ease: "easeOut" },
               },
             }}
-            className="bg-gradient-to-r leading-normal from-[#0ea5e9] via-[#3b82f6] to-[#6366f1] bg-clip-text text-transparent text-5xl md:text-6xl font-extrabold tracking-tight"
+            className="bg-gradient-to-r leading-tight from-[#0ea5e9] via-[#3b82f6] to-[#6366f1] bg-clip-text text-transparent text-5xl md:text-6xl font-extrabold tracking-tight"
           >
             {t("title2")}
           </motion.span>
         </motion.div>
 
         <motion.p
-          className="text-lg md:text-xl leading-loose max-w-3xl text-[#444] dark:text-gray-300"
+          className="text-lg md:text-xl leading-normal max-w-3xl text-[#444] dark:text-gray-300"
           variants={wordAnimation}
         >
           {t("description1")}

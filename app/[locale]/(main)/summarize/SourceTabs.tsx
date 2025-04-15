@@ -13,9 +13,9 @@ interface Props {
 
 const tabList: { type: SourceType; label: string; icon: string }[] = [
   { type: "youtube", label: "YouTube", icon: "mdi:youtube" },
-  { type: "website", label: "웹사이트", icon: "mdi:web" },
-  { type: "file", label: "문서", icon: "mdi:file-document" },
   { type: "manual", label: "직접입력", icon: "mdi:pencil" },
+  { type: "file", label: "문서", icon: "mdi:file-document" },
+  { type: "website", label: "웹사이트", icon: "mdi:web" },
 ];
 
 export default function SourceTabs({ selected, onChange }: Props) {

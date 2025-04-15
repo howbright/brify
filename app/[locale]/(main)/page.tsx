@@ -1,6 +1,10 @@
-import Hero3 from "@/components/Hero3";
+import Hero3 from "@/components/layout/Hero3";
 import For from "@/components/layout/For";
 import Needs1 from "@/components/layout/Needs1";
+import KnowledgeCompleteSection from "@/components/layout/KnowledgeCompleteSection";
+import PresentationSection from "@/components/layout/PresentationSection";
+import HeroSection from "@/components/layout/HeroSection";
+import NeedsSection from "@/components/layout/NeedsSection";
 // import { useTranslations } from "next-intl";
 
 export default function Home() {
@@ -9,8 +13,12 @@ export default function Home() {
     <div>
       {/* <Hero />
       <Hero2 /> */}
-      <Hero3 />
+      {/* <Hero3 /> */}
+      <HeroSection/>
+      <NeedsSection/>
       <Needs1/>
+      <KnowledgeCompleteSection/>
+      <PresentationSection/>
       <For />
       {/* <div>
         <h1>{t("title")}</h1>

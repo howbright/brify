@@ -50,33 +50,47 @@ export default function InputSection({
   const renderInputField = () => {
     if (type === "youtube" || type === "website") {
       return (
-        <input
-          type="text"
-          placeholder={
-            type === "youtube"
-              ? "YouTube 영상 주소를 입력하세요"
-              : "웹사이트 주소를 입력하세요"
-          }
-          value={textInput}
-          onChange={(e) => setTextInput(e.target.value)}
-          className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg focus:outline-none focus:ring-primary bg-white dark:bg-black"
-        />
+        <div className="space-y-2 text-center">
+          <input
+            type="text"
+            placeholder={
+              type === "youtube"
+                ? "YouTube 영상 주소를 입력하세요"
+                : "웹사이트 주소를 입력하세요"
+            }
+            value={textInput}
+            onChange={(e) => setTextInput(e.target.value)}
+            className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg focus:outline-none focus:ring-primary bg-white dark:bg-black"
+          />
+          {type === "website" && (
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              대부분의 웹사이트는 요약이 가능하지만, 일부 로그인 필요하거나
+              보안설정된 사이트는 지원되지 않을 수 있어요.
+            </p>
+          )}
+        </div>
       );
     }
 
     if (type === "file") {
       return (
-        <div className="space-y-2 text-center">
+        <div className="w-full max-w-md mx-auto rounded-lg border border-gray-300 dark:border-white/20 bg-white dark:bg-gray-900 p-5 shadow-sm text-center space-y-4">
+          <div className="flex items-center justify-center gap-2 text-sm font-semibold text-gray-800 dark:text-white">
+            <Icon icon="mdi:file-upload-outline" width={22} />
+            파일 업로드
+          </div>
           <input
             type="file"
-            accept=".pdf,.docx,.hwp,.txt,.jpg,.png"
+            accept=".pdf,.docx,.txt,.jpg,.png"
             onChange={(e) => setFileInput(e.target.files?.[0] ?? null)}
-            className="block mx-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-primary file:text-white hover:file:bg-primary-dark transition"
+            className="block w-full text-sm text-gray-500 file:mx-auto file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-primary file:text-white hover:file:bg-primary-dark transition cursor-pointer"
           />
-          <p className="text-xs text-gray-400 dark:text-gray-500">
+          <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
             PDF, DOCX, TXT 파일을 지원합니다. <br />
-            이미지 파일(JPG, PNG)은 <strong>Pro 플랜에서만 OCR 기능</strong>을
-            통해 사용 가능합니다.
+            <span className="text-red-500 font-medium">
+              이미지 파일(JPG, PNG)은 Pro 전용 기능
+            </span>
+            입니다.
           </p>
         </div>
       );
