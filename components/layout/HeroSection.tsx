@@ -4,9 +4,11 @@ import Image from "next/image";
 import { motion, useAnimation } from "framer-motion";
 import { useEffect } from "react";
 import GradientButton from "@/components/ui/GradientButton";
+import { useRouter } from "next/navigation";
 
 export default function HeroSection() {
   const controls = useAnimation();
+  const router = useRouter();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -97,7 +99,7 @@ export default function HeroSection() {
             으로 시각화해 한눈에 이해!
           </motion.p>
           <motion.div variants={wordAnimation}>
-            <GradientButton label="핵심정리 시작하기" />
+            <GradientButton label="핵심정리 시작하기" onClick={() => router.push('/summarize')} />
             <p className="mt-2 text-sm text-primary/80">
               링크나 파일만 있으면 요약이 바로 시작됩니다.
             </p>

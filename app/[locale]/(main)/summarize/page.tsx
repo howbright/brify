@@ -13,7 +13,6 @@ import SummarizeButton from "./SummarizeButton";
 import SummaryActionsFloating from "./SummaryActionsFloating";
 import SummaryResult from "./SummaryResult";
 
-// 애니메이션 설정
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
@@ -27,15 +26,15 @@ export default function SummarizePage() {
   const [loading, setLoading] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
 
-  const handleSummarize = async () => {
-    if (!rawText) return;
+  const handleSummarize = async (text: string) => {
+    if (!text) return;
     setLoading(true);
     try {
-      const { text, tree } = await summarizeBoth(rawText);
-      setTextSummary(text);
+      const { text: summary, tree } = await summarizeBoth(text);
+      setTextSummary(summary);
       setTreeSummary(tree);
-      const extractedTags = await getTagsFromText(text); // ✅ 태그 추출
-      setTags(extractedTags); // ✅ 상태 업데이트
+      const extractedTags = await getTagsFromText(summary);
+      setTags(extractedTags);
     } catch (e) {
       console.error("요약 중 오류 발생:", e);
     } finally {
@@ -44,61 +43,60 @@ export default function SummarizePage() {
   };
 
   return (
-    <TooltipProvider  delayDuration={150}>
-    <div className="w-full max-w-7xl mx-auto px-6 py-12 space-y-12">
-      {/* Section 1: 소스 선택 + 입력 */}
-      <motion.section
-        className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md space-y-6"
-        variants={fadeInUp}
-        initial="initial"
-        animate="animate"
-      >
-        {/* 제목 */}
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-6 text-center">
-          어떤 내용을 정리할까요? <br className="hidden sm:block" />
-          먼저 출처를 골라주세요.
-        </h3>
-
-        {/* 탭 */}
-        <div className="flex justify-center">
-          <SourceTabs selected={sourceType} onChange={setSourceType} />
-        </div>
-
-        {/* 입력 */}
-        <div className="flex justify-center">
-          <InputSection
-            type={sourceType}
-            onExtracted={(text) => setRawText(text)}
-            isLoading={loading}
-            setIsLoading={setLoading}
-          />
-        </div>
-      </motion.section>
-
-      {/* Section 2: 원문 편집 */}
-      {rawText && (
+    <TooltipProvider delayDuration={150}>
+      <div className="w-full max-w-7xl mx-auto px-6 py-12 space-y-12">
+        {/* Section 1: 소스 선택 + 입력 */}
         <motion.section
           className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md space-y-6"
           variants={fadeInUp}
           initial="initial"
           animate="animate"
         >
-          {/* 제목 */}
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-6 text-center">
-            추출된 내용을 확인하고, <br className="hidden sm:block" />
-            필요하다면 수정해보세요.
+            어떤 내용을 정리할까요? <br className="hidden sm:block" />
+            먼저 출처를 골라주세요.
           </h3>
 
-          <div className="space-y-6">
-            <ExtractedText value={rawText} onChange={setRawText} />
-            <SummarizeButton onSummarize={handleSummarize} loading={loading} />
+          <div className="flex justify-center">
+            <SourceTabs selected={sourceType} onChange={setSourceType} />
+          </div>
+
+          <div className="flex justify-center">
+            <InputSection
+              type={sourceType}
+              onExtracted={setRawText}
+              isLoading={loading}
+              setIsLoading={setLoading}
+              onManualSubmit={(text) => {
+                setRawText(text);
+                handleSummarize(text); // 바로 요약 시작
+              }}
+            />
           </div>
         </motion.section>
-      )}
 
-      {/* Section 3: 요약 결과 */}
-      {textSummary && treeSummary && (
-        <>
+        {/* Section 2: 원문 편집 (manual이 아닐 경우만 표시) */}
+        {rawText && sourceType !== "manual" && (
+          <motion.section
+            className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md space-y-6"
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+          >
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-6 text-center">
+              추출된 내용을 확인하고, <br className="hidden sm:block" />
+              필요하다면 수정해보세요.
+            </h3>
+
+            <div className="space-y-6">
+              <ExtractedText value={rawText} onChange={setRawText} />
+              <SummarizeButton onSummarize={() => handleSummarize(rawText)} loading={loading} />
+            </div>
+          </motion.section>
+        )}
+
+        {/* Section 3: 요약 결과 */}
+        {textSummary && treeSummary && (
           <motion.section
             className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md flex flex-col items-center"
             variants={fadeInUp}
@@ -109,17 +107,14 @@ export default function SummarizePage() {
               <EditableTags tags={tags} onChange={setTags} />
             </div>
 
-            {/* 섹션 제목 */}
             <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-white mb-4 text-center">
               이제 요약 결과를 나만의 정리 스타일로 완성해보세요.
             </h3>
 
-            {/* 요약 콘텐츠 */}
             <div className="w-full">
               <SummaryResult text={textSummary} tree={treeSummary} />
             </div>
 
-            {/* 툴바 */}
             <SummaryActionsFloating
               mode="text"
               text={textSummary}
@@ -132,9 +127,8 @@ export default function SummarizePage() {
               targetId="textView"
             />
           </motion.section>
-        </>
-      )}
-    </div>
+        )}
+      </div>
     </TooltipProvider>
   );
 }

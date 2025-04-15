@@ -10,6 +10,7 @@ interface Props {
   onExtracted: (text: string) => void;
   isLoading: boolean;
   setIsLoading: (v: boolean) => void;
+  onManualSubmit?: (text: string) => void; // 🔹 요약용 콜백
 }
 
 export default function InputSection({
@@ -17,29 +18,47 @@ export default function InputSection({
   onExtracted,
   isLoading,
   setIsLoading,
+  onManualSubmit,
 }: Props) {
   const [textInput, setTextInput] = useState<string>("");
   const [fileInput, setFileInput] = useState<File | null>(null);
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    setTimeout(() => {
-      switch (type) {
-        case "youtube":
-          onExtracted("🔗 유튜브 영상에서 추출한 스크립트입니다.");
-          break;
-        case "website":
-          onExtracted("🌐 웹사이트에서 본문을 크롤링했습니다.");
-          break;
-        case "file":
-          onExtracted("📄 문서에서 텍스트를 추출했습니다.");
-          break;
-        case "manual":
-          onExtracted(textInput);
-          break;
+
+    try {
+      if (type === "manual") {
+        // ✅ 바로 요약 실행
+        onManualSubmit?.(textInput);
+        return;
       }
+
+      if (type === "youtube") {
+        const res = await fetch("/api/transcript", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: textInput }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          const fullText = data.transcript.map((t: any) => t.text).join(" ");
+          onExtracted(`🔗 유튜브 영상에서 추출한 스크립트입니다.\n\n${fullText}`);
+        } else {
+          onExtracted("❌ 유튜브 스크립트 추출에 실패했습니다.");
+        }
+      } else if (type === "website") {
+        onExtracted("🌐 웹사이트에서 본문을 크롤링했습니다.");
+      } else if (type === "file") {
+        onExtracted("📄 문서에서 텍스트를 추출했습니다.");
+      }
+    } catch (err) {
+      console.error(err);
+      onExtracted("⚠️ 처리 중 오류가 발생했습니다.");
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const canSubmit =
@@ -128,11 +147,11 @@ export default function InputSection({
           {isLoading ? (
             <>
               <Icon icon="lucide:loader" className="animate-spin" width={18} />
-              추출 중...
+              처리 중...
             </>
           ) : (
             <>
-              <span>원문 추출하기</span>
+              <span>{type === "manual" ? "핵심정리 시작하기" : "원문 추출하기"}</span>
               <Icon
                 icon="lucide:arrow-right"
                 width={18}
