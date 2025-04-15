@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import GradientButton from "../../ui/GradientButton";
+import GradientButton from "../ui/GradientButton";
 import { motion, useAnimation } from "framer-motion";
 import { useEffect } from "react";
 

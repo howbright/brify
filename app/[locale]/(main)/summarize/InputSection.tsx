@@ -7,7 +7,7 @@ import { Icon } from "@iconify/react";
 
 interface Props {
   type: SourceType;
-  onExtracted: (text: string) => void;
+  onExtracted: (text: string, succeed: boolean) => void;
   isLoading: boolean;
   setIsLoading: (v: boolean) => void;
   onManualSubmit?: (text: string) => void; // 🔹 요약용 콜백
@@ -44,18 +44,18 @@ export default function InputSection({
 
         if (res.ok) {
           const fullText = data.transcript.map((t: any) => t.text).join(" ");
-          onExtracted(`🔗 유튜브 영상에서 추출한 스크립트입니다.\n\n${fullText}`);
+          onExtracted(`🔗 유튜브 영상에서 추출한 스크립트입니다.\n\n${fullText}`, true);
         } else {
-          onExtracted("❌ 유튜브 스크립트 추출에 실패했습니다.");
+          onExtracted("❌ 유튜브 스크립트 추출에 실패했습니다.", false);
         }
       } else if (type === "website") {
-        onExtracted("🌐 웹사이트에서 본문을 크롤링했습니다.");
+        onExtracted("🌐 웹사이트에서 본문을 크롤링했습니다.", true);
       } else if (type === "file") {
-        onExtracted("📄 문서에서 텍스트를 추출했습니다.");
+        onExtracted("📄 문서에서 텍스트를 추출했습니다.", true);
       }
     } catch (err) {
       console.error(err);
-      onExtracted("⚠️ 처리 중 오류가 발생했습니다.");
+      onExtracted("⚠️ 처리 중 오류가 발생했습니다.", false);
     } finally {
       setIsLoading(false);
     }
