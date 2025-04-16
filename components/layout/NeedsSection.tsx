@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -34,8 +34,9 @@ const cards = [
 export default function NeedsSection() {
   return (
     <motion.section
-      className="relative z-10 pt-24 pb-44 px-4 bg-gradient-to-b from-[#d9f3f1] via-[#edf7f5] to-[#fdfcfb]
- dark:bg-[#1a1a1a] overflow-hidden"
+      className="relative z-10 pt-24 pb-44 px-4 
+  bg-gradient-to-b from-[#c0ebe8] via-[#d9f3f1] to-[#fdfcfb] 
+  dark:bg-[#1a1a1a] overflow-hidden"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.2 }}
@@ -50,19 +51,22 @@ export default function NeedsSection() {
         />
       </div>
 
-      {/* ✅ 배경 일러스트 위치 조정 */}
+      {/* ✅ 배경 일러스트 다크 대응 */}
       <motion.div
         className="absolute -bottom-20 right-1/4 hidden lg:block z-0"
         variants={fadeUp}
         custom={cards.length + 1}
       >
-        <Image
-          src="/images/needs-woman.png"
-          alt="정리 고민 해결 일러스트"
-          width={380}
-          height={380}
-          className="opacity-90"
-        />
+        <div className="relative w-[380px] h-[380px]">
+          {/* ✨ 블루그레이 페일톤 배경 */}
+          <div className="absolute inset-0 bg-[#d8e4ea]/70 rounded-full z-0 shadow-md" />
+          <Image
+            src="/images/needs-woman.png"
+            alt="정리 고민 해결 일러스트"
+            fill
+            className="z-10 object-contain"
+          />
+        </div>
       </motion.div>
 
       {/* ✅ 타이틀 */}
@@ -88,7 +92,7 @@ export default function NeedsSection() {
             variants={fadeUp}
             custom={i + 1}
             whileHover={{ scale: 1.03 }}
-            className="flex items-start gap-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-md hover:shadow-lg transition-all"
+            className="flex items-start gap-4 bg-white/90 dark:bg-[#1f1f1f]/90 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-md hover:shadow-lg transition-all"
           >
             <div className="min-w-[52px] h-[52px] rounded-full bg-primary/10 flex items-center justify-center">
               <Icon icon={card.icon} width={28} className="text-primary" />
