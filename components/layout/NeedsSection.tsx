@@ -34,7 +34,8 @@ const cards = [
 export default function NeedsSection() {
   return (
     <motion.section
-      className="relative z-10 py-24 px-4 bg-gradient-to-b from-[#fffdf7] to-[#fdf0e6] dark:bg-[#1a1a1a] overflow-hidden"
+      className="relative z-10 pt-24 pb-44 px-4 bg-gradient-to-b from-[#d9f3f1] via-[#edf7f5] to-[#fdfcfb]
+ dark:bg-[#1a1a1a] overflow-hidden"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.2 }}
@@ -49,11 +50,26 @@ export default function NeedsSection() {
         />
       </div>
 
+      {/* ✅ 배경 일러스트 위치 조정 */}
+      <motion.div
+        className="absolute -bottom-20 right-1/4 hidden lg:block z-0"
+        variants={fadeUp}
+        custom={cards.length + 1}
+      >
+        <Image
+          src="/images/needs-woman.png"
+          alt="정리 고민 해결 일러스트"
+          width={380}
+          height={380}
+          className="opacity-90"
+        />
+      </motion.div>
+
       {/* ✅ 타이틀 */}
       <motion.div
         variants={fadeUp}
         custom={0}
-        className="relative z-10 max-w-5xl mx-auto text-center mb-14"
+        className="relative z-10 max-w-5xl mx-auto text-center mb-16"
       >
         <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
           이런 상황, 겪고 계신가요?
@@ -64,42 +80,29 @@ export default function NeedsSection() {
         </p>
       </motion.div>
 
-      {/* ✅ 카드 + 일러스트 */}
-      <div className="relative z-10 max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-12">
-        {/* 카드 리스트 */}
-        <div className="flex-1 space-y-6 w-full">
-          {cards.map((card, i) => (
-            <motion.div
-              key={i}
-              variants={fadeUp}
-              custom={i + 1}
-              className="flex items-start gap-4 bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-5 shadow-sm"
-            >
-              <Icon icon={card.icon} width={24} className="text-primary mt-1" />
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                  {card.title}
-                </h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300">{card.desc}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* 일러스트 */}
-        <motion.div
-          className="flex-1 flex justify-center"
-          variants={fadeUp}
-          custom={cards.length + 1}
-        >
-          <Image
-            src="/images/needs-woman.png"
-            alt="정리 고민 해결 일러스트"
-            width={350}
-            height={350}
-            className="w-full max-w-xs h-auto"
-          />
-        </motion.div>
+      {/* ✅ 카드 리스트 */}
+      <div className="relative z-10 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
+        {cards.map((card, i) => (
+          <motion.div
+            key={i}
+            variants={fadeUp}
+            custom={i + 1}
+            whileHover={{ scale: 1.03 }}
+            className="flex items-start gap-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-md hover:shadow-lg transition-all"
+          >
+            <div className="min-w-[52px] h-[52px] rounded-full bg-primary/10 flex items-center justify-center">
+              <Icon icon={card.icon} width={28} className="text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                {card.title}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                {card.desc}
+              </p>
+            </div>
+          </motion.div>
+        ))}
       </div>
     </motion.section>
   );
