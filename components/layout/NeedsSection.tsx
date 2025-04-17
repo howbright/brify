@@ -34,9 +34,7 @@ const cards = [
 export default function NeedsSection() {
   return (
     <motion.section
-      className="relative z-10 pt-24 pb-44 px-4 
-  bg-linear-to-b from-[#c0ebe8] via-[#d9f3f1] to-[#fdfcfb] 
-  dark:bg-[#1a1a1a] overflow-hidden"
+      className="relative z-10 pt-24 pb-44 px-4 bg-background text-text dark:bg-[#1a1a1a] overflow-hidden"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.2 }}
@@ -51,15 +49,14 @@ export default function NeedsSection() {
         />
       </div>
 
-      {/* ✅ 배경 일러스트 다크 대응 */}
+      {/* ✅ 배경 일러스트 */}
       <motion.div
         className="absolute -bottom-20 right-1/4 hidden lg:block z-0"
         variants={fadeUp}
         custom={cards.length + 1}
       >
         <div className="relative w-[380px] h-[380px]">
-          {/* ✨ 블루그레이 페일톤 배경 */}
-          <div className="absolute inset-0 bg-[#d8e4ea]/70 rounded-full z-0 shadow-md" />
+          <div className="absolute inset-0 bg-accent/40 rounded-full z-0 shadow-md" />
           <Image
             src="/images/needs-woman.png"
             alt="정리 고민 해결 일러스트"
@@ -75,10 +72,10 @@ export default function NeedsSection() {
         custom={0}
         className="relative z-10 max-w-5xl mx-auto text-center mb-16"
       >
-        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-text mb-4">
           이런 상황, 겪고 계신가요?
         </h2>
-        <p className="text-base md:text-lg text-gray-700 dark:text-gray-300">
+        <p className="text-base md:text-lg text-muted-foreground">
           Brify는 시간 부족, 과도한 정보, 정리 어려움 등<br />
           현실적인 고민을 해결해드립니다.
         </p>
@@ -92,16 +89,16 @@ export default function NeedsSection() {
             variants={fadeUp}
             custom={i + 1}
             whileHover={{ scale: 1.03 }}
-            className="flex items-start gap-4 bg-white/90 dark:bg-[#1f1f1f]/90 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-md hover:shadow-lg transition-all"
+            className="flex items-start gap-4 bg-card border border-border rounded-2xl p-6 shadow-md hover:shadow-lg transition-all"
           >
             <div className="min-w-[52px] h-[52px] rounded-full bg-primary/10 flex items-center justify-center">
               <Icon icon={card.icon} width={28} className="text-primary" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+              <h3 className="text-lg font-bold text-text mb-1">
                 {card.title}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {card.desc}
               </p>
             </div>
