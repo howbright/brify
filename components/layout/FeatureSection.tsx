@@ -41,18 +41,18 @@ export default function FeaturesSection() {
   return (
     <section className="relative z-10 py-24 px-4 bg-[#f3f4ff] dark:bg-[#121222] border-t border-gray-200 dark:border-white/10">
       <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
-        {/* ✅ 왼쪽: 이미지 겹치기 */}
-        <div className="relative w-full max-w-lg mx-auto h-[340px]">
-          {/* 뒷쪽 다이어그램 */}
+        {/* ✅ 이미지 겹치기 */}
+        <div className="relative w-full max-w-lg mx-auto h-[360px]">
+          {/* 뒷쪽 다이어그램 - 기울임 */}
           <motion.div
-            initial={{ opacity: 0, y: 60, scale: 0.96 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            initial={{ opacity: 0, y: 60, rotate: -3, scale: 0.96 }}
+            whileInView={{ opacity: 1, y: 0, rotate: -3, scale: 1 }}
             transition={{ delay: 0.5, duration: 0.7, ease: "easeOut" }}
             viewport={{ once: true }}
-            className="absolute top-10 left-10 w-full rounded-xl shadow-xl border border-border z-20"
+            className="absolute top-16 left-14 w-full rounded-xl shadow-xl border border-border z-10"
           >
             <Image
-              src="/images/feature-diagram.png"
+              src="/images/feature-summary.png"
               alt="다이어그램"
               width={600}
               height={350}
@@ -60,16 +60,16 @@ export default function FeaturesSection() {
             />
           </motion.div>
 
-          {/* 앞쪽 요약 텍스트 */}
+          {/* 앞쪽 요약 텍스트 - 반대 기울임 */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 30, rotate: 2 }}
+            whileInView={{ opacity: 1, y: 0, rotate: 2 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             viewport={{ once: true }}
-            className="absolute top-0 left-0 w-full rounded-xl overflow-hidden shadow-lg z-10 border border-border"
+            className="absolute top-0 left-0 w-full rounded-xl overflow-hidden shadow-lg z-20 border border-border"
           >
             <Image
-              src="/images/feature-summary.png"
+              src="/images/feature-diagram.png"
               alt="요약 텍스트"
               width={600}
               height={350}
@@ -78,14 +78,14 @@ export default function FeaturesSection() {
           </motion.div>
         </div>
 
-        {/* ✅ 오른쪽: 카드들 */}
-        <div className="space-y-10">
-          <div className="text-center lg:text-left">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-text dark:text-foreground mb-4">
-              Brify는 이렇게 도와드려요
+        {/* ✅ 텍스트 및 기능 카드 */}
+        <div className="space-y-6">
+          <div className="text-center lg:text-left mb-6">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-text dark:text-white mb-4 leading-snug">
+              Brify는 이렇게<br className="lg:hidden" /> 도와드려요
             </h2>
             <p className="text-base md:text-lg text-muted-foreground">
-              효율적인 요약과 정리를 위한 다양한 기능을 만나보세요.
+              효율적인 요약과 정리를 위한 기능들을 지금 바로 만나보세요.
             </p>
           </div>
 

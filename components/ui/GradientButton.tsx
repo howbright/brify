@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 interface GradientButtonProps {
-  label: string;
+  label: string | ReactNode;
   type?: 'button' | 'submit' | 'reset';
   onClick?: () => void;
 }

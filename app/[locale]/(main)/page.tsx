@@ -6,6 +6,7 @@ import PresentationSection from "@/components/layout/PresentationSection";
 import HeroSection from "@/components/layout/HeroSection";
 import NeedsSection from "@/components/layout/NeedsSection";
 import FeaturesSection from "@/components/layout/FeatureSection";
+import CTAPricingSection from "@/components/layout/CTAPricingSection";
 // import { useTranslations } from "next-intl";
 
 export default function Home() {
@@ -18,10 +19,11 @@ export default function Home() {
       <HeroSection/>
       <NeedsSection />
       <FeaturesSection/>
+      <CTAPricingSection/>
       {/* <Needs1/>
       <KnowledgeCompleteSection/>
       <PresentationSection/> */}
-      <For />
+      {/* <For /> */}
       {/* <div>
         <h1>{t("title")}</h1>
         <Link href="/about">{t("about")}</Link>

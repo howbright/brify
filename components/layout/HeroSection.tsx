@@ -41,7 +41,7 @@ export default function HeroSection() {
       <Image
         src="/images/hero1.svg"
         alt=""
-        className="hidden sm:block  absolute top-[70px] left-[-20px] w-28 md:w-36 opacity-40 animate-floating pointer-events-none"
+        className="hidden sm:block absolute top-[70px] left-[-20px] w-28 md:w-36 opacity-40 animate-floating pointer-events-none"
         aria-hidden="true"
         width={100}
         height={100}
@@ -49,7 +49,7 @@ export default function HeroSection() {
       <Image
         src="/images/hero2.svg"
         alt=""
-        className="hidden sm:block  absolute bottom-[-30px] right-[-20px] w-32 md:w-40 opacity-40 animate-floating-reverse pointer-events-none"
+        className="hidden sm:block absolute bottom-[-30px] right-[-20px] w-32 md:w-40 opacity-40 animate-floating-reverse pointer-events-none"
         aria-hidden="true"
         width={100}
         height={100}
@@ -57,7 +57,7 @@ export default function HeroSection() {
       <Image
         src="/images/hero3.svg"
         alt=""
-        className="hidden sm:block  absolute top-[100px] right-8 w-24 md:w-32 opacity-30 rotate-12 pointer-events-none"
+        className="hidden sm:block absolute top-[100px] right-8 w-24 md:w-32 opacity-30 rotate-12 pointer-events-none"
         aria-hidden="true"
         width={100}
         height={100}
@@ -65,7 +65,7 @@ export default function HeroSection() {
       <Image
         src="/images/hero5.svg"
         alt=""
-        className="hidden sm:block  absolute bottom-[-20px] left-6 w-20 md:w-28 opacity-30 pointer-events-none"
+        className="hidden sm:block absolute bottom-[-20px] left-6 w-20 md:w-28 opacity-30 pointer-events-none"
         aria-hidden="true"
         width={100}
         height={100}
@@ -80,13 +80,13 @@ export default function HeroSection() {
         {/* ✅ 텍스트 영역 */}
         <div className="flex-1 text-center lg:text-left space-y-6">
           <motion.h1
-            className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight"
+            className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-snug mb-6"
             variants={wordAnimation}
           >
             긴 콘텐츠, <span className="text-primary">빠르게 이해하세요</span>
           </motion.h1>
           <motion.p
-            className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-xl leading-relaxed mx-auto lg:mx-0"
+            className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-xl leading-relaxed mx-auto lg:mx-0 mb-6"
             variants={wordAnimation}
           >
             YouTube, 뉴스, 블로그, 논문까지 —
@@ -98,9 +98,12 @@ export default function HeroSection() {
             <strong className="text-black dark:text-white">다이어그램</strong>
             으로 시각화해 한눈에 이해!
           </motion.p>
-          <motion.div variants={wordAnimation}>
-            <GradientButton label="핵심정리 시작하기" onClick={() => router.push('/summarize')} />
-            <p className="mt-2 text-sm text-primary/80">
+          <motion.div variants={wordAnimation} className="mt-6">
+            <GradientButton
+              label="핵심정리 시작하기"
+              onClick={() => router.push("/summarize")}
+            />
+            <p className="mt-3 text-sm text-primary/80">
               링크나 파일만 있으면 요약이 바로 시작됩니다.
             </p>
           </motion.div>
