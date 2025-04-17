@@ -1,0 +1,35 @@
+/* 기본 다이얼로그 애니메이션 효과 */
+[data-state="open"] {
+    animation: modalFadeIn 0.3s ease-out forwards;
+  }
+  [data-state="closed"] {
+    animation: modalFadeOut 0.2s ease-in forwards;
+  }
+  
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  @keyframes modalFadeOut {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+  }
+  
+  /* DialogContent 스타일 보완용 */
+  .radix-dialog-content {
+    @apply bg-white dark:bg-zinc-900 text-black dark:text-white rounded-xl shadow-xl p-6 w-full max-w-lg;
+  }
+  

@@ -1,4 +1,3 @@
-const flowbite = require("flowbite-react/tailwind");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -8,8 +7,6 @@ module.exports = {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    flowbite.content(),
-    require('flowbite/plugin')
   ],
   theme: {
   	extend: {
@@ -89,5 +86,5 @@ module.exports = {
   		]
   	}
   },
-  plugins: [flowbite.plugin(), require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate")],
 };

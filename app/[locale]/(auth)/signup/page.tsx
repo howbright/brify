@@ -71,7 +71,7 @@ export default function Signup() {
                 {
                   title: "Join millions of businesses",
                   description:
-                    "Flowbite is trusted by ambitious startups and enterprises of every size.",
+                    " is trusted by ambitious startups and enterprises of every size.",
                 },
               ].map((item, idx) => (
                 <div key={idx} className="flex items-start">

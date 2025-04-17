@@ -3,7 +3,6 @@
 import LanguageSelector from "@/components/LanguageSelector";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
-import "flowbite";
 
 export default function SimpleHeader() {
   return (

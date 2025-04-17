@@ -3,23 +3,28 @@
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { Modal } from 'flowbite-react';
+import {
+  Modal,
+  ModalContent,
+  ModalClose,
+} from '@/components/ui/modal';
 import { X } from 'lucide-react';
 
 export default function LoginPromptModal({ show, onClose }: { show: boolean; onClose: () => void }) {
   const t = useTranslations('login');
 
   return (
-    <Modal show={show} onClose={onClose} size="7xl" popup className="z-50">
-      <div className="relative bg-[#f4f7f8] text-[#1f1f1f] dark:bg-[#111827] dark:text-white px-4 overflow-hidden rounded-lg">
+    <Modal open={show} onOpenChange={onClose}>
+      <ModalContent className="relative bg-[#f4f7f8] text-[#1f1f1f] dark:bg-[#111827] dark:text-white px-4 overflow-hidden rounded-lg max-w-5xl w-full mx-auto">
         {/* ✖ 닫기 버튼 */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 text-gray-500 hover:text-red-500"
-          aria-label="닫기"
-        >
-          <X className="w-6 h-6" />
-        </button>
+        <ModalClose asChild>
+          <button
+            className="absolute top-4 right-4 z-10 text-gray-500 hover:text-red-500"
+            aria-label="닫기"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </ModalClose>
 
         {/* 배경 SVG */}
         <Image
@@ -143,7 +148,7 @@ export default function LoginPromptModal({ show, onClose }: { show: boolean; onC
             </div>
           </div>
         </div>
-      </div>
+      </ModalContent>
     </Modal>
   );
 }
