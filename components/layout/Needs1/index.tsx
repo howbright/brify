@@ -27,7 +27,7 @@ const Needs1 = () => {
   ];
 
   return (
-    <section className="relative flex justify-center z-10 bg-gradient-to-b from-[#fffdf7] to-[#fdf0e6] py-14">
+    <section className="relative flex justify-center z-10 bg-linear-to-b from-[#fffdf7] to-[#fdf0e6] py-14">
       <div className="w-full max-w-7xl px-4">
         {/* 👉 타이틀 문구 */}
         <h2 className="text-2xl md:text-3xl font-extrabold text-center text-gray-900 dark:text-white mb-7">
@@ -66,8 +66,8 @@ const Needs1 = () => {
               />
 
               {/* 오버레이 텍스트 */}
-              <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t h-28 from-black/90 via-black/70 to-transparent px-4 py-3">
-                <p className="text-white text-3xl sm:text-3xl font-semibold drop-shadow">
+              <div className="absolute bottom-0 left-0 w-full bg-linear-to-t h-28 from-black/90 via-black/70 to-transparent px-4 py-3">
+                <p className="text-white text-3xl sm:text-3xl font-semibold drop-shadow-sm">
                   {item.title}
                 </p>
               </div>
@@ -79,7 +79,7 @@ const Needs1 = () => {
           <input
             type="url"
             placeholder="YouTube 영상 링크를 입력하세요"
-            className="w-full sm:w-[400px] px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-black dark:text-white dark:border-white/20"
+            className="w-full sm:w-[400px] px-4 py-3 rounded-lg border border-gray-300 focus:outline-hidden focus:ring-2 focus:ring-primary dark:bg-black dark:text-white dark:border-white/20"
           />
           <button
             type="button"

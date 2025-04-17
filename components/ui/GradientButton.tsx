@@ -22,7 +22,7 @@ export default function GradientButton({
       <span className="relative z-10">{label}</span>
       <span
         className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
-        bg-[length:300%_300%] bg-gradient-to-r from-accent-blue via-accent-indigo to-accent-sky
+        bg-[length:300%_300%] bg-linear-to-r from-accent-blue via-accent-indigo to-accent-sky
         animate-gradient-smooth"
       />
     </button>

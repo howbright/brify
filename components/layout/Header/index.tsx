@@ -54,9 +54,9 @@ export default function Header() {
       <nav
         id="mainNavbar"
         data-sticky="false"
-        className="bg-white dark:bg-transparent py-2.5 fixed w-full z-40 top-0 start-0 border-b border-gray-300 dark:border-gray-700 data-[sticky=true]:bg-white data-[sticky=true]:dark:bg-gray-800"
+        className="bg-white dark:bg-transparent py-2.5 fixed w-full z-40 top-0 start-0 border-b border-gray-300 dark:border-gray-700 data-[sticky=true]:bg-white dark:data-[sticky=true]:bg-gray-800"
       >
-        <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl px-4">
+        <div className="flex flex-wrap justify-between items-center mx-auto max-w-(--breakpoint-xl) px-4">
           {/* 로고 */}
           <Link href="/" className="flex items-center gap-2">
             <Image
@@ -84,7 +84,7 @@ export default function Header() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="text-white bg-primary hover:bg-primary-dark focus:ring-primary font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary dark:hover:bg-primary-dark focus:outline-none dark:focus:ring-primary"
+                  className="text-white bg-primary hover:bg-primary-dark focus:ring-primary font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary dark:hover:bg-primary-dark focus:outline-hidden dark:focus:ring-primary"
                 >
                   회원가입
                 </Link>
@@ -97,7 +97,7 @@ export default function Header() {
                   <button className="flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-white/20 rounded-lg text-sm hover:border-primary hover:text-primary transition-colors">
                     <span className="hidden sm:inline truncate max-w-[120px]">{email}</span>
                     {role === "pro" ? (
-                      <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                      <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-linear-to-r from-purple-500 to-pink-500 text-white">
                         PRO
                       </span>
                     ) : (

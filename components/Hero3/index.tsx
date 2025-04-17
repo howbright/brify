@@ -125,7 +125,7 @@ export default function Hero3() {
                 transition: { duration: 0.6, ease: "easeOut" },
               },
             }}
-            className="bg-gradient-to-r leading-tight from-[#0ea5e9] via-[#3b82f6] to-[#6366f1] bg-clip-text text-transparent text-5xl md:text-6xl font-extrabold tracking-tight"
+            className="bg-linear-to-r leading-tight from-[#0ea5e9] via-[#3b82f6] to-[#6366f1] bg-clip-text text-transparent text-5xl md:text-6xl font-extrabold tracking-tight"
           >
             {t("title2")}
           </motion.span>

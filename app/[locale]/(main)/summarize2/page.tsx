@@ -91,7 +91,7 @@ export default function Summarize() {
         )}
 
         <form action="#" onSubmit={(e) => e.preventDefault()}>
-          <div className="group relative rounded-xl bg-gray-300 transition-all duration-300 hover:bg-gradient-to-r hover:from-accent-blue hover:via-accent-indigo hover:to-accent-sky animate-gradient-x p-[2px]">
+          <div className="group relative rounded-xl bg-gray-300 transition-all duration-300 hover:bg-linear-to-r hover:from-accent-blue hover:via-accent-indigo hover:to-accent-sky animate-gradient-x p-[2px]">
             <div className="bg-gray-soft dark:bg-gray-800 rounded-[10px]">
               <textarea
                 ref={textareaRef}
@@ -102,7 +102,7 @@ export default function Summarize() {
                 placeholder="예: 유튜브 자막, 블로그 글, 뉴스 기사 등..."
                 className="w-full h-full p-6 text-base font-mono rounded-[10px] \
       bg-white dark:bg-gray-100\n      text-black dark:text-gray-900 \
-      placeholder-gray-500 dark:placeholder-gray-600\n      border-none outline-none focus:outline-none focus:ring-0"
+      placeholder-gray-500 dark:placeholder-gray-600\n      border-none outline-hidden focus:outline-hidden focus:ring-0"
               />
             </div>
           </div>

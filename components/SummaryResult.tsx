@@ -48,7 +48,7 @@ export default function SummaryResult({ viewType, text, tree }: Props) {
       <h2 className="text-2xl font-bold mb-6">핵심정리 결과</h2>
 
       {viewType === "text" && text && (
-        <div className="whitespace-pre-wrap bg-white p-6 rounded-lg shadow mb-10 border text-gray-800">
+        <div className="whitespace-pre-wrap bg-white p-6 rounded-lg shadow-sm mb-10 border text-gray-800">
           {text}
         </div>
       )}
@@ -59,7 +59,7 @@ export default function SummaryResult({ viewType, text, tree }: Props) {
 
       {viewType === "both" && text && tree && (
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow border text-gray-800 whitespace-pre-wrap">
+          <div className="bg-white p-6 rounded-lg shadow-sm border text-gray-800 whitespace-pre-wrap">
             {text}
           </div>
           <DiagramView nodes={nodes} edges={edges} />
@@ -78,7 +78,7 @@ export default function SummaryResult({ viewType, text, tree }: Props) {
           {comments.map((comment, index) => (
             <li
               key={index}
-              className="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded text-sm shadow"
+              className="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded text-sm shadow-sm"
             >
               {comment}
             </li>
@@ -93,7 +93,7 @@ export default function SummaryResult({ viewType, text, tree }: Props) {
             <textarea
               id="comment"
               rows={6}
-              className="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none dark:text-white dark:placeholder-gray-400 dark:bg-gray-800"
+              className="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-hidden dark:text-white dark:placeholder-gray-400 dark:bg-gray-800"
               placeholder="Write a comment..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}

@@ -68,7 +68,7 @@ export default function DiagramView({ nodes, edges }: DiagramViewProps) {
         >
           <button
             onClick={() => setStylePickerOpen(true)}
-            className="absolute top-2 left-2 z-10 flex gap-2 bg-white p-2 rounded shadow"
+            className="absolute top-2 left-2 z-10 flex gap-2 bg-white p-2 rounded shadow-sm"
           >
             🎨 스타일
           </button>
@@ -77,7 +77,7 @@ export default function DiagramView({ nodes, edges }: DiagramViewProps) {
           </Panel>
           <MiniMap
             style={{ width: 100, height: 70 }}
-            className="!top-2 !right-2 !w-[100px] !h-[70px] !opacity-80"
+            className="top-2! right-2! w-[100px]! h-[70px]! opacity-80!"
             zoomable
             pannable
           />

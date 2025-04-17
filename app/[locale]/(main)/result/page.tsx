@@ -47,7 +47,7 @@ export default function ResultPage() {
   }
 
   return (
-    <section className="bg-gradient-to-br from-[#fbf7ee] via-[#f6f7f1] to-[#f2f8fc] ">
+    <section className="bg-linear-to-br from-[#fbf7ee] via-[#f6f7f1] to-[#f2f8fc] ">
       <SummaryResult viewType={viewType} text={text} tree={tree ?? undefined} />
     </section>
   );

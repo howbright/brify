@@ -113,7 +113,7 @@ export default function DiagramEditor() {
   return (
     <ReactFlowProvider>
       <div className="w-full h-[80vh] border rounded relative">
-        <div className="absolute top-2 left-2 z-10 flex gap-2 bg-white p-2 rounded shadow">
+        <div className="absolute top-2 left-2 z-10 flex gap-2 bg-white p-2 rounded shadow-sm">
           <button onClick={() => setStylePreset(classicStyle)}>
             🎩 클래식
           </button>

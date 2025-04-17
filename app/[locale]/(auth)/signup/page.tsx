@@ -40,7 +40,7 @@ export default function Signup() {
         width={100}
         height={100}
       />
-      <div className="max-w-screen-xl px-4 py-8 mx-auto sm:py-16 lg:py-24 pt-20 sm:pt-24 lg:pt-32">
+      <div className="max-w-(--breakpoint-xl) px-4 py-8 mx-auto sm:py-16 lg:py-24 pt-20 sm:pt-24 lg:pt-32">
         <div className="lg:grid lg:gap-20 lg:items-center lg:grid-cols-12">
           <div className="hidden col-span-6 mr-auto lg:block">
             <Link

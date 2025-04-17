@@ -130,9 +130,9 @@ export default function SignupForm() {
 
         {/* Divider */}
         <div className="flex items-center text-xs font-semibold uppercase text-gray-500 tracking-wider">
-          <div className="flex-grow border-t border-gray-300" />
+          <div className="grow border-t border-gray-300" />
           <span className="px-4">{t("or")}</span>
-          <div className="flex-grow border-t border-gray-300" />
+          <div className="grow border-t border-gray-300" />
         </div>
 
         {/* 이메일 인증 단계 */}
@@ -146,7 +146,7 @@ export default function SignupForm() {
                 placeholder={t("email.placeholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-gray-900 rounded-lg p-2.5 bg-white dark:bg-black dark:border-white/20 focus:outline-none focus:ring-1 focus:ring-black"
+                className="w-full border border-gray-900 rounded-lg p-2.5 bg-white dark:bg-black dark:border-white/20 focus:outline-hidden focus:ring-1 focus:ring-black"
                 required
               />
             </div>
@@ -205,7 +205,7 @@ export default function SignupForm() {
                 placeholder="이메일로 받은 6자리 코드를 입력하세요"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
-                className="w-full border border-gray-900 rounded-lg p-2.5 bg-white dark:bg-black dark:border-white/20 focus:outline-none focus:ring-1 focus:ring-black"
+                className="w-full border border-gray-900 rounded-lg p-2.5 bg-white dark:bg-black dark:border-white/20 focus:outline-hidden focus:ring-1 focus:ring-black"
                 required
               />
               {message && (

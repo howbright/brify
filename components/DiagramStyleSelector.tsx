@@ -44,7 +44,7 @@ export default function DiagramStyleSelector({ open, onSelect, onClose }: Diagra
                 onSelect(style);
                 onClose();
               }}
-              className="flex flex-col items-center p-3 border rounded-lg hover:shadow cursor-pointer"
+              className="flex flex-col items-center p-3 border rounded-lg hover:shadow-sm cursor-pointer"
               style={{ backgroundColor: style.node.backgroundColor }}
             >
               <div

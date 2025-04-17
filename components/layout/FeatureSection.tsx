@@ -103,7 +103,7 @@ export default function FeaturesSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 + index * 0.08 }}
                 viewport={{ once: true }}
-                className={`flex items-start gap-4 p-5 border border-gray-200 dark:border-white/10 ${item.bg} dark:bg-black rounded-xl shadow-sm`}
+                className={`flex items-start gap-4 p-5 border border-gray-200 dark:border-white/10 ${item.bg} dark:bg-black rounded-xl shadow-xs`}
               >
                 <Icon icon={item.icon} width={36} className="text-primary mt-1 shrink-0" />
                 <div>

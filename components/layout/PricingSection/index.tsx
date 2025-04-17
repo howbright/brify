@@ -2,9 +2,9 @@ import FeatureItem from "./FeatureItem";
 
 export default function PricingSection() {
   return (
-    <section className="bg-gradient-to-b from-white via-blue-50 to-blue-100 dark:via-gray-800 dark:from-gray-900 dark:to-gray-800">
-      <div className="py-12 px-4 mx-auto max-w-screen-xl lg:py-20 lg:px-6">
-        <div className="mx-auto max-w-screen-md text-center mb-12">
+    <section className="bg-linear-to-b from-white via-blue-50 to-blue-100 dark:via-gray-800 dark:from-gray-900 dark:to-gray-800">
+      <div className="py-12 px-4 mx-auto max-w-(--breakpoint-xl) lg:py-20 lg:px-6">
+        <div className="mx-auto max-w-(--breakpoint-md) text-center mb-12">
           <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">
             지식이 완성되는 순간을 경험하세요.
           </h2>
@@ -20,7 +20,7 @@ export default function PricingSection() {
         <div className="w-full flex justify-center">
           <div className="w-full max-w-[900px] grid gap-6 sm:grid-cols-1 lg:grid-cols-2">
             {/* Free Plan */}
-            <div className="flex-grow h-full w-full flex flex-col justify-between p-6 mx-auto text-gray-900 bg-white rounded-2xl border border-gray-200 shadow-xl hover:shadow-2xl transition-shadow dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+            <div className="grow h-full w-full flex flex-col justify-between p-6 mx-auto text-gray-900 bg-white rounded-2xl border border-gray-200 shadow-xl hover:shadow-2xl transition-shadow dark:border-gray-700 dark:bg-gray-800 dark:text-white">
               <div>
                 <h2 className="mb-2 text-2xl font-semibold text-center">
                   Basic 플랜
@@ -55,7 +55,7 @@ export default function PricingSection() {
             </div>
 
             {/* Pro Plan */}
-            <div className="flex-grow h-full w-full flex flex-col justify-between p-6 mx-auto text-gray-900 bg-white border border-primary-500 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow dark:border-primary-500 dark:bg-gray-800 dark:text-white">
+            <div className="grow h-full w-full flex flex-col justify-between p-6 mx-auto text-gray-900 bg-white border border-primary-500 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow dark:border-primary-500 dark:bg-gray-800 dark:text-white">
               {/* 1. 상단 Pro 라벨 */}
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-semibold text-primary-600 dark:text-primary-400">

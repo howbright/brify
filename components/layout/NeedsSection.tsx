@@ -35,7 +35,7 @@ export default function NeedsSection() {
   return (
     <motion.section
       className="relative z-10 pt-24 pb-44 px-4 
-  bg-gradient-to-b from-[#c0ebe8] via-[#d9f3f1] to-[#fdfcfb] 
+  bg-linear-to-b from-[#c0ebe8] via-[#d9f3f1] to-[#fdfcfb] 
   dark:bg-[#1a1a1a] overflow-hidden"
       initial="hidden"
       whileInView="visible"

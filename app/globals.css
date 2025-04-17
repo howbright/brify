@@ -1,124 +1,209 @@
 /* globals.css */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+KR&family=Noto+Sans+JP&family=Noto+Sans+SC&family=Noto+Sans+TC&family=Noto+Sans+Display&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+KR&family=Noto+Sans+JP&family=Noto+Sans+SC&family=Noto+Sans+TC&family=Noto+Sans+Display&display=swap')
+layer(base);
 
+@import 'tailwindcss';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@plugin 'tailwindcss-animate';
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-global:
+    Noto Sans, Noto Sans KR, Noto Sans JP, Noto Sans SC, Noto Sans TC,
+    sans-serif;
+
+  --color-background: #f1f5ff;
+  --color-gray-soft: #e0e6f0;
+  --color-text: #1f1f1f;
+
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #4c6ef5;
+  --color-primary-600: #3b5bdb;
+  --color-primary-700: #364fc7;
+  --color-primary-800: #2f44ad;
+  --color-primary-900: #2b3c9f;
+  --color-primary: #4c6ef5;
+  --color-primary-foreground: #ffffff;
+
+  --color-primary-hover: #3b5bdb;
+  --color-accent-blue: #748ffc;
+  --color-accent-sky: #0ea5e9;
+  --color-accent-indigo: #6366f1;
+  --color-neon: #4cf0ff;
+  --color-foreground: #1f1f1f;
+
+  --color-card: #ffffff;
+  --color-card-foreground: #1f1f1f;
+
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1f1f1f;
+
+  --color-secondary: #e9ecef;
+  --color-secondary-foreground: #1f1f1f;
+
+  --color-muted: #e9ecef;
+  --color-muted-foreground: #495057;
+
+  --color-accent: #e9ecef;
+  --color-accent-foreground: #1f1f1f;
+
+  --color-destructive: #f03e3e;
+  --color-destructive-foreground: #ffffff;
+
+  --color-border: #e0e6f0;
+  --color-input: #e0e6f0;
+  --color-ring: #1f1f1f;
+
+  --color-chart-1: 217 91% 60%;
+  --color-chart-2: 173 58% 50%;
+  --color-chart-3: 197 37% 40%;
+  --color-chart-4: 43 74% 66%;
+  --color-chart-5: 27 87% 67%;
+
+  --radius-lg: 0.75rem;
+  --radius-md: 0.625rem;
+  --radius-sm: 0.5rem;
 }
 
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
 
-@media (width >= 768px) {
-  .md\:text-5xl {
+
+@layer utilities {
+  html,
+  body {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html {
+      color-scheme: dark;
+    }
+  }
+
+  @media (width >= 768px) {
+    .md\:text-5xl {
       font-size: 3rem;
       line-height: 1.2;
+    }
   }
-}
-@keyframes gradient-smooth {
-  0% {
-    background-position: 0% 50%;
+  @keyframes gradient-smooth {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
   }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
 
-.animate-gradient-smooth {
-  background-size: 300% 300%;
-  animation: gradient-smooth 6s ease-in-out infinite;
-}
+  .animate-gradient-smooth {
+    background-size: 300% 300%;
+    animation: gradient-smooth 6s ease-in-out infinite;
+  }
 
+  @keyframes gradient-smooth {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
 
-@keyframes gradient-smooth {
-  0% {
-    background-position: 0% 50%;
+  .animate-gradient-smooth {
+    background-size: 200% 200%;
+    animation: gradient-smooth 4s ease-in-out infinite;
   }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
 
-.animate-gradient-smooth {
-  background-size: 200% 200%;
-  animation: gradient-smooth 4s ease-in-out infinite;
-}
+  @keyframes gradient-smooth {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
 
-@keyframes gradient-smooth {
-  0% {
-    background-position: 0% 50%;
+  .animate-gradient-smooth {
+    background-size: 200% 200%;
+    animation: gradient-smooth 4s ease-in-out infinite;
   }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
 
-.animate-gradient-smooth {
-  background-size: 200% 200%;
-  animation: gradient-smooth 4s ease-in-out infinite;
-}
+  .text-gradient {
+    background-image: linear-gradient(to right, #3b82f6, #6366f1, #0ea5e9);
+    /* -webkit-background-clip: text; */
+    -webkit-text-fill-color: transparent;
+  }
 
-.text-gradient {
-  background-image: linear-gradient(to right, #3b82f6, #6366f1, #0ea5e9);
-  /* -webkit-background-clip: text; */
-  -webkit-text-fill-color: transparent;
-}
-
-@keyframes floating {
-  0%, 100% {
-    transform: translateY(0px);
+  @keyframes floating {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
   }
-  50% {
-    transform: translateY(-6px);
+  @keyframes floating-reverse {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(6px);
+    }
   }
-}
-@keyframes floating-reverse {
-  0%, 100% {
-    transform: translateY(0px);
+  .animate-floating {
+    animation: floating 5s ease-in-out infinite;
   }
-  50% {
-    transform: translateY(6px);
+  .animate-floating-reverse {
+    animation: floating-reverse 5s ease-in-out infinite;
   }
-}
-.animate-floating {
-  animation: floating 5s ease-in-out infinite;
-}
-.animate-floating-reverse {
-  animation: floating-reverse 5s ease-in-out infinite;
 }
 
 @layer base {
@@ -187,32 +272,6 @@ a {
 }
 
 
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
-}
-
-.shimmer-text {
-  background: linear-gradient(
-    120deg,
-    #3b82f6 0%,
-    #60a5fa 40%,
-    #93c5fd 60%,
-    #3b82f6 100%
-  );
-  background-size: 200% auto;
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  animation: shimmer 2.5s infinite linear;
-}
-
-
 @keyframes pulse-glow {
   0%, 100% {
     text-shadow: 0 0 0px transparent;
@@ -228,9 +287,6 @@ a {
   animation: pulse-glow 2.5s ease-in-out infinite;
 }
 
-.prose h2 {
-  font-weight: 700;
-}
 
 :focus-visible {
   outline: none !important;

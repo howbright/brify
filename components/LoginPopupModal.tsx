@@ -60,7 +60,7 @@ export default function LoginPromptModal({ show, onClose }: { show: boolean; onC
           height={100}
         />
 
-        <div className="max-w-screen-xl w-full mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center py-20">
+        <div className="max-w-(--breakpoint-xl) w-full mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center py-20">
           {/* 좌측 설명 */}
           <div className="px-6 md:px-12">
             <Link href="/" className="inline-flex items-center mb-10 text-3xl font-black uppercase tracking-tight">
@@ -110,9 +110,9 @@ export default function LoginPromptModal({ show, onClose }: { show: boolean; onC
 
               {/* 구분선 */}
               <div className="flex items-center text-xs font-semibold uppercase text-gray-500 tracking-wider">
-                <div className="flex-grow border-t border-gray-300"></div>
+                <div className="grow border-t border-gray-300"></div>
                 <span className="px-4">{t('or')}</span>
-                <div className="flex-grow border-t border-gray-300"></div>
+                <div className="grow border-t border-gray-300"></div>
               </div>
 
               {/* 이메일 로그인 */}
@@ -125,7 +125,7 @@ export default function LoginPromptModal({ show, onClose }: { show: boolean; onC
                     type="email"
                     id="email"
                     placeholder={t('email.placeholder')}
-                    className="w-full border border-gray-900 rounded-lg p-2.5 bg-white dark:bg-black dark:border-white/20 focus:outline-none focus:ring-1 focus:ring-black"
+                    className="w-full border border-gray-900 rounded-lg p-2.5 bg-white dark:bg-black dark:border-white/20 focus:outline-hidden focus:ring-1 focus:ring-black"
                     required
                   />
                 </div>

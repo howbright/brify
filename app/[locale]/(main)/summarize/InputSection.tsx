@@ -79,7 +79,7 @@ export default function InputSection({
             }
             value={textInput}
             onChange={(e) => setTextInput(e.target.value)}
-            className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg focus:outline-none focus:ring-primary bg-white dark:bg-black"
+            className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg focus:outline-hidden focus:ring-primary bg-white dark:bg-black"
           />
           {type === "website" && (
             <p className="text-xs text-gray-400 dark:text-gray-500">
@@ -93,7 +93,7 @@ export default function InputSection({
 
     if (type === "file") {
       return (
-        <div className="w-full max-w-md mx-auto rounded-lg border border-gray-300 dark:border-white/20 bg-white dark:bg-gray-900 p-5 shadow-sm text-center space-y-4">
+        <div className="w-full max-w-md mx-auto rounded-lg border border-gray-300 dark:border-white/20 bg-white dark:bg-gray-900 p-5 shadow-xs text-center space-y-4">
           <div className="flex items-center justify-center gap-2 text-sm font-semibold text-gray-800 dark:text-white">
             <Icon icon="mdi:file-upload-outline" width={22} />
             파일 업로드
@@ -122,7 +122,7 @@ export default function InputSection({
           placeholder="직접 입력하거나 붙여넣기 해주세요"
           value={textInput}
           onChange={(e) => setTextInput(e.target.value)}
-          className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg focus:outline-none focus:ring-primary bg-white dark:bg-black"
+          className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg focus:outline-hidden focus:ring-primary bg-white dark:bg-black"
         />
       );
     }

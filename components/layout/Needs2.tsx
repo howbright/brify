@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function KnowledgeCompleteSection() {
   return (
-    <section className="relative z-10 bg-gradient-to-b from-[#fdf0e6] to-[#fffdf7] py-20 px-4">
+    <section className="relative z-10 bg-linear-to-b from-[#fdf0e6] to-[#fffdf7] py-20 px-4">
       <div className="max-w-6xl mx-auto flex flex-col-reverse lg:flex-row items-center gap-10">
         {/* ✅ 텍스트 영역 */}
         <div className="flex-1 text-center lg:text-left">
