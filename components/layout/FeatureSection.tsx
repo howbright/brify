@@ -40,7 +40,22 @@ const features = [
 export default function FeaturesSection() {
   return (
     <section className="relative z-10 py-24 px-4 bg-[#f3f4ff] dark:bg-[#121222] border-t border-gray-200 dark:border-white/10">
-      <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+      {/* ✨ Decorative Elements */}
+      <div className="absolute -top-24 -left-16 w-[420px] h-[420px] bg-gradient-to-br from-primary-400 to-sky-300 rounded-full blur-2xl opacity-30 z-0 animate-pulse-slow" />
+      <svg
+        className="absolute -bottom-10 left-[30%] w-80 h-24 opacity-20 z-0 animate-move-wave"
+        viewBox="0 0 200 100"
+      >
+        <path
+          d="M0,50 Q50,0 100,50 T200,50"
+          fill="none"
+          stroke="#3366ff"
+          strokeWidth="3"
+          strokeDasharray="5"
+        />
+      </svg>
+
+      <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10">
         {/* ✅ 이미지 겹치기 */}
         <div className="relative w-full max-w-lg mx-auto h-[360px]">
           {/* 뒷쪽 다이어그램 - 기울임 */}
@@ -115,6 +130,24 @@ export default function FeaturesSection() {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes pulse-slow {
+          0%, 100% { transform: scale(1); opacity: 0.3; }
+          50% { transform: scale(1.1); opacity: 0.45; }
+        }
+        .animate-pulse-slow {
+          animation: pulse-slow 10s ease-in-out infinite;
+        }
+
+        @keyframes move-wave {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-20px); }
+        }
+        .animate-move-wave {
+          animation: move-wave 12s ease-in-out infinite alternate;
+        }
+      `}</style>
     </section>
   );
 }

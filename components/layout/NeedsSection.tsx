@@ -34,7 +34,7 @@ const cards = [
 export default function NeedsSection() {
   return (
     <motion.section
-      className="relative z-10 pt-24 pb-44 px-4 bg-background text-text dark:bg-[#1a1a1a] overflow-hidden border-t border-border"
+      className="relative z-20 pt-24 pb-44 px-4 bg-background text-text dark:bg-[#1a1a1a] overflow-hidden border-t border-border"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.2 }}

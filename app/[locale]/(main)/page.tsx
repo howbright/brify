@@ -1,33 +1,19 @@
-import Hero3 from "@/components/Hero3";
-import For from "@/components/layout/For";
-import Needs1 from "@/components/layout/Needs1";
-import KnowledgeCompleteSection from "@/components/layout/Needs2";
-import PresentationSection from "@/components/layout/PresentationSection";
+import CTAPricingSection from "@/components/layout/CTAPricingSection";
+import FeaturesSection from "@/components/layout/FeatureSection";
 import HeroSection from "@/components/layout/HeroSection";
 import NeedsSection from "@/components/layout/NeedsSection";
-import FeaturesSection from "@/components/layout/FeatureSection";
-import CTAPricingSection from "@/components/layout/CTAPricingSection";
+import TestimonialSection from "@/components/layout/TestimonialSection";
 // import { useTranslations } from "next-intl";
 
 export default function Home() {
   // const t = useTranslations("HomePage");
   return (
     <div>
-      {/* <Hero />
-      <Hero2 /> */}
-      {/* <Hero3 /> */}
       <HeroSection/>
       <NeedsSection />
       <FeaturesSection/>
+      <TestimonialSection/>
       <CTAPricingSection/>
-      {/* <Needs1/>
-      <KnowledgeCompleteSection/>
-      <PresentationSection/> */}
-      {/* <For /> */}
-      {/* <div>
-        <h1>{t("title")}</h1>
-        <Link href="/about">{t("about")}</Link>
-      </div> */}
     </div>
   );
 }
