@@ -103,7 +103,7 @@ export default function SummarizePage() {
         {/* Section 2: 원문 편집 */}
         {rawText && sourceType !== "manual" && (
           <motion.section
-            className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md space-y-6"
+            className="bg-white mt-7 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md space-y-6"
             variants={fadeInUp}
             initial="initial"
             animate="animate"
