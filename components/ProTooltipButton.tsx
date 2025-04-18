@@ -1,34 +1,52 @@
-import * as Tooltip from "@radix-ui/react-tooltip";
+"use client";
+
+import { useSession } from "@/components/SessionProvider";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@radix-ui/react-tooltip";
 import { useRouter } from "next/navigation";
 
 export function ProTooltipButton({ label }: { label: string }) {
+  const { session } = useSession();
   const router = useRouter();
 
+  const isPro = session?.user?.user_metadata?.role === "pro";
+
   return (
-    <Tooltip.Provider delayDuration={150}>
-      <Tooltip.Root>
-        <Tooltip.Trigger asChild>
+    <TooltipProvider delayDuration={100}>
+      <Tooltip>
+        <TooltipTrigger asChild>
           <button
-            disabled
-            className="cursor-not-allowed opacity-50 bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-4 py-2 rounded-lg text-sm font-semibold"
+            onClick={() => {
+              if (!isPro) return;
+            }}
+            className="relative px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-white border border-gray-300 text-black hover:border-black cursor-pointer"
           >
             {label}
+            <span className="absolute -top-2 -right-2 bg-pink-600 text-[10px] font-bold text-white px-1.5 py-[1px] rounded-full shadow-sm">
+              PRO
+            </span>
           </button>
-        </Tooltip.Trigger>
-        <Tooltip.Content
-          side="top"
-          className="z-50 max-w-xs p-3 rounded-lg bg-white dark:bg-gray-900 shadow-lg border text-sm text-gray-800 dark:text-gray-200 space-y-2"
-        >
-          <p>Pro 사용자만 이용할 수 있어요.</p>
-          <button
-            onClick={() => router.push("/pricing")}
-            className="text-primary font-semibold underline hover:text-primary-dark"
+        </TooltipTrigger>
+
+        {!isPro && (
+          <TooltipContent
+            side="top"
+            className="text-sm bg-primary-50 text-primary border border-primary px-4 py-2 rounded-lg shadow-xl w-max flex flex-col gap-1"
           >
-            Pro로 업그레이드 →
-          </button>
-          <Tooltip.Arrow className="fill-white dark:fill-gray-900" />
-        </Tooltip.Content>
-      </Tooltip.Root>
-    </Tooltip.Provider>
+            <p className="font-medium">Pro 요금제에서 사용할 수 있어요.</p>
+            <button
+              onClick={() => router.push("/pricing")}
+              className="bg-primary hover:bg-primary-hover text-white text-xs font-semibold px-3 py-1 rounded transition"
+            >
+              요금제 보러가기
+            </button>
+          </TooltipContent>
+        )}
+      </Tooltip>
+    </TooltipProvider>
   );
 }

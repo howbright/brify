@@ -1,9 +1,8 @@
 "use client";
 
-import SummarizeButton from "./SummarizeButton";
+import { ProTooltipButton } from "@/components/ProTooltipButton";
 import ExtractedText from "./ExtractedText";
-import { Icon } from "@iconify/react";
-import clsx from "clsx";
+import SummarizeButton from "./SummarizeButton";
 
 interface Props {
   rawText: string;
@@ -12,7 +11,10 @@ interface Props {
   hasSummarized: boolean;
   setTags: (tags: string[]) => void;
   extractionSucceeded: boolean;
-  onSummarize: (text: string, type?: "default" | "short" | "shortest" | "detailed") => void;
+  onSummarize: (
+    text: string,
+    type?: "default" | "short" | "shortest" | "detailed"
+  ) => void;
 }
 
 export default function EditExtractedSection({
@@ -52,24 +54,17 @@ export default function EditExtractedSection({
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-background rounded-2xl p-4">
             {buttons.map((btn, idx) => {
-              const isRetry = btn.type === "default";
+              if (btn.pro) {
+                return <ProTooltipButton key={idx} label={btn.label} />;
+              }
 
               return (
                 <button
                   key={idx}
                   onClick={() => onSummarize(rawText, btn.type)}
-                  className={clsx(
-                    "relative px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 group",
-                     "bg-white border border-gray-300 text-black hover:border-black"
-                  )}
+                  className="relative px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-white border border-gray-300 text-black hover:border-black"
                 >
                   {btn.label}
-
-                  {btn.pro && (
-                    <span className="absolute -top-2 -right-2 bg-pink-600 text-[10px] font-bold text-white px-1.5 py-[1px] rounded-full shadow-sm">
-                      PRO
-                    </span>
-                  )}
                 </button>
               );
             })}
