@@ -13,6 +13,7 @@ import SummarizeButton from "./SummarizeButton";
 import SummaryActionsFloating from "./SummaryActionsFloating";
 import SummaryResult from "./SummaryResult";
 import { ProTooltipButton } from "@/components/ProTooltipButton";
+import EditExtractedSection from "./EditExtractedSection";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -103,43 +104,19 @@ export default function SummarizePage() {
         {/* Section 2: 원문 편집 */}
         {rawText && sourceType !== "manual" && (
           <motion.section
-            className="bg-white mt-7 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md space-y-6"
             variants={fadeInUp}
             initial="initial"
             animate="animate"
           >
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-6 text-center">
-              추출된 내용을 확인하고, <br className="hidden sm:block" />
-              필요하다면 수정해보세요.
-            </h3>
-
-            <div className="space-y-6">
-              <ExtractedText value={rawText} onChange={setRawText} />
-
-              {!hasSummarized ? (
-                <SummarizeButton
-                  disabled={!extractionSucceeded}
-                  onSummarize={() => handleSummarize(rawText)}
-                  loading={loading}
-                />
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {buttons.map((btn, idx) =>
-                    btn.pro ? (
-                      <ProTooltipButton key={idx} label={btn.label} />
-                    ) : (
-                      <button
-                        key={idx}
-                        onClick={() => handleSummarize(rawText, btn.type)} // ✅ 이제 타입 오류 없음!
-                        className="border border-gray-200 dark:border-white/10 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-white/10 transition text-gray-800 dark:text-white"
-                      >
-                        {btn.label}
-                      </button>
-                    )
-                  )}
-                </div>
-              )}
-            </div>
+            <EditExtractedSection
+              rawText={rawText}
+              setRawText={setRawText}
+              loading={loading}
+              hasSummarized={hasSummarized}
+              setTags={setTags}
+              extractionSucceeded={extractionSucceeded}
+              onSummarize={handleSummarize}
+            />
           </motion.section>
         )}
 
