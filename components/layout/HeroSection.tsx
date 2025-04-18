@@ -5,6 +5,7 @@ import { motion, useAnimation } from "framer-motion";
 import { useEffect } from "react";
 import GradientButton from "@/components/ui/GradientButton";
 import { useRouter } from "next/navigation";
+import { Icon } from "@iconify/react";
 
 export default function HeroSection() {
   const controls = useAnimation();
@@ -99,10 +100,26 @@ export default function HeroSection() {
             으로 시각화해 한눈에 이해!
           </motion.p>
           <motion.div variants={wordAnimation} className="mt-6">
-            <GradientButton
-              label="무료로 핵심정리 시작하기"
-              onClick={() => router.push("/summarize")}
-            />
+            <div className="flex flex-r gap-2">
+              <GradientButton
+                label={
+                  <span className="block leading-tight">
+                    무료로 <br className="sm:hidden" />
+                    핵심정리 시작하기
+                  </span>
+                }
+                onClick={() => router.push("/summarize")}
+              />
+              <button
+                onClick={() => router.push("/summarize")}
+                className="group inline-flex text-lg font-bold items-center gap-2 px-5 py-3 text-white bg-primary rounded-lg shadow hover:bg-primary-hover transition-all duration-200"
+              >
+                <span>데모 보기</span>
+                <span className="inline-flex items-center transition-transform duration-300 group-hover:translate-x-1">
+                  <Icon icon="mdi:play-circle-outline" width={20} />
+                </span>
+              </button>
+            </div>
             <motion.p
               className="mt-4 text-sm font-medium text-primary text-center lg:text-left"
               initial={{ opacity: 0, y: 10 }}
@@ -112,7 +129,7 @@ export default function HeroSection() {
               <span className="inline-block px-3 py-1 bg-primary/10 rounded-md text-primary font-semibold">
                 youtube 링크 또는 파일만 있으면
               </span>{" "}
-              <span className="font-bold">지금 바로 요약이 시작됩니다!</span>
+              <span className="font-bold">요약이 시작됩니다!</span>
             </motion.p>
           </motion.div>
         </div>

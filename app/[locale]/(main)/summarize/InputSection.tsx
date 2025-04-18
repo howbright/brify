@@ -69,27 +69,37 @@ export default function InputSection({
   const renderInputField = () => {
     if (type === "youtube" || type === "website") {
       return (
-        <div className="space-y-2 text-center">
-          <input
-            type="text"
-            placeholder={
-              type === "youtube"
-                ? "YouTube 영상 주소를 입력하세요"
-                : "웹사이트 주소를 입력하세요"
-            }
-            value={textInput}
-            onChange={(e) => setTextInput(e.target.value)}
-            className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg focus:outline-hidden focus:ring-primary bg-white dark:bg-black"
-          />
-          {type === "website" && (
-            <p className="text-xs text-gray-400 dark:text-gray-500">
-              대부분의 웹사이트는 요약이 가능하지만, 일부 로그인 필요하거나
-              보안설정된 사이트는 지원되지 않을 수 있어요.
-            </p>
-          )}
+        <div className="w-full max-w-3xl mx-auto">
+          <div className="rounded-xl border border-border bg-white dark:bg-[#18181c] shadow-sm p-6 space-y-4">
+            <div className="text-left">
+              <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
+                {type === "youtube" ? "YouTube 영상 주소" : "웹사이트 주소"}
+              </label>
+              <input
+                type="text"
+                placeholder={
+                  type === "youtube"
+                    ? "https://www.youtube.com/watch?v=..."
+                    : "https://example.com/article"
+                }
+                value={textInput}
+                onChange={(e) => setTextInput(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-white/20 bg-gray-50 dark:bg-black text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
+              />
+            </div>
+    
+            {type === "website" && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                대부분의 웹사이트는 요약이 가능하지만, 일부 로그인 필요하거나
+                보안 설정된 사이트는 지원되지 않을 수 있어요.
+              </p>
+            )}
+          </div>
         </div>
       );
     }
+    
+    
 
     if (type === "file") {
       return (
