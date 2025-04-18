@@ -100,12 +100,20 @@ export default function HeroSection() {
           </motion.p>
           <motion.div variants={wordAnimation} className="mt-6">
             <GradientButton
-              label="핵심정리 시작하기"
+              label="무료로 핵심정리 시작하기"
               onClick={() => router.push("/summarize")}
             />
-            <p className="mt-3 text-sm text-primary/80">
-              링크나 파일만 있으면 요약이 바로 시작됩니다.
-            </p>
+            <motion.p
+              className="mt-4 text-sm font-medium text-primary text-center lg:text-left"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+            >
+              <span className="inline-block px-3 py-1 bg-primary/10 rounded-md text-primary font-semibold">
+                youtube 링크 또는 파일만 있으면
+              </span>{" "}
+              <span className="font-bold">지금 바로 요약이 시작됩니다!</span>
+            </motion.p>
           </motion.div>
         </div>
 

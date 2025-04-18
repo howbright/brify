@@ -10,7 +10,7 @@ export default function Footer() {
           <h3 className="text-base font-semibold mb-3 text-gray-800 dark:text-white">
             vision328
           </h3>
-          <p className="mb-1">대표: 홍길동</p>
+          <p className="mb-1">대표: 이나현</p>
           <p className="mb-1">사업자등록번호: 123-45-67890</p>
           <p className="mb-1">통신판매업신고: 2025-서울강남-0123</p>
           <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
