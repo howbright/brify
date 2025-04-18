@@ -20,7 +20,7 @@ const tabList: { type: SourceType; label: string; icon: string }[] = [
 
 export default function SourceTabs({ selected, onChange }: Props) {
   return (
-    <div className="flex justify-center gap-2 flex-wrap mb-6">
+    <div className="flex justify-center gap-2 flex-wrap mb-3 p-4 bg-background rounded-2xl">
       {tabList.map((tab) => (
         <button
           key={tab.type}

@@ -7,7 +7,7 @@ interface Props {
 
 export default function ExtractedText({ value, onChange }: Props) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 p-6 bg-background rounded-2xl">
       <label className="block text-sm font-semibold text-gray-800 dark:text-white">
         원문 내용
       </label>

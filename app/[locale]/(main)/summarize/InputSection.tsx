@@ -70,7 +70,7 @@ export default function InputSection({
     if (type === "youtube" || type === "website") {
       return (
         <div className="w-full max-w-3xl mx-auto">
-          <div className="rounded-xl border border-border bg-white dark:bg-[#18181c] shadow-sm p-6 space-y-4">
+          <div className="rounded-xl bg-background dark:bg-[#18181c] p-6 space-y-4">
             <div className="text-left">
               <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
                 {type === "youtube" ? "YouTube 영상 주소" : "웹사이트 주소"}
@@ -84,7 +84,7 @@ export default function InputSection({
                 }
                 value={textInput}
                 onChange={(e) => setTextInput(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-white/20 bg-gray-50 dark:bg-black text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-white/20 bg-white dark:bg-black text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
               />
             </div>
     
