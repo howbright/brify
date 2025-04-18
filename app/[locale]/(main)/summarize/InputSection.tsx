@@ -134,7 +134,7 @@ export default function InputSection({
     <div className="space-y-6 w-full max-w-3xl mx-auto text-center">
       {renderInputField()}
 
-      <div className="flex justify-center">
+      <div className="flex justify-center mt-5">
         <button
           disabled={canSubmit}
           onClick={handleSubmit}

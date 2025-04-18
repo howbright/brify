@@ -51,7 +51,6 @@ export default function Header() {
   };
 
   const navItems = [
-    { href: "/", label: "홈" },
     { href: "/summarize", label: "핵심정리하기" },
     { href: "/my", label: "나의 정리함" },
     { href: "/tags", label: "태그 보기" },
@@ -60,12 +59,9 @@ export default function Header() {
 
   return (
     <header>
-      <nav
-        id="mainNavbar"
-        className="bg-white dark:bg-background/50 backdrop-blur-md py-2.5 fixed w-full z-40 top-0 start-0 border-b border-border"
-      >
+      <nav className="bg-white dark:bg-background/50 backdrop-blur-md py-2.5 fixed w-full z-40 top-0 start-0 border-b border-border">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4">
-          {/* 왼쪽: 로고 + 모바일 메뉴 버튼 */}
+          {/* 로고 */}
           <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center gap-2">
               <Image
@@ -76,46 +72,39 @@ export default function Header() {
                 height={100}
               />
             </Link>
-            <button
-              className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-              onClick={() => setMobileOpen(!mobileOpen)}
-            >
-              <Icon icon="mdi:menu" className="w-6 h-6" />
-            </button>
           </div>
 
-          {/* 가운데: 데스크탑 메뉴 */}
-          <div className="hidden lg:flex items-center flex-1 justify-center">
-            <ul className="flex flex-row gap-3 xl:gap-4 font-medium">
+          {/* 중앙 메뉴 (lg 이상) */}
+          <div className="hidden lg:flex justify-center flex-1">
+            <ul className="flex gap-3 xl:gap-5 font-medium">
               {navItems.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="block py-2 px-4 text-text dark:text-white border-b border-muted hover:bg-muted/50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary dark:hover:bg-muted/10 lg:dark:hover:bg-transparent relative transition-colors duration-200 group"
+                    className="block px-4 py-2 text-text dark:text-white rounded-md border border-transparent hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary transition-colors"
                   >
-                    <span>{item.label}</span>
-                    <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-primary transition-all group-hover:w-full"></span>
+                    {item.label}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* 오른쪽: 모바일에서는 숨기고, 데스크탑에서만 보임 */}
-          <div className="hidden lg:flex items-center gap-1">
+          {/* 우측 언어/계정 - md 이상 */}
+          <div className="hidden md:flex items-center gap-2">
             <LanguageSelector />
 
             {!session ? (
               <>
                 <Link
                   href="/login"
-                  className="text-text dark:text-white hover:text-primary border border-border hover:border-primary font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
+                  className="text-text dark:text-white hover:text-primary border border-border hover:border-primary font-medium rounded-lg text-sm px-4 py-2 transition-colors"
                 >
                   로그인
                 </Link>
                 <Link
                   href="/signup"
-                  className="text-white bg-primary hover:bg-primary-hover font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
+                  className="text-white bg-primary hover:bg-primary-hover font-medium rounded-lg text-sm px-4 py-2 transition-colors"
                 >
                   회원가입
                 </Link>
@@ -140,18 +129,34 @@ export default function Header() {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => router.push("/summarize")}>핵심정리</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/my")}>나의 정리함</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/account")}>계정 설정</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/summarize")}>
+                    핵심정리
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/my")}>
+                    나의 정리함
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/account")}>
+                    계정 설정
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={logout}>로그아웃</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
           </div>
+
+          {/* 햄버거 버튼 - sm 이상에서 항상 보이도록 */}
+          <div className="md:flex lg:hidden">
+            <button
+              className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+              onClick={() => setMobileOpen(!mobileOpen)}
+            >
+              <Icon icon="mdi:menu" className="w-6 h-6" />
+            </button>
+          </div>
         </div>
 
-        {/* 모바일 메뉴 - 드롭다운 */}
+        {/* 모바일 전체 메뉴 */}
         {mobileOpen && (
           <div className="lg:hidden mt-2 px-4 pb-4">
             <ul className="flex flex-col gap-1 font-medium mb-4">
@@ -159,14 +164,14 @@ export default function Header() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="block w-full py-2 px-4 text-text dark:text-white hover:bg-muted/50 dark:hover:bg-muted/10"
+                    className="block w-full py-2 px-4 text-text dark:text-white hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 rounded-md transition-colors"
                   >
                     {item.label}
                   </Link>
                 </li>
               ))}
             </ul>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 border-t border-border pt-3">
               <LanguageSelector />
               {!session ? (
                 <>
