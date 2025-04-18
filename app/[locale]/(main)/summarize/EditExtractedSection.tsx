@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import SummarizeButton from "./SummarizeButton";
-import EditableTags from "./EditableTags";
 import ExtractedText from "./ExtractedText";
-import { ProTooltipButton } from "@/components/ProTooltipButton";
+import { Icon } from "@iconify/react";
+import clsx from "clsx";
 
 interface Props {
   rawText: string;
@@ -51,20 +50,29 @@ export default function EditExtractedSection({
             loading={loading}
           />
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {buttons.map((btn, idx) =>
-              btn.pro ? (
-                <ProTooltipButton key={idx} label={btn.label} />
-              ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-background rounded-2xl p-4">
+            {buttons.map((btn, idx) => {
+              const isRetry = btn.type === "default";
+
+              return (
                 <button
                   key={idx}
                   onClick={() => onSummarize(rawText, btn.type)}
-                  className="border border-gray-200 dark:border-white/10 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-white/10 transition text-gray-800 dark:text-white"
+                  className={clsx(
+                    "relative px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 group",
+                     "bg-white border border-gray-300 text-black hover:border-black"
+                  )}
                 >
                   {btn.label}
+
+                  {btn.pro && (
+                    <span className="absolute -top-2 -right-2 bg-pink-600 text-[10px] font-bold text-white px-1.5 py-[1px] rounded-full shadow-sm">
+                      PRO
+                    </span>
+                  )}
                 </button>
-              )
-            )}
+              );
+            })}
           </div>
         )}
       </div>

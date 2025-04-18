@@ -28,8 +28,8 @@ export default function SourceTabs({ selected, onChange }: Props) {
           className={clsx(
             "flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border transition",
             selected === tab.type
-              ? "bg-primary text-white border-primary"
-              : "bg-white dark:bg-black border-gray-300 dark:border-white/20 text-gray-800 dark:text-white hover:border-primary"
+              ? "bg-black text-white border-black"
+              : "bg-white dark:bg-black border-gray-300 dark:border-white/20 text-gray-800 dark:text-white hover:border-black"
           )}
         >
           <Icon icon={tab.icon} width={20} />
