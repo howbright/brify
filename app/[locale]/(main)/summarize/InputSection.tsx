@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SourceType } from "./SourceTabs";
 import clsx from "clsx";
 import { Icon } from "@iconify/react";
+import { getYouTubeVideoId } from "@/lib/utils";
+import Alert from "@/components/ui/Alert";
 
 interface Props {
   type: SourceType;
@@ -22,44 +24,193 @@ export default function InputSection({
 }: Props) {
   const [textInput, setTextInput] = useState<string>("");
   const [fileInput, setFileInput] = useState<File | null>(null);
+  const [openAlert, setOpenAlert] = useState<boolean>(false);
+  const [alertText, setAlertText] = useState<string>('');
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const handleSubmit = async () => {
     setIsLoading(true);
-
     try {
-      if (type === "manual") {
-        // ✅ 바로 요약 실행
-        onManualSubmit?.(textInput);
-        return;
-      }
-
-      if (type === "youtube") {
-        const res = await fetch("/api/transcript", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: textInput }),
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-          const fullText = data.transcript.map((t: any) => t.text).join(" ");
-          onExtracted(`🔗 유튜브 영상에서 추출한 스크립트입니다.\n\n${fullText}`, true);
-        } else {
-          onExtracted("❌ 유튜브 스크립트 추출에 실패했습니다.", false);
-        }
-      } else if (type === "website") {
-        onExtracted("🌐 웹사이트에서 본문을 크롤링했습니다.", true);
-      } else if (type === "file") {
-        onExtracted("📄 문서에서 텍스트를 추출했습니다.", true);
-      }
+      if (type === "manual") return handleManualSubmit();
+      if (type === "youtube") return handleYoutubeSubmit();
+      if (type === "website") return handleWebsiteSubmit();
+      if (type === "file") return handleFileSubmit();
     } catch (err) {
       console.error(err);
       onExtracted("⚠️ 처리 중 오류가 발생했습니다.", false);
     } finally {
+      // setIsLoading(false);
+    }
+  };
+
+  const handleManualSubmit = () => {
+    if (!textInput || textInput.trim().length === 0) {
+      onExtracted("❌ 입력된 텍스트가 없습니다.", false);
+      return;
+    }
+
+    onManualSubmit?.(textInput.trim());
+  };
+
+  const handleYoutubeSubmit = async () => {
+    try {
+      const videoId = getYouTubeVideoId(textInput);
+      if(!videoId){
+        setAlertText('유효한 Youtube 링크가 아닙니다.');
+        setOpenAlert(true);
+        return;
+      }
+      const res = await fetch(`${apiBaseUrl}/youtube/transcript`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: textInput }),
+      });
+
+      const data = await res.json();
+      console.log(data.status);
+
+      if (res.ok && data.status === "cached") {
+        // ✅ 캐시에서 바로 꺼낸 결과 → 바로 처리
+        console.log("캐시 결과 사용");
+        if (Array.isArray(data.result)) {
+          const fullText = data.result.map((t: any) => t.text).join(" ");
+          onExtracted(
+            `🔗 유튜브 영상에서 추출한 스크립트입니다.\n\n${fullText}`,
+            true
+          );
+        } else {
+          onExtracted("❌ 결과를 불러오는 데 문제가 발생했습니다.", false);
+        }
+      } else if (res.ok && data.status === "queued" && data.jobId) {
+        // ✅ Job 생성 → 폴링 시작
+        console.log("폴링 시작");
+        const jobId = data.jobId;
+
+        const poll = async () => {
+          const pollRes = await fetch(`${apiBaseUrl}/youtube/status`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ jobId, url: textInput }), // ✅ url 함께 전송
+          });
+
+          const pollData = await pollRes.json();
+          console.log(pollData.status);
+          console.log("pollData", pollData);
+
+          if (pollRes.ok && pollData.status === "completed") {
+            if (Array.isArray(pollData.result)) {
+              const fullText = pollData.result
+                .map((t: any) => t.text)
+                .join(" ");
+              onExtracted(
+                `🔗 유튜브 영상에서 추출한 스크립트입니다.\n\n${fullText}`,
+                true
+              );
+            } else {
+              onExtracted("❌ 결과를 불러오는 데 문제가 발생했습니다.", false);
+            }
+          } else if (pollData.status === "failed") {
+            onExtracted("❌ 유튜브 스크립트 추출에 실패했습니다.", false);
+          } else if (pollData.status === "error") {
+            onExtracted("❌ 요청 처리 중 오류가 발생했습니다.", false);
+          } else {
+            setTimeout(poll, 1000); // 계속 폴링
+          }
+        };
+
+        poll();
+      } else {
+        onExtracted("❌ 요청 처리에 실패했습니다.", false);
+      }
+    } catch (e: any) {
+      console.error("❌ 유튜브 요청 중 에러 발생:", e);
+
+      // 에러 상세 정보 로그
+      if (e.response) {
+        console.error("응답 상태:", e.response.status);
+        console.error("응답 데이터:", await e.response.text?.());
+      }
+
+      // 사용자에게도 알려주기
+      onExtracted("❌ 네트워크 오류가 발생했습니다. 다시 시도해주세요.", false);
+    } finally {
       setIsLoading(false);
     }
   };
+
+  const handleWebsiteSubmit = async () => {
+    try {
+      const res = await fetch(`${apiBaseUrl}/website/crawl`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: textInput }),
+      });
+
+      const data = await res.json();
+      console.log("초기 응답:", data.status);
+
+      if (res.ok && data.status === "cached") {
+        // ✅ 캐시된 결과 바로 사용
+        onExtracted(
+          `🌐 웹사이트에서 추출한 본문입니다.\n\n${data.result}`,
+          true
+        );
+      } else if (res.ok && data.status === "queued" && data.jobId) {
+        // ✅ Job 큐에 들어감 → 폴링 시작
+        const jobId = data.jobId;
+
+        const poll = async () => {
+          const pollRes = await fetch(`${apiBaseUrl}/website/status`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ jobId, url: textInput }), // ✅ url 함께 전송
+          });
+
+          const pollData = await pollRes.json();
+          console.log("폴링 응답:", pollData.status);
+
+          if (pollRes.ok && pollData.status === "completed") {
+            onExtracted(
+              `🌐 웹사이트에서 추출한 본문입니다.\n\n${pollData.result}`,
+              true
+            );
+          } else if (pollData.status === "failed") {
+            onExtracted("❌ 웹사이트 본문 추출에 실패했습니다.", false);
+          } else if (pollData.status === "error") {
+            onExtracted("❌ 요청 처리 중 오류가 발생했습니다.", false);
+          } else if (pollData.status === "not_found") {
+            // 🔥 추가!
+            onExtracted("❌ 요청을 찾을 수 없습니다. (Job ID 없음)", false);
+          } else {
+            setTimeout(poll, 1000); // 계속 폴링
+          }
+        };
+
+        poll();
+      } else {
+        onExtracted("❌ 요청 처리에 실패했습니다.", false);
+      }
+    } catch (e: any) {
+      console.error("❌ 웹사이트 요청 중 에러 발생:", e);
+
+      // 에러 상세 정보 로그
+      if (e.response) {
+        console.error("응답 상태:", e.response.status);
+        console.error("응답 데이터:", await e.response.text?.());
+      }
+
+      // 사용자에게도 알려주기
+      onExtracted("❌ 웹사이트 요청 중 에러 발생했습니다. 다시 시도해주세요.", false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFileSubmit = async () => {};
 
   const canSubmit =
     isLoading ||
@@ -87,7 +238,7 @@ export default function InputSection({
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-white/20 bg-white dark:bg-black text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
               />
             </div>
-    
+
             {type === "website" && (
               <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                 대부분의 웹사이트는 요약이 가능하지만, 일부 로그인 필요하거나
@@ -98,8 +249,6 @@ export default function InputSection({
         </div>
       );
     }
-    
-    
 
     if (type === "file") {
       return (
@@ -142,6 +291,7 @@ export default function InputSection({
 
   return (
     <div className="space-y-6 w-full max-w-3xl mx-auto text-center">
+       <Alert text={alertText} open={openAlert} onOpenChange={setOpenAlert} />
       {renderInputField()}
 
       <div className="flex justify-center mt-5">
@@ -161,7 +311,9 @@ export default function InputSection({
             </>
           ) : (
             <>
-              <span>{type === "manual" ? "핵심정리 시작하기" : "원문 추출하기"}</span>
+              <span>
+                {type === "manual" ? "핵심정리 시작하기" : "원문 추출하기"}
+              </span>
               <Icon
                 icon="lucide:arrow-right"
                 width={18}
