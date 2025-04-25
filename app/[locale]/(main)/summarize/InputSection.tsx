@@ -30,6 +30,7 @@ export default function InputSection({
 
   const handleSubmit = async () => {
     setIsLoading(true);
+    onExtracted("", false);
     try {
       if (type === "manual") return handleManualSubmit();
       if (type === "youtube") return handleYoutubeSubmit();
@@ -58,6 +59,7 @@ export default function InputSection({
       if(!videoId){
         setAlertText('유효한 Youtube 링크가 아닙니다.');
         setOpenAlert(true);
+        setIsLoading(false)
         return;
       }
       const res = await fetch(`${apiBaseUrl}/youtube/transcript`, {
@@ -72,14 +74,15 @@ export default function InputSection({
       if (res.ok && data.status === "cached") {
         // ✅ 캐시에서 바로 꺼낸 결과 → 바로 처리
         console.log("캐시 결과 사용");
-        if (Array.isArray(data.result)) {
-          const fullText = data.result.map((t: any) => t.text).join(" ");
+        if (typeof data.result === 'string') {
           onExtracted(
-            `🔗 유튜브 영상에서 추출한 스크립트입니다.\n\n${fullText}`,
+            `🔗 유튜브 영상에서 추출한 스크립트입니다.\n\n${data.result}`,
             true
           );
+          setIsLoading(false);
         } else {
           onExtracted("❌ 결과를 불러오는 데 문제가 발생했습니다.", false);
+          setIsLoading(false);
         }
       } else if (res.ok && data.status === "queued" && data.jobId) {
         // ✅ Job 생성 → 폴링 시작
@@ -99,13 +102,14 @@ export default function InputSection({
           console.log(pollData.status);
           console.log("pollData", pollData);
 
+          if(pollData.status !== 'processing'){
+            setIsLoading(false);
+          } 
+
           if (pollRes.ok && pollData.status === "completed") {
-            if (Array.isArray(pollData.result)) {
-              const fullText = pollData.result
-                .map((t: any) => t.text)
-                .join(" ");
+            if (typeof pollData.result === 'string') {
               onExtracted(
-                `🔗 유튜브 영상에서 추출한 스크립트입니다.\n\n${fullText}`,
+                `🔗 유튜브 영상에서 추출한 스크립트입니다.\n\n${pollData.result}`,
                 true
               );
             } else {
@@ -123,6 +127,7 @@ export default function InputSection({
         poll();
       } else {
         onExtracted("❌ 요청 처리에 실패했습니다.", false);
+        setIsLoading(false);
       }
     } catch (e: any) {
       console.error("❌ 유튜브 요청 중 에러 발생:", e);
@@ -135,9 +140,8 @@ export default function InputSection({
 
       // 사용자에게도 알려주기
       onExtracted("❌ 네트워크 오류가 발생했습니다. 다시 시도해주세요.", false);
-    } finally {
       setIsLoading(false);
-    }
+    } 
   };
 
   const handleWebsiteSubmit = async () => {
@@ -173,6 +177,10 @@ export default function InputSection({
           const pollData = await pollRes.json();
           console.log("폴링 응답:", pollData.status);
 
+          if (pollData.status !== 'processing'){
+            setIsLoading(false);
+          }
+
           if (pollRes.ok && pollData.status === "completed") {
             onExtracted(
               `🌐 웹사이트에서 추출한 본문입니다.\n\n${pollData.result}`,
@@ -193,6 +201,7 @@ export default function InputSection({
         poll();
       } else {
         onExtracted("❌ 요청 처리에 실패했습니다.", false);
+        setIsLoading(false);
       }
     } catch (e: any) {
       console.error("❌ 웹사이트 요청 중 에러 발생:", e);
@@ -205,9 +214,7 @@ export default function InputSection({
 
       // 사용자에게도 알려주기
       onExtracted("❌ 웹사이트 요청 중 에러 발생했습니다. 다시 시도해주세요.", false);
-    } finally {
-      setIsLoading(false);
-    }
+    } 
   };
 
   const handleFileSubmit = async () => {};

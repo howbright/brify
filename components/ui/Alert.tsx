@@ -27,7 +27,7 @@ export default function Alert({ text, open, onOpenChange }: AlertProps) {
         >
           <div className="flex items-center space-x-3">
             <AlertCircle className="text-[#ff4d4f]" />
-            <AlertDialog.Title className="text-lg font-semibold text-[#2c2c2c]">
+            <AlertDialog.Title className="ml-2 text-lg font-semibold text-[#2c2c2c]">
               알림
             </AlertDialog.Title>
           </div>
