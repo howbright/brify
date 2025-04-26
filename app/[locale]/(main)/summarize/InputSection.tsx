@@ -39,6 +39,7 @@ export default function InputSection({
     } catch (err) {
       console.error(err);
       onExtracted("⚠️ 처리 중 오류가 발생했습니다.", false);
+      setIsLoading(false);
     } finally {
       // setIsLoading(false);
     }
@@ -47,6 +48,7 @@ export default function InputSection({
   const handleManualSubmit = () => {
     if (!textInput || textInput.trim().length === 0) {
       onExtracted("❌ 입력된 텍스트가 없습니다.", false);
+      setIsLoading(false);
       return;
     }
 
@@ -112,13 +114,17 @@ export default function InputSection({
                 `🔗 유튜브 영상에서 추출한 스크립트입니다.\n\n${pollData.result}`,
                 true
               );
+              setIsLoading(false);
             } else {
               onExtracted("❌ 결과를 불러오는 데 문제가 발생했습니다.", false);
+              setIsLoading(false);
             }
           } else if (pollData.status === "failed") {
             onExtracted("❌ 유튜브 스크립트 추출에 실패했습니다.", false);
+            setIsLoading(false);
           } else if (pollData.status === "error") {
             onExtracted("❌ 요청 처리 중 오류가 발생했습니다.", false);
+            setIsLoading(false);
           } else {
             setTimeout(poll, 1000); // 계속 폴링
           }
@@ -161,6 +167,7 @@ export default function InputSection({
           `🌐 웹사이트에서 추출한 본문입니다.\n\n${data.result}`,
           true
         );
+        setIsLoading(false);
       } else if (res.ok && data.status === "queued" && data.jobId) {
         // ✅ Job 큐에 들어감 → 폴링 시작
         const jobId = data.jobId;
@@ -186,13 +193,17 @@ export default function InputSection({
               `🌐 웹사이트에서 추출한 본문입니다.\n\n${pollData.result}`,
               true
             );
+            setIsLoading(false);
           } else if (pollData.status === "failed") {
             onExtracted("❌ 웹사이트 본문 추출에 실패했습니다.", false);
+            setIsLoading(false);
           } else if (pollData.status === "error") {
             onExtracted("❌ 요청 처리 중 오류가 발생했습니다.", false);
+            setIsLoading(false);
           } else if (pollData.status === "not_found") {
             // 🔥 추가!
             onExtracted("❌ 요청을 찾을 수 없습니다. (Job ID 없음)", false);
+            setIsLoading(false);
           } else {
             setTimeout(poll, 1000); // 계속 폴링
           }
@@ -202,9 +213,11 @@ export default function InputSection({
       } else {
         onExtracted("❌ 요청 처리에 실패했습니다.", false);
         setIsLoading(false);
+        setIsLoading(false);
       }
     } catch (e: any) {
       console.error("❌ 웹사이트 요청 중 에러 발생:", e);
+      setIsLoading(false);
 
       // 에러 상세 정보 로그
       if (e.response) {
@@ -214,6 +227,7 @@ export default function InputSection({
 
       // 사용자에게도 알려주기
       onExtracted("❌ 웹사이트 요청 중 에러 발생했습니다. 다시 시도해주세요.", false);
+      setIsLoading(false);
     } 
   };
 
