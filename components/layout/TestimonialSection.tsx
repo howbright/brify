@@ -52,7 +52,7 @@ function TestimonialCard({ name, title, quote }: { name: string; title: string; 
 
 export default function TestimonialSection() {
   return (
-    <section className="relative bg-[#f5f6fc] dark:bg-[#121222] py-24 px-4 border-t border-border">
+    <section className="relative bg-gradient-to-br from-[#e0f7f4] via-[#dce9f9] to-[#e8f3ff] dark:from-[#1a2d2b] dark:via-[#1b2e3a] dark:to-[#243449] py-24 px-4 border-t border-border">
       <div className="max-w-5xl mx-auto text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-text dark:text-white">
           사용자들의 진짜 이야기
