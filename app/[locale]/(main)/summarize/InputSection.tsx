@@ -231,7 +231,39 @@ export default function InputSection({
     } 
   };
 
-  const handleFileSubmit = async () => {};
+  const handleFileSubmit = async () => {
+    if (!fileInput) {
+      setAlertText("파일이 선택되지 않았습니다.");
+      setOpenAlert(true);
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append("file", fileInput);
+  
+    const ext = fileInput.name.split('.').pop()?.toLowerCase();
+  
+    try {
+      const res = await fetch(`${apiBaseUrl}/file/extract`, {
+        method: "POST",
+        body: formData,
+      });
+  
+      const data = await res.json();
+  
+      if (res.ok && data.status === "success") {
+        onExtracted(`📄 업로드한 파일에서 추출한 본문입니다.\n\n${data.result}`, true);
+      } else {
+        onExtracted("❌ 파일 처리에 실패했습니다.", false);
+      }
+    } catch (e) {
+      console.error("파일 업로드 에러:", e);
+      onExtracted("❌ 파일 업로드 중 오류 발생", false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
 
   const canSubmit =
     isLoading ||

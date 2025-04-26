@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion, useAnimation } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import GradientButton from "@/components/ui/GradientButton";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
@@ -11,11 +11,24 @@ export default function HeroSection() {
   const controls = useAnimation();
   const router = useRouter();
 
+  // ✅ 슬라이드 이미지 경로 배열
+  const slideImages = ["/images/magic.png", "/images/hero-illustration2.png"];
+  const [currentImage, setCurrentImage] = useState(0);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       controls.start("visible");
     }, 200);
-    return () => clearTimeout(timer);
+
+    // ✅ 이미지 자동 슬라이드
+    const interval = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % slideImages.length);
+    }, 3000);
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
   }, [controls]);
 
   const textAnimation = {
@@ -73,7 +86,7 @@ export default function HeroSection() {
       />
 
       <motion.div
-        className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-12"
+        className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-0"
         initial="hidden"
         animate={controls}
         variants={textAnimation}
@@ -134,9 +147,9 @@ export default function HeroSection() {
           </motion.div>
         </div>
 
-        {/* ✅ 일러스트 영역 */}
+        {/* ✅ 이미지 슬라이드 영역 */}
         <motion.div
-          className="flex-1 flex justify-center"
+          className="flex-1 flex justify-center relative min-h-[400px]" // ✅ 높이 고정 추가
           animate={{
             y: [0, -6, 0, 6, 0],
             rotate: [0, -1, 0, 1, 0],
@@ -147,14 +160,24 @@ export default function HeroSection() {
             ease: "easeInOut",
           }}
         >
-          <Image
-            src="/images/hero-illustration2.png"
-            alt="Brify 요약 서비스 일러스트"
-            width={500}
-            height={500}
-            className="w-full max-w-sm md:max-w-md lg:max-w-lg h-auto"
-            priority
-          />
+          {slideImages.map((src, index) => (
+            <motion.div
+              key={index}
+              className="absolute w-full h-full flex justify-center items-center" // ✅ 이미지 가운데 정렬 보장
+              initial={{ opacity: 0 }}
+              animate={{ opacity: currentImage === index ? 1 : 0 }}
+              transition={{ duration: 1 }}
+            >
+              <Image
+                src={src}
+                alt={`Brify 요약 서비스 이미지 ${index + 1}`}
+                width={500}
+                height={500}
+                className="w-full max-w-sm md:max-w-md lg:max-w-lg h-auto"
+                priority={index === 0}
+              />
+            </motion.div>
+          ))}
         </motion.div>
       </motion.div>
     </section>
