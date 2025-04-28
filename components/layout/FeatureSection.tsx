@@ -11,37 +11,39 @@ const features = [
     desc: "뉴스, 블로그, 논문까지 — 요점만 뽑아 한눈에 정리해드려요.",
   },
   {
-    icon: "mdi:marker-check",
-    title: "핵심 하이라이트",
-    desc: "중요 문장에 자동 하이라이트를 적용해 집중도를 높여줍니다.",
+    icon: "mdi:chart-timeline-variant-shimmer",
+    title: "다이어그램 시각화",
+    desc: "선택형 테마, 편집 가능, 이미지 저장까지 가능한 다이어그램.",
   },
   {
-    icon: "mdi:share-variant",
-    title: "간편 공유 & 다운로드",
-    desc: "PDF 저장은 물론 링크로 요약 결과를 공유할 수 있어요.",
+    icon: "mdi:file-find-outline",
+    title: "다양한 소스에서 원문 추출",
+    desc: "YouTube, 웹사이트, 파일, 이미지, 오디오 등에서 텍스트를 자동 추출해드려요.",
   },
   {
     icon: "mdi:tag-text-outline",
     title: "자동 태그 분류",
     desc: "주제별 태그를 자동 추출해 이후 정리나 검색도 간편하게!",
   },
-  {
-    icon: "mdi:chart-timeline-variant-shimmer",
-    title: "다이어그램 시각화",
-    desc: "선택형 테마, 편집 가능, 이미지 저장까지 가능한 다이어그램.",
-  },
+  
   {
     icon: "mdi:chat-question-outline",
-    title: "심화 학습 기능",
-    desc: "ChatGPT 연동으로 요약에 대해 더 깊이 질문하고 배워보세요.",
+    title: "심화 학습 & 확장 기능",
+    desc: "용어 정리, 다국어 번역, GPT와의 심화 질문까지 — 더 깊이 배우고 이해하세요.",
+  },
+  {
+    icon: "mdi:share-variant",
+    title: "간편 공유 & 다운로드",
+    desc: "PDF 저장은 물론 링크로 요약 결과를 공유할 수 있어요.",
   },
 ];
+
 
 export default function FeaturesSection() {
   return (
     <section className="relative z-10 py-24 px-4 bg-[#f3f4ff] dark:bg-[#121222] border-t border-gray-200 dark:border-white/10">
       {/* ✨ Decorative Elements */}
-      <div className="absolute -top-24 -left-16 w-[420px] h-[420px] bg-gradient-to-br from-primary-400 to-sky-300 rounded-full blur-2xl opacity-30 z-0 animate-pulse-slow" />
+      {/* <div className="absolute -top-24 -left-16 w-[420px] h-[420px] bg-gradient-to-br from-primary-400 to-sky-300 rounded-full blur-2xl opacity-30 z-[-10] animate-pulse-slow" /> */}
       <svg
         className="absolute -bottom-10 left-[30%] w-80 h-24 opacity-20 z-0 animate-move-wave"
         viewBox="0 0 200 100"
@@ -112,7 +114,7 @@ export default function FeaturesSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 + index * 0.08 }}
                 viewport={{ once: true }}
-                className="flex items-start gap-4 p-5 bg-card dark:bg-[#1c1c2c] border border-border rounded-xl shadow-sm hover:shadow-md transition-all"
+                className="flex items-start gap-4 p-5 bg-card dark:bg-[#1c1c2c] border border-border rounded-xl shadow-sm hover:shadow-md hover:border hover:border-primary transition-all"
               >
                 <div className="min-w-[52px] h-[52px] rounded-full bg-primary/10 flex items-center justify-center">
                   <Icon icon={item.icon} width={28} className="text-primary" />

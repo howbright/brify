@@ -52,7 +52,7 @@ export default function HeroSection() {
   return (
     <section className="relative z-20 bg-[#fdfaf6] py-24 px-4 overflow-hidden">
       {/* ✅ 배경 SVG */}
-      <Image
+      {/* <Image
         src="/images/hero1.svg"
         alt=""
         className="hidden sm:block absolute top-[70px] left-[-20px] w-28 md:w-36 opacity-40 animate-floating pointer-events-none"
@@ -83,7 +83,7 @@ export default function HeroSection() {
         aria-hidden="true"
         width={100}
         height={100}
-      />
+      /> */}
 
       <motion.div
         className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-0"
@@ -148,25 +148,20 @@ export default function HeroSection() {
         </div>
 
         {/* ✅ 이미지 슬라이드 영역 */}
-        <motion.div
-          className="flex-1 flex justify-center relative min-h-[400px]" // ✅ 높이 고정 추가
-          animate={{
-            y: [0, -6, 0, 6, 0],
-            rotate: [0, -1, 0, 1, 0],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        >
+        <motion.div className="flex-1 flex justify-center relative min-h-[400px]">
           {slideImages.map((src, index) => (
             <motion.div
               key={index}
-              className="absolute w-full h-full flex justify-center items-center" // ✅ 이미지 가운데 정렬 보장
-              initial={{ opacity: 0 }}
-              animate={{ opacity: currentImage === index ? 1 : 0 }}
-              transition={{ duration: 1 }}
+              className="absolute w-full h-full flex justify-center items-center"
+              initial={false}
+              animate={{
+                opacity: currentImage === index ? 1 : 0,
+                scale: currentImage === index ? 1 : 0.95,
+              }}
+              transition={{
+                opacity: { duration: 0.8 },
+                scale: { duration: 0.8 },
+              }}
             >
               <Image
                 src={src}

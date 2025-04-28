@@ -12,8 +12,8 @@ export default function Home() {
     <div>
       <HeroSection/>
       <StatsSection/>
-      <NeedsSection />
       <FeaturesSection/>
+      <NeedsSection />
       <TestimonialSection/>
       <CTAPricingSection/>
     </div>

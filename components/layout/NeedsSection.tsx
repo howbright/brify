@@ -89,7 +89,7 @@ export default function NeedsSection() {
             variants={fadeUp}
             custom={i + 1}
             whileHover={{ scale: 1.03 }}
-            className="flex items-start gap-4 bg-card border border-border rounded-2xl p-6 shadow-md hover:shadow-lg transition-all"
+            className="flex items-start gap-4 bg-card border border-border rounded-2xl p-6 shadow-md hover:shadow-lg hover:border hover:border-primary transition-all"
           >
             <div className="min-w-[52px] h-[52px] rounded-full bg-primary/10 flex items-center justify-center">
               <Icon icon={card.icon} width={28} className="text-primary" />
