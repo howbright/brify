@@ -25,7 +25,6 @@ const features = [
     title: "자동 태그 분류",
     desc: "주제별 태그를 자동 추출해 이후 정리나 검색도 간편하게!",
   },
-  
   {
     icon: "mdi:chat-question-outline",
     title: "심화 학습 & 확장 기능",
@@ -38,12 +37,17 @@ const features = [
   },
 ];
 
-
 export default function FeaturesSection() {
   return (
-    <section className="relative z-10 py-24 px-4 bg-[#f3f4ff] dark:bg-[#121222] border-t border-gray-200 dark:border-white/10">
-      {/* ✨ Decorative Elements */}
-      {/* <div className="absolute -top-24 -left-16 w-[420px] h-[420px] bg-gradient-to-br from-primary-400 to-sky-300 rounded-full blur-2xl opacity-30 z-[-10] animate-pulse-slow" /> */}
+    <section
+      className="relative bg-fixed bg-center bg-cover bg-no-repeat py-24 px-4 text-white"
+      style={{
+        backgroundImage: "url('/images/bgfeaturesection2.jpg')",
+      }}
+    >
+      <div className="absolute inset-0 bg-black/40 z-0"></div>
+
+      {/* 파도 효과 */}
       <svg
         className="absolute -bottom-10 left-[30%] w-80 h-24 opacity-20 z-0 animate-move-wave"
         viewBox="0 0 200 100"
@@ -58,9 +62,9 @@ export default function FeaturesSection() {
       </svg>
 
       <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10">
-        {/* ✅ 이미지 겹치기 */}
+        {/* ✅ 이미지 부분 */}
         <div className="relative w-full max-w-lg mx-auto h-[360px]">
-          {/* 뒷쪽 다이어그램 - 기울임 */}
+          {/* 뒷쪽 */}
           <motion.div
             initial={{ opacity: 0, y: 60, rotate: -3, scale: 0.96 }}
             whileInView={{ opacity: 1, y: 0, rotate: -3, scale: 1 }}
@@ -77,7 +81,7 @@ export default function FeaturesSection() {
             />
           </motion.div>
 
-          {/* 앞쪽 요약 텍스트 - 반대 기울임 */}
+          {/* 앞쪽 */}
           <motion.div
             initial={{ opacity: 0, y: 30, rotate: 2 }}
             whileInView={{ opacity: 1, y: 0, rotate: 2 }}
@@ -95,17 +99,19 @@ export default function FeaturesSection() {
           </motion.div>
         </div>
 
-        {/* ✅ 텍스트 및 기능 카드 */}
+        {/* ✅ 텍스트 + 카드 */}
         <div className="space-y-6">
           <div className="text-center lg:text-left mb-6">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-text dark:text-white mb-4 leading-snug">
-              Brify는 이렇게<br className="lg:hidden" /> 도와드려요
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 leading-snug">
+              Brify는 이렇게
+              <br className="lg:hidden" /> 도와드려요
             </h2>
-            <p className="text-base md:text-lg text-muted-foreground">
+            <p className="text-base md:text-lg text-white/80">
               효율적인 요약과 정리를 위한 기능들을 지금 바로 만나보세요.
             </p>
           </div>
 
+          {/* ✅ 카드 */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {features.map((item, index) => (
               <motion.div
@@ -114,7 +120,7 @@ export default function FeaturesSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 + index * 0.08 }}
                 viewport={{ once: true }}
-                className="flex items-start gap-4 p-5 bg-card dark:bg-[#1c1c2c] border border-border rounded-xl shadow-sm hover:shadow-md hover:border hover:border-primary transition-all"
+                className="flex items-start gap-4 p-5 bg-background-soft dark:bg-[#1c1c2c] border border-border rounded-xl shadow-sm hover:shadow-md hover:border-primary transition-all"
               >
                 <div className="min-w-[52px] h-[52px] rounded-full bg-primary/10 flex items-center justify-center">
                   <Icon icon={item.icon} width={28} className="text-primary" />
@@ -133,18 +139,15 @@ export default function FeaturesSection() {
         </div>
       </div>
 
+      {/* 애니메이션 */}
       <style jsx>{`
-        @keyframes pulse-slow {
-          0%, 100% { transform: scale(1); opacity: 0.3; }
-          50% { transform: scale(1.1); opacity: 0.45; }
-        }
-        .animate-pulse-slow {
-          animation: pulse-slow 10s ease-in-out infinite;
-        }
-
         @keyframes move-wave {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-20px); }
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-20px);
+          }
         }
         .animate-move-wave {
           animation: move-wave 12s ease-in-out infinite alternate;

@@ -1,19 +1,20 @@
 /* globals.css */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+KR&family=Noto+Sans+JP&family=Noto+Sans+SC&family=Noto+Sans+TC&family=Noto+Sans+Display&display=swap')
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+KR&family=Noto+Sans+JP&family=Noto+Sans+SC&family=Noto+Sans+TC&family=Noto+Sans+Display&display=swap")
 layer(base);
 
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @plugin 'tailwindcss-animate';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-global:
-    Noto Sans, Noto Sans KR, Noto Sans JP, Noto Sans SC, Noto Sans TC,
-    sans-serif;
+  --font-global: Noto Sans, Noto Sans KR, Noto Sans JP, Noto Sans SC,
+    Noto Sans TC, sans-serif;
 
-  --color-background: #f8f9fb;
+  /* --color-background: #f8f9fb; */
+  --color-background: #fdfaf6;
+  --color-background-soft: #fdfaf6;
   --color-gray-soft: #e9ecf1;
   --color-text: #212529;
 
@@ -71,7 +72,6 @@ layer(base);
   --radius-sm: 0.5rem;
 }
 
-
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
@@ -85,10 +85,9 @@ layer(base);
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background-soft text-foreground;
   }
 }
-
 
 @layer utilities {
   html,
@@ -269,13 +268,13 @@ layer(base);
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background-soft text-foreground;
   }
 }
 
-
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     text-shadow: 0 0 0px transparent;
     transform: scale(1);
   }
@@ -288,7 +287,6 @@ layer(base);
 .pulse-glow {
   animation: pulse-glow 2.5s ease-in-out infinite;
 }
-
 
 :focus-visible {
   outline: none !important;

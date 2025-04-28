@@ -34,7 +34,11 @@ const cards = [
 export default function NeedsSection() {
   return (
     <motion.section
-      className="relative z-20 pt-24 pb-44 px-4 bg-background text-text dark:bg-[#1a1a1a] overflow-hidden border-t border-border"
+      className="relative bg-[#fdfaf6] z-20 pt-24 pb-44 px-4 overflow-hidden border-t border-border text-text dark:bg-[#1a1a1a]"
+      // style={{
+      //   background:
+      //     "linear-gradient(135deg, #e0f7ec 0%, #fdfaf6 50%, #d0f0e0 100%)",
+      // }}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.2 }}
@@ -73,11 +77,14 @@ export default function NeedsSection() {
         className="relative z-10 max-w-5xl mx-auto text-center mb-16"
       >
         <h2 className="text-3xl md:text-4xl font-extrabold text-text mb-4">
-          이런 상황, 겪고 계신가요?
+          이런 상황, <span className="text-primary">겪고 계신가요?</span>
         </h2>
         <p className="text-base md:text-lg text-muted-foreground">
-          Brify는 시간 부족, 과도한 정보, 정리 어려움 등<br />
-          현실적인 고민을 해결해드립니다.
+          <span className="text-primary font-semibold">Brify</span>는 시간 부족,
+          과도한 정보, 정리 어려움 등<br />
+          현실적인 고민을{" "}
+          <span className="text-primary font-semibold">해결</span>
+          해드립니다.
         </p>
       </motion.div>
 
@@ -95,9 +102,7 @@ export default function NeedsSection() {
               <Icon icon={card.icon} width={28} className="text-primary" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-text mb-1">
-                {card.title}
-              </h3>
+              <h3 className="text-lg font-bold text-text mb-1">{card.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {card.desc}
               </p>
