@@ -59,7 +59,7 @@ export default function Header() {
 
   return (
     <header>
-      <nav className="bg-white dark:bg-background/50 backdrop-blur-md py-2.5 fixed w-full z-40 top-0 start-0 border-b border-border">
+      <nav className="bg-white/90 backdrop-blur-md shadow-md py-2.5 fixed w-full z-40 top-0 start-0 border-b border-border">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4">
           {/* 로고 */}
           <div className="flex items-center gap-2">
@@ -81,7 +81,7 @@ export default function Header() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="block px-4 py-2 text-text dark:text-white rounded-md border border-transparent hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary transition-colors"
+                    className="block px-4 py-2 text-text rounded-md border border-transparent hover:bg-primary/10 hover:text-primary transition-colors"
                   >
                     {item.label}
                   </Link>
@@ -98,7 +98,7 @@ export default function Header() {
               <>
                 <Link
                   href="/login"
-                  className="text-text dark:text-white hover:text-primary border border-border hover:border-primary font-medium rounded-lg text-sm px-4 py-2 transition-colors"
+                  className="text-primary border border-primary hover:bg-primary/10 font-medium rounded-lg text-sm px-4 py-2 transition-colors"
                 >
                   로그인
                 </Link>
@@ -164,7 +164,7 @@ export default function Header() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="block w-full py-2 px-4 text-text dark:text-white hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 rounded-md transition-colors"
+                    className="block w-full py-2 px-4 text-text hover:bg-primary/10 hover:text-primary rounded-md transition-colors"
                   >
                     {item.label}
                   </Link>
@@ -177,7 +177,7 @@ export default function Header() {
                 <>
                   <Link
                     href="/login"
-                    className="text-text dark:text-white hover:text-primary border border-border hover:border-primary font-medium rounded-lg text-sm px-4 py-2 text-center"
+                    className="text-primary border border-primary hover:bg-primary/10 font-medium rounded-lg text-sm px-4 py-2 text-center"
                   >
                     로그인
                   </Link>

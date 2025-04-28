@@ -103,11 +103,14 @@ export default function FeaturesSection() {
         <div className="space-y-6">
           <div className="text-center lg:text-left mb-6">
             <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 leading-snug">
-              Brify는 이렇게
-              <br className="lg:hidden" /> 도와드려요
+              <span className="text-[#6699ff]">Brify</span>는 이렇게
+              <br className="lg:hidden" />{" "}
+              <span className="text-[#6699ff]">도와드려요</span>
             </h2>
             <p className="text-base md:text-lg text-white/80">
-              효율적인 요약과 정리를 위한 기능들을 지금 바로 만나보세요.
+              효율적인 <span className="text-[#6699ff] font-bold">요약</span>
+              과 <span className="text-[#6699ff] font-bold">정리</span>를 위한
+              기능들을 지금 바로 만나보세요.
             </p>
           </div>
 

@@ -24,7 +24,15 @@ const testimonials = [
   },
 ];
 
-function TestimonialCard({ name, title, quote }: { name: string; title: string; quote: string }) {
+function TestimonialCard({
+  name,
+  title,
+  quote,
+}: {
+  name: string;
+  title: string;
+  quote: string;
+}) {
   return (
     <motion.div
       whileHover={{ scale: 1.03, rotate: -0.5 }}
@@ -33,7 +41,11 @@ function TestimonialCard({ name, title, quote }: { name: string; title: string; 
     >
       <div className="flex gap-1 mb-4 text-yellow-400">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Icon key={i} icon="mdi:star" className="w-5 h-5 transition-transform group-hover:scale-110" />
+          <Icon
+            key={i}
+            icon="mdi:star"
+            className="w-5 h-5 transition-transform group-hover:scale-110"
+          />
         ))}
       </div>
       <p className="text-sm leading-relaxed mb-6 relative">
@@ -42,7 +54,10 @@ function TestimonialCard({ name, title, quote }: { name: string; title: string; 
         <span className="text-xl font-serif text-gray-400 ml-1">”</span>
       </p>
       <div className="text-sm font-semibold flex items-center gap-2">
-        <Icon icon="mdi:account-circle" className="w-5 h-5 text-primary transition-colors duration-200 group-hover:text-primary-600" />
+        <Icon
+          icon="mdi:account-circle"
+          className="w-5 h-5 text-primary transition-colors duration-200 group-hover:text-primary-600"
+        />
         {name}
       </div>
       <div className="text-xs text-muted-foreground">{title}</div>
@@ -55,12 +70,14 @@ export default function TestimonialSection() {
     <section className="relative bg-gradient-to-br from-[#e0f7f4] via-[#dce9f9] to-[#e8f3ff] dark:from-[#1a2d2b] dark:via-[#1b2e3a] dark:to-[#243449] py-24 px-4 border-t border-border">
       <div className="max-w-5xl mx-auto text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-text dark:text-white">
-          사용자들의 진짜 이야기
+          사용자들의 <span className="text-primary">진짜 이야기</span>
         </h2>
         <p className="text-muted-foreground max-w-xl mx-auto">
-          Brify는 다양한 분야의 사용자에게 사랑받고 있어요.
-          <br className="hidden md:block" />
-          그 생생한 경험담을 확인해보세요.
+          <span className="text-primary font-semibold">Brify</span>는 다양한
+          분야의 사용자에게 사랑받고 있어요.
+          <br className="hidden md:block" />그{" "}
+          <span className="text-primary font-semibold">생생한 경험담</span>을
+          확인해보세요.
         </p>
       </div>
 
