@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { SourceType } from "./SourceTabs";
-import clsx from "clsx";
-import { Icon } from "@iconify/react";
-import { getYouTubeVideoId } from "@/lib/utils";
 import Alert from "@/components/ui/Alert";
+import { getYouTubeVideoId } from "@/lib/utils";
+import { Icon } from "@iconify/react";
+import clsx from "clsx";
+import { useState } from "react";
+import { SourceType } from "./SourceTabs";
+import UploadCard from "./UploadCard";
 
 interface Props {
   type: SourceType;
@@ -27,6 +28,7 @@ export default function InputSection({
   const [openAlert, setOpenAlert] = useState<boolean>(false);
   const [alertText, setAlertText] = useState<string>("");
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const [dragOver, setDragOver] = useState(false);
 
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -279,7 +281,7 @@ export default function InputSection({
     if (type === "youtube" || type === "website") {
       return (
         <div className="w-full max-w-3xl mx-auto">
-          <div className="rounded-xl bg-background dark:bg-[#18181c] p-6 space-y-4">
+          <div className="rounded-xl bg-background-soft dark:bg-[#18181c] shadow-sm p-6 space-y-4">
             <div className="text-left">
               <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
                 {type === "youtube" ? "YouTube 영상 주소" : "웹사이트 주소"}
@@ -309,38 +311,31 @@ export default function InputSection({
     }
 
     if (type === "file") {
-      return (
-        <div className="w-full max-w-md mx-auto rounded-lg border border-gray-300 dark:border-white/20 bg-white dark:bg-gray-900 p-5 shadow-xs text-center space-y-4">
-          <div className="flex items-center justify-center gap-2 text-sm font-semibold text-gray-800 dark:text-white">
-            <Icon icon="mdi:file-upload-outline" width={22} />
-            파일 업로드
-          </div>
-          <input
-            type="file"
-            accept=".pdf,.docx,.txt,.jpg,.png"
-            onChange={(e) => setFileInput(e.target.files?.[0] ?? null)}
-            className="block w-full text-sm text-gray-500 file:mx-auto file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-primary file:text-white hover:file:bg-primary-dark transition cursor-pointer"
-          />
-          <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-            PDF, DOCX, TXT 파일을 지원합니다. <br />
-            <span className="text-red-500 font-medium">
-              이미지 파일(JPG, PNG)은 Pro 전용 기능
-            </span>
-            입니다.
-          </p>
-        </div>
-      );
+      return <UploadCard onFileSelected={(file) => setFileInput(file)} />;
     }
 
     if (type === "manual") {
       return (
-        <textarea
-          rows={6}
-          placeholder="직접 입력하거나 붙여넣기 해주세요"
-          value={textInput}
-          onChange={(e) => setTextInput(e.target.value)}
-          className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg focus:outline-hidden focus:ring-primary bg-white dark:bg-black"
-        />
+        <div className="w-full max-w-3xl mx-auto">
+          <div className="rounded-xl bg-background-soft dark:bg-[#18181c] shadow-sm p-6 space-y-4">
+            <div className="text-left">
+              <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
+                직접 입력
+              </label>
+              <textarea
+                rows={6}
+                placeholder="직접 입력하거나 붙여넣기 해주세요"
+                value={textInput}
+                onChange={(e) => setTextInput(e.target.value)}
+                className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg bg-white dark:bg-black text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-shadow placeholder-gray-400 dark:placeholder-gray-500"
+              />
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+              <span className="text-primary font-semibold">Tip:</span>{" "}
+              편집하거나 수정한 후 요약을 시작할 수 있어요.
+            </p>
+          </div>
+        </div>
       );
     }
 
