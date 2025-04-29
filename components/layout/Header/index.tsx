@@ -59,7 +59,7 @@ export default function Header() {
 
   return (
     <header>
-      <nav className="bg-white/90 backdrop-blur-md shadow-md py-2.5 fixed w-full z-40 top-0 start-0 border-b border-border">
+      <nav className="bg-white/90 dark:bg-background/50 backdrop-blur-md shadow-md py-2.5 fixed w-full z-40 top-0 start-0 border-b border-border">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4">
           {/* 로고 */}
           <div className="flex items-center gap-2">
