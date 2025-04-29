@@ -25,7 +25,7 @@ export default function InputSection({
   const [textInput, setTextInput] = useState<string>("");
   const [fileInput, setFileInput] = useState<File | null>(null);
   const [openAlert, setOpenAlert] = useState<boolean>(false);
-  const [alertText, setAlertText] = useState<string>('');
+  const [alertText, setAlertText] = useState<string>("");
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const handleSubmit = async () => {
@@ -58,10 +58,10 @@ export default function InputSection({
   const handleYoutubeSubmit = async () => {
     try {
       const videoId = getYouTubeVideoId(textInput);
-      if(!videoId){
-        setAlertText('유효한 Youtube 링크가 아닙니다.');
+      if (!videoId) {
+        setAlertText("유효한 Youtube 링크가 아닙니다.");
         setOpenAlert(true);
-        setIsLoading(false)
+        setIsLoading(false);
         return;
       }
       const res = await fetch(`${apiBaseUrl}/youtube/transcript`, {
@@ -76,7 +76,7 @@ export default function InputSection({
       if (res.ok && data.status === "cached") {
         // ✅ 캐시에서 바로 꺼낸 결과 → 바로 처리
         console.log("캐시 결과 사용");
-        if (typeof data.result === 'string') {
+        if (typeof data.result === "string") {
           onExtracted(
             `🔗 유튜브 영상에서 추출한 스크립트입니다.\n\n${data.result}`,
             true
@@ -104,12 +104,12 @@ export default function InputSection({
           console.log(pollData.status);
           console.log("pollData", pollData);
 
-          if(pollData.status !== 'processing'){
+          if (pollData.status !== "processing") {
             setIsLoading(false);
-          } 
+          }
 
           if (pollRes.ok && pollData.status === "completed") {
-            if (typeof pollData.result === 'string') {
+            if (typeof pollData.result === "string") {
               onExtracted(
                 `🔗 유튜브 영상에서 추출한 스크립트입니다.\n\n${pollData.result}`,
                 true
@@ -147,7 +147,7 @@ export default function InputSection({
       // 사용자에게도 알려주기
       onExtracted("❌ 네트워크 오류가 발생했습니다. 다시 시도해주세요.", false);
       setIsLoading(false);
-    } 
+    }
   };
 
   const handleWebsiteSubmit = async () => {
@@ -184,7 +184,7 @@ export default function InputSection({
           const pollData = await pollRes.json();
           console.log("폴링 응답:", pollData.status);
 
-          if (pollData.status !== 'processing'){
+          if (pollData.status !== "processing") {
             setIsLoading(false);
           }
 
@@ -226,9 +226,12 @@ export default function InputSection({
       }
 
       // 사용자에게도 알려주기
-      onExtracted("❌ 웹사이트 요청 중 에러 발생했습니다. 다시 시도해주세요.", false);
+      onExtracted(
+        "❌ 웹사이트 요청 중 에러 발생했습니다. 다시 시도해주세요.",
+        false
+      );
       setIsLoading(false);
-    } 
+    }
   };
 
   const handleFileSubmit = async () => {
@@ -237,22 +240,25 @@ export default function InputSection({
       setOpenAlert(true);
       return;
     }
-  
+
     const formData = new FormData();
     formData.append("file", fileInput);
-  
-    const ext = fileInput.name.split('.').pop()?.toLowerCase();
-  
+
+    const ext = fileInput.name.split(".").pop()?.toLowerCase();
+
     try {
       const res = await fetch(`${apiBaseUrl}/file/extract`, {
         method: "POST",
         body: formData,
       });
-  
+
       const data = await res.json();
-  
+
       if (res.ok && data.status === "success") {
-        onExtracted(`📄 업로드한 파일에서 추출한 본문입니다.\n\n${data.result}`, true);
+        onExtracted(
+          `📄 업로드한 파일에서 추출한 본문입니다.\n\n${data.result}`,
+          true
+        );
       } else {
         onExtracted("❌ 파일 처리에 실패했습니다.", false);
       }
@@ -263,7 +269,6 @@ export default function InputSection({
       setIsLoading(false);
     }
   };
-  
 
   const canSubmit =
     isLoading ||
@@ -344,7 +349,7 @@ export default function InputSection({
 
   return (
     <div className="space-y-6 w-full max-w-3xl mx-auto text-center">
-       <Alert text={alertText} open={openAlert} onOpenChange={setOpenAlert} />
+      <Alert text={alertText} open={openAlert} onOpenChange={setOpenAlert} />
       {renderInputField()}
 
       <div className="flex justify-center mt-5">
@@ -352,8 +357,8 @@ export default function InputSection({
           disabled={canSubmit}
           onClick={handleSubmit}
           className={clsx(
-            "group flex items-center justify-center gap-2 px-6 py-3 font-semibold rounded-lg text-white bg-primary transition-all duration-200",
-            "hover:bg-primary-dark hover:shadow-md",
+            "group flex items-center justify-center gap-2 px-6 py-3 font-semibold rounded-lg transition-all duration-200",
+            "text-white bg-black hover:bg-gray-800 hover:shadow-md",
             (canSubmit || isLoading) && "opacity-50 cursor-not-allowed"
           )}
         >

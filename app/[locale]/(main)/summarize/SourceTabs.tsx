@@ -20,7 +20,7 @@ const tabList: { type: SourceType; label: string; icon: string }[] = [
 
 export default function SourceTabs({ selected, onChange }: Props) {
   return (
-    <div className="flex justify-center gap-2 flex-wrap mb-3 p-4 bg-background rounded-2xl">
+    <div className="flex justify-center gap-2 flex-wrap mb-3 p-4 rounded-2xl">
       {tabList.map((tab) => (
         <button
           key={tab.type}
@@ -28,8 +28,8 @@ export default function SourceTabs({ selected, onChange }: Props) {
           className={clsx(
             "flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border transition",
             selected === tab.type
-              ? "bg-black text-white border-black"
-              : "bg-white dark:bg-black border-gray-300 dark:border-white/20 text-gray-800 dark:text-white hover:border-black"
+              ? "bg-primary text-white border-primary" // ✅ 선택된 탭 → 파란색 버튼
+              : "bg-white dark:bg-black border-primary text-primary hover:bg-primary/10 dark:hover:bg-primary/20" // ✅ 비선택 탭 → 흰배경 + 파란테두리 + 파란글씨
           )}
         >
           <Icon icon={tab.icon} width={20} />
