@@ -76,7 +76,7 @@ export default function SummarizePage() {
       <div className="w-full max-w-7xl mx-auto px-6 py-12 space-y-12">
         {/* Section 1: 입력 */}
         <motion.section
-          className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md space-y-6"
+          className="bg-background dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md space-y-6"
           variants={fadeInUp}
           initial="initial"
           animate="animate"

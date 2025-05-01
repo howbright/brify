@@ -13,7 +13,7 @@ layer(base);
     Noto Sans TC, sans-serif;
 
   /* --color-background: #f8f9fb; */
-  --color-background: #fdfaf6;
+  --color-background: #ffffff;
   --color-background-soft: #fdfaf6;
   --color-gray-soft: #e9ecf1;
   --color-text: #212529;
@@ -263,14 +263,6 @@ layer(base);
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background-soft text-foreground;
-  }
-}
 
 @keyframes pulse-glow {
   0%,

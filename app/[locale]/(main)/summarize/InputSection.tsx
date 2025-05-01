@@ -7,6 +7,8 @@ import clsx from "clsx";
 import { useState } from "react";
 import { SourceType } from "./SourceTabs";
 import UploadCard from "./UploadCard";
+import OcrSuggestDialog from "./OcrSuggestDialog";
+import OcrHelpDialog from "./OcrHelpDialog";
 
 interface Props {
   type: SourceType;
@@ -26,11 +28,18 @@ export default function InputSection({
   const [textInput, setTextInput] = useState<string>("");
   const [fileInput, setFileInput] = useState<File | null>(null);
   const [openAlert, setOpenAlert] = useState<boolean>(false);
+  const [openOcrSuggest, setOpenOcrSuggest] = useState<boolean>(false);
+  const [openOcrHelp, setOpenOcrHelp] = useState<boolean>(false);
   const [alertText, setAlertText] = useState<string>("");
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const [dragOver, setDragOver] = useState(false);
 
   const handleSubmit = async () => {
+    if (type === "file" && !fileInput) {
+      setAlertText("파일이 선택되지 않았습니다."); // ⚡ 추가: 업로드 전 파일 체크
+      setOpenAlert(true);
+      return;
+    }
     setIsLoading(true);
     onExtracted("", false);
     try {
@@ -245,8 +254,10 @@ export default function InputSection({
 
     const formData = new FormData();
     formData.append("file", fileInput);
+    console.log(formData.get("file"));
 
     const ext = fileInput.name.split(".").pop()?.toLowerCase();
+    console.log('ext:', ext)
 
     try {
       const res = await fetch(`${apiBaseUrl}/file/extract`, {
@@ -257,11 +268,16 @@ export default function InputSection({
       const data = await res.json();
 
       if (res.ok && data.status === "success") {
+        if(data.result.trim() === ''){
+          setOpenOcrSuggest(true);
+          return;
+        }
         onExtracted(
           `📄 업로드한 파일에서 추출한 본문입니다.\n\n${data.result}`,
           true
         );
       } else {
+        console.log(data)
         onExtracted("❌ 파일 처리에 실패했습니다.", false);
       }
     } catch (e) {
@@ -274,14 +290,18 @@ export default function InputSection({
 
   const canSubmit =
     isLoading ||
-    (["youtube", "website", "manual"].includes(type) && !textInput) ||
+    (["youtube", "website", "manual"].includes(type) && !textInput.trim()) ||
     (type === "file" && !fileInput);
+
+   const handleOcrConfirm = async() => {
+    alert('ocr신청함')
+   }
 
   const renderInputField = () => {
     if (type === "youtube" || type === "website") {
       return (
         <div className="w-full max-w-3xl mx-auto">
-          <div className="rounded-xl bg-background-soft dark:bg-[#18181c] shadow-sm p-6 space-y-4">
+          <div className="rounded-xl bg-primary/5 dark:bg-[#18181c] p-6 space-y-4">
             <div className="text-left">
               <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
                 {type === "youtube" ? "YouTube 영상 주소" : "웹사이트 주소"}
@@ -317,7 +337,7 @@ export default function InputSection({
     if (type === "manual") {
       return (
         <div className="w-full max-w-3xl mx-auto">
-          <div className="rounded-xl bg-background-soft dark:bg-[#18181c] shadow-sm p-6 space-y-4">
+          <div className="rounded-xl bg-primary/5 dark:bg-[#18181c] p-6 space-y-4">
             <div className="text-left">
               <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
                 직접 입력
@@ -345,6 +365,8 @@ export default function InputSection({
   return (
     <div className="space-y-6 w-full max-w-3xl mx-auto text-center">
       <Alert text={alertText} open={openAlert} onOpenChange={setOpenAlert} />
+      <OcrSuggestDialog open={openOcrSuggest} onOpenChange={setOpenOcrSuggest} onOcrConfirm={handleOcrConfirm} onOpenOcrHelp={() => setOpenOcrHelp(true)} />
+      <OcrHelpDialog open={openOcrHelp} onOpenChange={setOpenOcrHelp}/>
       {renderInputField()}
 
       <div className="flex justify-center mt-5">
