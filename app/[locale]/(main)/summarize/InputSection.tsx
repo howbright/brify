@@ -245,6 +245,52 @@ export default function InputSection({
     }
   };
 
+  const handleOcrFileUpload = async () => {
+
+    if (!fileInput) {
+      setAlertText("파일이 선택되지 않았습니다.");
+      setOpenAlert(true);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileInput);
+  
+    // 언어 자동 설정 예시 (locale에 따라)
+    const userLang = navigator.language.startsWith('ko') ? 'kor+eng' : 'eng';
+  
+    formData.append("lang", userLang); // OCR 서버에서 lang 파라미터 수신
+  
+    try {
+      const res = await fetch(`${apiBaseUrl}/ocr/extract`, {
+        method: "POST",
+        body: formData,
+      });
+  
+      const data = await res.json();
+  
+      if (res.ok && data.status === "success") {
+        if (data.result.trim() === "") {
+          setOpenOcrSuggest(true);
+          return;
+        }
+        onExtracted(
+          `📷 OCR로 추출한 본문입니다.\n\n${data.result}`,
+          true
+        );
+      } else {
+        console.log(data);
+        onExtracted("❌ OCR 처리에 실패했습니다.", false);
+      }
+    } catch (e) {
+      console.error("OCR 업로드 에러:", e);
+      onExtracted("❌ OCR 업로드 중 오류 발생", false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+
   const handleFileSubmit = async () => {
     if (!fileInput) {
       setAlertText("파일이 선택되지 않았습니다.");
@@ -260,6 +306,10 @@ export default function InputSection({
     console.log('ext:', ext)
 
     try {
+      if (ext === 'ocr' || ext === 'png' || ext === 'jpg' || ext === 'jpeg') {
+        await handleOcrFileUpload();
+        return;
+      }
       const res = await fetch(`${apiBaseUrl}/file/extract`, {
         method: "POST",
         body: formData,
