@@ -43,7 +43,7 @@ export default function InputSection({
     setIsLoading(true);
     onExtracted("", false);
     try {
-      if (type === "manual") return handleManualSubmit();
+      // if (type === "manual") return handleManualSubmit();
       if (type === "youtube") return handleYoutubeSubmit();
       if (type === "website") return handleWebsiteSubmit();
       if (type === "file") return handleFileSubmit();
@@ -54,16 +54,6 @@ export default function InputSection({
     } finally {
       // setIsLoading(false);
     }
-  };
-
-  const handleManualSubmit = () => {
-    if (!textInput || textInput.trim().length === 0) {
-      onExtracted("❌ 입력된 텍스트가 없습니다.", false);
-      setIsLoading(false);
-      return;
-    }
-
-    onManualSubmit?.(textInput.trim());
   };
 
   const handleYoutubeSubmit = async () => {
@@ -246,7 +236,6 @@ export default function InputSection({
   };
 
   const handleOcrFileUpload = async () => {
-
     if (!fileInput) {
       setAlertText("파일이 선택되지 않았습니다.");
       setOpenAlert(true);
@@ -255,29 +244,26 @@ export default function InputSection({
 
     const formData = new FormData();
     formData.append("file", fileInput);
-  
+
     // 언어 자동 설정 예시 (locale에 따라)
-    const userLang = navigator.language.startsWith('ko') ? 'kor+eng' : 'eng';
-  
+    const userLang = navigator.language.startsWith("ko") ? "kor+eng" : "eng";
+
     formData.append("lang", userLang); // OCR 서버에서 lang 파라미터 수신
-  
+
     try {
       const res = await fetch(`${apiBaseUrl}/ocr/extract`, {
         method: "POST",
         body: formData,
       });
-  
+
       const data = await res.json();
-  
+
       if (res.ok && data.status === "success") {
         if (data.result.trim() === "") {
           setOpenOcrSuggest(true);
           return;
         }
-        onExtracted(
-          `📷 OCR로 추출한 본문입니다.\n\n${data.result}`,
-          true
-        );
+        onExtracted(`📷 OCR로 추출한 본문입니다.\n\n${data.result}`, true);
       } else {
         console.log(data);
         onExtracted("❌ OCR 처리에 실패했습니다.", false);
@@ -289,7 +275,6 @@ export default function InputSection({
       setIsLoading(false);
     }
   };
-  
 
   const handleFileSubmit = async () => {
     if (!fileInput) {
@@ -303,10 +288,10 @@ export default function InputSection({
     console.log(formData.get("file"));
 
     const ext = fileInput.name.split(".").pop()?.toLowerCase();
-    console.log('ext:', ext)
+    console.log("ext:", ext);
 
     try {
-      if (ext === 'ocr' || ext === 'png' || ext === 'jpg' || ext === 'jpeg') {
+      if (ext === "ocr" || ext === "png" || ext === "jpg" || ext === "jpeg") {
         await handleOcrFileUpload();
         return;
       }
@@ -318,7 +303,7 @@ export default function InputSection({
       const data = await res.json();
 
       if (res.ok && data.status === "success") {
-        if(data.result.trim() === ''){
+        if (data.result.trim() === "") {
           setOpenOcrSuggest(true);
           return;
         }
@@ -327,7 +312,7 @@ export default function InputSection({
           true
         );
       } else {
-        console.log(data)
+        console.log(data);
         onExtracted("❌ 파일 처리에 실패했습니다.", false);
       }
     } catch (e) {
@@ -343,9 +328,9 @@ export default function InputSection({
     (["youtube", "website", "manual"].includes(type) && !textInput.trim()) ||
     (type === "file" && !fileInput);
 
-   const handleOcrConfirm = async() => {
-    alert('ocr신청함')
-   }
+  const handleOcrConfirm = async () => {
+    alert("ocr신청함");
+  };
 
   const renderInputField = () => {
     if (type === "youtube" || type === "website") {
@@ -385,28 +370,7 @@ export default function InputSection({
     }
 
     if (type === "manual") {
-      return (
-        <div className="w-full max-w-3xl mx-auto">
-          <div className="rounded-xl bg-primary/5 dark:bg-[#18181c] p-6 space-y-4">
-            <div className="text-left">
-              <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
-                직접 입력
-              </label>
-              <textarea
-                rows={6}
-                placeholder="직접 입력하거나 붙여넣기 해주세요"
-                value={textInput}
-                onChange={(e) => setTextInput(e.target.value)}
-                className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg bg-white dark:bg-black text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-shadow placeholder-gray-400 dark:placeholder-gray-500"
-              />
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-              <span className="text-primary font-semibold">Tip:</span>{" "}
-              편집하거나 수정한 후 요약을 시작할 수 있어요.
-            </p>
-          </div>
-        </div>
-      );
+      return null;
     }
 
     return null;
@@ -415,39 +379,47 @@ export default function InputSection({
   return (
     <div className="space-y-6 w-full max-w-3xl mx-auto text-center">
       <Alert text={alertText} open={openAlert} onOpenChange={setOpenAlert} />
-      <OcrSuggestDialog open={openOcrSuggest} onOpenChange={setOpenOcrSuggest} onOcrConfirm={handleOcrConfirm} onOpenOcrHelp={() => setOpenOcrHelp(true)} />
-      <OcrHelpDialog open={openOcrHelp} onOpenChange={setOpenOcrHelp}/>
+      <OcrSuggestDialog
+        open={openOcrSuggest}
+        onOpenChange={setOpenOcrSuggest}
+        onOcrConfirm={handleOcrConfirm}
+        onOpenOcrHelp={() => setOpenOcrHelp(true)}
+      />
+      <OcrHelpDialog open={openOcrHelp} onOpenChange={setOpenOcrHelp} />
       {renderInputField()}
-
-      <div className="flex justify-center mt-5">
-        <button
-          disabled={canSubmit}
-          onClick={handleSubmit}
-          className={clsx(
-            "group flex items-center justify-center gap-2 px-6 py-3 font-semibold rounded-lg transition-all duration-200",
-            "text-white bg-black hover:bg-gray-800 hover:shadow-md",
-            (canSubmit || isLoading) && "opacity-50 cursor-not-allowed"
-          )}
-        >
-          {isLoading ? (
-            <>
-              <Icon icon="lucide:loader" className="animate-spin" width={18} />
-              처리 중...
-            </>
-          ) : (
-            <>
-              <span>
-                {type === "manual" ? "핵심정리 시작하기" : "원문 추출하기"}
-              </span>
-              <Icon
-                icon="lucide:arrow-right"
-                width={18}
-                className="transition-transform group-hover:translate-x-1"
-              />
-            </>
-          )}
-        </button>
-      </div>
+      {type !== "manual" && (
+        <div className="flex justify-center mt-5">
+          <button
+            disabled={canSubmit}
+            onClick={handleSubmit}
+            className={clsx(
+              "group flex items-center justify-center gap-2 px-6 py-3 font-semibold rounded-lg transition-all duration-200",
+              "text-white bg-black hover:bg-gray-800 hover:shadow-md",
+              (canSubmit || isLoading) && "opacity-50 cursor-not-allowed"
+            )}
+          >
+            {isLoading ? (
+              <>
+                <Icon
+                  icon="lucide:loader"
+                  className="animate-spin"
+                  width={18}
+                />
+                처리 중...
+              </>
+            ) : (
+              <>
+                <span>원문 추출하기</span>
+                <Icon
+                  icon="lucide:arrow-right"
+                  width={18}
+                  className="transition-transform group-hover:translate-x-1"
+                />
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

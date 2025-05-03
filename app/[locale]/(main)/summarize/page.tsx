@@ -4,7 +4,7 @@ import { getTagsFromText } from "@/app/lib/gtp/getTagsFromText";
 import { summarizeBoth } from "@/app/lib/gtp/summarize";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import EditableTags from "./EditableTags";
 import ExtractedText from "./ExtractedText";
 import InputSection from "./InputSection";
@@ -29,6 +29,13 @@ export default function SummarizePage() {
   const [tags, setTags] = useState<string[]>([]);
   const [hasSummarized, setHasSummarized] = useState(false);
   const [extractionSucceeded, setExtractionSucceeded] = useState(false);
+
+  useEffect(() => {
+    if (sourceType === "manual" && !rawText) {
+      setRawText("✍️ 여기에 정리할 내용을 입력해주세요.");
+      setExtractionSucceeded(true);
+    }
+  }, [sourceType]);
 
   type SummaryType = "default" | "short" | "shortest" | "detailed";
 
@@ -102,7 +109,7 @@ export default function SummarizePage() {
         </motion.section>
 
         {/* Section 2: 원문 편집 */}
-        {rawText && sourceType !== "manual" && (
+        {rawText && (
           <motion.section
             variants={fadeInUp}
             initial="initial"
@@ -115,8 +122,7 @@ export default function SummarizePage() {
               hasSummarized={hasSummarized}
               setTags={setTags}
               extractionSucceeded={extractionSucceeded}
-              onSummarize={handleSummarize}
-            />
+              onSummarize={handleSummarize} isManual={sourceType==='manual'}            />
           </motion.section>
         )}
 
