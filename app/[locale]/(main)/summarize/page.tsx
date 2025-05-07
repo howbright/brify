@@ -14,6 +14,7 @@ import SummaryActionsFloating from "./SummaryActionsFloating";
 import SummaryResult from "./SummaryResult";
 import { ProTooltipButton } from "@/components/ProTooltipButton";
 import EditExtractedSection from "./EditExtractedSection";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -29,6 +30,10 @@ export default function SummarizePage() {
   const [tags, setTags] = useState<string[]>([]);
   const [hasSummarized, setHasSummarized] = useState(false);
   const [extractionSucceeded, setExtractionSucceeded] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [pendingSourceType, setPendingSourceType] = useState<SourceType | null>(
+    null
+  );
 
   useEffect(() => {
     if (sourceType === "manual" && !rawText) {
@@ -78,6 +83,35 @@ export default function SummarizePage() {
     }
   };
 
+  const handleSourceChange = (newType: SourceType) => {
+    const hasExistingData = rawText || textSummary || treeSummary;
+
+    if (hasExistingData) {
+      setPendingSourceType(newType);
+      setConfirmDialogOpen(true);
+      return;
+    }
+    setSourceType(newType);
+  };
+
+  const handleConfirmInit = () => {
+    // 상태 초기화
+    setRawText("");
+    setTextSummary("");
+    setTreeSummary(null);
+    setTags([]);
+    setHasSummarized(false);
+    setExtractionSucceeded(false);
+
+    // 선택한 sourceType 반영
+    if (pendingSourceType) {
+      setSourceType(pendingSourceType);
+      setPendingSourceType(null);
+    }
+
+    setConfirmDialogOpen(false);
+  };
+
   return (
     <TooltipProvider delayDuration={150}>
       <div className="w-full max-w-7xl mx-auto px-6 py-12 space-y-12">
@@ -94,7 +128,7 @@ export default function SummarizePage() {
           </h3>
 
           <div className="flex justify-center">
-            <SourceTabs selected={sourceType} onChange={setSourceType} />
+            <SourceTabs selected={sourceType} onChange={handleSourceChange} />
           </div>
 
           <div className="flex justify-center">
@@ -104,6 +138,11 @@ export default function SummarizePage() {
               isLoading={loading}
               setIsLoading={setLoading}
               onManualSubmit={handleSummarize}
+            />
+            <ConfirmDialog
+              open={confirmDialogOpen}
+              onOpenChange={setConfirmDialogOpen}
+              onConfirm={handleConfirmInit}
             />
           </div>
         </motion.section>
@@ -122,7 +161,9 @@ export default function SummarizePage() {
               hasSummarized={hasSummarized}
               setTags={setTags}
               extractionSucceeded={extractionSucceeded}
-              onSummarize={handleSummarize} isManual={sourceType==='manual'}            />
+              onSummarize={handleSummarize}
+              isManual={sourceType === "manual"}
+            />
           </motion.section>
         )}
 
