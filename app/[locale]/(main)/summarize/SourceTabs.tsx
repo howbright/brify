@@ -1,10 +1,8 @@
 "use client";
 
+import { SourceType } from "@/app/types/sourceType";
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
-
-// 오디오 제외된 SourceType
-export type SourceType = "youtube" | "website" | "file" | "manual";
 
 interface Props {
   selected: SourceType;
@@ -12,10 +10,10 @@ interface Props {
 }
 
 const tabList: { type: SourceType; label: string; icon: string }[] = [
-  { type: "youtube", label: "YouTube", icon: "mdi:youtube" },
-  { type: "manual", label: "직접입력", icon: "mdi:pencil" },
-  { type: "file", label: "문서", icon: "mdi:file-document" },
-  { type: "website", label: "웹사이트", icon: "mdi:web" },
+  { type: SourceType.YOUTUBE, label: "YouTube", icon: "mdi:youtube" },
+  { type: SourceType.MANUAL, label: "직접입력", icon: "mdi:pencil" },
+  { type: SourceType.FILE, label: "문서", icon: "mdi:file-document" },
+  { type: SourceType.WEBSITE, label: "웹사이트", icon: "mdi:web" },
 ];
 
 export default function SourceTabs({ selected, onChange }: Props) {

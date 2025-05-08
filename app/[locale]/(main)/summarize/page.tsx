@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import EditableTags from "./EditableTags";
 import ExtractedText from "./ExtractedText";
 import InputSection from "./InputSection";
-import SourceTabs, { SourceType } from "./SourceTabs";
+import SourceTabs from "./SourceTabs";
 import SummarizeButton from "./SummarizeButton";
 import SummaryActionsFloating from "./SummaryActionsFloating";
 import SummaryResult from "./SummaryResult";
@@ -17,6 +17,7 @@ import EditExtractedSection from "./EditExtractedSection";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { supabase } from "@/app/lib/supabaseClienet";
 import { useLocale } from "next-intl";
+import { SourceType } from "@/app/types/sourceType";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -24,8 +25,8 @@ const fadeInUp = {
 };
 
 export default function SummarizePage() {
-  const locale = useLocale(); // ✅ 여기서만 가능
-  const [sourceType, setSourceType] = useState<SourceType>("youtube");
+  const locale = useLocale();
+  const [sourceType, setSourceType] = useState<SourceType>(SourceType.YOUTUBE);
   const [rawText, setRawText] = useState("");
   const [textSummary, setTextSummary] = useState("");
   const [treeSummary, setTreeSummary] = useState<any>(null);
@@ -34,56 +35,37 @@ export default function SummarizePage() {
   const [hasSummarized, setHasSummarized] = useState(false);
   const [extractionSucceeded, setExtractionSucceeded] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [pendingSourceType, setPendingSourceType] = useState<SourceType | null>(
-    null
-  );
+  const [pendingSourceType, setPendingSourceType] = useState<SourceType | null>(null);
 
   useEffect(() => {
-    if (sourceType === "manual" && !rawText) {
+    if (sourceType === SourceType.MANUAL && !rawText) {
       setRawText("✍️ 여기에 정리할 내용을 입력해주세요.");
       setExtractionSucceeded(true);
     }
   }, [sourceType]);
 
-  type SummaryType = "default" | "short" | "shortest" | "detailed";
-
-  const buttons: { label: string; type: SummaryType; pro: boolean }[] = [
-    { label: "한 문장 요약", type: "shortest", pro: true },
-    { label: "더 간단히 요약", type: "short", pro: true },
-    { label: "다시 요약하기", type: "default", pro: false },
-    { label: "더 자세히 요약", type: "detailed", pro: true },
-  ];
-
-  const handleSummarize = async (
-    text: string
-    // type: "default" | "short" | "shortest" | "detailed" = "default"
-  ) => {
+  const handleSummarize = async (text: string) => {
     if (!text) return;
     setLoading(true);
     try {
-      const token = await supabase.auth
-        .getSession()
-        .then((res) => res.data.session?.access_token);
+      const token = await supabase.auth.getSession().then((res) => res.data.session?.access_token);
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/summarize`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // ✅ 토큰을 Authorization 헤더로 전달
-          },
-          body: JSON.stringify({
-            originalText: text,
-            lang: locale, // ✅ next-intl에서 가져온 실제 사용 언어
-            sourceType: sourceType, // ✅ 유저가 선택한 출처 유형
-            sourceUrl: sourceType === "youtube" || sourceType === "website" ? text : null, // ✅ 링크 기반인 경우만 text를 sourceUrl로
-            sourceTitle: null,
-            isPublic: false,
-            publicComment: null,
-          }),
-        }
-      );
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/summarize`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          originalText: text,
+          lang: locale,
+          sourceType,
+          sourceUrl: sourceType === SourceType.YOUTUBE || sourceType === SourceType.WEBSITE ? text : null,
+          sourceTitle: null,
+          isPublic: false,
+          publicComment: null,
+        }),
+      });
 
       const data = await res.json();
       console.log("요약 Job 생성됨:", data.summaryId);
@@ -100,15 +82,14 @@ export default function SummarizePage() {
     setTreeSummary(null);
     setTags([]);
     setHasSummarized(false);
-    setExtractionSucceeded(succeed); // ✅ 더 자연스럽고 정확한 표현
-    if (sourceType === "manual") {
+    setExtractionSucceeded(succeed);
+    if (sourceType === SourceType.MANUAL) {
       handleSummarize(text);
     }
   };
 
   const handleSourceChange = (newType: SourceType) => {
     const hasExistingData = rawText || textSummary || treeSummary;
-
     if (hasExistingData) {
       setPendingSourceType(newType);
       setConfirmDialogOpen(true);
@@ -118,27 +99,22 @@ export default function SummarizePage() {
   };
 
   const handleConfirmInit = () => {
-    // 상태 초기화
     setRawText("");
     setTextSummary("");
     setTreeSummary(null);
     setTags([]);
     setHasSummarized(false);
     setExtractionSucceeded(false);
-
-    // 선택한 sourceType 반영
     if (pendingSourceType) {
       setSourceType(pendingSourceType);
       setPendingSourceType(null);
     }
-
     setConfirmDialogOpen(false);
   };
 
   return (
     <TooltipProvider delayDuration={150}>
       <div className="w-full max-w-7xl mx-auto px-6 py-12 space-y-12">
-        {/* Section 1: 입력 */}
         <motion.section
           className="bg-background dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md space-y-6"
           variants={fadeInUp}
@@ -170,13 +146,8 @@ export default function SummarizePage() {
           </div>
         </motion.section>
 
-        {/* Section 2: 원문 편집 */}
         {rawText && (
-          <motion.section
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-          >
+          <motion.section variants={fadeInUp} initial="initial" animate="animate">
             <EditExtractedSection
               rawText={rawText}
               setRawText={setRawText}
@@ -185,12 +156,11 @@ export default function SummarizePage() {
               setTags={setTags}
               extractionSucceeded={extractionSucceeded}
               onSummarize={handleSummarize}
-              isManual={sourceType === "manual"}
+              isManual={sourceType === SourceType.MANUAL}
             />
           </motion.section>
         )}
 
-        {/* Section 3: 요약 결과 */}
         {textSummary && treeSummary && (
           <motion.section
             className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md flex flex-col items-center"

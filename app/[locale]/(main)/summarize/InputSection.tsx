@@ -5,10 +5,10 @@ import { getYouTubeVideoId } from "@/lib/utils";
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
 import { useState } from "react";
-import { SourceType } from "./SourceTabs";
 import UploadCard from "./UploadCard";
 import OcrSuggestDialog from "./OcrSuggestDialog";
 import OcrHelpDialog from "./OcrHelpDialog";
+import { SourceType } from "@/app/types/sourceType";
 
 interface Props {
   type: SourceType;
