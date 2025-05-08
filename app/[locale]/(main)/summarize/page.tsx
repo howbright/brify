@@ -15,6 +15,8 @@ import SummaryResult from "./SummaryResult";
 import { ProTooltipButton } from "@/components/ProTooltipButton";
 import EditExtractedSection from "./EditExtractedSection";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { supabase } from "@/app/lib/supabaseClienet";
+import { useLocale } from "next-intl";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -22,6 +24,7 @@ const fadeInUp = {
 };
 
 export default function SummarizePage() {
+  const locale = useLocale(); // ✅ 여기서만 가능
   const [sourceType, setSourceType] = useState<SourceType>("youtube");
   const [rawText, setRawText] = useState("");
   const [textSummary, setTextSummary] = useState("");
@@ -52,18 +55,38 @@ export default function SummarizePage() {
   ];
 
   const handleSummarize = async (
-    text: string,
-    type: "default" | "short" | "shortest" | "detailed" = "default"
+    text: string
+    // type: "default" | "short" | "shortest" | "detailed" = "default"
   ) => {
     if (!text) return;
     setLoading(true);
     try {
-      const { text: summary, tree } = await summarizeBoth(text); // 실제 요약 함수
-      setTextSummary(summary);
-      setTreeSummary(tree);
-      const extractedTags = await getTagsFromText(summary);
-      setTags(extractedTags);
-      setHasSummarized(true);
+      const token = await supabase.auth
+        .getSession()
+        .then((res) => res.data.session?.access_token);
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/summarize`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // ✅ 토큰을 Authorization 헤더로 전달
+          },
+          body: JSON.stringify({
+            originalText: text,
+            lang: locale, // ✅ next-intl에서 가져온 실제 사용 언어
+            sourceType: sourceType, // ✅ 유저가 선택한 출처 유형
+            sourceUrl: sourceType === "youtube" || sourceType === "website" ? text : null, // ✅ 링크 기반인 경우만 text를 sourceUrl로
+            sourceTitle: null,
+            isPublic: false,
+            publicComment: null,
+          }),
+        }
+      );
+
+      const data = await res.json();
+      console.log("요약 Job 생성됨:", data.summaryId);
     } catch (e) {
       console.error("요약 중 오류 발생:", e);
     } finally {
