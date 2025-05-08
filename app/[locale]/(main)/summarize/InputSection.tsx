@@ -35,7 +35,7 @@ export default function InputSection({
   const [dragOver, setDragOver] = useState(false);
 
   const handleSubmit = async () => {
-    if (type === "file" && !fileInput) {
+    if (type === SourceType.FILE && !fileInput) {
       setAlertText("파일이 선택되지 않았습니다."); // ⚡ 추가: 업로드 전 파일 체크
       setOpenAlert(true);
       return;
@@ -44,9 +44,9 @@ export default function InputSection({
     onExtracted("", false);
     try {
       // if (type === "manual") return handleManualSubmit();
-      if (type === "youtube") return handleYoutubeSubmit();
-      if (type === "website") return handleWebsiteSubmit();
-      if (type === "file") return handleFileSubmit();
+      if (type === SourceType.YOUTUBE) return handleYoutubeSubmit();
+      if (type === SourceType.WEBSITE) return handleWebsiteSubmit();
+      if (type === SourceType.FILE) return handleFileSubmit();
     } catch (err) {
       console.error(err);
       onExtracted("⚠️ 처리 중 오류가 발생했습니다.", false);
@@ -102,8 +102,8 @@ export default function InputSection({
           });
 
           const pollData = await pollRes.json();
-          console.log(pollData.status);
-          console.log("pollData", pollData);
+          // console.log(pollData.status);
+          // console.log("pollData", pollData);
 
           if (pollData.status !== "processing") {
             setIsLoading(false);
@@ -325,26 +325,26 @@ export default function InputSection({
 
   const canSubmit =
     isLoading ||
-    (["youtube", "website", "manual"].includes(type) && !textInput.trim()) ||
-    (type === "file" && !fileInput);
+    ([SourceType.YOUTUBE, SourceType.WEBSITE, SourceType.MANUAL].includes(type) && !textInput.trim()) ||
+    (type === SourceType.FILE && !fileInput);
 
   const handleOcrConfirm = async () => {
     alert("ocr신청함");
   };
 
   const renderInputField = () => {
-    if (type === "youtube" || type === "website") {
+    if (type === SourceType.YOUTUBE || type === SourceType.WEBSITE) {
       return (
         <div className="w-full max-w-3xl mx-auto">
           <div className="rounded-xl bg-primary/5 dark:bg-[#18181c] p-6 space-y-4">
             <div className="text-left">
               <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
-                {type === "youtube" ? "YouTube 영상 주소" : "웹사이트 주소"}
+                {type === SourceType.YOUTUBE ? "YouTube 영상 주소" : "웹사이트 주소"}
               </label>
               <input
                 type="text"
                 placeholder={
-                  type === "youtube"
+                  type === SourceType.YOUTUBE
                     ? "https://www.youtube.com/watch?v=..."
                     : "https://example.com/article"
                 }
@@ -354,7 +354,7 @@ export default function InputSection({
               />
             </div>
 
-            {type === "website" && (
+            {type === SourceType.WEBSITE && (
               <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                 대부분의 웹사이트는 요약이 가능하지만, 일부 로그인 필요하거나
                 보안 설정된 사이트는 지원되지 않을 수 있어요.
@@ -365,11 +365,11 @@ export default function InputSection({
       );
     }
 
-    if (type === "file") {
+    if (type === SourceType.FILE) {
       return <UploadCard onFileSelected={(file) => setFileInput(file)} />;
     }
 
-    if (type === "manual") {
+    if (type === SourceType.MANUAL) {
       return null;
     }
 
@@ -387,7 +387,7 @@ export default function InputSection({
       />
       <OcrHelpDialog open={openOcrHelp} onOpenChange={setOpenOcrHelp} />
       {renderInputField()}
-      {type !== "manual" && (
+      {type !== SourceType.MANUAL && (
         <div className="flex justify-center mt-5">
           <button
             disabled={canSubmit}
