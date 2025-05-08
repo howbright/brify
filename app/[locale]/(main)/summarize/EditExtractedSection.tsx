@@ -4,7 +4,6 @@ import { ProTooltipButton } from "@/components/ProTooltipButton";
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import SummarizeButton from "./SummarizeButton";
-import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface Props {
   isManual: boolean;
@@ -33,8 +32,6 @@ export default function EditExtractedSection({
   type SummaryType = "default" | "short" | "shortest" | "detailed";
 
   const [copied, setCopied] = useState(false);
-  const [sourceNote, setSourceNote] = useState("");
-  const [showSourceInput, setShowSourceInput] = useState(false);
   const isTooShort = rawText.trim().length < 300;
 
   const handleCopy = async () => {
@@ -99,36 +96,6 @@ export default function EditExtractedSection({
           <p className="text-xs text-red-500 text-right">
             요약을 위해 최소 300자 이상의 내용을 입력해주세요.
           </p>
-        )}
-      </div>
-      {/* 출처 입력 아코디언 */}
-      <div className="my-4">
-        <button
-          type="button"
-          onClick={() => setShowSourceInput(!showSourceInput)}
-          className="text-sm text-gray-600 dark:text-gray-300 hover:underline flex items-center gap-1"
-        >
-          {showSourceInput ? "출처 입력 숨기기" : "출처를 추가로 입력할까요?"}
-          {showSourceInput ? (
-            <ChevronUp size={16} />
-          ) : (
-            <ChevronDown size={16} />
-          )}
-        </button>
-
-        {showSourceInput && (
-          <div className="mt-3 flex flex-col gap-2 border border-gray-200 dark:border-white/20 bg-primary/5 dark:bg-[#18181c] p-4 rounded-2xl">
-            <label className="block text-sm font-medium text-gray-800 dark:text-white mb-1">
-              출처 (선택 입력)
-            </label>
-            <input
-              type="text"
-              value={sourceNote}
-              onChange={(e) => setSourceNote(e.target.value)}
-              placeholder="출처를 남기고 싶다면 입력해주세요 (선택사항)"
-              className="w-full border border-gray-300 dark:border-white/20 p-3 rounded-lg bg-white dark:bg-black text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
-            />
-          </div>
         )}
       </div>
       {!hasSummarized ? (
