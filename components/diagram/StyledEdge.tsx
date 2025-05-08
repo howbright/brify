@@ -1,5 +1,4 @@
 import { BaseEdge, EdgeProps, getBezierPath, getSmoothStepPath, getStraightPath } from "@xyflow/react";
-import React from "react";
 
 export default function StyledEdge(props: EdgeProps & { stylePreset: any }) {
   const { sourceX, sourceY, targetX, targetY, stylePreset, markerEnd } = props;

@@ -2,8 +2,7 @@
 
 "use client";
 
-import React from "react";
-import { classicStyle, brutalistStyle, cuteStyle } from "@/styles/presets";
+import { brutalistStyle, classicStyle, cuteStyle } from "@/styles/presets";
 
 interface DiagramStyleSelectorProps {
   open: boolean;

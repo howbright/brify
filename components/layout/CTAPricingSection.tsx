@@ -1,8 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import GradientButton from "@/components/ui/GradientButton";
 import { Icon } from "@iconify/react";
+import { useRouter } from "next/navigation";
 
 export default function CTAPricingSection() {
   const router = useRouter();

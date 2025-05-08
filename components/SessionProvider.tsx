@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client"; // 너의 supabase client 경로
 import type { Session } from "@supabase/supabase-js";
+import { createContext, useContext, useEffect, useState } from "react";
 
 type SessionContextType = {
   session: Session | null;

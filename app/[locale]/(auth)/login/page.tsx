@@ -2,7 +2,6 @@
 
 import LoginForm from '@/components/LoginForm';
 import { Link } from '@/i18n/navigation';
-import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
 export default function Login() {

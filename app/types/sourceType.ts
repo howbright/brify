@@ -3,6 +3,4 @@ export enum SourceType {
     YOUTUBE = 'youtube',
     WEBSITE = 'website',
     FILE = 'file',
-  }
-  ``
-  
+  };

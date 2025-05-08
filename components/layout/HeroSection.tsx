@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
-import { motion, useAnimation } from "framer-motion";
-import { useEffect, useState } from "react";
 import GradientButton from "@/components/ui/GradientButton";
-import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
+import { motion, useAnimation } from "framer-motion";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function HeroSection() {
   const controls = useAnimation();

@@ -1,8 +1,8 @@
 "use client";
 
-import { useInView } from "react-intersection-observer";
 import { motion } from "framer-motion";
-import SummaryActions, {SummaryActionsProps} from "./SummaryActions";
+import { useInView } from "react-intersection-observer";
+import SummaryActions, { SummaryActionsProps } from "./SummaryActions";
 
 export default function SummaryActionsWrapper({
   text,

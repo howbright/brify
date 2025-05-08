@@ -1,14 +1,14 @@
 'use client';
 
-import { Link } from '@/i18n/navigation';
-import { useTranslations } from 'next-intl';
-import Image from 'next/image';
 import {
   Modal,
-  ModalContent,
   ModalClose,
+  ModalContent,
 } from '@/components/ui/modal';
+import { Link } from '@/i18n/navigation';
 import { X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 export default function LoginPromptModal({ show, onClose }: { show: boolean; onClose: () => void }) {
   const t = useTranslations('login');

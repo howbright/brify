@@ -2,14 +2,14 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import SummaryResult from "@/components/SummaryResult";
-import { TreeNode } from "@/app/types/tree";
 import {
   summarizeAndGenerateTree,
   summarizeTextOnly,
 } from "@/app/lib/gtp/summarize";
+import { TreeNode } from "@/app/types/tree";
+import SummaryResult from "@/components/SummaryResult";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function ResultPage() {
   const [mounted, setMounted] = useState(false);

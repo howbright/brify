@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
+import { useState } from "react";
 
 interface UploadCardProps {
   onFileSelected: (file: File) => void;

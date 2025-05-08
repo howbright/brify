@@ -1,5 +1,4 @@
 import { Handle, Position } from "@xyflow/react";
-import React from "react";
 
 export default function StyledNode({ data, stylePreset }: any) {
   const style = stylePreset.node;

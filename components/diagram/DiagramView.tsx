@@ -11,7 +11,6 @@ import {
 import '@xyflow/react/dist/style.css';
 import { useMemo, useState } from "react";
 import DiagramStyleSelector from "../DiagramStyleSelector";
-import StyledNode from "./StyledNode";
 
 interface DiagramViewProps {
   nodes: FlowNode<MyNodeData>[];

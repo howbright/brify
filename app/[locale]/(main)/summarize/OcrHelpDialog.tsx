@@ -1,13 +1,13 @@
 import {
   Modal,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalTitle,
-  ModalDescription,
   ModalClose,
+  ModalContent,
+  ModalDescription,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle,
 } from "@/components/ui/modal";
-import { X, Info } from "lucide-react";
+import { Info, X } from "lucide-react";
 
 export default function OcrHelpDialog({
   open,

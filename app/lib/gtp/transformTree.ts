@@ -1,7 +1,7 @@
 // 📁 lib/gpt/transformTree.ts
-import ELK from "elkjs/lib/elk.bundled.js";
-import type { Node as FlowNode, Edge as FlowEdge } from "@xyflow/react";
 import { MyNodeData, TreeNode } from "@/app/types/tree";
+import type { Edge as FlowEdge, Node as FlowNode } from "@xyflow/react";
+import ELK from "elkjs/lib/elk.bundled.js";
 
 const elk = new ELK();
 

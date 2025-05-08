@@ -1,11 +1,11 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { Icon } from "@iconify/react";
-import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { Icon } from "@iconify/react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 export default function LoginForm() {
   const t = useTranslations("login");

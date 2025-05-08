@@ -1,7 +1,7 @@
 "use client";
 
-import clsx from "clsx";
 import { Icon } from "@iconify/react";
+import clsx from "clsx";
 
 interface Props {
   onSummarize: () => void;

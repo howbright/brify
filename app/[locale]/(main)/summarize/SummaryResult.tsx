@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import type { Edge, Node as FlowNode } from "@xyflow/react";
 import { MyNodeData } from "@/app/types/tree";
 import DiagramView from "@/components/diagram/DiagramView";
+import type { Edge, Node as FlowNode } from "@xyflow/react";
+import { useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 // 트리 → ReactFlow 변환 유틸

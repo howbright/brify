@@ -1,9 +1,9 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import "react-multi-carousel/lib/styles.css";
-import { useTranslations } from "next-intl";
 
 const Carousel = dynamic(() => import("react-multi-carousel"), { ssr: false });
 

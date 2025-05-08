@@ -2,12 +2,12 @@
 
 "use client";
 
+import { treeToFlowElements } from "@/app/lib/gtp/transformTree";
 import { MyNodeData, TreeNode } from "@/app/types/tree";
+import { Icon } from "@iconify/react";
+import { Edge, Node } from "@xyflow/react";
 import React, { useEffect, useRef, useState } from "react";
 import DiagramView from "./diagram/DiagramView";
-import { treeToFlowElements } from "@/app/lib/gtp/transformTree";
-import { Icon } from "@iconify/react";
-import { Node, Edge } from "@xyflow/react";
 
 interface Props {
   viewType: "text" | "diagram" | "both";

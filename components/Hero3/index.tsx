@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
-import { useTranslations } from "next-intl";
-import GradientButton from "../ui/GradientButton";
 import { motion, useAnimation } from "framer-motion";
+import { useTranslations } from "next-intl";
+import Image from "next/image";
 import { useEffect } from "react";
+import GradientButton from "../ui/GradientButton";
 
 export default function Hero3() {
   const t = useTranslations("hero");

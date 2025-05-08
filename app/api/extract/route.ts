@@ -1,7 +1,7 @@
 // app/api/extract/route.ts
-import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import * as cheerio from "cheerio";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   const { url } = await req.json();

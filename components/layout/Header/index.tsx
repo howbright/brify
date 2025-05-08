@@ -13,8 +13,8 @@ import { Link } from "@/i18n/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Header() {
   const router = useRouter();

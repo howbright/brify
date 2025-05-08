@@ -1,23 +1,18 @@
 "use client";
 
-import { getTagsFromText } from "@/app/lib/gtp/getTagsFromText";
-import { summarizeBoth } from "@/app/lib/gtp/summarize";
+import { supabase } from "@/app/lib/supabaseClienet";
+import { SourceType } from "@/app/types/sourceType";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { motion } from "framer-motion";
+import { useLocale } from "next-intl";
 import { useEffect, useState } from "react";
 import EditableTags from "./EditableTags";
-import ExtractedText from "./ExtractedText";
+import EditExtractedSection from "./EditExtractedSection";
 import InputSection from "./InputSection";
 import SourceTabs from "./SourceTabs";
-import SummarizeButton from "./SummarizeButton";
 import SummaryActionsFloating from "./SummaryActionsFloating";
 import SummaryResult from "./SummaryResult";
-import { ProTooltipButton } from "@/components/ProTooltipButton";
-import EditExtractedSection from "./EditExtractedSection";
-import ConfirmDialog from "@/components/ui/ConfirmDialog";
-import { supabase } from "@/app/lib/supabaseClienet";
-import { useLocale } from "next-intl";
-import { SourceType } from "@/app/types/sourceType";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },

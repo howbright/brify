@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const features = [
   {

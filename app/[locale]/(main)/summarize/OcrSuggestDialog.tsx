@@ -1,8 +1,8 @@
 "use client";
 
-import * as React from "react";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { FileWarning, X } from "lucide-react";
+import * as React from "react";
 
 interface OcrSuggestDialogProps {
   open: boolean;
