@@ -13,6 +13,11 @@ import InputSection from "./InputSection";
 import SourceTabs from "./SourceTabs";
 import SummaryActionsFloating from "./SummaryActionsFloating";
 import SummaryResult from "./SummaryResult";
+import LoginRequiredDialog from "./LoginRequiredDialog";
+import { useSession } from "@/components/SessionProvider";
+
+const LOCAL_STORAGE_KEY = "brify:pendingInput";
+
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -31,6 +36,9 @@ export default function SummarizePage() {
   const [extractionSucceeded, setExtractionSucceeded] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [pendingSourceType, setPendingSourceType] = useState<SourceType | null>(null);
+  const [loginDialogOpen, setLoginDialogOpen] = useState(false);
+  const { session } = useSession();
+
 
   useEffect(() => {
     if (sourceType === SourceType.MANUAL && !rawText) {
@@ -39,12 +47,26 @@ export default function SummarizePage() {
     }
   }, [sourceType]);
 
+  useEffect(() => {
+    const runPendingSummarization = async () => {
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (saved) {
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+        await handleSummarize(saved);
+      }
+    };
+  
+    supabase.auth.getSession().then((res) => {
+      const user = res.data.session?.user;
+      if (user) runPendingSummarization();
+    });
+  }, []);
+
   const handleSummarize = async (text: string) => {
     if (!text) return;
     setLoading(true);
     try {
-      const token = await supabase.auth.getSession().then((res) => res.data.session?.access_token);
-
+      const token = session?.access_token;
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/summarize`, {
         method: "POST",
         headers: {
@@ -61,6 +83,12 @@ export default function SummarizePage() {
           publicComment: null,
         }),
       });
+
+      if (res.status === 401) {
+        localStorage.setItem(LOCAL_STORAGE_KEY, text);
+        setLoginDialogOpen(true);
+        return;
+      }
 
       const data = await res.json();
       console.log("요약 Job 생성됨:", data.summaryId);
@@ -140,7 +168,7 @@ export default function SummarizePage() {
             />
           </div>
         </motion.section>
-
+        
         {rawText && (
           <motion.section variants={fadeInUp} initial="initial" animate="animate">
             <EditExtractedSection
@@ -189,6 +217,7 @@ export default function SummarizePage() {
           </motion.section>
         )}
       </div>
+      <LoginRequiredDialog open={loginDialogOpen} onOpenChange={setLoginDialogOpen} />
     </TooltipProvider>
   );
 }

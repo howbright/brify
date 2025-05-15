@@ -69,6 +69,7 @@ export type Database = {
       summaries: {
         Row: {
           created_at: string | null
+          detailed_summary_text: string | null
           diagram_json: Json | null
           error_message: string | null
           id: string
@@ -89,6 +90,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          detailed_summary_text?: string | null
           diagram_json?: Json | null
           error_message?: string | null
           id?: string
@@ -109,6 +111,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          detailed_summary_text?: string | null
           diagram_json?: Json | null
           error_message?: string | null
           id?: string

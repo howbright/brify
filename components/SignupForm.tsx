@@ -109,11 +109,11 @@ export default function SignupForm() {
 
   return (
     <div className="w-full col-span-6 mx-auto border border-gray-900 dark:border-white/20 bg-white dark:bg-black rounded-lg shadow-lg sm:max-w-lg">
-      <div className="p-6 sm:p-8 space-y-6">
+      <div className="p-6 sm:p-8 flex flex-col gap-6">
         <h1 className="text-2xl font-black uppercase tracking-tight">{t("title")}</h1>
 
         {/* 소셜 로그인 */}
-        <div className="flex flex-col space-y-3">
+        <div className="flex flex-col gap-3">
           <Link href="#" className="flex items-center justify-center w-full border border-gray-900 rounded-lg py-2.5 px-5 text-sm font-medium hover:bg-black hover:text-white transition-colors">
             <div className="flex gap-x-3 items-center">
               <Icon icon="logos:google-icon" width={19} />
@@ -137,7 +137,7 @@ export default function SignupForm() {
 
         {/* 이메일 인증 단계 */}
         {step === "email" ? (
-          <form className="space-y-5" onSubmit={handleEmailSubmit}>
+          <form className="flex flex-col gap-5" onSubmit={handleEmailSubmit}>
             <div>
               <label htmlFor="email" className="block mb-1 text-sm font-medium">{t("email.label")}</label>
               <input
@@ -151,8 +151,8 @@ export default function SignupForm() {
               />
             </div>
 
-            <div className="text-sm space-y-2">
-              <label className="flex items-start gap-x-2">
+            <div className="text-sm flex flex-col gap-2">
+              <label className="flex items-start gap-2">
                 <input type="checkbox" checked={agreeTerms} onChange={() => setAgreeTerms(!agreeTerms)} className="mt-1" required />
                 <span>
                   <Link href="/terms" className="underline hover:text-primary">서비스 이용약관</Link>에 동의합니다. (필수)
@@ -195,7 +195,7 @@ export default function SignupForm() {
             </button>
           </form>
         ) : (
-          <form className="space-y-5" onSubmit={handleOtpSubmit}>
+          <form className="flex flex-col gap-5" onSubmit={handleOtpSubmit}>
             <div>
               <label htmlFor="token" className="block mb-1 text-sm font-medium">인증 코드</label>
               <input

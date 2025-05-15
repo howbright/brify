@@ -52,7 +52,7 @@ export default function Header() {
 
   const navItems = [
     { href: "/summarize", label: "핵심정리하기" },
-    { href: "/my", label: "나의 정리함" },
+    { href: "/my-summaries", label: "나의 정리함" },
     { href: "/tags", label: "태그 보기" },
     { href: "/pricing", label: "요금제" },
   ];

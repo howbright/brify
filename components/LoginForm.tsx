@@ -76,13 +76,13 @@ export default function LoginForm() {
 
   return (
     <div className="w-full col-span-6 mx-auto border border-gray-900 dark:border-white/20 bg-white dark:bg-black rounded-lg shadow-lg sm:max-w-lg">
-      <div className="p-6 sm:p-8 space-y-6">
+      <div className="p-6 sm:p-8 flex flex-col gap-4">
         <h1 className="text-2xl font-black uppercase tracking-tight">
           {t("title")}
         </h1>
 
         {/* 👉 소셜 로그인 */}
-        <div className="flex flex-col space-y-3">
+        <div className="flex flex-col gap-3">
           <Link
             href="#"
             className="flex items-center justify-center w-full border border-gray-900 rounded-lg py-2.5 px-5 text-sm font-medium hover:bg-black hover:text-white transition-colors"
@@ -136,7 +136,7 @@ export default function LoginForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full flex justify-center items-center gap-2 bg-primary text-white border border-gray-900 rounded-lg py-2.5 text-sm font-bold uppercase hover:bg-white hover:text-black transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full mt-3 flex justify-center items-center gap-2 bg-primary text-white border border-gray-900 rounded-lg py-2.5 text-sm font-bold uppercase hover:bg-white hover:text-black transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
