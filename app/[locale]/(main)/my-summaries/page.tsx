@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 type SummaryItem = {
   id: string;
   summary_text: string;
+  detailed_summary_text: string;
   status: string;
   created_at: string;
 };
@@ -39,7 +40,7 @@ export default function MySummariesPage() {
         {summaries.map(summary => (
           <li key={summary.id} className="p-4 border rounded shadow-sm">
             <p className="text-sm text-gray-500">{new Date(summary.created_at).toLocaleString()}</p>
-            <p className="text-base">{summary.summary_text || '요약이 아직 없습니다.'}</p>
+            <p className="text-base">{summary.detailed_summary_text || '요약이 아직 없습니다.'}</p>
             <span className="text-xs text-blue-500">{summary.status}</span>
           </li>
         ))}

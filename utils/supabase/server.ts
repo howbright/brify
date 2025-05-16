@@ -1,10 +1,11 @@
+import { Database } from '@/app/types/database.types';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
 export async function createClient() {
   const cookieStore = await cookies(); // ✅ 명시적 await 처리
 
-  return createServerClient(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {

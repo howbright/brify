@@ -83,21 +83,66 @@ export default function SummarizePage() {
           publicComment: null,
         }),
       });
-
+  
       if (res.status === 401) {
         localStorage.setItem(LOCAL_STORAGE_KEY, text);
         setLoginDialogOpen(true);
         return;
       }
-
+  
       const data = await res.json();
-      console.log("요약 Job 생성됨:", data.summaryId);
+      const summaryId = data.summaryId;
+      console.log("요약 Job 생성됨:", summaryId);
+  
+      if (summaryId) {
+        pollSummaryStatus(summaryId); // ✅ 여기서 polling 시작
+      }
     } catch (e) {
       console.error("요약 중 오류 발생:", e);
-    } finally {
       setLoading(false);
     }
   };
+  
+
+  const pollSummaryStatus = async (summaryId: string, attempt = 0) => {
+    if (attempt > 30) {
+      console.error("요약 상태 확인 시도 초과");
+      setLoading(false);
+      return;
+    }
+  
+    try {
+      const res = await fetch(`/api/status/${summaryId}`);
+      const data = await res.json();
+  
+      if (res.ok) {
+        switch (data.status) {
+          case "completed":
+            setTextSummary(data.detailedSummaryText ?? data.summaryText ?? ""); // ✅ 우선순위 처리
+            setTreeSummary(data.treeSummary); // diagram_json
+            setHasSummarized(true);
+            setLoading(false);
+            break;
+          case "failed":
+            console.error("요약 실패:", data.errorMessage);
+            setLoading(false);
+            break;
+          default:
+            setTimeout(() => {
+              pollSummaryStatus(summaryId, attempt + 1);
+            }, 2000); // 2초 후 재시도
+        }
+      } else {
+        console.error("요약 상태 확인 실패:", data?.error || data);
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error("polling 중 오류:", err);
+      setLoading(false);
+    }
+  };
+  
+  
 
   const handleExtractedText = (text: string, succeed: boolean) => {
     setRawText(text);
