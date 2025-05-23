@@ -155,13 +155,14 @@ export default function Header() {
           </div>
 
           {/* 햄버거 버튼 - sm 이상에서 항상 보이도록 */}
-          <div className="md:flex lg:hidden">
+          <div className="flex items-center gap-2 md:flex lg:hidden">
             <button
               className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
               onClick={() => setMobileOpen(!mobileOpen)}
             >
               <Icon icon="mdi:menu" className="w-6 h-6" />
             </button>
+            <LanguageSelector />
           </div>
         </div>
 
@@ -173,7 +174,9 @@ export default function Header() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="lg:hidden mx-2 mt-2 px-4 pb-4 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-border"
+              className="lg:hidden mx-2 mt-2 px-4 pb-4 rounded-xl 
+        bg-gradient-to-b from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 
+        shadow-lg border border-border"
             >
               {session && (
                 <div className="text-sm text-muted-foreground font-semibold mb-3 pt-3 text-center">
@@ -181,31 +184,34 @@ export default function Header() {
                 </div>
               )}
 
-              <ul className="flex flex-col gap-1 font-medium mb-4">
+              <ul className="flex flex-col font-medium mb-4 divide-y divide-border">
                 {navItems.map((item) => (
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="block py-2 px-3 text-text hover:bg-primary/10 hover:text-primary rounded-md text-center transition-colors"
+                      className="block py-3 px-3 text-text hover:bg-primary/10 hover:text-primary 
+                rounded-md text-center transition-colors text-[15px] font-semibold"
                     >
                       {item.label}
                     </Link>
                   </li>
                 ))}
               </ul>
-              <div className="flex flex-col gap-2 border-t border-border pt-3">
-                <LanguageSelector />
+
+              <div className="flex flex-row gap-2 border-t border-border pt-3">
                 {!session ? (
                   <>
                     <Link
                       href="/login"
-                      className="text-primary border border-primary hover:bg-primary/10 font-medium rounded-lg text-sm px-4 py-2 text-center"
+                      className="w-full text-primary border border-primary hover:bg-primary/10 font-medium 
+                rounded-lg text-sm px-4 py-2 text-center"
                     >
                       로그인
                     </Link>
                     <Link
                       href="/signup"
-                      className="text-white bg-primary hover:bg-primary-hover font-medium rounded-lg text-sm px-4 py-2 text-center"
+                      className="w-full text-white bg-primary hover:bg-primary-hover font-medium 
+                rounded-lg text-sm px-4 py-2 text-center"
                     >
                       회원가입
                     </Link>
