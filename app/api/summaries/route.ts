@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('summaries')
-    .select('id, detailed_summary_text, status, created_at')
+    .select('id, summary_text, status, created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 

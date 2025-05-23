@@ -15,6 +15,7 @@ import { Icon } from "@iconify/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function Header() {
   const router = useRouter();
@@ -51,10 +52,14 @@ export default function Header() {
   };
 
   const navItems = [
-    { href: "/summarize", label: "핵심정리하기" },
-    { href: "/my-summaries", label: "나의 정리함" },
-    { href: "/tags", label: "태그 보기" },
-    { href: "/pricing", label: "요금제" },
+    {
+      href: "/summarize",
+      label: "핵심정리하기",
+      icon: "mdi:file-document-edit",
+    },
+    { href: "/my-summaries", label: "나의 정리함", icon: "mdi:folder" },
+    { href: "/tags", label: "태그 보기", icon: "mdi:tag-multiple" },
+    { href: "/pricing", label: "요금제", icon: "mdi:currency-krw" },
   ];
 
   return (
@@ -83,6 +88,10 @@ export default function Header() {
                     href={item.href}
                     className="block px-4 py-2 text-text rounded-md border border-transparent hover:bg-primary/10 hover:text-primary transition-colors"
                   >
+                    <Icon
+                      icon={item.icon}
+                      className="inline-block mr-1 -mt-0.5 w-4 h-4"
+                    />
                     {item.label}
                   </Link>
                 </li>
@@ -156,42 +165,56 @@ export default function Header() {
           </div>
         </div>
 
-        {/* 모바일 전체 메뉴 */}
-        {mobileOpen && (
-          <div className="lg:hidden mt-2 px-4 pb-4">
-            <ul className="flex flex-col gap-1 font-medium mb-4">
-              {navItems.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="block w-full py-2 px-4 text-text hover:bg-primary/10 hover:text-primary rounded-md transition-colors"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <div className="flex flex-col gap-2 border-t border-border pt-3">
-              <LanguageSelector />
-              {!session ? (
-                <>
-                  <Link
-                    href="/login"
-                    className="text-primary border border-primary hover:bg-primary/10 font-medium rounded-lg text-sm px-4 py-2 text-center"
-                  >
-                    로그인
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="text-white bg-primary hover:bg-primary-hover font-medium rounded-lg text-sm px-4 py-2 text-center"
-                  >
-                    회원가입
-                  </Link>
-                </>
-              ) : null}
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.div
+              key="mobile-menu"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="lg:hidden mx-2 mt-2 px-4 pb-4 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-border"
+            >
+              {session && (
+                <div className="text-sm text-muted-foreground font-semibold mb-3 pt-3 text-center">
+                  {`${email}님, 안녕하세요`}
+                </div>
+              )}
+
+              <ul className="flex flex-col gap-1 font-medium mb-4">
+                {navItems.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className="block py-2 px-3 text-text hover:bg-primary/10 hover:text-primary rounded-md text-center transition-colors"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <div className="flex flex-col gap-2 border-t border-border pt-3">
+                <LanguageSelector />
+                {!session ? (
+                  <>
+                    <Link
+                      href="/login"
+                      className="text-primary border border-primary hover:bg-primary/10 font-medium rounded-lg text-sm px-4 py-2 text-center"
+                    >
+                      로그인
+                    </Link>
+                    <Link
+                      href="/signup"
+                      className="text-white bg-primary hover:bg-primary-hover font-medium rounded-lg text-sm px-4 py-2 text-center"
+                    >
+                      회원가입
+                    </Link>
+                  </>
+                ) : null}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
     </header>
   );

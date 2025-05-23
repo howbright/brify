@@ -12,7 +12,7 @@ import DiagramView from "./diagram/DiagramView";
 interface Props {
   viewType: "text" | "diagram" | "both";
   text?: string;
-  tree?: TreeNode;
+  tree?: TreeNode | null | undefined;
 }
 
 export default function SummaryResult({ viewType, text, tree }: Props) {

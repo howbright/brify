@@ -5,6 +5,7 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { Geist, Geist_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default async function RootLayout({
           <NextIntlClientProvider>
           {children}
           </NextIntlClientProvider>
+          <Toaster richColors position="top-center" />
       </SessionProvider>
       </body>
     </html>

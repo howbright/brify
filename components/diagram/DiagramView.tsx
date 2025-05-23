@@ -3,14 +3,24 @@
 import { MyNodeData } from "@/app/types/tree";
 import { classicStyle } from "@/styles/presets";
 import {
-  Background, Controls,
+  Background,
+  Controls,
   Edge as FlowEdge,
   Node as FlowNode,
-  MiniMap, Panel, ReactFlow, ReactFlowProvider,
+  MiniMap,
+  NodeTypes,
+  Panel,
+  ReactFlow,
+  ReactFlowProvider,
 } from "@xyflow/react";
-import '@xyflow/react/dist/style.css';
+import "@xyflow/react/dist/style.css";
 import { useMemo, useState } from "react";
 import DiagramStyleSelector from "../DiagramStyleSelector";
+import { CustomNode } from "./CustomNode";
+
+const nodeTypes: NodeTypes = {
+  custom: CustomNode,
+};
 
 interface DiagramViewProps {
   nodes: FlowNode<MyNodeData>[];
@@ -23,28 +33,13 @@ export default function DiagramView({ nodes, edges }: DiagramViewProps) {
   const [stylePreset, setStylePreset] = useState(classicStyle);
   const [stylePickerOpen, setStylePickerOpen] = useState(false);
 
-  // const nodeTypes = useMemo(() => {
-  //   return {
-  //     custom: (props: any) => (
-  //       <StyledNode {...props} stylePreset={stylePreset} />
-  //     ),
-  //   };
-  // }, [stylePreset]);
-
-  // const edgeTypes = useMemo(() => {
-  //   return {
-  //     custom: (props: any) => (
-  //       <Edge {...props} stylePreset={stylePreset} />
-  //     ),
-  //   };
-  // }, [stylePreset]);
-
   const styledNodes = useMemo(() => {
     return (nodes || []).map((node) => ({
       ...node,
+      type: "custom", // 👈 여기가 중요!
       style: stylePreset.node,
     }));
-  }, [nodes,stylePreset]);
+  }, [nodes, stylePreset]);
 
   // const styledEdges = useMemo(() => {
   //   return (edges || []).map((edge) => ({
@@ -64,6 +59,7 @@ export default function DiagramView({ nodes, edges }: DiagramViewProps) {
           panOnScroll
           panOnDrag
           zoomOnScroll={false}
+          nodeTypes={nodeTypes} // 👈 추가!
         >
           <button
             onClick={() => setStylePickerOpen(true)}

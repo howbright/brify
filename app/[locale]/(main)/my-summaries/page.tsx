@@ -1,9 +1,10 @@
 // app/(main)/my-summaries/page.tsx
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useSession } from '@/components/SessionProvider';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from "react";
+import { useSession } from "@/components/SessionProvider";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type SummaryItem = {
   id: string;
@@ -20,16 +21,16 @@ export default function MySummariesPage() {
 
   useEffect(() => {
     if (!isLoading && !session) {
-      router.push('/login');
+      router.push("/login");
     }
   }, [isLoading, session]);
 
   useEffect(() => {
     if (session?.user.id) {
       fetch(`/api/summaries?user_id=${session.user.id}`)
-        .then(res => res.json())
-        .then(data => setSummaries(data))
-        .catch(err => console.error('요약 목록 불러오기 실패:', err));
+        .then((res) => res.json())
+        .then((data) => setSummaries(data))
+        .catch((err) => console.error("요약 목록 불러오기 실패:", err));
     }
   }, [session]);
 
@@ -37,11 +38,17 @@ export default function MySummariesPage() {
     <main className="p-6">
       <h1 className="text-2xl font-bold mb-4">나의 정리함</h1>
       <ul className="space-y-4">
-        {summaries.map(summary => (
+        {summaries.map((summary) => (
           <li key={summary.id} className="p-4 border rounded shadow-sm">
-            <p className="text-sm text-gray-500">{new Date(summary.created_at).toLocaleString()}</p>
-            <p className="text-base">{summary.detailed_summary_text || '요약이 아직 없습니다.'}</p>
-            <span className="text-xs text-blue-500">{summary.status}</span>
+            <Link href={`/my-summaries/${summary.id}`}>
+              <p className="text-sm text-gray-500">
+                {new Date(summary.created_at).toLocaleString()}
+              </p>
+              <p className="text-base">
+                {summary.summary_text || "요약이 아직 없습니다."}
+              </p>
+              <span className="text-xs text-blue-500">{summary.status}</span>
+            </Link>
           </li>
         ))}
       </ul>

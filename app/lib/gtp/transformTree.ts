@@ -17,7 +17,7 @@ export async function treeToFlowElements(
   const traverse = (node: TreeNode, parentId: string | null = null) => {
     nodes.push({
       id: node.id,
-      data: { label: node.label },
+      data: { nodeType: node.nodeType, title: node.title, description: node.description },
       position: { x: 0, y: 0 },
       type: "default",
     });
@@ -59,7 +59,7 @@ export async function treeToFlowElements(
 
   const layout = await elk.layout(graph);
 
-  const positionedNodes: FlowNode<{ label: string }>[] = nodes.map((node) => {
+  const positionedNodes: FlowNode<MyNodeData>[] = nodes.map((node) => {
     const layoutNode = layout.children?.find((n) => n.id === node.id);
     return {
       ...node,

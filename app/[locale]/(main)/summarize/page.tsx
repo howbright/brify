@@ -15,9 +15,10 @@ import SummaryActionsFloating from "./SummaryActionsFloating";
 import SummaryResult from "./SummaryResult";
 import LoginRequiredDialog from "./LoginRequiredDialog";
 import { useSession } from "@/components/SessionProvider";
+import { TreeNode } from "@/app/types/tree";
+import { convertToTree } from "@/app/lib/gtp/convertToTree";
 
 const LOCAL_STORAGE_KEY = "brify:pendingInput";
-
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -29,16 +30,17 @@ export default function SummarizePage() {
   const [sourceType, setSourceType] = useState<SourceType>(SourceType.YOUTUBE);
   const [rawText, setRawText] = useState("");
   const [textSummary, setTextSummary] = useState("");
-  const [treeSummary, setTreeSummary] = useState<any>(null);
+  const [treeSummary, setTreeSummary] = useState<TreeNode | null>(null);
   const [loading, setLoading] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [hasSummarized, setHasSummarized] = useState(false);
   const [extractionSucceeded, setExtractionSucceeded] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [pendingSourceType, setPendingSourceType] = useState<SourceType | null>(null);
+  const [pendingSourceType, setPendingSourceType] = useState<SourceType | null>(
+    null
+  );
   const [loginDialogOpen, setLoginDialogOpen] = useState(false);
   const { session } = useSession();
-
 
   useEffect(() => {
     if (sourceType === SourceType.MANUAL && !rawText) {
@@ -55,7 +57,7 @@ export default function SummarizePage() {
         await handleSummarize(saved);
       }
     };
-  
+
     supabase.auth.getSession().then((res) => {
       const user = res.data.session?.user;
       if (user) runPendingSummarization();
@@ -67,33 +69,40 @@ export default function SummarizePage() {
     setLoading(true);
     try {
       const token = session?.access_token;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/summarize`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          originalText: text,
-          lang: locale,
-          sourceType,
-          sourceUrl: sourceType === SourceType.YOUTUBE || sourceType === SourceType.WEBSITE ? text : null,
-          sourceTitle: null,
-          isPublic: false,
-          publicComment: null,
-        }),
-      });
-  
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/summarize`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            originalText: text,
+            lang: locale,
+            sourceType,
+            sourceUrl:
+              sourceType === SourceType.YOUTUBE ||
+              sourceType === SourceType.WEBSITE
+                ? text
+                : null,
+            sourceTitle: null,
+            isPublic: false,
+            publicComment: null,
+          }),
+        }
+      );
+
       if (res.status === 401) {
         localStorage.setItem(LOCAL_STORAGE_KEY, text);
         setLoginDialogOpen(true);
         return;
       }
-  
+
       const data = await res.json();
       const summaryId = data.summaryId;
       console.log("요약 Job 생성됨:", summaryId);
-  
+
       if (summaryId) {
         pollSummaryStatus(summaryId); // ✅ 여기서 polling 시작
       }
@@ -102,7 +111,6 @@ export default function SummarizePage() {
       setLoading(false);
     }
   };
-  
 
   const pollSummaryStatus = async (summaryId: string, attempt = 0) => {
     if (attempt > 30) {
@@ -110,16 +118,17 @@ export default function SummarizePage() {
       setLoading(false);
       return;
     }
-  
+
     try {
       const res = await fetch(`/api/status/${summaryId}`);
       const data = await res.json();
-  
+
       if (res.ok) {
         switch (data.status) {
           case "completed":
             setTextSummary(data.detailedSummaryText ?? data.summaryText ?? ""); // ✅ 우선순위 처리
-            setTreeSummary(data.treeSummary); // diagram_json
+            setTreeSummary(convertToTree(data.treeSummary));
+            // diagram_json
             setHasSummarized(true);
             setLoading(false);
             break;
@@ -141,8 +150,6 @@ export default function SummarizePage() {
       setLoading(false);
     }
   };
-  
-  
 
   const handleExtractedText = (text: string, succeed: boolean) => {
     setRawText(text);
@@ -213,9 +220,13 @@ export default function SummarizePage() {
             />
           </div>
         </motion.section>
-        
+
         {rawText && (
-          <motion.section variants={fadeInUp} initial="initial" animate="animate">
+          <motion.section
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+          >
             <EditExtractedSection
               rawText={rawText}
               setRawText={setRawText}
@@ -262,7 +273,10 @@ export default function SummarizePage() {
           </motion.section>
         )}
       </div>
-      <LoginRequiredDialog open={loginDialogOpen} onOpenChange={setLoginDialogOpen} />
+      <LoginRequiredDialog
+        open={loginDialogOpen}
+        onOpenChange={setLoginDialogOpen}
+      />
     </TooltipProvider>
   );
 }
