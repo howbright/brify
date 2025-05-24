@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import LoginForm from '@/components/LoginForm';
-import { Link } from '@/i18n/navigation';
-import Image from 'next/image';
+import LoginForm from "@/components/LoginForm";
+import { Link } from "@/i18n/navigation";
+import Image from "next/image";
 
 export default function Login() {
   // const t = useTranslations('login');
@@ -11,32 +11,35 @@ export default function Login() {
     <div className="max-w-(--breakpoint-xl) px-4 py-8 mx-auto sm:py-16 lg:py-24 pt-20 sm:pt-24 lg:pt-32">
       <div className="lg:grid lg:gap-20 lg:items-center lg:grid-cols-12">
         <div className="hidden col-span-6 mr-auto lg:block">
-          <Link href="/" className="inline-flex items-center mb-10 text-3xl font-black uppercase tracking-tight">
+          <Link
+            href="/"
+            className="inline-flex items-center mb-10 text-3xl font-black uppercase tracking-tight"
+          >
             <Image
               src="/images/logo.png"
               className="mr-3 h-12"
               alt="Brify Logo"
-              width={300}
-              height={300}
+              width={100}
+              height={50}
             />
           </Link>
 
           <div className="space-y-8">
             {[
               {
-                title: 'Get started quickly',
+                title: "복잡한 글을 한눈에",
                 description:
-                  'Integrate with developer-friendly APIs or choose pre-built solutions.',
+                  "긴 문서나 유튜브 영상도 클릭 한 번으로 핵심 요약을 만들어보세요.",
               },
               {
-                title: 'Support any business model',
+                title: "생각을 시각화하세요",
                 description:
-                  'Host code that you don’t want to share with the world in private.',
+                  "자동으로 생성된 다이어그램으로 내용을 더 쉽게 이해하고 정리할 수 있어요.",
               },
               {
-                title: 'Join millions of businesses',
+                title: "가치를 모아 나만의 경쟁력으로",
                 description:
-                  ' is trusted by ambitious startups and enterprises of every size.',
+                  "스크랩북에 요약을 저장하고, 유용한 정보를 쌓아가며 나만의 지식 자산을 만들어보세요.",
               },
             ].map((item, idx) => (
               <div key={idx} className="flex items-start">

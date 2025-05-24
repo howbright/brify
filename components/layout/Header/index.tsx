@@ -88,10 +88,6 @@ export default function Header() {
                     href={item.href}
                     className="block px-4 py-2 text-text rounded-md border border-transparent hover:bg-primary/10 hover:text-primary transition-colors"
                   >
-                    <Icon
-                      icon={item.icon}
-                      className="inline-block mr-1 -mt-0.5 w-4 h-4"
-                    />
                     {item.label}
                   </Link>
                 </li>
@@ -142,7 +138,7 @@ export default function Header() {
                     핵심정리
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => router.push("/my")}>
-                    나의 정리함
+                    나의 스크랩북
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => router.push("/account")}>
                     계정 설정
@@ -160,7 +156,10 @@ export default function Header() {
               className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
               onClick={() => setMobileOpen(!mobileOpen)}
             >
-              <Icon icon="mdi:menu" className="w-6 h-6" />
+              <Icon
+                icon={mobileOpen ? "mdi:close" : "mdi:menu"}
+                className="w-6 h-6"
+              />
             </button>
             <LanguageSelector />
           </div>
@@ -168,57 +167,73 @@ export default function Header() {
 
         <AnimatePresence>
           {mobileOpen && (
-            <motion.div
-              key="mobile-menu"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              className="lg:hidden mx-2 mt-2 px-4 pb-4 rounded-xl 
-        bg-gradient-to-b from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 
-        shadow-lg border border-border"
-            >
-              {session && (
-                <div className="text-sm text-muted-foreground font-semibold mb-3 pt-3 text-center">
-                  {`${email}님, 안녕하세요`}
+            <>
+              {/* 🔴 오버레이 - 헤더 아래부터 전체 덮기 */}
+              <motion.div
+                key="overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed left-0 right-0 top-[64px] h-[calc(100vh-64px)] bg-black/40 backdrop-blur-sm z-30"
+                onClick={() => setMobileOpen(false)}
+              />
+              {/* 🟢 모바일 메뉴 - 헤더 아래에 떠 있음 */}
+              <motion.div
+                key="mobile-menu"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="fixed top-[64px] left-0 right-0 mx-2 rounded-xl 
+          bg-gradient-to-b from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 
+          shadow-lg border border-border z-40 px-4 pb-4"
+              >
+                {session && (
+                  <div className="text-sm text-muted-foreground font-semibold mb-3 pt-3 text-center">
+                    {`${email}님, 안녕하세요`}
+                  </div>
+                )}
+
+                <ul className="flex flex-col font-medium mb-4 divide-y divide-border">
+                  {navItems.map((item) => (
+                    <li key={item.href}>
+                      <button
+                        onClick={() => {
+                          setMobileOpen(false);
+                          router.push(item.href);
+                        }}
+                        className="w-full block py-3 px-3 text-text hover:bg-primary/10 hover:text-primary 
+        rounded-md text-center transition-colors text-[15px] font-semibold"
+                      >
+                        {item.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="flex flex-row gap-2 border-t border-border pt-3">
+                  {!session ? (
+                    <>
+                      <Link
+                        href="/login"
+                        className="w-full text-primary border border-primary hover:bg-primary/10 font-medium 
+                  rounded-lg text-sm px-4 py-2 text-center"
+                      >
+                        로그인
+                      </Link>
+                      <Link
+                        href="/signup"
+                        className="w-full text-white bg-primary hover:bg-primary-hover font-medium 
+                  rounded-lg text-sm px-4 py-2 text-center"
+                      >
+                        회원가입
+                      </Link>
+                    </>
+                  ) : null}
                 </div>
-              )}
-
-              <ul className="flex flex-col font-medium mb-4 divide-y divide-border">
-                {navItems.map((item) => (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className="block py-3 px-3 text-text hover:bg-primary/10 hover:text-primary 
-                rounded-md text-center transition-colors text-[15px] font-semibold"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="flex flex-row gap-2 border-t border-border pt-3">
-                {!session ? (
-                  <>
-                    <Link
-                      href="/login"
-                      className="w-full text-primary border border-primary hover:bg-primary/10 font-medium 
-                rounded-lg text-sm px-4 py-2 text-center"
-                    >
-                      로그인
-                    </Link>
-                    <Link
-                      href="/signup"
-                      className="w-full text-white bg-primary hover:bg-primary-hover font-medium 
-                rounded-lg text-sm px-4 py-2 text-center"
-                    >
-                      회원가입
-                    </Link>
-                  </>
-                ) : null}
-              </div>
-            </motion.div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </nav>

@@ -45,7 +45,7 @@ export default function Footer() {
             </li>
             <li>
               <Link href="/my-summaries" className="hover:underline hover:text-primary transition-colors">
-                나의 정리
+                나의 스크랩북
               </Link>
             </li>
             <li>
