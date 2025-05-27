@@ -17,6 +17,9 @@ import LoginRequiredDialog from "./LoginRequiredDialog";
 import { useSession } from "@/components/SessionProvider";
 import { TreeNode } from "@/app/types/tree";
 import { convertToTree } from "@/app/lib/gtp/convertToTree";
+import { useSummarizeMutation } from "@/app/hooks/useSummaryMutation";
+import { useSummaryStatus } from "@/app/hooks/useSummaryStatus";
+import { toast } from "sonner";
 
 const LOCAL_STORAGE_KEY = "brify:pendingInput";
 
@@ -27,11 +30,11 @@ const fadeInUp = {
 
 export default function SummarizePage() {
   const locale = useLocale();
+  const { session } = useSession();
   const [sourceType, setSourceType] = useState<SourceType>(SourceType.YOUTUBE);
   const [rawText, setRawText] = useState("");
   const [textSummary, setTextSummary] = useState("");
   const [treeSummary, setTreeSummary] = useState<TreeNode | null>(null);
-  const [loading, setLoading] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [hasSummarized, setHasSummarized] = useState(false);
   const [extractionSucceeded, setExtractionSucceeded] = useState(false);
@@ -40,115 +43,95 @@ export default function SummarizePage() {
     null
   );
   const [loginDialogOpen, setLoginDialogOpen] = useState(false);
-  const { session } = useSession();
+  const [summaryId, setSummaryId] = useState<string | null>(null);
+
+  const summarizeMutation = useSummarizeMutation();
+  const summaryStatus = useSummaryStatus(summaryId);
+  const [extracting, setExtracting] = useState(false); // 텍스트 추출 로딩 전용
+  const [summaryStatusStarted, setSummaryStatusStarted] = useState(false);
+
+  useEffect(() => {
+    if (summaryId && !summaryStatusStarted) {
+      setSummaryStatusStarted(true);
+    }
+  }, [summaryId]);
+
+  const pollingFinished =
+  summaryStatus.data?.status === "completed" ||
+  summaryStatus.data?.status === "failed";
+
+  const loading = summarizeMutation.isPending || (summaryStatusStarted && !pollingFinished);
 
   useEffect(() => {
     if (sourceType === SourceType.MANUAL && !rawText) {
-      setRawText("✍️ 여기에 정리할 내용을 입력해주세요.");
+      setRawText(
+        "\u270d\ufe0f \uc5ec\uae30\uc5d0 \uc815\ub9ac\ud560 \ub0b4\uc6a9\uc744 \uc785\ub825\ud574\uc8fc\uc138\uc694."
+      );
       setExtractionSucceeded(true);
     }
   }, [sourceType]);
 
   useEffect(() => {
+    if (!summaryStatus.data) return;
+
+    if (summaryStatus.data.status === "completed") {
+      setTextSummary(
+        summaryStatus.data.detailedSummaryText ??
+          summaryStatus.data.summaryText ??
+          ""
+      );
+      setTreeSummary(convertToTree(summaryStatus.data.treeSummary));
+      setHasSummarized(true);
+    } else if (summaryStatus.data.status === "failed") {
+      toast.error(
+        summaryStatus.data.errorMessage ||
+          "\uc694\uc57d\uc5d0 \uc2e4\ud328\ud588\uc2b5\ub2c8\ub2e4."
+      );
+    }
+  }, [summaryStatus.data]);
+
+  useEffect(() => {
     const runPendingSummarization = async () => {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (saved) {
+      if (saved && session?.access_token) {
         localStorage.removeItem(LOCAL_STORAGE_KEY);
-        await handleSummarize(saved);
+        handleSummarize(saved);
       }
     };
-
     supabase.auth.getSession().then((res) => {
       const user = res.data.session?.user;
       if (user) runPendingSummarization();
     });
-  }, []);
+  }, [session]);
 
-  const handleSummarize = async (text: string) => {
+  const handleSummarize = (text: string) => {
     if (!text) return;
-    setLoading(true);
-    try {
-      const token = session?.access_token;
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/summarize`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            originalText: text,
-            lang: locale,
-            sourceType,
-            sourceUrl:
-              sourceType === SourceType.YOUTUBE ||
-              sourceType === SourceType.WEBSITE
-                ? text
-                : null,
-            sourceTitle: null,
-            isPublic: false,
-            publicComment: null,
-          }),
-        }
-      );
 
-      if (res.status === 401) {
-        localStorage.setItem(LOCAL_STORAGE_KEY, text);
-        setLoginDialogOpen(true);
-        return;
+    summarizeMutation.mutate(
+      {
+        originalText: text,
+        lang: locale,
+        sourceType,
+        sourceUrl:
+          sourceType === SourceType.YOUTUBE || sourceType === SourceType.WEBSITE
+            ? text
+            : null,
+        token: session?.access_token,
+      },
+      {
+        onSuccess: (data) => {
+          setSummaryId(data.summaryId);
+        },
+        onError: (err: any) => {
+          if (err.message === "Unauthorized") {
+            localStorage.setItem(LOCAL_STORAGE_KEY, text);
+            setLoginDialogOpen(true);
+          } else {
+            toast.error(err.message);
+          }
+        },
       }
-
-      const data = await res.json();
-      const summaryId = data.summaryId;
-      console.log("요약 Job 생성됨:", summaryId);
-
-      if (summaryId) {
-        pollSummaryStatus(summaryId); // ✅ 여기서 polling 시작
-      }
-    } catch (e) {
-      console.error("요약 중 오류 발생:", e);
-      setLoading(false);
-    }
-  };
-
-  const pollSummaryStatus = async (summaryId: string, attempt = 0) => {
-    if (attempt > 30) {
-      console.error("요약 상태 확인 시도 초과");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/status/${summaryId}`);
-      const data = await res.json();
-
-      if (res.ok) {
-        switch (data.status) {
-          case "completed":
-            setTextSummary(data.detailedSummaryText ?? data.summaryText ?? ""); // ✅ 우선순위 처리
-            setTreeSummary(convertToTree(data.treeSummary));
-            // diagram_json
-            setHasSummarized(true);
-            setLoading(false);
-            break;
-          case "failed":
-            console.error("요약 실패:", data.errorMessage);
-            setLoading(false);
-            break;
-          default:
-            setTimeout(() => {
-              pollSummaryStatus(summaryId, attempt + 1);
-            }, 2000); // 2초 후 재시도
-        }
-      } else {
-        console.error("요약 상태 확인 실패:", data?.error || data);
-        setLoading(false);
-      }
-    } catch (err) {
-      console.error("polling 중 오류:", err);
-      setLoading(false);
-    }
+    );
   };
 
   const handleExtractedText = (text: string, succeed: boolean) => {
@@ -187,6 +170,28 @@ export default function SummarizePage() {
     setConfirmDialogOpen(false);
   };
 
+  useEffect(() => {
+    if (sourceType === SourceType.MANUAL && !rawText) {
+      setRawText("✍️ 여기에 정리할 내용을 입력해주세요.");
+      setExtractionSucceeded(true);
+    }
+  }, [sourceType]);
+
+  useEffect(() => {
+    const runPendingSummarization = async () => {
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (saved) {
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+        await handleSummarize(saved);
+      }
+    };
+
+    supabase.auth.getSession().then((res) => {
+      const user = res.data.session?.user;
+      if (user) runPendingSummarization();
+    });
+  }, []);
+
   return (
     <TooltipProvider delayDuration={150}>
       <div className="w-full max-w-7xl mx-auto px-6 py-12 space-y-12">
@@ -209,10 +214,11 @@ export default function SummarizePage() {
             <InputSection
               type={sourceType}
               onExtracted={handleExtractedText}
-              isLoading={loading}
-              setIsLoading={setLoading}
+              isLoading={extracting}
+              setIsLoading={setExtracting}
               onManualSubmit={handleSummarize}
             />
+
             <ConfirmDialog
               open={confirmDialogOpen}
               onOpenChange={setConfirmDialogOpen}

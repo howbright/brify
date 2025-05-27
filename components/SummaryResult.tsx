@@ -8,14 +8,15 @@ import { Icon } from "@iconify/react";
 import { Edge, Node } from "@xyflow/react";
 import React, { useEffect, useRef, useState } from "react";
 import DiagramView from "./diagram/DiagramView";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 
 interface Props {
-  viewType: "text" | "diagram" | "both";
   text?: string;
   tree?: TreeNode | null | undefined;
 }
 
-export default function SummaryResult({ viewType, text, tree }: Props) {
+export default function SummaryResult({ text, tree }: Props) {
   const [comments, setComments] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
 
@@ -47,23 +48,56 @@ export default function SummaryResult({ viewType, text, tree }: Props) {
     <div className="max-w-6xl mx-auto py-20 px-4 min-h-screen">
       <h2 className="text-2xl font-bold mb-6">핵심정리 결과</h2>
 
-      {viewType === "text" && text && (
-        <div className="whitespace-pre-wrap bg-white p-6 rounded-lg shadow-sm mb-10 border text-gray-800">
-          {text}
-        </div>
-      )}
-
-      {viewType === "diagram" && tree && (
-        <DiagramView nodes={nodes} edges={edges} />
-      )}
-
-      {viewType === "both" && text && tree && (
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow-sm border text-gray-800 whitespace-pre-wrap">
+      {text && (
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-10 border text-gray-800 prose max-w-none">
+          <ReactMarkdown
+            rehypePlugins={[rehypeRaw]} // HTML 태그 포함 허용
+            components={{
+              h3: ({ node, ...props }) => (
+                <h3 className="text-lg font-bold mt-4" {...props} />
+              ),
+              p: ({ node, ...props }) => (
+                <p className="text-base leading-relaxed my-2" {...props} />
+              ),
+              ul: ({ node, ...props }) => (
+                <ul className="list-disc list-inside ml-4 my-2" {...props} />
+              ),
+              li: ({ node, ...props }) => (
+                <li className="text-base leading-relaxed" {...props} />
+              ),
+              blockquote: ({ node, ...props }) => (
+                <blockquote
+                  className="border-l-4 border-gray-300 dark:border-gray-600 pl-3 italic text-gray-600 dark:text-gray-300 my-2"
+                  {...props}
+                />
+              ),
+              mark: ({ node, ...props }) => (
+                <mark
+                  className="bg-yellow-200 dark:bg-yellow-400/20 text-inherit px-1 rounded"
+                  {...props}
+                />
+              ),
+              span: ({ node, ...props }) => {
+                const className = props.className || "";
+                if (className.includes("highlight")) {
+                  return (
+                    <span
+                      className="bg-yellow-200 dark:bg-yellow-400/20 text-inherit px-1 rounded font-medium"
+                      {...props}
+                    />
+                  );
+                }
+                return <span {...props} />;
+              },
+            }}
+          >
             {text}
-          </div>
-          <DiagramView nodes={nodes} edges={edges} />
+          </ReactMarkdown>
         </div>
+      )}
+
+      {tree && (
+        <DiagramView nodes={nodes} edges={edges} />
       )}
 
       {/* 💬 전체 코멘트 */}
