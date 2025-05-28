@@ -36,7 +36,7 @@ export default function MySummariesPage() {
 
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-bold mb-4">나의 정리함</h1>
+      <h1 className="text-2xl font-bold mb-4">나의 스크랩북</h1>
       <ul className="space-y-4">
         {summaries.map((summary) => (
           <li key={summary.id} className="p-4 border rounded shadow-sm">

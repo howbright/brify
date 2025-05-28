@@ -57,7 +57,7 @@ export default function Header() {
       label: "핵심정리하기",
       icon: "mdi:file-document-edit",
     },
-    { href: "/my-summaries", label: "나의 정리함", icon: "mdi:folder" },
+    { href: "/my-summaries", label: "나의 스크랩북", icon: "mdi:folder" },
     { href: "/tags", label: "태그 보기", icon: "mdi:tag-multiple" },
     { href: "/pricing", label: "요금제", icon: "mdi:currency-krw" },
   ];

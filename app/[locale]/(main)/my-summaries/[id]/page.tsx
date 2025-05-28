@@ -113,25 +113,8 @@ export default function SummaryDetailPage() {
             "요약 결과가 없습니다."
           }
           tree={convertToTree(summary.diagram_json)}
-          viewType="text"
         />
       </section>
-
-      {summary.diagram_json && (
-        <section>
-          <h2 className="text-xl font-semibold mt-12 mb-2">🧠 다이어그램 보기</h2>
-          <SummaryResult
-            text={
-              summary.detailed_summary_text ||
-              summary.summary_text ||
-              "요약 결과가 없습니다."
-            }
-            tree={convertToTree(summary.diagram_json)}
-            viewType="diagram"
-          />
-        </section>
-      )}
-
       {summary.original_text && (
         <details className="border rounded p-4 bg-gray-50 dark:bg-gray-900 dark:border-gray-700">
           <summary className="cursor-pointer font-semibold text-gray-700 dark:text-gray-200">
