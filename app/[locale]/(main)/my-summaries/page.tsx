@@ -1,11 +1,12 @@
-// app/(main)/my-summaries/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { useSession } from "@/components/SessionProvider";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Trash2 } from "lucide-react"; // 삭제 아이콘
+import { Trash2 } from "lucide-react";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { toast } from "sonner";
 
 type SummaryItem = {
   id: string;
@@ -18,6 +19,8 @@ type SummaryItem = {
 export default function MySummariesPage() {
   const { session, isLoading } = useSession();
   const [summaries, setSummaries] = useState<SummaryItem[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -38,19 +41,23 @@ export default function MySummariesPage() {
     setSummaries(data);
   };
 
-  const handleDelete = async (id: string) => {
-    const ok = confirm("이 요약을 삭제할까요?");
-    if (!ok) return;
+  const handleDelete = async () => {
+    if (!deleteTargetId) return;
 
-    const res = await fetch(`/api/summaries/${id}`, {
+    const res = await fetch(`/api/summaries/${deleteTargetId}`, {
       method: "DELETE",
     });
 
     if (res.ok) {
-      setSummaries((prev) => prev.filter((s) => s.id !== id));
+      setSummaries((prev) => prev.filter((s) => s.id !== deleteTargetId));
+      toast.success("삭제되었습니다."); // ✅ 요기 추가!
     } else {
-      alert("삭제에 실패했어요.");
+      toast.error("삭제에 실패했어요.")
     }
+    
+
+    setDialogOpen(false);
+    setDeleteTargetId(null);
   };
 
   return (
@@ -71,8 +78,12 @@ export default function MySummariesPage() {
               </p>
               <span className="text-xs text-blue-500">{summary.status}</span>
             </Link>
+
             <button
-              onClick={() => handleDelete(summary.id)}
+              onClick={() => {
+                setDeleteTargetId(summary.id);
+                setDialogOpen(true);
+              }}
               className="text-gray-400 hover:text-red-500 transition"
               title="삭제"
             >
@@ -81,6 +92,15 @@ export default function MySummariesPage() {
           </li>
         ))}
       </ul>
+
+      <ConfirmDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onConfirm={handleDelete}
+        title="요약을 삭제할까요?"
+        description="삭제하면 복구할 수 없습니다."
+        actionLabel="삭제"
+      />
     </main>
   );
 }
