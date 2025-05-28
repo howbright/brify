@@ -9,6 +9,7 @@ interface ConfirmDialogProps {
   onConfirm: () => void;
   title?: string;
   description?: string;
+  actionLabel?: string;
 }
 
 export default function ConfirmDialog({
@@ -17,6 +18,7 @@ export default function ConfirmDialog({
   onConfirm,
   title = "초기화할까요?",
   description = "진행 중이던 내용이 모두 사라집니다.",
+  actionLabel = "초기화"
 }: ConfirmDialogProps) {
   return (
     <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
@@ -46,7 +48,7 @@ export default function ConfirmDialog({
                 onClick={onConfirm}
                 className="rounded-md bg-red-500 px-4 py-2 text-sm text-white hover:bg-red-600"
               >
-                초기화
+                {actionLabel}
               </button>
             </AlertDialog.Action>
           </div>
