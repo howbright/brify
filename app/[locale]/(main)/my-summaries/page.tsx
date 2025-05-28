@@ -13,6 +13,7 @@ type SummaryItem = {
   summary_text: string;
   detailed_summary_text: string;
   status: string;
+  tags?: string[];
   created_at: string;
 };
 
@@ -52,9 +53,8 @@ export default function MySummariesPage() {
       setSummaries((prev) => prev.filter((s) => s.id !== deleteTargetId));
       toast.success("삭제되었습니다."); // ✅ 요기 추가!
     } else {
-      toast.error("삭제에 실패했어요.")
+      toast.error("삭제에 실패했어요.");
     }
-    
 
     setDialogOpen(false);
     setDeleteTargetId(null);
@@ -73,12 +73,33 @@ export default function MySummariesPage() {
               <p className="text-sm text-gray-500">
                 {new Date(summary.created_at).toLocaleString()}
               </p>
-              <p className="text-base">
+
+              {/* ✅ summary_text */}
+              <p className="text-base mt-1">
                 {summary.summary_text || "요약이 아직 없습니다."}
               </p>
-              <span className="text-xs text-blue-500">{summary.status}</span>
+
+              {/* ✅ tags 표시 */}
+              {summary.tags && summary.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {summary.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="text-xs bg-gray-100 text-gray-700 rounded px-2 py-0.5"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* ✅ status */}
+              <span className="text-xs text-blue-500 mt-2 inline-block">
+                {summary.status}
+              </span>
             </Link>
 
+            {/* 삭제 버튼 */}
             <button
               onClick={() => {
                 setDeleteTargetId(summary.id);
