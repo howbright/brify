@@ -48,3 +48,20 @@ export async function GET(
 
   return NextResponse.json(data);
 }
+
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const supabase = await createClient();
+  const id = params.id;
+
+  const { error } = await supabase.from("summaries").delete().eq("id", id);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ message: "삭제 완료" });
+}

@@ -30,6 +30,7 @@ export default function SummaryResult({ text, tree }: Props) {
   };
 
   useEffect(() => {
+    console.log("tree: ", tree)
     if (!tree) return;
     treeToFlowElements(tree).then(({ nodes, edges }) => {
       setNodes(nodes);

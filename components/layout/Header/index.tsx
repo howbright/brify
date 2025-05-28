@@ -190,7 +190,7 @@ export default function Header() {
           shadow-lg border border-border z-40 px-4 pb-4"
               >
                 {session && (
-                  <div className="text-sm text-muted-foreground font-semibold mb-3 pt-3 text-center">
+                  <div className="text-sm text-primary font-semibold mb-3 pt-3 text-center">
                     {`${email}님, 안녕하세요`}
                   </div>
                 )}
