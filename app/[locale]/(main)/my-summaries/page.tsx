@@ -51,7 +51,7 @@ export default function MySummariesPage() {
 
     if (res.ok) {
       setSummaries((prev) => prev.filter((s) => s.id !== deleteTargetId));
-      toast.success("삭제되었습니다."); // ✅ 요기 추가!
+      toast.success("삭제되었습니다.");
     } else {
       toast.error("삭제에 실패했어요.");
     }
@@ -67,25 +67,23 @@ export default function MySummariesPage() {
         {summaries.map((summary) => (
           <li
             key={summary.id}
-            className="p-4 border rounded shadow-sm flex justify-between items-start gap-4 group"
+            className="p-5 rounded-2xl border border-gray-200 bg-white shadow-md hover:shadow-lg transition-shadow duration-200 flex justify-between items-start gap-4 group"
           >
             <Link href={`/my-summaries/${summary.id}`} className="flex-1">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 mb-1">
                 {new Date(summary.created_at).toLocaleString()}
               </p>
 
-              {/* ✅ summary_text */}
-              <p className="text-base mt-1">
+              <p className="text-base font-medium text-gray-800 line-clamp-3">
                 {summary.summary_text || "요약이 아직 없습니다."}
               </p>
 
-              {/* ✅ tags 표시 */}
-              {summary.tags && summary.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
+              {!!summary.tags && summary.tags?.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
                   {summary.tags.map((tag, index) => (
                     <span
                       key={index}
-                      className="text-xs bg-gray-100 text-gray-700 rounded px-2 py-0.5"
+                      className="text-xs bg-blue-100 text-blue-700 rounded-full px-3 py-0.5 font-medium"
                     >
                       #{tag}
                     </span>
@@ -93,13 +91,21 @@ export default function MySummariesPage() {
                 </div>
               )}
 
-              {/* ✅ status */}
-              <span className="text-xs text-blue-500 mt-2 inline-block">
-                {summary.status}
-              </span>
+              <div className="mt-3">
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                    summary.status === "completed"
+                      ? "bg-green-100 text-green-700"
+                      : summary.status === "pending"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-red-100 text-red-700"
+                  }`}
+                >
+                  {summary.status}
+                </span>
+              </div>
             </Link>
 
-            {/* 삭제 버튼 */}
             <button
               onClick={() => {
                 setDeleteTargetId(summary.id);

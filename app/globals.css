@@ -87,6 +87,16 @@ layer(base);
   body {
     @apply bg-background-soft text-foreground;
   }
+
+  ::selection {
+    background-color: #d0f0fd; /* 연노랑 */
+    color: #000000;
+  }
+  
+  ::-moz-selection {
+    background-color: #d0f0fd;
+    color: #000000;
+  }
 }
 
 @layer utilities {

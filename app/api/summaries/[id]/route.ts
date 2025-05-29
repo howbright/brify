@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: NextRequest, { params }: any) {
   const supabase = await createClient();
   const id = params.id;
 
@@ -12,7 +9,6 @@ export async function GET(
     return NextResponse.json({ error: '요약 ID가 필요합니다.' }, { status: 400 });
   }
 
-  // 🔐 현재 로그인된 유저 확인
   const {
     data: { user },
     error: sessionError,
@@ -22,7 +18,6 @@ export async function GET(
     return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
   }
 
-  // 🔍 요약 데이터 조회 (user_id도 포함)
   const { data, error } = await supabase
     .from('summaries')
     .select(
@@ -41,7 +36,6 @@ export async function GET(
     return NextResponse.json({ error: '요약을 찾을 수 없습니다.' }, { status: 404 });
   }
 
-  // 🔐 로그인된 유저가 작성한 요약이 아니면 접근 금지
   if (data.user_id !== user.id) {
     return NextResponse.json({ error: '접근 권한이 없습니다.' }, { status: 403 });
   }
@@ -49,19 +43,15 @@ export async function GET(
   return NextResponse.json(data);
 }
 
-
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest, { params }: any) {
   const supabase = await createClient();
   const id = params.id;
 
-  const { error } = await supabase.from("summaries").delete().eq("id", id);
+  const { error } = await supabase.from('summaries').delete().eq('id', id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ message: "삭제 완료" });
+  return NextResponse.json({ message: '삭제 완료' });
 }

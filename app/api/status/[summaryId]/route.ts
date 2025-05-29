@@ -1,10 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { summaryId: string } }
-) {
+export async function GET(req: NextRequest, { params }: any) {
   const supabase = await createClient();
   const summaryId = params.summaryId;
 
@@ -14,7 +11,7 @@ export async function GET(
 
   const { data, error } = await supabase
     .from('summaries')
-    .select('status, summary_text,detailed_summary_text, diagram_json, error_message')
+    .select('status, summary_text, detailed_summary_text, diagram_json, error_message')
     .eq('id', summaryId)
     .single();
 
