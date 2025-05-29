@@ -61,7 +61,7 @@ export default function MySummariesPage() {
   };
 
   return (
-    <main className="p-6">
+    <main className="max-w-7xl mx-auto p-6 lg:pt-14 space-y-6">
       <h1 className="text-2xl font-bold mb-4">나의 스크랩북</h1>
       <ul className="space-y-4">
         {summaries.map((summary) => (
