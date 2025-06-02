@@ -172,7 +172,7 @@ export default function SummarizePage() {
 
   useEffect(() => {
     if (sourceType === SourceType.MANUAL && !rawText) {
-      setRawText("✍️ 여기에 정리할 내용을 입력해주세요.");
+      setRawText("");
       setExtractionSucceeded(true);
     }
   }, [sourceType]);
@@ -227,7 +227,7 @@ export default function SummarizePage() {
           </div>
         </motion.section>
 
-        {rawText && (
+        {(rawText || sourceType === SourceType.MANUAL) && (
           <motion.section
             variants={fadeInUp}
             initial="initial"

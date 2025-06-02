@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useSession } from "@/components/SessionProvider";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Trash2 } from "lucide-react";
+import { Trash2, Loader2 } from "lucide-react";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { toast } from "sonner";
 
@@ -22,6 +22,8 @@ export default function MySummariesPage() {
   const [summaries, setSummaries] = useState<SummaryItem[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   useEffect(() => {
@@ -60,6 +62,13 @@ export default function MySummariesPage() {
     setDeleteTargetId(null);
   };
 
+  const handleClick = (id: string) => {
+    setLoadingId(id);
+    startTransition(() => {
+      router.push(`/my-summaries/${id}`);
+    });
+  };
+
   return (
     <main className="max-w-7xl mx-auto p-6 lg:pt-14 space-y-6">
       <h1 className="text-2xl font-bold mb-4">나의 스크랩북</h1>
@@ -67,9 +76,14 @@ export default function MySummariesPage() {
         {summaries.map((summary) => (
           <li
             key={summary.id}
-            className="p-5 rounded-2xl border border-gray-200 bg-white shadow-md hover:shadow-lg transition-shadow duration-200 flex justify-between items-start gap-4 group"
+            className={`p-5 rounded-2xl border border-gray-200 bg-white shadow-md transition-shadow duration-200 flex justify-between items-start gap-4 group ${
+              loadingId === summary.id
+                ? "opacity-50 cursor-wait pointer-events-none"
+                : "hover:shadow-lg cursor-pointer"
+            }`}
+            onClick={() => handleClick(summary.id)}
           >
-            <Link href={`/my-summaries/${summary.id}`} className="flex-1">
+            <div className="flex-1">
               <p className="text-sm text-gray-500 mb-1">
                 {new Date(summary.created_at).toLocaleString()}
               </p>
@@ -91,7 +105,7 @@ export default function MySummariesPage() {
                 </div>
               )}
 
-              <div className="mt-3">
+              <div className="mt-3 flex items-center gap-2">
                 <span
                   className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
                     summary.status === "completed"
@@ -103,11 +117,16 @@ export default function MySummariesPage() {
                 >
                   {summary.status}
                 </span>
+
+                {loadingId === summary.id && (
+                  <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                )}
               </div>
-            </Link>
+            </div>
 
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setDeleteTargetId(summary.id);
                 setDialogOpen(true);
               }}
