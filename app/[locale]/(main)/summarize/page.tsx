@@ -74,6 +74,8 @@ export default function SummarizePage() {
   useEffect(() => {
     if (!summaryStatus.data) return;
 
+    console.log("summaryStatus.data", summaryStatus.data)
+
     if (summaryStatus.data.status === "completed") {
       setTextSummary(
         summaryStatus.data.detailedSummaryText ??
