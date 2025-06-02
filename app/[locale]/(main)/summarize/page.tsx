@@ -19,6 +19,7 @@ import SourceTabs from "./SourceTabs";
 import SummaryActionsFloating from "./SummaryActionsFloating";
 import SummaryResult from "./SummaryResult";
 import { useKeywordStatus } from "@/app/hooks/useKeywordStatus";
+import { useUpdateKeywords } from "@/app/hooks/useUpdateKeywords";
 
 const LOCAL_STORAGE_KEY = "brify:pendingInput";
 
@@ -53,6 +54,9 @@ export default function SummarizePage() {
   const loadingKeywords =
     keywordStatus.data?.status === "pending" ||
     keywordStatus.data?.status === "partial";
+
+  const { mutate: updateKeywords, isPending: updatingKeywords } =
+    useUpdateKeywords();
 
   useEffect(() => {
     if (summaryId && !summaryStatusStarted) {
@@ -230,12 +234,24 @@ export default function SummarizePage() {
           >
             <div className="mb-10">
               <EditableTags
-                tags={keywordStatus.data?.keywords ?? []}
-                onChange={(newTags) => setTags(newTags)}
-                isLoading={
-                  keywordStatus.data?.status === "pending" ||
-                  keywordStatus.data?.status === "partial"
-                }
+                tags={keywords}
+                onChange={(newTags) => {
+                  setTags(newTags); // optimistic update
+
+                  if (!summaryId) {
+                    toast.error("요약 ID가 없습니다.");
+                    return;
+                  }
+                  updateKeywords(
+                    { summaryId, keywords: newTags },
+                    {
+                      onSuccess: () =>
+                        toast.success("키워드가 저장되었습니다."),
+                      onError: () => toast.error("키워드 저장 실패"),
+                    }
+                  );
+                }}
+                isLoading={loadingKeywords || updatingKeywords}
               />
             </div>
 
