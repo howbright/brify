@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ProTooltipButton } from "@/components/ProTooltipButton";
+import { motion } from "framer-motion";
 import SummarizeButton from "./SummarizeButton";
 
 interface Props {
@@ -20,8 +19,6 @@ interface Props {
   ) => void;
 }
 
-type SummaryType = "default" | "short" | "shortest" | "detailed";
-
 export default function EditExtractedSection({
   isManual,
   rawText,
@@ -33,7 +30,6 @@ export default function EditExtractedSection({
   onSummarize,
 }: Props) {
   const [copied, setCopied] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
   const isTooShort = rawText.trim().length < 300;
 
   const handleCopy = async () => {
@@ -45,12 +41,6 @@ export default function EditExtractedSection({
       console.error("복사 실패:", error);
     }
   };
-
-  const summaryOptions: { label: string; type: SummaryType; pro?: boolean }[] = [
-    { label: "더 간단히 요약하기", type: "shortest" },
-    { label: "다시 요약하기", type: "default" },
-    { label: "더 자세히 요약하기", type: "detailed", pro: true },
-  ];
 
   return (
     <section className="bg-white mt-5 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md flex flex-col gap-6">
@@ -126,50 +116,12 @@ export default function EditExtractedSection({
             />
           </div>
         </motion.div>
-      ) : !hasSummarized ? (
+      ) : (
         <SummarizeButton
-          disabled={isTooShort || !extractionSucceeded}
+          disabled={hasSummarized || isTooShort || !extractionSucceeded}
           onSummarize={() => onSummarize(rawText)}
           loading={false}
         />
-      ) : (
-        <div className="relative w-full flex flex-col items-center justify-center gap-4">
-          <button
-            onClick={() => setShowOptions((prev) => !prev)}
-            className="w-8 sm:w-auto px-4 py-2 rounded-lg text-sm font-semibold transition bg-white border border-gray-300 text-black hover:border-black"
-          >
-            다시 요약하기
-          </button>
-
-          <AnimatePresence>
-            {showOptions && (
-              <motion.div
-                className="grid grid-cols-1 sm:grid-cols-3 gap-3"
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.2 }}
-              >
-                {summaryOptions.map((opt, idx) =>
-                  opt.pro ? (
-                    <ProTooltipButton key={idx} label={opt.label} />
-                  ) : (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        setShowOptions(false);
-                        onSummarize(rawText, opt.type);
-                      }}
-                      className="px-4 py-2 rounded-lg text-sm font-semibold transition bg-gray-50 border border-gray-300 hover:border-black"
-                    >
-                      {opt.label}
-                    </button>
-                  )
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
       )}
     </section>
   );

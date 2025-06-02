@@ -1,7 +1,7 @@
 import { useQuery, Query } from "@tanstack/react-query";
 
 interface SummaryStatus {
-  status: "pending" | "completed" | "failed";
+  status: "pending" | "partial" | "completed" | "failed";
   summaryText?: string;
   detailedSummaryText?: string;
   treeSummary?: any;

@@ -1,25 +1,24 @@
 "use client";
 
+import { useSummarizeMutation } from "@/app/hooks/useSummaryMutation";
+import { useTextSummaryStatus } from "@/app/hooks/useTextSummaryStatus";
 import { supabase } from "@/app/lib/supabaseClienet";
 import { SourceType } from "@/app/types/sourceType";
+import { useSession } from "@/components/SessionProvider";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { motion } from "framer-motion";
 import { useLocale } from "next-intl";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import EditableTags from "./EditableTags";
 import EditExtractedSection from "./EditExtractedSection";
 import InputSection from "./InputSection";
+import LoginRequiredDialog from "./LoginRequiredDialog";
 import SourceTabs from "./SourceTabs";
 import SummaryActionsFloating from "./SummaryActionsFloating";
 import SummaryResult from "./SummaryResult";
-import LoginRequiredDialog from "./LoginRequiredDialog";
-import { useSession } from "@/components/SessionProvider";
-import { TreeNode } from "@/app/types/tree";
-import { convertToTree } from "@/app/lib/gtp/convertToTree";
-import { useSummarizeMutation } from "@/app/hooks/useSummaryMutation";
-import { useSummaryStatus } from "@/app/hooks/useSummaryStatus";
-import { toast } from "sonner";
+import { useKeywordStatus } from "@/app/hooks/useKeywordStatus";
 
 const LOCAL_STORAGE_KEY = "brify:pendingInput";
 
@@ -34,7 +33,6 @@ export default function SummarizePage() {
   const [sourceType, setSourceType] = useState<SourceType>(SourceType.YOUTUBE);
   const [rawText, setRawText] = useState("");
   const [textSummary, setTextSummary] = useState("");
-  const [treeSummary, setTreeSummary] = useState<TreeNode | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [hasSummarized, setHasSummarized] = useState(false);
   const [extractionSucceeded, setExtractionSucceeded] = useState(false);
@@ -46,9 +44,15 @@ export default function SummarizePage() {
   const [summaryId, setSummaryId] = useState<string | null>(null);
 
   const summarizeMutation = useSummarizeMutation();
-  const summaryStatus = useSummaryStatus(summaryId);
-  const [extracting, setExtracting] = useState(false); // 텍스트 추출 로딩 전용
+  const summaryStatus = useTextSummaryStatus(summaryId);
+  const [extracting, setExtracting] = useState(false);
   const [summaryStatusStarted, setSummaryStatusStarted] = useState(false);
+
+  const keywordStatus = useKeywordStatus(summaryId);
+  const keywords = keywordStatus.data?.keywords ?? [];
+  const loadingKeywords =
+    keywordStatus.data?.status === "pending" ||
+    keywordStatus.data?.status === "partial";
 
   useEffect(() => {
     if (summaryId && !summaryStatusStarted) {
@@ -57,16 +61,16 @@ export default function SummarizePage() {
   }, [summaryId]);
 
   const pollingFinished =
-  summaryStatus.data?.status === "completed" ||
-  summaryStatus.data?.status === "failed";
+    summaryStatus.data?.status === "completed" ||
+    summaryStatus.data?.status === "partial" ||
+    summaryStatus.data?.status === "failed";
 
-  const loading = summarizeMutation.isPending || (summaryStatusStarted && !pollingFinished);
+  const loading =
+    summarizeMutation.isPending || (summaryStatusStarted && !pollingFinished);
 
   useEffect(() => {
     if (sourceType === SourceType.MANUAL && !rawText) {
-      setRawText(
-        "\u270d\ufe0f \uc5ec\uae30\uc5d0 \uc815\ub9ac\ud560 \ub0b4\uc6a9\uc744 \uc785\ub825\ud574\uc8fc\uc138\uc694."
-      );
+      setRawText("✍️ 여기에 정리할 내용을 입력해주세요.");
       setExtractionSucceeded(true);
     }
   }, [sourceType]);
@@ -74,21 +78,14 @@ export default function SummarizePage() {
   useEffect(() => {
     if (!summaryStatus.data) return;
 
-    console.log("summaryStatus.data", summaryStatus.data)
-
-    if (summaryStatus.data.status === "completed") {
-      setTextSummary(
-        summaryStatus.data.detailedSummaryText ??
-          summaryStatus.data.summaryText ??
-          ""
-      );
-      setTreeSummary(convertToTree(summaryStatus.data.treeSummary));
+    if (
+      summaryStatus.data.status === "completed" ||
+      summaryStatus.data.status === "partial"
+    ) {
+      setTextSummary(summaryStatus.data.detailedSummaryText ?? "");
       setHasSummarized(true);
     } else if (summaryStatus.data.status === "failed") {
-      toast.error(
-        summaryStatus.data.errorMessage ||
-          "\uc694\uc57d\uc5d0 \uc2e4\ud328\ud588\uc2b5\ub2c8\ub2e4."
-      );
+      toast.error(summaryStatus.data.errorMessage || "요약에 실패했습니다.");
     }
   }, [summaryStatus.data]);
 
@@ -139,7 +136,6 @@ export default function SummarizePage() {
   const handleExtractedText = (text: string, succeed: boolean) => {
     setRawText(text);
     setTextSummary("");
-    setTreeSummary(null);
     setTags([]);
     setHasSummarized(false);
     setExtractionSucceeded(succeed);
@@ -149,7 +145,7 @@ export default function SummarizePage() {
   };
 
   const handleSourceChange = (newType: SourceType) => {
-    const hasExistingData = rawText || textSummary || treeSummary;
+    const hasExistingData = rawText || textSummary;
     if (hasExistingData) {
       setPendingSourceType(newType);
       setConfirmDialogOpen(true);
@@ -161,7 +157,6 @@ export default function SummarizePage() {
   const handleConfirmInit = () => {
     setRawText("");
     setTextSummary("");
-    setTreeSummary(null);
     setTags([]);
     setHasSummarized(false);
     setExtractionSucceeded(false);
@@ -171,28 +166,6 @@ export default function SummarizePage() {
     }
     setConfirmDialogOpen(false);
   };
-
-  useEffect(() => {
-    if (sourceType === SourceType.MANUAL && !rawText) {
-      setRawText("");
-      setExtractionSucceeded(true);
-    }
-  }, [sourceType]);
-
-  useEffect(() => {
-    const runPendingSummarization = async () => {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (saved) {
-        localStorage.removeItem(LOCAL_STORAGE_KEY);
-        await handleSummarize(saved);
-      }
-    };
-
-    supabase.auth.getSession().then((res) => {
-      const user = res.data.session?.user;
-      if (user) runPendingSummarization();
-    });
-  }, []);
 
   return (
     <TooltipProvider delayDuration={150}>
@@ -248,7 +221,7 @@ export default function SummarizePage() {
           </motion.section>
         )}
 
-        {textSummary && treeSummary && (
+        {textSummary && (
           <motion.section
             className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl p-6 sm:p-10 shadow-md flex flex-col items-center"
             variants={fadeInUp}
@@ -256,7 +229,14 @@ export default function SummarizePage() {
             animate="animate"
           >
             <div className="mb-10">
-              <EditableTags tags={tags} onChange={setTags} />
+              <EditableTags
+                tags={keywordStatus.data?.keywords ?? []}
+                onChange={(newTags) => setTags(newTags)}
+                isLoading={
+                  keywordStatus.data?.status === "pending" ||
+                  keywordStatus.data?.status === "partial"
+                }
+              />
             </div>
 
             <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-white mb-4 text-center">
@@ -264,7 +244,7 @@ export default function SummarizePage() {
             </h3>
 
             <div className="w-full">
-              <SummaryResult text={textSummary} tree={treeSummary} />
+              <SummaryResult text={textSummary} />
             </div>
 
             <SummaryActionsFloating
