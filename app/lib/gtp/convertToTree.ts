@@ -3,7 +3,10 @@ import type { TreeNode } from "@/app/types/tree";
 export function convertToTree(flatList: unknown): TreeNode | null {
   if (!Array.isArray(flatList)) return null;
 
-  const map = new Map<string, TreeNode & { childIds: string[] }>();
+  const map = new Map<
+    string,
+    TreeNode & { childIds: string[]; children: TreeNode[] }
+  >();
 
   for (const rawNode of flatList) {
     if (
@@ -18,7 +21,8 @@ export function convertToTree(flatList: unknown): TreeNode | null {
     map.set(rawNode.id, {
       id: rawNode.id,
       title: typeof rawNode.title === "string" ? rawNode.title : "",
-      description: typeof rawNode.description === "string" ? rawNode.description : "",
+      description:
+        typeof rawNode.description === "string" ? rawNode.description : "",
       nodeType:
         rawNode.nodeType === "title" || rawNode.nodeType === "description"
           ? rawNode.nodeType
@@ -28,18 +32,16 @@ export function convertToTree(flatList: unknown): TreeNode | null {
     });
   }
 
-  // 관계 구성
   for (const node of map.values()) {
-    node.childIds.forEach((childId) => {
+    for (const childId of node.childIds) {
       const child = map.get(childId);
       if (child) {
         node.children.push(child);
       }
-    });
-    delete (node as any).childIds; // childIds 제거
+    }
+    delete (node as any).childIds;
   }
 
-  // 루트 노드 찾기 (id에 "-" 없는 title 타입을 루트로 간주)
   const root = [...map.values()].find(
     (n) => n.nodeType === "title" && !n.id.includes("-")
   );
