@@ -26,6 +26,7 @@ interface Summary {
   status: string;
   lang: string | null;
   is_public: boolean | null;
+  updated_at: string | null;
 }
 
 export default function SummaryDetailPage() {
@@ -69,7 +70,7 @@ export default function SummaryDetailPage() {
 
   if (loading) {
     return (
-      <main className="max-w-4xl mx-auto p-6 space-y-6">
+      <main className="max-w-4xl mx-auto p-6 flex flex-col gap-y-6">
         <Skeleton height={30} width={200} />
         <Skeleton count={4} />
       </main>
@@ -79,33 +80,76 @@ export default function SummaryDetailPage() {
   if (!summary) return null;
 
   return (
-    <main className="max-w-4xl mx-auto p-6 space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold">요약 상세</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          생성일: {summary.created_at ? new Date(summary.created_at).toLocaleString() : "-"}
-        </p>
-        {summary.source_title && (
-          <p className="text-sm">
-            📚 <strong>{summary.source_title}</strong>
-            {summary.source_url && (
-              <a
-                href={summary.source_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-2 text-blue-500 hover:underline"
-              >
-                원본 링크 ↗
-              </a>
-            )}
-          </p>
-        )}
-        <p className="text-sm text-gray-500">언어: {summary.lang || "알 수 없음"}</p>
-        <p className="text-xs text-blue-600">상태: {summary.status}</p>
+    <main className="max-w-4xl mx-auto p-6 flex flex-col gap-y-8">
+      {/* 요약 제목 */}
+      <header className="flex flex-col gap-y-2">
+        <h1 className="text-3xl font-bold">
+          {summary.summary_text || "제목 없는 요약"}
+        </h1>
+        <div className="flex flex-wrap gap-2 items-center text-sm text-gray-500">
+          {summary.status && (
+            <span
+              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+            ${
+              summary.status === "completed"
+                ? "bg-green-100 text-green-800"
+                : summary.status === "processing"
+                ? "bg-yellow-100 text-yellow-800"
+                : "bg-gray-100 text-gray-800"
+            }`}
+            >
+              {summary.status.toUpperCase()}
+            </span>
+          )}
+          <span>
+            생성일:{" "}
+            {summary.created_at
+              ? new Date(summary.created_at).toLocaleString()
+              : "-"}
+          </span>
+          {summary.updated_at && (
+            <span>수정일: {new Date(summary.updated_at).toLocaleString()}</span>
+          )}
+          <span>언어: {summary.lang || "알 수 없음"}</span>
+        </div>
       </header>
 
+      {/* 메타 정보 */}
+      <section className="grid gap-4 md:grid-cols-2">
+        <div className="border rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
+          <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
+            출처 정보
+          </h2>
+          <ul className="text-sm text-gray-800 dark:text-gray-200 flex flex-col gap-y-1">
+            <li>
+              <span className="font-medium">출처 타입:</span>{" "}
+              {summary.source_type}
+            </li>
+            {summary.source_title && (
+              <li>
+                <span className="font-medium">출처 제목:</span>{" "}
+                {summary.source_title}
+              </li>
+            )}
+            {summary.source_url && (
+              <li>
+                <span className="font-medium">URL:</span>{" "}
+                <a
+                  href={summary.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline break-all"
+                >
+                  {summary.source_url}
+                </a>
+              </li>
+            )}
+          </ul>
+        </div>
+      </section>
+
+      {/* 요약 내용 */}
       <section>
-        <h2 className="text-xl font-semibold mb-2">📄 텍스트 요약</h2>
         <SummaryResult
           text={
             summary.detailed_summary_text ||
@@ -115,8 +159,10 @@ export default function SummaryDetailPage() {
           tree={convertToTree(summary.diagram_json)}
         />
       </section>
+
+      {/* 원문 보기 */}
       {summary.original_text && (
-        <details className="border rounded p-4 bg-gray-50 dark:bg-gray-900 dark:border-gray-700">
+        <details className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-900 dark:border-gray-700">
           <summary className="cursor-pointer font-semibold text-gray-700 dark:text-gray-200">
             원문 보기
           </summary>

@@ -23,7 +23,7 @@ export async function GET(req: NextRequest, { params }: any) {
     .select(
       `id, user_id, created_at, source_type, source_title, source_url,
        original_text, summary_text, detailed_summary_text,
-       diagram_json, status, lang, is_public`
+       diagram_json, status, lang, is_public, updated_at`
     )
     .eq('id', id)
     .single();

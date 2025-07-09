@@ -17,6 +17,10 @@ interface Props {
 }
 
 export default function SummaryResult({ text, tree }: Props) {
+
+  console.log("✅ text:", text);
+console.log("✅ tree:", tree);
+
   const [comments, setComments] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
 
@@ -24,13 +28,21 @@ export default function SummaryResult({ text, tree }: Props) {
   const [edges, setEdges] = useState<Edge[]>([]);
 
   const commentRef = useRef<HTMLDivElement>(null);
+  const diagramRef = useRef<HTMLDivElement>(null);
+
+  // const params = useParams();
+  // const id = params?.id as string;
 
   const scrollToComment = () => {
     commentRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const scrollToDiagram = () => {
+    diagramRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   useEffect(() => {
-    console.log("tree: ", tree)
+    console.log("tree: ", tree);
     if (!tree) return;
     treeToFlowElements(tree).then(({ nodes, edges }) => {
       setNodes(nodes);
@@ -46,11 +58,37 @@ export default function SummaryResult({ text, tree }: Props) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-20 px-4 min-h-screen">
-      <h2 className="text-2xl font-bold mb-6">핵심정리 결과</h2>
+    <div className="max-w-6xl mx-auto min-h-screen">
+      <h2 className="text-2xl font-bold mb-6 flex items-center justify-between">
+        핵심정리 결과
+        {/* <button
+          onClick={scrollToDiagram}
+          className="ml-4 inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition"
+        >
+          <Icon icon="mdi:graph-outline" className="w-4 h-4" />
+          다이어그램 보기
+        </button> */}
+      </h2>
 
       {text && (
-        <div className="bg-white p-6 rounded-lg shadow-sm mb-10 border text-gray-800 prose max-w-none">
+        <div className="relative bg-white p-6 rounded-lg shadow-sm mb-10 border text-gray-800 prose max-w-none max-h-[500px] overflow-auto">
+          <button
+            onClick={scrollToDiagram}
+            className="sticky top-0 right-0 float-right z-10 mt-1 mr-1 flex items-center gap-1 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-full shadow"
+          >
+            <Icon icon="mdi:graph-outline" className="w-4 h-4" />
+            다이어그램 보기
+          </button>
+          {/* <EditableMarkdownBlock
+            markdown={text}
+            onSave={async (newText) => {
+              // Supabase 저장 로직 예시
+              await supabase
+                .from("summaries")
+                .update({ summary_text: newText })
+                .eq("id", id);
+            }}
+          /> */}
           <ReactMarkdown
             rehypePlugins={[rehypeRaw]} // HTML 태그 포함 허용
             components={{
@@ -98,7 +136,9 @@ export default function SummaryResult({ text, tree }: Props) {
       )}
 
       {tree && (
-        <DiagramView nodes={nodes} edges={edges} />
+        <div ref={diagramRef}>
+          <DiagramView nodes={nodes} edges={edges} />
+        </div>
       )}
 
       {/* 💬 전체 코멘트 */}
