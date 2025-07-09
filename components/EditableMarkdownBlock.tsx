@@ -11,11 +11,24 @@ interface Props {
   markdown: string;
   onSave?: (newMarkdown: string) => Promise<void>; // 저장 콜백
   editable?: boolean; // 수정 버튼 노출 여부
+  isEditing?: boolean;
+  setIsEditing?: (val: boolean) => void;
 }
 
-export default function EditableMarkdownBlock({ markdown, onSave, editable = true }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
+export default function EditableMarkdownBlock({
+  markdown,
+  onSave,
+  editable = true,
+  isEditing: externalIsEditing,
+  setIsEditing: setExternalIsEditing,
+}: Props) {
   const [edited, setEdited] = useState(markdown);
+
+  const isControlled = externalIsEditing !== undefined && setExternalIsEditing !== undefined;
+  const [internalEditing, setInternalEditing] = useState(false);
+
+  const isEditing = isControlled ? externalIsEditing : internalEditing;
+  const setIsEditing = isControlled ? setExternalIsEditing! : setInternalEditing;
 
   useEffect(() => {
     setEdited(markdown); // 외부에서 바뀔 경우 동기화
@@ -28,7 +41,7 @@ export default function EditableMarkdownBlock({ markdown, onSave, editable = tru
 
   return (
     <div className="relative bg-white border rounded-lg shadow-sm p-4 max-h-[500px] overflow-auto">
-      {editable && (
+      {editable && !isControlled && (
         <div className="flex justify-end mb-2">
           {!isEditing ? (
             <button
@@ -97,4 +110,4 @@ export default function EditableMarkdownBlock({ markdown, onSave, editable = tru
       )}
     </div>
   );
-}
+} 

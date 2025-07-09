@@ -10,6 +10,7 @@ import React, { useEffect, useRef, useState } from "react";
 import DiagramView from "./diagram/DiagramView";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
+import TooltipIconButton from "./TooltipIconButton";
 
 interface Props {
   text?: string;
@@ -17,12 +18,12 @@ interface Props {
 }
 
 export default function SummaryResult({ text, tree }: Props) {
-
   console.log("✅ text:", text);
-console.log("✅ tree:", tree);
+  console.log("✅ tree:", tree);
 
   const [comments, setComments] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
+  const [isMenuOpen, setMenuOpen] = useState(false);
 
   const [nodes, setNodes] = useState<Node<MyNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
@@ -61,80 +62,104 @@ console.log("✅ tree:", tree);
     <div className="max-w-6xl mx-auto min-h-screen">
       <h2 className="text-2xl font-bold mb-6 flex items-center justify-between">
         핵심정리 결과
-        {/* <button
-          onClick={scrollToDiagram}
-          className="ml-4 inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition"
-        >
-          <Icon icon="mdi:graph-outline" className="w-4 h-4" />
-          다이어그램 보기
-        </button> */}
       </h2>
-
+      {/* SummaryResult.tsx 중 일부 */}
       {text && (
-        <div className="relative bg-white p-6 rounded-lg shadow-sm mb-10 border text-gray-800 prose max-w-none max-h-[500px] overflow-auto">
-          <button
-            onClick={scrollToDiagram}
-            className="sticky top-0 right-0 float-right z-10 mt-1 mr-1 flex items-center gap-1 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-full shadow"
-          >
-            <Icon icon="mdi:graph-outline" className="w-4 h-4" />
-            다이어그램 보기
-          </button>
-          {/* <EditableMarkdownBlock
-            markdown={text}
-            onSave={async (newText) => {
-              // Supabase 저장 로직 예시
-              await supabase
-                .from("summaries")
-                .update({ summary_text: newText })
-                .eq("id", id);
-            }}
-          /> */}
-          <ReactMarkdown
-            rehypePlugins={[rehypeRaw]} // HTML 태그 포함 허용
-            components={{
-              h3: ({ node, ...props }) => (
-                <h3 className="text-lg font-bold mt-4" {...props} />
-              ),
-              p: ({ node, ...props }) => (
-                <p className="text-base leading-relaxed my-2" {...props} />
-              ),
-              ul: ({ node, ...props }) => (
-                <ul className="list-disc list-inside ml-4 my-2" {...props} />
-              ),
-              li: ({ node, ...props }) => (
-                <li className="text-base leading-relaxed" {...props} />
-              ),
-              blockquote: ({ node, ...props }) => (
-                <blockquote
-                  className="border-l-4 border-gray-300 dark:border-gray-600 pl-3 italic text-gray-600 dark:text-gray-300 my-2"
-                  {...props}
+        <div className="relative mb-10">
+          {/* 툴팁이 자유롭게 나올 수 있게 overflow-visible */}
+          <div className="sticky top-0 z-10 p-2 flex justify-end">
+            <div className="flex items-center gap-2">
+              {isMenuOpen && (
+                <>
+                  <TooltipIconButton
+                    title="수정하기"
+                    icon="mdi:pencil-outline"
+                    onClick={() => alert("수정하기")}
+                  />
+                  <TooltipIconButton
+                    title="코멘트"
+                    icon="mdi:comment-outline"
+                    onClick={scrollToComment}
+                  />
+                  <TooltipIconButton
+                    title="전체 보기"
+                    icon="mdi:fullscreen"
+                    onClick={() =>
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }
+                  />
+                </>
+              )}
+              <button
+                onClick={() => setMenuOpen((prev) => !prev)}
+                className="p-2 rounded-full border border-gray-300 bg-white hover:bg-gray-100 shadow transition"
+                title="메뉴 열기/닫기"
+              >
+                <Icon
+                  icon={isMenuOpen ? "mdi:chevron-right" : "mdi:chevron-left"}
+                  className="w-5 h-5 text-gray-700"
                 />
-              ),
-              mark: ({ node, ...props }) => (
-                <mark
-                  className="bg-yellow-200 dark:bg-yellow-400/20 text-inherit px-1 rounded"
-                  {...props}
-                />
-              ),
-              span: ({ node, ...props }) => {
-                const className = props.className || "";
-                if (className.includes("highlight")) {
-                  return (
-                    <span
-                      className="bg-yellow-200 dark:bg-yellow-400/20 text-inherit px-1 rounded font-medium"
-                      {...props}
-                    />
-                  );
-                }
-                return <span {...props} />;
-              },
-            }}
-          >
-            {text}
-          </ReactMarkdown>
+              </button>
+              <button
+                onClick={scrollToDiagram}
+                className="inline-flex items-center gap-1 px-3 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow transition"
+                title="다이어그램 보기"
+              >
+                <Icon icon="mdi:graph-outline" className="w-4 h-4" />
+                <span>다이어그램</span>
+              </button>
+            </div>
+          </div>
+
+          {/* 텍스트 스크롤은 여기서만 처리 */}
+          <div className="bg-white px-6 pb-12 rounded-lg shadow-sm border text-gray-800 prose max-w-none max-h-[500px] overflow-auto">
+            <ReactMarkdown
+              rehypePlugins={[rehypeRaw]}
+              components={{
+                h3: ({ node, ...props }) => (
+                  <h3 className="text-lg font-bold mt-4" {...props} />
+                ),
+                p: ({ node, ...props }) => (
+                  <p className="text-base leading-relaxed my-2" {...props} />
+                ),
+                ul: ({ node, ...props }) => (
+                  <ul className="list-disc list-inside ml-4 my-2" {...props} />
+                ),
+                li: ({ node, ...props }) => (
+                  <li className="text-base leading-relaxed" {...props} />
+                ),
+                blockquote: ({ node, ...props }) => (
+                  <blockquote
+                    className="border-l-4 border-gray-300 dark:border-gray-600 pl-3 italic text-gray-600 dark:text-gray-300 my-2"
+                    {...props}
+                  />
+                ),
+                mark: ({ node, ...props }) => (
+                  <mark
+                    className="bg-yellow-200 dark:bg-yellow-400/20 text-inherit px-1 rounded"
+                    {...props}
+                  />
+                ),
+                span: ({ node, ...props }) => {
+                  const className = props.className || "";
+                  if (className.includes("highlight")) {
+                    return (
+                      <span
+                        className="bg-yellow-200 dark:bg-yellow-400/20 text-inherit px-1 rounded font-medium"
+                        {...props}
+                      />
+                    );
+                  }
+                  return <span {...props} />;
+                },
+              }}
+            >
+              {text}
+            </ReactMarkdown>
+          </div>
         </div>
       )}
-
+    
       {tree && (
         <div ref={diagramRef}>
           <DiagramView nodes={nodes} edges={edges} />
@@ -143,12 +168,6 @@ console.log("✅ tree:", tree);
 
       {/* 💬 전체 코멘트 */}
       <div ref={commentRef} className="mt-5">
-        {/* <h3 className="text-lg font-semibold mb-4">💬 전체 코멘트</h3>
-
-        {comments.length === 0 && (
-          <p className="text-sm text-gray-500 mb-4">아직 작성된 코멘트가 없습니다.</p>
-        )} */}
-
         <ul className="space-y-2 mb-6">
           {comments.map((comment, index) => (
             <li
@@ -183,6 +202,7 @@ console.log("✅ tree:", tree);
           </button>
         </form>
       </div>
+
       {/* 👇 스크롤 다운 버튼 */}
       <button
         onClick={scrollToComment}
