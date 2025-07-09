@@ -1,0 +1,100 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { Icon } from "@iconify/react";
+import { toast } from "sonner";
+
+interface Props {
+  id: string;
+  initialTitle: string;
+  onTitleSaved?: (newTitle: string, updatedAt: string) => void;
+}
+
+export default function EditableTitle({ id, initialTitle, onTitleSaved }: Props) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [title, setTitle] = useState(initialTitle);
+  const [edited, setEdited] = useState(initialTitle);
+  const [loading, setLoading] = useState(false);
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    setTitle(initialTitle);
+    setEdited(initialTitle);
+  }, [initialTitle]);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [edited, isEditing]);
+
+  const saveTitle = async () => {
+    const newTitle = edited.trim();
+    if (!newTitle || newTitle === title) {
+      setIsEditing(false);
+      return;
+    }
+
+    setLoading(true);
+
+    // 실제 저장 로직 필요 시 여기에 supabase 연결
+    setTimeout(() => {
+      setLoading(false);
+      setTitle(newTitle);
+      toast.success("제목이 저장되었습니다.");
+      onTitleSaved?.(newTitle, new Date().toISOString());
+      setIsEditing(false);
+    }, 800);
+  };
+
+  return (
+    <div className="flex flex-col gap-1 w-full">
+      <div className="flex justify-between items-start">
+        {isEditing ? (
+          <textarea
+            ref={textareaRef}
+            autoFocus
+            rows={1}
+            value={edited}
+            onChange={(e) => setEdited(e.target.value)}
+            onBlur={saveTitle}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                saveTitle();
+              }
+            }}
+            className="text-3xl font-bold border-b border-gray-300 px-2 py-1 resize-none w-full leading-snug focus:outline-none"
+            placeholder="제목을 입력하세요"
+          />
+        ) : (
+          <h1 className="text-3xl font-bold whitespace-pre-wrap">{title || "제목 없는 요약"}</h1>
+        )}
+
+        {/* 수정 버튼은 항상 우측에 고정 */}
+        {!isEditing && (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="ml-2 mt-1 hover:scale-105 transition"
+            disabled={loading}
+            title="제목 수정"
+          >
+            {loading ? (
+              <Icon
+                icon="line-md:loading-twotone-loop"
+                className="w-5 h-5 text-gray-400 animate-spin"
+              />
+            ) : (
+              <Icon
+                icon="mdi:pencil-outline"
+                className="w-5 h-5 text-gray-500 hover:text-gray-700"
+              />
+            )}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}

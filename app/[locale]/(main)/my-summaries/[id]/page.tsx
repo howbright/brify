@@ -8,6 +8,7 @@ import { convertToTree } from "@/app/lib/gtp/convertToTree";
 import { toast } from "sonner";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import EditableTitle from "@/components/EditableTitle";
 
 // 타입 정의
 type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
@@ -83,9 +84,20 @@ export default function SummaryDetailPage() {
     <main className="max-w-4xl mx-auto p-6 flex flex-col gap-y-8">
       {/* 요약 제목 */}
       <header className="flex flex-col gap-y-2">
-        <h1 className="text-3xl font-bold">
-          {summary.summary_text || "제목 없는 요약"}
-        </h1>
+        <EditableTitle
+          id={summary.id}
+          initialTitle={summary.summary_text || "제목 없는 요약"}
+          onTitleSaved={(newTitle, updatedAt) =>
+            setSummary(
+              (prev) =>
+                prev && {
+                  ...prev,
+                  summary_text: newTitle,
+                  updated_at: updatedAt,
+                }
+            )
+          }
+        />
         <div className="flex flex-wrap gap-2 items-center text-sm text-gray-500">
           {summary.status && (
             <span
