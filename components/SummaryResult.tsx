@@ -106,13 +106,13 @@ export default function SummaryResult({ text, tree }: Props) {
                 title="다이어그램 보기"
               >
                 <Icon icon="mdi:graph-outline" className="w-4 h-4" />
-                <span>다이어그램</span>
+                <span>다이어그램 보기</span>
               </button>
             </div>
           </div>
 
           {/* 텍스트 스크롤은 여기서만 처리 */}
-          <div className="bg-white px-6 pb-12 rounded-lg shadow-sm border text-gray-800 prose max-w-none max-h-[500px] overflow-auto">
+          <div className="bg-white px-6 pb-12 rounded-lg shadow-sm border text-gray-800 prose max-w-none max-h-[500px] overflow-y-scroll scrollbar scrollbar-thumb-gray-400 scrollbar-track-gray-200 scrollbar-always">
             <ReactMarkdown
               rehypePlugins={[rehypeRaw]}
               components={{

@@ -6,6 +6,8 @@ layer(base);
 
 @plugin 'tailwindcss-animate';
 
+@plugin "tailwind-scrollbar"; /* ✅ 여기 추가 */
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {
@@ -292,4 +294,9 @@ layer(base);
 
 :focus-visible {
   outline: none !important;
+}
+
+
+.scrollbar-always::-webkit-scrollbar {
+  display: initial !important;
 }
