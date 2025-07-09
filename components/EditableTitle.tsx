@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { toast } from "sonner";
+import { createClient } from "@/utils/supabase/client"; // 상단에서 추가 필요
 
 interface Props {
   id: string;
@@ -10,7 +11,12 @@ interface Props {
   onTitleSaved?: (newTitle: string, updatedAt: string) => void;
 }
 
-export default function EditableTitle({ id, initialTitle, onTitleSaved }: Props) {
+export default function EditableTitle({
+  id,
+  initialTitle,
+  onTitleSaved,
+}: Props) {
+  const supabase = createClient(); // 컴포넌트 안에서 초기화
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(initialTitle);
   const [edited, setEdited] = useState(initialTitle);
@@ -39,14 +45,25 @@ export default function EditableTitle({ id, initialTitle, onTitleSaved }: Props)
 
     setLoading(true);
 
-    // 실제 저장 로직 필요 시 여기에 supabase 연결
-    setTimeout(() => {
-      setLoading(false);
-      setTitle(newTitle);
-      toast.success("제목이 저장되었습니다.");
-      onTitleSaved?.(newTitle, new Date().toISOString());
-      setIsEditing(false);
-    }, 800);
+    const { data, error } = await supabase
+      .from("summaries")
+      .update({ summary_text: newTitle })
+      .eq("id", id)
+      .select("updated_at")
+      .single();
+
+    setLoading(false);
+    setIsEditing(false);
+
+    if (error) {
+      toast.error("제목 저장 실패");
+      setEdited(title); // 원래 제목 복구
+      return;
+    }
+
+    setTitle(newTitle);
+    toast.success("제목이 저장되었습니다.");
+    // onTitleSaved?.(newTitle, data.updated_at);
   };
 
   return (
@@ -70,7 +87,9 @@ export default function EditableTitle({ id, initialTitle, onTitleSaved }: Props)
             placeholder="제목을 입력하세요"
           />
         ) : (
-          <h1 className="text-3xl font-bold whitespace-pre-wrap">{title || "제목 없는 요약"}</h1>
+          <h1 className="text-3xl font-bold whitespace-pre-wrap">
+            {title || "제목 없는 요약"}
+          </h1>
         )}
 
         {/* 수정 버튼은 항상 우측에 고정 */}
