@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
-export async function GET(req: NextRequest, { params }: any) {
+export async function GET(req: NextRequest, 
+  context: { params: Promise<{ id: string }> } // ✅ 핵심: Promise 명시
+) {
   const supabase = await createClient();
-  const id = params.id;
+  const { id } = await context.params; 
 
   if (!id) {
     return NextResponse.json({ error: '요약 ID가 필요합니다.' }, { status: 400 });

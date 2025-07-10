@@ -3,11 +3,13 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
+export const dynamic = "force-dynamic"; // 🔒 Supabase 사용 시 권장
+
 export async function GET(
   req: Request,
-  { params }: { params: { summaryId: string } }
+  context: { params: Promise<{ summaryId: string }> }
 ) {
-  const { summaryId } = params;
+  const { summaryId } = await context.params;
 
   if (!summaryId) {
     return NextResponse.json({ error: "요약 ID가 필요합니다." }, { status: 400 });

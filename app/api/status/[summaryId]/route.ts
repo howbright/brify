@@ -1,9 +1,15 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest, { params }: any) {
+export const dynamic = 'force-dynamic'; // 동적 렌더링 선언
+
+export async function GET(
+  req: NextRequest,
+  context: { params: Promise<{ summaryId: string }> }
+) {
+  const { summaryId } = await context.params;
+
   const supabase = await createClient();
-  const summaryId = params.summaryId;
 
   if (!summaryId) {
     return NextResponse.json({ error: 'summaryId가 필요합니다.' }, { status: 400 });
