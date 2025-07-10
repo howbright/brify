@@ -47,8 +47,12 @@ export default function MySummariesPage() {
   const handleDelete = async () => {
     if (!deleteTargetId) return;
 
-    const res = await fetch(`/api/summaries/${deleteTargetId}`, {
+    const res = await fetch("/api/summary", {
       method: "DELETE",
+      body: JSON.stringify({ deleteTargetId }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     if (res.ok) {

@@ -31,15 +31,16 @@ interface Summary {
 }
 
 export default function SummaryDetailPage() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>()
   const router = useRouter();
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('useEffect안에 들어옴 : ', id)
     if (!id || typeof id !== "string") return;
-
-    fetch(`/api/summaries/${id}`)
+    console.log('useEffect안에 들어옴 다음칸: ', id)
+    fetch(`/api/summary?id=${id}`)
       .then(async (res) => {
         if (res.status === 401) {
           toast.error("로그인이 필요합니다.");
