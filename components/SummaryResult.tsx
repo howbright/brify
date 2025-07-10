@@ -1,16 +1,15 @@
-// 📁 components/SummaryResult.tsx
-
 "use client";
 
-import { treeToFlowElements } from "@/app/lib/gtp/transformTree";
-import { MyNodeData, TreeNode } from "@/app/types/tree";
+import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Edge, Node } from "@xyflow/react";
-import React, { useEffect, useRef, useState } from "react";
+import { treeToFlowElements } from "@/app/lib/gtp/transformTree";
+import { MyNodeData, TreeNode } from "@/app/types/tree";
 import DiagramView from "./diagram/DiagramView";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import TooltipIconButton from "./TooltipIconButton";
+import MarkdownEditor from "./ui/MarkdownEditor";
 
 interface Props {
   text?: string;
@@ -18,21 +17,24 @@ interface Props {
 }
 
 export default function SummaryResult({ text, tree }: Props) {
-  console.log("✅ text:", text);
-  console.log("✅ tree:", tree);
-
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedMarkdown, setEditedMarkdown] = useState(text ?? "");
   const [comments, setComments] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
   const [isMenuOpen, setMenuOpen] = useState(true);
-
   const [nodes, setNodes] = useState<Node<MyNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
   const commentRef = useRef<HTMLDivElement>(null);
   const diagramRef = useRef<HTMLDivElement>(null);
 
-  // const params = useParams();
-  // const id = params?.id as string;
+  useEffect(() => {
+    if (!tree) return;
+    treeToFlowElements(tree).then(({ nodes, edges }) => {
+      setNodes(nodes);
+      setEdges(edges);
+    });
+  }, [tree]);
 
   const scrollToComment = () => {
     commentRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -41,15 +43,6 @@ export default function SummaryResult({ text, tree }: Props) {
   const scrollToDiagram = () => {
     diagramRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
-  useEffect(() => {
-    console.log("tree: ", tree);
-    if (!tree) return;
-    treeToFlowElements(tree).then(({ nodes, edges }) => {
-      setNodes(nodes);
-      setEdges(edges);
-    });
-  }, [tree]);
 
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,55 +56,79 @@ export default function SummaryResult({ text, tree }: Props) {
       <h2 className="text-2xl font-bold mb-6 flex items-center justify-between">
         핵심정리 결과
       </h2>
-      {/* SummaryResult.tsx 중 일부 */}
-      {text && (
-        <div className="relative mb-10">
-          {/* 툴팁이 자유롭게 나올 수 있게 overflow-visible */}
-          <div className="sticky top-0 z-10 p-2 flex justify-end">
-            <div className="flex items-center gap-2">
-              {isMenuOpen && (
-                <>
-                  <TooltipIconButton
-                    title="수정하기"
-                    icon="mdi:pencil-outline"
-                    onClick={() => alert("수정하기")}
-                  />
-                  <TooltipIconButton
-                    title="코멘트"
-                    icon="mdi:comment-outline"
-                    onClick={scrollToComment}
-                  />
-                  <TooltipIconButton
-                    title="전체 보기"
-                    icon="mdi:fullscreen"
-                    onClick={() =>
-                      window.scrollTo({ top: 0, behavior: "smooth" })
-                    }
-                  />
-                </>
-              )}
-              <button
-                onClick={() => setMenuOpen((prev) => !prev)}
-                className="p-2 rounded-full border border-gray-300 bg-white hover:bg-gray-100 shadow transition"
-                title="메뉴 열기/닫기"
-              >
-                <Icon
-                  icon={isMenuOpen ? "mdi:chevron-right" : "mdi:chevron-left"}
-                  className="w-5 h-5 text-gray-700"
+
+      <div className="relative mb-10">
+        <div className="sticky top-0 z-10 p-2 flex justify-end">
+          <div className="flex items-center gap-2">
+            {isMenuOpen && (
+              <>
+                <TooltipIconButton
+                  title="수정하기"
+                  icon="mdi:pencil-outline"
+                  onClick={() => {
+                    setIsEditing(true);
+                    setEditedMarkdown(text ?? "");
+                  }}
                 />
+                <TooltipIconButton
+                  title="코멘트"
+                  icon="mdi:comment-outline"
+                  onClick={scrollToComment}
+                />
+                <TooltipIconButton
+                  title="전체 보기"
+                  icon="mdi:fullscreen"
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                />
+              </>
+            )}
+            <button
+              onClick={() => setMenuOpen((prev) => !prev)}
+              className="p-2 rounded-full border border-gray-300 bg-white hover:bg-gray-100 shadow transition"
+              title="메뉴 열기/닫기"
+            >
+              <Icon
+                icon={isMenuOpen ? "mdi:chevron-right" : "mdi:chevron-left"}
+                className="w-5 h-5 text-gray-700"
+              />
+            </button>
+            <button
+              onClick={scrollToDiagram}
+              className="inline-flex items-center gap-1 px-3 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow transition"
+              title="다이어그램 보기"
+            >
+              <Icon icon="mdi:graph-outline" className="w-4 h-4" />
+              <span>다이어그램 보기</span>
+            </button>
+          </div>
+        </div>
+
+        {isEditing ? (
+          <div className="border rounded-lg shadow-sm bg-white p-4 mb-4">
+            <MarkdownEditor
+              initialContent={editedMarkdown}
+              onChange={(markdown) => setEditedMarkdown(markdown)}
+            />
+            <div className="flex justify-end mt-4">
+              <button
+                className="px-4 py-2 text-sm font-medium rounded bg-gray-300 hover:bg-gray-400 mr-2"
+                onClick={() => setIsEditing(false)}
+              >
+                취소
               </button>
               <button
-                onClick={scrollToDiagram}
-                className="inline-flex items-center gap-1 px-3 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow transition"
-                title="다이어그램 보기"
+                className="px-4 py-2 text-sm font-medium rounded bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => {
+                  setIsEditing(false);
+                  // 여기에 저장 API 연동 가능
+                  // ex) await saveSummary(editedMarkdown);
+                }}
               >
-                <Icon icon="mdi:graph-outline" className="w-4 h-4" />
-                <span>다이어그램 보기</span>
+                저장
               </button>
             </div>
           </div>
-
-          {/* 텍스트 스크롤은 여기서만 처리 */}
+        ) : text ? (
           <div className="bg-white px-6 pb-12 rounded-lg shadow-sm border text-gray-800 prose max-w-none max-h-[500px] overflow-y-scroll scrollbar scrollbar-thumb-gray-400 scrollbar-track-gray-200 scrollbar-always">
             <ReactMarkdown
               rehypePlugins={[rehypeRaw]}
@@ -154,19 +171,18 @@ export default function SummaryResult({ text, tree }: Props) {
                 },
               }}
             >
-              {text}
+              {editedMarkdown}
             </ReactMarkdown>
           </div>
-        </div>
-      )}
-    
+        ) : null}
+      </div>
+
       {tree && (
         <div ref={diagramRef}>
           <DiagramView nodes={nodes} edges={edges} />
         </div>
       )}
 
-      {/* 💬 전체 코멘트 */}
       <div ref={commentRef} className="mt-5">
         <ul className="space-y-2 mb-6">
           {comments.map((comment, index) => (
@@ -180,14 +196,14 @@ export default function SummaryResult({ text, tree }: Props) {
         </ul>
 
         <form onSubmit={handleCommentSubmit} className="mb-6">
-          <div className="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+          <div className="py-2 px-4 mb-4 bg-white rounded-lg border border-gray-200">
             <label htmlFor="comment" className="sr-only">
               Your comment
             </label>
             <textarea
               id="comment"
               rows={6}
-              className="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-hidden dark:text-white dark:placeholder-gray-400 dark:bg-gray-800"
+              className="w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none"
               placeholder="Write a comment..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
@@ -203,7 +219,6 @@ export default function SummaryResult({ text, tree }: Props) {
         </form>
       </div>
 
-      {/* 👇 스크롤 다운 버튼 */}
       <button
         onClick={scrollToComment}
         className="fixed bottom-6 right-6 bg-black text-white rounded-full p-3 shadow-lg hover:bg-gray-800 transition"
