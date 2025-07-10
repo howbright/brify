@@ -23,7 +23,7 @@ export default function SummaryResult({ text, tree }: Props) {
 
   const [comments, setComments] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
-  const [isMenuOpen, setMenuOpen] = useState(false);
+  const [isMenuOpen, setMenuOpen] = useState(true);
 
   const [nodes, setNodes] = useState<Node<MyNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
