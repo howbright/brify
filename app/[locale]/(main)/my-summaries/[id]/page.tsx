@@ -20,7 +20,7 @@ interface Summary {
   source_type: string;
   source_title: string | null;
   source_url: string | null;
-  original_text: string | null;
+  // original_text: string | null;
   summary_text: string | null;
   detailed_summary_text: string | null;
   diagram_json: Json | null;
@@ -36,39 +36,47 @@ export default function SummaryDetailPage() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    console.log('useEffect안에 들어옴 : ', id)
-    if (!id || typeof id !== "string") return;
-    console.log('useEffect안에 들어옴 다음칸: ', id)
-    fetch(`/api/summary?id=${id}`)
-      .then(async (res) => {
-        if (res.status === 401) {
-          toast.error("로그인이 필요합니다.");
-          router.push("/login");
-          return;
-        }
-        if (res.status === 403) {
-          toast.error("이 요약에 접근할 수 없습니다.");
-          router.push("/my-summaries");
-          return;
-        }
-        if (res.status === 404) {
-          toast.error("요약을 찾을 수 없습니다.");
-          router.push("/my-summaries");
-          return;
-        }
-        if (!res.ok) {
-          toast.error("요약을 불러오는 중 오류가 발생했습니다.");
-          return;
-        }
-        const data = await res.json();
-        setSummary(data);
-      })
-      .catch(() => {
+  // ✅ fetch 함수 분리
+  const fetchSummary = async (id: string) => {
+    try {
+      const res = await fetch(`/api/summary?id=${id}`);
+      if (res.status === 401) {
+        toast.error("로그인이 필요합니다.");
+        router.push("/login");
+        return;
+      }
+      if (res.status === 403) {
+        toast.error("이 요약에 접근할 수 없습니다.");
+        router.push("/my-summaries");
+        return;
+      }
+      if (res.status === 404) {
+        toast.error("요약을 찾을 수 없습니다.");
+        router.push("/my-summaries");
+        return;
+      }
+      if (!res.ok) {
         toast.error("요약을 불러오는 중 오류가 발생했습니다.");
-      })
-      .finally(() => setLoading(false));
+        return;
+      }
+      const data = await res.json();
+      setSummary(data);
+    } catch (err) {
+      console.error("요약 가져오기 실패:", err);
+      toast.error("요약을 불러오는 중 오류가 발생했습니다.");
+      setSummary(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    console.log("useEffect 진입:", id);
+    if (id && typeof id === "string") {
+      fetchSummary(id);
+    }
   }, [id, router]);
+
 
   if (loading) {
     return (
@@ -174,7 +182,7 @@ export default function SummaryDetailPage() {
       </section>
 
       {/* 원문 보기 */}
-      {summary.original_text && (
+      {/* {summary.original_text && (
         <details className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-900 dark:border-gray-700">
           <summary className="cursor-pointer font-semibold text-gray-700 dark:text-gray-200">
             원문 보기
@@ -183,7 +191,7 @@ export default function SummaryDetailPage() {
             {summary.original_text}
           </pre>
         </details>
-      )}
+      )} */}
     </main>
   );
 }
