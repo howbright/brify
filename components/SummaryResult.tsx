@@ -6,10 +6,9 @@ import { Edge, Node } from "@xyflow/react";
 import { treeToFlowElements } from "@/app/lib/gtp/transformTree";
 import { MyNodeData, TreeNode } from "@/app/types/tree";
 import DiagramView from "./diagram/DiagramView";
-import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
 import TooltipIconButton from "./TooltipIconButton";
-import MarkdownEditor from "./ui/MarkdownEditor";
+import SummaryEditor from "./SummaryEditor";
+import SummaryViewer from "./SummaryViewer";
 
 interface Props {
   text?: string;
@@ -21,7 +20,6 @@ export default function SummaryResult({ text, tree }: Props) {
   const [editedMarkdown, setEditedMarkdown] = useState(text ?? "");
   const [comments, setComments] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
-  const [isMenuOpen, setMenuOpen] = useState(true);
   const [nodes, setNodes] = useState<Node<MyNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
@@ -44,6 +42,10 @@ export default function SummaryResult({ text, tree }: Props) {
     diagramRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
@@ -53,128 +55,31 @@ export default function SummaryResult({ text, tree }: Props) {
 
   return (
     <div className="max-w-6xl mx-auto min-h-screen">
-      <h2 className="text-2xl font-bold mb-6 flex items-center justify-between">
-        핵심정리 결과
-      </h2>
+      <h2 className="text-2xl font-bold mb-6">핵심정리 결과</h2>
 
       <div className="relative mb-10">
-        <div className="sticky top-0 z-10 p-2 flex justify-end">
-          <div className="flex items-center gap-2">
-            {isMenuOpen && (
-              <>
-                <TooltipIconButton
-                  title="수정하기"
-                  icon="mdi:pencil-outline"
-                  onClick={() => {
-                    setIsEditing(true);
-                    setEditedMarkdown(text ?? "");
-                  }}
-                />
-                <TooltipIconButton
-                  title="코멘트"
-                  icon="mdi:comment-outline"
-                  onClick={scrollToComment}
-                />
-                <TooltipIconButton
-                  title="전체 보기"
-                  icon="mdi:fullscreen"
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                />
-              </>
-            )}
-            <button
-              onClick={() => setMenuOpen((prev) => !prev)}
-              className="p-2 rounded-full border border-gray-300 bg-white hover:bg-gray-100 shadow transition"
-              title="메뉴 열기/닫기"
-            >
-              <Icon
-                icon={isMenuOpen ? "mdi:chevron-right" : "mdi:chevron-left"}
-                className="w-5 h-5 text-gray-700"
-              />
-            </button>
-            <button
-              onClick={scrollToDiagram}
-              className="inline-flex items-center gap-1 px-3 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow transition"
-              title="다이어그램 보기"
-            >
-              <Icon icon="mdi:graph-outline" className="w-4 h-4" />
-              <span>다이어그램 보기</span>
-            </button>
-          </div>
-        </div>
-
         {isEditing ? (
-          <div className="border rounded-lg shadow-sm bg-white p-4 mb-4">
-            <MarkdownEditor
-              initialContent={editedMarkdown}
-              onChange={(markdown) => setEditedMarkdown(markdown)}
-            />
-            <div className="flex justify-end mt-4">
-              <button
-                className="px-4 py-2 text-sm font-medium rounded bg-gray-300 hover:bg-gray-400 mr-2"
-                onClick={() => setIsEditing(false)}
-              >
-                취소
-              </button>
-              <button
-                className="px-4 py-2 text-sm font-medium rounded bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={() => {
-                  setIsEditing(false);
-                  // 여기에 저장 API 연동 가능
-                  // ex) await saveSummary(editedMarkdown);
-                }}
-              >
-                저장
-              </button>
-            </div>
-          </div>
-        ) : text ? (
-          <div className="bg-white px-6 pb-12 rounded-lg shadow-sm border text-gray-800 prose max-w-none max-h-[500px] overflow-y-scroll scrollbar scrollbar-thumb-gray-400 scrollbar-track-gray-200 scrollbar-always">
-            <ReactMarkdown
-              rehypePlugins={[rehypeRaw]}
-              components={{
-                h3: ({ node, ...props }) => (
-                  <h3 className="text-lg font-bold mt-4" {...props} />
-                ),
-                p: ({ node, ...props }) => (
-                  <p className="text-base leading-relaxed my-2" {...props} />
-                ),
-                ul: ({ node, ...props }) => (
-                  <ul className="list-disc list-inside ml-4 my-2" {...props} />
-                ),
-                li: ({ node, ...props }) => (
-                  <li className="text-base leading-relaxed" {...props} />
-                ),
-                blockquote: ({ node, ...props }) => (
-                  <blockquote
-                    className="border-l-4 border-gray-300 dark:border-gray-600 pl-3 italic text-gray-600 dark:text-gray-300 my-2"
-                    {...props}
-                  />
-                ),
-                mark: ({ node, ...props }) => (
-                  <mark
-                    className="bg-yellow-200 dark:bg-yellow-400/20 text-inherit px-1 rounded"
-                    {...props}
-                  />
-                ),
-                span: ({ node, ...props }) => {
-                  const className = props.className || "";
-                  if (className.includes("highlight")) {
-                    return (
-                      <span
-                        className="bg-yellow-200 dark:bg-yellow-400/20 text-inherit px-1 rounded font-medium"
-                        {...props}
-                      />
-                    );
-                  }
-                  return <span {...props} />;
-                },
-              }}
-            >
-              {editedMarkdown}
-            </ReactMarkdown>
-          </div>
-        ) : null}
+          <SummaryEditor
+            initialContent={editedMarkdown}
+            onCancel={() => setIsEditing(false)}
+            onSave={(markdown) => {
+              setIsEditing(false);
+              setEditedMarkdown(markdown);
+              // 저장 로직 필요 시 여기에 추가
+            }}
+          />
+        ) : (
+          <SummaryViewer
+            text={editedMarkdown}
+            onEdit={() => {
+              setIsEditing(true);
+              setEditedMarkdown(editedMarkdown);
+            }}
+            scrollToComment={scrollToComment}
+            scrollToTop={scrollToTop}
+            scrollToDiagram={scrollToDiagram}
+          />
+        )}
       </div>
 
       {tree && (
