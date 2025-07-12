@@ -18,8 +18,8 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function Header() {
-  const router = useRouter();
   const supabase = createClient();
+  const router = useRouter();
   const { session } = useSession();
 
   const [email, setEmail] = useState<string | null>(null);
@@ -37,7 +37,7 @@ export default function Header() {
           .eq("id", session.user.id)
           .single();
 
-        if (!error && data) {
+          if (!error && data?.role && (data.role === "basic" || data.role === "pro")) {
           setRole(data.role);
         }
       };

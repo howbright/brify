@@ -3,13 +3,14 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { summaryId: string } }
-) {
-  const { summaryId } = params;
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const summaryId = searchParams.get("summaryId");
   if (!summaryId) {
-    return NextResponse.json({ error: "요약 ID가 필요합니다." }, { status: 400 });
+    return NextResponse.json(
+      { error: "요약 ID가 필요합니다." },
+      { status: 400 }
+    );
   }
 
   const supabase = await createClient();
@@ -30,7 +31,8 @@ export async function GET(
   const { status, detailed_summary_text, error_message } = data;
 
   // 상태 로직 결정
-  let effectiveStatus: "pending" | "partial" | "completed" | "failed" = "pending";
+  let effectiveStatus: "pending" | "partial" | "completed" | "failed" =
+    "pending";
 
   if (status === "failed") {
     effectiveStatus = "failed";

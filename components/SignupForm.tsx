@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function SignupForm() {
+  const supabase = createClient();
   const t = useTranslations("signup");
 
   const [email, setEmail] = useState("");
@@ -21,7 +22,6 @@ export default function SignupForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const otpInputRef = useRef<HTMLInputElement>(null);
-  const supabase = createClient();
   const router = useRouter();
 
   useEffect(() => {

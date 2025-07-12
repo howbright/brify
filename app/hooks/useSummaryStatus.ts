@@ -17,7 +17,7 @@ export function useSummaryStatus(summaryId: string | null) {
   return useQuery<SummaryStatus>({
     queryKey: ["summary-status", summaryId],
     queryFn: async () => {
-      const res = await fetch(`/api/status/${summaryId}`);
+      const res = await fetch(`/api/status?summaryId=${summaryId}`);
       const parsed = await res.json().catch(() => null);
 
       if (!res.ok) {

@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import EditableTitle from "@/components/EditableTitle";
+import { useSession } from "@/components/SessionProvider";
 
 // 타입 정의
 type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
@@ -31,54 +32,61 @@ interface Summary {
 }
 
 export default function SummaryDetailPage() {
-  const { id } = useParams<{ id: string }>()
+  const { session, isLoading } = useSession();
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ fetch 함수 분리
   const fetchSummary = async (id: string) => {
+    let aborted = false;
+
     try {
-      const res = await fetch(`/api/summary?id=${id}`);
+      console.log("호출");
+      const res = await fetch(`/api/summary?id=${id}`,{
+        credentials: 'include', // ✅ 이거 꼭 추가
+      });
+      console.log("status:", res.status);
+
       if (res.status === 401) {
         toast.error("로그인이 필요합니다.");
         router.push("/login");
-        return;
-      }
-      if (res.status === 403) {
+        aborted = true;
+      } else if (res.status === 403) {
         toast.error("이 요약에 접근할 수 없습니다.");
         router.push("/my-summaries");
-        return;
-      }
-      if (res.status === 404) {
+        aborted = true;
+      } else if (res.status === 404) {
         toast.error("요약을 찾을 수 없습니다.");
         router.push("/my-summaries");
-        return;
-      }
-      if (!res.ok) {
+        aborted = true;
+      } else if (!res.ok) {
         toast.error("요약을 불러오는 중 오류가 발생했습니다.");
-        return;
+        aborted = true;
+      } else {
+        console.log(res)
+        const data = await res.json();
+        console.log(data)
+        setSummary(data);
       }
-      const data = await res.json();
-      setSummary(data);
     } catch (err) {
       console.error("요약 가져오기 실패:", err);
       toast.error("요약을 불러오는 중 오류가 발생했습니다.");
       setSummary(null);
     } finally {
-      setLoading(false);
+      if (!aborted) setLoading(false);
     }
   };
 
   useEffect(() => {
     console.log("useEffect 진입:", id);
-    if (id && typeof id === "string") {
+    if (session?.user.id) {
       fetchSummary(id);
     }
-  }, [id, router]);
+  }, [session]);
 
 
-  if (loading) {
+  if (isLoading) {
     return (
       <main className="max-w-4xl mx-auto p-6 flex flex-col gap-y-6">
         <Skeleton height={30} width={200} />

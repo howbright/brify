@@ -5,7 +5,7 @@ export function useTextSummaryStatus(summaryId: string | null) {
     return useQuery<TextSummaryStatus>({
       queryKey: ["text-summary-status", summaryId],
       queryFn: async () => {
-        const res = await fetch(`/api/status/text/${summaryId}`);
+        const res = await fetch(`/api/status/text?summaryId=${summaryId}`);
         const parsed = await res.json().catch(() => null);
   
         if (!res.ok) {

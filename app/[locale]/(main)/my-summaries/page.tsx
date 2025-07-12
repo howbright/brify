@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
 import { useSession } from "@/components/SessionProvider";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Trash2, Loader2 } from "lucide-react";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { Loader2, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 type SummaryItem = {
@@ -48,6 +47,7 @@ export default function MySummariesPage() {
     if (!deleteTargetId) return;
 
     const res = await fetch("/api/summary", {
+      credentials: 'include', // ✅ 이거 꼭 추가
       method: "DELETE",
       body: JSON.stringify({ deleteTargetId }),
       headers: {

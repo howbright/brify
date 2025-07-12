@@ -6,8 +6,8 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
 export default function AuthCallbackPage() {
+  const supabase = createClient();
   const router = useRouter()
-  const supabase = createClient()
 
   useEffect(() => {
     const handleLogin = async () => {

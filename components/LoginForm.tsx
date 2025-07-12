@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function LoginForm() {
+  const supabase = createClient();
   const t = useTranslations("login");
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
@@ -16,7 +17,6 @@ export default function LoginForm() {
   const [step, setStep] = useState<"email" | "otp">("email");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const supabase = createClient();
   const router = useRouter();
   const otpInputRef = useRef<HTMLInputElement>(null);
 

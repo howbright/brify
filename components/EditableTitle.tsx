@@ -16,7 +16,7 @@ export default function EditableTitle({
   initialTitle,
   onTitleSaved,
 }: Props) {
-  const supabase = createClient(); // 컴포넌트 안에서 초기화
+  const supabase = createClient();
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(initialTitle);
   const [edited, setEdited] = useState(initialTitle);
