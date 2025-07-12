@@ -64,9 +64,9 @@ export default function SummaryDetailPage() {
         toast.error("요약을 불러오는 중 오류가 발생했습니다.");
         aborted = true;
       } else {
-        console.log(res)
+        // console.log(res)
         const data = await res.json();
-        console.log(data)
+        // console.log(data)
         setSummary(data);
       }
     } catch (err) {
