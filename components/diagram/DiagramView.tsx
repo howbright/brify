@@ -25,9 +25,10 @@ const nodeTypes: NodeTypes = {
 interface DiagramViewProps {
   nodes: FlowNode<MyNodeData>[];
   edges: FlowEdge[];
+  onFullViewDiagram?: () => void;
 }
 
-export default function DiagramView({ nodes, edges }: DiagramViewProps) {
+export default function DiagramView({ nodes, edges, onFullViewDiagram }: DiagramViewProps) {
   console.log(nodes);
   console.log(edges);
   const [stylePreset, setStylePreset] = useState(classicStyle);

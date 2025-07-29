@@ -9,6 +9,8 @@ import DiagramView from "./diagram/DiagramView";
 import TooltipIconButton from "./TooltipIconButton";
 import SummaryEditor from "./SummaryEditor";
 import SummaryViewer from "./SummaryViewer";
+import SummaryFullDialog from "./SummaryFullDialog";
+import SummaryContent from "./SummaryContent";
 
 interface Props {
   text?: string;
@@ -22,6 +24,8 @@ export default function SummaryResult({ text, tree }: Props) {
   const [inputValue, setInputValue] = useState<string>("");
   const [nodes, setNodes] = useState<Node<MyNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+  const [isFullDialogOpen, setIsFullDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"text" | "diagram">("text");
 
   const commentRef = useRef<HTMLDivElement>(null);
   const diagramRef = useRef<HTMLDivElement>(null);
@@ -58,33 +62,30 @@ export default function SummaryResult({ text, tree }: Props) {
       <h2 className="text-2xl font-bold mb-6">핵심정리 결과</h2>
 
       <div className="relative mb-10">
-        {isEditing ? (
-          <SummaryEditor
-            initialContent={editedMarkdown}
-            onCancel={() => setIsEditing(false)}
-            onSave={(markdown) => {
-              setIsEditing(false);
-              setEditedMarkdown(markdown);
-              // 저장 로직 필요 시 여기에 추가
-            }}
-          />
-        ) : (
-          <SummaryViewer
-            text={editedMarkdown}
-            onEdit={() => {
-              setIsEditing(true);
-              setEditedMarkdown(editedMarkdown);
-            }}
-            scrollToComment={scrollToComment}
-            scrollToTop={scrollToTop}
-            scrollToDiagram={scrollToDiagram}
-          />
-        )}
+        <SummaryContent
+          initialText={editedMarkdown}
+          onOpenFullView={() => {
+            setActiveTab("text");
+            setIsFullDialogOpen(true);
+          }}
+          onSaveText={(markdown) => setEditedMarkdown(markdown)}
+          scrollToComment={scrollToComment}
+          scrollToTop={scrollToTop}
+          scrollToDiagram={scrollToDiagram}
+          fullMode={false}
+        />
       </div>
 
       {tree && (
         <div ref={diagramRef}>
-          <DiagramView nodes={nodes} edges={edges} />
+          <DiagramView
+            nodes={nodes}
+            edges={edges}
+            onFullViewDiagram={() => {
+              setActiveTab("diagram");
+              setIsFullDialogOpen(true);
+            }}
+          />
         </div>
       )}
 
@@ -99,6 +100,18 @@ export default function SummaryResult({ text, tree }: Props) {
             </li>
           ))}
         </ul>
+
+        {/* 코멘트 폼 그대로 */}
+
+        <SummaryFullDialog
+          open={isFullDialogOpen}
+          onOpenChange={setIsFullDialogOpen}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          text={editedMarkdown}
+          nodes={nodes}
+          edges={edges}
+        />
 
         <form onSubmit={handleCommentSubmit} className="mb-6">
           <div className="py-2 px-4 mb-4 bg-white rounded-lg border border-gray-200">

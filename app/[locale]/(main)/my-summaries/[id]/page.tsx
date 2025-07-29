@@ -43,8 +43,8 @@ export default function SummaryDetailPage() {
 
     try {
       console.log("호출");
-      const res = await fetch(`/api/summary?id=${id}`,{
-        credentials: 'include', // ✅ 이거 꼭 추가
+      const res = await fetch(`/api/summary?id=${id}`, {
+        credentials: "include", // ✅ 이거 꼭 추가
       });
       console.log("status:", res.status);
 
@@ -84,7 +84,6 @@ export default function SummaryDetailPage() {
       fetchSummary(id);
     }
   }, [session]);
-
 
   if (isLoading) {
     return (
@@ -133,11 +132,26 @@ export default function SummaryDetailPage() {
           <span>
             생성일:{" "}
             {summary.created_at
-              ? new Date(summary.created_at).toLocaleString()
+              ? new Date(summary.created_at).toLocaleString(undefined, {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
               : "-"}
           </span>
           {summary.updated_at && (
-            <span>수정일: {new Date(summary.updated_at).toLocaleString()}</span>
+            <span>
+              수정일:{" "}
+              {new Date(summary.updated_at).toLocaleString(undefined, {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
           )}
           <span>언어: {summary.lang || "알 수 없음"}</span>
         </div>
@@ -146,9 +160,9 @@ export default function SummaryDetailPage() {
       {/* 메타 정보 */}
       <section className="grid gap-4 md:grid-cols-2">
         <div className="border rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
-          <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
+          {/* <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
             출처 정보
-          </h2>
+          </h2> */}
           <ul className="text-sm text-gray-800 dark:text-gray-200 flex flex-col gap-y-1">
             <li>
               <span className="font-medium">출처 타입:</span>{" "}
