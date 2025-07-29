@@ -37,6 +37,7 @@ export default function SummaryContent({
             setEditedMarkdown(markdown);
             if (onSaveText) onSaveText(markdown);
           }}
+          fullMode={fullMode}
         />
       ) : (
         <SummaryViewer

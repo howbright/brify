@@ -15,6 +15,7 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   activeTab: "text" | "diagram";
   onTabChange: (tab: "text" | "diagram") => void;
+  onSaveText: (text: string) => void;
   text: string;
   nodes: Node<MyNodeData>[];
   edges: Edge[];
@@ -25,6 +26,7 @@ export default function SummaryFullDialog({
   onOpenChange,
   activeTab,
   onTabChange,
+  onSaveText,
   text,
   nodes,
   edges,
@@ -73,7 +75,7 @@ export default function SummaryFullDialog({
             className="flex-1 flex flex-col"
           >
             <Tabs.Content value="text" className="flex-1 overflow-y-auto p-2">
-              <SummaryContent initialText={text}
+              <SummaryContent initialText={text} onSaveText={onSaveText}
               scrollToComment={() => { } }
               scrollToTop={() => { } }
               scrollToDiagram={() => { } }   fullMode={true}/>

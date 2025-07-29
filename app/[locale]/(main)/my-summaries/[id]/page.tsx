@@ -194,6 +194,7 @@ export default function SummaryDetailPage() {
       {/* 요약 내용 */}
       <section>
         <SummaryResult
+          summaryId={id}
           text={
             summary.detailed_summary_text ||
             summary.summary_text ||

@@ -11,13 +11,16 @@ import SummaryEditor from "./SummaryEditor";
 import SummaryViewer from "./SummaryViewer";
 import SummaryFullDialog from "./SummaryFullDialog";
 import SummaryContent from "./SummaryContent";
+import { createClient } from "@/utils/supabase/client";
 
 interface Props {
   text?: string;
   tree?: TreeNode | null | undefined;
+  summaryId?:string;
 }
 
-export default function SummaryResult({ text, tree }: Props) {
+export default function SummaryResult({ text, tree, summaryId }: Props) {
+  const supabase = createClient();
   const [isEditing, setIsEditing] = useState(false);
   const [editedMarkdown, setEditedMarkdown] = useState(text ?? "");
   const [comments, setComments] = useState<string[]>([]);
@@ -57,6 +60,31 @@ export default function SummaryResult({ text, tree }: Props) {
     setInputValue("");
   };
 
+  async function saveSummaryToSupabase(id: string, markdown: string) {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("summaries")
+      .update({ detailed_summary_text: markdown, updated_at: new Date().toISOString() })
+      .eq("id", id);
+
+    if (error) {
+      console.error("Supabase update error:", error);
+      throw error;
+    }
+  }
+  // **새로 만든 함수**
+  const handleSaveText = async (markdown: string) => {
+    setEditedMarkdown(markdown);
+    try {
+      if(!!summaryId){
+        await saveSummaryToSupabase(summaryId, markdown);
+      }
+      console.log("Supabase 저장 완료");
+    } catch (error) {
+      console.error("저장 실패:", error);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto min-h-screen">
       <h2 className="text-2xl font-bold mb-6">핵심정리 결과</h2>
@@ -68,7 +96,7 @@ export default function SummaryResult({ text, tree }: Props) {
             setActiveTab("text");
             setIsFullDialogOpen(true);
           }}
-          onSaveText={(markdown) => setEditedMarkdown(markdown)}
+          onSaveText={handleSaveText}
           scrollToComment={scrollToComment}
           scrollToTop={scrollToTop}
           scrollToDiagram={scrollToDiagram}
@@ -110,8 +138,7 @@ export default function SummaryResult({ text, tree }: Props) {
           onTabChange={setActiveTab}
           text={editedMarkdown}
           nodes={nodes}
-          edges={edges}
-        />
+          edges={edges} onSaveText={handleSaveText}/>
 
         <form onSubmit={handleCommentSubmit} className="mb-6">
           <div className="py-2 px-4 mb-4 bg-white rounded-lg border border-gray-200">
