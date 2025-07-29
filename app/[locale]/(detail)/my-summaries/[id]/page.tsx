@@ -97,7 +97,7 @@ export default function SummaryDetailPage() {
   if (!summary) return null;
 
   return (
-    <main className="max-w-4xl mx-auto p-6 flex flex-col gap-y-8">
+    <main className="p-6 flex flex-col gap-y-2">
       {/* 요약 제목 */}
       <header className="flex flex-col gap-y-2">
         <EditableTitle
@@ -158,11 +158,11 @@ export default function SummaryDetailPage() {
       </header>
 
       {/* 메타 정보 */}
-      <section className="grid gap-4 md:grid-cols-2">
+      {/* <section className="grid gap-4 md:grid-cols-2">
         <div className="border rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
-          {/* <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
+          <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
             출처 정보
-          </h2> */}
+          </h2>
           <ul className="text-sm text-gray-800 dark:text-gray-200 flex flex-col gap-y-1">
             <li>
               <span className="font-medium">출처 타입:</span>{" "}
@@ -189,7 +189,7 @@ export default function SummaryDetailPage() {
             )}
           </ul>
         </div>
-      </section>
+      </section> */}
 
       {/* 요약 내용 */}
       <section>

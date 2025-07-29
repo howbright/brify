@@ -67,8 +67,8 @@ export default function EditableTitle({
   };
 
   return (
-    <div className="flex flex-col gap-1 w-full">
-      <div className="flex justify-between items-start">
+    <div className="flex flex-col gap-1">
+      <div className="flex items-start gap-5">
         {isEditing ? (
           <textarea
             ref={textareaRef}
@@ -83,7 +83,7 @@ export default function EditableTitle({
                 saveTitle();
               }
             }}
-            className="text-3xl font-bold border-b border-gray-300 px-2 py-1 resize-none w-full leading-snug focus:outline-none"
+            className="w-2/5 text-3xl font-bold border-b border-gray-300 px-2 py-1 resize-none leading-snug focus:outline-none"
             placeholder="제목을 입력하세요"
           />
         ) : (

@@ -86,9 +86,7 @@ export default function SummaryResult({ text, tree, summaryId }: Props) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto min-h-screen">
-      <h2 className="text-2xl font-bold mb-6">핵심정리 결과</h2>
-
+    <div className="min-h-screen">
       <div className="relative mb-10">
         <SummaryContent
           initialText={editedMarkdown}
