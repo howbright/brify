@@ -10,6 +10,9 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import EditableTitle from "@/components/EditableTitle";
 import { useSession } from "@/components/SessionProvider";
+import { Icon } from "@iconify/react";
+import * as Tabs from "@radix-ui/react-tabs";
+import NoteButton from "@/components/NoteButton";
 
 // 타입 정의
 type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
@@ -37,6 +40,7 @@ export default function SummaryDetailPage() {
   const router = useRouter();
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"text" | "diagram">("text");
 
   const fetchSummary = async (id: string) => {
     let aborted = false;
@@ -99,7 +103,140 @@ export default function SummaryDetailPage() {
   return (
     <main className="p-6 flex flex-col gap-y-2">
       {/* 요약 제목 */}
-      <header className="flex flex-col gap-y-2">
+      <header className="flex flex-col gap-4 border-b pb-4">
+        {/* 상단 라인: 뒤로가기 + 이전/다음 */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => router.push("/my-summaries")}
+              className="flex items-center gap-1 px-3 py-1.5 rounded hover:bg-gray-100 transition"
+            >
+              <Icon icon="mdi:arrow-left" className="w-5 h-5" />
+              <span>목록으로</span>
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              disabled
+              className="flex items-center gap-1 px-2 py-1.5 rounded text-gray-400 cursor-not-allowed"
+            >
+              <Icon icon="mdi:chevron-left" className="w-5 h-5" />
+              이전 글
+            </button>
+            <button
+              disabled
+              className="flex items-center gap-1 px-2 py-1.5 rounded text-gray-400 cursor-not-allowed"
+            >
+              다음 글
+              <Icon icon="mdi:chevron-right" className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* 제목 (EditableTitle) + 수정모드 */}
+        <div className="flex items-start gap-3 w-full">
+          <EditableTitle
+            id={summary.id}
+            initialTitle={summary.summary_text || "제목 없는 요약"}
+            onTitleSaved={(newTitle, updatedAt) =>
+              setSummary(
+                (prev) =>
+                  prev && {
+                    ...prev,
+                    summary_text: newTitle,
+                    updated_at: updatedAt,
+                  }
+              )
+            }
+          />
+        </div>
+
+        {/* 메타 정보 */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600">
+          {summary.status && (
+            <span
+              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+          ${
+            summary.status === "completed"
+              ? "bg-green-100 text-green-800"
+              : summary.status === "processing"
+              ? "bg-yellow-100 text-yellow-800"
+              : "bg-gray-100 text-gray-800"
+          }`}
+            >
+              {summary.status.toUpperCase()}
+            </span>
+          )}
+          <span>
+            생성일:{" "}
+            {summary.created_at
+              ? new Date(summary.created_at).toLocaleString(undefined, {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "-"}
+          </span>
+          {summary.updated_at && (
+            <span>
+              수정일:{" "}
+              {new Date(summary.updated_at).toLocaleString(undefined, {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+          )}
+          <span>언어: {summary.lang || "알 수 없음"}</span>
+          <span>
+            출처:{" "}
+            {summary.source_url ? (
+              <a
+                href={summary.source_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline break-all"
+              >
+                {summary.source_title || summary.source_url}
+              </a>
+            ) : (
+              summary.source_title || summary.source_type
+            )}
+          </span>
+        </div>
+      </header>
+      {/* === 여기서 탭 === */}
+      <Tabs.Root
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as any)}
+      >
+        <Tabs.List className="flex items-center justify-between border-b">
+          {/* 왼쪽 탭 버튼 그룹 */}
+          <div className="flex gap-2">
+            <Tabs.Trigger
+              value="text"
+              className="px-3 py-1.5 text-sm font-medium data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600"
+            >
+              텍스트 보기
+            </Tabs.Trigger>
+            <Tabs.Trigger
+              value="diagram"
+              className="px-3 py-1.5 text-sm font-medium data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600"
+            >
+              다이어그램 보기
+            </Tabs.Trigger>
+          </div>
+
+          {/* 오른쪽 코멘트 버튼 */}
+          <NoteButton noteCount={4} onClick={()=>{}} />
+        </Tabs.List>
+      </Tabs.Root>
+
+      {/* <header className="flex flex-col gap-y-2">
         <EditableTitle
           id={summary.id}
           initialTitle={summary.summary_text || "제목 없는 요약"}
@@ -155,7 +292,7 @@ export default function SummaryDetailPage() {
           )}
           <span>언어: {summary.lang || "알 수 없음"}</span>
         </div>
-      </header>
+      </header> */}
 
       {/* 메타 정보 */}
       {/* <section className="grid gap-4 md:grid-cols-2">
@@ -195,12 +332,9 @@ export default function SummaryDetailPage() {
       <section>
         <SummaryResult
           summaryId={id}
-          text={
-            summary.detailed_summary_text ||
-            summary.summary_text ||
-            "요약 결과가 없습니다."
-          }
+          text={summary.detailed_summary_text ?? summary.summary_text ?? ""}
           tree={convertToTree(summary.diagram_json)}
+          activeView={activeTab} // header 탭에서 관리하는 상태
         />
       </section>
 

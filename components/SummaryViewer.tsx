@@ -28,7 +28,6 @@ export default function SummaryViewer({
 }: SummaryViewerProps) {
   return (
     <div className="relative mb-10">
-      {fullMode && (
         <div className="absolute flex flex-row gap-2 right-3 top-7">
           <button
             onClick={onEdit}
@@ -37,7 +36,7 @@ export default function SummaryViewer({
           >
             <Icon icon="mdi:pencil-outline" className="w-5 h-5 text-gray-700" />
           </button>
-          <button
+          {/* <button
             onClick={scrollToComment}
             title="코멘트"
             className="p-2 rounded-full border bg-accent-blue shadow hover:bg-gray-100"
@@ -46,10 +45,9 @@ export default function SummaryViewer({
               icon="mdi:comment-outline"
               className="w-5 h-5 text-gray-700"
             />
-          </button>
+          </button> */}
         </div>
-      )}
-      <div className="sticky z-10 p-2 flex justify-end gap-2">
+      {/* <div className="sticky z-10 p-2 flex justify-end gap-2">
         {!fullMode && (
           <>
             <button
@@ -90,7 +88,7 @@ export default function SummaryViewer({
             </button>
           </>
         )}
-      </div>
+      </div> */}
 
       <div className={`bg-white px-6 pb-12 rounded-lg  ${fullMode ? 'border-0 shadow-none': 'border shadow-sm'} text-gray-800 prose max-w-none max-h-[calc(100vh-150px)] overflow-y-scroll scrollbar scrollbar-thumb-gray-400 scrollbar-track-gray-200 scrollbar-always`}>
         <ReactMarkdown
