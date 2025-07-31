@@ -13,6 +13,7 @@ import { useSession } from "@/components/SessionProvider";
 import { Icon } from "@iconify/react";
 import * as Tabs from "@radix-ui/react-tabs";
 import NoteButton from "@/components/NoteButton";
+import SummaryHeader from "@/components/SummaryHeader";
 
 // 타입 정의
 type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
@@ -104,113 +105,28 @@ export default function SummaryDetailPage() {
   return (
     <main className="p-6 flex flex-col gap-y-2">
       {/* 요약 제목 */}
-      {!isFullMode && (
-        <header className="flex flex-col gap-4 border-b pb-4">
-          {/* 상단 라인: 뒤로가기 + 이전/다음 */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => router.push("/my-summaries")}
-                className="flex items-center gap-1 px-3 py-1.5 rounded hover:bg-gray-100 transition"
-              >
-                <Icon icon="mdi:arrow-left" className="w-5 h-5" />
-                <span>목록으로</span>
-              </button>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                disabled
-                className="flex items-center gap-1 px-2 py-1.5 rounded text-gray-400 cursor-not-allowed"
-              >
-                <Icon icon="mdi:chevron-left" className="w-5 h-5" />
-                이전 글
-              </button>
-              <button
-                disabled
-                className="flex items-center gap-1 px-2 py-1.5 rounded text-gray-400 cursor-not-allowed"
-              >
-                다음 글
-                <Icon icon="mdi:chevron-right" className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* 제목 (EditableTitle) + 수정모드 */}
-          <div className="flex items-start gap-3 w-full">
-            <EditableTitle
-              id={summary.id}
-              initialTitle={summary.summary_text || "제목 없는 요약"}
-              onTitleSaved={(newTitle, updatedAt) =>
-                setSummary(
-                  (prev) =>
-                    prev && {
-                      ...prev,
-                      summary_text: newTitle,
-                      updated_at: updatedAt,
-                    }
-                )
-              }
-            />
-          </div>
-
-          {/* 메타 정보 */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600">
-            {summary.status && (
-              <span
-                className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-          ${
-            summary.status === "completed"
-              ? "bg-green-100 text-green-800"
-              : summary.status === "processing"
-              ? "bg-yellow-100 text-yellow-800"
-              : "bg-gray-100 text-gray-800"
-          }`}
-              >
-                {summary.status.toUpperCase()}
-              </span>
-            )}
-            <span>
-              생성일:{" "}
-              {summary.created_at
-                ? new Date(summary.created_at).toLocaleString(undefined, {
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : "-"}
-            </span>
-            {summary.updated_at && (
-              <span>
-                수정일:{" "}
-                {new Date(summary.updated_at).toLocaleString(undefined, {
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-            )}
-            <span>언어: {summary.lang || "알 수 없음"}</span>
-            <span>
-              출처:{" "}
-              {summary.source_url ? (
-                <a
-                  href={summary.source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline break-all"
-                >
-                  {summary.source_title || summary.source_url}
-                </a>
-              ) : (
-                summary.source_title || summary.source_type
-              )}
-            </span>
-          </div>
-        </header>
+      {!isFullMode && summary && (
+        <SummaryHeader
+          id={summary.id}
+          title={summary.summary_text || "제목 없는 요약"}
+          status={summary.status}
+          createdAt={summary.created_at}
+          updatedAt={summary.updated_at}
+          lang={summary.lang}
+          sourceTitle={summary.source_title}
+          sourceUrl={summary.source_url}
+          sourceType={summary.source_type}
+          onTitleSaved={(newTitle, updatedAt) =>
+            setSummary(
+              (prev) =>
+                prev && {
+                  ...prev,
+                  summary_text: newTitle,
+                  updated_at: updatedAt,
+                }
+            )
+          }
+        />
       )}
       {/* === 여기서 탭 === */}
       <Tabs.Root
@@ -255,7 +171,10 @@ export default function SummaryDetailPage() {
                 }}
                 className="flex flex-row items-center gap-2 py-1 px-3 rounded-full  bg-white shadow hover:bg-gray-100"
               >
-                <Icon icon="mdi:fullscreen-exit" className="w-5 h-5 text-gray-700" />
+                <Icon
+                  icon="mdi:fullscreen-exit"
+                  className="w-5 h-5 text-gray-700"
+                />
                 닫기
               </button>
             ) : (

@@ -2,6 +2,7 @@
 
 import { useSession } from "@/components/SessionProvider";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { Category } from "@/lib/enums/categories.enum";
 import { Loader2, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
@@ -14,6 +15,23 @@ type SummaryItem = {
   status: string;
   tags?: string[];
   created_at: string;
+  category?: Category | null;
+};
+
+// 카테고리별 색상 맵핑
+const categoryColors: Record<Category, string> = {
+  [Category.HEALTH_WELLNESS]: "bg-green-500",
+  [Category.SELF_IMPROVEMENT]: "bg-blue-500",
+  [Category.FINANCE]: "bg-yellow-500",
+  [Category.LIFESTYLE]: "bg-pink-500",
+  [Category.HOBBY]: "bg-purple-500",
+  [Category.DIGITAL_TREND]: "bg-indigo-500",
+  [Category.POLITICS]: "bg-red-500",
+  [Category.RELIGION]: "bg-orange-500",
+  [Category.ART]: "bg-fuchsia-500",
+  [Category.PURE_SCIENCE]: "bg-cyan-500",
+  [Category.LAW_PUBLIC_ADMIN]: "bg-teal-500",
+  [Category.OTHER]: "bg-gray-500",
 };
 
 export default function MySummariesPage() {
@@ -47,7 +65,7 @@ export default function MySummariesPage() {
     if (!deleteTargetId) return;
 
     const res = await fetch("/api/summary", {
-      credentials: 'include', // ✅ 이거 꼭 추가
+      credentials: "include",
       method: "DELETE",
       body: JSON.stringify({ id: deleteTargetId }),
       headers: {
@@ -77,70 +95,80 @@ export default function MySummariesPage() {
     <main className="max-w-7xl mx-auto p-6 lg:pt-14 space-y-6">
       <h1 className="text-2xl font-bold mb-4">나의 스크랩북</h1>
       <ul className="space-y-4">
-        {summaries.map((summary) => (
-          <li
-            key={summary.id}
-            className={`p-5 rounded-2xl border border-gray-200 bg-white shadow-md transition-shadow duration-200 flex justify-between items-start gap-4 group ${
-              loadingId === summary.id
-                ? "opacity-50 cursor-wait pointer-events-none"
-                : "hover:shadow-lg cursor-pointer"
-            }`}
-            onClick={() => handleClick(summary.id)}
-          >
-            <div className="flex-1">
-              <p className="text-sm text-gray-500 mb-1">
-                {new Date(summary.created_at).toLocaleString()}
-              </p>
-
-              <p className="text-base font-medium text-gray-800 line-clamp-3">
-                {summary.summary_text || "요약이 아직 없습니다."}
-              </p>
-
-              {!!summary.tags && summary.tags?.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {summary.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="text-xs bg-blue-100 text-blue-700 rounded-full px-3 py-0.5 font-medium"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <div className="mt-3 flex items-center gap-2">
-                <span
-                  className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                    summary.status === "completed"
-                      ? "bg-green-100 text-green-700"
-                      : summary.status === "pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-red-100 text-red-700"
-                  }`}
-                >
-                  {summary.status}
-                </span>
-
-                {loadingId === summary.id && (
-                  <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-                )}
-              </div>
-            </div>
-
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setDeleteTargetId(summary.id);
-                setDialogOpen(true);
-              }}
-              className="text-gray-400 hover:text-red-500 transition"
-              title="삭제"
+        {summaries.map((summary) => {
+          const category = summary.category || Category.OTHER;
+          return (
+            <li
+              key={summary.id}
+              className={`relative p-5 rounded-2xl border border-gray-200 bg-white shadow-md transition-shadow duration-200 flex justify-between items-start gap-4 group ${
+                loadingId === summary.id
+                  ? "opacity-50 cursor-wait pointer-events-none"
+                  : "hover:shadow-lg cursor-pointer"
+              }`}
+              onClick={() => handleClick(summary.id)}
             >
-              <Trash2 size={18} />
-            </button>
-          </li>
-        ))}
+              {/* 책갈피 라벨 */}
+              <div
+                className={`absolute -top-2 left-4 px-3 py-0.5 text-xs font-bold text-white rounded-t-md ${categoryColors[category]}`}
+              >
+                {category.replace("_", " ")}
+              </div>
+
+              <div className="flex-1">
+                <p className="text-sm text-gray-500 mb-1">
+                  {new Date(summary.created_at).toLocaleString()}
+                </p>
+
+                <p className="text-base font-medium text-gray-800 line-clamp-3">
+                  {summary.summary_text || "요약이 아직 없습니다."}
+                </p>
+
+                {!!summary.tags && summary.tags?.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {summary.tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="text-xs bg-blue-100 text-blue-700 rounded-full px-3 py-0.5 font-medium"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="mt-3 flex items-center gap-2">
+                  {/* <span
+                    className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                      summary.status === "completed"
+                        ? "bg-green-100 text-green-700"
+                        : summary.status === "pending"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {summary.status}
+                  </span> */}
+
+                  {loadingId === summary.id && (
+                    <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteTargetId(summary.id);
+                  setDialogOpen(true);
+                }}
+                className="text-gray-400 hover:text-red-500 transition"
+                title="삭제"
+              >
+                <Trash2 size={18} />
+              </button>
+            </li>
+          );
+        })}
       </ul>
 
       <ConfirmDialog
