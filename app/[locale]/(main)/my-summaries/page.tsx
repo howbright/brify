@@ -49,7 +49,7 @@ export default function MySummariesPage() {
     const res = await fetch("/api/summary", {
       credentials: 'include', // ✅ 이거 꼭 추가
       method: "DELETE",
-      body: JSON.stringify({ deleteTargetId }),
+      body: JSON.stringify({ id: deleteTargetId }),
       headers: {
         "Content-Type": "application/json",
       },

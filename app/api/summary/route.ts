@@ -42,6 +42,7 @@ export async function GET(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
     const { id } = await req.json();
+    console.log('DELETE에 옴', id);
   
     if (!id) {
       return NextResponse.json(
