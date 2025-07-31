@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Icon } from "@iconify/react";
-import { Edge, Node } from "@xyflow/react";
 import { treeToFlowElements } from "@/app/lib/gtp/transformTree";
 import { MyNodeData, TreeNode } from "@/app/types/tree";
-import DiagramView from "./diagram/DiagramView";
-import SummaryFullDialog from "./SummaryFullDialog";
-import SummaryContent from "./SummaryContent";
 import { createClient } from "@/utils/supabase/client";
+import { Icon } from "@iconify/react";
+import { Edge, Node } from "@xyflow/react";
+import { useEffect, useRef, useState } from "react";
+import DiagramView from "./diagram/DiagramView";
+import SummaryContent from "./SummaryContent";
 
 interface Props {
   text?: string;
@@ -122,40 +121,6 @@ export default function SummaryResult({
             </li>
           ))}
         </ul>
-
-        <SummaryFullDialog
-          open={isFullDialogOpen}
-          onOpenChange={setIsFullDialogOpen}
-          activeTab={activeView}
-          onTabChange={() => {}} // 다이얼로그 내부 전환은 그대로 유지
-          text={editedMarkdown}
-          nodes={nodes}
-          edges={edges}
-          onSaveText={handleSaveText}
-        />
-
-        <form onSubmit={handleCommentSubmit} className="mb-6">
-          <div className="py-2 px-4 mb-4 bg-white rounded-lg border border-gray-200">
-            <label htmlFor="comment" className="sr-only">
-              Your comment
-            </label>
-            <textarea
-              id="comment"
-              rows={6}
-              className="w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none"
-              placeholder="Write a comment..."
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-blue-600 rounded-lg focus:ring-4 focus:ring-blue-300 hover:bg-blue-700"
-          >
-            Post comment
-          </button>
-        </form>
       </div>
 
       <button

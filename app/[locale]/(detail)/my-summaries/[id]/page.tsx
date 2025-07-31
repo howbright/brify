@@ -41,6 +41,7 @@ export default function SummaryDetailPage() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"text" | "diagram">("text");
+  const [isFullMode, setFullMode] = useState<boolean>(false);
 
   const fetchSummary = async (id: string) => {
     let aborted = false;
@@ -103,59 +104,60 @@ export default function SummaryDetailPage() {
   return (
     <main className="p-6 flex flex-col gap-y-2">
       {/* 요약 제목 */}
-      <header className="flex flex-col gap-4 border-b pb-4">
-        {/* 상단 라인: 뒤로가기 + 이전/다음 */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => router.push("/my-summaries")}
-              className="flex items-center gap-1 px-3 py-1.5 rounded hover:bg-gray-100 transition"
-            >
-              <Icon icon="mdi:arrow-left" className="w-5 h-5" />
-              <span>목록으로</span>
-            </button>
+      {!isFullMode && (
+        <header className="flex flex-col gap-4 border-b pb-4">
+          {/* 상단 라인: 뒤로가기 + 이전/다음 */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => router.push("/my-summaries")}
+                className="flex items-center gap-1 px-3 py-1.5 rounded hover:bg-gray-100 transition"
+              >
+                <Icon icon="mdi:arrow-left" className="w-5 h-5" />
+                <span>목록으로</span>
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                disabled
+                className="flex items-center gap-1 px-2 py-1.5 rounded text-gray-400 cursor-not-allowed"
+              >
+                <Icon icon="mdi:chevron-left" className="w-5 h-5" />
+                이전 글
+              </button>
+              <button
+                disabled
+                className="flex items-center gap-1 px-2 py-1.5 rounded text-gray-400 cursor-not-allowed"
+              >
+                다음 글
+                <Icon icon="mdi:chevron-right" className="w-5 h-5" />
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              disabled
-              className="flex items-center gap-1 px-2 py-1.5 rounded text-gray-400 cursor-not-allowed"
-            >
-              <Icon icon="mdi:chevron-left" className="w-5 h-5" />
-              이전 글
-            </button>
-            <button
-              disabled
-              className="flex items-center gap-1 px-2 py-1.5 rounded text-gray-400 cursor-not-allowed"
-            >
-              다음 글
-              <Icon icon="mdi:chevron-right" className="w-5 h-5" />
-            </button>
+
+          {/* 제목 (EditableTitle) + 수정모드 */}
+          <div className="flex items-start gap-3 w-full">
+            <EditableTitle
+              id={summary.id}
+              initialTitle={summary.summary_text || "제목 없는 요약"}
+              onTitleSaved={(newTitle, updatedAt) =>
+                setSummary(
+                  (prev) =>
+                    prev && {
+                      ...prev,
+                      summary_text: newTitle,
+                      updated_at: updatedAt,
+                    }
+                )
+              }
+            />
           </div>
-        </div>
 
-        {/* 제목 (EditableTitle) + 수정모드 */}
-        <div className="flex items-start gap-3 w-full">
-          <EditableTitle
-            id={summary.id}
-            initialTitle={summary.summary_text || "제목 없는 요약"}
-            onTitleSaved={(newTitle, updatedAt) =>
-              setSummary(
-                (prev) =>
-                  prev && {
-                    ...prev,
-                    summary_text: newTitle,
-                    updated_at: updatedAt,
-                  }
-              )
-            }
-          />
-        </div>
-
-        {/* 메타 정보 */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600">
-          {summary.status && (
-            <span
-              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+          {/* 메타 정보 */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600">
+            {summary.status && (
+              <span
+                className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
           ${
             summary.status === "completed"
               ? "bg-green-100 text-green-800"
@@ -163,52 +165,53 @@ export default function SummaryDetailPage() {
               ? "bg-yellow-100 text-yellow-800"
               : "bg-gray-100 text-gray-800"
           }`}
-            >
-              {summary.status.toUpperCase()}
+              >
+                {summary.status.toUpperCase()}
+              </span>
+            )}
+            <span>
+              생성일:{" "}
+              {summary.created_at
+                ? new Date(summary.created_at).toLocaleString(undefined, {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "-"}
             </span>
-          )}
-          <span>
-            생성일:{" "}
-            {summary.created_at
-              ? new Date(summary.created_at).toLocaleString(undefined, {
+            {summary.updated_at && (
+              <span>
+                수정일:{" "}
+                {new Date(summary.updated_at).toLocaleString(undefined, {
                   year: "numeric",
                   month: "2-digit",
                   day: "2-digit",
                   hour: "2-digit",
                   minute: "2-digit",
-                })
-              : "-"}
-          </span>
-          {summary.updated_at && (
-            <span>
-              수정일:{" "}
-              {new Date(summary.updated_at).toLocaleString(undefined, {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </span>
-          )}
-          <span>언어: {summary.lang || "알 수 없음"}</span>
-          <span>
-            출처:{" "}
-            {summary.source_url ? (
-              <a
-                href={summary.source_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline break-all"
-              >
-                {summary.source_title || summary.source_url}
-              </a>
-            ) : (
-              summary.source_title || summary.source_type
+                })}
+              </span>
             )}
-          </span>
-        </div>
-      </header>
+            <span>언어: {summary.lang || "알 수 없음"}</span>
+            <span>
+              출처:{" "}
+              {summary.source_url ? (
+                <a
+                  href={summary.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline break-all"
+                >
+                  {summary.source_title || summary.source_url}
+                </a>
+              ) : (
+                summary.source_title || summary.source_type
+              )}
+            </span>
+          </div>
+        </header>
+      )}
       {/* === 여기서 탭 === */}
       <Tabs.Root
         value={activeTab}
@@ -219,114 +222,57 @@ export default function SummaryDetailPage() {
           <div className="flex gap-2">
             <Tabs.Trigger
               value="text"
-              className="px-3 py-1.5 text-sm font-medium data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600"
+              className="
+        px-4 py-2 rounded-md text-sm font-medium transition
+        data-[state=active]:bg-blue-600 data-[state=active]:text-white
+        data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-700
+        hover:bg-gray-200 data-[state=active]:hover:bg-blue-700
+      "
             >
               텍스트 보기
             </Tabs.Trigger>
+
             <Tabs.Trigger
               value="diagram"
-              className="px-3 py-1.5 text-sm font-medium data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600"
+              className="
+        px-4 py-2 rounded-md text-sm font-medium transition
+        data-[state=active]:bg-blue-600 data-[state=active]:text-white
+        data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-700
+        hover:bg-gray-200 data-[state=active]:hover:bg-blue-700
+      "
             >
               다이어그램 보기
             </Tabs.Trigger>
           </div>
 
           {/* 오른쪽 코멘트 버튼 */}
-          <NoteButton noteCount={4} onClick={()=>{}} />
+          <div className="flex flex-row items-center gap-2">
+            <NoteButton noteCount={4} onClick={() => {}} />
+            {isFullMode ? (
+              <button
+                onClick={() => {
+                  setFullMode(false);
+                }}
+                className="flex flex-row items-center gap-2 py-1 px-3 rounded-full  bg-white shadow hover:bg-gray-100"
+              >
+                <Icon icon="mdi:fullscreen-exit" className="w-5 h-5 text-gray-700" />
+                닫기
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setFullMode(true);
+                }}
+                title="전체 보기"
+                className="flex flex-row items-center gap-2 py-1 px-3 rounded-full border bg-white shadow hover:bg-gray-100"
+              >
+                <Icon icon="mdi:fullscreen" className="w-5 h-5 text-gray-700" />
+                전체 보기
+              </button>
+            )}
+          </div>
         </Tabs.List>
       </Tabs.Root>
-
-      {/* <header className="flex flex-col gap-y-2">
-        <EditableTitle
-          id={summary.id}
-          initialTitle={summary.summary_text || "제목 없는 요약"}
-          onTitleSaved={(newTitle, updatedAt) =>
-            setSummary(
-              (prev) =>
-                prev && {
-                  ...prev,
-                  summary_text: newTitle,
-                  updated_at: updatedAt,
-                }
-            )
-          }
-        />
-        <div className="flex flex-wrap gap-2 items-center text-sm text-gray-500">
-          {summary.status && (
-            <span
-              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-            ${
-              summary.status === "completed"
-                ? "bg-green-100 text-green-800"
-                : summary.status === "processing"
-                ? "bg-yellow-100 text-yellow-800"
-                : "bg-gray-100 text-gray-800"
-            }`}
-            >
-              {summary.status.toUpperCase()}
-            </span>
-          )}
-          <span>
-            생성일:{" "}
-            {summary.created_at
-              ? new Date(summary.created_at).toLocaleString(undefined, {
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              : "-"}
-          </span>
-          {summary.updated_at && (
-            <span>
-              수정일:{" "}
-              {new Date(summary.updated_at).toLocaleString(undefined, {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </span>
-          )}
-          <span>언어: {summary.lang || "알 수 없음"}</span>
-        </div>
-      </header> */}
-
-      {/* 메타 정보 */}
-      {/* <section className="grid gap-4 md:grid-cols-2">
-        <div className="border rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
-          <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
-            출처 정보
-          </h2>
-          <ul className="text-sm text-gray-800 dark:text-gray-200 flex flex-col gap-y-1">
-            <li>
-              <span className="font-medium">출처 타입:</span>{" "}
-              {summary.source_type}
-            </li>
-            {summary.source_title && (
-              <li>
-                <span className="font-medium">출처 제목:</span>{" "}
-                {summary.source_title}
-              </li>
-            )}
-            {summary.source_url && (
-              <li>
-                <span className="font-medium">URL:</span>{" "}
-                <a
-                  href={summary.source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline break-all"
-                >
-                  {summary.source_url}
-                </a>
-              </li>
-            )}
-          </ul>
-        </div>
-      </section> */}
 
       {/* 요약 내용 */}
       <section>
