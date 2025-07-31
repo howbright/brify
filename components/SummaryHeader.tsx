@@ -3,7 +3,9 @@
 import EditableTitle from "@/components/EditableTitle";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
+import { Category, categoryColors } from "@/lib/enums/categories.enum";
 import React from "react";
+import { Keyword } from "@/app/[locale]/(detail)/my-summaries/[id]/page";
 
 interface SummaryHeaderProps {
   id: string;
@@ -15,6 +17,8 @@ interface SummaryHeaderProps {
   sourceTitle: string | null;
   sourceUrl: string | null;
   sourceType: string;
+  category?: Category | null;
+  tags?: Keyword[];
   onTitleSaved: (newTitle: string, updatedAt: string | null) => void;
 }
 
@@ -28,12 +32,22 @@ export default function SummaryHeader({
   sourceTitle,
   sourceUrl,
   sourceType,
+  category,
+  tags,
   onTitleSaved,
 }: SummaryHeaderProps) {
   const router = useRouter();
+  const categoryValue = category || Category.OTHER;
 
   return (
-    <header className="flex flex-col gap-4 border-b pb-4">
+    <header className="flex flex-col gap-4 border-b pb-4 relative">
+      {/* 책갈피 스타일 카테고리 라벨 */}
+      <div
+        className={`absolute -top-3 left-4 px-3 py-0.5 text-xs font-bold text-white rounded-t-md ${categoryColors[categoryValue]}`}
+      >
+        {categoryValue.replace("_", " ")}
+      </div>
+
       {/* 상단 라인: 뒤로가기 + 이전/다음 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -71,6 +85,20 @@ export default function SummaryHeader({
           onTitleSaved={onTitleSaved}
         />
       </div>
+
+      {/* 태그 */}
+      {tags && tags.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {tags.map((tag, index) => (
+            <span
+              key={index}
+              className="text-xs bg-blue-100 text-blue-700 rounded-full px-3 py-0.5 font-medium"
+            >
+              #{tag.name}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* 메타 정보 */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600">

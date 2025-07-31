@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
 export async function GET(req: NextRequest) {
-  console.log('📥 API 호출됨');
+  console.log("📥 API 호출됨");
 
   const id = req.nextUrl.searchParams.get("id");
-
   if (!id) {
-    return NextResponse.json({ error: '요약 ID가 필요합니다.' }, { status: 400 });
+    return NextResponse.json({ error: "요약 ID가 필요합니다." }, { status: 400 });
   }
 
   const supabase = await createClient();
@@ -18,26 +17,48 @@ export async function GET(req: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
+    return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
   }
 
+  // ✅ summaries + category + keywords 조인
   const { data, error } = await supabase
-    .from('summaries')
+    .from("summaries")
     .select(
-      `id, user_id, created_at, source_type, source_title, source_url,
-       summary_text, detailed_summary_text, diagram_json, status, lang, is_public, updated_at`
+      `
+        id, user_id, created_at, source_type, source_title, source_url,
+        summary_text, detailed_summary_text, diagram_json, status, lang,
+        is_public, updated_at, category,
+        summary_keywords(
+          keyword:keywords(id, name, lang)
+        )
+      `
     )
-    .eq('id', id)
-    .eq('user_id', "5fd89f5f-8bda-4a62-8110-152fd3b4133d") // 🔒 자신이 소유한 요약만 조회
+    .eq("id", id)
+    .eq("user_id", user.id)
     .single();
 
   if (error) {
-    console.error('❌ Supabase 에러:', error);
-    return NextResponse.json({ error: '요약을 불러오지 못했습니다.' }, { status: 500 });
+    console.error("❌ Supabase 에러:", error);
+    return NextResponse.json({ error: "요약을 불러오지 못했습니다." }, { status: 500 });
   }
 
-  return NextResponse.json(data);
+  // keywords 정리
+  const keywords =
+    data.summary_keywords?.map((k: any) => ({
+      id: k.keyword.id,
+      name: k.keyword.name,
+      lang: k.keyword.lang,
+    })) || [];
+
+  const result = {
+    ...data,
+    keywords,
+  };
+  delete (result as any).summary_keywords;
+
+  return NextResponse.json(result);
 }
+
 
 
 export async function DELETE(req: NextRequest) {

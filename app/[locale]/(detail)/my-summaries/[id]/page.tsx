@@ -14,18 +14,24 @@ import { Icon } from "@iconify/react";
 import * as Tabs from "@radix-ui/react-tabs";
 import NoteButton from "@/components/NoteButton";
 import SummaryHeader from "@/components/SummaryHeader";
+import { Category } from "@/lib/enums/categories.enum";
 
 // 타입 정의
 type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
 
-interface Summary {
+export interface Keyword {
+  id: number;
+  name: string;
+  lang: string;
+}
+
+export interface Summary {
   id: string;
   user_id: string | null;
   created_at: string | null;
   source_type: string;
   source_title: string | null;
   source_url: string | null;
-  // original_text: string | null;
   summary_text: string | null;
   detailed_summary_text: string | null;
   diagram_json: Json | null;
@@ -33,7 +39,10 @@ interface Summary {
   lang: string | null;
   is_public: boolean | null;
   updated_at: string | null;
+  category: Category | null;  // enum Category를 쓴다면 Category 타입으로 바꿀 수도 있음
+  keywords: Keyword[];      // keywords 목록 추가
 }
+
 
 export default function SummaryDetailPage() {
   const { session, isLoading } = useSession();
@@ -107,27 +116,29 @@ export default function SummaryDetailPage() {
       {/* 요약 제목 */}
       {!isFullMode && summary && (
         <SummaryHeader
-          id={summary.id}
-          title={summary.summary_text || "제목 없는 요약"}
-          status={summary.status}
-          createdAt={summary.created_at}
-          updatedAt={summary.updated_at}
-          lang={summary.lang}
-          sourceTitle={summary.source_title}
-          sourceUrl={summary.source_url}
-          sourceType={summary.source_type}
-          onTitleSaved={(newTitle, updatedAt) =>
-            setSummary(
-              (prev) =>
-                prev && {
-                  ...prev,
-                  summary_text: newTitle,
-                  updated_at: updatedAt,
-                }
-            )
-          }
-        />
-      )}
+        id={summary.id}
+        title={summary.summary_text || "제목 없는 요약"}
+        status={summary.status}
+        createdAt={summary.created_at}
+        updatedAt={summary.updated_at}
+        lang={summary.lang}
+        sourceTitle={summary.source_title}
+        sourceUrl={summary.source_url}
+        sourceType={summary.source_type}
+        category={summary.category}
+        tags={summary.keywords}
+        onTitleSaved={(newTitle, updatedAt) =>
+          setSummary(
+            (prev) =>
+              prev && {
+                ...prev,
+                summary_text: newTitle,
+                updated_at: updatedAt,
+              }
+          )
+        }
+      />
+      )}      
       {/* === 여기서 탭 === */}
       <Tabs.Root
         value={activeTab}
