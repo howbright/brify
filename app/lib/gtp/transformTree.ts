@@ -41,7 +41,7 @@ export async function treeToFlowElements(
 
   traverse(tree);
 
-  // === ELK 그래프 생성 ===
+  // === ELK 그래프 ===
   const graph = {
     id: "root",
     layoutOptions: {
@@ -68,15 +68,13 @@ export async function treeToFlowElements(
   // === ELK 레이아웃 계산 ===
   const layout = await elk.layout(graph);
 
-  // === bounding box 계산 ===
-  const minX = Math.min(...(layout.children?.map((c) => c.x ?? 0) ?? [0]));
-  const maxX = Math.max(
-    ...(layout.children?.map((c) => (c.x ?? 0) + (c.width ?? 0)) ?? [0])
-  );
-  const graphWidth = maxX - minX;
+  // === 루트 노드 중심 좌표 계산 ===
+  const rootLayoutNode = layout.children?.find((n) => n.id === tree.id);
+  const rootCenterX =
+    (rootLayoutNode?.x ?? 0) + (rootLayoutNode?.width ?? 0) / 2;
 
-  // === 중앙 정렬 오프셋 계산 ===
-  const offsetX = -minX - graphWidth / 2;
+  // === 루트가 캔버스의 horizontal center(0)로 오도록 오프셋 ===
+  const offsetX = -rootCenterX;
 
   // === 좌표 적용 ===
   const positionedNodes: FlowNode<MyNodeData>[] = nodes.map((node) => {
@@ -84,7 +82,7 @@ export async function treeToFlowElements(
     return {
       ...node,
       position: {
-        x: (layoutNode?.x ?? 0) + offsetX + 300, // 300은 좌측 여백 (원하면 조정)
+        x: (layoutNode?.x ?? 0) + offsetX + 300, // 300px 좌측 여백 (원하면 조정)
         y: layoutNode?.y ?? 0,
       },
     };
@@ -96,5 +94,5 @@ export async function treeToFlowElements(
 // === 노드 너비 계산 ===
 function getNodeWidth(title: string, description?: string) {
   const textLength = (title?.length ?? 0) + (description?.length ?? 0);
-  return Math.min(250, Math.max(150, textLength * 7));
+  return Math.min(250, Math.max(150, textLength * 7)); 
 }

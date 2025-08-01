@@ -29,7 +29,6 @@ export default function SummaryResult({
   const [inputValue, setInputValue] = useState<string>("");
   const [nodes, setNodes] = useState<Node<MyNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
-  const [isFullDialogOpen, setIsFullDialogOpen] = useState(false);
 
   const commentRef = useRef<HTMLDivElement>(null);
   const diagramRef = useRef<HTMLDivElement>(null);
@@ -89,7 +88,6 @@ export default function SummaryResult({
         <div className="relative mb-10">
           <SummaryContent
             initialText={editedMarkdown}
-            onOpenFullView={() => setIsFullDialogOpen(true)}
             onSaveText={handleSaveText}
             scrollToComment={scrollToComment}
             scrollToTop={scrollToTop}
@@ -104,7 +102,6 @@ export default function SummaryResult({
           <DiagramView
             nodes={nodes}
             edges={edges}
-            onFullViewDiagram={() => setIsFullDialogOpen(true)}
           />
         </div>
       )}

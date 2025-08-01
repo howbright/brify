@@ -1,7 +1,6 @@
 "use client";
 
-import { MyNodeData } from "@/app/types/tree";
-import { classicStyle } from "@/styles/presets";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Background,
   Controls,
@@ -9,12 +8,15 @@ import {
   Node as FlowNode,
   MiniMap,
   NodeTypes,
-  Panel,
   ReactFlow,
   ReactFlowProvider,
+  applyNodeChanges,
+  applyEdgeChanges,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useMemo, useState } from "react";
+
+import { MyNodeData } from "@/app/types/tree";
+import { classicStyle } from "@/styles/presets";
 import DiagramStyleSelector from "../DiagramStyleSelector";
 import { CustomNode } from "./CustomNode";
 
@@ -25,57 +27,74 @@ const nodeTypes: NodeTypes = {
 interface DiagramViewProps {
   nodes: FlowNode<MyNodeData>[];
   edges: FlowEdge[];
-  onFullViewDiagram?: () => void;
 }
 
-export default function DiagramView({ nodes, edges, onFullViewDiagram }: DiagramViewProps) {
-  console.log(nodes);
-  console.log(edges);
+export default function DiagramView({ nodes, edges }: DiagramViewProps) {
   const [stylePreset, setStylePreset] = useState(classicStyle);
   const [stylePickerOpen, setStylePickerOpen] = useState(false);
 
-  const styledNodes = useMemo(() => {
-    return (nodes || []).map((node) => ({
-      ...node,
-      type: "custom", // 👈 여기가 중요!
-      style: stylePreset.node,
-    }));
-  }, [nodes, stylePreset]);
+  // === ReactFlow에서 상태로 관리해야 드래그가 반영됨 ===
+  const [flowNodes, setFlowNodes] = useState<FlowNode<MyNodeData>[]>([]);
+  const [flowEdges, setFlowEdges] = useState<FlowEdge[]>([]);
 
-  // const styledEdges = useMemo(() => {
-  //   return (edges || []).map((edge) => ({
-  //     ...edge,
-  //     type: "custom",
-  //   }));
-  // }, [edges]);
+  const onUpdateNode = useCallback((id: string, newText: string) => {
+    setFlowNodes((nds) =>
+      nds.map((n) =>
+        n.id === id
+          ? { ...n, data: { ...n.data, title: newText } } // 필요 시 description도 처리 가능
+          : n
+      )
+    );
+  }, []);
+  
+
+  // props 변화 시 상태 업데이트
+  useEffect(() => {
+    const styledNodes = (nodes || []).map((node) => ({
+      ...node,
+      type: "custom",
+      style: stylePreset.node,
+      data: {
+        ...node.data,
+        onUpdate: onUpdateNode,  // <- 편집 시 호출됨
+      },
+    }));
+    setFlowNodes(styledNodes);
+    setFlowEdges(edges || []);
+  }, [nodes, edges, stylePreset]);
+
+  // === 위치 변경 이벤트 ===
+  const onNodesChange = useCallback(
+    (changes:any) => setFlowNodes((nds) => applyNodeChanges(changes, nds)),
+    []
+  );
+
+  const onEdgesChange = useCallback(
+    (changes:any) => setFlowEdges((eds) => applyEdgeChanges(changes, eds)),
+    []
+  );
 
   return (
     <div className="h-[600px] border rounded bg-white relative">
       <ReactFlowProvider>
-        {/* 💡 ReactFlow */}
         <ReactFlow
-          nodes={styledNodes}
-          edges={edges}
+          nodes={flowNodes}
+          edges={flowEdges}
+          onNodesChange={onNodesChange} // 위치 변경 반영
+          onEdgesChange={onEdgesChange}
           fitView
           panOnScroll
           panOnDrag
           zoomOnScroll={false}
-          nodeTypes={nodeTypes} // 👈 추가!
+          nodesDraggable={true}
+          elementsSelectable={true}
+          nodeTypes={nodeTypes}
         >
-          {/* <button
-            onClick={() => setStylePickerOpen(true)}
-            className="absolute top-2 left-2 z-10 flex gap-2 bg-white p-2 rounded shadow-sm"
-          >
-            🎨 스타일
-          </button> */}
-          {/* <Panel>
-            <div>variant:</div>
-          </Panel> */}
           <MiniMap
             style={{ width: 100, height: 70 }}
-            className="top-2! right-2! w-[100px]! h-[70px]! opacity-80!"
             zoomable
             pannable
+            className="top-2! right-2! w-[100px]! h-[70px]! opacity-80!"
           />
           <Controls position="top-left" />
           <Background />

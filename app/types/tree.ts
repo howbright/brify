@@ -27,4 +27,5 @@ export type MyNodeData = {
   nodeType: "title" | "description";
   title: string;
   description: string;
+  onUpdate?: (id: string, tempText: string) => void;
 };
