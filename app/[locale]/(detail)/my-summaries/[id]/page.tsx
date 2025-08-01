@@ -118,7 +118,7 @@ export default function SummaryDetailPage() {
         <SummaryHeader
         id={summary.id}
         title={summary.summary_text || "제목 없는 요약"}
-        status={summary.status}
+        // status={summary.status}
         createdAt={summary.created_at}
         updatedAt={summary.updated_at}
         lang={summary.lang}

@@ -71,7 +71,7 @@ export default async function RootLayout({
             <NextIntlClientProvider>
               <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
             </NextIntlClientProvider>
-            <Toaster richColors position="top-center" />
+            <Toaster richColors position="top-center" duration={2000} />
           </SessionProvider>
         </ReactQueryProvider>
       </body>

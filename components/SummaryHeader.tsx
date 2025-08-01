@@ -4,13 +4,15 @@ import EditableTitle from "@/components/EditableTitle";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { Category, categoryColors } from "@/lib/enums/categories.enum";
+import { format } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
+import { ko } from "date-fns/locale";
 import React from "react";
 import { Keyword } from "@/app/[locale]/(detail)/my-summaries/[id]/page";
 
 interface SummaryHeaderProps {
   id: string;
   title: string;
-  status: string;
   createdAt: string | null;
   updatedAt: string | null;
   lang: string | null;
@@ -25,7 +27,6 @@ interface SummaryHeaderProps {
 export default function SummaryHeader({
   id,
   title,
-  status,
   createdAt,
   updatedAt,
   lang,
@@ -39,37 +40,35 @@ export default function SummaryHeader({
   const router = useRouter();
   const categoryValue = category || Category.OTHER;
 
-  return (
-    <header className="flex flex-col gap-4 border-b pb-4 relative">
-      {/* 책갈피 스타일 카테고리 라벨 */}
-      <div
-        className={`absolute -top-3 left-4 px-3 py-0.5 text-xs font-bold text-white rounded-t-md ${categoryColors[categoryValue]}`}
-      >
-        {categoryValue.replace("_", " ")}
-      </div>
+  const createdLabel = createdAt
+    ? format(new Date(createdAt), "yyyy.MM.dd HH:mm")
+    : null;
+  const updatedLabel =
+    updatedAt &&
+    formatDistanceToNow(new Date(updatedAt), { addSuffix: true, locale: ko });
 
-      {/* 상단 라인: 뒤로가기 + 이전/다음 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => router.push("/my-summaries")}
-            className="flex items-center gap-1 px-3 py-1.5 rounded hover:bg-gray-100 transition"
-          >
-            <Icon icon="mdi:arrow-left" className="w-5 h-5" />
-            <span>목록으로</span>
-          </button>
-        </div>
-        <div className="flex items-center gap-2">
+  return (
+    <header className="border-b pb-3">
+      {/* 상단: 뒤로가기 + 이전/다음 */}
+      <div className="flex items-center justify-between mb-2">
+        <button
+          onClick={() => router.push("/my-summaries")}
+          className="flex items-center gap-1 px-3 py-1.5 rounded hover:bg-gray-100 transition"
+        >
+          <Icon icon="mdi:arrow-left" className="w-5 h-5" />
+          <span>목록으로</span>
+        </button>
+        <div className="flex items-center gap-2 text-gray-400">
           <button
             disabled
-            className="flex items-center gap-1 px-2 py-1.5 rounded text-gray-400 cursor-not-allowed"
+            className="flex items-center gap-1 px-2 py-1.5 rounded cursor-not-allowed"
           >
             <Icon icon="mdi:chevron-left" className="w-5 h-5" />
             이전 글
           </button>
           <button
             disabled
-            className="flex items-center gap-1 px-2 py-1.5 rounded text-gray-400 cursor-not-allowed"
+            className="flex items-center gap-1 px-2 py-1.5 rounded cursor-not-allowed"
           >
             다음 글
             <Icon icon="mdi:chevron-right" className="w-5 h-5" />
@@ -77,8 +76,13 @@ export default function SummaryHeader({
         </div>
       </div>
 
-      {/* 제목 */}
-      <div className="flex items-start gap-3 w-full">
+      {/* 카테고리 + 제목 */}
+      <div className="w-full flex items-center gap-3 mb-2">
+        <span
+          className={`px-3 py-0.5 text-xs font-bold text-white rounded-md ${categoryColors[categoryValue]}`}
+        >
+          {categoryValue.replace("_", " ")}
+        </span>
         <EditableTitle
           id={id}
           initialTitle={title || "제목 없는 요약"}
@@ -88,7 +92,7 @@ export default function SummaryHeader({
 
       {/* 태그 */}
       {tags && tags.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 mb-2">
           {tags.map((tag, index) => (
             <span
               key={index}
@@ -100,62 +104,42 @@ export default function SummaryHeader({
         </div>
       )}
 
-      {/* 메타 정보 */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600">
-        {status && (
-          <span
-            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-              ${
-                status === "completed"
-                  ? "bg-green-100 text-green-800"
-                  : status === "processing"
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-gray-100 text-gray-800"
-              }`}
+      {/* 메타 정보 한 줄 */}
+      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+        {createdLabel && (
+          <span className="flex items-center gap-1">
+            <Icon icon="mdi:calendar" className="w-4 h-4" />
+            {createdLabel}
+          </span>
+        )}
+        {updatedLabel && (
+          <span className="flex items-center gap-1">
+            <Icon icon="mdi:update" className="w-4 h-4" />
+            수정 {updatedLabel}
+          </span>
+        )}
+        {lang && (
+          <span className="flex items-center gap-1">
+            <Icon icon="mdi:translate" className="w-4 h-4" />
+            {lang}
+          </span>
+        )}
+        {sourceUrl ? (
+          <a
+            href={sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-blue-600 hover:underline"
           >
-            {status.toUpperCase()}
+            <Icon icon="mdi:link-variant" className="w-4 h-4" />
+            {sourceTitle || sourceUrl}
+          </a>
+        ) : (
+          <span className="flex items-center gap-1">
+            <Icon icon="mdi:file-document" className="w-4 h-4" />
+            {sourceTitle || sourceType}
           </span>
         )}
-        <span>
-          생성일:{" "}
-          {createdAt
-            ? new Date(createdAt).toLocaleString(undefined, {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : "-"}
-        </span>
-        {updatedAt && (
-          <span>
-            수정일:{" "}
-            {new Date(updatedAt).toLocaleString(undefined, {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
-        )}
-        <span>언어: {lang || "알 수 없음"}</span>
-        <span>
-          출처:{" "}
-          {sourceUrl ? (
-            <a
-              href={sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline break-all"
-            >
-              {sourceTitle || sourceUrl}
-            </a>
-          ) : (
-            sourceTitle || sourceType
-          )}
-        </span>
       </div>
     </header>
   );
