@@ -61,7 +61,7 @@ export default function SummaryHeader({
       <div className="flex items-center justify-between mb-2">
         <button
           onClick={() => router.push("/my-summaries")}
-          className="flex items-center gap-1 px-3 py-1.5 rounded hover:bg-gray-100 transition"
+          className="flex items-center gap-1 px-3 py-0.5 rounded-full text-blue-700 bg-blue-100 hover:bg-blue-200 transition"
         >
           <Icon icon="mdi:arrow-left" className="w-5 h-5" />
           <span>목록으로</span>

@@ -193,7 +193,7 @@ export default function SummaryDetailPage() {
                   setFullMode(true);
                 }}
                 title="전체 보기"
-                className="flex flex-row items-center gap-2 p-1 rounded-full bg-blue-100 text-blue-700 shadow hover:border hover:border-blue-700"
+                className="flex flex-row items-center gap-2 p-1 rounded-full bg-blue-100 text-blue-700 shadow hover:bg-blue-200"
               >
                 <Icon icon="mdi:fullscreen" className="w-7 h-7 text-blue-700" />
               </button>

@@ -13,7 +13,7 @@ export default function NoteButton({ noteCount, onClick }: NoteButtonProps) {
       onClick={onClick}
       title="노트"
       className={`
-          flex items-center gap-1 px-3 py-1.5 rounded-full shadow transition
+          flex items-center gap-1 px-3 py-1.5 shadow rounded-full transition
           ${
             hasNotes
               ? "bg-yellow-100 hover:bg-yellow-200 text-yellow-700"
