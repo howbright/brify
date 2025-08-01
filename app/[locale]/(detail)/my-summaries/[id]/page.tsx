@@ -49,7 +49,7 @@ export default function SummaryDetailPage() {
   const router = useRouter();
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"text" | "diagram">("text");
+  const [activeTab, setActiveTab] = useState<"text" | "diagram">("diagram");
   const [isFullMode, setFullMode] = useState<boolean>(false);
 
   const fetchSummary = async (id: string) => {
@@ -145,31 +145,33 @@ export default function SummaryDetailPage() {
       >
         <Tabs.List className="flex items-center justify-between">
           {/* 왼쪽 탭 버튼 그룹 */}
-          <div className="flex gap-2">
-            <Tabs.Trigger
-              value="text"
-              className="
-        px-4 py-2 rounded-full text-sm font-medium transition
-        data-[state=active]:bg-blue-600 data-[state=active]:text-white
-        data-[state=inactive]:bg-blue-100 data-[state=inactive]:text-blue-700
-        data-[state=inactive]:hover:bg-blue-200  data-[state=active]:hover:bg-blue-700
-      "
-            >
-              텍스트 보기
-            </Tabs.Trigger>
+         {/* 왼쪽 탭 버튼 그룹 */}
+    <div className="flex gap-2">
+      {/* 다이어그램 보기 버튼 먼저 */}
+      <Tabs.Trigger
+        value="diagram"
+        className="
+          px-4 py-2 rounded-full text-sm font-medium transition
+          data-[state=active]:bg-blue-600 data-[state=active]:text-white
+          data-[state=inactive]:bg-blue-100 data-[state=inactive]:text-blue-700
+          data-[state=inactive]:hover:bg-blue-200 data-[state=active]:hover:bg-blue-700
+        "
+      >
+        다이어그램 보기
+      </Tabs.Trigger>
 
-            <Tabs.Trigger
-              value="diagram"
-              className="
-        px-4 py-2 rounded-full text-sm font-medium transition
-        data-[state=active]:bg-blue-600 data-[state=active]:text-white
-        data-[state=inactive]:bg-blue-100 data-[state=inactive]:text-blue-700
-       data-[state=inactive]:hover:bg-blue-200  data-[state=active]:hover:bg-blue-700
-      "
-            >
-              다이어그램 보기
-            </Tabs.Trigger>
-          </div>
+      <Tabs.Trigger
+        value="text"
+        className="
+          px-4 py-2 rounded-full text-sm font-medium transition
+          data-[state=active]:bg-blue-600 data-[state=active]:text-white
+          data-[state=inactive]:bg-blue-100 data-[state=inactive]:text-blue-700
+          data-[state=inactive]:hover:bg-blue-200 data-[state=active]:hover:bg-blue-700
+        "
+      >
+        텍스트 보기
+      </Tabs.Trigger>
+    </div>
 
           {/* 오른쪽 코멘트 버튼 */}
           <div className="flex flex-row items-center gap-2">
