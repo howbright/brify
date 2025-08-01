@@ -1,20 +1,19 @@
 // app/(main)/my-summaries/[id]/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import SummaryResult from "@/components/SummaryResult";
 import { convertToTree } from "@/app/lib/gtp/convertToTree";
-import { toast } from "sonner";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-import EditableTitle from "@/components/EditableTitle";
+import NoteButton from "@/components/NoteButton";
 import { useSession } from "@/components/SessionProvider";
+import SummaryHeader from "@/components/SummaryHeader";
+import SummaryResult from "@/components/SummaryResult";
+import { Category } from "@/lib/enums/categories.enum";
 import { Icon } from "@iconify/react";
 import * as Tabs from "@radix-ui/react-tabs";
-import NoteButton from "@/components/NoteButton";
-import SummaryHeader from "@/components/SummaryHeader";
-import { Category } from "@/lib/enums/categories.enum";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import { toast } from "sonner";
 
 // 타입 정의
 type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
@@ -35,6 +34,7 @@ export interface Summary {
   summary_text: string | null;
   detailed_summary_text: string | null;
   diagram_json: Json | null;
+  original_text?: string | null;
   status: string;
   lang: string | null;
   is_public: boolean | null;
@@ -171,6 +171,20 @@ export default function SummaryDetailPage() {
       >
         텍스트 보기
       </Tabs.Trigger>
+
+      {summary.original_text && (
+      <Tabs.Trigger
+        value="original"
+        className="
+          px-4 py-2 rounded-full text-sm font-medium transition
+          data-[state=active]:bg-gray-600 data-[state=active]:text-white
+          data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-700
+          data-[state=inactive]:hover:bg-gray-200 data-[state=active]:hover:bg-gray-700
+        "
+      >
+        원문 보기
+      </Tabs.Trigger>
+      )}
     </div>
 
           {/* 오른쪽 코멘트 버튼 */}
@@ -181,13 +195,12 @@ export default function SummaryDetailPage() {
                 onClick={() => {
                   setFullMode(false);
                 }}
-                className="flex flex-row items-center gap-2 py-1 px-3 rounded-full  bg-white shadow hover:bg-gray-100"
+                className="flex flex-row items-center gap-2 p-1 rounded-full  bg-blue-100 text-blue-700 shadow hover:bg-blue-200"
               >
                 <Icon
                   icon="mdi:fullscreen-exit"
-                  className="w-5 h-5 text-gray-700"
+                  className="w-7 h-7 text-blue-700"
                 />
-                닫기
               </button>
             ) : (
               <button
