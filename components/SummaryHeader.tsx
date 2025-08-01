@@ -9,6 +9,8 @@ import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import React from "react";
 import { Keyword } from "@/app/[locale]/(detail)/my-summaries/[id]/page";
+import PrevNextButtons from "./PreNextButtons";
+import useSWR from "swr";
 
 interface SummaryHeaderProps {
   id: string;
@@ -24,6 +26,8 @@ interface SummaryHeaderProps {
   onTitleSaved: (newTitle: string, updatedAt: string | null) => void;
 }
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export default function SummaryHeader({
   id,
   title,
@@ -37,6 +41,10 @@ export default function SummaryHeader({
   tags,
   onTitleSaved,
 }: SummaryHeaderProps) {
+  const { data, isLoading } = useSWR(
+    `/api/summaries/prevnext?id=${id}`,
+    fetcher
+  );
   const router = useRouter();
   const categoryValue = category || Category.OTHER;
 
@@ -58,22 +66,9 @@ export default function SummaryHeader({
           <Icon icon="mdi:arrow-left" className="w-5 h-5" />
           <span>목록으로</span>
         </button>
-        <div className="flex items-center gap-2 text-gray-400">
-          <button
-            disabled
-            className="flex items-center gap-1 px-2 py-1.5 rounded cursor-not-allowed"
-          >
-            <Icon icon="mdi:chevron-left" className="w-5 h-5" />
-            이전 글
-          </button>
-          <button
-            disabled
-            className="flex items-center gap-1 px-2 py-1.5 rounded cursor-not-allowed"
-          >
-            다음 글
-            <Icon icon="mdi:chevron-right" className="w-5 h-5" />
-          </button>
-        </div>
+        {!isLoading && (
+          <PrevNextButtons prevId={data?.prevId} nextId={data?.nextId} />
+        )}
       </div>
 
       {/* 카테고리 + 제목 */}
@@ -96,7 +91,7 @@ export default function SummaryHeader({
           {tags.map((tag, index) => (
             <span
               key={index}
-              className="text-xs bg-blue-100 text-blue-700 rounded-full px-3 py-0.5 font-medium"
+              className="text-xs bg-gray-100 text-gray-700 rounded-full px-3 py-0.5 font-medium"
             >
               #{tag.name}
             </span>
@@ -144,3 +139,5 @@ export default function SummaryHeader({
     </header>
   );
 }
+
+

@@ -39,10 +39,9 @@ export interface Summary {
   lang: string | null;
   is_public: boolean | null;
   updated_at: string | null;
-  category: Category | null;  // enum Category를 쓴다면 Category 타입으로 바꿀 수도 있음
-  keywords: Keyword[];      // keywords 목록 추가
+  category: Category | null; // enum Category를 쓴다면 Category 타입으로 바꿀 수도 있음
+  keywords: Keyword[]; // keywords 목록 추가
 }
-
 
 export default function SummaryDetailPage() {
   const { session, isLoading } = useSession();
@@ -116,44 +115,44 @@ export default function SummaryDetailPage() {
       {/* 요약 제목 */}
       {!isFullMode && summary && (
         <SummaryHeader
-        id={summary.id}
-        title={summary.summary_text || "제목 없는 요약"}
-        // status={summary.status}
-        createdAt={summary.created_at}
-        updatedAt={summary.updated_at}
-        lang={summary.lang}
-        sourceTitle={summary.source_title}
-        sourceUrl={summary.source_url}
-        sourceType={summary.source_type}
-        category={summary.category}
-        tags={summary.keywords}
-        onTitleSaved={(newTitle, updatedAt) =>
-          setSummary(
-            (prev) =>
-              prev && {
-                ...prev,
-                summary_text: newTitle,
-                updated_at: updatedAt,
-              }
-          )
-        }
-      />
-      )}      
+          id={summary.id}
+          title={summary.summary_text || "제목 없는 요약"}
+          // status={summary.status}
+          createdAt={summary.created_at}
+          updatedAt={summary.updated_at}
+          lang={summary.lang}
+          sourceTitle={summary.source_title}
+          sourceUrl={summary.source_url}
+          sourceType={summary.source_type}
+          category={summary.category}
+          tags={summary.keywords}
+          onTitleSaved={(newTitle, updatedAt) =>
+            setSummary(
+              (prev) =>
+                prev && {
+                  ...prev,
+                  summary_text: newTitle,
+                  updated_at: updatedAt,
+                }
+            )
+          }
+        />
+      )}
       {/* === 여기서 탭 === */}
       <Tabs.Root
         value={activeTab}
         onValueChange={(v) => setActiveTab(v as any)}
       >
-        <Tabs.List className="flex items-center justify-between border-b">
+        <Tabs.List className="flex items-center justify-between">
           {/* 왼쪽 탭 버튼 그룹 */}
           <div className="flex gap-2">
             <Tabs.Trigger
               value="text"
               className="
-        px-4 py-2 rounded-md text-sm font-medium transition
+        px-4 py-2 rounded-full text-sm font-medium transition
         data-[state=active]:bg-blue-600 data-[state=active]:text-white
-        data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-700
-        hover:bg-gray-200 data-[state=active]:hover:bg-blue-700
+        data-[state=inactive]:bg-blue-100 data-[state=inactive]:text-blue-700
+        data-[state=inactive]:hover:bg-blue-200  data-[state=active]:hover:bg-blue-700
       "
             >
               텍스트 보기
@@ -162,10 +161,10 @@ export default function SummaryDetailPage() {
             <Tabs.Trigger
               value="diagram"
               className="
-        px-4 py-2 rounded-md text-sm font-medium transition
+        px-4 py-2 rounded-full text-sm font-medium transition
         data-[state=active]:bg-blue-600 data-[state=active]:text-white
-        data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-700
-        hover:bg-gray-200 data-[state=active]:hover:bg-blue-700
+        data-[state=inactive]:bg-blue-100 data-[state=inactive]:text-blue-700
+       data-[state=inactive]:hover:bg-blue-200  data-[state=active]:hover:bg-blue-700
       "
             >
               다이어그램 보기
@@ -194,10 +193,9 @@ export default function SummaryDetailPage() {
                   setFullMode(true);
                 }}
                 title="전체 보기"
-                className="flex flex-row items-center gap-2 py-1 px-3 rounded-full border bg-white shadow hover:bg-gray-100"
+                className="flex flex-row items-center gap-2 p-1 rounded-full bg-blue-100 text-blue-700 shadow hover:border hover:border-blue-700"
               >
-                <Icon icon="mdi:fullscreen" className="w-5 h-5 text-gray-700" />
-                전체 보기
+                <Icon icon="mdi:fullscreen" className="w-7 h-7 text-blue-700" />
               </button>
             )}
           </div>
