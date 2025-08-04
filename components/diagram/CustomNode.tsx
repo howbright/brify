@@ -1,15 +1,15 @@
 // components/diagram/CustomNode.tsx
 import { MyNode } from "@/app/types/tree";
 import { Handle, NodeProps, Position } from "@xyflow/react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import clsx from "clsx";
 
-export function CustomNode(props: NodeProps<MyNode>) {
-  const { id, data, selected } = props;
+export function CustomNode({ id, data, selected }: NodeProps<MyNode>) {
   const isTitle = data.nodeType === "title";
-
-  // 편집 모드 상태
   const [editing, setEditing] = useState(false);
   const [tempText, setTempText] = useState(data.title || data.description);
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const startEdit = () => {
     setEditing(true);
@@ -18,28 +18,45 @@ export function CustomNode(props: NodeProps<MyNode>) {
 
   const finishEdit = () => {
     setEditing(false);
-    if (data.onUpdate) {
-      data.onUpdate(id, tempText);
+    data.onUpdate?.(id, tempText, data.nodeType);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      finishEdit();
     }
   };
 
+  // auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [tempText, editing]);
+
   return (
     <div
-      className={`rounded-lg border p-3 shadow-sm text-sm max-w-[250px] break-words 
-                  ${isTitle
-                    ? "bg-blue-100 border-blue-300 text-blue-900"
-                    : "bg-gray-100 border-gray-300 text-gray-700"} 
-                  ${selected ? "ring-2 ring-blue-400" : ""}`}
+      className={clsx(
+        "rounded-lg border p-3 shadow-sm text-sm max-w-[250px] break-words cursor-pointer",
+        isTitle
+          ? "bg-blue-100 border-blue-300 text-blue-900"
+          : "bg-gray-100 border-gray-300 text-gray-700",
+        selected && "ring-2 ring-blue-400"
+      )}
       onDoubleClick={startEdit}
     >
       {editing ? (
-        <input
-          className="w-full border rounded px-1 text-sm"
+        <textarea
+          ref={textareaRef}
+          className="w-full border rounded px-1 text-sm resize-none focus:outline-none"
           autoFocus
           value={tempText}
           onChange={(e) => setTempText(e.target.value)}
           onBlur={finishEdit}
-          onKeyDown={(e) => e.key === "Enter" && finishEdit()}
+          onKeyDown={handleKeyDown}
+          rows={1} // 초기 높이 최소화
         />
       ) : isTitle ? (
         <strong>{data.title}</strong>

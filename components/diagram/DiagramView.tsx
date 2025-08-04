@@ -37,15 +37,26 @@ export default function DiagramView({ nodes, edges }: DiagramViewProps) {
   const [flowNodes, setFlowNodes] = useState<FlowNode<MyNodeData>[]>([]);
   const [flowEdges, setFlowEdges] = useState<FlowEdge[]>([]);
 
-  const onUpdateNode = useCallback((id: string, newText: string) => {
-    setFlowNodes((nds) =>
-      nds.map((n) =>
-        n.id === id
-          ? { ...n, data: { ...n.data, title: newText } } // 필요 시 description도 처리 가능
-          : n
-      )
-    );
-  }, []);
+  const onUpdateNode = useCallback(
+    (id: string, newText: string, type: "title" | "description") => {
+      setFlowNodes((nds) =>
+        nds.map((n) =>
+          n.id === id
+            ? {
+                ...n,
+                data: {
+                  ...n.data,
+                  title: type === "title" ? newText : n.data.title,
+                  description: type === "description" ? newText : n.data.description,
+                },
+              }
+            : n
+        )
+      );
+    },
+    []
+  );
+  
   
 
   // props 변화 시 상태 업데이트

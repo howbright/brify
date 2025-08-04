@@ -9,7 +9,7 @@ export interface TreeNode {
 }
 
 export interface DiagramNode {
-  id: string;
+  id: string; 
   data: { label: string };
   position: { x: number; y: number };
 }
@@ -27,5 +27,5 @@ export type MyNodeData = {
   nodeType: "title" | "description";
   title: string;
   description: string;
-  onUpdate?: (id: string, tempText: string) => void;
+  onUpdate?: (id: string, newText: string, type: "title" | "description") => void;
 };
