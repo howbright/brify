@@ -10,13 +10,14 @@ import { Category } from "@/lib/enums/categories.enum";
 import { Icon } from "@iconify/react";
 import * as Tabs from "@radix-ui/react-tabs";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { toast } from "sonner";
+import type { OriginalDiagram, Overlay } from "@/app/types/diagram";
 
-// 타입 정의
-type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
+// ---- (선택) API 응답 타입 정의 ----
+export type DiagramSource = "overlay" | "original";
 
 export interface Keyword {
   id: number;
@@ -24,82 +25,183 @@ export interface Keyword {
   lang: string;
 }
 
-export interface Summary {
+export interface SummaryResponse {
   id: string;
   user_id: string | null;
   created_at: string | null;
+
   source_type: string;
   source_title: string | null;
   source_url: string | null;
+
   summary_text: string | null;
   detailed_summary_text: string | null;
-  diagram_json: Json | null;
+
+  // LLM 원본(flat array)
+  diagram_json: OriginalDiagram | null;
+
   original_text?: string | null;
+
   status: string;
   lang: string | null;
   is_public: boolean | null;
   updated_at: string | null;
-  category: Category | null; // enum Category를 쓴다면 Category 타입으로 바꿀 수도 있음
-  keywords: Keyword[]; // keywords 목록 추가
+
+  category: Category | null;
+  keywords: Keyword[];
+
+  // 명시 필드들
+  original_diagram_json: OriginalDiagram | null; // 원본 (= diagram_json)
+  temp_diagram_json: Overlay | null;             // 편집본 (nodes/edges)
+  effective_diagram_json: OriginalDiagram | Overlay | null; // 실제 사용
+  diagram_source: DiagramSource; // "overlay" | "original"
+}
+
+// ---- 타입가드: 실제 구조 기준 ----
+export function isOverlay(
+  d: OriginalDiagram | Overlay | null | undefined
+): d is Overlay {
+  return !!d && typeof d === "object" && Array.isArray((d as any).nodes) && Array.isArray((d as any).edges);
+}
+
+export function isOriginal(
+  d: OriginalDiagram | Overlay | null | undefined
+): d is OriginalDiagram {
+  return Array.isArray(d);
 }
 
 export default function SummaryDetailPage() {
   const { session, isLoading } = useSession();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const [summary, setSummary] = useState<Summary | null>(null);
+
+  const [summary, setSummary] = useState<SummaryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"text" | "diagram">("diagram");
   const [isFullMode, setFullMode] = useState<boolean>(false);
 
-  const fetchSummary = async (id: string) => {
+  // ---- 데이터 패치 ----
+  type FetchSummaryOpts = {
+    signal?: AbortSignal;
+    timeoutMs?: number;
+  };
+
+  const fetchSummary = async (sid: string, opts: FetchSummaryOpts = {}) => {
+    const { signal, timeoutMs = 12_000 } = opts;
+
+    const localController = new AbortController();
+    const timer = setTimeout(() => localController.abort("timeout"), timeoutMs);
+
+    if (signal) {
+      if (signal.aborted) localController.abort(signal.reason);
+      else signal.addEventListener("abort", () => localController.abort(signal.reason), { once: true });
+    }
+
     let aborted = false;
 
     try {
-      console.log("호출");
-      const res = await fetch(`/api/summary?id=${id}`, {
-        credentials: "include", // ✅ 이거 꼭 추가
-      });
-      console.log("status:", res.status);
+      setLoading(true);
+      console.log("[fetchSummary] 호출:", sid);
 
-      if (res.status === 401) {
-        toast.error("로그인이 필요합니다.");
-        router.push("/login");
-        aborted = true;
-      } else if (res.status === 403) {
-        toast.error("이 요약에 접근할 수 없습니다.");
-        router.push("/my-summaries");
-        aborted = true;
-      } else if (res.status === 404) {
-        toast.error("요약을 찾을 수 없습니다.");
-        router.push("/my-summaries");
-        aborted = true;
-      } else if (!res.ok) {
-        toast.error("요약을 불러오는 중 오류가 발생했습니다.");
-        aborted = true;
-      } else {
-        // console.log(res)
-        const data = await res.json();
-        // console.log(data)
-        setSummary(data);
+      const res = await fetch(`/api/summary?id=${encodeURIComponent(sid)}`, {
+        credentials: "include",
+        signal: localController.signal,
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+      });
+
+      console.log("[fetchSummary] status:", res.status);
+
+      if (!res.ok) {
+        switch (res.status) {
+          case 401:
+            toast.error("로그인이 필요합니다.");
+            router.push("/login");
+            aborted = true;
+            break;
+          case 403:
+            toast.error("이 요약에 접근할 수 없습니다.");
+            router.push("/my-summaries");
+            aborted = true;
+            break;
+          case 404:
+            toast.error("요약을 찾을 수 없습니다.");
+            router.push("/my-summaries");
+            aborted = true;
+            break;
+          default: {
+            let msg = "요약을 불러오는 중 오류가 발생했습니다.";
+            try {
+              const errJson = await res.clone().json().catch(() => null);
+              if (errJson?.message) msg = String(errJson.message);
+            } catch {}
+            toast.error(msg);
+            aborted = true;
+          }
+        }
+        return null;
       }
-    } catch (err) {
-      console.error("요약 가져오기 실패:", err);
+
+      const ct = res.headers.get("content-type") || "";
+      if (!ct.includes("application/json")) {
+        toast.error("서버 응답 형식이 올바르지 않습니다.");
+        return null;
+      }
+
+      const data = (await res.json()) as SummaryResponse;
+      console.log("[fetchSummary] raw keys:", Object.keys(data || {}));
+
+      setSummary(data);
+      return data;
+    } catch (err: any) {
+      if (err?.name === "AbortError") {
+        console.warn("[fetchSummary] 요청이 취소됨:", err?.message || err);
+        aborted = true;
+        return null;
+      }
+      console.error("[fetchSummary] 실패:", err);
       toast.error("요약을 불러오는 중 오류가 발생했습니다.");
       setSummary(null);
+      return null;
     } finally {
+      clearTimeout(timer);
       if (!aborted) setLoading(false);
     }
   };
 
   useEffect(() => {
-    console.log("useEffect 진입:", id);
-    if (session?.user.id) {
-      fetchSummary(id);
-    }
-  }, [session]);
+    if (!id || !session?.user.id) return;
+    const ac = new AbortController();
+    fetchSummary(id, { signal: ac.signal, timeoutMs: 12_000 });
+    return () => ac.abort("route change");
+  }, [id, session?.user.id]);
 
-  if (isLoading) {
+  // ---- flatList / overlay 파생값 ----
+  const { flatList, overlay } = useMemo(() => {
+    if (!summary) return { flatList: null as any, overlay: null as any };
+
+    const effective = summary.effective_diagram_json;
+
+    // 트리는 가급적 effective가 원본일 때 그걸 쓰고,
+    // 아니라면 원본 컬럼 fallback
+    const flatList = isOriginal(effective)
+      ? effective
+      : summary.original_diagram_json ?? null;
+
+    // overlay는 nodes/edges가 있을 때만 전달
+    const overlay = isOverlay(effective) ? effective : null;
+
+    console.log("overlay:", overlay);
+    return { flatList, overlay };
+  }, [summary]);
+
+  const tree = useMemo(() => {
+    console.log("flatList::", flatList);
+    return flatList ? convertToTree(flatList) : null;
+  }, [flatList]);
+
+  // ---- 로딩/널 처리 ----
+  if (isLoading || loading) {
     return (
       <main className="max-w-4xl mx-auto p-6 flex flex-col gap-y-6">
         <Skeleton height={30} width={200} />
@@ -110,14 +212,14 @@ export default function SummaryDetailPage() {
 
   if (!summary) return null;
 
+  // ---- 렌더 ----
   return (
     <main className="p-6 flex flex-col gap-y-2">
-      {/* 요약 제목 */}
-      {!isFullMode && summary && (
+      {/* 요약 헤더 */}
+      {!isFullMode && (
         <SummaryHeader
           id={summary.id}
           title={summary.summary_text || "제목 없는 요약"}
-          // status={summary.status}
           createdAt={summary.created_at}
           updatedAt={summary.updated_at}
           lang={summary.lang}
@@ -138,75 +240,64 @@ export default function SummaryDetailPage() {
           }
         />
       )}
-      {/* === 여기서 탭 === */}
-      <Tabs.Root
-        value={activeTab}
-        onValueChange={(v) => setActiveTab(v as any)}
-      >
+
+      {/* 탭 */}
+      <Tabs.Root value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
         <Tabs.List className="flex items-center justify-between">
-          {/* 왼쪽 탭 버튼 그룹 */}
-         {/* 왼쪽 탭 버튼 그룹 */}
-    <div className="flex gap-2">
-      {/* 다이어그램 보기 버튼 먼저 */}
-      <Tabs.Trigger
-        value="diagram"
-        className="
-          px-4 py-2 rounded-full text-sm font-medium transition
-          data-[state=active]:bg-blue-600 data-[state=active]:text-white
-          data-[state=inactive]:bg-blue-100 data-[state=inactive]:text-blue-700
-          data-[state=inactive]:hover:bg-blue-200 data-[state=active]:hover:bg-blue-700
-        "
-      >
-        다이어그램 보기
-      </Tabs.Trigger>
+          {/* 왼쪽: 탭 버튼 */}
+          <div className="flex gap-2">
+            <Tabs.Trigger
+              value="diagram"
+              className="
+                px-4 py-2 rounded-full text-sm font-medium transition
+                data-[state=active]:bg-blue-600 data-[state=active]:text-white
+                data-[state=inactive]:bg-blue-100 data-[state=inactive]:text-blue-700
+                data-[state=inactive]:hover:bg-blue-200 data-[state=active]:hover:bg-blue-700
+              "
+            >
+              다이어그램 보기
+            </Tabs.Trigger>
 
-      <Tabs.Trigger
-        value="text"
-        className="
-          px-4 py-2 rounded-full text-sm font-medium transition
-          data-[state=active]:bg-blue-600 data-[state=active]:text-white
-          data-[state=inactive]:bg-blue-100 data-[state=inactive]:text-blue-700
-          data-[state=inactive]:hover:bg-blue-200 data-[state=active]:hover:bg-blue-700
-        "
-      >
-        텍스트 보기
-      </Tabs.Trigger>
+            <Tabs.Trigger
+              value="text"
+              className="
+                px-4 py-2 rounded-full text-sm font-medium transition
+                data-[state=active]:bg-blue-600 data-[state=active]:text-white
+                data-[state=inactive]:bg-blue-100 data-[state=inactive]:text-blue-700
+                data-[state=inactive]:hover:bg-blue-200 data-[state=active]:hover:bg-blue-700
+              "
+            >
+              텍스트 보기
+            </Tabs.Trigger>
 
-      {summary.original_text && (
-      <Tabs.Trigger
-        value="original"
-        className="
-          px-4 py-2 rounded-full text-sm font-medium transition
-          data-[state=active]:bg-gray-600 data-[state=active]:text-white
-          data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-700
-          data-[state=inactive]:hover:bg-gray-200 data-[state=active]:hover:bg-gray-700
-        "
-      >
-        원문 보기
-      </Tabs.Trigger>
-      )}
-    </div>
+            {summary.original_text && (
+              <Tabs.Trigger
+                value="original"
+                className="
+                  px-4 py-2 rounded-full text-sm font-medium transition
+                  data-[state=active]:bg-gray-600 data-[state=active]:text-white
+                  data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-700
+                  data-[state=inactive]:hover:bg-gray-200 data-[state=active]:hover:bg-gray-700
+                "
+              >
+                원문 보기
+              </Tabs.Trigger>
+            )}
+          </div>
 
-          {/* 오른쪽 코멘트 버튼 */}
+          {/* 오른쪽: 버튼들 */}
           <div className="flex flex-row items-center gap-2">
             <NoteButton noteCount={4} onClick={() => {}} />
             {isFullMode ? (
               <button
-                onClick={() => {
-                  setFullMode(false);
-                }}
-                className="flex flex-row items-center gap-2 p-1 rounded-full  bg-blue-100 text-blue-700 shadow hover:bg-blue-200"
+                onClick={() => setFullMode(false)}
+                className="flex flex-row items-center gap-2 p-1 rounded-full bg-blue-100 text-blue-700 shadow hover:bg-blue-200"
               >
-                <Icon
-                  icon="mdi:fullscreen-exit"
-                  className="w-7 h-7 text-blue-700"
-                />
+                <Icon icon="mdi:fullscreen-exit" className="w-7 h-7 text-blue-700" />
               </button>
             ) : (
               <button
-                onClick={() => {
-                  setFullMode(true);
-                }}
+                onClick={() => setFullMode(true)}
                 title="전체 보기"
                 className="flex flex-row items-center gap-2 p-1 rounded-full bg-blue-100 text-blue-700 shadow hover:bg-blue-200"
               >
@@ -217,27 +308,16 @@ export default function SummaryDetailPage() {
         </Tabs.List>
       </Tabs.Root>
 
-      {/* 요약 내용 */}
+      {/* 콘텐츠 */}
       <section>
         <SummaryResult
           summaryId={id}
           text={summary.detailed_summary_text ?? summary.summary_text ?? ""}
-          tree={convertToTree(summary.diagram_json)}
-          activeView={activeTab} // header 탭에서 관리하는 상태
+          tree={tree}
+          overlay={overlay}
+          activeView={activeTab}
         />
       </section>
-
-      {/* 원문 보기 */}
-      {/* {summary.original_text && (
-        <details className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-900 dark:border-gray-700">
-          <summary className="cursor-pointer font-semibold text-gray-700 dark:text-gray-200">
-            원문 보기
-          </summary>
-          <pre className="mt-2 whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-100">
-            {summary.original_text}
-          </pre>
-        </details>
-      )} */}
     </main>
   );
 }

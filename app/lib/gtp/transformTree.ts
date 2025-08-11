@@ -1,18 +1,15 @@
 // 📁 lib/gpt/transformTree.ts
-import { MyNodeData, TreeNode } from "@/app/types/tree";
-import type { Edge as FlowEdge, Node as FlowNode } from "@xyflow/react";
+import { MyFlowEdge, MyFlowNode, TreeNode } from "@/app/types/diagram";
 import ELK from "elkjs/lib/elk.bundled.js";
 
 const elk = new ELK();
 
 export async function treeToFlowElements(
   tree: TreeNode
-): Promise<{
-  nodes: FlowNode<MyNodeData>[];
-  edges: FlowEdge[];
-}> {
-  const nodes: FlowNode<MyNodeData>[] = [];
-  const edges: FlowEdge[] = [];
+): Promise<{ nodes: MyFlowNode[]; edges: MyFlowEdge[] }> {
+  // ✅ 처음부터 MyFlowNode/MyFlowEdge로 선언
+  const nodes: MyFlowNode[] = [];
+  const edges: MyFlowEdge[] = [];
 
   // === 트리 순회 ===
   const traverse = (node: TreeNode, parentId: string | null = null) => {
@@ -24,7 +21,7 @@ export async function treeToFlowElements(
         description: node.description,
       },
       position: { x: 0, y: 0 },
-      type: "default",
+      type: "custom" as const,   // ✅ 리터럴 고정
     });
 
     if (parentId) {
@@ -32,7 +29,7 @@ export async function treeToFlowElements(
         id: `e-${parentId}-${node.id}`,
         source: parentId,
         target: node.id,
-        type: "default",
+        // type: 'default' // 굳이 지정 안 해도 됨
       });
     }
 
@@ -46,7 +43,7 @@ export async function treeToFlowElements(
     id: "root",
     layoutOptions: {
       "elk.algorithm": "layered",
-      "elk.direction": "DOWN", // 위→아래 방향
+      "elk.direction": "DOWN",
       "elk.spacing.nodeNode": "40",
       "elk.layered.spacing.nodeNodeBetweenLayers": "80",
       "elk.layered.spacing.nodeNodeBetweenColumns": "50",
@@ -60,6 +57,7 @@ export async function treeToFlowElements(
       id: e.id,
       sources: [e.source],
       targets: [e.target],
+      // ELK 전용 핸들 키 (선택)
       sourceHandle: "a",
       targetHandle: "b",
     })),
@@ -77,12 +75,12 @@ export async function treeToFlowElements(
   const offsetX = -rootCenterX;
 
   // === 좌표 적용 ===
-  const positionedNodes: FlowNode<MyNodeData>[] = nodes.map((node) => {
+  const positionedNodes: MyFlowNode[] = nodes.map((node) => {
     const layoutNode = layout.children?.find((n) => n.id === node.id);
     return {
       ...node,
       position: {
-        x: (layoutNode?.x ?? 0) + offsetX + 300, // 300px 좌측 여백 (원하면 조정)
+        x: (layoutNode?.x ?? 0) + offsetX + 300, // 좌측 여백
         y: layoutNode?.y ?? 0,
       },
     };
@@ -94,5 +92,5 @@ export async function treeToFlowElements(
 // === 노드 너비 계산 ===
 function getNodeWidth(title: string, description?: string) {
   const textLength = (title?.length ?? 0) + (description?.length ?? 0);
-  return Math.min(250, Math.max(150, textLength * 7)); 
+  return Math.min(250, Math.max(150, textLength * 7));
 }

@@ -1,10 +1,10 @@
 // components/diagram/CustomNode.tsx
-import { MyNode } from "@/app/types/tree";
+import { MyFlowNode } from "@/app/types/diagram";
 import { Handle, NodeProps, Position } from "@xyflow/react";
-import { useState, useRef, useEffect } from "react";
 import clsx from "clsx";
+import { useEffect, useRef, useState } from "react";
 
-export function CustomNode({ id, data, selected }: NodeProps<MyNode>) {
+export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
   const isTitle = data.nodeType === "title";
   const [editing, setEditing] = useState(false);
   const [tempText, setTempText] = useState(data.title || data.description);

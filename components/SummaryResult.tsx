@@ -1,17 +1,25 @@
 "use client";
 
-import { treeToFlowElements } from "@/app/lib/gtp/transformTree";
-import { MyNodeData, TreeNode } from "@/app/types/tree";
 import { createClient } from "@/utils/supabase/client";
 import { Icon } from "@iconify/react";
-import { Edge, Node } from "@xyflow/react";
 import { useEffect, useRef, useState } from "react";
-import DiagramView from "./diagram/DiagramView";
+
 import SummaryContent from "./SummaryContent";
+import DiagramView from "./diagram/DiagramView";
+
+import { applyOverlayToFlow } from "@/app/lib/diagram/overlay";
+import { treeToFlowElements } from "@/app/lib/gtp/transformTree";
+import type {
+  MyFlowEdge,
+  MyFlowNode,
+  Overlay,
+  TreeNode,
+} from "@/app/types/diagram";
 
 interface Props {
   text?: string;
   tree?: TreeNode | null | undefined;
+  overlay?: Overlay | null; // ← 추가!
   summaryId?: string;
   /** 어떤 뷰를 보여줄지 부모에서 지정: "text" | "diagram" */
   activeView?: "text" | "diagram";
@@ -20,31 +28,43 @@ interface Props {
 export default function SummaryResult({
   text,
   tree,
+  overlay, // ← 추가!
   summaryId,
-  activeView = "text", // 기본값: 텍스트 보기
+  activeView = "text",
 }: Props) {
   const supabase = createClient();
   const [editedMarkdown, setEditedMarkdown] = useState(text ?? "");
   const [comments, setComments] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
-  const [nodes, setNodes] = useState<Node<MyNodeData>[]>([]);
-  const [edges, setEdges] = useState<Edge[]>([]);
+
+  const [nodes, setNodes] = useState<MyFlowNode[]>([]);
+  const [edges, setEdges] = useState<MyFlowEdge[]>([]);
 
   const commentRef = useRef<HTMLDivElement>(null);
   const diagramRef = useRef<HTMLDivElement>(null);
 
+  // 트리 → 레이아웃 → overlay 덮어쓰기
   useEffect(() => {
     if (!tree) return;
-    treeToFlowElements(tree).then(({ nodes, edges }) => {
-      setNodes(nodes);
-      setEdges(edges);
-    });
-  }, [tree]);
+
+    let cancelled = false;
+    (async () => {
+      const { nodes, edges } = await treeToFlowElements(tree);
+      const merged = applyOverlayToFlow(nodes, edges, overlay); // ← overlay 적용
+      if (!cancelled) {
+        setNodes(merged.nodes);
+        setEdges(merged.edges);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [tree, overlay]); // ← overlay 바뀌면 다시 머지
 
   const scrollToComment = () => {
     commentRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   const handleCommentSubmit = (e: React.FormEvent) => {
@@ -98,10 +118,11 @@ export default function SummaryResult({
       )}
 
       {activeView === "diagram" && tree && (
-        <div className="mb-10">
+        <div className="mb-10" ref={diagramRef}>
           <DiagramView
             nodes={nodes}
             edges={edges}
+            summaryId={summaryId || ""}
           />
         </div>
       )}

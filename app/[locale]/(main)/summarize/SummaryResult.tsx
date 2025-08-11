@@ -1,6 +1,6 @@
 "use client";
 
-import { MyNodeData } from "@/app/types/tree";
+import { MyNodeData } from "@/app/types/diagram";
 import DiagramView from "@/components/diagram/DiagramView";
 import type { Edge, Node as FlowNode } from "@xyflow/react";
 import { useMemo, useState } from "react";
@@ -45,7 +45,7 @@ interface Props {
   tree?: any;
 }
 
-export default function SummaryResult({ text, tree }: Props) {
+export default function SummaryResult222({ text, tree }: Props) {
   const [tab, setTab] = useState<"text" | "diagram">("text");
 
   const { nodes, edges } = useMemo(() => {
@@ -131,13 +131,13 @@ export default function SummaryResult({ text, tree }: Props) {
         </div>
       ) : (
         <div>
-          {nodes.length > 0 ? (
+          {/* {nodes.length > 0 ? (
             <DiagramView nodes={nodes} edges={edges} />
           ) : (
             <p className="text-center text-gray-500 dark:text-gray-400">
               다이어그램 요약 결과가 없습니다.
             </p>
-          )}
+          )} */}
         </div>
       )}
     </div>

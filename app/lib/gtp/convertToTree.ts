@@ -1,4 +1,4 @@
-import type { TreeNode } from "@/app/types/tree";
+import type { TreeNode } from "@/app/types/diagram";
 
 export function convertToTree(flatList: unknown): TreeNode | null {
   if (!Array.isArray(flatList)) return null;
