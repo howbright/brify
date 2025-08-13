@@ -33,6 +33,8 @@ export async function GET(req: NextRequest) {
     .eq("user_id", user.id)
     .single();
 
+    //console.log(JSON.stringify(data?.temp_diagram_json, null, 2));
+
   if (error) {
     console.error("❌ Supabase 에러:", error);
     return NextResponse.json({ error: "요약을 불러오지 못했습니다." }, { status: 500 });
@@ -60,6 +62,8 @@ export async function GET(req: NextRequest) {
     effective_diagram_json: effective,
     diagram_source: overlay ? "overlay" : "original" as const,
   };
+
+  // console.log(JSON.stringify(result.effective_diagram_json, null, 2));
 
   // 원본 summary_keywords 필드는 제거
   delete (result as any).summary_keywords;

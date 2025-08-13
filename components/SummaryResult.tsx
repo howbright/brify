@@ -19,16 +19,34 @@ import type {
 interface Props {
   text?: string;
   tree?: TreeNode | null | undefined;
-  overlay?: Overlay | null; // ← 추가!
+  overlay?: Overlay | null; // 서버에서 온 편집본 (nodes/edges)
   summaryId?: string;
   /** 어떤 뷰를 보여줄지 부모에서 지정: "text" | "diagram" */
   activeView?: "text" | "diagram";
 }
 
+// overlay를 안전하게 정규화(커스텀 노드 미등록 시 보이도록 label 보강)
+function normalizeOverlay(ov: Overlay) {
+  const nodes = (ov?.nodes ?? []).map((n: any) => {
+    const data = n?.data ?? {};
+    // 커스텀 노드 미등록 시 기본 노드에서도 텍스트가 보이도록 label 보강
+    const label = data.label ?? data.title ?? data.description ?? "";
+    // 커스텀 노드 미등록 대비: type이 "custom"이라도 DiagramView에서 nodeTypes를 등록했다면 그대로 사용
+    // 여기서는 타입은 건드리지 않고 label만 채워줍니다.
+    return {
+      ...n,
+      data: { ...data, label },
+    };
+  });
+
+  const edges = Array.isArray(ov?.edges) ? ov.edges : [];
+  return { nodes, edges };
+}
+
 export default function SummaryResult({
   text,
   tree,
-  overlay, // ← 추가!
+  overlay,
   summaryId,
   activeView = "text",
 }: Props) {
@@ -43,24 +61,53 @@ export default function SummaryResult({
   const commentRef = useRef<HTMLDivElement>(null);
   const diagramRef = useRef<HTMLDivElement>(null);
 
-  // 트리 → 레이아웃 → overlay 덮어쓰기
+  /**
+   * 🔑 핵심 로직:
+   * 1) overlay가 있으면 => overlay를 "그대로" 사용 (텍스트/포지션/스타일 포함)
+   * 2) overlay가 없으면 => 트리에서 생성
+   * 3) overlay가 일부만 있는 특별 케이스(예: 포지션만 담긴 경우)만 applyOverlayToFlow로 덮기
+   */
   useEffect(() => {
-    if (!tree) return;
-
     let cancelled = false;
+
     (async () => {
-      const { nodes, edges } = await treeToFlowElements(tree);
-      const merged = applyOverlayToFlow(nodes, edges, overlay); // ← overlay 적용
+      // 1) overlay가 완전한 nodes/edges를 제공하는 정상 케이스
+      if (overlay && Array.isArray(overlay.nodes) && Array.isArray(overlay.edges) && overlay.nodes.length > 0) {
+        const normalized = normalizeOverlay(overlay);
+        if (!cancelled) {
+          setNodes(normalized.nodes as MyFlowNode[]);
+          setEdges(normalized.edges as MyFlowEdge[]);
+        }
+        return;
+      }
+
+      // 2) overlay가 없거나 비어있으면, tree에서 생성
+      if (tree) {
+        const fromTree = await treeToFlowElements(tree);
+        // 2-1) 어떤 환경에서는 overlay가 positions 같은 일부만 있을 수 있음 → 그때만 머지
+        const merged =
+          overlay && (overlay.nodes?.length || overlay.edges?.length)
+            ? applyOverlayToFlow(fromTree.nodes, fromTree.edges, overlay)
+            : fromTree;
+
+        if (!cancelled) {
+          setNodes(merged.nodes as MyFlowNode[]);
+          setEdges(merged.edges as MyFlowEdge[]);
+        }
+        return;
+      }
+
+      // 3) 둘 다 없으면 초기화
       if (!cancelled) {
-        setNodes(merged.nodes);
-        setEdges(merged.edges);
+        setNodes([]);
+        setEdges([]);
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [tree, overlay]); // ← overlay 바뀌면 다시 머지
+  }, [tree, overlay]);
 
   const scrollToComment = () => {
     commentRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -117,13 +164,10 @@ export default function SummaryResult({
         </div>
       )}
 
-      {activeView === "diagram" && tree && (
+      {/* ⛳️ overlay가 있거나 tree가 있을 때 다이어그램을 보여줌 */}
+      {activeView === "diagram" && (overlay || tree) && (
         <div className="mb-10" ref={diagramRef}>
-          <DiagramView
-            nodes={nodes}
-            edges={edges}
-            summaryId={summaryId || ""}
-          />
+          <DiagramView nodes={nodes} edges={edges} summaryId={summaryId || ""} />
         </div>
       )}
 

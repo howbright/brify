@@ -1,4 +1,4 @@
-// 📁 lib/diagram/overlay.ts
+// app/lib/diagram/overlay.ts
 import type {
     MyFlowNode,
     MyFlowEdge,
@@ -7,9 +7,10 @@ import type {
   } from "@/app/types/diagram";
   
   /**
-   * ELK로 배치된 nodes/edges에 overlay(positions/edits)를 반영한다.
-   * - positions: 노드 좌표 덮어쓰기
+   * base nodes/edges(ELK 등으로 생성된 레이아웃)에 overlay(positions + edits)를 적용한다.
+   * - positions: 좌표 덮어쓰기
    * - edits:     제목/설명 텍스트 덮어쓰기
+   * MyNodeData에 정의된 필드만 건드린다 (label 같은 확장 필드 추가 X).
    */
   export function applyOverlayToFlow(
     nodes: MyFlowNode[],
@@ -18,52 +19,40 @@ import type {
   ): { nodes: MyFlowNode[]; edges: MyFlowEdge[] } {
     if (!overlay) return { nodes, edges };
   
-    const { positions = {}, edits = {} } = overlay;
+    const positions = overlay.positions ?? {};
+    const edits = overlay.edits ?? {};
   
     const mergedNodes: MyFlowNode[] = nodes.map((n) => {
       const pos = positions[n.id];
       const edit = edits[n.id];
   
+      // 기존 데이터 유지
+      const prev = (n.data ?? {}) as MyNodeData;
+  
+      // overlay 값이 있을 때만 덮어쓰기
       const nextData: MyNodeData = {
-        ...n.data,
-        title: edit?.title ?? n.data.title,
-        description: edit?.description ?? n.data.description,
+        ...prev,
+        title:
+          edit && typeof edit.title === "string" ? edit.title : prev.title,
+        description:
+          edit && typeof edit.description === "string"
+            ? edit.description
+            : prev.description,
       };
   
-      return {
-        ...n,
-        position: pos ? { x: pos.x, y: pos.y } : n.position,
-        data: nextData,
-      };
+      // 좌표도 검증 후 반영
+      const nextPos =
+        pos &&
+        typeof pos.x === "number" &&
+        typeof pos.y === "number" &&
+        Number.isFinite(pos.x) &&
+        Number.isFinite(pos.y)
+          ? { x: pos.x, y: pos.y }
+          : n.position;
+  
+      return { ...n, position: nextPos, data: nextData };
     });
   
-    // edges는 overlay에 영향 없음 (필요시 여기서도 머지 로직 추가 가능)
     return { nodes: mergedNodes, edges };
-  }
-  
-  /**
-   * 현재 화면의 nodes 상태로부터 overlay(positions + edits 전체)를 생성한다.
-   * - positions: 모든 노드의 현재 좌표 저장
-   * - edits:     모든 노드의 현재 텍스트(title/description) 저장
-   *   (diff를 원하면 여기서 원본과 비교 후 달라진 항목만 넣도록 변경 가능)
-   */
-  export function buildOverlayFromFlow(flowNodes: MyFlowNode[]): Overlay {
-    const positions: Overlay["positions"] = {};
-    const edits: Overlay["edits"] = {};
-  
-    for (const n of flowNodes) {
-      positions[n.id] = { x: n.position.x, y: n.position.y };
-      edits[n.id] = {
-        title: n.data.title,
-        description: n.data.description,
-      };
-    }
-  
-    return {
-      version: 1,
-      type: "overlay",
-      positions,
-      edits,
-    };
   }
   

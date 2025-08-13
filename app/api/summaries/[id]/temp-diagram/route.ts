@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 export async function POST(req: Request, { params }: { params:  Promise<{ id: string }> }) {
   try {
     const body = await req.json(); // { nodes, edges }
+    console.log(JSON.stringify(body, null, 2));
     const supabase = await createClient();
     const { id } = await params;  
     const { error } = await supabase

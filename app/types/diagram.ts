@@ -48,3 +48,25 @@ export type TreeNode = {
   description: string;
   children?: TreeNode[];
 };
+
+
+// app/types/diagram.ts
+
+// LLM이 만든 평평한 다이어그램(트리 원본)
+export type OriginalDiagramItem = {
+    id: string;
+    title: string;
+    children: string[];
+    nodeType: "title" | "description";
+    description: string;
+  };
+  
+//   // OriginalDiagram은 아이템 배열
+//   export type OriginalDiagram = OriginalDiagramItem[];
+  
+//   // 편집본(overlay): React Flow nodes/edges
+//   export type Overlay = {
+//     nodes: any[];
+//     edges: any[];
+//   };
+  
