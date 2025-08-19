@@ -4,10 +4,22 @@ import ELK from "elkjs/lib/elk.bundled.js";
 
 const elk = new ELK();
 
+// 오버로드 시그니처 (선택: 에디터 자동완성/추론 향상을 위해)
 export async function treeToFlowElements(
   tree: TreeNode
+): Promise<{ nodes: MyFlowNode[]; edges: MyFlowEdge[] }>;
+export async function treeToFlowElements(
+  tree: TreeNode[]
+): Promise<{ nodes: MyFlowNode[]; edges: MyFlowEdge[] }>;
+
+/**
+ * ✅ 단일 TreeNode든, TreeNode[]든 모두 지원
+ */
+export async function treeToFlowElements(
+  tree: TreeNode | TreeNode[]
 ): Promise<{ nodes: MyFlowNode[]; edges: MyFlowEdge[] }> {
-  // ✅ 처음부터 MyFlowNode/MyFlowEdge로 선언
+  const roots: TreeNode[] = Array.isArray(tree) ? tree : [tree];
+
   const nodes: MyFlowNode[] = [];
   const edges: MyFlowEdge[] = [];
 
@@ -21,7 +33,7 @@ export async function treeToFlowElements(
         description: node.description,
       },
       position: { x: 0, y: 0 },
-      type: "custom" as const,   // ✅ 리터럴 고정
+      type: "custom" as const,
     });
 
     if (parentId) {
@@ -29,14 +41,13 @@ export async function treeToFlowElements(
         id: `e-${parentId}-${node.id}`,
         source: parentId,
         target: node.id,
-        // type: 'default' // 굳이 지정 안 해도 됨
       });
     }
 
     node.children?.forEach((child) => traverse(child, node.id));
   };
 
-  traverse(tree);
+  roots.forEach((r) => traverse(r));
 
   // === ELK 그래프 ===
   const graph = {
@@ -57,7 +68,6 @@ export async function treeToFlowElements(
       id: e.id,
       sources: [e.source],
       targets: [e.target],
-      // ELK 전용 핸들 키 (선택)
       sourceHandle: "a",
       targetHandle: "b",
     })),
@@ -66,13 +76,20 @@ export async function treeToFlowElements(
   // === ELK 레이아웃 계산 ===
   const layout = await elk.layout(graph);
 
-  // === 루트 노드 중심 좌표 계산 ===
-  const rootLayoutNode = layout.children?.find((n) => n.id === tree.id);
-  const rootCenterX =
-    (rootLayoutNode?.x ?? 0) + (rootLayoutNode?.width ?? 0) / 2;
+  // === 루트(들) 중심으로 화면 가운데 정렬 ===
+  const rootIds = roots.map((r) => r.id);
+  const centers = rootIds.map((rid) => {
+    const ln = layout.children?.find((n) => n.id === rid);
+    return (ln?.x ?? 0) + (ln?.width ?? 0) / 2;
+  });
 
-  // === 루트가 캔버스의 horizontal center(0)로 오도록 오프셋 ===
-  const offsetX = -rootCenterX;
+  // 루트가 여러 개면 bounding box의 수평 중간값으로 정렬
+  const centerX =
+    centers.length > 0
+      ? (Math.min(...centers) + Math.max(...centers)) / 2
+      : 0;
+
+  const offsetX = -centerX + 300; // 좌측 여백 300
 
   // === 좌표 적용 ===
   const positionedNodes: MyFlowNode[] = nodes.map((node) => {
@@ -80,7 +97,7 @@ export async function treeToFlowElements(
     return {
       ...node,
       position: {
-        x: (layoutNode?.x ?? 0) + offsetX + 300, // 좌측 여백
+        x: (layoutNode?.x ?? 0) + offsetX,
         y: layoutNode?.y ?? 0,
       },
     };

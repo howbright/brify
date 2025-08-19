@@ -1,7 +1,7 @@
 // app/lib/summary/fetchSummary.ts
-import { normalizeSummary, type ApiSummary } from "./normalize";
 import { toast } from "sonner";
-// (선택) router 타입을 쓰고 싶다면: import type { AppRouterInstance } from "next/navigation";
+import { normalizeSummary, type ApiSummary } from "./normalize";
+import type { MyFlowNode, MyFlowEdge, TreeNode } from "@/app/types/diagram";
 
 export type FetchSummaryOpts = {
   signal?: AbortSignal;   // 외부 AbortController
@@ -9,17 +9,14 @@ export type FetchSummaryOpts = {
 };
 
 type Deps = {
-  setSummary: (v: any) => void;
-  setTree: (v: any) => void;
-  setNodes: (v: any[]) => void;
-  setEdges: (v: any[]) => void;
+  setSummary: (v: ApiSummary | null) => void;
+  setTree: (v: TreeNode[]) => void;
+  setNodes: (v: MyFlowNode[]) => void;
+  setEdges: (v: MyFlowEdge[]) => void;
   setLoading: (v: boolean) => void;
   router: any; // AppRouterInstance 권장
 };
 
-/**
- * 요약을 불러오고 상태를 세팅하는 유틸 함수
- */
 export async function fetchSummary(
   id: string,
   deps: Deps,
@@ -28,7 +25,6 @@ export async function fetchSummary(
   const { setSummary, setTree, setNodes, setEdges, setLoading, router } = deps;
   const { signal, timeoutMs = 12_000 } = opts;
 
-  // 내부 타임아웃 컨트롤러 (외부 signal과 합성)
   const localController = new AbortController();
   const timer = setTimeout(() => localController.abort("timeout"), timeoutMs);
 
@@ -41,16 +37,12 @@ export async function fetchSummary(
 
   try {
     setLoading(true);
-    console.log("[fetchSummary] 호출:", id);
-
     const res = await fetch(`/api/summary?id=${encodeURIComponent(id)}`, {
       credentials: "include",
       signal: localController.signal,
       headers: { Accept: "application/json" },
       cache: "no-store",
     });
-
-    console.log("[fetchSummary] status:", res.status);
 
     if (!res.ok) {
       switch (res.status) {
@@ -88,44 +80,18 @@ export async function fetchSummary(
       return null;
     }
 
-    const raw = (await res.json()) as unknown;
-    console.log(
-      "[fetchSummary] raw keys:",
-      raw && typeof raw === "object" ? Object.keys(raw as any) : raw
-    );
+    const api = (await res.json()) as ApiSummary;
+    const { tree, nodes, edges } = await normalizeSummary(api);
 
-    // 바로 객체/ data 래핑 둘 다 대응
-    const api: ApiSummary =
-      raw && (raw as any).diagram_json !== undefined
-        ? (raw as ApiSummary)
-        : raw && (raw as any).data && (raw as any).data.diagram_json !== undefined
-        ? ((raw as any).data as ApiSummary)
-        : (raw as ApiSummary);
-
-    const { tree, overlay, nodes, edges } = normalizeSummary(api);
-
-    if (!Array.isArray(nodes) || !Array.isArray(edges)) {
-      toast.error("다이어그램 데이터가 손상되었습니다.");
-      return null;
-    }
-
-    // 상태 세팅 (null 금지)
     setSummary(api);
-    setTree(tree);
-    setNodes([...nodes]);
-    setEdges([...edges]);
-
-    console.log("[fetchSummary] ready:", {
-      tree: tree.length,
-      nodes: nodes.length,
-      edges: edges.length,
-      overlay: !!overlay,
-    });
+    setTree(tree ?? []);
+    setNodes(nodes ?? []);
+    setEdges(edges ?? []);
 
     return api;
   } catch (err: any) {
     if (err?.name === "AbortError") {
-      console.warn("[fetchSummary] 요청이 취소됨:", err?.message || err);
+      // 라우트 변경/언마운트 중 취소: 조용히 무시
       aborted = true;
       return null;
     }

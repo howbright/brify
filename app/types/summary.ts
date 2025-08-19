@@ -5,3 +5,9 @@ export interface TextSummaryStatus {
     errorMessage?: string;
   }
   
+
+  export type Keyword = {
+    id: number;
+    name: string;
+    lang: string;
+  };

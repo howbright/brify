@@ -8,9 +8,9 @@ import { format } from "date-fns";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import React from "react";
-import { Keyword } from "@/app/[locale]/(detail)/my-summaries/[id]/page";
 import PrevNextButtons from "./PreNextButtons";
 import useSWR from "swr";
+import { Keyword } from "@/app/types/summary";
 
 interface SummaryHeaderProps {
   id: string;
