@@ -29,14 +29,30 @@ export async function fetchSummary(
   const timer = setTimeout(() => localController.abort("timeout"), timeoutMs);
 
   if (signal) {
-    if (signal.aborted) localController.abort(signal.reason);
-    else signal.addEventListener("abort", () => localController.abort(signal.reason), { once: true });
+    if (signal.aborted) localController.abort(signal.reason ?? "outer-abort");
+    else signal.addEventListener(
+      "abort",
+      () => localController.abort(signal.reason ?? "outer-abort"),
+      { once: true }
+    );
   }
 
   let aborted = false;
 
+  // 취소/타임아웃/라우트체인지 판별 유틸
+  const isAbortLike = (err: unknown) => {
+    // 표준 AbortError
+    if (err && typeof err === "object" && "name" in err && (err as any).name === "AbortError") return true;
+    // 일부 런타임(undici/브라우저)에서 code 사용
+    if (err && typeof err === "object" && "code" in err && (err as any).code === "ABORT_ERR") return true;
+    // Next/브라우저에서 reason 문자열을 그대로 throw 하는 경우
+    if (err === "route change" || err === "timeout" || err === "outer-abort") return true;
+    return false;
+  };
+
   try {
     setLoading(true);
+
     const res = await fetch(`/api/summary?id=${encodeURIComponent(id)}`, {
       credentials: "include",
       signal: localController.signal,
@@ -49,7 +65,7 @@ export async function fetchSummary(
         case 401:
           toast.error("로그인이 필요합니다.");
           router.push("/login");
-          aborted = true;
+          aborted = true; // 이후 setLoading(false) 방지
           break;
         case 403:
           toast.error("이 요약에 접근할 수 없습니다.");
@@ -81,17 +97,30 @@ export async function fetchSummary(
     }
 
     const api = (await res.json()) as ApiSummary;
-    const { tree, nodes, edges } = await normalizeSummary(api);
+
+    // normalize에서 에러 나도 전체가 터지지 않게 보호
+    let tree: TreeNode[] = [];
+    let nodes: MyFlowNode[] = [];
+    let edges: MyFlowEdge[] = [];
+    try {
+      const out = await normalizeSummary(api);
+      tree = out.tree ?? [];
+      nodes = out.nodes ?? [];
+      edges = out.edges ?? [];
+    } catch (e) {
+      console.error("[normalizeSummary] 실패:", e);
+      toast.error("다이어그램 데이터를 해석하는 중 오류가 발생했습니다.");
+    }
 
     setSummary(api);
-    setTree(tree ?? []);
-    setNodes(nodes ?? []);
-    setEdges(edges ?? []);
+    setTree(tree);
+    setNodes(nodes);
+    setEdges(edges);
 
     return api;
   } catch (err: any) {
-    if (err?.name === "AbortError") {
-      // 라우트 변경/언마운트 중 취소: 조용히 무시
+    if (isAbortLike(err)) {
+      // 라우트 변경/타임아웃/외부 취소: 조용히 무시
       aborted = true;
       return null;
     }

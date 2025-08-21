@@ -6,7 +6,7 @@ import {
   summarizeAndGenerateTree,
   summarizeTextOnly,
 } from "@/app/lib/gtp/summarize";
-import { TreeNode } from "@/app/types/tree";
+import { TreeNode } from "@/app/types/diagram";
 import SummaryResult from "@/components/SummaryResult";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -48,7 +48,7 @@ export default function ResultPage() {
 
   return (
     <section className="bg-linear-to-br from-[#fbf7ee] via-[#f6f7f1] to-[#f2f8fc] ">
-      <SummaryResult text={text} tree={tree ?? undefined} />
+      {/* <SummaryResult text={text} tree={tree ?? undefined} /> */}
     </section>
   );
 }
