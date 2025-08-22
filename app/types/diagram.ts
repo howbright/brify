@@ -11,6 +11,10 @@ export type MyNodeData = {
   description: string;
   /** 런타임에서만 주입되는 콜백 (DB 저장 X) */
   onUpdate?: (id: string, newText: string, type: NodeKind) => void;
+  /** 하이라이트 표시 (서버 overlay -> normalize 시 주입) */
+  highlighted?: boolean;
+  /** 하이라이트 토글 콜백 (부모가 API 호출) */
+  onHighlightChange?: (id: string, next: boolean) => void;
 };
 
 /** React Flow 노드/엣지 */
@@ -38,6 +42,8 @@ export type Overlay = {
   type: "overlay";
   positions: Record<string, { x: number; y: number }>;
   edits: Record<string, { title?: string; description?: string }>;
+  /** 하이라이트 상태 저장(존재하면 true) */
+  highlights?: Record<string, boolean>;
 };
 
 /** temp_diagram_json: React Flow 스냅샷 */
@@ -62,7 +68,12 @@ export function isOriginal(v: any): v is OriginalDiagram {
   return v?.version === 1 && v?.type === "original" && Array.isArray(v?.nodes);
 }
 export function isFlowState(v: any): v is ReactFlowState {
-  return v?.version === 1 && v?.type === "reactflow" && Array.isArray(v?.nodes) && Array.isArray(v?.edges);
+  return (
+    v?.version === 1 &&
+    v?.type === "reactflow" &&
+    Array.isArray(v?.nodes) &&
+    Array.isArray(v?.edges)
+  );
 }
 export function isOverlay(v: any): v is Overlay {
   return v?.version === 1 && v?.type === "overlay" && v?.positions && v?.edits;

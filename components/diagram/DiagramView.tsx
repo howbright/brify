@@ -1,11 +1,11 @@
+// components/diagram/DiagramView.tsx
 "use client";
 
 import { classicStyle } from "@/styles/presets";
 import "@xyflow/react/dist/style.css";
-import { CSSProperties, useCallback, useEffect, useState } from "react";
+import { CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
 import DiagramStyleSelector from "../DiagramStyleSelector";
 import { CustomNode } from "./CustomNode";
-// after
 import { MyFlowEdge, MyFlowNode } from "@/app/types/diagram";
 import {
   Background,
@@ -15,27 +15,31 @@ import {
   ReactFlowProvider,
   applyEdgeChanges,
   applyNodeChanges,
-  type EdgeChange
+  type EdgeChange,
 } from "@xyflow/react";
+import { toast } from "sonner";
 
 const nodeTypes = { custom: CustomNode };
 
-// after
 interface DiagramViewProps {
   summaryId: string;
   nodes: MyFlowNode[];
   edges: MyFlowEdge[];
 }
 
-export default function DiagramView({
-  summaryId,
-  nodes,
-  edges,
-}: DiagramViewProps) {
+// ⬇ (선택) 파일 어느 곳에 두어도 되는 작은 유틸
+const safeParseJSON = <T = any,>(text: string | null): T | null => {
+  if (!text) return null;
+  try { return JSON.parse(text) as T; } catch { return null; }
+};
+const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
+const shortId = () => Math.random().toString(36).slice(2, 8);
+
+
+export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProps) {
   const [stylePreset, setStylePreset] = useState(classicStyle);
   const [stylePickerOpen, setStylePickerOpen] = useState(false);
 
-  // after
   const [flowNodes, setFlowNodes] = useState<MyFlowNode[]>([]);
   const [flowEdges, setFlowEdges] = useState<MyFlowEdge[]>([]);
 
@@ -43,17 +47,152 @@ export default function DiagramView({
   const [dirty, setDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  // ⬇ 하이라이트일 때 인라인 색이 클래스를 가리지 않도록 정리
+  const computeNodeStyle = useCallback(
+    (node: MyFlowNode): CSSProperties => {
+      // preset만 기준으로 (과거 node.style의 색을 섞지 않음)
+      const base: CSSProperties = { ...(stylePreset.node as CSSProperties) };
+      const isHighlighted = !!(node.data as any)?.highlighted;
+
+      if (isHighlighted) {
+        delete (base as any).background;
+        delete (base as any).backgroundColor;
+        delete (base as any).backgroundImage;
+        delete (base as any).borderColor;
+        delete (base as any).boxShadow; // ring 가림 방지
+      }
+      return base;
+    },
+    [stylePreset]
+  );
+
+  // ✅ 하이라이트 토글(낙관적 갱신 → API 저장 → 실패 롤백)
+  const onHighlightChange = useCallback(
+    async (nodeId: string, next: boolean) => {
+      const reqId = shortId();
+      const t0 = now();
   
+      // 콘솔 그룹으로 묶어서 보기 쉽게
+      // eslint-disable-next-line no-console
+      console.groupCollapsed(
+        `%c[HL ${reqId}] toggle`,
+        "color:#9333ea;font-weight:700",
+        { nodeId, next }
+      );
+  
+      // 1) 낙관적 갱신 (+ 스타일 재계산)
+      setFlowNodes((prev) => {
+        let hit = false;
+        const updated = prev.map((n) => {
+          if (String(n.id) !== String(nodeId)) return n;
+          hit = true;
+          const candidate: MyFlowNode = {
+            ...n,
+            data: { ...(n.data as any), highlighted: next } as any,
+          };
+          const styled = { ...candidate, style: computeNodeStyle(candidate) };
+          // eslint-disable-next-line no-console
+          console.log(`[HL ${reqId}] optimistic ->`, {
+            id: n.id,
+            highlighted: next,
+            styleAfter: styled.style,
+          });
+          return styled;
+        });
+        if (!hit) {
+          // eslint-disable-next-line no-console
+          console.warn(`[HL ${reqId}] node not found in local state`, { nodeId });
+        }
+        return updated;
+      });
+  
+      // 2) 서버 저장
+      try {
+        const res = await fetch(`/api/summary/highlight`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ summaryId, nodeId, highlighted: next }),
+        });
+        const rawText = await res.text();
+        const json = safeParseJSON<any>(rawText);
+  
+        if (!res.ok) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[HL ${reqId}] server !ok`,
+            { status: res.status, statusText: res.statusText, json, rawText }
+          );
+  
+          // 3) 실패 롤백 (+ 스타일 재계산)
+          setFlowNodes((prev) =>
+            prev.map((n) => {
+              if (String(n.id) !== String(nodeId)) return n;
+              const candidate: MyFlowNode = {
+                ...n,
+                data: { ...(n.data as any), highlighted: !next } as any,
+              };
+              return { ...candidate, style: computeNodeStyle(candidate) };
+            })
+          );
+  
+          // 사용자에게도 명확히
+          const reason =
+            json?.message
+              ? `${json.message}${
+                  json?.detail ? ` — ${JSON.stringify(json.detail)}` : ""
+                }`
+              : rawText || "Unknown error";
+          toast.error(`하이라이트 저장 실패 (${res.status} ${res.statusText})`, {
+            description: reason,
+          });
+          return;
+        }
+  
+        // 성공 로그
+        // eslint-disable-next-line no-console
+        console.log(`[HL ${reqId}] server ok`, { json });
+  
+        // (선택) 서버가 정규화된 스냅샷을 돌려주지 않으니,
+        // 낙관적 갱신 상태를 그대로 유지.
+        toast.success(next ? "하이라이트 적용됨" : "하이라이트 해제됨");
+      } catch (err: any) {
+        // 네트워크 오류 등
+        // eslint-disable-next-line no-console
+        console.error(`[HL ${reqId}] fetch error`, err);
+  
+        // 롤백
+        setFlowNodes((prev) =>
+          prev.map((n) => {
+            if (String(n.id) !== String(nodeId)) return n;
+            const candidate: MyFlowNode = {
+              ...n,
+              data: { ...(n.data as any), highlighted: !next } as any,
+            };
+            return { ...candidate, style: computeNodeStyle(candidate) };
+          })
+        );
+  
+        toast.error("하이라이트 저장 중 네트워크 오류");
+      } finally {
+        const dt = (now() - t0).toFixed(1);
+        // eslint-disable-next-line no-console
+        console.groupEnd?.();
+        // eslint-disable-next-line no-console
+        console.log(`%c[HL ${reqId}] done in ${dt}ms`, "color:#22c55e");
+      }
+    },
+    [summaryId, computeNodeStyle, setFlowNodes]
+  );
 
   // === API CALLS ===
   const saveTempDiagram = useCallback(
-    async (nodes: any, edges: any) => {
+    async (nodesArg: any, edgesArg: any) => {
       setIsSaving(true);
       try {
         await fetch(`/api/summaries/${summaryId}/temp-diagram`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nodes, edges }),
+          body: JSON.stringify({ nodes: nodesArg, edges: edgesArg }),
         });
       } finally {
         setIsSaving(false);
@@ -62,20 +201,14 @@ export default function DiagramView({
     [summaryId]
   );
 
-  useEffect(() => {
-    console.log(nodes)
-    console.log(edges)
-
-  }, [])
-
   const commitDiagram = useCallback(
-    async (nodes: any, edges: any) => {
+    async (nodesArg: any, edgesArg: any) => {
       setIsSaving(true);
       try {
         await fetch(`/api/summaries/${summaryId}/commit-diagram`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nodes, edges }),
+          body: JSON.stringify({ nodes: nodesArg, edges: edgesArg }),
         });
         setDirty(false);
       } finally {
@@ -85,22 +218,7 @@ export default function DiagramView({
     [summaryId]
   );
 
-  const resetDiagram = useCallback(async () => {
-    setIsSaving(true);
-    try {
-      const res = await fetch(`/api/summaries/${summaryId}/reset-diagram`, {
-        method: "POST",
-      });
-      const data = await res.json();
-      if (data.diagram_json) {
-        setFlowNodes(data.diagram_json.nodes || []);
-        setFlowEdges(data.diagram_json.edges || []);
-      }
-      setDirty(false);
-    } finally {
-      setIsSaving(false);
-    }
-  }, [summaryId]);
+ 
 
   const onUpdateNode = useCallback(
     (id: string, newText: string, type: "title" | "description") => {
@@ -110,16 +228,15 @@ export default function DiagramView({
             ? {
                 ...n,
                 data: {
-                  ...n.data,
-                  title: type === "title" ? newText : n.data.title,
+                  ...(n.data as any),
+                  title: type === "title" ? newText : (n.data as any).title,
                   description:
-                    type === "description" ? newText : n.data.description,
-                },
+                    type === "description" ? newText : (n.data as any).description,
+                } as any,
               }
             : n
         );
 
-        // autoSave일 때 저장 로직 실행
         if (autoSave) {
           saveTempDiagram(newNodes, flowEdges);
         } else {
@@ -128,31 +245,63 @@ export default function DiagramView({
         return newNodes;
       });
     },
-    [autoSave, flowEdges, saveTempDiagram] // flowNodes 제거!
+    [autoSave, flowEdges, saveTempDiagram]
   );
 
-  // props 변화 시 상태 초기화
+  const resetDiagram = useCallback(async () => {
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/summaries/${summaryId}/reset-diagram`, { method: "POST" });
+      const data = await res.json();
+      if (data.diagram_json) {
+        const freshNodes = (data.diagram_json.nodes || []) as MyFlowNode[];
+        const mapped = freshNodes.map((n) => {
+          const withRuntime: MyFlowNode = {
+            ...n,
+            type: "custom" as const,
+            data: {
+              ...(n.data as any),
+              onUpdate: onUpdateNode,
+              onHighlightChange,
+              highlighted: !!(n.data as any)?.highlighted,
+            } as any,
+          };
+          return { ...withRuntime, style: computeNodeStyle(withRuntime) };
+        });
+        setFlowNodes(mapped);
+        setFlowEdges((data.diagram_json.edges || []) as MyFlowEdge[]);
+      }
+      setDirty(false);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [summaryId, onUpdateNode, onHighlightChange, computeNodeStyle]);
+
+  // props → state 초기화 (단 하나의 useEffect만 사용)
   useEffect(() => {
-    const styled: MyFlowNode[] = (nodes ?? []).map((node) => ({
-      ...node,
-      type: "custom" as const, // ✅ 리터럴 고정
-      style: stylePreset.node as CSSProperties, // ✅ CSSProperties로 캐스팅
-      data: {
-        ...node.data,
-        onUpdate: onUpdateNode, // ✅ 런타임 콜백 주입
-      },
-    }));
-    setFlowNodes(styled); // ✅ MyFlowNode[]로 딱 맞음
+    const styled: MyFlowNode[] = (nodes ?? []).map((node) => {
+      const withRuntime: MyFlowNode = {
+        ...node,
+        type: "custom" as const,
+        data: {
+          ...(node.data as any),
+          onUpdate: onUpdateNode,
+          onHighlightChange,
+          highlighted: !!(node.data as any)?.highlighted,
+        } as any,
+      };
+      return { ...withRuntime, style: computeNodeStyle(withRuntime) };
+    });
+    setFlowNodes(styled);
     setFlowEdges((edges ?? []) as MyFlowEdge[]);
-  }, [nodes, edges, stylePreset, onUpdateNode]);
+  }, [nodes, edges, onUpdateNode, onHighlightChange, computeNodeStyle]);
 
   const onNodesChange = useCallback(
     (changes: any) => setFlowNodes((nds) => applyNodeChanges(changes, nds)),
     []
   );
   const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) =>
-      setFlowEdges((eds) => applyEdgeChanges(changes, eds)),
+    (changes: EdgeChange[]) => setFlowEdges((eds) => applyEdgeChanges(changes, eds)),
     []
   );
 
