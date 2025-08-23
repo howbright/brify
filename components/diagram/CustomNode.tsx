@@ -1,3 +1,4 @@
+// components/diagram/CustomNode.tsx
 import { MyFlowNode } from "@/app/types/diagram";
 import { Handle, NodeProps, Position, useReactFlow } from "@xyflow/react";
 import clsx from "clsx";
@@ -28,7 +29,7 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
 
   const toggleHighlight = () => {
     const next = !hl;
-    setHl(next);                   // 로컬 즉시 반영
+    setHl(next);
     d.onHighlightChange?.(id, next);
   };
 
@@ -63,41 +64,47 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
     }
   }, [tempText, editing]);
 
+  // ======== 배경/테두리 “서로 배타적” 분기 ========
+  const isNote = !!d.userCreated;
+  const isHl = hl && !isNote; // note가 우선: note면 하이라이트 배경은 비활성
+  const baseBg =
+    isTitle
+      ? "bg-blue-100 border-blue-300 text-blue-900"
+      : "bg-gray-100 border-gray-300 text-gray-700";
+  const noteBg =
+    "bg-amber-100 border-amber-300 text-amber-900 shadow-[0_6px_12px_-4px_rgba(245,158,11,0.35)] -rotate-1";
+  const hlBg =
+    "bg-gradient-to-br from-fuchsia-50 to-indigo-50 border-fuchsia-300";
+
+  const colorBlock = isNote ? noteBg : isHl ? hlBg : baseBg;
+
+  // 링/글로우도 note는 별도 경로
+  const ringBlock = selected
+    ? (isNote
+        ? "ring-2 ring-amber-400 ring-offset-2 ring-offset-white"
+        : isHl
+          ? "ring-2 ring-fuchsia-500 ring-offset-2 ring-offset-white"
+          : "ring-2 ring-blue-400")
+    : (isNote
+        ? "shadow-md shadow-amber-300/40"
+        : isHl
+          ? "ring-2 ring-fuchsia-400 ring-offset-2 ring-offset-white shadow-lg shadow-fuchsia-300/50 scale-[1.01]"
+          : "");
+
   return (
     <div
       className={clsx(
         "relative rounded-lg border p-3 shadow-sm text-sm max-w-[250px] break-words transition",
-
-        // 기본 배경/테두리
-        isTitle
-          ? "bg-blue-100 border-blue-300 text-blue-900"
-          : "bg-gray-100 border-gray-300 text-gray-700",
-
-        // ⭐ 하이라이트 (먼저 둬도 됨 — 아래 userCreated가 더 뒤라 우선순위 ↑)
-        hl && "bg-gradient-to-br from-fuchsia-50 to-indigo-50 border-fuchsia-300",
-
-        // 선택 링/글로우
-        selected
-          ? (hl
-              ? "ring-2 ring-fuchsia-500 ring-offset-2 ring-offset-white"
-              : "ring-2 ring-blue-400")
-          : (hl
-              ? "ring-2 ring-fuchsia-400 ring-offset-2 ring-offset-white shadow-lg shadow-fuchsia-300/50 scale-[1.01]"
-              : ""),
-
-        // ⬇⬇ 마지막에 사용자 생성 표시(우선순위 ↑)
-        d.userCreated &&
-          "bg-amber-100 border-amber-300 text-amber-900 shadow-[0_6px_12px_-4px_rgba(245,158,11,0.35)] rotate-1",
-
-        // 편집 중 커서 힌트
+        colorBlock,
+        ringBlock,
         editing ? "cursor-text nopan" : "cursor-pointer"
       )}
       onDoubleClick={startEdit}
       data-highlighted={hl ? "true" : "false"}
-      data-usercreated={d.userCreated ? "true" : "false"}
+      data-usercreated={isNote ? "true" : "false"}
     >
-      {/* ⭐ 하이라이트 배지 */}
-      {hl && !editing && !selected && (
+      {/* ⭐ 하이라이트 배지 (note일 땐 숨김) */}
+      {isHl && !editing && !selected && (
         <div
           className="absolute -top-2 -right-2 z-10 nodrag nopan nowheel"
           onPointerDown={(e) => e.stopPropagation()}
@@ -129,7 +136,7 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
             </svg>
           </button>
 
-          {/* 하이라이트 */}
+          {/* 하이라이트 (note 모드에서도 토글은 가능) */}
           <button
             type="button"
             title="하이라이트"
@@ -175,9 +182,6 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
               <path d="M6 7h12v2H6V7zm2 3h8l-1 9H9l-1-9zm3-6h2l1 1h5v2H5V5h5l1-1z" />
             </svg>
           </button>
-
-          {/* (선택) 부모와의 연결만 끊기 */}
-          {/* <button onClick={() => d.onDetachFromParent?.(id)}>⤴︎</button> */}
         </div>
       )}
 
