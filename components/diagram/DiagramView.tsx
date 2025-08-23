@@ -1,3 +1,4 @@
+// components/diagram/DiagramView.tsx
 "use client";
 
 import { MyFlowEdge, MyFlowNode } from "@/app/types/diagram";
@@ -67,8 +68,7 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
   const [flowNodes, setFlowNodes] = useState<MyFlowNode[]>([]);
   const [flowEdges, setFlowEdges] = useState<MyFlowEdge[]>([]);
 
-  const [autoSave, setAutoSave] = useState(true);
-  const [dirty, setDirty] = useState(false);
+  // 자동저장만 제공 → 저장상태만 유지
   const [isSaving, setIsSaving] = useState(false);
 
   // ---------- 스타일 계산 (하이라이트·사용자생성일 때 인라인 색 제거) ----------
@@ -90,7 +90,7 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
     [stylePreset]
   );
 
-  // ---------- API ----------
+  // ---------- API (자동저장) ----------
   const saveTempDiagram = useCallback(
     async (nodesArg: any, edgesArg: any) => {
       setIsSaving(true);
@@ -100,23 +100,6 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ nodes: nodesArg, edges: edgesArg }),
         });
-      } finally {
-        setIsSaving(false);
-      }
-    },
-    [summaryId]
-  );
-
-  const commitDiagram = useCallback(
-    async (nodesArg: any, edgesArg: any) => {
-      setIsSaving(true);
-      try {
-        await fetch(`/api/summaries/${summaryId}/commit-diagram`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nodes: nodesArg, edges: edgesArg }),
-        });
-        setDirty(false);
       } finally {
         setIsSaving(false);
       }
@@ -141,15 +124,12 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
               }
             : n
         );
-        if (autoSave) {
-          saveTempDiagram(newNodes, flowEdges);
-        } else {
-          setDirty(true);
-        }
+        // 자동저장
+        saveTempDiagram(newNodes, flowEdges);
         return newNodes;
       });
     },
-    [autoSave, flowEdges, saveTempDiagram]
+    [flowEdges, saveTempDiagram]
   );
 
   const onHighlightChangeReal: OnHighlightChange = useCallback(
@@ -276,7 +256,7 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
             title: "",
             description: "새 항목",
             highlighted: false,
-            userCreated: true, // ⬅⬅ 사용자 생성 표시
+            userCreated: true, // ⬅ 사용자 생성 표시
             // 런타임 콜백 주입
             onUpdate: onUpdateBridge,
             onHighlightChange: onHighlightBridge,
@@ -292,8 +272,8 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
           const edge = { id: makeEdgeId(pId, newId), source: pId, target: newId };
           const nextEdges = [...prevEdges, edge];
 
-          if (autoSave) saveTempDiagram(nextNodes, nextEdges);
-          else setDirty(true);
+          // 자동저장
+          saveTempDiagram(nextNodes, nextEdges);
 
           return nextEdges;
         });
@@ -302,7 +282,6 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
       });
     },
     [
-      autoSave,
       saveTempDiagram,
       computeNodeStyle,
       onUpdateBridge,
@@ -321,26 +300,26 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
           const nextEdges = prevEdges.filter(
             (e) => String(e.source) !== String(nodeId) && String(e.target) !== String(nodeId)
           );
-          if (autoSave) saveTempDiagram(nextNodes, nextEdges);
-          else setDirty(true);
+          // 자동저장
+          saveTempDiagram(nextNodes, nextEdges);
           return nextEdges;
         });
         return nextNodes;
       });
     },
-    [autoSave, saveTempDiagram]
+    [saveTempDiagram]
   );
 
   const onDetachFromParentReal: OnDetachFromParent = useCallback(
     (nodeId) => {
       setFlowEdges((prevEdges) => {
         const nextEdges = prevEdges.filter((e) => String(e.target) !== String(nodeId));
-        if (autoSave) saveTempDiagram(flowNodes, nextEdges);
-        else setDirty(true);
+        // 자동저장
+        saveTempDiagram(flowNodes, nextEdges);
         return nextEdges;
       });
     },
-    [autoSave, flowNodes, saveTempDiagram]
+    [flowNodes, saveTempDiagram]
   );
 
   // ref 갱신
@@ -410,14 +389,14 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
 
       setFlowNodes((prev) => {
         const next = applyNodeChanges(changes, prev);
+        // 위치 드래그가 ‘끝났을 때’만 저장(과도한 호출 방지)
         if (ended) {
-          if (autoSave) saveTempDiagram(next, flowEdges);
-          else setDirty(true);
+          saveTempDiagram(next, flowEdges);
         }
         return next;
       });
     },
-    [autoSave, flowEdges, saveTempDiagram]
+    [flowEdges, saveTempDiagram]
   );
 
   const onEdgesChange = useCallback(
@@ -425,88 +404,19 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
     []
   );
 
-  // 드래그 종료 시 한번 더 저장 (보수적)
+  // 드래그 종료 시 한 번 더 저장(보수적으로)
   const onNodeDragStop = useCallback(() => {
-    if (autoSave) saveTempDiagram(flowNodes, flowEdges);
-    else setDirty(true);
-  }, [autoSave, flowNodes, flowEdges, saveTempDiagram]);
+    saveTempDiagram(flowNodes, flowEdges);
+  }, [flowNodes, flowEdges, saveTempDiagram]);
 
   // ---------- UI ----------
   return (
     <div className="h-[600px] border rounded bg-white relative">
       {/* 상단 바 */}
       <div className="absolute top-2 right-2 flex items-center gap-2 z-10 bg-white/80 px-3 py-1 rounded shadow">
-        <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
-          <span>자동 저장</span>
-          <input
-            type="checkbox"
-            checked={autoSave}
-            onChange={(e) => setAutoSave(e.target.checked)}
-          />
-        </label>
-
-        {!autoSave && (
-          <>
-            <button
-              onClick={() => commitDiagram(flowNodes, flowEdges)}
-              disabled={!dirty || isSaving}
-              className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
-            >
-              {isSaving ? "저장 중..." : "저장하기"}
-            </button>
-            <button
-              onClick={async () => {
-                setIsSaving(true);
-                try {
-                  const res = await fetch(`/api/summaries/${summaryId}/reset-diagram`, { method: "POST" });
-                  const data = await res.json();
-                  if (data?.diagram_json) {
-                    const freshNodes = (data.diagram_json.nodes || []) as MyFlowNode[];
-                    const mapped = freshNodes.map((n) => {
-                      const withRuntime: MyFlowNode = {
-                        ...n,
-                        id: String(n.id),
-                        type: "custom",
-                        data: {
-                          ...(n.data as any),
-                          onUpdate: onUpdateBridge,
-                          onHighlightChange: onHighlightBridge,
-                          onAddChild: onAddChildBridge,
-                          onDeleteNode: onDeleteNodeBridge,
-                          onDetachFromParent: onDetachFromParentBridge,
-                          highlighted: !!(n.data as any)?.highlighted,
-                          userCreated: !!(n.data as any)?.userCreated,
-                        } as any,
-                      };
-                      return { ...withRuntime, style: computeNodeStyle(withRuntime) };
-                    });
-
-                    const mappedEdges = (data.diagram_json.edges || []).map((e: any) => ({
-                      ...e,
-                      id: String(e.id),
-                      source: String(e.source),
-                      target: String(e.target),
-                    })) as MyFlowEdge[];
-
-                    setFlowNodes(mapped);
-                    setFlowEdges(mappedEdges);
-                  }
-                  setDirty(false);
-                } finally {
-                  setIsSaving(false);
-                }
-              }}
-              className="px-3 py-1 bg-gray-300 rounded"
-            >
-              초기화
-            </button>
-          </>
-        )}
-        {autoSave && (
-          <span className="text-xs text-gray-500">
-            {isSaving ? "자동 저장 중..." : "모두 저장됨"}
-          </span>
-        )}
+        <span className="text-xs text-gray-500">
+          {isSaving ? "자동 저장 중..." : "모두 저장됨"}
+        </span>
       </div>
 
       <ReactFlowProvider>
