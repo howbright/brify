@@ -1,4 +1,3 @@
-// components/diagram/DiagramView.tsx
 "use client";
 
 import { MyFlowEdge, MyFlowNode } from "@/app/types/diagram";
@@ -18,7 +17,6 @@ import {
   CSSProperties,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
@@ -31,19 +29,29 @@ const nodeTypes = { custom: CustomNode };
 // ---------- 작은 유틸 ----------
 const safeParseJSON = <T = any,>(text: string | null): T | null => {
   if (!text) return null;
-  try {
-    return JSON.parse(text) as T;
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(text) as T; } catch { return null; }
 };
-const now = () =>
-  typeof performance !== "undefined" ? performance.now() : Date.now();
+const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
 const shortId = () => Math.random().toString(36).slice(2, 8);
-const makeNodeId = () =>
-  `n_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
-const makeEdgeId = (s: string, t: string) =>
-  `e_${s}_${t}_${Math.random().toString(36).slice(2, 5)}`;
+const makeNodeId = () => `n_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+const makeEdgeId = (s: string | number, t: string | number) =>
+  `e_${String(s)}_${String(t)}_${Math.random().toString(36).slice(2, 5)}`;
+
+// ---------- 타입 ----------
+type NodeId = string | number;
+type OnUpdateNode = (id: string, newText: string, type: "title" | "description") => void;
+type OnHighlightChange = (nodeId: string, next: boolean) => void | Promise<void>;
+type OnAddChild = (parentId: NodeId) => void;
+type OnDeleteNode = (nodeId: string) => void;
+type OnDetachFromParent = (nodeId: string) => void;
+
+type Handlers = {
+  onUpdateNode: OnUpdateNode;
+  onHighlightChange: OnHighlightChange;
+  onAddChild: OnAddChild;
+  onDeleteNode: OnDeleteNode;
+  onDetachFromParent: OnDetachFromParent;
+};
 
 interface DiagramViewProps {
   summaryId: string;
@@ -51,11 +59,7 @@ interface DiagramViewProps {
   edges: MyFlowEdge[];
 }
 
-export default function DiagramView({
-  summaryId,
-  nodes,
-  edges,
-}: DiagramViewProps) {
+export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProps) {
   // ---------- state ----------
   const [stylePreset, setStylePreset] = useState(classicStyle);
   const [stylePickerOpen, setStylePickerOpen] = useState(false);
@@ -67,17 +71,19 @@ export default function DiagramView({
   const [dirty, setDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // ---------- 스타일 계산(하이라이트 시 인라인 색 제거) ----------
+  // ---------- 스타일 계산 (하이라이트·사용자생성일 때 인라인 색 제거) ----------
   const computeNodeStyle = useCallback(
     (node: MyFlowNode): CSSProperties => {
       const base: CSSProperties = { ...(stylePreset.node as CSSProperties) };
       const isHighlighted = !!(node.data as any)?.highlighted;
-      if (isHighlighted) {
+      const isUserCreated = !!(node.data as any)?.userCreated;
+
+      if (isHighlighted || isUserCreated) {
         delete (base as any).background;
         delete (base as any).backgroundColor;
         delete (base as any).backgroundImage;
         delete (base as any).borderColor;
-        delete (base as any).boxShadow; // ring 가림 방지
+        delete (base as any).boxShadow;
       }
       return base;
     },
@@ -101,15 +107,6 @@ export default function DiagramView({
     [summaryId]
   );
 
-  // 옵션: 드래그가 끝났을 때 한 번 더 저장 트리거
-  const onNodeDragStop = useCallback(() => {
-    if (autoSave) {
-      saveTempDiagram(flowNodes, flowEdges);
-    } else {
-      setDirty(true);
-    }
-  }, [autoSave, flowNodes, flowEdges, saveTempDiagram]);
-
   const commitDiagram = useCallback(
     async (nodesArg: any, edgesArg: any) => {
       setIsSaving(true);
@@ -127,21 +124,19 @@ export default function DiagramView({
     [summaryId]
   );
 
-  // ---------- 실제 동작 콜백(아이덴티티 바뀔 수 있음) ----------
-  const onUpdateNodeReal = useCallback(
-    (id: string, newText: string, type: "title" | "description") => {
+  // ---------- 실제 동작 콜백 ----------
+  const onUpdateNodeReal: OnUpdateNode = useCallback(
+    (id, newText, type) => {
       setFlowNodes((nds) => {
         const newNodes = nds.map((n) =>
-          n.id === id
+          String(n.id) === String(id)
             ? {
                 ...n,
                 data: {
                   ...(n.data as any),
                   title: type === "title" ? newText : (n.data as any).title,
                   description:
-                    type === "description"
-                      ? newText
-                      : (n.data as any).description,
+                    type === "description" ? newText : (n.data as any).description,
                 } as any,
               }
             : n
@@ -157,8 +152,8 @@ export default function DiagramView({
     [autoSave, flowEdges, saveTempDiagram]
   );
 
-  const onHighlightChangeReal = useCallback(
-    async (nodeId: string, next: boolean) => {
+  const onHighlightChangeReal: OnHighlightChange = useCallback(
+    async (nodeId, next) => {
       const reqId = shortId();
       const t0 = now();
 
@@ -197,17 +192,13 @@ export default function DiagramView({
             })
           );
 
-          const reason = json?.message
-            ? `${json.message}${
-                json?.detail ? ` — ${JSON.stringify(json.detail)}` : ""
-              }`
-            : rawText || "Unknown error";
-          toast.error(
-            `하이라이트 저장 실패 (${res.status} ${res.statusText})`,
-            {
-              description: reason,
-            }
-          );
+          const reason =
+            json?.message
+              ? `${json.message}${json?.detail ? ` — ${JSON.stringify(json.detail)}` : ""}`
+              : rawText || "Unknown error";
+          toast.error(`하이라이트 저장 실패 (${res.status} ${res.statusText})`, {
+            description: reason,
+          });
           return;
         }
 
@@ -234,19 +225,47 @@ export default function DiagramView({
     [summaryId, computeNodeStyle]
   );
 
-  const onAddChildReal = useCallback(
-    (parentId: string) => {
+  // ---------- 핸들러 ref & 브리지 (항상 안정) ----------
+  const handlersRef = useRef<Handlers>({
+    onUpdateNode: () => {},
+    onHighlightChange: () => {},
+    onAddChild: () => {},
+    onDeleteNode: () => {},
+    onDetachFromParent: () => {},
+  });
+
+  const onUpdateBridge: Handlers["onUpdateNode"] = useCallback((...args) => {
+    return handlersRef.current.onUpdateNode(...args);
+  }, []);
+  const onHighlightBridge: Handlers["onHighlightChange"] = useCallback((...args) => {
+    return handlersRef.current.onHighlightChange(...args);
+  }, []);
+  const onAddChildBridge: Handlers["onAddChild"] = useCallback((...args) => {
+    return handlersRef.current.onAddChild(...args);
+  }, []);
+  const onDeleteNodeBridge: Handlers["onDeleteNode"] = useCallback((...args) => {
+    return handlersRef.current.onDeleteNode(...args);
+  }, []);
+  const onDetachFromParentBridge: Handlers["onDetachFromParent"] = useCallback((...args) => {
+    return handlersRef.current.onDetachFromParent(...args);
+  }, []);
+
+  // ---------- onAddChild / onDelete / onDetach ----------
+  const onAddChildReal: OnAddChild = useCallback(
+    (parentId) => {
       setFlowNodes((prevNodes) => {
-        const parent = prevNodes.find((n) => n.id === parentId);
+        const pId = String(parentId);
+        const parent = prevNodes.find((n) => String(n.id) === pId);
 
         const pos = parent
           ? {
-              x: parent.position.x + 260,
+              x: parent.position.x + 260 + Math.round(Math.random() * 30 - 15),
               y: parent.position.y + 160 + Math.round(Math.random() * 40 - 20),
             }
           : { x: 0, y: 0 };
 
-        const newId = makeNodeId();
+        const newId = String(makeNodeId());
+
         const newNode: MyFlowNode = {
           id: newId,
           type: "custom",
@@ -257,49 +276,53 @@ export default function DiagramView({
             title: "",
             description: "새 항목",
             highlighted: false,
+            userCreated: true, // ⬅⬅ 사용자 생성 표시
+            // 런타임 콜백 주입
+            onUpdate: onUpdateBridge,
+            onHighlightChange: onHighlightBridge,
+            onAddChild: onAddChildBridge,
+            onDeleteNode: onDeleteNodeBridge,
+            onDetachFromParent: onDetachFromParentBridge,
           } as any,
         };
 
-        const nextNodes = [
-          ...prevNodes,
-          { ...newNode, style: computeNodeStyle(newNode) },
-        ];
+        const nextNodes = [...prevNodes, { ...newNode, style: computeNodeStyle(newNode) }];
 
         setFlowEdges((prevEdges) => {
-          const edge = {
-            id: makeEdgeId(parentId, newId),
-            source: parentId,
-            target: newId,
-          };
+          const edge = { id: makeEdgeId(pId, newId), source: pId, target: newId };
           const nextEdges = [...prevEdges, edge];
 
-          if (autoSave) {
-            saveTempDiagram(nextNodes, nextEdges);
-          } else {
-            setDirty(true);
-          }
+          if (autoSave) saveTempDiagram(nextNodes, nextEdges);
+          else setDirty(true);
+
           return nextEdges;
         });
 
         return nextNodes;
       });
     },
-    [autoSave, saveTempDiagram, computeNodeStyle]
+    [
+      autoSave,
+      saveTempDiagram,
+      computeNodeStyle,
+      onUpdateBridge,
+      onHighlightBridge,
+      onAddChildBridge,
+      onDeleteNodeBridge,
+      onDetachFromParentBridge,
+    ]
   );
 
-  const onDeleteNodeReal = useCallback(
-    (nodeId: string) => {
+  const onDeleteNodeReal: OnDeleteNode = useCallback(
+    (nodeId) => {
       setFlowNodes((prevNodes) => {
-        const nextNodes = prevNodes.filter((n) => n.id !== nodeId);
+        const nextNodes = prevNodes.filter((n) => String(n.id) !== String(nodeId));
         setFlowEdges((prevEdges) => {
           const nextEdges = prevEdges.filter(
-            (e) => e.source !== nodeId && e.target !== nodeId
+            (e) => String(e.source) !== String(nodeId) && String(e.target) !== String(nodeId)
           );
-          if (autoSave) {
-            saveTempDiagram(nextNodes, nextEdges);
-          } else {
-            setDirty(true);
-          }
+          if (autoSave) saveTempDiagram(nextNodes, nextEdges);
+          else setDirty(true);
           return nextEdges;
         });
         return nextNodes;
@@ -308,30 +331,19 @@ export default function DiagramView({
     [autoSave, saveTempDiagram]
   );
 
-  const onDetachFromParentReal = useCallback(
-    (nodeId: string) => {
+  const onDetachFromParentReal: OnDetachFromParent = useCallback(
+    (nodeId) => {
       setFlowEdges((prevEdges) => {
-        const nextEdges = prevEdges.filter((e) => e.target !== nodeId);
-        if (autoSave) {
-          saveTempDiagram(flowNodes, nextEdges);
-        } else {
-          setDirty(true);
-        }
+        const nextEdges = prevEdges.filter((e) => String(e.target) !== String(nodeId));
+        if (autoSave) saveTempDiagram(flowNodes, nextEdges);
+        else setDirty(true);
         return nextEdges;
       });
     },
     [autoSave, flowNodes, saveTempDiagram]
   );
 
-  // ---------- 최신 콜백을 담는 ref + 브리지(항상 안정) ----------
-  const handlersRef = useRef({
-    onUpdateNode: onUpdateNodeReal,
-    onHighlightChange: onHighlightChangeReal,
-    onAddChild: onAddChildReal,
-    onDeleteNode: onDeleteNodeReal,
-    onDetachFromParent: onDetachFromParentReal,
-  });
-  // ref 갱신 (state 변경 없음 → 리렌더 유발 안 함)
+  // ref 갱신
   useEffect(() => {
     handlersRef.current = {
       onUpdateNode: onUpdateNodeReal,
@@ -348,38 +360,12 @@ export default function DiagramView({
     onDetachFromParentReal,
   ]);
 
-  // 브리지: 아이덴티티가 변하지 않는 콜백을 노드에 주입
-  const onUpdateBridge = useCallback((...args: any[]) => {
-    return handlersRef.current.onUpdateNode(
-      ...(args as Parameters<typeof onUpdateNodeReal>)
-    );
-  }, []);
-  const onHighlightBridge = useCallback((...args: any[]) => {
-    return handlersRef.current.onHighlightChange(
-      ...(args as Parameters<typeof onHighlightChangeReal>)
-    );
-  }, []);
-  const onAddChildBridge = useCallback((...args: any[]) => {
-    return handlersRef.current.onAddChild(
-      ...(args as Parameters<typeof onAddChildReal>)
-    );
-  }, []);
-  const onDeleteNodeBridge = useCallback((...args: any[]) => {
-    return handlersRef.current.onDeleteNode(
-      ...(args as Parameters<typeof onDeleteNodeReal>)
-    );
-  }, []);
-  const onDetachFromParentBridge = useCallback((...args: any[]) => {
-    return handlersRef.current.onDetachFromParent(
-      ...(args as Parameters<typeof onDetachFromParentReal>)
-    );
-  }, []);
-
-  // ---------- props → state 초기화 (콜백/브리지는 안정적이므로 의존성 X) ----------
+  // ---------- props → state 초기화 (userCreated 보존) ----------
   useEffect(() => {
     const styled: MyFlowNode[] = (nodes ?? []).map((node) => {
       const withRuntime: MyFlowNode = {
         ...node,
+        id: String(node.id),
         type: "custom",
         data: {
           ...(node.data as any),
@@ -389,12 +375,21 @@ export default function DiagramView({
           onDeleteNode: onDeleteNodeBridge,
           onDetachFromParent: onDetachFromParentBridge,
           highlighted: !!(node.data as any)?.highlighted,
+          userCreated: !!(node.data as any)?.userCreated, // ⬅ 보존
         } as any,
       };
       return { ...withRuntime, style: computeNodeStyle(withRuntime) };
     });
+
+    const mappedEdges = (edges ?? []).map((e) => ({
+      ...e,
+      id: String(e.id),
+      source: String(e.source),
+      target: String(e.target),
+    })) as MyFlowEdge[];
+
     setFlowNodes(styled);
-    setFlowEdges((edges ?? []) as MyFlowEdge[]);
+    setFlowEdges(mappedEdges);
   }, [
     nodes,
     edges,
@@ -406,7 +401,7 @@ export default function DiagramView({
     onDetachFromParentBridge,
   ]);
 
-  // ---------- reactflow 변경 핸들러 ----------
+  // ---------- React Flow 변경 핸들러 ----------
   const onNodesChange = useCallback(
     (changes: any) => {
       const ended =
@@ -415,14 +410,9 @@ export default function DiagramView({
 
       setFlowNodes((prev) => {
         const next = applyNodeChanges(changes, prev);
-
         if (ended) {
-          if (autoSave) {
-            // 위치가 반영된 최신 nodes로 저장
-            saveTempDiagram(next, flowEdges);
-          } else {
-            setDirty(true);
-          }
+          if (autoSave) saveTempDiagram(next, flowEdges);
+          else setDirty(true);
         }
         return next;
       });
@@ -431,10 +421,15 @@ export default function DiagramView({
   );
 
   const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) =>
-      setFlowEdges((eds) => applyEdgeChanges(changes, eds)),
+    (changes: EdgeChange[]) => setFlowEdges((eds) => applyEdgeChanges(changes, eds)),
     []
   );
+
+  // 드래그 종료 시 한번 더 저장 (보수적)
+  const onNodeDragStop = useCallback(() => {
+    if (autoSave) saveTempDiagram(flowNodes, flowEdges);
+    else setDirty(true);
+  }, [autoSave, flowNodes, flowEdges, saveTempDiagram]);
 
   // ---------- UI ----------
   return (
@@ -463,17 +458,14 @@ export default function DiagramView({
               onClick={async () => {
                 setIsSaving(true);
                 try {
-                  const res = await fetch(
-                    `/api/summaries/${summaryId}/reset-diagram`,
-                    { method: "POST" }
-                  );
+                  const res = await fetch(`/api/summaries/${summaryId}/reset-diagram`, { method: "POST" });
                   const data = await res.json();
-                  if (data.diagram_json) {
-                    const freshNodes = (data.diagram_json.nodes ||
-                      []) as MyFlowNode[];
+                  if (data?.diagram_json) {
+                    const freshNodes = (data.diagram_json.nodes || []) as MyFlowNode[];
                     const mapped = freshNodes.map((n) => {
                       const withRuntime: MyFlowNode = {
                         ...n,
+                        id: String(n.id),
                         type: "custom",
                         data: {
                           ...(n.data as any),
@@ -483,17 +475,21 @@ export default function DiagramView({
                           onDeleteNode: onDeleteNodeBridge,
                           onDetachFromParent: onDetachFromParentBridge,
                           highlighted: !!(n.data as any)?.highlighted,
+                          userCreated: !!(n.data as any)?.userCreated,
                         } as any,
                       };
-                      return {
-                        ...withRuntime,
-                        style: computeNodeStyle(withRuntime),
-                      };
+                      return { ...withRuntime, style: computeNodeStyle(withRuntime) };
                     });
+
+                    const mappedEdges = (data.diagram_json.edges || []).map((e: any) => ({
+                      ...e,
+                      id: String(e.id),
+                      source: String(e.source),
+                      target: String(e.target),
+                    })) as MyFlowEdge[];
+
                     setFlowNodes(mapped);
-                    setFlowEdges(
-                      (data.diagram_json.edges || []) as MyFlowEdge[]
-                    );
+                    setFlowEdges(mappedEdges);
                   }
                   setDirty(false);
                 } finally {
