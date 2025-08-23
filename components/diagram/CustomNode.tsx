@@ -1,8 +1,11 @@
 // components/diagram/CustomNode.tsx
+"use client";
+
 import { MyFlowNode } from "@/app/types/diagram";
 import { Handle, NodeProps, Position, useReactFlow } from "@xyflow/react";
 import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
+import ConfirmDialog from "../ui/ConfirmDialog";
 
 // 런타임에서 주입되는 확장 필드
 type RuntimeData = MyFlowNode["data"] & {
@@ -91,6 +94,13 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
           ? "ring-2 ring-fuchsia-400 ring-offset-2 ring-offset-white shadow-lg shadow-fuchsia-300/50 scale-[1.01]"
           : "");
 
+  // 삭제 Confirm 다이얼로그 상태
+  const [openDelete, setOpenDelete] = useState(false);
+  const handleDelete = () => {
+    d.onDeleteNode?.(id);
+    setOpenDelete(false);
+  };
+
   return (
     <div
       className={clsx(
@@ -168,22 +178,35 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
             </svg>
           </button>
 
-          {/* 노드 삭제 */}
+          {/* 노드 삭제 → ConfirmDialog 사용 */}
           <button
             type="button"
             title="노드 삭제"
             aria-label="노드 삭제"
             className="rounded-full bg-white border border-rose-300 text-rose-700 shadow p-1 hover:bg-rose-50"
-            onClick={() => {
-              if (confirm("이 노드와 연결을 삭제할까요?")) d.onDeleteNode?.(id);
-            }}
+            onClick={() => setOpenDelete(true)}
           >
-            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              className="w-4 h-4"
+              fill="currentColor"
+              aria-hidden="true"
+            >
               <path d="M6 7h12v2H6V7zm2 3h8l-1 9H9l-1-9zm3-6h2l1 1h5v2H5V5h5l1-1z" />
             </svg>
           </button>
         </div>
       )}
+
+      {/* 삭제 확인 모달 */}
+      <ConfirmDialog
+        open={openDelete}
+        onOpenChange={setOpenDelete}
+        onConfirm={handleDelete}
+        title="노드를 삭제할까요?"
+        description="이 노드와 연결된 엣지가 모두 삭제됩니다. 이 작업은 되돌릴 수 없어요."
+        actionLabel="삭제"
+      />
 
       {editing ? (
         <textarea
