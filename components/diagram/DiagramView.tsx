@@ -14,29 +14,17 @@ import {
   type EdgeChange,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import {
-  CSSProperties,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import DiagramStyleSelector from "../DiagramStyleSelector";
 import { CustomNode } from "./CustomNode";
 
-const nodeTypes = { custom: CustomNode };
+// ⬇ 새로 분리된 훅/유틸
+import { safeParseJSON, now, shortId, makeNodeId, makeEdgeId } from "@/utils/diagram";
+import { useAutoSave } from "@/app/hooks/useAutoSave";
+import { useNodeStyle } from "@/app/hooks/useNodeStyle";
 
-// ---------- 작은 유틸 ----------
-const safeParseJSON = <T = any,>(text: string | null): T | null => {
-  if (!text) return null;
-  try { return JSON.parse(text) as T; } catch { return null; }
-};
-const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
-const shortId = () => Math.random().toString(36).slice(2, 8);
-const makeNodeId = () => `n_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
-const makeEdgeId = (s: string | number, t: string | number) =>
-  `e_${String(s)}_${String(t)}_${Math.random().toString(36).slice(2, 5)}`;
+const nodeTypes = { custom: CustomNode };
 
 // ---------- 타입 ----------
 type NodeId = string | number;
@@ -68,44 +56,11 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
   const [flowNodes, setFlowNodes] = useState<MyFlowNode[]>([]);
   const [flowEdges, setFlowEdges] = useState<MyFlowEdge[]>([]);
 
-  // 자동저장만 제공 → 저장상태만 유지
-  const [isSaving, setIsSaving] = useState(false);
+  // 자동저장(디바운스 + flush) 훅
+  const { isSaving, save, flush } = useAutoSave(summaryId, 250);
 
-  // ---------- 스타일 계산 (하이라이트·사용자생성일 때 인라인 색 제거) ----------
-  const computeNodeStyle = useCallback(
-    (node: MyFlowNode): CSSProperties => {
-      const base: CSSProperties = { ...(stylePreset.node as CSSProperties) };
-      const isHighlighted = !!(node.data as any)?.highlighted;
-      const isUserCreated = !!(node.data as any)?.userCreated;
-
-      if (isHighlighted || isUserCreated) {
-        delete (base as any).background;
-        delete (base as any).backgroundColor;
-        delete (base as any).backgroundImage;
-        delete (base as any).borderColor;
-        delete (base as any).boxShadow;
-      }
-      return base;
-    },
-    [stylePreset]
-  );
-
-  // ---------- API (자동저장) ----------
-  const saveTempDiagram = useCallback(
-    async (nodesArg: any, edgesArg: any) => {
-      setIsSaving(true);
-      try {
-        await fetch(`/api/summaries/${summaryId}/temp-diagram`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nodes: nodesArg, edges: edgesArg }),
-        });
-      } finally {
-        setIsSaving(false);
-      }
-    },
-    [summaryId]
-  );
+  // 스타일 계산 훅
+  const computeNodeStyle = useNodeStyle(stylePreset);
 
   // ---------- 실제 동작 콜백 ----------
   const onUpdateNodeReal: OnUpdateNode = useCallback(
@@ -125,11 +80,11 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
             : n
         );
         // 자동저장
-        saveTempDiagram(newNodes, flowEdges);
+        save(newNodes, flowEdges);
         return newNodes;
       });
     },
-    [flowEdges, saveTempDiagram]
+    [flowEdges, save]
   );
 
   const onHighlightChangeReal: OnHighlightChange = useCallback(
@@ -256,8 +211,7 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
             title: "",
             description: "새 항목",
             highlighted: false,
-            userCreated: true, // ⬅ 사용자 생성 표시
-            // 런타임 콜백 주입
+            userCreated: true,
             onUpdate: onUpdateBridge,
             onHighlightChange: onHighlightBridge,
             onAddChild: onAddChildBridge,
@@ -272,9 +226,8 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
           const edge = { id: makeEdgeId(pId, newId), source: pId, target: newId };
           const nextEdges = [...prevEdges, edge];
 
-          // 자동저장
-          saveTempDiagram(nextNodes, nextEdges);
-
+          // 자동저장 (디바운스)
+          save(nextNodes, nextEdges);
           return nextEdges;
         });
 
@@ -282,7 +235,7 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
       });
     },
     [
-      saveTempDiagram,
+      save,
       computeNodeStyle,
       onUpdateBridge,
       onHighlightBridge,
@@ -300,26 +253,26 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
           const nextEdges = prevEdges.filter(
             (e) => String(e.source) !== String(nodeId) && String(e.target) !== String(nodeId)
           );
-          // 자동저장
-          saveTempDiagram(nextNodes, nextEdges);
+          // 자동저장 (디바운스)
+          save(nextNodes, nextEdges);
           return nextEdges;
         });
         return nextNodes;
       });
     },
-    [saveTempDiagram]
+    [save]
   );
 
   const onDetachFromParentReal: OnDetachFromParent = useCallback(
     (nodeId) => {
       setFlowEdges((prevEdges) => {
         const nextEdges = prevEdges.filter((e) => String(e.target) !== String(nodeId));
-        // 자동저장
-        saveTempDiagram(flowNodes, nextEdges);
+        // 자동저장 (디바운스)
+        save(flowNodes, nextEdges);
         return nextEdges;
       });
     },
-    [flowNodes, saveTempDiagram]
+    [flowNodes, save]
   );
 
   // ref 갱신
@@ -354,7 +307,7 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
           onDeleteNode: onDeleteNodeBridge,
           onDetachFromParent: onDetachFromParentBridge,
           highlighted: !!(node.data as any)?.highlighted,
-          userCreated: !!(node.data as any)?.userCreated, // ⬅ 보존
+          userCreated: !!(node.data as any)?.userCreated,
         } as any,
       };
       return { ...withRuntime, style: computeNodeStyle(withRuntime) };
@@ -389,14 +342,12 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
 
       setFlowNodes((prev) => {
         const next = applyNodeChanges(changes, prev);
-        // 위치 드래그가 ‘끝났을 때’만 저장(과도한 호출 방지)
-        if (ended) {
-          saveTempDiagram(next, flowEdges);
-        }
+        // 드래그가 ‘끝났을 때’만 저장 요청
+        if (ended) save(next, flowEdges);
         return next;
       });
     },
-    [flowEdges, saveTempDiagram]
+    [flowEdges, save]
   );
 
   const onEdgesChange = useCallback(
@@ -404,10 +355,10 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
     []
   );
 
-  // 드래그 종료 시 한 번 더 저장(보수적으로)
+  // 드래그 종료 시 보수적으로 flush
   const onNodeDragStop = useCallback(() => {
-    saveTempDiagram(flowNodes, flowEdges);
-  }, [flowNodes, flowEdges, saveTempDiagram]);
+    flush();
+  }, [flush]);
 
   // ---------- UI ----------
   return (
