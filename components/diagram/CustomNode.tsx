@@ -117,7 +117,6 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
         </div>
       )}
       {/* 선택 시 우측 액션(편집/하이라이트) */}
-      // 선택 시 우측 액션 버튼 묶음
       {selected && !editing && (
         <div
           className="absolute -right-2 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-10 nodrag nopan nowheel"

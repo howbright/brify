@@ -14,7 +14,14 @@ import {
   type EdgeChange,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  CSSProperties,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import DiagramStyleSelector from "../DiagramStyleSelector";
 import { CustomNode } from "./CustomNode";
@@ -24,12 +31,19 @@ const nodeTypes = { custom: CustomNode };
 // ---------- 작은 유틸 ----------
 const safeParseJSON = <T = any,>(text: string | null): T | null => {
   if (!text) return null;
-  try { return JSON.parse(text) as T; } catch { return null; }
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return null;
+  }
 };
-const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
+const now = () =>
+  typeof performance !== "undefined" ? performance.now() : Date.now();
 const shortId = () => Math.random().toString(36).slice(2, 8);
-const makeNodeId = () => `n_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
-const makeEdgeId = (s: string, t: string) => `e_${s}_${t}_${Math.random().toString(36).slice(2, 5)}`;
+const makeNodeId = () =>
+  `n_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+const makeEdgeId = (s: string, t: string) =>
+  `e_${s}_${t}_${Math.random().toString(36).slice(2, 5)}`;
 
 interface DiagramViewProps {
   summaryId: string;
@@ -37,7 +51,11 @@ interface DiagramViewProps {
   edges: MyFlowEdge[];
 }
 
-export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProps) {
+export default function DiagramView({
+  summaryId,
+  nodes,
+  edges,
+}: DiagramViewProps) {
   // ---------- state ----------
   const [stylePreset, setStylePreset] = useState(classicStyle);
   const [stylePickerOpen, setStylePickerOpen] = useState(false);
@@ -83,6 +101,15 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
     [summaryId]
   );
 
+  // 옵션: 드래그가 끝났을 때 한 번 더 저장 트리거
+  const onNodeDragStop = useCallback(() => {
+    if (autoSave) {
+      saveTempDiagram(flowNodes, flowEdges);
+    } else {
+      setDirty(true);
+    }
+  }, [autoSave, flowNodes, flowEdges, saveTempDiagram]);
+
   const commitDiagram = useCallback(
     async (nodesArg: any, edgesArg: any) => {
       setIsSaving(true);
@@ -112,7 +139,9 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
                   ...(n.data as any),
                   title: type === "title" ? newText : (n.data as any).title,
                   description:
-                    type === "description" ? newText : (n.data as any).description,
+                    type === "description"
+                      ? newText
+                      : (n.data as any).description,
                 } as any,
               }
             : n
@@ -168,13 +197,17 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
             })
           );
 
-          const reason =
-            json?.message
-              ? `${json.message}${json?.detail ? ` — ${JSON.stringify(json.detail)}` : ""}`
-              : rawText || "Unknown error";
-          toast.error(`하이라이트 저장 실패 (${res.status} ${res.statusText})`, {
-            description: reason,
-          });
+          const reason = json?.message
+            ? `${json.message}${
+                json?.detail ? ` — ${JSON.stringify(json.detail)}` : ""
+              }`
+            : rawText || "Unknown error";
+          toast.error(
+            `하이라이트 저장 실패 (${res.status} ${res.statusText})`,
+            {
+              description: reason,
+            }
+          );
           return;
         }
 
@@ -227,10 +260,17 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
           } as any,
         };
 
-        const nextNodes = [...prevNodes, { ...newNode, style: computeNodeStyle(newNode) }];
+        const nextNodes = [
+          ...prevNodes,
+          { ...newNode, style: computeNodeStyle(newNode) },
+        ];
 
         setFlowEdges((prevEdges) => {
-          const edge = { id: makeEdgeId(parentId, newId), source: parentId, target: newId };
+          const edge = {
+            id: makeEdgeId(parentId, newId),
+            source: parentId,
+            target: newId,
+          };
           const nextEdges = [...prevEdges, edge];
 
           if (autoSave) {
@@ -252,7 +292,9 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
       setFlowNodes((prevNodes) => {
         const nextNodes = prevNodes.filter((n) => n.id !== nodeId);
         setFlowEdges((prevEdges) => {
-          const nextEdges = prevEdges.filter((e) => e.source !== nodeId && e.target !== nodeId);
+          const nextEdges = prevEdges.filter(
+            (e) => e.source !== nodeId && e.target !== nodeId
+          );
           if (autoSave) {
             saveTempDiagram(nextNodes, nextEdges);
           } else {
@@ -308,19 +350,29 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
 
   // 브리지: 아이덴티티가 변하지 않는 콜백을 노드에 주입
   const onUpdateBridge = useCallback((...args: any[]) => {
-    return handlersRef.current.onUpdateNode(...(args as Parameters<typeof onUpdateNodeReal>));
+    return handlersRef.current.onUpdateNode(
+      ...(args as Parameters<typeof onUpdateNodeReal>)
+    );
   }, []);
   const onHighlightBridge = useCallback((...args: any[]) => {
-    return handlersRef.current.onHighlightChange(...(args as Parameters<typeof onHighlightChangeReal>));
+    return handlersRef.current.onHighlightChange(
+      ...(args as Parameters<typeof onHighlightChangeReal>)
+    );
   }, []);
   const onAddChildBridge = useCallback((...args: any[]) => {
-    return handlersRef.current.onAddChild(...(args as Parameters<typeof onAddChildReal>));
+    return handlersRef.current.onAddChild(
+      ...(args as Parameters<typeof onAddChildReal>)
+    );
   }, []);
   const onDeleteNodeBridge = useCallback((...args: any[]) => {
-    return handlersRef.current.onDeleteNode(...(args as Parameters<typeof onDeleteNodeReal>));
+    return handlersRef.current.onDeleteNode(
+      ...(args as Parameters<typeof onDeleteNodeReal>)
+    );
   }, []);
   const onDetachFromParentBridge = useCallback((...args: any[]) => {
-    return handlersRef.current.onDetachFromParent(...(args as Parameters<typeof onDetachFromParentReal>));
+    return handlersRef.current.onDetachFromParent(
+      ...(args as Parameters<typeof onDetachFromParentReal>)
+    );
   }, []);
 
   // ---------- props → state 초기화 (콜백/브리지는 안정적이므로 의존성 X) ----------
@@ -343,15 +395,44 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
     });
     setFlowNodes(styled);
     setFlowEdges((edges ?? []) as MyFlowEdge[]);
-  }, [nodes, edges, computeNodeStyle, onUpdateBridge, onHighlightBridge, onAddChildBridge, onDeleteNodeBridge, onDetachFromParentBridge]);
+  }, [
+    nodes,
+    edges,
+    computeNodeStyle,
+    onUpdateBridge,
+    onHighlightBridge,
+    onAddChildBridge,
+    onDeleteNodeBridge,
+    onDetachFromParentBridge,
+  ]);
 
   // ---------- reactflow 변경 핸들러 ----------
   const onNodesChange = useCallback(
-    (changes: any) => setFlowNodes((nds) => applyNodeChanges(changes, nds)),
-    []
+    (changes: any) => {
+      const ended =
+        Array.isArray(changes) &&
+        changes.some((c) => c.type === "position" && c.dragging === false);
+
+      setFlowNodes((prev) => {
+        const next = applyNodeChanges(changes, prev);
+
+        if (ended) {
+          if (autoSave) {
+            // 위치가 반영된 최신 nodes로 저장
+            saveTempDiagram(next, flowEdges);
+          } else {
+            setDirty(true);
+          }
+        }
+        return next;
+      });
+    },
+    [autoSave, flowEdges, saveTempDiagram]
   );
+
   const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) => setFlowEdges((eds) => applyEdgeChanges(changes, eds)),
+    (changes: EdgeChange[]) =>
+      setFlowEdges((eds) => applyEdgeChanges(changes, eds)),
     []
   );
 
@@ -382,10 +463,14 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
               onClick={async () => {
                 setIsSaving(true);
                 try {
-                  const res = await fetch(`/api/summaries/${summaryId}/reset-diagram`, { method: "POST" });
+                  const res = await fetch(
+                    `/api/summaries/${summaryId}/reset-diagram`,
+                    { method: "POST" }
+                  );
                   const data = await res.json();
                   if (data.diagram_json) {
-                    const freshNodes = (data.diagram_json.nodes || []) as MyFlowNode[];
+                    const freshNodes = (data.diagram_json.nodes ||
+                      []) as MyFlowNode[];
                     const mapped = freshNodes.map((n) => {
                       const withRuntime: MyFlowNode = {
                         ...n,
@@ -400,10 +485,15 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
                           highlighted: !!(n.data as any)?.highlighted,
                         } as any,
                       };
-                      return { ...withRuntime, style: computeNodeStyle(withRuntime) };
+                      return {
+                        ...withRuntime,
+                        style: computeNodeStyle(withRuntime),
+                      };
                     });
                     setFlowNodes(mapped);
-                    setFlowEdges((data.diagram_json.edges || []) as MyFlowEdge[]);
+                    setFlowEdges(
+                      (data.diagram_json.edges || []) as MyFlowEdge[]
+                    );
                   }
                   setDirty(false);
                 } finally {
@@ -429,6 +519,7 @@ export default function DiagramView({ summaryId, nodes, edges }: DiagramViewProp
           edges={flowEdges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
+          onNodeDragStop={onNodeDragStop}
           fitView
           panOnScroll
           panOnDrag
