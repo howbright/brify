@@ -31,6 +31,7 @@ import { useAutoSave } from "@/app/hooks/useAutoSave";
 import { useNodeStyle } from "@/app/hooks/useNodeStyle";
 import { useHistory } from "@/app/hooks/useHistory";
 import type { DiagramSnapshot } from "@/app/hooks/useHistory";
+import ConfirmDialog from "../ui/ConfirmDialog";
 
 const nodeTypes = { custom: CustomNode };
 
@@ -41,7 +42,10 @@ type OnUpdateNode = (
   newText: string,
   type: "title" | "description"
 ) => void;
-type OnHighlightChange = (nodeId: string, next: boolean) => void | Promise<void>;
+type OnHighlightChange = (
+  nodeId: string,
+  next: boolean
+) => void | Promise<void>;
 type OnAddChild = (parentId: NodeId) => void;
 type OnDeleteNode = (nodeId: string) => void;
 type OnDetachFromParent = (nodeId: string) => void;
@@ -80,6 +84,13 @@ export default function DiagramView({
 
   // 히스토리(Undo/Redo)
   const history = useHistory(100);
+
+  // 컴포넌트 내부 state (기존 state들 옆)
+  const [openResetDialog, setOpenResetDialog] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+
+  // (선택) ReactFlow 강제 리마운트 키
+  const [rfKey, setRfKey] = useState(0);
 
   // ---------- 실제 동작 콜백 ----------
   const onUpdateNodeReal: OnUpdateNode = useCallback(
@@ -213,10 +224,12 @@ export default function DiagramView({
     },
     []
   );
-  const onDetachFromParentBridge: Handlers["onDetachFromParent"] =
-    useCallback((...args) => {
+  const onDetachFromParentBridge: Handlers["onDetachFromParent"] = useCallback(
+    (...args) => {
       return handlersRef.current.onDetachFromParent(...args);
-    }, []);
+    },
+    []
+  );
 
   // ---------- onAddChild / onDelete / onDetach ----------
   const onAddChildReal: OnAddChild = useCallback(
@@ -229,14 +242,8 @@ export default function DiagramView({
 
         const pos = parent
           ? {
-              x:
-                parent.position.x +
-                260 +
-                Math.round(Math.random() * 30 - 15),
-              y:
-                parent.position.y +
-                160 +
-                Math.round(Math.random() * 40 - 20),
+              x: parent.position.x + 260 + Math.round(Math.random() * 30 - 15),
+              y: parent.position.y + 160 + Math.round(Math.random() * 40 - 20),
             }
           : { x: 0, y: 0 };
 
@@ -348,6 +355,86 @@ export default function DiagramView({
     onAddChildReal,
     onDeleteNodeReal,
     onDetachFromParentReal,
+  ]);
+
+  const doReset = useCallback(async () => {
+    try {
+      setIsResetting(true);
+      await flush(); // 자동저장 큐 비우기
+
+      const res = await fetch("/api/summary/reset-diagram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ summaryId }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        toast.error("초기화 실패", { description: json?.message ?? "" });
+        return;
+      }
+
+      const effective = json?.effective_diagram_json;
+      const baseNodes: any[] = Array.isArray(effective?.nodes)
+        ? effective.nodes
+        : [];
+      const baseEdges: any[] = Array.isArray(effective?.edges)
+        ? effective.edges
+        : [];
+
+      // 런타임 콜백 주입 + 스타일 적용
+      const styled: MyFlowNode[] = baseNodes.map((node) => {
+        const withRuntime: MyFlowNode = {
+          ...node,
+          id: String(node.id),
+          type: "custom" as const,
+          data: {
+            ...(node.data || {}),
+            onUpdate: onUpdateBridge,
+            onHighlightChange: onHighlightBridge,
+            onAddChild: onAddChildBridge,
+            onDeleteNode: onDeleteNodeBridge,
+            onDetachFromParent: onDetachFromParentBridge,
+            highlighted: !!node?.data?.highlighted,
+            userCreated: !!node?.data?.userCreated,
+          } as any,
+        };
+        return { ...withRuntime, style: computeNodeStyle(withRuntime) };
+      });
+
+      const mappedEdges: MyFlowEdge[] = baseEdges.map((e: any) => ({
+        ...e,
+        id: String(e.id),
+        source: String(e.source),
+        target: String(e.target),
+      }));
+
+      // 즉시 화면에 반영
+      setFlowNodes(styled);
+      setFlowEdges(mappedEdges);
+      history.clear();
+
+      // (선택) ReactFlow 내부 스토어를 깔끔히 비우고 재마운트
+      setRfKey((k) => k + 1);
+
+      toast.success("초기 상태로 되돌렸어요.");
+    } catch (err) {
+      console.error(err);
+      toast.error("초기화 중 오류가 발생했습니다.");
+    } finally {
+      setIsResetting(false);
+      setOpenResetDialog(false);
+    }
+  }, [
+    summaryId,
+    flush,
+    computeNodeStyle,
+    onUpdateBridge,
+    onHighlightBridge,
+    onAddChildBridge,
+    onDeleteNodeBridge,
+    onDetachFromParentBridge,
+    history,
   ]);
 
   // ---------- props → state 초기화 (무한루프 방지 가드) ----------
@@ -514,6 +601,13 @@ export default function DiagramView({
     <div className="h-[600px] border rounded bg-white relative">
       {/* 상단 바 */}
       <div className="absolute top-2 right-2 flex items-center gap-2 z-10 bg-white/80 px-3 py-1 rounded shadow">
+        <button
+          onClick={() => setOpenResetDialog(true)}
+          disabled={isResetting}
+          className="px-3 py-1 text-sm rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-60"
+        >
+          {isResetting ? "초기화 중..." : "초기화"}
+        </button>
         <span className="text-xs text-gray-500">
           {isSaving ? "자동 저장 중..." : "모두 저장됨"}
         </span>
@@ -521,6 +615,7 @@ export default function DiagramView({
 
       <ReactFlowProvider>
         <ReactFlow<MyFlowNode, MyFlowEdge>
+          key={rfKey}    
           nodes={flowNodes}
           edges={flowEdges}
           onNodesChange={onNodesChange}
@@ -544,6 +639,14 @@ export default function DiagramView({
         open={stylePickerOpen}
         onClose={() => setStylePickerOpen(false)}
         onSelect={(style) => setStylePreset(style)}
+      />
+      <ConfirmDialog
+        open={openResetDialog}
+        onOpenChange={setOpenResetDialog}
+        onConfirm={doReset} // ← 아래 (B)에서 정의
+        title="정말 초기 상태로 되돌릴까요?"
+        description="임시 저장본이 삭제되고, 처음 AI가 만든 다이어그램으로 돌아갑니다."
+        actionLabel="초기화"
       />
     </div>
   );
