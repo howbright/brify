@@ -132,7 +132,7 @@ export default function SummaryResult222({ text, tree }: Props) {
       ) : (
         <div>
           {/* {nodes.length > 0 ? (
-            <DiagramView nodes={nodes} edges={edges} />
+             nodes={nodes} edges={edges} />
           ) : (
             <p className="text-center text-gray-500 dark:text-gray-400">
               다이어그램 요약 결과가 없습니다.

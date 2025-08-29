@@ -8,6 +8,7 @@ import {
   Controls,
   MiniMap,
   ReactFlow,
+  ReactFlowInstance,
   ReactFlowProvider,
   applyEdgeChanges,
   applyNodeChanges,
@@ -20,17 +21,17 @@ import DiagramStyleSelector from "../DiagramStyleSelector";
 import { CustomNode } from "./CustomNode";
 
 // 분리된 유틸/훅
-import {
-  safeParseJSON,
-  now,
-  shortId,
-  makeNodeId,
-  makeEdgeId,
-} from "@/utils/diagram";
 import { useAutoSave } from "@/app/hooks/useAutoSave";
-import { useNodeStyle } from "@/app/hooks/useNodeStyle";
-import { useHistory } from "@/app/hooks/useHistory";
 import type { DiagramSnapshot } from "@/app/hooks/useHistory";
+import { useHistory } from "@/app/hooks/useHistory";
+import { useNodeStyle } from "@/app/hooks/useNodeStyle";
+import {
+  makeEdgeId,
+  makeNodeId,
+  now,
+  safeParseJSON,
+  shortId,
+} from "@/utils/diagram";
 import ConfirmDialog from "../ui/ConfirmDialog";
 
 const nodeTypes = { custom: CustomNode };
@@ -91,6 +92,18 @@ export default function DiagramView({
 
   // (선택) ReactFlow 강제 리마운트 키
   const [rfKey, setRfKey] = useState(0);
+
+  // onInit 핸들러 추가
+  const onInit = useCallback((instance: ReactFlowInstance) => {
+    // 한 프레임 뒤 DOM 사이즈 안정화 후 타이트하게 다시 맞춤
+    requestAnimationFrame(() => {
+      instance.fitView({
+        padding: 0.02,
+        includeHiddenNodes: false,
+        maxZoom: 1.4,
+      });
+    });
+  }, []);
 
   // ---------- 실제 동작 콜백 ----------
   const onUpdateNodeReal: OnUpdateNode = useCallback(
@@ -615,13 +628,18 @@ export default function DiagramView({
 
       <ReactFlowProvider>
         <ReactFlow<MyFlowNode, MyFlowEdge>
-          key={rfKey}    
+          key={rfKey}
           nodes={flowNodes}
           edges={flowEdges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onNodeDragStop={onNodeDragStop}
           fitView
+          // 👇 추가: 기본 fitView의 패딩도 최소화
+          fitViewOptions={{ padding: 0.03, includeHiddenNodes: false }}
+          // 👇 추가: 너무 작게 보이지 않게 상한/하한 줌
+          minZoom={0.2}
+          maxZoom={1.6}
           panOnScroll
           panOnDrag
           zoomOnScroll={false}
@@ -645,7 +663,7 @@ export default function DiagramView({
         onOpenChange={setOpenResetDialog}
         onConfirm={doReset} // ← 아래 (B)에서 정의
         title="정말 초기 상태로 되돌릴까요?"
-        description="임시 저장본이 삭제되고, 처음 AI가 만든 다이어그램으로 돌아갑니다."
+        description="편집한 내용이 삭제되고, 처음 AI가 만든 다이어그램으로 돌아갑니다."
         actionLabel="초기화"
       />
     </div>

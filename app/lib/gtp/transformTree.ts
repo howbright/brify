@@ -55,15 +55,25 @@ export async function treeToFlowElements(
     layoutOptions: {
       "elk.algorithm": "layered",
       "elk.direction": "DOWN",
-      "elk.spacing.nodeNode": "40",
-      "elk.layered.spacing.nodeNodeBetweenLayers": "80",
-      "elk.layered.spacing.nodeNodeBetweenColumns": "50",
+    
+      // 간격 ↓↓↓
+      "elk.spacing.nodeNode": "16",
+      "elk.layered.spacing.nodeNodeBetweenLayers": "44",
+      "elk.layered.spacing.nodeNodeBetweenColumns": "28",
+    
+      // 조금 더 콤팩트하게 붙도록
+      "elk.layered.compaction.postCompaction.enabled": "true",
+      "elk.layered.nodePlacement.strategy": "BRANDES_KOEPF",
+    
+      // (선택) 직교 라우팅으로 깔끔하게
+      "elk.edgeRouting": "ORTHOGONAL",
     },
-    children: nodes.map((n) => ({
-      id: n.id,
-      width: getNodeWidth(n.data.title, n.data.description),
-      height: 60,
-    })),
+    children: nodes.map((n) => {
+      const w = getNodeWidth(n.data.title, n.data.description);
+      const len = (n.data.title?.length ?? 0) + (n.data.description?.length ?? 0);
+      const h = Math.min(120, Math.max(72, 50 + Math.ceil(len / 24) * 18));
+      return { id: n.id, width: w, height: h };
+    }),
     edges: edges.map((e) => ({
       id: e.id,
       sources: [e.source],
@@ -89,7 +99,7 @@ export async function treeToFlowElements(
       ? (Math.min(...centers) + Math.max(...centers)) / 2
       : 0;
 
-  const offsetX = -centerX + 300; // 좌측 여백 300
+      const offsetX = -centerX + 120;
 
   // === 좌표 적용 ===
   const positionedNodes: MyFlowNode[] = nodes.map((node) => {
@@ -109,5 +119,7 @@ export async function treeToFlowElements(
 // === 노드 너비 계산 ===
 function getNodeWidth(title: string, description?: string) {
   const textLength = (title?.length ?? 0) + (description?.length ?? 0);
-  return Math.min(250, Math.max(150, textLength * 7));
+  // 글자수 기준으로 대략적 폭 산정(조금 더 크게)
+  const rough = textLength * 8; // 기존 7 → 8
+  return Math.min(360, Math.max(220, rough)); // 기존 150~250 → 220~360
 }

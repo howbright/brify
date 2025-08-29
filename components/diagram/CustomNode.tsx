@@ -95,16 +95,14 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
           : "");
 
   // 삭제 Confirm 다이얼로그 상태
-  const [openDelete, setOpenDelete] = useState(false);
   const handleDelete = () => {
     d.onDeleteNode?.(id);
-    setOpenDelete(false);
   };
 
   return (
     <div
       className={clsx(
-        "relative rounded-lg border p-3 shadow-sm text-sm max-w-[250px] break-words transition",
+        "relative rounded-lg border p-4 shadow-sm text-sm max-w-[300px] break-words transition",
         colorBlock,
         ringBlock,
         editing ? "cursor-text nopan" : "cursor-pointer"
@@ -184,7 +182,7 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
             title="노드 삭제"
             aria-label="노드 삭제"
             className="rounded-full bg-white border border-rose-300 text-rose-700 shadow p-1 hover:bg-rose-50"
-            onClick={() => setOpenDelete(true)}
+            onClick={handleDelete}
           >
             <svg
               viewBox="0 0 24 24"
@@ -198,20 +196,10 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
         </div>
       )}
 
-      {/* 삭제 확인 모달 */}
-      <ConfirmDialog
-        open={openDelete}
-        onOpenChange={setOpenDelete}
-        onConfirm={handleDelete}
-        title="노드를 삭제할까요?"
-        description="이 노드와 연결된 엣지가 모두 삭제됩니다. 이 작업은 되돌릴 수 없어요."
-        actionLabel="삭제"
-      />
-
       {editing ? (
         <textarea
           ref={textareaRef}
-          className="w-full border rounded px-1 text-sm resize-none focus:outline-none nodrag nowheel"
+          className="w-full border rounded px-1 text-[15px] resize-none focus:outline-none nodrag nowheel"
           autoFocus
           value={tempText}
           onChange={(e) => setTempText(e.target.value)}
