@@ -10,12 +10,15 @@ import {
   ReactFlow,
   ReactFlowInstance,
   ReactFlowProvider,
+  addEdge,
   applyEdgeChanges,
   applyNodeChanges,
   type EdgeChange,
+  type Connection,
+  OnInit,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import DiagramStyleSelector from "../DiagramStyleSelector";
 import { CustomNode } from "./CustomNode";
@@ -34,7 +37,17 @@ import {
 } from "@/utils/diagram";
 import ConfirmDialog from "../ui/ConfirmDialog";
 
+// ELK
+import type { ElkNode, ElkExtendedEdge, LayoutOptions } from "elkjs";
+import { getElk } from "@/app/lib/diagram/reactflow-auto-layout";
+
 const nodeTypes = { custom: CustomNode };
+
+// 레이아웃 알고리즘 타입
+type ElkAlgorithm = "layered" | "radial" | "force" | "stress" | "random";
+
+// 엣지 타입들
+type EdgeType = "bezier" | "simplebezier" | "smoothstep" | "step" | "straight";
 
 // ---------- 타입 ----------
 type NodeId = string | number;
@@ -86,16 +99,30 @@ export default function DiagramView({
   // 히스토리(Undo/Redo)
   const history = useHistory(100);
 
-  // 컴포넌트 내부 state (기존 state들 옆)
+  // 컴포넌트 내부 state
   const [openResetDialog, setOpenResetDialog] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
 
-  // (선택) ReactFlow 강제 리마운트 키
+  // ReactFlow 강제 리마운트 키
   const [rfKey, setRfKey] = useState(0);
 
-  // onInit 핸들러 추가
-  const onInit = useCallback((instance: ReactFlowInstance) => {
-    // 한 프레임 뒤 DOM 사이즈 안정화 후 타이트하게 다시 맞춤
+  // 레이아웃 알고리즘 현재 선택 상태
+  const [layoutAlg, setLayoutAlg] = useState<ElkAlgorithm>("layered");
+
+  // 엣지 스타일 + 세부 옵션 상태
+  const [edgeType, setEdgeType] = useState<EdgeType>("smoothstep");
+  const [bezierCurvature, setBezierCurvature] = useState<number>(0.25); // 0~1
+  const [stepBorderRadius, setStepBorderRadius] = useState<number>(8); // px
+  const [stepOffset, setStepOffset] = useState<number>(20); // px
+  const [smoothBorderRadius, setSmoothBorderRadius] = useState<number>(12); // px
+  const [smoothOffset, setSmoothOffset] = useState<number>(20); // px
+
+  // ReactFlow 인스턴스 보관 (fitView 호출용)
+  const rfInstanceRef = useRef<ReactFlowInstance<MyFlowNode, MyFlowEdge> | null>(null);
+
+  // onInit
+  const onInit: OnInit<MyFlowNode, MyFlowEdge> = useCallback((instance) => {
+    rfInstanceRef.current = instance;
     requestAnimationFrame(() => {
       instance.fitView({
         padding: 0.02,
@@ -104,6 +131,26 @@ export default function DiagramView({
       });
     });
   }, []);
+  // 현재 edgeType에 맞는 pathOptions 생성
+  const currentPathOptions = useMemo(() => {
+    if (edgeType === "bezier" || edgeType === "simplebezier") {
+      return { curvature: bezierCurvature };
+    }
+    if (edgeType === "smoothstep") {
+      return { borderRadius: smoothBorderRadius, offset: smoothOffset };
+    }
+    if (edgeType === "step") {
+      return { borderRadius: stepBorderRadius, offset: stepOffset };
+    }
+    return undefined;
+  }, [
+    edgeType,
+    bezierCurvature,
+    smoothBorderRadius,
+    smoothOffset,
+    stepBorderRadius,
+    stepOffset,
+  ]);
 
   // ---------- 실제 동작 콜백 ----------
   const onUpdateNodeReal: OnUpdateNode = useCallback(
@@ -140,7 +187,7 @@ export default function DiagramView({
       const reqId = shortId();
       const t0 = now();
 
-      // 1) 낙관적 갱신
+      // 낙관적 갱신
       setFlowNodes((prev) =>
         prev.map((n) => {
           if (String(n.id) !== String(nodeId)) return n;
@@ -152,7 +199,7 @@ export default function DiagramView({
         })
       );
 
-      // 2) 서버 저장
+      // 서버 저장
       try {
         const res = await fetch(`/api/summary/highlight`, {
           method: "POST",
@@ -189,7 +236,6 @@ export default function DiagramView({
 
         toast.success(next ? "하이라이트 적용됨" : "하이라이트 해제됨");
       } catch {
-        // 네트워크 오류 → 롤백
         setFlowNodes((prev) =>
           prev.map((n) => {
             if (String(n.id) !== String(nodeId)) return n;
@@ -203,14 +249,184 @@ export default function DiagramView({
         toast.error("하이라이트 저장 중 네트워크 오류");
       } finally {
         const dt = (now() - t0).toFixed(1);
-        // eslint-disable-next-line no-console
         console.log(`[HL ${reqId}] done in ${dt}ms`);
       }
     },
     [summaryId, computeNodeStyle, flowNodes, flowEdges, history]
   );
 
-  // ---------- 핸들러 ref & 브리지 (항상 안정) ----------
+  // 레이아웃 적용
+  const applyElkLayout = useCallback(
+    async (alg: ElkAlgorithm = layoutAlg) => {
+      try {
+        const elk = await getElk();
+
+        // ===== 1) ELK 그래프로 변환 =====
+        const DEFAULT_W = 220;
+        const DEFAULT_H = 100;
+
+        const elkChildren: ElkNode[] = flowNodes.map((n) => ({
+          id: String(n.id),
+          width: (n as any).width ?? (n.style as any)?.width ?? DEFAULT_W,
+          height: (n as any).height ?? (n.style as any)?.height ?? DEFAULT_H,
+        }));
+
+        const elkEdges: ElkExtendedEdge[] = flowEdges.map((e) => ({
+          id: String(e.id),
+          sources: [String(e.source)],
+          targets: [String(e.target)],
+        }));
+
+        // ===== 2) 알고리즘별 옵션 =====
+        const base: Record<string, string> = {
+          "elk.algorithm": alg,
+          "elk.spacing.nodeNode": "60",
+          "elk.spacing.edgeNode": "24",
+        };
+
+        if (alg === "layered") {
+          base["elk.direction"] = "DOWN"; // 필요시 UI로 확장 (UP/LEFT/RIGHT)
+          base["elk.layered.spacing.nodeNodeBetweenLayers"] = "40";
+          base["elk.layered.crossingMinimization.strategy"] = "LAYER_SWEEP";
+        } else if (alg === "radial") {
+          base["elk.radial.radius"] = "auto";
+          base["elk.radial.minimalRadius"] = "80";
+        } else if (alg === "force") {
+          base["elk.quality"] = "max";
+          base["elk.force.iterations"] = "500";
+          base["elk.force.repulsivePower"] = "1.0";
+        } else if (alg === "stress") {
+          base["elk.stress.descent.threshold"] = "0.01";
+          base["elk.stress.descent.maxIterations"] = "500";
+        }
+
+        const layoutOptions = base as unknown as LayoutOptions;
+
+        // ===== 3) 레이아웃 실행 =====
+        const result = await elk.layout({
+          id: "root",
+          children: elkChildren,
+          edges: elkEdges,
+          layoutOptions,
+        });
+
+        // ===== 4) 결과 좌표/크기 맵 =====
+        type P = { x: number; y: number; w: number; h: number };
+        const pos = new Map<string, P>();
+        (result.children ?? []).forEach((c: any) => {
+          pos.set(String(c.id), {
+            x: (c.x ?? 0) as number,
+            y: (c.y ?? 0) as number,
+            w: (c.width ?? DEFAULT_W) as number,
+            h: (c.height ?? DEFAULT_H) as number,
+          });
+        });
+
+        // ===== 5) 노드 업데이트 =====
+        const nextNodes = flowNodes.map((n) => {
+          const p = pos.get(String(n.id));
+          return p
+            ? { ...n, position: { x: p.x, y: p.y }, dragging: false }
+            : n;
+        });
+
+        // ===== 6) 엣지 핸들 방향 자동 지정 + 현재 edgeType & pathOptions 적용 =====
+        const pickSideByVector = (dx: number, dy: number) => {
+          if (Math.abs(dx) >= Math.abs(dy)) {
+            return dx >= 0 ? "right" : "left";
+          } else {
+            return dy >= 0 ? "bottom" : "top";
+          }
+        };
+        const toHandles = (side: "right" | "left" | "top" | "bottom") => {
+          switch (side) {
+            case "right":
+              return { source: "r-out", target: "l-in" };
+            case "left":
+              return { source: "l-out", target: "r-in" };
+            case "top":
+              return { source: "t-out", target: "b-in" };
+            case "bottom":
+              return { source: "b-out", target: "t-in" };
+          }
+        };
+
+        const nextEdges = flowEdges.map((e) => {
+          const s = pos.get(String(e.source));
+          const t = pos.get(String(e.target));
+          if (!s || !t)
+            return {
+              ...e,
+              type: edgeType as any,
+              // XYFlow v11: pathOptions를 직접 지원. 안전하게 data에도 같이 넣자.
+              pathOptions: currentPathOptions as any,
+              data: { ...(e as any).data, pathOptions: currentPathOptions },
+            };
+
+          const sx = s.x + s.w / 2;
+          const sy = s.y + s.h / 2;
+          const tx = t.x + t.w / 2;
+          const ty = t.y + t.h / 2;
+
+          const side = pickSideByVector(tx - sx, ty - sy);
+          const { source, target } = toHandles(side);
+
+          return {
+            ...e,
+            sourceHandle: source,
+            targetHandle: target,
+            type: edgeType as any,
+            pathOptions: currentPathOptions as any,
+            data: { ...(e as any).data, pathOptions: currentPathOptions },
+          };
+        });
+
+        // ===== 7) 상태 반영 & 보기 정렬 & 저장 =====
+        setFlowNodes(nextNodes);
+        setFlowEdges(nextEdges);
+
+        requestAnimationFrame(() => {
+          rfInstanceRef.current?.fitView({
+            padding: 0.06,
+            includeHiddenNodes: false,
+            maxZoom: 1.4,
+          });
+        });
+
+        save(nextNodes, nextEdges);
+        setLayoutAlg(alg);
+        toast.success(`레이아웃 적용됨: ${alg}`);
+      } catch (e: any) {
+        console.error(e);
+        toast.error("레이아웃 적용 실패", {
+          description: e?.message ?? String(e),
+        });
+      }
+    },
+    [flowNodes, flowEdges, layoutAlg, edgeType, currentPathOptions, save]
+  );
+
+  // 새 엣지 연결 시 현재 edgeType & pathOptions 적용
+  const onConnect = useCallback(
+    (params: Connection) => {
+      setFlowEdges((eds) =>
+        addEdge(
+          {
+            ...params,
+            type: edgeType,
+            pathOptions: currentPathOptions as any,
+            data: { ...(params as any).data, pathOptions: currentPathOptions },
+          } as any,
+          eds
+        )
+      );
+      // 저장은 setFlowEdges 이후 비동기 반영 → 약간 지연 후 flush하거나 onEdgesChange에서 저장
+      setTimeout(() => save(flowNodes, flowEdges), 0);
+    },
+    [edgeType, currentPathOptions, flowNodes, flowEdges, save]
+  );
+
+  // ---------- 핸들러 ref & 브리지 ----------
   const handlersRef = useRef<Handlers>({
     onUpdateNode: () => {},
     onHighlightChange: () => {},
@@ -291,7 +507,10 @@ export default function DiagramView({
             id: makeEdgeId(pId, newId),
             source: pId,
             target: newId,
-          };
+            type: edgeType as any,
+            pathOptions: currentPathOptions as any,
+            data: { pathOptions: currentPathOptions },
+          } as any;
           const nextEdges = [...prevEdges, edge];
 
           save(nextNodes, nextEdges);
@@ -312,6 +531,8 @@ export default function DiagramView({
       onDeleteNodeBridge,
       onDetachFromParentBridge,
       history,
+      edgeType,
+      currentPathOptions,
     ]
   );
 
@@ -420,6 +641,14 @@ export default function DiagramView({
         id: String(e.id),
         source: String(e.source),
         target: String(e.target),
+        type: (e as any).type ?? (edgeType as any),
+        pathOptions:
+          (e as any).pathOptions ?? (currentPathOptions as any),
+        data: {
+          ...(e as any).data,
+          pathOptions:
+            (e as any).data?.pathOptions ?? currentPathOptions,
+        },
       }));
 
       // 즉시 화면에 반영
@@ -427,7 +656,7 @@ export default function DiagramView({
       setFlowEdges(mappedEdges);
       history.clear();
 
-      // (선택) ReactFlow 내부 스토어를 깔끔히 비우고 재마운트
+      // ReactFlow 재마운트(선택)
       setRfKey((k) => k + 1);
 
       toast.success("초기 상태로 되돌렸어요.");
@@ -448,6 +677,8 @@ export default function DiagramView({
     onDeleteNodeBridge,
     onDetachFromParentBridge,
     history,
+    edgeType,
+    currentPathOptions,
   ]);
 
   // ---------- props → state 초기화 (무한루프 방지 가드) ----------
@@ -484,6 +715,14 @@ export default function DiagramView({
       id: String(e.id),
       source: String(e.source),
       target: String(e.target),
+      type: ((e as any).type ?? edgeType) as any,
+      pathOptions:
+        (e as any).pathOptions ?? (currentPathOptions as any),
+      data: {
+        ...(e as any).data,
+        pathOptions:
+          (e as any).data?.pathOptions ?? currentPathOptions,
+      },
     })) as MyFlowEdge[];
 
     setFlowNodes(styled);
@@ -499,6 +738,8 @@ export default function DiagramView({
     onDeleteNodeBridge,
     onDetachFromParentBridge,
     history,
+    edgeType,
+    currentPathOptions,
   ]);
 
   // 스타일 프리셋이 바뀔 때만 스타일 재계산
@@ -536,6 +777,44 @@ export default function DiagramView({
     flush();
   }, [flush]);
 
+  // ---------- 엣지 타입/옵션 적용 유틸 ----------
+  const refreshAllEdgesWithCurrentOptions = useCallback(() => {
+    setFlowEdges((prev) => {
+      const updated = prev.map((e) => ({
+        ...e,
+        type: edgeType as any,
+        pathOptions: currentPathOptions as any,
+        data: { ...(e as any).data, pathOptions: currentPathOptions },
+      }));
+      // 저장
+      save(flowNodes, updated);
+      return updated;
+    });
+  }, [edgeType, currentPathOptions, flowNodes, save]);
+
+  const applyEdgeType = useCallback(
+    (t: EdgeType) => {
+      setEdgeType(t);
+      // 타입 변경 즉시 반영
+      setFlowEdges((prev) => {
+        const updated = prev.map((e) => ({
+          ...e,
+          type: t as any,
+          pathOptions: currentPathOptions as any,
+          data: { ...(e as any).data, pathOptions: currentPathOptions },
+        }));
+        save(flowNodes, updated);
+        return updated;
+      });
+    },
+    [currentPathOptions, flowNodes, save]
+  );
+
+  // 옵션 슬라이더들이 바뀔 때마다 전체 엣지 갱신
+  useEffect(() => {
+    refreshAllEdgesWithCurrentOptions();
+  }, [refreshAllEdgesWithCurrentOptions]);
+
   // ---------- 단축키: Undo/Redo ----------
   const applySnapshot = useCallback(
     (snap: DiagramSnapshot | null) => {
@@ -565,6 +844,14 @@ export default function DiagramView({
         id: String(e.id),
         source: String(e.source),
         target: String(e.target),
+        type: ((e as any).type ?? edgeType) as any,
+        pathOptions:
+          (e as any).pathOptions ?? (currentPathOptions as any),
+        data: {
+          ...(e as any).data,
+          pathOptions:
+            (e as any).data?.pathOptions ?? currentPathOptions,
+        },
       })) as MyFlowEdge[];
 
       setFlowNodes(styled);
@@ -581,6 +868,8 @@ export default function DiagramView({
       onDetachFromParentBridge,
       save,
       flush,
+      edgeType,
+      currentPathOptions,
     ]
   );
 
@@ -614,10 +903,118 @@ export default function DiagramView({
     <div className="h-[600px] border rounded bg-white relative">
       {/* 상단 바 */}
       <div className="absolute top-2 right-2 flex items-center gap-2 z-10 bg-white/80 px-3 py-1 rounded shadow">
+        {/* Layout 선택 */}
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-gray-500 mr-1">Layout:</span>
+          {(["layered", "radial", "force", "stress"] as ElkAlgorithm[]).map(
+            (alg) => (
+              <button
+                key={alg}
+                onClick={() => applyElkLayout(alg)}
+                className={`px-2 py-1 text-xs rounded border transition-transform hover:scale-[1.02] ${
+                  layoutAlg === alg
+                    ? "bg-gray-900 text-white"
+                    : "border-gray-300 hover:bg-gray-100"
+                }`}
+              >
+                {alg}
+              </button>
+            )
+          )}
+        </div>
+
+        <div className="w-px h-5 bg-gray-200 mx-2" />
+
+        {/* Edge 스타일 선택 */}
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-gray-500 mr-1">Edge:</span>
+          {(
+            ["bezier", "simplebezier", "smoothstep", "step", "straight"] as EdgeType[]
+          ).map((t) => (
+            <button
+              key={t}
+              onClick={() => applyEdgeType(t)}
+              className={`px-2 py-1 text-xs rounded border transition-transform hover:scale-[1.02] ${
+                edgeType === t
+                  ? "bg-gray-900 text-white"
+                  : "border-gray-300 hover:bg-gray-100"
+              }`}
+              title={t}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        {/* 엣지 디테일 옵션 (타입별로 노출) */}
+        {edgeType === "bezier" || edgeType === "simplebezier" ? (
+          <div className="flex items-center gap-2 ml-2">
+            <label className="text-xs text-gray-500">curvature</label>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={bezierCurvature}
+              onChange={(e) => setBezierCurvature(Number(e.target.value))}
+            />
+            <span className="text-xs text-gray-600 w-8 text-right">
+              {bezierCurvature.toFixed(2)}
+            </span>
+          </div>
+        ) : null}
+
+        {edgeType === "step" || edgeType === "smoothstep" ? (
+          <>
+            <div className="flex items-center gap-2 ml-2">
+              <label className="text-xs text-gray-500">radius</label>
+              <input
+                type="range"
+                min={0}
+                max={24}
+                step={1}
+                value={
+                  edgeType === "smoothstep" ? smoothBorderRadius : stepBorderRadius
+                }
+                onChange={(e) =>
+                  edgeType === "smoothstep"
+                    ? setSmoothBorderRadius(Number(e.target.value))
+                    : setStepBorderRadius(Number(e.target.value))
+                }
+              />
+              <span className="text-xs text-gray-600 w-6 text-right">
+                {edgeType === "smoothstep"
+                  ? smoothBorderRadius
+                  : stepBorderRadius}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 ml-2">
+              <label className="text-xs text-gray-500">offset</label>
+              <input
+                type="range"
+                min={0}
+                max={80}
+                step={2}
+                value={edgeType === "smoothstep" ? smoothOffset : stepOffset}
+                onChange={(e) =>
+                  edgeType === "smoothstep"
+                    ? setSmoothOffset(Number(e.target.value))
+                    : setStepOffset(Number(e.target.value))
+                }
+              />
+              <span className="text-xs text-gray-600 w-8 text-right">
+                {edgeType === "smoothstep" ? smoothOffset : stepOffset}
+              </span>
+            </div>
+          </>
+        ) : null}
+
+        <div className="w-px h-5 bg-gray-200 mx-2" />
+
         <button
           onClick={() => setOpenResetDialog(true)}
           disabled={isResetting}
-          className="px-3 py-1 text-sm rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-60"
+          className="px-3 py-1 text-sm rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-60 transition-transform hover:scale-[1.02]"
         >
           {isResetting ? "초기화 중..." : "초기화"}
         </button>
@@ -631,13 +1028,13 @@ export default function DiagramView({
           key={rfKey}
           nodes={flowNodes}
           edges={flowEdges}
+          onInit={onInit}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onNodeDragStop={onNodeDragStop}
+          onConnect={onConnect}
           fitView
-          // 👇 추가: 기본 fitView의 패딩도 최소화
           fitViewOptions={{ padding: 0.03, includeHiddenNodes: false }}
-          // 👇 추가: 너무 작게 보이지 않게 상한/하한 줌
           minZoom={0.2}
           maxZoom={1.6}
           panOnScroll
@@ -661,7 +1058,7 @@ export default function DiagramView({
       <ConfirmDialog
         open={openResetDialog}
         onOpenChange={setOpenResetDialog}
-        onConfirm={doReset} // ← 아래 (B)에서 정의
+        onConfirm={doReset}
         title="정말 초기 상태로 되돌릴까요?"
         description="편집한 내용이 삭제되고, 처음 AI가 만든 다이어그램으로 돌아갑니다."
         actionLabel="초기화"

@@ -40,8 +40,13 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { setNodes } = useReactFlow();
   useEffect(() => {
-    setNodes((nds) => nds.map((n) => (n.id === id ? { ...n, draggable: !editing } : n)));
-    return () => setNodes((nds) => nds.map((n) => (n.id === id ? { ...n, draggable: true } : n)));
+    setNodes((nds) =>
+      nds.map((n) => (n.id === id ? { ...n, draggable: !editing } : n))
+    );
+    return () =>
+      setNodes((nds) =>
+        nds.map((n) => (n.id === id ? { ...n, draggable: true } : n))
+      );
   }, [editing, id, setNodes]);
 
   const startEdit = () => {
@@ -70,10 +75,9 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
   // ======== 배경/테두리 “서로 배타적” 분기 ========
   const isNote = !!d.userCreated;
   const isHl = hl && !isNote; // note가 우선: note면 하이라이트 배경은 비활성
-  const baseBg =
-    isTitle
-      ? "bg-blue-100 border-blue-300 text-blue-900"
-      : "bg-gray-100 border-gray-300 text-gray-700";
+  const baseBg = isTitle
+    ? "bg-blue-100 border-blue-300 text-blue-900"
+    : "bg-gray-100 border-gray-300 text-gray-700";
   const noteBg =
     "bg-amber-100 border-amber-300 text-amber-900 shadow-[0_6px_12px_-4px_rgba(245,158,11,0.35)] -rotate-1";
   const hlBg =
@@ -83,16 +87,16 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
 
   // 링/글로우도 note는 별도 경로
   const ringBlock = selected
-    ? (isNote
-        ? "ring-2 ring-amber-400 ring-offset-2 ring-offset-white"
-        : isHl
-          ? "ring-2 ring-fuchsia-500 ring-offset-2 ring-offset-white"
-          : "ring-2 ring-blue-400")
-    : (isNote
-        ? "shadow-md shadow-amber-300/40"
-        : isHl
-          ? "ring-2 ring-fuchsia-400 ring-offset-2 ring-offset-white shadow-lg shadow-fuchsia-300/50 scale-[1.01]"
-          : "");
+    ? isNote
+      ? "ring-2 ring-amber-400 ring-offset-2 ring-offset-white"
+      : isHl
+      ? "ring-2 ring-fuchsia-500 ring-offset-2 ring-offset-white"
+      : "ring-2 ring-blue-400"
+    : isNote
+    ? "shadow-md shadow-amber-300/40"
+    : isHl
+    ? "ring-2 ring-fuchsia-400 ring-offset-2 ring-offset-white shadow-lg shadow-fuchsia-300/50 scale-[1.01]"
+    : "";
 
   // 삭제 Confirm 다이얼로그 상태
   const handleDelete = () => {
@@ -118,7 +122,12 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
           onPointerDown={(e) => e.stopPropagation()}
         >
           <div className="rounded-full bg-fuchsia-600 text-white shadow p-1">
-            <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="currentColor" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              className="w-3.5 h-3.5"
+              fill="currentColor"
+              aria-hidden="true"
+            >
               <path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
             </svg>
           </div>
@@ -139,7 +148,12 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
             className="rounded-full bg-white border border-blue-300 text-blue-700 shadow p-1 hover:bg-blue-50"
             onClick={startEdit}
           >
-            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              className="w-4 h-4"
+              fill="currentColor"
+              aria-hidden="true"
+            >
               <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.33-2.33a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
             </svg>
           </button>
@@ -158,7 +172,12 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
                 : "bg-white text-fuchsia-700 border-fuchsia-300 hover:bg-fuchsia-50"
             )}
           >
-            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              className="w-4 h-4"
+              fill="currentColor"
+              aria-hidden="true"
+            >
               <path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
             </svg>
           </button>
@@ -171,7 +190,12 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
             className="rounded-full bg-white border border-emerald-300 text-emerald-700 shadow p-1 hover:bg-emerald-50"
             onClick={() => d.onAddChild?.(id)}
           >
-            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              className="w-4 h-4"
+              fill="currentColor"
+              aria-hidden="true"
+            >
               <path d="M11 11V6h2v5h5v2h-5v5h-2v-5H6v-2h5z" />
             </svg>
           </button>
@@ -213,8 +237,17 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
         <span>{d.description}</span>
       )}
 
-      <Handle type="target" position={Position.Top} />
-      <Handle type="source" position={Position.Bottom} />
+      {/* === 4방향 out 핸들 === */}
+      <Handle type="source" id="r-out" position={Position.Right} />
+      <Handle type="source" id="l-out" position={Position.Left} />
+      <Handle type="source" id="t-out" position={Position.Top} />
+      <Handle type="source" id="b-out" position={Position.Bottom} />
+
+      {/* === 4방향 in 핸들 === */}
+      <Handle type="target" id="r-in" position={Position.Right} />
+      <Handle type="target" id="l-in" position={Position.Left} />
+      <Handle type="target" id="t-in" position={Position.Top} />
+      <Handle type="target" id="b-in" position={Position.Bottom} />
     </div>
   );
 }

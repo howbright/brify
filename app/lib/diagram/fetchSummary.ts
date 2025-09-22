@@ -22,6 +22,7 @@ export async function fetchSummary(
   deps: Deps,
   opts: FetchSummaryOpts = {}
 ) {
+  console.log("fetchSummary 함수 내부에 들어옴");
   const { setSummary, setTree, setNodes, setEdges, setLoading, router } = deps;
   const { signal, timeoutMs = 12_000 } = opts;
 
@@ -97,6 +98,7 @@ export async function fetchSummary(
     }
 
     const api = (await res.json()) as ApiSummary;
+    console.log('API에서 받은 직후의 tree 데이터 :', api);
 
     // normalize에서 에러 나도 전체가 터지지 않게 보호
     let tree: TreeNode[] = [];
@@ -104,6 +106,7 @@ export async function fetchSummary(
     let edges: MyFlowEdge[] = [];
     try {
       const out = await normalizeSummary(api);
+      console.log('API에서 받은 직후의 tree 데이터를 nomalizeSummary한 결과 :', out);
       tree = out.tree ?? [];
       nodes = out.nodes ?? [];
       edges = out.edges ?? [];

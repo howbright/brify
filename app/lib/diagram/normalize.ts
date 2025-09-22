@@ -55,7 +55,7 @@ import {
     const effective = api.effective_diagram_json;
   
     // 1) temp/reactflow 스냅샷이 있으면 그대로 사용
-    if (isFlowState(effective)) {
+    if (isFlowState(effective)) { // 내 생각에 effective에는 무조건 
       const nodes = effective.nodes ?? [];
       const edges = effective.edges ?? [];
       return {
