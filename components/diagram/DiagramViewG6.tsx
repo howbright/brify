@@ -7,7 +7,7 @@ import {
   normalizeGraphData,
   safeBuildTree,
 } from "@/app/lib/g6/normalize";
-import { measureTextWidth, wrapByWidth } from "@/utils/g6/calcuator";
+import { calcWrapped, measureTextWidth, PADDING_B, PADDING_L, PADDING_R, PADDING_T, wrapByWidth } from "@/utils/g6/calcuator";
 
 export type LayoutType = "mindmap" | "tree" | "radial";
 export type Direction = "H" | "LR" | "RL" | "TB" | "BT";
@@ -228,67 +228,69 @@ export default function DiagramViewG6({
     const MIN_W = 140;
     const MAX_W = 420; // 노드 최대 폭 (원하면 조절)
 
-    const graph = new Graph({
-      container,
-      width,
-      height: h,
-      autoFit: "view",
-      data: graphData, // normalize 했다면 그 결과를 넣어도 됨 (nodes/edges만)
+  // 줄바꿈/사이즈 계산은 그대로 사용한다고 가정:
+// - calcWrapped(d) => { label, width, height }
+// - PADDING_* / LINE_HEIGHT / FONT 상수 동일
 
-      node: {
-        type: "rect",
-        style: {
-          // 폭: MIN_W ~ MAX_W 사이로 고정 (길면 MAX_W, 짧으면 MIN_W)
-          width: (d: any) => {
-            const text = labelOf(d);
-            const ideal = measureTextWidth(text, FONT) + PADDING_X;
-            return Math.min(MAX_W, Math.max(MIN_W, ideal));
-          },
-          // 높이: 줄 수에 따라 동적
-          height: (d: any) => {
-            const text = labelOf(d);
-            const innerW = Math.max(MIN_W, MAX_W) - PADDING_X; // 줄바꿈 기준 폭
-            const lines = wrapByWidth(text, innerW, FONT);
-            const base = 20; // 상하 패딩 포함 베이스
-            return base + lines.length * LINE_HEIGHT;
-          },
+const graph = new Graph({
+  container,
+  width,
+  height: h,
+  // ❌ autoFit 일단 끄고, 진짜 사이즈가 적용되는지 먼저 확인
+  // autoFit: "view",
+  data: graphData,
 
-          radius: 8,
-          stroke: "#CBD5E1",
-          lineWidth: 1,
-          fill: (d: any) =>
-            d?.data?.nodeType === "description" ? "#ffffff" : "#F8FAFC",
-          padding: [6, 10, 6, 10],
-          clipContent: true,
-
-          // ✅ 라벨: 우리가 \n으로 줄바꿈을 넣어주기 때문에 ellipsis 끔
-          labelText: (d: any) => {
-            const text = labelOf(d);
-            const innerW = Math.max(MIN_W, MAX_W) - PADDING_X;
-            return wrapByWidth(text, innerW, FONT).join("\n");
-          },
-          labelPlacement: "center",
-          labelFontSize: 12,
-          labelFill: "#0F172A",
-          labelLineHeight: LINE_HEIGHT,
-          labelWordWrap: false, // 자동 줄바꿈/… 비활성화
-          labelMaxWidth: undefined, // ellipsis 유발 방지
-          labelTextAlign: "center",
-          labelTextBaseline: "middle",
-        },
+  node: {
+    type: "rect",
+    style: {
+      // ✅ v5 안정: size로 지정
+      size: (d: any) => {
+        const { width, height } = calcWrapped(d);
+        // 혹시 계산값이 0/NaN 나오면 기본값으로 안전장치
+        const w = Number.isFinite(width) && width > 0 ? width : 160;
+        const h2 = Number.isFinite(height) && height > 0 ? height : 48;
+        return [w, h2];
       },
 
-      edge: {
-        type: "polyline", // 또는 "quadratic"
-        style: {
-          stroke: "#94A3B8",
-          lineWidth: 1,
-        },
-      },
+      radius: 8,
+      stroke: "#CBD5E1",
+      lineWidth: 1,
+      fill: (d: any) => (d?.data?.nodeType === "description" ? "#ffffff" : "#F8FAFC"),
 
-      behaviors: ["drag-canvas", "zoom-canvas", "drag-element"],
-      layout,
-    });
+      // padding은 label 배치엔 큰 영향이 없을 수 있으니 당장은 빼고 테스트
+      // padding: [PADDING_T, PADDING_R, PADDING_B, PADDING_L],
+      clipContent: true,
+
+      // ✅ 라벨: 우리가 \n으로 줄바꿈, wordWrap/ellipsis 끔
+      labelText: (d: any) => {
+        const { label } = calcWrapped(d);
+        return label;
+      },
+      labelPlacement: "center",
+      labelFontSize: 12,
+      labelFill: "#0F172A",
+      labelLineHeight: LINE_HEIGHT,
+      labelWordWrap: false,      // 자동 줄바꿈 OFF
+      labelMaxWidth: undefined,  // ellipsis 유발 방지
+      labelTextAlign: "center",
+      labelTextBaseline: "middle",
+    },
+  },
+
+  edge: {
+    type: "polyline",
+    style: { stroke: "#94A3B8", lineWidth: 1 },
+  },
+
+  behaviors: ["drag-canvas", "zoom-canvas", "drag-element"],
+  layout,
+});
+
+// ✅ autoFit 끄고 나서, 첫 렌더 후 화면에 맞추고 싶으면 fitCenter만 사용
+graph.render();
+graph.fitCenter();   // 필요하면 유지, 너무 작으면 이 줄도 잠깐 주석처리해서 차이 확인
+
+    
 
     graph.render();
     graphRef.current = graph;
