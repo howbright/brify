@@ -278,8 +278,12 @@ const graph = new Graph({
   },
 
   edge: {
-    type: "polyline",
-    style: { stroke: "#94A3B8", lineWidth: 1 },
+    type: "cubic-horizontal",
+    style: {
+      stroke: "#94A3B8",
+      lineWidth: 1.2,
+      endArrow: false,
+    },
   },
 
   behaviors: ["drag-canvas", "zoom-canvas", "drag-element"],
