@@ -40,6 +40,8 @@ import ConfirmDialog from "../ui/ConfirmDialog";
 // ELK
 import type { ElkNode, ElkExtendedEdge, LayoutOptions } from "elkjs";
 import { getElk } from "@/app/lib/diagram/reactflow-auto-layout";
+// 최상단 import들 사이에 추가
+import { radialMindmapLayoutForFlow } from "@/app/lib/diagram/radial-layout";
 
 const nodeTypes = { custom: CustomNode };
 
@@ -118,7 +120,10 @@ export default function DiagramView({
   const [smoothOffset, setSmoothOffset] = useState<number>(20); // px
 
   // ReactFlow 인스턴스 보관 (fitView 호출용)
-  const rfInstanceRef = useRef<ReactFlowInstance<MyFlowNode, MyFlowEdge> | null>(null);
+  const rfInstanceRef = useRef<ReactFlowInstance<
+    MyFlowNode,
+    MyFlowEdge
+  > | null>(null);
 
   // onInit
   const onInit: OnInit<MyFlowNode, MyFlowEdge> = useCallback((instance) => {
@@ -289,8 +294,38 @@ export default function DiagramView({
           base["elk.layered.spacing.nodeNodeBetweenLayers"] = "40";
           base["elk.layered.crossingMinimization.strategy"] = "LAYER_SWEEP";
         } else if (alg === "radial") {
-          base["elk.radial.radius"] = "auto";
-          base["elk.radial.minimalRadius"] = "80";
+          const { nodes: nextNodes, edges: nextEdges } =
+            radialMindmapLayoutForFlow(flowNodes, flowEdges, {
+              // centerId: String(flowNodes[0]?.id), // 원하면 고정
+              radiusStep: 240,
+              minAngleGap: Math.PI / 36, // 5도
+              startAngle: -Math.PI / 2,
+              clockwise: true,
+            });
+
+          // 엣지 타입/옵션 유지
+          const updatedEdges = nextEdges.map((e) => ({
+            ...e,
+            type: edgeType as any,
+            pathOptions: currentPathOptions as any,
+            data: { ...(e as any).data, pathOptions: currentPathOptions },
+          }));
+
+          setFlowNodes(nextNodes);
+          setFlowEdges(updatedEdges);
+
+          requestAnimationFrame(() => {
+            rfInstanceRef.current?.fitView({
+              padding: 0.08,
+              includeHiddenNodes: false,
+              maxZoom: 1.4,
+            });
+          });
+
+          save(nextNodes, updatedEdges);
+          setLayoutAlg(alg);
+          toast.success("레이아웃 적용됨: radial (custom)");
+          return;
         } else if (alg === "force") {
           base["elk.quality"] = "max";
           base["elk.force.iterations"] = "500";
@@ -642,12 +677,10 @@ export default function DiagramView({
         source: String(e.source),
         target: String(e.target),
         type: (e as any).type ?? (edgeType as any),
-        pathOptions:
-          (e as any).pathOptions ?? (currentPathOptions as any),
+        pathOptions: (e as any).pathOptions ?? (currentPathOptions as any),
         data: {
           ...(e as any).data,
-          pathOptions:
-            (e as any).data?.pathOptions ?? currentPathOptions,
+          pathOptions: (e as any).data?.pathOptions ?? currentPathOptions,
         },
       }));
 
@@ -716,12 +749,10 @@ export default function DiagramView({
       source: String(e.source),
       target: String(e.target),
       type: ((e as any).type ?? edgeType) as any,
-      pathOptions:
-        (e as any).pathOptions ?? (currentPathOptions as any),
+      pathOptions: (e as any).pathOptions ?? (currentPathOptions as any),
       data: {
         ...(e as any).data,
-        pathOptions:
-          (e as any).data?.pathOptions ?? currentPathOptions,
+        pathOptions: (e as any).data?.pathOptions ?? currentPathOptions,
       },
     })) as MyFlowEdge[];
 
@@ -845,12 +876,10 @@ export default function DiagramView({
         source: String(e.source),
         target: String(e.target),
         type: ((e as any).type ?? edgeType) as any,
-        pathOptions:
-          (e as any).pathOptions ?? (currentPathOptions as any),
+        pathOptions: (e as any).pathOptions ?? (currentPathOptions as any),
         data: {
           ...(e as any).data,
-          pathOptions:
-            (e as any).data?.pathOptions ?? currentPathOptions,
+          pathOptions: (e as any).data?.pathOptions ?? currentPathOptions,
         },
       })) as MyFlowEdge[];
 
@@ -929,7 +958,13 @@ export default function DiagramView({
         <div className="flex items-center gap-1">
           <span className="text-xs text-gray-500 mr-1">Edge:</span>
           {(
-            ["bezier", "simplebezier", "smoothstep", "step", "straight"] as EdgeType[]
+            [
+              "bezier",
+              "simplebezier",
+              "smoothstep",
+              "step",
+              "straight",
+            ] as EdgeType[]
           ).map((t) => (
             <button
               key={t}
@@ -974,7 +1009,9 @@ export default function DiagramView({
                 max={24}
                 step={1}
                 value={
-                  edgeType === "smoothstep" ? smoothBorderRadius : stepBorderRadius
+                  edgeType === "smoothstep"
+                    ? smoothBorderRadius
+                    : stepBorderRadius
                 }
                 onChange={(e) =>
                   edgeType === "smoothstep"

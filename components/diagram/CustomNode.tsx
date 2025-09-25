@@ -7,10 +7,23 @@ import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 import ConfirmDialog from "../ui/ConfirmDialog";
 
+// ---- 타입 보조 ----
+type Side = "t" | "r" | "b" | "l";
+type IO = "in" | "out";
+type HandleCounts = Partial<Record<`${Side}-${IO}`, number>>;
+
 // 런타임에서 주입되는 확장 필드
 type RuntimeData = MyFlowNode["data"] & {
   highlighted?: boolean;
   userCreated?: boolean;
+
+  // 동적 핸들 개수 (레이아웃 유틸이 채워줌)
+  handleCounts?: HandleCounts;
+
+  // (선택) 루트 정책이 있으면 in 핸들 숨기는 데 쓸 수 있음
+  isRoot?: boolean;
+  parentId?: string | null;
+
   onHighlightChange?: (id: string, next: boolean) => void;
   onUpdate?: (id: string, text: string, type: "title" | "description") => void;
   onAddChild?: (parentId: string) => void;
@@ -102,6 +115,43 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
   const handleDelete = () => {
     d.onDeleteNode?.(id);
   };
+
+  // ======== 동적 핸들 렌더링 ========
+  const hc = d.handleCounts || ({} as HandleCounts);
+
+  function renderHandles(side: Side, io: IO, count = 0) {
+    if (!count || count <= 0) return null;
+
+    const position =
+      side === "t" ? Position.Top :
+      side === "b" ? Position.Bottom :
+      side === "l" ? Position.Left  : Position.Right;
+
+    return Array.from({ length: count }).map((_, i) => {
+      const idStr = `${side}-${io}-${i}`;
+      const pct = ((i + 1) / (count + 1)) * 100;
+
+      const posProps =
+        side === "t" || side === "b"
+          ? { style: { left: `${pct}%` } as React.CSSProperties }
+          : { style: { top: `${pct}%` } as React.CSSProperties };
+
+      return (
+        <Handle
+          key={idStr}
+          id={idStr}
+          type={io === "in" ? "target" : "source"}
+          position={position}
+          {...posProps}
+        />
+      );
+    });
+  }
+
+  // 폴백: handleCounts가 전혀 없으면 기존 4방향 핸들을 유지
+  const useFallbackStaticHandles =
+    !hc["t-in"] && !hc["b-in"] && !hc["l-in"] && !hc["r-in"] &&
+    !hc["t-out"] && !hc["b-out"] && !hc["l-out"] && !hc["r-out"];
 
   return (
     <div
@@ -237,17 +287,46 @@ export function CustomNode({ id, data, selected }: NodeProps<MyFlowNode>) {
         <span>{d.description}</span>
       )}
 
-      {/* === 4방향 out 핸들 === */}
-      <Handle type="source" id="r-out" position={Position.Right} />
-      <Handle type="source" id="l-out" position={Position.Left} />
-      <Handle type="source" id="t-out" position={Position.Top} />
-      <Handle type="source" id="b-out" position={Position.Bottom} />
+      {/* === 동적 핸들: handleCounts가 있으면 그 개수만큼 균등 분배로 렌더 === */}
+      {!useFallbackStaticHandles && (
+        <>
+          {/* out */}
+          {renderHandles("t", "out", hc["t-out"] ?? 0)}
+          {renderHandles("b", "out", hc["b-out"] ?? 0)}
+          {renderHandles("l", "out", hc["l-out"] ?? 0)}
+          {renderHandles("r", "out", hc["r-out"] ?? 0)}
 
-      {/* === 4방향 in 핸들 === */}
-      <Handle type="target" id="r-in" position={Position.Right} />
-      <Handle type="target" id="l-in" position={Position.Left} />
-      <Handle type="target" id="t-in" position={Position.Top} />
-      <Handle type="target" id="b-in" position={Position.Bottom} />
+          {/* in (루트 정책이 있으면 숨길 수 있음) */}
+          {!d.isRoot && (
+            <>
+              {renderHandles("t", "in", hc["t-in"] ?? 0)}
+              {renderHandles("b", "in", hc["b-in"] ?? 0)}
+              {renderHandles("l", "in", hc["l-in"] ?? 0)}
+              {renderHandles("r", "in", hc["r-in"] ?? 0)}
+            </>
+          )}
+        </>
+      )}
+
+      {/* === 폴백: handleCounts가 없으면 기존 4방향 고정 핸들 유지 === */}
+      {useFallbackStaticHandles && (
+        <>
+          {/* out */}
+          <Handle type="source" id="r-out" position={Position.Right} />
+          <Handle type="source" id="l-out" position={Position.Left} />
+          <Handle type="source" id="t-out" position={Position.Top} />
+          <Handle type="source" id="b-out" position={Position.Bottom} />
+          {/* in */}
+          {!d.isRoot && (
+            <>
+              <Handle type="target" id="r-in" position={Position.Right} />
+              <Handle type="target" id="l-in" position={Position.Left} />
+              <Handle type="target" id="t-in" position={Position.Top} />
+              <Handle type="target" id="b-in" position={Position.Bottom} />
+            </>
+          )}
+        </>
+      )}
     </div>
   );
 }
