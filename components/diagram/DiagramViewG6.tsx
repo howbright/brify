@@ -2,7 +2,12 @@
 
 import React, { useEffect, useMemo, useRef } from "react";
 import { Graph, treeToGraphData } from "@antv/g6";
-import { GData, normalizeGraphData, safeBuildTree } from "@/app/lib/g6/normalize";
+import {
+  GData,
+  normalizeGraphData,
+  safeBuildTree,
+} from "@/app/lib/g6/normalize";
+import { measureTextWidth, wrapByWidth } from "@/utils/g6/calcuator";
 
 export type LayoutType = "mindmap" | "tree" | "radial";
 export type Direction = "H" | "LR" | "RL" | "TB" | "BT";
@@ -78,145 +83,229 @@ export default function DiagramViewG6({
   const containerRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<Graph | null>(null);
 
-// ---- useMemo 부분: try/catch + 입력/출력 로그 -------------------------
-const graphData = useMemo<GData>(() => {
-  try {
-    console.log("[graphData useMemo] start. input nodes:", data?.nodes?.length, data?.nodes?.slice?.(0, 3));
-    const tree = safeBuildTree(data?.nodes ?? []);
-    console.log("[graphData useMemo] tree root:", tree?.id, "children:", tree?.children?.length);
-    const raw = treeToGraphData(tree);
-    console.log("[graphData useMemo] raw graph:", {
-      nodes: Array.isArray(raw?.nodes) ? raw.nodes.length : raw?.nodes,
-      edges: Array.isArray(raw?.edges) ? raw.edges.length : raw?.edges,
-    });
-    const norm = normalizeGraphData(raw);
-    console.log("[graphData useMemo] normalized:", { nodes: norm.nodes.length, edges: norm.edges.length });
-    return norm;
-  } catch (e: any) {
-    console.error("[graphData useMemo][FATAL]", e);
-    // 연착륙: 최소 그래프 반환해 렌더 자체는 살리기
-    return { nodes: [{ id: "root", data: { title: "Fallback", nodeType: "title" } }], edges: [] };
-  }
-}, [data]);
+  // ---- useMemo 부분: try/catch + 입력/출력 로그 -------------------------
+  const graphData = useMemo<GData>(() => {
+    try {
+      console.log(
+        "[graphData useMemo] start. input nodes:",
+        data?.nodes?.length,
+        data?.nodes?.slice?.(0, 3)
+      );
+      const tree = safeBuildTree(data?.nodes ?? []);
+      console.log(
+        "[graphData useMemo] tree root:",
+        tree?.id,
+        "children:",
+        tree?.children?.length
+      );
+      const raw = treeToGraphData(tree);
+      console.log("[graphData useMemo] raw graph:", {
+        nodes: Array.isArray(raw?.nodes) ? raw.nodes.length : raw?.nodes,
+        edges: Array.isArray(raw?.edges) ? raw.edges.length : raw?.edges,
+      });
+      const norm = normalizeGraphData(raw);
+      console.log("[graphData useMemo] normalized:", {
+        nodes: norm.nodes.length,
+        edges: norm.edges.length,
+      });
+      return norm;
+    } catch (e: any) {
+      console.error("[graphData useMemo][FATAL]", e);
+      // 연착륙: 최소 그래프 반환해 렌더 자체는 살리기
+      return {
+        nodes: [{ id: "root", data: { title: "Fallback", nodeType: "title" } }],
+        edges: [],
+      };
+    }
+  }, [data]);
 
+  useEffect(() => {
+    const container = containerRef.current!;
+    if (!container) return;
 
-useEffect(() => {
-  const container = containerRef.current!;
-  if (!container) return;
+    const { width } = container.getBoundingClientRect();
+    const h = height;
 
-  const { width } = container.getBoundingClientRect();
-  const h = height;
+    graphRef.current?.destroy?.();
 
-  graphRef.current?.destroy?.();
+    const isVertical = direction === "TB" || direction === "BT";
 
-  const isVertical = direction === "TB" || direction === "BT";
+    // 1) 레이아웃 구성 동일 (생략)
+    const layout =
+      layoutType === "radial"
+        ? { type: "radial" as const, unitRadius: 120, preventOverlap: true }
+        : layoutType === "mindmap"
+        ? {
+            type: "mindmap" as const,
+            direction,
+            getWidth: (d: any) => widthByLabel(labelOf(d)),
+            getHeight: () => 40,
+            getHGap: () => 36,
+            getVGap: () => 18,
+          }
+        : {
+            type: "compact-box" as const,
+            direction: direction === "H" ? "LR" : direction,
+            getWidth: (d: any) => widthByLabel(labelOf(d)),
+            getHeight: () => 40,
+            getHGap: () => 36,
+            getVGap: () => 18,
+          };
 
-  // 1) 레이아웃 구성 동일 (생략)
-  const layout =
-    layoutType === "radial"
-      ? { type: "radial" as const, unitRadius: 120, preventOverlap: true }
-      : layoutType === "mindmap"
-      ? {
-          type: "mindmap" as const,
-          direction,
-          getWidth: (d: any) => widthByLabel(labelOf(d)),
-          getHeight: () => 40,
-          getHGap: () => 36,
-          getVGap: () => 18,
-        }
-      : {
-          type: "compact-box" as const,
-          direction: direction === "H" ? "LR" : direction,
-          getWidth: (d: any) => widthByLabel(labelOf(d)),
-          getHeight: () => 40,
-          getHGap: () => 36,
-          getVGap: () => 18,
-        };
+    // 2) 포트 정의 (placement + id)
+    const ports =
+      layoutType === "radial"
+        ? [{ id: "center", placement: "center" as const }]
+        : isVertical
+        ? [
+            { id: "top", placement: "top" as const },
+            { id: "bottom", placement: "bottom" as const },
+          ]
+        : [
+            { id: "left", placement: "left" as const },
+            { id: "right", placement: "right" as const },
+          ];
 
-  // 2) 포트 정의 (placement + id)
-  const ports =
-    layoutType === "radial"
-      ? [{ id: "center", placement: "center" as const }]
-      : isVertical
-      ? [
-          { id: "top", placement: "top" as const },
-          { id: "bottom", placement: "bottom" as const },
-        ]
-      : [
-          { id: "left", placement: "left" as const },
-          { id: "right", placement: "right" as const },
-        ];
+    // 3) 엣지에 사용할 포트 선택 (방향별로)
+    const defaultSourcePort =
+      layoutType === "radial" ? "center" : isVertical ? "bottom" : "right";
+    const defaultTargetPort =
+      layoutType === "radial" ? "center" : isVertical ? "top" : "left";
 
-  // 3) 엣지에 사용할 포트 선택 (방향별로)
-  const defaultSourcePort =
-    layoutType === "radial" ? "center" : isVertical ? "bottom" : "right";
-  const defaultTargetPort =
-    layoutType === "radial" ? "center" : isVertical ? "top" : "left";
+    // 4) treeToGraphData 결과에 포트를 명시적으로 주입
+    const wiredData = {
+      nodes: graphData.nodes.map((n: any) => ({
+        ...n,
+        // ✅ 노드에 포트 켜기
+        // 고정 높이 40이 너무 낮으면 줄바꿈 때려도 밖으로 보일 수 있어.
+        // 일단 기본 44~56 추천. (줄 수에 따라 늘리고 싶으면 아래에 동적 높이 로직 예시 추가)
+        size: (d: any) => [
+          Math.min(320, Math.max(140, widthByLabel(labelOf(d)))),
+          48,
+        ],
 
-  // 4) treeToGraphData 결과에 포트를 명시적으로 주입
-  const wiredData = {
-    nodes: graphData.nodes.map((n: any) => ({
-      ...n,
-      // ✅ 노드에 포트 켜기
-      style: {
-        ...(n.style ?? {}),
-        port: true,
-        ports, // 여기에 실제 포트 배열을 붙여야 getPorts가 생김
-        size: [widthByLabel(labelOf(n)), 40],
         radius: 8,
         stroke: "#CBD5E1",
         lineWidth: 1,
-        fill:
-          n?.data?.nodeType === "description" ? "#ffffff" : "#F8FAFC",
-        labelText: labelOf(n),
+        fill: (d: any) =>
+          d?.data?.nodeType === "description" ? "#ffffff" : "#F8FAFC",
+
+        // ✅ 라벨 설정
+        labelText: (d: any) => labelOf(d),
+        labelPlacement: "center",
+        labelPadding: 0, // 라벨 자체 패딩은 0으로 두고…
+        padding: [6, 10, 6, 10], // 노드(박스) 내부 여백으로 확보하는 게 깔끔함
         labelFontSize: 12,
         labelFill: "#0F172A",
-        labelPadding: 8,
+        labelLineHeight: 16,
+        labelWordWrap: true, // ✅ 줄바꿈
+        labelMaxWidth: "100%", // ✅ 노드 폭에 맞춰
+        clipContent: true, // ✅ 넘치면 클립
+
+        // (선택) 가운데 정렬 명시
+        labelTextAlign: "center",
+        labelTextBaseline: "middle",
+        type: "rect",
+      })),
+      edges: graphData.edges.map((e: any) => ({
+        ...e,
+        // ✅ 엣지가 쓸 포트를 명시 (안 하면 내부 탐색 중 getPorts 경로로 들어감)
+        sourcePort: e.sourcePort ?? defaultSourcePort,
+        targetPort: e.targetPort ?? defaultTargetPort,
+        // 엣지 타입은 포트 요구 적은 "quadratic" 또는 "polyline" 권장
+        type: "quadratic",
+        style: {
+          stroke: "#94A3B8",
+          lineWidth: 1,
+        },
+      })),
+    };
+
+    // 줄바꿈/크기 계산용 상수
+    const FONT = "12px system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+    const LINE_HEIGHT = 16;
+    const PADDING_X = 20; // 좌우 패딩 합
+    const MIN_W = 140;
+    const MAX_W = 420; // 노드 최대 폭 (원하면 조절)
+
+    const graph = new Graph({
+      container,
+      width,
+      height: h,
+      autoFit: "view",
+      data: graphData, // normalize 했다면 그 결과를 넣어도 됨 (nodes/edges만)
+
+      node: {
+        type: "rect",
+        style: {
+          // 폭: MIN_W ~ MAX_W 사이로 고정 (길면 MAX_W, 짧으면 MIN_W)
+          width: (d: any) => {
+            const text = labelOf(d);
+            const ideal = measureTextWidth(text, FONT) + PADDING_X;
+            return Math.min(MAX_W, Math.max(MIN_W, ideal));
+          },
+          // 높이: 줄 수에 따라 동적
+          height: (d: any) => {
+            const text = labelOf(d);
+            const innerW = Math.max(MIN_W, MAX_W) - PADDING_X; // 줄바꿈 기준 폭
+            const lines = wrapByWidth(text, innerW, FONT);
+            const base = 20; // 상하 패딩 포함 베이스
+            return base + lines.length * LINE_HEIGHT;
+          },
+
+          radius: 8,
+          stroke: "#CBD5E1",
+          lineWidth: 1,
+          fill: (d: any) =>
+            d?.data?.nodeType === "description" ? "#ffffff" : "#F8FAFC",
+          padding: [6, 10, 6, 10],
+          clipContent: true,
+
+          // ✅ 라벨: 우리가 \n으로 줄바꿈을 넣어주기 때문에 ellipsis 끔
+          labelText: (d: any) => {
+            const text = labelOf(d);
+            const innerW = Math.max(MIN_W, MAX_W) - PADDING_X;
+            return wrapByWidth(text, innerW, FONT).join("\n");
+          },
+          labelPlacement: "center",
+          labelFontSize: 12,
+          labelFill: "#0F172A",
+          labelLineHeight: LINE_HEIGHT,
+          labelWordWrap: false, // 자동 줄바꿈/… 비활성화
+          labelMaxWidth: undefined, // ellipsis 유발 방지
+          labelTextAlign: "center",
+          labelTextBaseline: "middle",
+        },
       },
-      type: "rect",
-    })),
-    edges: graphData.edges.map((e: any) => ({
-      ...e,
-      // ✅ 엣지가 쓸 포트를 명시 (안 하면 내부 탐색 중 getPorts 경로로 들어감)
-      sourcePort: e.sourcePort ?? defaultSourcePort,
-      targetPort: e.targetPort ?? defaultTargetPort,
-      // 엣지 타입은 포트 요구 적은 "quadratic" 또는 "polyline" 권장
-      type: "quadratic",
-      style: {
-        stroke: "#94A3B8",
-        lineWidth: 1,
+
+      edge: {
+        type: "polyline", // 또는 "quadratic"
+        style: {
+          stroke: "#94A3B8",
+          lineWidth: 1,
+        },
       },
-    })),
-  };
 
-  const graph = new Graph({
-    container,
-    width,
-    height: h,
-    autoFit: "view",
-    data: wiredData,
-    // behaviors, layout 동일
-    behaviors: ["drag-canvas", "zoom-canvas", "drag-element"],
-    layout,
-  });
+      behaviors: ["drag-canvas", "zoom-canvas", "drag-element"],
+      layout,
+    });
 
-  graph.render();
-  graphRef.current = graph;
-
-  const ro = new ResizeObserver(([entry]) => {
-    const w = entry.contentRect.width;
-    graph.setSize(w, height);
     graph.render();
-  });
-  ro.observe(container);
+    graphRef.current = graph;
 
-  return () => {
-    ro.disconnect();
-    graph.destroy();
-    graphRef.current = null;
-  };
-}, [graphData, layoutType, direction, height]);
+    const ro = new ResizeObserver(([entry]) => {
+      const w = entry.contentRect.width;
+      graph.setSize(w, height);
+      graph.render();
+    });
+    ro.observe(container);
 
+    return () => {
+      ro.disconnect();
+      graph.destroy();
+      graphRef.current = null;
+    };
+  }, [graphData, layoutType, direction, height]);
 
   return <div ref={containerRef} style={{ width: "100%", height }} />;
 }
