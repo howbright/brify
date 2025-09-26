@@ -3,6 +3,9 @@
 // ---- 타입 정의 (필요 시 별도 types.ts로 빼도 됨) --------------------
 export type LayoutType = "mindmap" | "tree" | "radial";
 export type Direction = "H" | "LR" | "RL" | "TB" | "BT";
+// ---- 타입 정의 상단 근처에 추가 ----
+export type Point = [number, number] | [number, number, number] | Float32Array;
+
 
 export interface OriginalDiagramNode {
   id: string;
@@ -67,7 +70,7 @@ export function safeBuildTree(nodes: OriginalDiagramNode[]): TreeLike {
   // ---- treeToGraphData 결과 정규화 + 디버그 로그 -----------------------
   type ID = string;
   export type GNode = { id: ID; data?: any; style?: any; type?: string };
-  export type GEdge = { id?: string; source: ID; target: ID; data?: any; style?: any };
+  export type GEdge = { id?: string; source: ID; target: ID; data?: any; style?: any, controlPoints?: Point[]; };
   export type GData = { nodes: GNode[]; edges: GEdge[] };
   
   export function normalizeGraphData(raw: any): GData {
@@ -123,8 +126,45 @@ export function safeBuildTree(nodes: OriginalDiagramNode[]): TreeLike {
           warn(`edge[${i}] orphan; srcIn=${idSet.has(src)} tgtIn=${idSet.has(tgt)} src="${src}" tgt="${tgt}"`);
           return;
         }
+      
         const id = e?.id ? String(e.id) : `${src}->${tgt}#${i}`;
-        edges.push({ id, source: src, target: tgt, data: e?.data, style: e?.style });
+      
+        // ✅ controlPoints 정규화: 객체 {x,y} → [x, y] 로 바꾸고, 튜플/Float32Array는 그대로 사용
+        let cps: Point[] | undefined;
+        if (Array.isArray(e?.controlPoints)) {
+          cps = (e.controlPoints as any[])
+            .map((p, j) => {
+              // [x,y] 또는 [x,y,z]
+              if (Array.isArray(p)) {
+                if (p.length === 2) return [Number(p[0]), Number(p[1])] as [number, number];
+                if (p.length >= 3)  return [Number(p[0]), Number(p[1]), Number(p[2])] as [number, number, number];
+                return null;
+              }
+              // Float32Array
+              if (p instanceof Float32Array) return p as Float32Array;
+              // { x, y } or { x, y, z }
+              if (p && typeof p === "object" && typeof p.x === "number" && typeof p.y === "number") {
+                const z = typeof (p as any).z === "number" ? (p as any).z : undefined;
+                return (z != null)
+                  ? ([p.x, p.y, z] as [number, number, number])
+                  : ([p.x, p.y] as [number, number]);
+              }
+              warn(`edge[${i}] controlPoints[${j}] ignored; invalid shape:`, p);
+              return null;
+            })
+            .filter(Boolean) as Point[];
+          // 빈 배열이면 undefined로
+          if (cps && cps.length === 0) cps = undefined;
+        }
+      
+        edges.push({
+          id,
+          source: src,
+          target: tgt,
+          data: e?.data,
+          style: e?.style,
+          controlPoints: cps, // ✅ 보존!
+        });
       });
   
       log(`normalized nodes=${nodes.length}, edges=${edges.length}${issues.length ? `, issues=${issues.length}` : ""}`);

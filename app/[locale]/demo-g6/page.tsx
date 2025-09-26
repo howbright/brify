@@ -1,6 +1,11 @@
+"use client";
+
 // app/(demo)/g6-gallery/page.tsx
 import type { OriginalDiagramNode } from "@/app/types/diagram";
-import DiagramViewG6 from "@/components/diagram/DiagramViewG6";
+import { Graph } from "@/components/diagram/G6";
+import { calcWrapped } from "@/utils/g6/calcuator";
+import type { GraphOptions } from "@antv/g6"; // ✅ 타입 전용
+import { useMemo } from "react";
 
 const nodes2: OriginalDiagramNode[] = [
   {
@@ -165,14 +170,222 @@ const nodes: OriginalDiagramNode[] = [
 const data = { nodes };
 
 export default function Page() {
+  const data = {
+    nodes: Array.from({ length: 10 }).map((_, i) => ({
+      id: `node-${i}`,
+      data: { category: i === 0 ? "central" : "around" },
+    })),
+    edges: Array.from({ length: 9 }).map((_, i) => ({
+      source: `node-0`,
+      target: `node-${i + 1}`,
+    })),
+  };
+  const LINE_HEIGHT = 16;
+  // 공통 베이스 옵션 (여기서 바꾸면 모든 프리셋에 반영)
+  const baseOptions = useMemo<GraphOptions>(
+    () => ({
+      // width: 1200,
+      // height: 700,
+      data,
+      behaviors: ["drag-canvas", "zoom-canvas", "drag-element"],
+      // 캔버스 배경을 직접 어둡게 (다크 테마 체감 확실)
+      background: "#141414",
+      // node: {
+      //   // 팔레트는 라이트/다크 상관없이 적용되니, 다크 확인용이면 잠깐 빼도 됨
+      //   palette: {
+      //     field: "category",
+      //     color: "tableau",
+      //   },
+      //   // 다크 톤에서 잘 보이도록 기본 스타일도 추가 가능
+      //   style: {
+      //     stroke: "#888",
+      //     lineWidth: 1,
+      //   },
+      // },
+      node: {
+        type: "rect",
+        style: {
+          // ✅ v5 안정: size로 지정
+          size: (d: any) => {
+            const { width, height } = calcWrapped(d);
+            // 혹시 계산값이 0/NaN 나오면 기본값으로 안전장치
+            const w = Number.isFinite(width) && width > 0 ? width : 160;
+            const h2 = Number.isFinite(height) && height > 0 ? height : 48;
+            return [w, h2];
+          },
+
+          radius: 8,
+          stroke: "#CBD5E1",
+          lineWidth: 1,
+          // fill: (d: any) =>
+          //   d?.data?.nodeType === "description" ? "#ffffff" : "#F8FAFC",
+
+          clipContent: true,
+
+          // ✅ 라벨: 우리가 \n으로 줄바꿈, wordWrap/ellipsis 끔
+          labelText: (d: any) => {
+            const { label } = calcWrapped(d);
+            return label;
+          },
+          labelPlacement: "center",
+          labelFontSize: 12,
+          labelFill: "#0F172A",
+          labelLineHeight: LINE_HEIGHT,
+          labelWordWrap: false, // 자동 줄바꿈 OFF
+          labelMaxWidth: undefined, // ellipsis 유발 방지
+          labelTextAlign: "center",
+          labelTextBaseline: "middle",
+          palette: {
+            field: "category",
+            color: "tableau",
+          },
+          // 다크 톤에서 잘 보이도록 기본 스타일도 추가 가능
+          style: {
+            stroke: "#888",
+            lineWidth: 1,
+          },
+        },
+      },
+      edge: {
+        style: {
+          stroke: "lightgreen",
+          lineWidth: 1,
+          opacity: 0.9,
+        },
+      },
+    }),
+    [data]
+  );
+
+  // 프리셋 목록: 레이아웃/옵션만 변경해 다양한 테스트
+  const optionPresets = useMemo(
+    (): { title: string; options: GraphOptions, theme: "dark" | "light" }[] => [
+      {
+        theme: "light",
+        title: "Force (d3-force)",
+        options: {
+          ...baseOptions,
+          layout: {
+            type: "d3-force",
+            preventOverlap: true,
+            linkDistance: 80,
+            nodeStrength: 10,
+            collideStrength: 0.8,
+          },
+        },
+      },
+      {
+        theme: "dark",
+        title: "Radial",
+        options: {
+          ...baseOptions,
+          layout: {
+            type: "radial",
+            unitRadius: 80,
+            preventOverlap: true,
+            strictRadial: false,
+            // 중심 노드 지정 (category=central을 중심으로)
+            // data에 따라 자동 중심 감지 안되면 아래처럼 지정 가능
+            // focusNode: "node-0",
+          },
+        },
+      },
+      {
+        theme: "dark",
+        title: "Grid",
+        options: {
+          ...baseOptions,
+          layout: {
+            type: "grid",
+            rows: 3,
+            cols: 4,
+            preventOverlap: true,
+          },
+        },
+      },
+      {
+        theme: "light",
+        title: "Circular",
+        options: {
+          ...baseOptions,
+          layout: {
+            type: "circular",
+            radius: 120,
+            divisions: 1,
+            ordering: "degree", // degree | topology 등
+          },
+        },
+      },
+      {
+        theme: "dark",
+        title: "Concentric",
+        options: {
+          ...baseOptions,
+          layout: {
+            type: "concentric",
+            maxLevelDiff: 2,
+            sortBy: "degree",
+            preventOverlap: true,
+          },
+        },
+      },
+      {
+        theme: "light",
+        title: "No Layout (static)",
+        options: {
+          ...baseOptions,
+          // 레이아웃을 주지 않으면 좌표가 유지됨.
+          // 여기서는 예시로 일부 노드에 좌표를 직접 지정해봄.
+          data: {
+            nodes: baseOptions.data!.nodes!.map((n, i) =>
+              i === 0
+                ? { ...n, x: 320, y: 180 }
+                : {
+                    ...n,
+                    x: 320 + 120 * Math.cos((i / 9) * Math.PI * 2),
+                    y: 180 + 120 * Math.sin((i / 9) * Math.PI * 2),
+                  }
+            ),
+            edges: baseOptions.data!.edges!,
+          },
+        },
+      },
+    ],
+    [baseOptions]
+  );
+
+  // 2) onRender / onDestroy(선택)
+  const handleRender = (g: any) => {
+    g.fitCenter?.();
+    console.log("theme tokens:", g.getTheme()); // 다크 토큰이면 적용됨
+    // 필요시 이벤트 바인딩 등
+    // g.on('node:click', () => { ... });
+  };
+
+  const handleDestroy = () => {
+    // 언마운트 시 정리해야 할 것들 여기서
+    // 예: 이벤트 해제, 타이머 클리어, 외부 상태 리셋 등
+    console.log("[G6] graph destroyed");
+  };
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-semibold tracking-tight">
         G6 Layout Gallery
       </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        <Card key="1" title="Mindmap — H (좌우)">
+      <div className="w-full flex flex-col gap-6">
+          {optionPresets.map(({ title, options, theme}, idx) => (
+            <Card key={idx} title={title}>
+              {/* Graph 컴포넌트가 theme prop을 받는 버전이라면 아래처럼 넘겨줘 */}
+              <Graph
+                options={options}
+                theme={theme}
+                onRender={handleRender}
+                onDestroy={handleDestroy}
+              />
+            </Card>
+          ))}
+        {/* <Card key="1" title="Mindmap — H (좌우)">
           <DiagramViewG6
             data={data}
             layoutType="mindmap"
@@ -209,7 +422,7 @@ export default function Page() {
         </Card>
         <Card key="6" title="Radial (라디얼)">
           <DiagramViewG6 data={data} layoutType="radial" height={360} />
-        </Card>
+        </Card> */}
       </div>
     </div>
   );
