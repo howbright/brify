@@ -184,8 +184,21 @@ export default function Page() {
   // 공통 베이스 옵션 (여기서 바꾸면 모든 프리셋에 반영)
   const baseOptions = useMemo<GraphOptions>(
     () => ({
-      // width: 1200,
-      // height: 700,
+      autoFit: {
+        type: "view", // Adaptation type: 'view' or 'center'
+        options: {
+          // Only applicable to 'view' type
+          when: "overflow", // When to adapt: 'overflow' (only when content overflows) or 'always' (always adapt)
+          direction: "x", // Adaptation direction: 'x', 'y', or 'both'
+        },
+        animation: {
+          // Adaptation animation effect
+          duration: 1000, // Animation duration (milliseconds)
+          easing: "ease-in-out", // Animation easing function
+        },
+      },
+      autoResize: true,
+      padding: 20, // 20 pixels of padding on all sides
       data,
       behaviors: ["drag-canvas", "zoom-canvas", "drag-element"],
       // 캔버스 배경을 직접 어둡게 (다크 테마 체감 확실)
@@ -259,7 +272,25 @@ export default function Page() {
 
   // 프리셋 목록: 레이아웃/옵션만 변경해 다양한 테스트
   const optionPresets = useMemo(
-    (): { title: string; options: GraphOptions, theme: "dark" | "light" }[] => [
+    (): { title: string; options: GraphOptions; theme: "dark" | "light" }[] => [
+      {
+        theme: "light",
+        title: "mindmap",
+        options: {
+          ...baseOptions,
+          plugins: [
+            "minimap", // Enable minimap with default configuration
+            {
+              type: "grid", // Enable grid background
+              key: "grid-plugin",
+              line: {
+                stroke: "#d9d9d9",
+                lineWidth: 1,
+              },
+            }
+          ],
+        },
+      },
       {
         theme: "light",
         title: "Force (d3-force)",
@@ -374,17 +405,17 @@ export default function Page() {
       </h1>
 
       <div className="w-full flex flex-col gap-6">
-          {optionPresets.map(({ title, options, theme}, idx) => (
-            <Card key={idx} title={title}>
-              {/* Graph 컴포넌트가 theme prop을 받는 버전이라면 아래처럼 넘겨줘 */}
-              <Graph
-                options={options}
-                theme={theme}
-                onRender={handleRender}
-                onDestroy={handleDestroy}
-              />
-            </Card>
-          ))}
+        {optionPresets.map(({ title, options, theme }, idx) => (
+          <Card key={idx} title={title}>
+            {/* Graph 컴포넌트가 theme prop을 받는 버전이라면 아래처럼 넘겨줘 */}
+            <Graph
+              options={options}
+              theme={theme}
+              onRender={handleRender}
+              onDestroy={handleDestroy}
+            />
+          </Card>
+        ))}
         {/* <Card key="1" title="Mindmap — H (좌우)">
           <DiagramViewG6
             data={data}
