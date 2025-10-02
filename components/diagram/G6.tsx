@@ -15,37 +15,48 @@ export const Graph = ({ options, onRender, onDestroy, theme = "dark" }: GraphPro
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-
     const { theme: _ignoredTheme, ...rest } = options;
+  
+    if (!containerRef.current) return;
+  
+    // plugins 같은 건 일단 제거(문자열 지정하면 실패). 필요하면 실제 인스턴스로.
+    const { plugins: _ignoredPlugins, ...safeRest } = rest as any;
+  
     const graph = new G6Graph({
-        container: containerRef.current!,
-         ...rest, theme,
-         plugins: ['minimap', 'contextmenu', 'fullscreen', 'history'],
-      });
+      container: containerRef.current,
+      ...safeRest,
+      theme,
+    });
     graphRef.current = graph;
-
+  
     let cancelled = false;
-    graph
-      .render()
-      .then(() => {
-        // 렌더 후 테마 확실히 적용
-        graph.setTheme(theme); // 'dark' 적용
-        // 현재 테마 확인해보고 싶으면: console.log(graph.getTheme());
-        if (!cancelled) onRender?.(graph);
-      })
-      .catch((e) => console.debug(e));
-
-
+    (async () => {
+      try {
+        // ⬇️ 데이터가 들어있는지 로그
+        console.log("[G6] init options.data =", safeRest.data);
+        // ⬇️ 초기에도 명시적으로 setData → render
+        if (safeRest.data) {
+          await graph.setData(safeRest.data);
+        }
+        await graph.render();
+        if (cancelled) return;
+        graph.setTheme(theme);
+        console.log("[G6] rendered OK");
+        onRender?.(graph);
+      } catch (e) {
+        console.error("[G6] render failed:", e);
+      }
+    })();
+  
     return () => {
-      const graph = graphRef.current;
-      if (graph) {
+      cancelled = true;
+      if (graph && !graph.destroyed) {
         graph.destroy();
         onDestroy?.();
-        graphRef.current = null;
       }
+      graphRef.current = null;
     };
   }, []);
-
   // 옵션 변경(테마 제외) — render() 호출 금지
   useEffect(() => {
     const graph = graphRef.current;

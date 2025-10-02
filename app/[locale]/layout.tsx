@@ -1,3 +1,6 @@
+
+
+
 import { SessionProvider } from "@/components/SessionProvider";
 import { routing } from "@/i18n/routing";
 import type { Metadata } from "next";
@@ -5,9 +8,13 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { Geist, Geist_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 import { Toaster } from "sonner";
+import "@mind-elixir/node-menu/dist/style.css";
+// import "mind-elixir/dist/style.css";
+import "mind-elixir/style.css"; 
 import "../globals.css";
 import { ReactQueryProvider } from "../providers";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
