@@ -51,18 +51,27 @@ function toMindElixirData(nodes: OriginalDiagramNode[]): MEData {
 }
 
 type ClientMindElixirProps = {
-  /** "light"면 화이트 모드 강제, "dark"면 다크 모드 강제 */
   mode?: "light" | "dark";
-  /** MindElixir Theme 객체를 직접 넘기고 싶을 때 (mode보다 우선) */
   theme?: any;
+  /** 트랙패드/휠 확대 감도(작을수록 부드럽게). 예: 30~120 권장 */
+  zoomSensitivity?: number;
+  /** 캔버스 드래그 버튼: 0=왼쪽, 2=오른쪽(기본) */
+  dragButton?: 0 | 2;
+  /** 처음 로딩할 때 전체가 화면에 맞도록 */
+  fitOnInit?: boolean;
 };
 
-export default function ClientMindElixir({ mode = "light", theme }: ClientMindElixirProps) {
+export default function ClientMindElixir({
+  mode = "light",
+  theme,
+  zoomSensitivity = 60,
+  dragButton = 2,
+  fitOnInit = true,
+}: ClientMindElixirProps) {
   const elRef = useRef<HTMLDivElement>(null);
   const mindRef = useRef<any>(null);
-  const meRef = useRef<any>(null); // MindElixir 모듈 참조
+  const meRef = useRef<any>(null);
 
-  // 최초 초기화
   useEffect(() => {
     if (!elRef.current) return;
     let cancelled = false;
@@ -74,21 +83,24 @@ export default function ClientMindElixir({ mode = "light", theme }: ClientMindEl
       ]);
       const NodeMenu = (nodeMenuMod as any).default ?? (nodeMenuMod as any);
       meRef.current = MindElixir;
-
       if (cancelled || !elRef.current) return;
 
-      // 초기 테마 결정: 커스텀 > mode(light/dark) > 기본
       const resolvedTheme =
         theme ?? (mode === "dark" ? MindElixir.DARK_THEME : MindElixir.THEME);
 
       const mind = new MindElixir({
         el: elRef.current,
         direction: MindElixir.LEFT,
-        draggable: true,
         contextMenu: true,
         toolBar: true,
         keypress: true,
+        draggable: true, // 노드 드래그
         theme: resolvedTheme,
+
+        // ✅ 추가된 옵션들
+        scaleSensitivity: zoomSensitivity,         // 확대/축소 감도 조절
+        mouseSelectionButton: dragButton,          // 캔버스 드래그 버튼 지정(0=좌, 2=우)
+        alignment: "nodes",                        // 재정렬 시 전체 맵 기준 정렬
       });
 
       mind.install(NodeMenu);
@@ -96,19 +108,23 @@ export default function ClientMindElixir({ mode = "light", theme }: ClientMindEl
       const data = toMindElixirData(sampleNodes as OriginalDiagramNode[]);
       mind.init(data);
 
+      // ✅ 초기 로딩 시 전체가 보이도록
+      if (fitOnInit) {
+        mind.scaleFit(); // 모든 노드가 뷰에 꽉 차도록
+        mind.toCenter(); // 중심 맞춤(선택)
+      }
+
       mindRef.current = mind;
     })().catch((e) => console.error("[ME] init failed:", e));
 
     return () => {
       cancelled = true;
-      try {
-        mindRef.current?.destroy?.();
-      } catch {}
+      try { mindRef.current?.destroy?.(); } catch {}
       mindRef.current = null;
     };
-  }, []); // mount 1회
+  }, [zoomSensitivity, dragButton, fitOnInit, mode, theme]);
 
-  // mode / theme prop 바뀌면 런타임 테마 변경
+  // 테마 변경 실시간 반영(이전과 동일)
   useEffect(() => {
     const mind = mindRef.current;
     const MindElixir = meRef.current;
@@ -117,7 +133,7 @@ export default function ClientMindElixir({ mode = "light", theme }: ClientMindEl
     const resolvedTheme =
       theme ?? (mode === "dark" ? MindElixir.DARK_THEME : MindElixir.THEME);
 
-    const change = mind.changeTheme ?? mind.setTheme; // 버전 호환
+    const change = mind.changeTheme ?? mind.setTheme;
     change?.(resolvedTheme);
   }, [mode, theme]);
 
