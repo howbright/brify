@@ -14,7 +14,7 @@ export default function Page() {
         더블클릭/F2로 인라인 편집, Enter/Shift+Enter/Tab로 형제/자식 추가 등
         기본 편집 동작 지원.
       </p>
-      <ClientMindElixir key={"2"} mode="dark" zoomSensitivity={0.3} dragButton={2}  fitOnInit />
+      <ClientMindElixir key={"2"} mode="dark" zoomSensitivity={0.3} dragButton={0}  fitOnInit />
     </div>
   );
 }

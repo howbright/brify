@@ -39,7 +39,7 @@ export function ProTooltipButton({ label }: { label: string }) {
           >
             <p className="font-medium">Pro 요금제에서 사용할 수 있어요.</p>
             <button
-              onClick={() => router.push("/pricing")}
+              onClick={() => router.push("/billing")}
               className="bg-primary hover:bg-primary-hover text-white text-xs font-semibold px-3 py-1 rounded transition"
             >
               요금제 보러가기

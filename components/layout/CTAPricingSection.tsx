@@ -25,7 +25,7 @@ export default function CTAPricingSection() {
         </p>
         <div className="flex justify-center gap-4 flex-wrap">
           <button
-            onClick={() => router.push("/pricing")}
+            onClick={() => router.push("/billing")}
             className="px-6 py-2 rounded-lg bg-white text-[#21293b] font-semibold hover:bg-white/90 transition-all shadow-md"
           >
             <span className="inline-flex items-center gap-1">

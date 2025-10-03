@@ -39,7 +39,7 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/pricing" className="hover:underline hover:text-primary transition-colors">
+              <Link href="" className="hover:underline hover:text-primary transition-colors">
                 요금제
               </Link>
             </li>
