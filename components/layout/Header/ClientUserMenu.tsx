@@ -18,6 +18,21 @@ export default function ClientUserMenu({
   role: "basic" | "pro" | null;
 }) {
   const router = useRouter();
+
+  async function handleSignOut() {
+    try {
+      await fetch("/auth/signout", {
+        method: "POST",
+        cache: "no-store",
+      });
+    } finally {
+      // 쿠키가 정리된 뒤 RSC 스냅샷 갱신
+      router.refresh();
+      // 원한다면 홈으로 보내기:
+      // router.replace("/");
+    }
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -48,10 +63,14 @@ export default function ClientUserMenu({
           계정 설정
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <form action="/auth/signout" method="POST">
-            <button type="submit">로그아웃</button>
-          </form>
+        <DropdownMenuItem
+          // Radix는 onClick보다 onSelect가 확실합니다.
+          onSelect={(e) => {
+            e.preventDefault(); // 드롭다운 기본 처리와 충돌 방지
+            handleSignOut();
+          }}
+        >
+          로그아웃
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
