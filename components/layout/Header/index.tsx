@@ -1,60 +1,27 @@
-"use client";
-
-import LanguageSelector from "@/components/LanguageSelector";
-import { useSession } from "@/components/SessionProvider";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Link } from "@/i18n/navigation";
-import { createClient } from "@/utils/supabase/client";
-import { Icon } from "@iconify/react";
+// components/layout/Header/index.tsx (Server Component)
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { Link } from "@/i18n/navigation";
+import { createClient } from "@/utils/supabase/server";
+import ClientUserMenu from "./ClientUserMenu"; // 클라 섬
+import ClientMobileMenu from "./ClientMobileMenu";
+import LanguageSelector from "@/components/LanguageSelector";
 
-export default function Header() {
-  const supabase = createClient();
-  const router = useRouter();
-  const { session } = useSession();
+export default async function Header() {
+  const supabase = await createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  const [email, setEmail] = useState<string | null>(null);
-  const [role, setRole] = useState<"basic" | "pro" | null>(null);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    if (session?.user) {
-      setEmail(session.user.email ?? null);
-
-      const fetchProfile = async () => {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", session.user.id)
-          .single();
-
-        if (
-          !error &&
-          data?.role &&
-          (data.role === "basic" || data.role === "pro")
-        ) {
-          setRole(data.role);
-        }
-      };
-
-      fetchProfile();
-    }
-  }, [session, supabase]);
-
-  // const logout = async () => {
-  //   await supabase.auth.signOut();
-  //   router.refresh();
-  // };
-
+  // (선택) role까지 서버에서 미리 조회
+  let role: "basic" | "pro" | null = null;
+  if (session?.user) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", session.user.id)
+      .single();
+    role = data?.role === "basic" || data?.role === "pro" ? data.role : null;
+  }
   const navItems = [
     {
       href: "/summarize",
@@ -119,131 +86,18 @@ export default function Header() {
                 </Link>
               </>
             ) : (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg text-sm hover:border-primary hover:text-primary transition-colors">
-                    <span className="hidden sm:inline truncate max-w-[120px]">
-                      {email}
-                    </span>
-                    {role === "pro" ? (
-                      <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-                        PRO
-                      </span>
-                    ) : (
-                      <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-muted text-muted-foreground">
-                        BASIC
-                      </span>
-                    )}
-                    <Icon icon="mdi:chevron-down" width={20} />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => router.push("/summarize")}>
-                    핵심정리
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/my")}>
-                    나의 스크랩북
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/account")}>
-                    계정 설정
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <form action="/auth/signout" method="POST">
-                      <button type="submit">로그아웃</button>
-                    </form>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <ClientUserMenu email={session.user.email ?? null} role={role} />
             )}
           </div>
 
-          {/* 햄버거 버튼 - sm 이상에서 항상 보이도록 */}
-          <div className="flex items-center gap-2 md:flex lg:hidden">
-            <button
-              className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-              onClick={() => setMobileOpen(!mobileOpen)}
-            >
-              <Icon
-                icon={mobileOpen ? "mdi:close" : "mdi:menu"}
-                className="w-6 h-6"
-              />
-            </button>
-            <LanguageSelector />
-          </div>
-        </div>
-
-        <AnimatePresence>
-          {mobileOpen && (
-            <>
-              {/* 🔴 오버레이 - 헤더 아래부터 전체 덮기 */}
-              <motion.div
-                key="overlay"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="fixed left-0 right-0 top-[64px] h-[calc(100vh-64px)] bg-black/40 backdrop-blur-sm z-30"
-                onClick={() => setMobileOpen(false)}
-              />
-              {/* 🟢 모바일 메뉴 - 헤더 아래에 떠 있음 */}
-              <motion.div
-                key="mobile-menu"
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
-                className="fixed top-[64px] left-0 right-0 mx-2 rounded-xl 
-          bg-gradient-to-b from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 
-          shadow-lg border border-border z-40 px-4 pb-4"
-              >
-                {session && (
-                  <div className="text-sm text-primary font-semibold mb-3 pt-3 text-center">
-                    {`${email}님, 안녕하세요`}
-                  </div>
-                )}
-
-                <ul className="flex flex-col font-medium mb-4 divide-y divide-border">
-                  {navItems.map((item) => (
-                    <li key={item.href}>
-                      <button
-                        onClick={() => {
-                          setMobileOpen(false);
-                          router.push(item.href);
-                        }}
-                        className="w-full block py-3 px-3 text-text hover:bg-primary/10 hover:text-primary 
-        rounded-md text-center transition-colors text-[15px] font-semibold"
-                      >
-                        {item.label}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="flex flex-row gap-2 border-t border-border pt-3">
-                  {!session ? (
-                    <>
-                      <Link
-                        href="/login"
-                        className="w-full text-primary border border-primary hover:bg-primary/10 font-medium 
-                  rounded-lg text-sm px-4 py-2 text-center"
-                      >
-                        로그인
-                      </Link>
-                      <Link
-                        href="/signup"
-                        className="w-full text-white bg-primary hover:bg-primary-hover font-medium 
-                  rounded-lg text-sm px-4 py-2 text-center"
-                      >
-                        회원가입
-                      </Link>
-                    </>
-                  ) : null}
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
+          {/* ✅ 모바일 메뉴 트리거 + 패널(클라 섬) */}
+          <ClientMobileMenu
+            isAuthed={!!session}
+            email={session?.user?.email ?? null}
+            navItems={navItems}
+          />
+        </div>{" "}
+        {/* ← 이거 빠져 있었음 */}
       </nav>
     </header>
   );

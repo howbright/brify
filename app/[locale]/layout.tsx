@@ -15,6 +15,11 @@ import "../globals.css";
 import { ReactQueryProvider } from "../providers";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { createClient } from "@/utils/supabase/server";
+import AuthRscRefresher from "@/components/AuthRscRefresher";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 
 
 const geistSans = Geist({
@@ -69,6 +74,7 @@ export default async function RootLayout({
   const { locale } = await params;
   const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
+  console.log("로그인을 했으니 session을 새로 가져오자", session)
   if (!hasLocale(routing.locales, locale)) {
     notFound();
   }
@@ -78,6 +84,7 @@ export default async function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ReactQueryProvider>
         <SessionProvider session={session}>
+        <AuthRscRefresher /> {/* ← 여기! 헤더보다 위든 아래든 상관 없음 */}
             <NextIntlClientProvider>
               <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
             </NextIntlClientProvider>

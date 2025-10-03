@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 export async function POST(req: NextRequest) {
+    console.log('로그아웃 api에 들어옴')
   const res = NextResponse.redirect(new URL("/", req.nextUrl));
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
