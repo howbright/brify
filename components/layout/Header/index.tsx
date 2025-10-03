@@ -37,7 +37,11 @@ export default function Header() {
           .eq("id", session.user.id)
           .single();
 
-          if (!error && data?.role && (data.role === "basic" || data.role === "pro")) {
+        if (
+          !error &&
+          data?.role &&
+          (data.role === "basic" || data.role === "pro")
+        ) {
           setRole(data.role);
         }
       };
@@ -46,10 +50,10 @@ export default function Header() {
     }
   }, [session, supabase]);
 
-  const logout = async () => {
-    await supabase.auth.signOut();
-    router.refresh();
-  };
+  // const logout = async () => {
+  //   await supabase.auth.signOut();
+  //   router.refresh();
+  // };
 
   const navItems = [
     {
@@ -144,7 +148,11 @@ export default function Header() {
                     계정 설정
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout}>로그아웃</DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <form action="/auth/signout" method="POST">
+                      <button type="submit">로그아웃</button>
+                    </form>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}

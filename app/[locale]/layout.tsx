@@ -14,6 +14,7 @@ import "mind-elixir/style.css";
 import "../globals.css";
 import { ReactQueryProvider } from "../providers";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
+import { createClient } from "@/utils/supabase/server";
 
 
 const geistSans = Geist({
@@ -66,6 +67,8 @@ export default async function RootLayout({
 }) {
   // Ensure that the incoming `locale` is valid
   const { locale } = await params;
+  const supabase = await createClient();
+  const { data: { session } } = await supabase.auth.getSession();
   if (!hasLocale(routing.locales, locale)) {
     notFound();
   }
@@ -74,7 +77,7 @@ export default async function RootLayout({
     <html lang={locale} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ReactQueryProvider>
-          <SessionProvider>
+        <SessionProvider session={session}>
             <NextIntlClientProvider>
               <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
             </NextIntlClientProvider>
