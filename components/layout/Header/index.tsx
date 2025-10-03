@@ -11,6 +11,7 @@ export default async function Header() {
   const {
     data: { session },
   } = await supabase.auth.getSession();
+  const isAuthed = !!session;
 
   // (선택) role까지 서버에서 미리 조회
   let role: "basic" | "pro" | null = null;
@@ -30,6 +31,7 @@ export default async function Header() {
     },
     { href: "/my-summaries", label: "나의 스크랩북", icon: "mdi:folder" },
     { href: "/tags", label: "태그 보기", icon: "mdi:tag-multiple" },
+    ...(isAuthed ? [{ href: "/billing", label: "결제/크레딧" }] : []),
     { href: "/pricing", label: "요금제", icon: "mdi:currency-krw" },
   ];
 
