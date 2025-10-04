@@ -9,6 +9,7 @@ type Pack = {
   unitUSD: number;
   popular?: boolean;
 };
+
 const PACKS: Pack[] = [
   { id: "100", credits: 100, priceUSD: 10, unitUSD: 0.1 },
   { id: "300", credits: 300, priceUSD: 25, unitUSD: 0.0833, popular: true },
@@ -31,20 +32,28 @@ export default async function PricingPage() {
   const isAuthed = !!session;
 
   return (
-    <div className="min-h-[100dvh] bg-[#fdfaf6]">
+    <div className="min-h-[100dvh] bg-[var(--color-background-soft)]">
       <header className="mx-auto max-w-5xl px-4 pt-12">
-        <h1 className="text-3xl font-semibold text-[#2c2c2c]">Pricing</h1>
-        <p className="mt-2 text-neutral-600">
+        <h1 className="text-3xl font-semibold text-[var(--color-text)]">Pricing</h1>
+        <p className="mt-2 text-[color-mix(in_oklab,var(--color-foreground),transparent 35%)]">
           Pay-as-you-go credits. No subscriptions.
         </p>
         <div className="mt-6 flex gap-3">
           <Link
             href="/signup"
-            className="rounded-xl bg-[#a14b3a] px-4 py-2 text-white text-sm shadow-sm"
+            className="rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] hover:bg-[var(--color-primary-hover)]
+                       text-[var(--color-primary-foreground)] px-4 py-2 text-sm shadow-sm
+                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
           >
             Start free
           </Link>
-          <Link href="/login" className="rounded-xl border px-4 py-2 text-sm">
+          <Link
+            href="/login"
+            className="rounded-[var(--radius-lg)] border border-[var(--color-border)] px-4 py-2 text-sm
+                       text-[var(--color-foreground)]
+                       hover:bg-[var(--color-muted)] hover:text-[var(--color-foreground)]
+                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
+          >
             Sign in
           </Link>
         </div>
@@ -56,23 +65,36 @@ export default async function PricingPage() {
             {PACKS.map((p) => (
               <div
                 key={p.id}
-                className={`rounded-2xl border bg-white p-5 shadow-sm ${
-                  p.popular ? "border-[#a14b3a]" : "border-neutral-200"
+                className={`rounded-2xl border bg-[var(--color-card)] text-[var(--color-card-foreground)] p-5 shadow-sm ${
+                  p.popular ? "border-[var(--color-primary-500)]" : "border-[var(--color-border)]"
                 }`}
               >
                 {p.popular && (
-                  <div className="mb-2 inline-flex items-center gap-1 self-start rounded-full border border-[#a14b3a]/30 bg-[#a14b3a]/10 px-2.5 py-0.5 text-xs text-[#a14b3a]">
+                  <div
+                    className="mb-2 inline-flex items-center gap-1 self-start rounded-full
+                               border px-2.5 py-0.5 text-xs"
+                    style={{
+                      borderColor:
+                        "color-mix(in_srgb,var(--color-primary-500),transparent 70%)",
+                      background:
+                        "color-mix(in_srgb,var(--color-primary-500),white 85%)",
+                      color: "var(--color-primary-700)",
+                    }}
+                  >
                     Most popular
                   </div>
                 )}
-                <div className="text-2xl font-bold text-[#2c2c2c]">
+
+                <div className="text-2xl font-bold text-[var(--color-text)]">
                   {p.credits.toLocaleString()}{" "}
-                  <span className="text-base font-medium text-neutral-500">
+                  <span className="text-base font-medium text-[color-mix(in_oklab,var(--color-foreground),transparent 40%)]">
                     credits
                   </span>
                 </div>
-                <div className="mt-1 text-neutral-700">{usd(p.priceUSD)}</div>
-                <div className="mt-1 text-xs text-neutral-500">
+                <div className="mt-1 text-[color-mix(in_oklab,var(--color-foreground),transparent 20%)]">
+                  {usd(p.priceUSD)}
+                </div>
+                <div className="mt-1 text-xs text-[var(--color-muted-foreground)]">
                   ≈ {usd(p.unitUSD)} / credit
                 </div>
 
@@ -80,30 +102,34 @@ export default async function PricingPage() {
                 {isAuthed ? (
                   <Link
                     href="/billing"
-                    className="block w-full rounded-xl bg-[#a14b3a] px-4 py-2.5 text-center text-sm font-medium text-white shadow-sm"
+                    className="block w-full rounded-[var(--radius-lg)]
+                               bg-[var(--color-primary-500)] hover:bg-[var(--color-primary-hover)]
+                               text-[var(--color-primary-foreground)] px-4 py-2.5 text-center text-sm font-medium shadow-sm
+                               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
                   >
                     Buy now
                   </Link>
                 ) : (
                   <Link
                     href="/login"
-                    className="block w-full rounded-xl bg-[#a14b3a] px-4 py-2.5 text-center text-sm font-medium text-white shadow-sm"
+                    className="block w-full rounded-[var(--radius-lg)]
+                               bg-[var(--color-primary-500)] hover:bg-[var(--color-primary-hover)]
+                               text-[var(--color-primary-foreground)] px-4 py-2.5 text-center text-sm font-medium shadow-sm
+                               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
                   >
                     Sign in to buy
                   </Link>
                 )}
-                <div className="mt-3 text-xs text-neutral-500">
+                <div className="mt-3 text-xs text-[var(--color-muted-foreground)]">
                   Payments in USD via LemonSqueezy.
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-8 rounded-2xl border border-neutral-200 bg-white p-5">
-            <h2 className="text-lg font-semibold text-[#2c2c2c]">
-              How it works
-            </h2>
-            <ul className="mt-3 list-disc pl-5 text-sm text-neutral-700 space-y-1">
+          <div className="mt-8 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
+            <h2 className="text-lg font-semibold text-[var(--color-text)]">How it works</h2>
+            <ul className="mt-3 list-disc pl-5 text-sm text-[color-mix(in_oklab,var(--color-foreground),transparent 20%)] space-y-1">
               <li>Join and get free trial credits.</li>
               <li>1 summary = 1 credit (very long inputs may consume more).</li>
               <li>No subscriptions. Top up credits anytime.</li>
@@ -111,29 +137,27 @@ export default async function PricingPage() {
           </div>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-              <div className="font-medium">
-                Do I need an account to purchase?
-              </div>
-              <div className="mt-1 text-sm text-neutral-700">
+            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-4">
+              <div className="font-medium text-[var(--color-text)]">Do I need an account to purchase?</div>
+              <div className="mt-1 text-sm text-[color-mix(in_oklab,var(--color-foreground),transparent 20%)]">
                 Yes. Please{" "}
                 {isAuthed ? (
-                  <Link href="/billing" className="underline">
+                  <Link href="/billing" className="underline text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)]">
                     go to Billing
                   </Link>
                 ) : (
-                  <Link href="/signup" className="underline">
+                  <Link href="/signup" className="underline text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)]">
                     create an account
                   </Link>
                 )}{" "}
                 first so we can apply credits to your profile.
               </div>
             </div>
-            <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-              <div className="font-medium">Refund policy</div>
-              <div className="mt-1 text-sm text-neutral-700">
-                Unused credits refundable within 7 days. (Adjust to your
-                policy.)
+
+            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-4">
+              <div className="font-medium text-[var(--color-text)]">Refund policy</div>
+              <div className="mt-1 text-sm text-[color-mix(in_oklab,var(--color-foreground),transparent 20%)]">
+                Unused credits refundable within 7 days. (Adjust to your policy.)
               </div>
             </div>
           </div>

@@ -4,6 +4,8 @@
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import Script from "next/script";
+import { useSession } from "@/components/SessionProvider";
+import { useRouter } from "next/navigation";
 
 type CreditPack = {
   id: string;
@@ -45,8 +47,16 @@ function formatUSD(n: number) {
 }
 
 export default function BillingPage() {
+  const { session, isLoading } = useSession();
+  const router = useRouter();
   // 실제로는 Supabase 등에서 사용자 크레딧을 불러오면 됨
   const [balance, setBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!isLoading && !session) {
+      router.push("/login");
+    }
+  }, [isLoading, session]);
 
   useEffect(() => {
     // TODO: 서버에서 현재 유저 크레딧 잔액 가져오기 (예: /api/me)
