@@ -70,7 +70,7 @@ export default function LoginForm() {
     } else {
       setMessage("로그인 성공! 환영합니다.");
       setMessageType("success");
-      router.push("/summarize");
+      router.push("/dashboard");
     }
   };
 

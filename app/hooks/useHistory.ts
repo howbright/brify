@@ -9,7 +9,7 @@ const deepClone = <T,>(v: T): T => {
   // 함수는 빠져도 됨(복원 시 브리지 콜백 재주입하므로)
   // structuredClone 있으면 그걸 쓰고, 없으면 JSON 사용
   try {
-    // @ts-ignore
+    // @ts-expect-erro
     return typeof structuredClone === "function" ? structuredClone(v) : JSON.parse(JSON.stringify(v));
   } catch {
     return JSON.parse(JSON.stringify(v));

@@ -33,58 +33,92 @@ export default async function PricingPage() {
 
   return (
     <div className="min-h-[100dvh] bg-[var(--color-background-soft)]">
-      <header className="mx-auto max-w-5xl px-4 pt-12">
-        <h1 className="text-3xl font-semibold text-[var(--color-text)]">Pricing</h1>
-        <p className="mt-2 text-[color-mix(in_oklab,var(--color-foreground),transparent 35%)]">
-          Pay-as-you-go credits. No subscriptions.
-        </p>
-        <div className="mt-6 flex gap-3">
-          <Link
-            href="/signup"
-            className="rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] hover:bg-[var(--color-primary-hover)]
-                       text-[var(--color-primary-foreground)] px-4 py-2 text-sm shadow-sm
-                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
-          >
-            Start free
-          </Link>
-          <Link
-            href="/login"
-            className="rounded-[var(--radius-lg)] border border-[var(--color-border)] px-4 py-2 text-sm
-                       text-[var(--color-foreground)]
-                       hover:bg-[var(--color-muted)] hover:text-[var(--color-foreground)]
-                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
-          >
-            Sign in
-          </Link>
-        </div>
-      </header>
+     <header className="mx-auto max-w-5xl px-4 pt-12">
+  <h1 className="text-3xl font-semibold text-[var(--color-text)]">Pricing</h1>
+  <p className="mt-2 text-[color-mix(in_oklab,var(--color-foreground),transparent 35%)]">
+    Pay-as-you-go credits. No subscriptions.
+  </p>
+
+  <div className="mt-6 flex gap-3">
+    {!isAuthed ? (
+      <>
+        <Link
+          href="/signup"
+          className="rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] hover:bg-[var(--color-primary-hover)]
+                     text-[var(--color-primary-foreground)] px-4 py-2 text-sm shadow-sm
+                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
+        >
+          Start free
+        </Link>
+        <Link
+          href="/login"
+          className="rounded-[var(--radius-lg)] border border-[var(--color-border)] px-4 py-2 text-sm
+                     text-[var(--color-foreground)]
+                     hover:bg-[var(--color-muted)] hover:text-[var(--color-foreground)]
+                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
+        >
+          Sign in
+        </Link>
+      </>
+    ) : (
+      <>
+        <Link
+          href="/dashboard"
+          className="rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] hover:bg-[var(--color-primary-hover)]
+                     text-[var(--color-primary-foreground)] px-4 py-2 text-sm shadow-sm
+                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
+        >
+          Go to Dashboard
+        </Link>
+        <Link
+          href="/billing"
+          className="rounded-[var(--radius-lg)] border border-[var(--color-border)] px-4 py-2 text-sm
+                     text-[var(--color-foreground)]
+                     hover:bg-[var(--color-muted)] hover:text-[var(--color-foreground)]
+                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
+        >
+          Billing
+        </Link>
+      </>
+    )}
+  </div>
+</header>
 
       <main className="mx-auto max-w-5xl px-4 pb-24">
         <section className="mt-10">
-          <div className="grid gap-4 sm:grid-cols-3">
+          {/* 핵심: items-stretch 로 동일 높이 */}
+          <div className="grid gap-4 sm:grid-cols-3 items-stretch">
             {PACKS.map((p) => (
               <div
                 key={p.id}
-                className={`rounded-2xl border bg-[var(--color-card)] text-[var(--color-card-foreground)] p-5 shadow-sm ${
-                  p.popular ? "border-[var(--color-primary-500)]" : "border-[var(--color-border)]"
+                className={`flex h-full flex-col rounded-2xl border bg-[var(--color-card)] text-[var(--color-card-foreground)] p-5 shadow-sm ${
+                  p.popular
+                    ? "border-[var(--color-primary-500)]"
+                    : "border-[var(--color-border)]"
                 }`}
               >
-                {p.popular && (
-                  <div
-                    className="mb-2 inline-flex items-center gap-1 self-start rounded-full
-                               border px-2.5 py-0.5 text-xs"
-                    style={{
-                      borderColor:
-                        "color-mix(in_srgb,var(--color-primary-500),transparent 70%)",
-                      background:
-                        "color-mix(in_srgb,var(--color-primary-500),white 85%)",
-                      color: "var(--color-primary-700)",
-                    }}
-                  >
-                    Most popular
-                  </div>
-                )}
+                {/* 고정 높이 배지 슬롯: 배지가 없을 때도 공간 확보 */}
+                <div className="mb-2 h-6">
+                  {p.popular ? (
+                    <div
+                      className="inline-flex h-6 items-center gap-1 self-start rounded-full border px-2.5 text-xs"
+                      style={{
+                        borderColor:
+                          "color-mix(in_srgb,var(--color-primary-500),transparent 70%)",
+                        background:
+                          "color-mix(in_srgb,var(--color-primary-500),white 85%)",
+                        color: "var(--color-primary-700)",
+                      }}
+                    >
+                      Most popular
+                    </div>
+                  ) : (
+                    // 자리는 차지하되 보이지 않게
+                    <div className="h-6 invisible" aria-hidden />
+                  )}
+                </div>
 
+                {/* 가격 영역 */}
                 <div className="text-2xl font-bold text-[var(--color-text)]">
                   {p.credits.toLocaleString()}{" "}
                   <span className="text-base font-medium text-[color-mix(in_oklab,var(--color-foreground),transparent 40%)]">
@@ -98,7 +132,10 @@ export default async function PricingPage() {
                   ≈ {usd(p.unitUSD)} / credit
                 </div>
 
-                <div className="mt-5" />
+                {/* 스페이서: 버튼을 카드 하단에 고정 */}
+                <div className="mt-5 flex-1" />
+
+                {/* 버튼 영역 (가로 정렬 일치) */}
                 {isAuthed ? (
                   <Link
                     href="/billing"
@@ -128,7 +165,9 @@ export default async function PricingPage() {
           </div>
 
           <div className="mt-8 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-            <h2 className="text-lg font-semibold text-[var(--color-text)]">How it works</h2>
+            <h2 className="text-lg font-semibold text-[var(--color-text)]">
+              How it works
+            </h2>
             <ul className="mt-3 list-disc pl-5 text-sm text-[color-mix(in_oklab,var(--color-foreground),transparent 20%)] space-y-1">
               <li>Join and get free trial credits.</li>
               <li>1 summary = 1 credit (very long inputs may consume more).</li>
@@ -138,15 +177,23 @@ export default async function PricingPage() {
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-4">
-              <div className="font-medium text-[var(--color-text)]">Do I need an account to purchase?</div>
+              <div className="font-medium text-[var(--color-text)]">
+                Do I need an account to purchase?
+              </div>
               <div className="mt-1 text-sm text-[color-mix(in_oklab,var(--color-foreground),transparent 20%)]">
                 Yes. Please{" "}
                 {isAuthed ? (
-                  <Link href="/billing" className="underline text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)]">
+                  <Link
+                    href="/billing"
+                    className="underline text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)]"
+                  >
                     go to Billing
                   </Link>
                 ) : (
-                  <Link href="/signup" className="underline text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)]">
+                  <Link
+                    href="/signup"
+                    className="underline text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)]"
+                  >
                     create an account
                   </Link>
                 )}{" "}
@@ -155,9 +202,12 @@ export default async function PricingPage() {
             </div>
 
             <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-4">
-              <div className="font-medium text-[var(--color-text)]">Refund policy</div>
+              <div className="font-medium text-[var(--color-text)]">
+                Refund policy
+              </div>
               <div className="mt-1 text-sm text-[color-mix(in_oklab,var(--color-foreground),transparent 20%)]">
-                Unused credits refundable within 7 days. (Adjust to your policy.)
+                Unused credits refundable within 7 days. (Adjust to your
+                policy.)
               </div>
             </div>
           </div>

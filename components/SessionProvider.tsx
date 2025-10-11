@@ -1,10 +1,10 @@
 // components/SessionProvider.tsx
 "use client";
 import type { Session } from "@supabase/supabase-js";
-import { createContext, useContext, useMemo, useEffect, useState } from "react";
+import { createContext, useContext, useMemo } from "react";
 
-type Ctx = { session: Session | null; isLoading: boolean };
-const SessionContext = createContext<Ctx>({ session: null, isLoading: true });
+type Ctx = { session: Session | null };
+const SessionContext = createContext<Ctx>({ session: null });
 
 export function SessionProvider({
   children,
@@ -13,16 +13,12 @@ export function SessionProvider({
   children: React.ReactNode;
   session: Session | null;
 }) {
-  const [hydrated, setHydrated] = useState(false);
-  useEffect(() => setHydrated(true), []);
-
-  const value = useMemo(
-    () => ({ session, isLoading: !hydrated }),
-    [session, hydrated]
-  );
+  const value = useMemo(() => ({ session }), [session]);
 
   return (
-    <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
+    <SessionContext.Provider value={value}>
+      {children}
+    </SessionContext.Provider>
   );
 }
 

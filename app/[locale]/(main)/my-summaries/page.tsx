@@ -21,7 +21,7 @@ type SummaryItem = {
 
 
 export default function MySummariesPage() {
-  const { session, isLoading } = useSession();
+  const { session } = useSession();
   const [summaries, setSummaries] = useState<SummaryItem[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
@@ -30,10 +30,10 @@ export default function MySummariesPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !session) {
+    if (!session) {
       router.push("/login");
     }
-  }, [isLoading, session]);
+  }, [session]);
 
   useEffect(() => {
     if (session?.user.id) {

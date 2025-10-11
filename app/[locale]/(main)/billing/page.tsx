@@ -47,16 +47,16 @@ function formatUSD(n: number) {
 }
 
 export default function BillingPage() {
-  const { session, isLoading } = useSession();
+  const { session } = useSession();
   const router = useRouter();
   // 실제로는 Supabase 등에서 사용자 크레딧을 불러오면 됨
   const [balance, setBalance] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!isLoading && !session) {
+    if (!session) {
       router.push("/login");
     }
-  }, [isLoading, session]);
+  }, [session]);
 
   useEffect(() => {
     // TODO: 서버에서 현재 유저 크레딧 잔액 가져오기 (예: /api/me)

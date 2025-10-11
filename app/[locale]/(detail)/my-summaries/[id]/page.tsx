@@ -33,7 +33,7 @@ interface Keyword {
 }
 
 export default function SummaryDetailPage() {
-  const { session, isLoading } = useSession();
+  const { session } = useSession();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
@@ -92,7 +92,7 @@ export default function SummaryDetailPage() {
     return null;
   }, [summary]);
 
-  if (isLoading || loading) {
+  if (loading) {
     return (
       <main className="max-w-4xl mx-auto p-6 flex flex-col gap-y-6">
         <Skeleton height={30} width={200} />
