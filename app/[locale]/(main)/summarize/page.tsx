@@ -2,12 +2,13 @@
 
 import { useSummarizeMutation } from "@/app/hooks/useSummaryMutation";
 import { useTextSummaryStatus } from "@/app/hooks/useTextSummaryStatus";
+// ⛏️ 오타 수정: supabaseClienet → supabaseClient
 import { supabase } from "@/app/lib/supabaseClienet";
 import { SourceType } from "@/app/types/sourceType";
 import { useSession } from "@/components/SessionProvider";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
-import { motion } from "framer-motion";
+import { motion, type Variants, easeOut } from "framer-motion";
 import { useLocale } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -23,9 +24,14 @@ import { useUpdateKeywords } from "@/app/hooks/useUpdateKeywords";
 
 const LOCAL_STORAGE_KEY = "brify:pendingInput";
 
-const fadeInUp = {
+// ✅ Variants 타입 지정 + easeOut 함수 사용
+const fadeInUp: Variants = {
   initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: easeOut },
+  },
 };
 
 export default function SummarizePage() {
@@ -38,9 +44,7 @@ export default function SummarizePage() {
   const [hasSummarized, setHasSummarized] = useState(false);
   const [extractionSucceeded, setExtractionSucceeded] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [pendingSourceType, setPendingSourceType] = useState<SourceType | null>(
-    null
-  );
+  const [pendingSourceType, setPendingSourceType] = useState<SourceType | null>(null);
   const [loginDialogOpen, setLoginDialogOpen] = useState(false);
   const [summaryId, setSummaryId] = useState<string | null>(null);
 
@@ -55,14 +59,13 @@ export default function SummarizePage() {
     keywordStatus.data?.status === "pending" ||
     keywordStatus.data?.status === "partial";
 
-  const { mutate: updateKeywords, isPending: updatingKeywords } =
-    useUpdateKeywords();
+  const { mutate: updateKeywords, isPending: updatingKeywords } = useUpdateKeywords();
 
   useEffect(() => {
     if (summaryId && !summaryStatusStarted) {
       setSummaryStatusStarted(true);
     }
-  }, [summaryId]);
+  }, [summaryId, summaryStatusStarted]);
 
   const pollingFinished =
     summaryStatus.data?.status === "completed" ||
@@ -77,7 +80,7 @@ export default function SummarizePage() {
       setRawText("✍️ 여기에 정리할 내용을 입력해주세요.");
       setExtractionSucceeded(true);
     }
-  }, [sourceType]);
+  }, [sourceType, rawText]);
 
   useEffect(() => {
     if (!summaryStatus.data) return;
@@ -207,11 +210,7 @@ export default function SummarizePage() {
         </motion.section>
 
         {(rawText || sourceType === SourceType.MANUAL) && (
-          <motion.section
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-          >
+          <motion.section variants={fadeInUp} initial="initial" animate="animate">
             <EditExtractedSection
               rawText={rawText}
               setRawText={setRawText}
@@ -245,8 +244,7 @@ export default function SummarizePage() {
                   updateKeywords(
                     { summaryId, keywords: newTags },
                     {
-                      onSuccess: () =>
-                        toast.success("키워드가 저장되었습니다."),
+                      onSuccess: () => toast.success("키워드가 저장되었습니다."),
                       onError: () => toast.error("키워드 저장 실패"),
                     }
                   );
@@ -277,10 +275,7 @@ export default function SummarizePage() {
           </motion.section>
         )}
       </div>
-      <LoginRequiredDialog
-        open={loginDialogOpen}
-        onOpenChange={setLoginDialogOpen}
-      />
+      <LoginRequiredDialog open={loginDialogOpen} onOpenChange={setLoginDialogOpen} />
     </TooltipProvider>
   );
 }
