@@ -14,15 +14,6 @@ export default async function Header() {
   const isAuthed = !!session;
 
   // (선택) role까지 서버에서 미리 조회
-  let role: "basic" | "pro" | null = null;
-  if (session?.user) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", session.user.id)
-      .single();
-    role = data?.role === "basic" || data?.role === "pro" ? data.role : null;
-  }
   const navItems = [
     {
       href: "/summarize",
@@ -88,7 +79,7 @@ export default async function Header() {
                 </Link>
               </>
             ) : (
-              <ClientUserMenu email={session.user.email ?? null} role={role} />
+              <ClientUserMenu email={session.user.email ?? null} />
             )}
           </div>
 

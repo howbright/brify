@@ -9,14 +9,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default function ClientUserMenu({
-  email,
-  role,
-}: {
-  email: string | null;
-  role: "basic" | "pro" | null;
-}) {
+export default function ClientUserMenu({ email }: { email: string | null }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const router = useRouter();
 
   async function handleSignOut() {
@@ -37,16 +34,13 @@ export default function ClientUserMenu({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg text-sm hover:border-primary hover:text-primary transition-colors">
-          <span className="hidden sm:inline truncate max-w-[120px]">
-            {email}
-          </span>
-          {role === "pro" ? (
-            <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-              PRO
+          {mounted && email ? (
+            <span className="hidden sm:inline truncate max-w-[120px]">
+              {email}
             </span>
           ) : (
-            <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-muted text-muted-foreground">
-              BASIC
+            <span className="hidden sm:inline truncate max-w-[120px]">
+              계정
             </span>
           )}
           <Icon icon="mdi:chevron-down" width={20} />
