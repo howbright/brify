@@ -29,7 +29,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
         // 투명 시작 → 스크롤 시 흰 배경/블러/보더/섀도우
         scrolled
           ? "bg-white/90 dark:bg-neutral-900/80 backdrop-blur-md border-b border-black/10 dark:border-white/10 shadow-sm"
-          : "bg-transparent",
+          : "bg-transparent dark:bg-neutral-950/45 dark:backdrop-blur supports-[backdrop-filter]:dark:bg-neutral-950/35 dark:border-b dark:border-white/10",
       ].join(" ")}
       role="banner"
     >

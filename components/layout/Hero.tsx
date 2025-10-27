@@ -6,33 +6,56 @@ import Footer from "./Footer";
 
 export default function LandingBlueHero() {
   return (
-    <main
-      className="
-      pt-14 min-h-screen w-full relative overflow-hidden
-      /* 큰 라디얼 두 장 */
-      bg-[radial-gradient(1200px_800px_at_80%_-10%,rgb(var(--hero-a)_/_0.22),transparent_60%),radial-gradient(900px_600px_at_10%_10%,rgb(var(--hero-b)_/_0.20),transparent_60%)]
-    "
-    >
-      {/* Background gradient */}
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-[rgb(var(--hero-b))] via-[rgb(var(--hero-a))] to-[rgb(var(--hero-c))] opacity-[0.18] dark:opacity-[0.22]" />
-
-      {/* 🔥 다크용 비네트(블랙 오버레이) 추가 */}
+    <main className="pt-14 min-h-screen w-full relative overflow-hidden">
+      {/* ☀️ Light BG (라이트 전용) */}
       <div
         className="
-      pointer-events-none absolute inset-0 -z-10
-      bg-[radial-gradient(1200px_800px_at_50%_-20%,transparent,rgba(0,0,0,0.45))]
-      hidden dark:block
-    "
+        pointer-events-none absolute inset-0 -z-10
+        bg-[radial-gradient(1200px_800px_at_80%_-10%,rgb(var(--hero-a)_/_0.22),transparent_60%),radial-gradient(900px_600px_at_10%_10%,rgb(var(--hero-b)_/_0.20),transparent_60%)]
+        bg-blend-normal
+        dark:hidden
+      "
+      />
+      <div
+        className="
+        pointer-events-none absolute inset-0 -z-10
+        bg-gradient-to-br from-[rgb(var(--hero-b))] via-[rgb(var(--hero-a))] to-[rgb(var(--hero-c))]
+        opacity-[0.18]
+        dark:hidden
+      "
+      />
+      <div
+        className="
+        pointer-events-none absolute inset-0 -z-10
+        [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]
+        bg-[linear-gradient(to_right,rgb(var(--hero-grid)_/_0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgb(var(--hero-grid)_/_0.05)_1px,transparent_1px)]
+        bg-[size:24px_24px]
+        dark:hidden
+      "
       />
 
-      {/* Subtle grid */}
+      {/* 🌙 Dark BG (다크 전용, 심플 & 딥 톤) */}
       <div
         className="
-      pointer-events-none absolute inset-0 -z-10
-      [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]
-      bg-[linear-gradient(to_right,rgb(var(--hero-grid)_/_0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgb(var(--hero-grid)_/_0.05)_1px,transparent_1px)]
-      bg-[size:24px_24px]
-    "
+        pointer-events-none absolute inset-0 -z-10 hidden dark:block
+        bg-[linear-gradient(180deg,#0a0f1c_0%,#05070e_55%,#030408_100%)]
+      "
+      />
+      {/* 아주 subtle한 비네트(깨끗하게, 과하지 않게) */}
+      <div
+        className="
+        pointer-events-none absolute inset-0 -z-10 hidden dark:block
+        bg-[radial-gradient(900px_420px_at_50%_-10%,rgba(0,0,0,0.55),transparent_65%)]
+      "
+      />
+      {/* (선택) 그리드 완전 제거 or 초미세로 */}
+      <div
+        className="
+        pointer-events-none absolute inset-0 -z-10 hidden dark:block
+        bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)]
+        bg-[size:28px_28px]
+        opacity-[0.6]
+      "
       />
 
       {/* Hero */}
@@ -55,10 +78,16 @@ export default function LandingBlueHero() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05, duration: 0.45 }}
-            className="mt-3 text-lg md:text-xl font-semibold text-neutral-900"
+            className="mt-3 text-lg md:text-xl font-semibold text-neutral-900 dark:text-neutral-100"
           >
             아니! 지금 바로 빨리{" "}
-            <span className="underline decoration-blue-300 decoration-4 underline-offset-4">
+            <span
+              className="
+      underline decoration-blue-300 decoration-4 underline-offset-4
+      dark:decoration-[rgb(var(--hero-b))]
+      dark:[text-shadow:0_1px_10px_rgba(0,0,0,0.35)]
+    "
+            >
               내 걸로
             </span>{" "}
             만들자.
@@ -111,32 +140,64 @@ export default function LandingBlueHero() {
             transition={{ delay: 0.15, duration: 0.45 }}
             className="mt-7 flex flex-col sm:flex-row items-start sm:items-center gap-3"
           >
+            {/* Primary */}
             <Link
               href="/summarize"
-              className="px-6 py-3 rounded-2xl bg-blue-600 text-white font-semibold shadow-sm hover:shadow-lg transition-transform hover:scale-[1.03] active:scale-100"
+              className="px-6 py-3 rounded-2xl
+               bg-blue-600 text-white font-semibold
+               dark:bg-[rgb(var(--hero-a))] dark:text-white
+               shadow-sm hover:shadow-lg
+               transition-transform hover:scale-[1.03] active:scale-100
+               focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60"
             >
               지금 요약해보기
             </Link>
+
+            {/* Secondary / Glass */}
             <Link
               href="/demo"
-              className="px-5 py-3 rounded-2xl bg-white/70 border border-white/60 backdrop-blur text-neutral-900 hover:-translate-y-0.5 hover:shadow-md transition-all"
+              className="px-5 py-3 rounded-2xl
+               bg-white/70 border border-white/60 text-neutral-900
+               backdrop-blur hover:-translate-y-0.5 hover:shadow-md transition-all
+               dark:bg-black/40 dark:border-white/10 dark:text-neutral-100
+               focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
             >
               데모 보기
             </Link>
           </motion.div>
 
           {/* Social proof / badges */}
-          <div className="mt-6 flex flex-wrap items-center gap-2 text-xs text-neutral-600">
-            <span className="px-2.5 py-1 rounded-full bg-white/70 border border-white/60">
+          <div className="mt-6 flex flex-wrap items-center gap-2 text-xs text-neutral-600 dark:text-neutral-200">
+            <span
+              className="px-2.5 py-1 rounded-full
+                   bg-white/80 border border-white/70
+                   dark:bg-white/12 dark:border-white/20
+                   dark:[text-shadow:0_1px_8px_rgba(0,0,0,0.35)]"
+            >
               타임스탬프 제거
             </span>
-            <span className="px-2.5 py-1 rounded-full bg-white/70 border border-white/60">
+            <span
+              className="px-2.5 py-1 rounded-full
+                   bg-white/80 border border-white/70
+                   dark:bg-white/12 dark:border-white/20
+                   dark:[text-shadow:0_1px_8px_rgba(0,0,0,0.35)]"
+            >
               핵심 트리 생성
             </span>
-            <span className="px-2.5 py-1 rounded-full bg-white/70 border border-white/60">
+            <span
+              className="px-2.5 py-1 rounded-full
+                   bg-white/80 border border-white/70
+                   dark:bg-white/12 dark:border-white/20
+                   dark:[text-shadow:0_1px_8px_rgba(0,0,0,0.35)]"
+            >
               다이어그램 보기
             </span>
-            <span className="px-2.5 py-1 rounded-full bg-white/70 border border-white/60">
+            <span
+              className="px-2.5 py-1 rounded-full
+                   bg-white/80 border border-white/70
+                   dark:bg-white/12 dark:border-white/20
+                   dark:[text-shadow:0_1px_8px_rgba(0,0,0,0.35)]"
+            >
               다국어 지원
             </span>
           </div>
@@ -280,12 +341,18 @@ export default function LandingBlueHero() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.5 }}
               transition={{ delay: i * 0.05 }}
-              className="rounded-2xl border border-white/60 bg-white/70 backdrop-blur p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all"
+              className="
+          rounded-2xl p-4 backdrop-blur transition-all hover:shadow-lg hover:-translate-y-0.5
+          border bg-white/80 border-white/70
+          dark:bg-white/12 dark:border-white/20 supports-[backdrop-filter]:dark:bg-white/10
+        "
             >
-              <div className="text-sm font-semibold text-blue-700">
+              <div className="text-sm font-semibold text-blue-700 dark:text-[rgb(var(--hero-b))]">
                 {f.title}
               </div>
-              <div className="mt-1.5 text-sm text-neutral-700">{f.desc}</div>
+              <div className="mt-1.5 text-sm text-neutral-700 dark:text-neutral-200">
+                {f.desc}
+              </div>
             </motion.div>
           ))}
         </div>
