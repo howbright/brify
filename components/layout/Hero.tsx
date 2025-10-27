@@ -5,30 +5,12 @@ import { motion } from "framer-motion";
 
 export default function LandingBlueHero() {
   return (
-    <main className="min-h-screen w-full bg-[radial-gradient(1200px_800px_at_80%_-10%,rgba(59,130,246,0.25),transparent_60%),radial-gradient(900px_600px_at_10%_10%,rgba(56,189,248,0.25),transparent_60%)] relative overflow-hidden">
+    <main className="pt-14 min-h-screen w-full bg-[radial-gradient(1200px_800px_at_80%_-10%,rgba(59,130,246,0.25),transparent_60%),radial-gradient(900px_600px_at_10%_10%,rgba(56,189,248,0.25),transparent_60%)] relative overflow-hidden">
       {/* Background gradient */}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-600 opacity-20" />
 
       {/* Subtle grid */}
       <div className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)] bg-[linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:24px_24px]"/>
-
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 md:px-10 py-5">
-        <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-2xl bg-white/90 shadow-md flex items-center justify-center">
-            <span className="text-blue-600 font-black">B</span>
-          </div>
-          <span className="font-semibold tracking-tight text-neutral-900">Brify</span>
-        </div>
-        <nav className="flex items-center gap-3">
-          <Link href="/pricing" className="text-sm px-3 py-2 rounded-full bg-white/60 backdrop-blur border border-white/50 hover:shadow-md transition-all hover:-translate-y-0.5">
-            가격
-          </Link>
-          <Link href="/login" className="text-sm px-4 py-2 rounded-full bg-neutral-900 text-white hover:shadow-lg transition-transform hover:scale-[1.03] active:scale-100">
-            로그인
-          </Link>
-        </nav>
-      </header>
 
       {/* Hero */}
       <section className="px-6 md:px-10 grid md:grid-cols-2 gap-10 md:gap-14 items-center max-w-7xl mx-auto py-10 md:py-18 lg:py-24">

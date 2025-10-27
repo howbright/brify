@@ -8,7 +8,7 @@ import { Icon } from "@iconify/react";
 import { Link } from "@/i18n/navigation";
 import LanguageSelector from "@/components/LanguageSelector";
 
-type NavItem = { href: string; label: string };
+type NavItem = { href: string; label: string, icon?: string };
 export default function ClientMobileMenu({
   isAuthed,
   email,
