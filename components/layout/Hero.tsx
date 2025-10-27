@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import Footer from "./Footer";
 
 export default function LandingBlueHero() {
   return (
@@ -153,15 +154,7 @@ export default function LandingBlueHero() {
       </section>
 
       {/* Footer */}
-      <footer className="px-6 md:px-10 py-10 border-t border-white/50 bg-white/50 backdrop-blur">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-neutral-600">
-          <div>© {new Date().getFullYear()} Brify. All rights reserved.</div>
-          <div className="flex items-center gap-4">
-            <Link href="/privacy" className="hover:text-neutral-800 transition-colors">개인정보처리방침</Link>
-            <Link href="/terms" className="hover:text-neutral-800 transition-colors">이용약관</Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }

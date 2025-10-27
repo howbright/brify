@@ -6,11 +6,6 @@ export default function Home() {
   return (
     <div>
       <Hero/>
-      {/* <StatsSection/>
-      <FeaturesSection/>
-      <NeedsSection />
-      <TestimonialSection/>
-      <CTAPricingSection/> */}
     </div>
   );
 }

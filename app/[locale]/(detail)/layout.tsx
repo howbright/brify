@@ -1,4 +1,4 @@
-import Footer from "@/components/layout/Footer";
+import Footer from "@/components/layout/FooterOld";
 import Header from "@/components/layout/Header";
 
 export default function MainLayout({
