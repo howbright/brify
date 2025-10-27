@@ -192,6 +192,7 @@ layer(base);
   }
 }
 
+/* 1) 코어 HSL 토큰: Tailwind v4 기본 세트 (반드시 유지) */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -200,24 +201,19 @@ layer(base);
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
+    --primary: 220 90% 56%;          /* ← 네 브랜드 컬러로 바꿔도 됨 (#2563eb 근사) */
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
+    --accent: 245 83% 66%;           /* indigo-500 느낌 */
     --accent-foreground: 0 0% 9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --ring: 220 90% 56%;
     --radius: 0.5rem;
   }
   .dark {
@@ -227,26 +223,79 @@ layer(base);
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
+    --primary: 220 75% 70%;          /* 다크에서 살짝 더 밝게 */
     --primary-foreground: 0 0% 9%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 14.9%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 245 70% 72%;
+    --accent-foreground: 0 0% 9%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --ring: 220 75% 70%;
   }
 }
+
+/* 2) alias 층: 기존 컴포넌트에서 쓰던 --color-*, glass 등만 노출 */
+@layer base {
+  :root {
+    /* base */
+    --color-background: hsl(var(--background));
+    --color-foreground: hsl(var(--foreground));
+    --color-muted-foreground: hsl(var(--muted-foreground));
+
+    /* brand */
+    --color-primary-600: hsl(var(--primary));
+    --color-primary-700: color-mix(in oklab, hsl(var(--primary)) 88%, black);
+    --color-primary-500: color-mix(in oklab, hsl(var(--primary)) 92%, white);
+    --color-primary-400: color-mix(in oklab, hsl(var(--primary)) 84%, white);
+    --color-primary-300: color-mix(in oklab, hsl(var(--primary)) 75%, white);
+    --color-accent: hsl(var(--accent));
+
+    /* glass & borders */
+    --glass: hsl(var(--background) / 0.70);
+    --glass-border: hsl(var(--foreground) / 0.10);
+
+    /* border / ring */
+    --color-border: hsl(var(--border));
+    --color-ring: hsl(var(--ring));
+
+    /* radii */
+    --radius-lg: calc(var(--radius) + 0.5rem);
+    --radius-md: var(--radius);
+    --radius-sm: max(calc(var(--radius) - 0.125rem), 0.25rem);
+
+    /* (optional) gradient rgb 고정값 */
+    --primary-rgb: 37 99 235;
+    --accent-rgb:  99 102 241;
+
+    /* 페이지 배경(푸터 글래스용) 기본값 */
+    --page-bg: var(--color-background);
+  }
+
+  .dark {
+    --color-background: hsl(var(--background));
+    --color-foreground: hsl(var(--foreground));
+    --color-muted-foreground: hsl(var(--muted-foreground));
+
+    --color-primary-600: hsl(var(--primary));
+    --color-primary-700: color-mix(in oklab, hsl(var(--primary)) 92%, black);
+    --color-primary-500: color-mix(in oklab, hsl(var(--primary)) 85%, white);
+    --color-primary-400: color-mix(in oklab, hsl(var(--primary)) 78%, white);
+    --color-primary-300: color-mix(in oklab, hsl(var(--primary)) 70%, white);
+    --color-accent: hsl(var(--accent));
+
+    --glass: hsl(var(--background) / 0.55);
+    --glass-border: hsl(var(--foreground) / 0.14);
+
+    --color-border: hsl(var(--border));
+    --color-ring: hsl(var(--ring));
+  }
+}
+
 
 
 @keyframes pulse-glow {

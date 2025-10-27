@@ -44,15 +44,21 @@ export default function LandingBlueHero() {
             transition={{ delay: 0.1, duration: 0.45 }}
             className="mt-4 text-base md:text-lg max-w-3xl flex items-center text-[var(--color-muted-foreground)]"
           >
-            <span className="font-semibold text-[var(--color-foreground)]">
+            <span
+              className="font-semibold"
+              style={{ color: "var(--color-foreground)" }}
+            >
               스크립트 자동 구조화로{" "}
-              <span className="font-extrabold text-[var(--primary)]">
+              <span
+                className="font-extrabold"
+                style={{ color: "hsl(var(--primary))" }}
+              >
                 핵심만
               </span>
               <span aria-hidden>, </span>
               <span
                 className="font-extrabold"
-                style={{ color: "var(--accent, #2563eb)" }}
+                style={{ color: "hsl(var(--accent))" }}
               >
                 빠르게
               </span>
