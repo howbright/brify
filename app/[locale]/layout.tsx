@@ -1,6 +1,3 @@
-
-
-
 import { SessionProvider } from "@/components/SessionProvider";
 import { routing } from "@/i18n/routing";
 import type { Metadata } from "next";
@@ -10,17 +7,16 @@ import { notFound } from "next/navigation";
 import { Toaster } from "sonner";
 import "@mind-elixir/node-menu/dist/style.css";
 // import "mind-elixir/dist/style.css";
-import "mind-elixir/style.css"; 
+import "mind-elixir/style.css";
 import "../globals.css";
 import { ReactQueryProvider } from "../providers";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { createClient } from "@/utils/supabase/server";
 import AuthRscRefresher from "@/components/AuthRscRefresher";
+import ThemeProvider from "@/components/ThemeProvider";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -73,8 +69,10 @@ export default async function RootLayout({
   // Ensure that the incoming `locale` is valid
   const { locale } = await params;
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  console.log("로그인을 했으니 session을 새로 가져오자", session)
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  console.log("로그인을 했으니 session을 새로 가져오자", session);
   if (!hasLocale(routing.locales, locale)) {
     notFound();
   }
@@ -82,15 +80,22 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <ReactQueryProvider>
-        <SessionProvider session={session}>
-        <AuthRscRefresher /> {/* ← 여기! 헤더보다 위든 아래든 상관 없음 */}
-            <NextIntlClientProvider>
-              <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
-            </NextIntlClientProvider>
-            <Toaster richColors position="top-center" duration={2000} />
-          </SessionProvider>
-        </ReactQueryProvider>
+        <ThemeProvider>
+          {" "}
+          {/* ✅ 여기! 최상단에 감싸주기 */}
+          <ReactQueryProvider>
+            <SessionProvider session={session}>
+              <AuthRscRefresher />{" "}
+              {/* ← 여기! 헤더보다 위든 아래든 상관 없음 */}
+              <NextIntlClientProvider>
+                <TooltipProvider delayDuration={300}>
+                  {children}
+                </TooltipProvider>
+              </NextIntlClientProvider>
+              <Toaster richColors position="top-center" duration={2000} />
+            </SessionProvider>
+          </ReactQueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

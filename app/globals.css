@@ -274,6 +274,12 @@ layer(base);
 
     /* 페이지 배경(푸터 글래스용) 기본값 */
     --page-bg: var(--color-background);
+
+     /* hero light */
+     --hero-a: 59 130 246;  /* blue-500 */
+     --hero-b: 56 189 248;  /* sky-400 */
+     --hero-c: 99 102 241;  /* indigo-500 */
+     --hero-grid: 255 255 255; /* grid 라인 색 */
   }
 
   .dark {
@@ -293,6 +299,19 @@ layer(base);
 
     --color-border: hsl(var(--border));
     --color-ring: hsl(var(--ring));
+
+    .dark {
+      /* hero dark (확실히 다운, 저명도/저채도) */
+      --hero-a: 20 60 160;   /* 깊은 블루 (#143CA0 느낌) */
+      --hero-b: 10 120 180;  /* 청록 가미된 딥 하늘 (#0A78B4) */
+      --hero-c: 60 50 160;   /* 인디고 딥톤 (#3C32A0) */
+  
+      /* 그리드 라인도 밝기 낮춤 (완전 흰색 X) */
+      --hero-grid: 210 220 235; /* 아주 연한 블루그레이 */
+  
+      /* 필요하면 페이지 기본 배경도 살짝 어둡게 */
+      /* --page-bg: #0b1120; */
+    }
   }
 }
 

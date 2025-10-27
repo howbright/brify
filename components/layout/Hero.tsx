@@ -6,12 +6,34 @@ import Footer from "./Footer";
 
 export default function LandingBlueHero() {
   return (
-    <main className="pt-14 min-h-screen w-full bg-[radial-gradient(1200px_800px_at_80%_-10%,rgba(59,130,246,0.25),transparent_60%),radial-gradient(900px_600px_at_10%_10%,rgba(56,189,248,0.25),transparent_60%)] relative overflow-hidden">
+    <main
+      className="
+      pt-14 min-h-screen w-full relative overflow-hidden
+      /* 큰 라디얼 두 장 */
+      bg-[radial-gradient(1200px_800px_at_80%_-10%,rgb(var(--hero-a)_/_0.22),transparent_60%),radial-gradient(900px_600px_at_10%_10%,rgb(var(--hero-b)_/_0.20),transparent_60%)]
+    "
+    >
       {/* Background gradient */}
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-600 opacity-20" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-[rgb(var(--hero-b))] via-[rgb(var(--hero-a))] to-[rgb(var(--hero-c))] opacity-[0.18] dark:opacity-[0.22]" />
+
+      {/* 🔥 다크용 비네트(블랙 오버레이) 추가 */}
+      <div
+        className="
+      pointer-events-none absolute inset-0 -z-10
+      bg-[radial-gradient(1200px_800px_at_50%_-20%,transparent,rgba(0,0,0,0.45))]
+      hidden dark:block
+    "
+      />
 
       {/* Subtle grid */}
-      <div className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)] bg-[linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:24px_24px]" />
+      <div
+        className="
+      pointer-events-none absolute inset-0 -z-10
+      [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]
+      bg-[linear-gradient(to_right,rgb(var(--hero-grid)_/_0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgb(var(--hero-grid)_/_0.05)_1px,transparent_1px)]
+      bg-[size:24px_24px]
+    "
+      />
 
       {/* Hero */}
       <section className="px-6 md:px-10 grid md:grid-cols-2 gap-10 md:gap-14 items-center max-w-7xl mx-auto py-10 md:py-18 lg:py-24">
@@ -20,9 +42,13 @@ export default function LandingBlueHero() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight tracking-tight"
+            className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight tracking-tight
+             text-neutral-900 dark:text-white dark:[text-shadow:0_1px_12px_rgba(0,0,0,0.45)]"
           >
-            관심 유튜브, <span className="text-blue-700">나중에 볼래?</span>
+            관심 유튜브,{" "}
+            <span className="text-blue-700 dark:text-[rgb(var(--hero-b))] dark:[text-shadow:0_1px_12px_rgba(0,0,0,0.45)]">
+              나중에 볼래?
+            </span>
           </motion.h1>
 
           <motion.p
@@ -124,52 +150,110 @@ export default function LandingBlueHero() {
           className="relative"
         >
           {/* Glass card */}
-          <div className="relative rounded-3xl p-5 md:p-6 lg:p-7 bg-white/70 backdrop-blur border border-white/60 shadow-[0_20px_60px_-20px_rgba(15,23,42,0.35)]">
+          <div
+            className="relative rounded-3xl p-5 md:p-6 lg:p-7
+                bg-white/70 dark:bg-black/40
+                backdrop-blur
+                border border-white/60 dark:border-white/10
+                shadow-[0_20px_60px_-20px_rgba(15,23,42,0.35)]"
+          >
+            {/* window dots */}
             <div className="flex items-center gap-3">
-              <div className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-              <div className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-              <div className="h-2.5 w-2.5 rounded-full bg-rose-400" />
+              <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/90 dark:bg-emerald-300/80" />
+              <div className="h-2.5 w-2.5 rounded-full bg-amber-400/90 dark:bg-amber-300/80" />
+              <div className="h-2.5 w-2.5 rounded-full bg-rose-400/90 dark:bg-rose-300/80" />
             </div>
+
+            {/* title lines */}
             <div className="mt-4 space-y-3">
-              <div className="h-4 w-5/6 rounded-md bg-gradient-to-r from-blue-500/20 to-indigo-500/30" />
-              <div className="h-4 w-4/6 rounded-md bg-gradient-to-r from-blue-500/20 to-indigo-500/30" />
-              <div className="h-4 w-2/3 rounded-md bg-gradient-to-r from-blue-500/20 to-indigo-500/30" />
+              <div
+                className="h-4 w-5/6 rounded-md bg-gradient-to-r
+                    from-[rgb(var(--hero-a)_/_0.20)] to-[rgb(var(--hero-c)_/_0.30)]
+                    dark:from-[rgb(var(--hero-a)_/_0.12)] dark:to-[rgb(var(--hero-c)_/_0.18)]"
+              />
+              <div
+                className="h-4 w-4/6 rounded-md bg-gradient-to-r
+                    from-[rgb(var(--hero-a)_/_0.20)] to-[rgb(var(--hero-c)_/_0.30)]
+                    dark:from-[rgb(var(--hero-a)_/_0.12)] dark:to-[rgb(var(--hero-c)_/_0.18)]"
+              />
+              <div
+                className="h-4 w-2/3 rounded-md bg-gradient-to-r
+                    from-[rgb(var(--hero-a)_/_0.20)] to-[rgb(var(--hero-c)_/_0.30)]
+                    dark:from-[rgb(var(--hero-a)_/_0.12)] dark:to-[rgb(var(--hero-c)_/_0.18)]"
+              />
             </div>
 
             {/* Mock diagram */}
-            <div className="mt-6 rounded-2xl border border-blue-200/60 bg-white/80 p-4">
-              <div className="text-xs font-semibold text-neutral-700">
+            <div
+              className="mt-6 rounded-2xl border border-blue-200/60 dark:border-white/10
+                  bg-white/80 dark:bg-black/30 p-4"
+            >
+              <div className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">
                 자동 구조화 다이어그램
               </div>
+
               <div className="mt-3 grid grid-cols-3 gap-3">
-                <div className="rounded-xl border border-blue-200/60 bg-gradient-to-br from-blue-50 to-indigo-50 p-3 shadow-sm">
-                  <div className="text-[10px] text-neutral-600">핵심1</div>
-                  <div className="mt-1 h-2 rounded bg-blue-200/60" />
+                <div
+                  className="rounded-xl border border-blue-200/60 dark:border-white/10
+                      bg-gradient-to-br from-blue-50 to-indigo-50
+                      dark:from-[rgb(var(--hero-a)_/_0.10)]
+                      dark:to-[rgb(var(--hero-c)_/_0.12)]
+                      p-3 shadow-sm"
+                >
+                  <div className="text-[10px] text-neutral-600 dark:text-neutral-300">
+                    핵심1
+                  </div>
+                  <div className="mt-1 h-2 rounded bg-blue-200/60 dark:bg-white/20" />
                 </div>
-                <div className="rounded-xl border border-blue-200/60 bg-gradient-to-br from-blue-50 to-indigo-50 p-3 shadow-sm">
-                  <div className="text-[10px] text-neutral-600">핵심2</div>
-                  <div className="mt-1 h-2 rounded bg-blue-200/60" />
+
+                <div
+                  className="rounded-xl border border-blue-200/60 dark:border-white/10
+                      bg-gradient-to-br from-blue-50 to-indigo-50
+                      dark:from-[rgb(var(--hero-a)_/_0.10)]
+                      dark:to-[rgb(var(--hero-c)_/_0.12)]
+                      p-3 shadow-sm"
+                >
+                  <div className="text-[10px] text-neutral-600 dark:text-neutral-300">
+                    핵심2
+                  </div>
+                  <div className="mt-1 h-2 rounded bg-blue-200/60 dark:bg-white/20" />
                 </div>
-                <div className="rounded-xl border border-blue-200/60 bg-gradient-to-br from-blue-50 to-indigo-50 p-3 shadow-sm">
-                  <div className="text-[10px] text-neutral-600">핵심3</div>
-                  <div className="mt-1 h-2 rounded bg-blue-200/60" />
+
+                <div
+                  className="rounded-xl border border-blue-200/60 dark:border-white/10
+                      bg-gradient-to-br from-blue-50 to-indigo-50
+                      dark:from-[rgb(var(--hero-a)_/_0.10)]
+                      dark:to-[rgb(var(--hero-c)_/_0.12)]
+                      p-3 shadow-sm"
+                >
+                  <div className="text-[10px] text-neutral-600 dark:text-neutral-300">
+                    핵심3
+                  </div>
+                  <div className="mt-1 h-2 rounded bg-blue-200/60 dark:bg-white/20" />
                 </div>
               </div>
             </div>
 
             {/* Bottom CTA mini */}
-            <div className="mt-5 flex items-center justify-between rounded-2xl border border-white/60 bg-white/70 p-3">
+            <div
+              className="mt-5 flex items-center justify-between rounded-2xl
+                  border border-white/60 dark:border-white/10
+                  bg-white/70 dark:bg-black/40 p-3"
+            >
               <div className="text-sm">
-                <div className="font-semibold text-neutral-900">
+                <div className="font-semibold text-neutral-900 dark:text-white">
                   1분 컷 요약
                 </div>
-                <div className="text-xs text-neutral-600">
+                <div className="text-xs text-neutral-600 dark:text-neutral-300">
                   강의·설교·인터뷰 영상 스크립트 → 핵심
                 </div>
               </div>
               <Link
                 href="/summarize"
-                className="px-3 py-2 text-sm rounded-xl bg-blue-600 text-white font-semibold transition-transform hover:scale-[1.03] active:scale-100"
+                className="px-3 py-2 text-sm rounded-xl
+                 bg-blue-600 text-white font-semibold
+                 dark:bg-[rgb(var(--hero-a))]
+                 transition-transform hover:scale-[1.03] active:scale-100"
               >
                 시작하기
               </Link>

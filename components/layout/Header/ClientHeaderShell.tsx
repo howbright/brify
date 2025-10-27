@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import ClientUserMenu from "./ClientUserMenu";
 import ClientMobileMenu from "./ClientMobileMenu";
 import LanguageSelector from "@/components/LanguageSelector";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 type Props = {
   isAuthed: boolean;
@@ -75,6 +76,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
           {/* 우측 액션 */}
           <div className="hidden md:flex items-center gap-3">
             <LanguageSelector />
+            <ThemeToggle />
             {!isAuthed ? (
               <>
                 <Link
