@@ -10,67 +10,41 @@ layer(base);
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-global: Noto Sans, Noto Sans KR, Noto Sans JP, Noto Sans SC,
-    Noto Sans TC, sans-serif;
+  /* font */
+  --font-global: Noto Sans, Noto Sans KR, Noto Sans JP, Noto Sans SC, Noto Sans TC, sans-serif;
 
-  /* --color-background: #f8f9fb; */
-  --color-background: #ffffff;
-  --color-background-soft: #fdfaf6;
-  --color-gray-soft: #e9ecf1;
-  --color-text: #212529;
+  /* base */
+  --color-background: #ffffff;      /* 페이지 배경 */
+  --color-background-soft: #f7fbff; /* 아주 옅은 블루 보조 배경 */
+  --color-foreground: #0f172a;      /* 본문 텍스트 */
+  --color-muted-foreground: #475569;/* 보조 텍스트 */
 
-  --color-primary-50: #eef4ff;
-  --color-primary-100: #d6e4ff;
-  --color-primary-200: #adc8ff;
-  --color-primary-300: #84a9ff;
-  --color-primary-400: #6690ff;
-  --color-primary-500: #3366ff; /* ✅ 선명한 파란색 버튼 */
-  --color-primary-600: #254eda;
-  --color-primary-700: #1939b7;
-  --color-primary-800: #102693;
-  --color-primary-900: #091a7a;
-  --color-primary: #3366ff;
+  /* brand (청량 블루 + 인디고 악센트) */
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb; /* 메인 */
+  --color-primary-700: #1d4ed8;
+  --color-primary: var(--color-primary-600);
   --color-primary-foreground: #ffffff;
+  --color-accent: #6366f1; /* indigo-500 */
 
-  --color-primary-hover: #254eda;
+  /* glass & borders */
+  --glass: rgba(255,255,255,0.70);
+  --glass-border: rgba(255,255,255,0.60);
 
-  --color-accent-blue: #a5bdfd;
-  --color-accent-sky: #bfe6ff;
-  --color-accent-indigo: #857ff6;
-  --color-neon: #4cf0ff;
-  --color-foreground: #212529;
+  /* border/ring */
+  --color-border: #e5e7eb;
+  --color-ring: var(--color-primary);
 
-  --color-card: #ffffff;
-  --color-card-foreground: #212529;
-
-  --color-popover: #ffffff;
-  --color-popover-foreground: #212529;
-
-  --color-secondary: #f1f3f5;
-  --color-secondary-foreground: #212529;
-
-  --color-muted: #f1f3f5;
-  --color-muted-foreground: #495057;
-
-  --color-accent: #f1f3f5;
-  --color-accent-foreground: #212529;
-
-  --color-destructive: #fa5252;
-  --color-destructive-foreground: #ffffff;
-
-  --color-border: #dee2e6;
-  --color-input: #dee2e6;
-  --color-ring: #3366ff;
-
-  --color-chart-1: 220 80% 60%;
-  --color-chart-2: 190 65% 50%;
-  --color-chart-3: 270 65% 60%;
-  --color-chart-4: 40 80% 65%;
-  --color-chart-5: 0 75% 60%;
-
-  --radius-lg: 0.75rem;
-  --radius-md: 0.625rem;
+  /* radii */
+  --radius-lg: 1.0rem;
+  --radius-md: 0.75rem;
   --radius-sm: 0.5rem;
+
+  /* helper rgb for gradients */
+  --primary-rgb: 37 99 235; /* #2563eb */
+  --accent-rgb:  99 102 241;/* #6366f1 */
 }
 
 /*

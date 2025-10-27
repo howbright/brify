@@ -57,7 +57,7 @@ export default function LandingBlueHero() {
             transition={{ delay: 0.1, duration: 0.45 }}
             className="mt-4 text-base md:text-lg text-neutral-700 max-w-2xl"
           >
-            스크립트 자동 구조화로 핵심만 빠르게 챙겨. 강의·설교·인터뷰 OK.
+            스크립트 자동 구조화로 핵심만 빠르게 챙겨. 강의·뉴스·리뷰·인터뷰 OK.
           </motion.p>
 
           {/* CTAs */}
