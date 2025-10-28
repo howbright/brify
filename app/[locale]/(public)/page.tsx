@@ -1,3 +1,4 @@
+import CreatorSection from "@/components/layout/CreateorSection";
 import Hero from "@/components/layout/Hero";
 // import { useTranslations } from "next-intl";
 
@@ -6,6 +7,7 @@ export default function Home() {
   return (
     <div>
       <Hero/>
+      <CreatorSection />
     </div>
   );
 }

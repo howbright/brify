@@ -358,8 +358,7 @@ export default function LandingBlueHero() {
         </div>
       </section>
 
-      {/* Footer */}
-      <Footer />
+     
     </main>
   );
 }
