@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import * as Tooltip from "@radix-ui/react-tooltip";
 
 export type Pack = {
   id: string;
@@ -39,7 +40,11 @@ type Props = {
   showPositioning?: boolean;
   positioningText?: string; // 기본: "No subscription — pay only what you use."
   showRefundBadge?: boolean;
-  refundText?: string; // 기본: "Unused credits refundable within 7 days."
+  refundText?: string; // 기본: "7일 이내 전액 환불 · 이후 WAPR 비례 환불"
+
+  // ✅ 환불 정책 링크 + 툴팁 라인
+  refundPolicyHref?: string; // 기본: "/refund-policy"
+  refundTooltipLines?: string[]; // 기본 아래 참고
 
   // 장문 멀티크레딧 규칙(토글로 펼침)
   creditRule?: CreditRule;
@@ -57,6 +62,7 @@ function usd(n: number) {
     currency: "USD",
   }).format(n);
 }
+
 function cx(...xs: (string | false | null | undefined)[]) {
   return xs.filter(Boolean).join(" ");
 }
@@ -74,7 +80,13 @@ export default function PricingGrid({
   showPositioning = true,
   positioningText = "No subscription — pay only what you use.",
   showRefundBadge = true,
-  refundText = "Unused credits refundable within 7 days.",
+  refundText = "7일 이내 전액 환불 · 이후 WAPR 비례 환불",
+  refundPolicyHref = "/refund-policy",
+  refundTooltipLines = [
+    "7일 이내: 전액 환불",
+    "7일 이후: 미사용 ‘유상’ × min(WAPR, $0.10)",
+    "보너스 제외, LOT별 과환불 방지 cap 적용",
+  ],
   creditRule,
   detailsLabel = "Details",
   showCreditRuleByDefault = false,
@@ -86,6 +98,17 @@ export default function PricingGrid({
 }: Props) {
   const isCompact = variant === "compact";
   const [openDetails, setOpenDetails] = useState(showCreditRuleByDefault);
+
+  const ctaBtn =
+    "block w-full rounded-[var(--radius-lg)] px-4 py-2.5 text-center text-sm font-medium shadow-sm " +
+    // 기본 배경/텍스트 + 폴백 (화이트로 붕 뜨는 거 방지)
+    "bg-[var(--color-primary-500,#2563eb)] text-[var(--color-primary-foreground,#ffffff)] " +
+    // hover 시 배경을 더 진하게, 글자색은 항상 대비 확실히 유지
+    "hover:bg-[var(--color-primary-hover,#1d4ed8)] hover:text-[var(--color-primary-foreground,#ffffff)] " +
+    // 다크에서도 대비 유지(원하는 톤에 맞게 조정 가능)
+    "dark:bg-[var(--color-primary-500,#3758f9)] dark:hover:bg-[var(--color-primary-hover,#2f49d1)] dark:text-white " +
+    // 포커스 링
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring,#93c5fd)]";
 
   return (
     <div className={className}>
@@ -102,10 +125,59 @@ export default function PricingGrid({
               {positioningText}
             </span>
           )}
+
           {showRefundBadge && (
-            <span className="inline-flex items-center rounded-full border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1 text-xs text-[var(--color-muted-foreground)]">
-              {refundText}
-            </span>
+            <Tooltip.Provider delayDuration={80}>
+              <Tooltip.Root>
+                <Tooltip.Trigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1 text-xs text-[var(--color-muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
+                    aria-label="환불 정책 자세히 보기"
+                  >
+                    {refundText}
+                    <span
+                      className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full border border-[var(--color-border)] text-[var(--color-muted-foreground)]"
+                      aria-hidden
+                    >
+                      i
+                    </span>
+                  </button>
+                </Tooltip.Trigger>
+
+                <Tooltip.Content
+                  side="bottom"
+                  align="center"
+                  className="
+    z-50 max-w-[300px] rounded-md
+    /* ✅ border: var() 폴백 + 라이트/다크 보강 */
+    border border-[var(--color-border,#e5e7eb)] dark:border-[var(--color-border,#1f2937)]
+    /* ✅ bg: var() 폴백 + 라이트/다크 보강 */
+    bg-[var(--color-card,#ffffff)] dark:bg-[var(--color-card,#0b1224)]
+    /* 텍스트도 폴백 */
+    text-[var(--color-muted-foreground,#334155)] dark:text-[var(--color-muted-foreground,#cbd5e1)]
+    px-3 py-2 text-xs shadow-md
+    supports-[backdrop-filter]:backdrop-blur-[2px]
+  "
+                >
+                  <div className="font-medium text-[var(--color-foreground)] mb-1">
+                    환불 정책
+                  </div>
+                  <ul className="list-disc pl-4 space-y-1">
+                    {refundTooltipLines.map((line, i) => (
+                      <li key={i}>{line}</li>
+                    ))}
+                  </ul>
+                  <Link
+                    href={refundPolicyHref}
+                    className="mt-2 inline-block underline text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)]"
+                  >
+                    자세히 보기
+                  </Link>
+                  <Tooltip.Arrow className="fill-[var(--color-card)]" />
+                </Tooltip.Content>
+              </Tooltip.Root>
+            </Tooltip.Provider>
           )}
         </div>
       )}
@@ -113,21 +185,34 @@ export default function PricingGrid({
       {/* 안심 카피 배너 (토큰 수치 없이 안내) */}
       {showReassurance && (
         <div className={cx("mb-4", isCompact && "mx-auto max-w-3xl")}>
-          <div className="flex flex-col items-center gap-1.5 text-center">
-            {reassuranceLines.map((line, idx) => (
-              <span
-                key={idx}
-                className="
-            px-3 py-1 rounded-full text-xs sm:text-sm
-            text-[var(--color-foreground)]/90
-            bg-[color-mix(in_oklab,var(--color-foreground),transparent_94%)]
-            dark:bg-[color-mix(in_oklab,white,transparent_88%)]
-            backdrop-blur-[2px]
-          "
-              >
-                {line}
-              </span>
-            ))}
+          <div className="flex flex-col items-center gap-2 text-center">
+            {/* 강조 1줄 */}
+            <p
+              className={cx(
+                "inline-flex items-center gap-2",
+                isCompact ? "px-3 py-1 rounded-lg" : "px-3 py-1.5 rounded-xl",
+                "text-sm sm:text-base font-semibold",
+                "text-[var(--color-foreground)]",
+                "bg-[linear-gradient(90deg,rgba(59,130,246,0.14),rgba(99,102,241,0.12))] border border-[color:var(--color-border)]",
+                "supports-[backdrop-filter]:backdrop-blur-[2px]",
+                "dark:bg-[linear-gradient(90deg,rgba(59,130,246,0.20),rgba(99,102,241,0.18))] dark:border-white/10"
+              )}
+            >
+              <strong className="font-extrabold">
+                요약 정리 1건당 1 크레딧이면 충분해요.
+              </strong>
+            </p>
+
+            {/* 서브 1줄 */}
+            <p
+              className={cx(
+                "text-xs sm:text-sm leading-relaxed",
+                "text-[var(--color-muted-foreground)]",
+                "dark:text-neutral-200"
+              )}
+            >
+              아주 긴 스크립트만 2–3 크레딧이 필요할 수 있어요.
+            </p>
           </div>
         </div>
       )}
@@ -226,23 +311,11 @@ export default function PricingGrid({
 
               {/* CTA */}
               {isAuthed ? (
-                <Link
-                  href={signedInHref}
-                  className="block w-full rounded-[var(--radius-lg)]
-                             bg-[var(--color-primary-500)] hover:bg-[var(--color-primary-hover)]
-                             text-[var(--color-primary-foreground)] px-4 py-2.5 text-center text-sm font-medium shadow-sm
-                             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
-                >
+                <Link href={signedInHref} className={ctaBtn}>
                   {signedInLabel}
                 </Link>
               ) : (
-                <Link
-                  href={signedOutHref}
-                  className="block w-full rounded-[var(--radius-lg)]
-                             bg-[var(--color-primary-500)] hover:bg-[var(--color-primary-hover)]
-                             text-[var(--color-primary-foreground)] px-4 py-2.5 text-center text-sm font-medium shadow-sm
-                             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
-                >
+                <Link href={signedOutHref} className={ctaBtn}>
                   {signedOutLabel}
                 </Link>
               )}

@@ -11,13 +11,14 @@ layer(base);
 
 @theme {
   /* font */
-  --font-global: Noto Sans, Noto Sans KR, Noto Sans JP, Noto Sans SC, Noto Sans TC, sans-serif;
+  --font-global: Noto Sans, Noto Sans KR, Noto Sans JP, Noto Sans SC,
+    Noto Sans TC, sans-serif;
 
   /* base */
-  --color-background: #ffffff;      /* 페이지 배경 */
+  --color-background: #ffffff; /* 페이지 배경 */
   --color-background-soft: #f7fbff; /* 아주 옅은 블루 보조 배경 */
-  --color-foreground: #0f172a;      /* 본문 텍스트 */
-  --color-muted-foreground: #475569;/* 보조 텍스트 */
+  --color-foreground: #0f172a; /* 본문 텍스트 */
+  --color-muted-foreground: #475569; /* 보조 텍스트 */
 
   /* brand (청량 블루 + 인디고 악센트) */
   --color-primary-300: #93c5fd;
@@ -30,21 +31,21 @@ layer(base);
   --color-accent: #6366f1; /* indigo-500 */
 
   /* glass & borders */
-  --glass: rgba(255,255,255,0.70);
-  --glass-border: rgba(255,255,255,0.60);
+  --glass: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.6);
 
   /* border/ring */
   --color-border: #e5e7eb;
   --color-ring: var(--color-primary);
 
   /* radii */
-  --radius-lg: 1.0rem;
+  --radius-lg: 1rem;
   --radius-md: 0.75rem;
   --radius-sm: 0.5rem;
 
   /* helper rgb for gradients */
   --primary-rgb: 37 99 235; /* #2563eb */
-  --accent-rgb:  99 102 241;/* #6366f1 */
+  --accent-rgb: 99 102 241; /* #6366f1 */
 }
 
 /*
@@ -67,7 +68,7 @@ layer(base);
     background-color: #d0f0fd; /* 연노랑 */
     color: #000000;
   }
-  
+
   ::-moz-selection {
     background-color: #d0f0fd;
     color: #000000;
@@ -201,13 +202,13 @@ layer(base);
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 220 90% 56%;          /* ← 네 브랜드 컬러로 바꿔도 됨 (#2563eb 근사) */
+    --primary: 220 90% 56%; /* ← 네 브랜드 컬러로 바꿔도 됨 (#2563eb 근사) */
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
-    --accent: 245 83% 66%;           /* indigo-500 느낌 */
+    --accent: 245 83% 66%; /* indigo-500 느낌 */
     --accent-foreground: 0 0% 9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -223,7 +224,7 @@ layer(base);
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 220 75% 70%;          /* 다크에서 살짝 더 밝게 */
+    --primary: 220 75% 70%; /* 다크에서 살짝 더 밝게 */
     --primary-foreground: 0 0% 9%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
@@ -233,7 +234,7 @@ layer(base);
     --accent-foreground: 0 0% 9%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 15% 44%;      
+    --border: 220 15% 44%;
     --input: 0 0% 14.9%;
     --ring: 220 75% 70%;
   }
@@ -256,8 +257,8 @@ layer(base);
     --color-accent: hsl(var(--accent));
 
     /* glass & borders */
-    --glass: hsl(var(--background) / 0.70);
-    --glass-border: hsl(var(--foreground) / 0.10);
+    --glass: hsl(var(--background) / 0.7);
+    --glass-border: hsl(var(--foreground) / 0.1);
 
     /* border / ring */
     --color-border: hsl(var(--border));
@@ -270,16 +271,21 @@ layer(base);
 
     /* (optional) gradient rgb 고정값 */
     --primary-rgb: 37 99 235;
-    --accent-rgb:  99 102 241;
+    --accent-rgb: 99 102 241;
 
     /* 페이지 배경(푸터 글래스용) 기본값 */
     --page-bg: var(--color-background);
 
-     /* hero light */
-     --hero-a: 59 130 246;  /* blue-500 */
-     --hero-b: 56 189 248;  /* sky-400 */
-     --hero-c: 99 102 241;  /* indigo-500 */
-     --hero-grid: 255 255 255; /* grid 라인 색 */
+    /* hero light */
+    --hero-a: 59 130 246; /* blue-500 */
+    --hero-b: 56 189 248; /* sky-400 */
+    --hero-c: 99 102 241; /* indigo-500 */
+    --hero-grid: 255 255 255; /* grid 라인 색 */
+
+    --color-primary-500: #2563eb; /* base */
+    --color-primary-hover: #1d4ed8; /* darker on hover */
+    --color-primary-foreground: #ffffff;
+    --color-ring: #93c5fd;
   }
 
   .dark {
@@ -294,28 +300,30 @@ layer(base);
     --color-primary-300: color-mix(in oklab, hsl(var(--primary)) 70%, white);
     --color-accent: hsl(var(--accent));
 
-    --glass: rgba(11,18,36,0.6);
+    --glass: rgba(11, 18, 36, 0.6);
     --glass-border: hsl(var(--foreground) / 0.14);
 
     --color-border: hsl(var(--border) / 0.85);
     --color-ring: hsl(var(--ring));
 
-    .dark {
-      /* hero dark (확실히 다운, 저명도/저채도) */
-      --hero-a: 20 60 160;   /* 깊은 블루 (#143CA0 느낌) */
-      --hero-b: 10 120 180;  /* 청록 가미된 딥 하늘 (#0A78B4) */
-      --hero-c: 60 50 160;   /* 인디고 딥톤 (#3C32A0) */
-  
-      /* 그리드 라인도 밝기 낮춤 (완전 흰색 X) */
-      --hero-grid: 210 220 235; /* 아주 연한 블루그레이 */
-  
-      /* 필요하면 페이지 기본 배경도 살짝 어둡게 */
-      /* --page-bg: #0b1120; */
-    }
+    /* 더 진하고 선명한 블루 */
+    --color-primary-500: #1e40af; /* blue-800 계열: 대비↑ */
+    --color-primary-hover: #1b3a9c; /* hover는 한 톤 더 진하게 */
+    --color-primary-foreground: #ffffff;
+    --color-ring: #60a5fa;
+
+    /* hero dark (확실히 다운, 저명도/저채도) */
+    --hero-a: 20 60 160; /* 깊은 블루 (#143CA0 느낌) */
+    --hero-b: 10 120 180; /* 청록 가미된 딥 하늘 (#0A78B4) */
+    --hero-c: 60 50 160; /* 인디고 딥톤 (#3C32A0) */
+
+    /* 그리드 라인도 밝기 낮춤 (완전 흰색 X) */
+    --hero-grid: 210 220 235; /* 아주 연한 블루그레이 */
+
+    /* 필요하면 페이지 기본 배경도 살짝 어둡게 */
+    /* --page-bg: #0b1120; */
   }
 }
-
-
 
 @keyframes pulse-glow {
   0%,
@@ -337,8 +345,6 @@ layer(base);
   outline: none !important;
 }
 
-
 .scrollbar-always::-webkit-scrollbar {
   display: initial !important;
 }
-

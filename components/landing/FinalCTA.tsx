@@ -97,14 +97,14 @@ export default function FinalCTA({
                 text-white
               "
             >
-              정보는 곧 경쟁력입니다.
+              정보는 곧 경쟁력!
               <span className="block mt-1 text-white/90">
-                이제 <span className="text-[rgb(var(--hero-b))]">Brify</span>로 관심 있는 모든 정보를 <span className="font-black">내 것으로</span> 만드세요.
+                이제 <span className="text-[rgb(var(--hero-b))]">Brify</span>로 중요한 정보를 빠르게 내 것으로 만드세요.
               </span>
             </h2>
 
             <p className="mt-4 text-sm md:text-base text-white/85">
-              회원가입만 해도 <span className="font-semibold text-white">3 크레딧</span> 무료 제공 — 지금 바로 핵심을 뽑아보세요.
+              회원가입만 해도 <span className="font-semibold text-[rgb(var(--hero-a))]">3 크레딧</span> 무료 제공 — 지금 바로 핵심을 뽑아보세요.
             </p>
 
             <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
