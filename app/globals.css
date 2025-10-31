@@ -233,7 +233,7 @@ layer(base);
     --accent-foreground: 0 0% 9%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
+    --border: 220 15% 44%;      
     --input: 0 0% 14.9%;
     --ring: 220 75% 70%;
   }
@@ -294,10 +294,10 @@ layer(base);
     --color-primary-300: color-mix(in oklab, hsl(var(--primary)) 70%, white);
     --color-accent: hsl(var(--accent));
 
-    --glass: hsl(var(--background) / 0.55);
+    --glass: rgba(11,18,36,0.6);
     --glass-border: hsl(var(--foreground) / 0.14);
 
-    --color-border: hsl(var(--border));
+    --color-border: hsl(var(--border) / 0.85);
     --color-ring: hsl(var(--ring));
 
     .dark {

@@ -18,7 +18,7 @@ const ClientMindElixir = dynamic(() => import("./ClientMindElixir"), {
 
 export default function Page() {
   return (
-    <div className="p-6 space-y-4 h-[100vh] border-2 border-red-600">
+    <div className="p-6 space-y-4 h-[100vh]">
       <h1 className="text-2xl font-semibold">Mind-Elixir Demo (damo-elixir)</h1>
       <ClientMindElixir  mode="light"  dragButton={2} />
       {/* <p className="text-sm text-slate-600">
