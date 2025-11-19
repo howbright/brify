@@ -104,10 +104,10 @@ export default function VideoToMapPage() {
       <div className="max-w-6xl mx-auto px-6 md:px-10 flex flex-col gap-10 relative">
         {/* 상단 헤더 / 상세 기능 페이지 느낌 */}
         <header className="mt-2 flex flex-col gap-4">
-          {/* <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-medium text-blue-700 shadow-sm backdrop-blur-sm dark:border-white/20 dark:bg-white/5 dark:text-[rgb(var(--hero-b))]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-medium text-blue-700 shadow-sm backdrop-blur-sm dark:border-white/20 dark:bg-white/5 dark:text-[rgb(var(--hero-b))]">
             <span className="inline-block h-2 w-2 rounded-full bg-blue-500/80 dark:bg-[rgb(var(--hero-b))]" />
             Video to Map · 영상 스크립트 구조맵
-          </div> */}
+          </div>
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight tracking-tight text-neutral-900 dark:text-white dark:[text-shadow:0_1px_10px_rgba(0,0,0,0.45)]">
             영상 스크립트,{" "}
             <span className="text-blue-700 dark:text-[rgb(var(--hero-b))]">
@@ -124,7 +124,17 @@ export default function VideoToMapPage() {
         </header>
 
         {/* 메인 레이아웃 */}
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+        <div
+          className={`
+            grid gap-8 items-start
+            transition-[grid-template-columns] duration-300 ease-out
+            ${
+              isHelpOpen
+                ? "lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]" // 🔓 도움말 펼쳐진 상태 (좀 더 균형)
+                : "lg:grid-cols-[minmax(0,1.8fr)_minmax(0,0.4fr)]" // 🔒 기본: 왼쪽 넓고, 오른쪽 아주 좁게
+            }
+          `}
+        >
           {/* 왼쪽: 입력 카드 */}
           <section
             className="
@@ -150,7 +160,7 @@ export default function VideoToMapPage() {
 
             <textarea
               className="
-                w-full min-h-[260px] md:min-h-[280px] resize-y
+                w-full min-h-[260px] md:min-h-[300px] resize-y
                 rounded-2xl border border-neutral-200 bg-neutral-50
                 px-3 py-2 text-sm md:text-[15px] text-neutral-900
                 placeholder:text-neutral-400
@@ -199,13 +209,14 @@ export default function VideoToMapPage() {
           <div className="flex flex-col gap-4">
             {/* 스크립트 가져오는 방법 (토글 도움말) */}
             <section
-              className="
+              className={`
                 rounded-3xl border border-neutral-200 bg-white
                 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)]
                 backdrop-blur-sm
                 dark:bg-[#020818] dark:border-white/15
-                p-4 md:p-5
-              "
+                transition-all duration-300 ease-out
+                ${isHelpOpen ? "p-4 md:p-5" : "p-3 md:p-3.5"}
+              `}
             >
               <button
                 type="button"
@@ -214,9 +225,10 @@ export default function VideoToMapPage() {
                   flex w-full items-center justify-between gap-2
                   text-left
                 "
+                aria-expanded={isHelpOpen}
               >
                 <div className="flex items-center gap-2">
-                  <h2 className="text-sm md:text-base font-semibold text-neutral-900 dark:text-white">
+                  <h2 className="text-sm md:text-base font-semibold text-neutral-900 dark:text-white line-clamp-1">
                     영상 스크립트 가져오는 방법
                   </h2>
                   <span className="text-[11px] px-2 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 dark:border-[rgb(var(--hero-b))]/40 dark:bg-white/5 dark:text-[rgb(var(--hero-b))]">
@@ -238,7 +250,11 @@ export default function VideoToMapPage() {
               <div
                 className={`
                   overflow-hidden transition-all duration-300 ease-out
-                  ${isHelpOpen ? "mt-3 max-h-[520px] opacity-100 translate-y-0" : "max-h-0 opacity-0 -translate-y-1"}
+                  ${
+                    isHelpOpen
+                      ? "mt-3 max-h-[520px] opacity-100"
+                      : "max-h-0 opacity-0"
+                  }
                 `}
               >
                 <div className="grid gap-3 text-xs md:text-sm text-neutral-700 dark:text-neutral-200">
