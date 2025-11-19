@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Footer from "./Footer";
+import SocialBadges from "../common/SocialBadges";
 
 export default function LandingBlueHero() {
   return (
@@ -103,34 +104,27 @@ export default function LandingBlueHero() {
               className="font-semibold"
               style={{ color: "var(--color-foreground)" }}
             >
-              스크립트 자동 구조화로{" "}
-              <span
+              영상 내용을 '다이어그램(구조도)'로 한눈에 정리
+              {/* <span
                 className="font-extrabold"
                 style={{ color: "hsl(var(--primary))" }}
               >
-                핵심만
+                핵심 & 세부내용 빠르게 잡자
               </span>
-              <span aria-hidden>, </span>
-              <span
-                className="font-extrabold"
-                style={{ color: "hsl(var(--accent))" }}
-              >
-                빠르게
-              </span>
-              .
+              . */}
             </span>
 
             {/* thin divider */}
-            <span className="mx-3 inline-block h-[1.1em] w-px bg-current/20 align-middle" />
+            {/* <span className="mx-3 inline-block h-[1.1em] w-px bg-current/20 align-middle" /> */}
 
             {/* compact categories with dot separators */}
-            <span className="inline-flex items-center text-sm md:text-base">
+            {/* <span className="inline-flex items-center text-sm md:text-base">
               <span className="after:content-['•'] after:mx-2">강의</span>
               <span className="after:content-['•'] after:mx-2">뉴스</span>
               <span className="after:content-['•'] after:mx-2">리뷰</span>
               <span>인터뷰</span>
               <span className="ml-2 opacity-60">OK</span>
-            </span>
+            </span> */}
           </motion.p>
 
           {/* CTAs */}
@@ -150,7 +144,7 @@ export default function LandingBlueHero() {
                transition-transform hover:scale-[1.03] active:scale-100
                focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60"
             >
-              지금 요약해보기
+              영상을 '구조도'로 만들기
             </Link>
 
             {/* Secondary / Glass */}
@@ -167,40 +161,18 @@ export default function LandingBlueHero() {
           </motion.div>
 
           {/* Social proof / badges */}
-          <div className="mt-6 flex flex-wrap items-center gap-2 text-xs text-neutral-600 dark:text-neutral-200">
-            <span
-              className="px-2.5 py-1 rounded-full
-                   bg-white/80 border border-white/70
-                   dark:bg-white/12 dark:border-white/20
-                   dark:[text-shadow:0_1px_8px_rgba(0,0,0,0.35)]"
-            >
-              타임스탬프 제거
-            </span>
-            <span
-              className="px-2.5 py-1 rounded-full
-                   bg-white/80 border border-white/70
-                   dark:bg-white/12 dark:border-white/20
-                   dark:[text-shadow:0_1px_8px_rgba(0,0,0,0.35)]"
-            >
-              핵심 트리 생성
-            </span>
-            <span
-              className="px-2.5 py-1 rounded-full
-                   bg-white/80 border border-white/70
-                   dark:bg-white/12 dark:border-white/20
-                   dark:[text-shadow:0_1px_8px_rgba(0,0,0,0.35)]"
-            >
-              다이어그램 보기
-            </span>
-            <span
-              className="px-2.5 py-1 rounded-full
-                   bg-white/80 border border-white/70
-                   dark:bg-white/12 dark:border-white/20
-                   dark:[text-shadow:0_1px_8px_rgba(0,0,0,0.35)]"
-            >
-              다국어 지원
-            </span>
-          </div>
+          <SocialBadges
+            className="mt-6"
+            size="sm"
+            items={[
+              "세부내용까지 빠짐없이 정리", // or "상세 유실 없이 정리"
+              "다이어그램(구조도)",
+              "외국어 → 모국어 변환",
+              "자동 카테고리 분류",
+              "공유 링크 생성",
+              "타임스탬프 ON/OFF",
+            ]}
+          />
         </div>
 
         {/* Right visual */}
@@ -330,10 +302,16 @@ export default function LandingBlueHero() {
       <section className="max-w-7xl mx-auto px-6 md:px-10 pb-16">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { title: "긴 영상도 1분 컷", desc: "핵심만 트리로 정리" },
-            { title: "붙여넣기 즉시 시작", desc: "URL·자막·텍스트 OK" },
-            { title: "다이어그램 뷰", desc: "구조를 한눈에" },
-            { title: "다국어 지원", desc: "영/한/일/중 가능" },
+            {
+              title: "세부까지 '구조도'로 정리",
+              desc: "핵심은 한눈에, 세부는 펼쳐보기로",
+            },
+            {
+              title: "붙여넣기 즉시 시작",
+              desc: "유튜브·텍스트·자막 그대로 입력",
+            },
+            { title: "자동 카테고리 분류", desc: "건강, 재테크, 교육, 정치, 경제 등" },
+            { title: "외국어도 내 언어로", desc: "외국 영상도 모국어로 정리" },
           ].map((f, i) => (
             <motion.div
               key={f.title}
@@ -357,8 +335,6 @@ export default function LandingBlueHero() {
           ))}
         </div>
       </section>
-
-     
     </main>
   );
 }
