@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import ClientUserMenu from "./ClientUserMenu";
 import ClientMobileMenu from "./ClientMobileMenu";
 import LanguageSelector from "@/components/LanguageSelector";
@@ -14,6 +14,7 @@ type Props = {
 
 export default function ClientHeaderShell({ isAuthed, email }: Props) {
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -22,17 +23,33 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // "/", "/ko", "/en" 같은 루트 성격 페이지는 hero 위에 떠 있는 느낌 유지
+
+  // 1️⃣ 홈처럼 취급할 경로를 명시적으로 정의
+  const homeLikePaths = ["/", "/ko", "/en"];
+  const isHomeLike = homeLikePaths.includes(pathname);
+  
+  // 2️⃣ 클래스 분기
+  const headerClassName = [
+    "fixed top-0 inset-x-0 z-40 transition-all",
+    scrolled
+      ? // ✅ 스크롤된 상태: 모든 페이지 공통 (지금과 동일)
+        "bg-white/90 dark:bg-neutral-900/80 backdrop-blur-md border-b border-black/10 dark:border-white/10 shadow-sm"
+      : isHomeLike
+      ? // ✅ 홈 상단: 완전 투명(기존 hero에 떠있는 느낌 유지)
+        "bg-transparent dark:bg-neutral-950/45 dark:backdrop-blur supports-[backdrop-filter]:dark:bg-neutral-950/35 dark:border-b dark:border-white/10"
+      : // ✅ 이름 있는 페이지 상단: 오묘한 그라데이션 바
+        [
+          "backdrop-blur-md border-b border-black/5 dark:border-white/10",
+          // 라이트: 파란 기조의 살짝 비치는 헤더
+          "bg-[radial-gradient(circle_at_0%_0%,rgba(59,130,246,0.16),transparent_56%),radial-gradient(circle_at_100%_0%,rgba(129,140,248,0.18),transparent_56%),linear-gradient(90deg,rgba(255,255,255,0.98),rgba(239,246,255,0.98),rgba(255,255,255,0.98))]",
+          // 다크: 진한 남색 위에 파란 그라데이션
+          "dark:bg-[radial-gradient(circle_at_0%_0%,rgba(59,130,246,0.45),transparent_60%),radial-gradient(circle_at_100%_0%,rgba(129,140,248,0.5),transparent_60%),#020617]",
+        ].join(" "),
+  ].join(" ");
+
   return (
-    <header
-      className={[
-        "fixed top-0 inset-x-0 z-40 transition-all",
-        // 투명 시작 → 스크롤 시 흰 배경/블러/보더/섀도우
-        scrolled
-          ? "bg-white/90 dark:bg-neutral-900/80 backdrop-blur-md border-b border-black/10 dark:border-white/10 shadow-sm"
-          : "bg-transparent dark:bg-neutral-950/45 dark:backdrop-blur supports-[backdrop-filter]:dark:bg-neutral-950/35 dark:border-b dark:border-white/10",
-      ].join(" ")}
-      role="banner"
-    >
+    <header className={headerClassName} role="banner">
       <div className="mx-auto max-w-7xl px-6 md:px-10">
         <div className="flex h-[64px] items-center justify-between">
           {/* 좌측 로고 */}
@@ -45,10 +62,10 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
             </span>
           </Link>
 
-          {/* 가운데 내비 (원하면 확장용) — lg 이상에서만 */}
+          {/* 가운데 내비 — lg 이상에서만 */}
           <nav className="hidden lg:flex items-center gap-2">
             <Link
-              href="/summarize"
+              href="/video-to-map"
               className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
             >
               핵심정리
@@ -103,17 +120,41 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
             )}
           </div>
 
-          {/* 모바일: 햄버거 & 패널 (네 기존 컴포넌트 재사용) */}
+          {/* 모바일 메뉴 */}
           <div className="md:hidden">
             <ClientMobileMenu
               isAuthed={isAuthed}
               email={email}
               navItems={[
-                { href: "/summarize", label: "핵심정리하기", icon: "mdi:file-document-edit" },
-                { href: "/my-summaries", label: "나의 스크랩북", icon: "mdi:folder" },
-                { href: "/tags", label: "태그 보기", icon: "mdi:tag-multiple" },
-                ...(isAuthed ? [{ href: "/billing", label: "결제/크레딧", icon: "mdi:credit-card" } as const] : []),
-                { href: "/pricing", label: "요금제", icon: "mdi:currency-krw" },
+                {
+                  href: "/summarize",
+                  label: "핵심정리하기",
+                  icon: "mdi:file-document-edit",
+                },
+                {
+                  href: "/my-summaries",
+                  label: "나의 스크랩북",
+                  icon: "mdi:folder",
+                },
+                {
+                  href: "/tags",
+                  label: "태그 보기",
+                  icon: "mdi:tag-multiple",
+                },
+                ...(isAuthed
+                  ? [
+                      {
+                        href: "/billing",
+                        label: "결제/크레딧",
+                        icon: "mdi:credit-card",
+                      } as const,
+                    ]
+                  : []),
+                {
+                  href: "/pricing",
+                  label: "요금제",
+                  icon: "mdi:currency-krw",
+                },
               ]}
             />
           </div>

@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Icon } from "@iconify/react";
+import ScriptHelpSection from "./ScriptHelpSection";
 
 const CREDITS_PER_RUN = 3; // 한 번 실행 시 소모 크레딧
+
 
 export default function VideoToMapPage() {
   const [scriptText, setScriptText] = useState("");
@@ -103,11 +106,7 @@ export default function VideoToMapPage() {
 
       <div className="max-w-6xl mx-auto px-6 md:px-10 flex flex-col gap-10 relative">
         {/* 상단 헤더 / 상세 기능 페이지 느낌 */}
-        <header className="mt-2 flex flex-col gap-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-medium text-blue-700 shadow-sm backdrop-blur-sm dark:border-white/20 dark:bg-white/5 dark:text-[rgb(var(--hero-b))]">
-            <span className="inline-block h-2 w-2 rounded-full bg-blue-500/80 dark:bg-[rgb(var(--hero-b))]" />
-            Video to Map · 영상 스크립트 구조맵
-          </div>
+        <header className="mt-7 flex flex-col gap-4">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight tracking-tight text-neutral-900 dark:text-white dark:[text-shadow:0_1px_10px_rgba(0,0,0,0.45)]">
             영상 스크립트,{" "}
             <span className="text-blue-700 dark:text-[rgb(var(--hero-b))]">
@@ -130,8 +129,8 @@ export default function VideoToMapPage() {
             transition-[grid-template-columns] duration-300 ease-out
             ${
               isHelpOpen
-                ? "lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]" // 🔓 도움말 펼쳐진 상태 (좀 더 균형)
-                : "lg:grid-cols-[minmax(0,1.8fr)_minmax(0,0.4fr)]" // 🔒 기본: 왼쪽 넓고, 오른쪽 아주 좁게
+                ? "lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]" // 🔓 도움말 펼쳐진 상태
+                : "lg:grid-cols-[minmax(0,1.8fr)_minmax(0,0.4fr)]" // 🔒 기본: 왼쪽 넓고, 오른쪽 좁게
             }
           `}
         >
@@ -207,98 +206,10 @@ export default function VideoToMapPage() {
 
           {/* 오른쪽: 가이드 + 진행 상태 */}
           <div className="flex flex-col gap-4">
-            {/* 스크립트 가져오는 방법 (토글 도움말) */}
-            <section
-              className={`
-                rounded-3xl border border-neutral-200 bg-white
-                shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)]
-                backdrop-blur-sm
-                dark:bg-[#020818] dark:border-white/15
-                transition-all duration-300 ease-out
-                ${isHelpOpen ? "p-4 md:p-5" : "p-3 md:p-3.5"}
-              `}
-            >
-              <button
-                type="button"
-                onClick={() => setIsHelpOpen((prev) => !prev)}
-                className="
-                  flex w-full items-center justify-between gap-2
-                  text-left
-                "
-                aria-expanded={isHelpOpen}
-              >
-                <div className="flex items-center gap-2">
-                  <h2 className="text-sm md:text-base font-semibold text-neutral-900 dark:text-white line-clamp-1">
-                    영상 스크립트 가져오는 방법
-                  </h2>
-                  <span className="text-[11px] px-2 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 dark:border-[rgb(var(--hero-b))]/40 dark:bg-white/5 dark:text-[rgb(var(--hero-b))]">
-                    도움말
-                  </span>
-                </div>
-                <span
-                  className={`
-                    text-[11px]
-                    transition-transform duration-200 ease-out
-                    ${isHelpOpen ? "rotate-180" : ""}
-                  `}
-                >
-                  ▾
-                </span>
-              </button>
-
-              {/* 토글되는 본문 */}
-              <div
-                className={`
-                  overflow-hidden transition-all duration-300 ease-out
-                  ${
-                    isHelpOpen
-                      ? "mt-3 max-h-[520px] opacity-100"
-                      : "max-h-0 opacity-0"
-                  }
-                `}
-              >
-                <div className="grid gap-3 text-xs md:text-sm text-neutral-700 dark:text-neutral-200">
-                  <div>
-                    <h3 className="font-medium text-neutral-900 dark:text-neutral-50 mb-1">
-                      유튜브(YouTube) 기준
-                    </h3>
-                    <ol className="list-decimal list-inside space-y-1">
-                      <li>
-                        영상 우측 아래 또는 더보기(···) 메뉴를 눌러 주세요.
-                      </li>
-                      <li>
-                        &quot;자막&quot; 또는 &quot;대본 보기&quot; /
-                        &quot;Transcript&quot; 메뉴를 선택해 주세요.
-                      </li>
-                      <li>
-                        나오는 텍스트를 드래그해서 전체 복사해 주세요.
-                      </li>
-                      <li>
-                        왼쪽 입력창에 그대로 붙여넣어 주시면 준비가 완료돼요.
-                      </li>
-                    </ol>
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-neutral-900 dark:text-neutral-50 mb-1">
-                      그 외 플랫폼 / 자막 파일
-                    </h3>
-                    <ul className="list-disc list-inside space-y-1">
-                      <li>
-                        편집 툴이나 자막 파일(srt, vtt 등)에서 텍스트를 복사해
-                        주세요.
-                      </li>
-                      <li>
-                        AI 자막 생성 서비스에서 추출한 텍스트도 사용하셔도 돼요.
-                      </li>
-                      <li>
-                        이미 정리된 스크립트 문서가 있다면 그대로 붙여넣어서
-                        사용하셔도 괜찮아요.
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </section>
+            <ScriptHelpSection
+              isHelpOpen={isHelpOpen}
+              onToggle={() => setIsHelpOpen((prev) => !prev)}
+            />
 
             {/* 진행 중 표시 */}
             {isProcessing && (
@@ -329,8 +240,7 @@ export default function VideoToMapPage() {
                     </p>
                     <ul className="mt-1 list-disc list-inside space-y-0.5 text-[11px] md:text-xs text-neutral-500 dark:text-neutral-400">
                       <li>
-                        요약이 아니라, 흐름 · 단계 · 분기를 먼저 분석하고
-                        있어요.
+                        요약이 아니라, 흐름 · 단계 · 분기를 먼저 분석하고 있어요.
                       </li>
                       <li>영상 길이에 따라 수십 초 이상 걸릴 수 있어요.</li>
                       <li>창을 닫지만 않으시면, 작업은 자동으로 이어져요.</li>
@@ -372,7 +282,7 @@ export default function VideoToMapPage() {
                 p-3 border border-neutral-800
               "
             >
-{JSON.stringify(result, null, 2)}
+              {JSON.stringify(result, null, 2)}
             </pre>
           </section>
         )}
