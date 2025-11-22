@@ -64,9 +64,9 @@ export default function ScriptHelpSection({
       >
         {/* 실제 스크롤이 생기는 영역 */}
         <div className="max-h-[380px] md:max-h-[430px] overflow-y-auto pr-1">
-          <div className="space-y-5 text-xs md:text-sm text-neutral-700 dark:text-neutral-200">
+          <div className="flex flex-col gap-5 text-xs md:text-sm text-neutral-700 dark:text-neutral-200">
             {/* 블럭 A: YouTube에서 스크립트 가져오기 */}
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <div>
                 <h3 className="text-sm md:text-[15px] font-semibold text-neutral-900 dark:text-neutral-50">
                   YouTube에서 스크립트 가져오기 (PC 기준)
@@ -79,10 +79,10 @@ export default function ScriptHelpSection({
 
               {/* Step 1 */}
               <div className="flex gap-3 md:gap-4 items-start">
-                <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 text-[11px] font-semibold text-blue-700 dark:bg-white/5 dark:text-[rgb(var(--hero-b))]">
+                <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 text-[11px] font-semibold text-blue-700  dark:bg-white/5 dark:text-[rgb(var(--hero-b))]">
                   1
                 </div>
-                <div className="flex-1 space-y-2">
+                <div className="flex-1 flex flex-col gap-2">
                   <p className="font-medium text-neutral-900 dark:text-neutral-50">
                     영상 아래의{" "}
                     <span className="font-semibold">&quot;···&quot;</span> 또는{" "}
@@ -110,7 +110,7 @@ export default function ScriptHelpSection({
                 <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 text-[11px] font-semibold text-blue-700 dark:bg-white/5 dark:text-[rgb(var(--hero-b))]">
                   2
                 </div>
-                <div className="flex-1 space-y-2">
+                <div className="flex-1 flex flex-col gap-2">
                   <p className="font-medium text-neutral-900 dark:text-neutral-50">
                     메뉴에서 <strong>&quot;대본 보기&quot;</strong> 또는{" "}
                     <strong>&quot;Transcript&quot;</strong>를 선택해 주세요.
@@ -136,11 +136,11 @@ export default function ScriptHelpSection({
                 <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 text-[11px] font-semibold text-blue-700 dark:bg-white/5 dark:text-[rgb(var(--hero-b))]">
                   3
                 </div>
-                <div className="flex-1 space-y-2">
+                <div className="flex-1 flex flex-col gap-2">
                   <p className="font-medium text-neutral-900 dark:text-neutral-50">
                     오른쪽에 열린 대본을 전체 선택해서 복사해 주세요.
                   </p>
-                  <div className="text-[11px] md:text-xs text-neutral-600 dark:text-neutral-400 space-y-1">
+                  <div className="flex flex-col gap-1 text-[11px] md:text-xs text-neutral-600 dark:text-neutral-400">
                     <p>1. 대본 첫 줄을 한 번 클릭합니다.</p>
                     <p>
                       2. 스크롤로 맨 아래까지 내린 뒤,{" "}
@@ -177,7 +177,7 @@ export default function ScriptHelpSection({
                 <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 text-[11px] font-semibold text-blue-700 dark:bg-white/5 dark:text-[rgb(var(--hero-b))]">
                   4
                 </div>
-                <div className="flex-1 space-y-2">
+                <div className="flex-1 flex flex-col gap-2">
                   <p className="font-medium text-neutral-900 dark:text-neutral-50">
                     이 페이지의 <strong>왼쪽 입력창</strong>에 붙여넣어 주세요.
                   </p>
@@ -204,9 +204,9 @@ export default function ScriptHelpSection({
             <div className="h-px bg-neutral-200/80 dark:bg-white/10" />
 
             {/* 블럭 B: 자막 파일 / 편집툴 / 이미 있는 스크립트 */}
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <div>
-                <h3 className="text-sm md:text-[15px] font-semibold text-neutral-900 dark:text-neutral-50">
+                <h3 className="text-sm md:text:[15px] font-semibold text-neutral-900 dark:text-neutral-50">
                   자막 파일이나 편집툴에서 가져오고 싶으신가요?
                 </h3>
                 <p className="mt-1 text-[11px] md:text-xs text-neutral-500 dark:text-neutral-400">
@@ -215,7 +215,7 @@ export default function ScriptHelpSection({
                 </p>
               </div>
 
-              <div className="space-y-2.5">
+              <div className="flex flex-col gap-2.5">
                 {/* 케이스 1 */}
                 <div className="flex gap-2.5 items-start">
                   <div className="mt-0.5 h-5 w-5 flex items-center justify-center rounded-md bg-neutral-100 text-[10px] font-semibold text-neutral-700 dark:bg-white/10 dark:text-neutral-100">
@@ -234,7 +234,7 @@ export default function ScriptHelpSection({
 
                 {/* 케이스 2 */}
                 <div className="flex gap-2.5 items-start">
-                  <div className="mt-0.5 h-5 w-5 flex items-center justify-center rounded-md bg-neutral-100 text-[10px] font-semibold text-neutral-700 dark:bg:white/10 dark:text-neutral-100">
+                  <div className="mt-0.5 h-5 w-5 flex items-center justify-center rounded-md bg-neutral-100 text-[10px] font-semibold text-neutral-700 dark:bg-white/10 dark:text-neutral-100">
                     ②
                   </div>
                   <div className="flex-1">
@@ -277,7 +277,7 @@ export default function ScriptHelpSection({
                 Q. &quot;대본 보기&quot; / &quot;Transcript&quot; 메뉴가 안
                 보여요.
               </p>
-              <ul className="list-disc list-inside space-y-0.5">
+              <ul className="list-disc list-inside flex flex-col gap-0.5">
                 <li>
                   일부 영상은 제작자가 대본 노출을 막아 둔 경우일 수 있어요.
                 </li>
