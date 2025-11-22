@@ -24,27 +24,30 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
   }, []);
 
   // "/", "/ko", "/en" 같은 루트 성격 페이지는 hero 위에 떠 있는 느낌 유지
-
-  // 1️⃣ 홈처럼 취급할 경로를 명시적으로 정의
   const homeLikePaths = ["/", "/ko", "/en"];
   const isHomeLike = homeLikePaths.includes(pathname);
-  
-  // 2️⃣ 클래스 분기
+
+  // ✅ 상세 페이지 첫 상태에서도 다크모드 그라데이션 적용되도록 수정
   const headerClassName = [
     "fixed top-0 inset-x-0 z-40 transition-all",
     scrolled
-      ? // ✅ 스크롤된 상태: 모든 페이지 공통 (지금과 동일)
+      ? // 스크롤된 상태: 공통
         "bg-white/90 dark:bg-neutral-900/80 backdrop-blur-md border-b border-black/10 dark:border-white/10 shadow-sm"
       : isHomeLike
-      ? // ✅ 홈 상단: 완전 투명(기존 hero에 떠있는 느낌 유지)
+      ? // 홈 상단: 투명 헤더
         "bg-transparent dark:bg-neutral-950/45 dark:backdrop-blur supports-[backdrop-filter]:dark:bg-neutral-950/35 dark:border-b dark:border-white/10"
-      : // ✅ 이름 있는 페이지 상단: 오묘한 그라데이션 바
+      : // 상세 페이지 상단: 라이트/다크 그라데이션 바
         [
           "backdrop-blur-md border-b border-black/5 dark:border-white/10",
+
           // 라이트: 파란 기조의 살짝 비치는 헤더
           "bg-[radial-gradient(circle_at_0%_0%,rgba(59,130,246,0.16),transparent_56%),radial-gradient(circle_at_100%_0%,rgba(129,140,248,0.18),transparent_56%),linear-gradient(90deg,rgba(255,255,255,0.98),rgba(239,246,255,0.98),rgba(255,255,255,0.98))]",
-          // 다크: 진한 남색 위에 파란 그라데이션
-          "dark:bg-[radial-gradient(circle_at_0%_0%,rgba(59,130,246,0.45),transparent_60%),radial-gradient(circle_at_100%_0%,rgba(129,140,248,0.5),transparent_60%),#020617]",
+
+          // 🔥 다크: 먼저 진한 남색 배경색을 깔고
+          "dark:bg-[#020617]",
+
+          // 🔥 그 위에 파란 그라데이션을 background-image로만 올려줌
+          "dark:bg-[radial-gradient(circle_at_0%_0%,rgba(59,130,246,0.45),transparent_60%),radial-gradient(circle_at_100%_0%,rgba(129,140,248,0.5),transparent_60%)]",
         ].join(" "),
   ].join(" ");
 
@@ -68,7 +71,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
               href="/video-to-map"
               className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
             >
-              핵심정리
+              영상을 구조도로 변환
             </Link>
             <Link
               href="/pricing"
