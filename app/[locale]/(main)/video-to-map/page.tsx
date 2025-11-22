@@ -6,6 +6,8 @@ import ScriptHelpSection from "./ScriptHelpSection";
 
 const CREDITS_PER_RUN = 3; // 한 번 실행 시 소모 크레딧
 
+// TODO: 실제 로그인 유저의 현재 크레딧으로 교체
+const MOCK_CURRENT_CREDITS = 42;
 
 export default function VideoToMapPage() {
   const [scriptText, setScriptText] = useState("");
@@ -15,6 +17,9 @@ export default function VideoToMapPage() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null); // TODO: 구조맵 결과 타입으로 변경
   const [isHelpOpen, setIsHelpOpen] = useState(false); // 🔹 도움말 토글 상태
+
+  // 실제로는 훅/컨텍스트에서 받아오거나, 서버에서 가져온 값을 props로 받으면 됨
+  const currentCredits = MOCK_CURRENT_CREDITS;
 
   const statusMessages = [
     "영상 내용을 읽고 있어요...",
@@ -151,10 +156,30 @@ export default function VideoToMapPage() {
                 <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
                   영상 스크립트 붙여넣기
                 </h2>
-                <span className="text-[11px] md:text-xs text-neutral-500 dark:text-neutral-400">
-                  길수록 분석에 조금 더 시간이 걸릴 수 있어요.
-                </span>
+
+                {/* 🔹 내 크레딧 pill */}
+                <div
+                  className="
+                    flex items-center gap-1.5 rounded-full
+                    border border-amber-200 bg-amber-50
+                    px-2.5 py-1 text-[11px] md:text-xs text-amber-700
+                    dark:border-amber-300/40 dark:bg-amber-100/10 dark:text-amber-200
+                  "
+                >
+                  <Icon
+                    icon="mdi:star-four-points-outline"
+                    className="h-3.5 w-3.5"
+                  />
+                  <span className="font-medium">내 크레딧</span>
+                  <span className="font-semibold">
+                    {currentCredits.toLocaleString()} credit
+                  </span>
+                </div>
               </div>
+
+              <p className="text-[12px] md:text-sm text-neutral-500 dark:text-neutral-400">
+                길수록 분석에 조금 더 시간이 걸릴 수 있어요.
+              </p>
             </div>
 
             <textarea
@@ -174,13 +199,21 @@ export default function VideoToMapPage() {
             {error && <p className="text-sm text-red-500">{error}</p>}
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-300">
-                이번 변환 작업에는 약{" "}
-                <span className="font-semibold text-neutral-900 dark:text-neutral-50">
-                  {CREDITS_PER_RUN} credit
-                </span>
-                이 사용돼요.
-              </p>
+              <div className="flex flex-col gap-1">
+                <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-300">
+                  이번 변환 작업에는 약{" "}
+                  <span className="font-semibold text-neutral-900 dark:text-neutral-50">
+                    {CREDITS_PER_RUN} credit
+                  </span>
+                  이 사용돼요.
+                </p>
+                <p className="text-[11px] md:text-xs text-neutral-500 dark:text-neutral-400">
+                  현재 보유 크레딧:{" "}
+                  <span className="font-semibold text-neutral-900 dark:text-neutral-50">
+                    {currentCredits.toLocaleString()} credit
+                  </span>
+                </p>
+              </div>
 
               <button
                 type="button"
@@ -264,7 +297,7 @@ export default function VideoToMapPage() {
             "
           >
             <div className="flex items-center justify-between gap-2">
-              <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
+              <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text:white">
                 생성된 구조맵 결과
               </h2>
               <span className="text-[11px] md:text-xs text-neutral-500 dark:text-neutral-400">

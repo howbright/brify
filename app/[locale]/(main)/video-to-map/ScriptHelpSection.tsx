@@ -140,11 +140,28 @@ export default function ScriptHelpSection({
                   <p className="font-medium text-neutral-900 dark:text-neutral-50">
                     오른쪽에 열린 대본을 전체 선택해서 복사해 주세요.
                   </p>
-                  <div className="flex flex-col gap-1 text-[13px] md:text-sm text-neutral-600 dark:text-neutral-400">
+
+                  {/* 🔹 형광펜 느낌 하이라이트 박스 */}
+                  <div
+                    className="
+        mt-1 rounded-2xl border border-amber-100 bg-amber-50/80
+        px-3 py-2.5
+        shadow-[0_12px_30px_-24px_rgba(180,83,9,0.9)]
+        flex flex-col gap-1
+        text-[13px] md:text-sm text-neutral-700
+        dark:border-amber-400/60 dark:bg-amber-500/10 dark:text-neutral-200
+      "
+                  >
                     <p>1. 대본 첫 줄을 한 번 클릭합니다.</p>
                     <p>
                       2. 스크롤로 맨 아래까지 내린 뒤,{" "}
-                      <span className="font-medium">
+                      <span
+                        className="
+            relative inline-block px-1 rounded
+            bg-amber-200/70 dark:bg-amber-400/40
+            font-semibold
+          "
+                      >
                         반드시 Shift 키를 누른 상태에서
                       </span>{" "}
                       마지막 줄을 한 번 클릭하면 대본 전체가 선택돼요.
@@ -154,12 +171,13 @@ export default function ScriptHelpSection({
                       (Mac은 <span className="font-medium">⌘ + C</span>)를 눌러
                       복사해 주세요.
                     </p>
-                    <p className="mt-1">
+                    <p className="mt-1 text-[12px] md:text-[13px] text-neutral-600 dark:text-neutral-300">
                       ※ <span className="font-medium">Ctrl + A</span>는 페이지
                       전체를 선택해 버려서, 대본만 복사할 때는 사용하지 않는 걸
                       추천드려요.
                     </p>
                   </div>
+
                   <div className="mt-1 overflow-hidden rounded-2xl border border-neutral-200/80 dark:border-white/15 bg-neutral-50/60 dark:bg-black/40">
                     <Image
                       src="/images/help/youtube-step3-transcript.png"
@@ -192,7 +210,7 @@ export default function ScriptHelpSection({
                       src="/images/help/youtube-step4-paste.png"
                       alt="영상 스크립트 붙여넣기 입력창에 텍스트를 붙여넣는 화면"
                       width={640}
-                      height={360}
+                      height={160}
                       className="w-full h-auto object-cover"
                     />
                   </div>
