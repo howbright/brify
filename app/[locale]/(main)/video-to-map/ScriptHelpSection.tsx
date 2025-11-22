@@ -59,11 +59,7 @@ export default function ScriptHelpSection({
       <div
         className={`
           overflow-hidden transition-all duration-300 ease-out
-          ${
-            isHelpOpen
-              ? "mt-4 max-h-[520px] opacity-100"
-              : "max-h-0 opacity-0"
-          }
+          ${isHelpOpen ? "mt-4 max-h-[520px] opacity-100" : "max-h-0 opacity-0"}
         `}
       >
         {/* 실제 스크롤이 생기는 영역 */}
@@ -76,7 +72,8 @@ export default function ScriptHelpSection({
                   YouTube에서 스크립트 가져오기 (PC 기준)
                 </h3>
                 <p className="mt-1 text-[11px] md:text-xs text-neutral-500 dark:text-neutral-400">
-                  아래 순서를 천천히 따라오시면 1–2분 안에 스크립트를 가져오실 수 있어요.
+                  아래 순서를 천천히 따라오시면 1–2분 안에 스크립트를 가져오실
+                  수 있어요.
                 </p>
               </div>
 
@@ -89,11 +86,12 @@ export default function ScriptHelpSection({
                   <p className="font-medium text-neutral-900 dark:text-neutral-50">
                     영상 아래의{" "}
                     <span className="font-semibold">&quot;···&quot;</span> 또는{" "}
-                    <span className="font-semibold">&quot;더보기&quot;</span> 버튼을 눌러 주세요.
+                    <span className="font-semibold">&quot;더보기&quot;</span>{" "}
+                    버튼을 눌러 주세요.
                   </p>
                   <p className="text-[11px] md:text-xs text-neutral-600 dark:text-neutral-400">
-                    영상 제목 아래, 좋아요/공유 버튼 옆에 있는 점 세 개(···) 버튼 또는
-                    &quot;더보기&quot; 버튼을 찾으시면 돼요.
+                    영상 제목 아래, 좋아요/공유 버튼 옆에 있는 점 세 개(···)
+                    버튼 또는 &quot;더보기&quot; 버튼을 찾으시면 돼요.
                   </p>
                   <div className="mt-1 overflow-hidden rounded-2xl border border-neutral-200/80 dark:border-white/15 bg-neutral-50/60 dark:bg-black/40">
                     <Image
@@ -142,11 +140,26 @@ export default function ScriptHelpSection({
                   <p className="font-medium text-neutral-900 dark:text-neutral-50">
                     오른쪽에 열린 대본을 전체 선택해서 복사해 주세요.
                   </p>
-                  <p className="text-[11px] md:text-xs text-neutral-600 dark:text-neutral-400">
-                    대본 영역 안을 한 번 클릭하신 뒤,{" "}
-                    <span className="font-medium">Ctrl + A → Ctrl + C</span>{" "}
-                    (Mac은 <span className="font-medium">⌘ + A → ⌘ + C</span>)로 전체 복사하시면 가장 편해요.
-                  </p>
+                  <div className="text-[11px] md:text-xs text-neutral-600 dark:text-neutral-400 space-y-1">
+                    <p>1. 대본 첫 줄을 한 번 클릭합니다.</p>
+                    <p>
+                      2. 스크롤로 맨 아래까지 내린 뒤,{" "}
+                      <span className="font-medium">
+                        반드시 Shift 키를 누른 상태에서
+                      </span>{" "}
+                      마지막 줄을 한 번 클릭하면 대본 전체가 선택돼요.
+                    </p>
+                    <p>
+                      3. 그런 다음 <span className="font-medium">Ctrl + C</span>{" "}
+                      (Mac은 <span className="font-medium">⌘ + C</span>)를 눌러
+                      복사해 주세요.
+                    </p>
+                    <p className="mt-1">
+                      ※ <span className="font-medium">Ctrl + A</span>는 페이지
+                      전체를 선택해 버려서, 대본만 복사할 때는 사용하지 않는 걸
+                      추천드려요.
+                    </p>
+                  </div>
                   <div className="mt-1 overflow-hidden rounded-2xl border border-neutral-200/80 dark:border-white/15 bg-neutral-50/60 dark:bg-black/40">
                     <Image
                       src="/images/help/youtube-step3-transcript.png"
@@ -171,7 +184,8 @@ export default function ScriptHelpSection({
                   <p className="text-[11px] md:text-xs text-neutral-600 dark:text-neutral-400">
                     &quot;영상 스크립트 붙여넣기&quot; 입력창을 클릭하신 뒤,{" "}
                     <span className="font-medium">Ctrl + V</span> (Mac은{" "}
-                    <span className="font-medium">⌘ + V</span>)로 붙여넣어 주시면 준비가 완료돼요.
+                    <span className="font-medium">⌘ + V</span>)로 붙여넣어
+                    주시면 준비가 완료돼요.
                   </p>
                   <div className="mt-1 overflow-hidden rounded-2xl border border-neutral-200/80 dark:border-white/15 bg-neutral-50/60 dark:bg-black/40">
                     <Image
@@ -196,7 +210,8 @@ export default function ScriptHelpSection({
                   자막 파일이나 편집툴에서 가져오고 싶으신가요?
                 </h3>
                 <p className="mt-1 text-[11px] md:text-xs text-neutral-500 dark:text-neutral-400">
-                  이미 작업 중인 프로젝트가 있어도, 텍스트만 복사해서 그대로 붙여넣으시면 괜찮아요.
+                  이미 작업 중인 프로젝트가 있어도, 텍스트만 복사해서 그대로
+                  붙여넣으시면 괜찮아요.
                 </p>
               </div>
 
@@ -211,7 +226,8 @@ export default function ScriptHelpSection({
                       편집툴(프리미어, 캡컷 등)에서 자막·대본 복사
                     </p>
                     <p className="mt-0.5 text-[11px] md:text-xs text-neutral-600 dark:text-neutral-400">
-                      타임라인에 있는 자막 텍스트를 전체 선택해서 복사한 뒤, 왼쪽 입력창에 붙여넣어 주세요.
+                      타임라인에 있는 자막 텍스트를 전체 선택해서 복사한 뒤,
+                      왼쪽 입력창에 붙여넣어 주세요.
                     </p>
                   </div>
                 </div>
@@ -226,8 +242,9 @@ export default function ScriptHelpSection({
                       자막 파일(srt, vtt 등)을 텍스트로 열기
                     </p>
                     <p className="mt-0.5 text-[11px] md:text-xs text-neutral-600 dark:text-neutral-400">
-                      srt·vtt 파일을 메모장/텍스트 편집기로 열면 시간 정보와 함께 대사가 들어 있어요.
-                      필요한 부분의 대사 텍스트를 복사해서 붙여넣어 주시면 돼요.
+                      srt·vtt 파일을 메모장/텍스트 편집기로 열면 시간 정보와
+                      함께 대사가 들어 있어요. 필요한 부분의 대사 텍스트를
+                      복사해서 붙여넣어 주시면 돼요.
                     </p>
                   </div>
                 </div>
@@ -242,8 +259,9 @@ export default function ScriptHelpSection({
                       이미 정리해 두신 스크립트 문서 사용
                     </p>
                     <p className="mt-0.5 text-[11px] md:text-xs text-neutral-600 dark:text-neutral-400">
-                      블로그, 워드, 노션 등 어디에 적어 두신 스크립트든 상관없어요.
-                      전체 텍스트를 복사해서 그대로 붙여넣어 주시면 됩니다.
+                      블로그, 워드, 노션 등 어디에 적어 두신 스크립트든
+                      상관없어요. 전체 텍스트를 복사해서 그대로 붙여넣어 주시면
+                      됩니다.
                     </p>
                   </div>
                 </div>
@@ -256,12 +274,21 @@ export default function ScriptHelpSection({
             {/* 블럭 C: 작은 FAQ / 팁 */}
             <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50/80 p-3 text-[11px] md:text-xs text-neutral-700 dark:border-white/15 dark:bg-white/5 dark:text-neutral-200">
               <p className="font-semibold text-neutral-900 dark:text-neutral-50 mb-1">
-                Q. &quot;대본 보기&quot; / &quot;Transcript&quot; 메뉴가 안 보여요.
+                Q. &quot;대본 보기&quot; / &quot;Transcript&quot; 메뉴가 안
+                보여요.
               </p>
               <ul className="list-disc list-inside space-y-0.5">
-                <li>일부 영상은 제작자가 대본 노출을 막아 둔 경우일 수 있어요.</li>
-                <li>자막이 아예 없는 영상이거나, 라이브/실시간 스트리밍 영상일 수도 있어요.</li>
-                <li>이런 경우에는 직접 들으면서 정리하시거나, 별도의 자막 생성 도구를 사용해 보셔야 해요.</li>
+                <li>
+                  일부 영상은 제작자가 대본 노출을 막아 둔 경우일 수 있어요.
+                </li>
+                <li>
+                  자막이 아예 없는 영상이거나, 라이브/실시간 스트리밍 영상일
+                  수도 있어요.
+                </li>
+                <li>
+                  이런 경우에는 직접 들으면서 정리하시거나, 별도의 자막 생성
+                  도구를 사용해 보셔야 해요.
+                </li>
               </ul>
             </div>
           </div>
