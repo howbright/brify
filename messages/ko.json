@@ -138,15 +138,56 @@
   },
   "signup": {
     "title": "회원가입",
+    "subtitle": "이메일 인증 코드 또는 Google 계정으로 간편하게 가입할 수 있어요.",
     "google": "Google 계정으로 계속하기",
+    "googleLoading": "Google로 진행 중...",
     "or": "또는",
     "email": {
       "label": "이메일 주소",
       "placeholder": "이메일 주소를 입력하세요"
     },
+    "otp": {
+      "label": "인증 코드",
+      "placeholder": "이메일로 받은 6자리 코드를 입력하세요"
+    },
+    "errors": {
+      "googlePrefix": "구글 로그인에 실패했어요:",
+      "googleGeneric": "구글 로그인 중 오류가 발생했어요.",
+      "agreeRequired": "필수 약관에 동의해야 가입할 수 있습니다.",
+      "alreadyRegistered": "이미 가입된 이메일입니다. 로그인해 주세요.",
+      "defaultPrefix": "오류가 발생했어요:",
+      "otpFailedPrefix": "인증 실패:"
+    },
+    "success": {
+      "otpSent": "입력하신 이메일로 인증 코드를 보냈습니다.",
+      "otpVerified": "인증 성공! 환영합니다."
+    },
+    "buttons": {
+      "sendCode": "코드 보내기",
+      "sendingCode": "코드 전송 중...",
+      "verifying": "인증 중...",
+      "verify": "인증 완료"
+    },
+    "terms": {
+      "agreePrefix": "",
+      "agreeSuffix": "에 동의합니다. (필수)",
+      "agreePrivacyPrefix": "",
+      "agreePrivacySuffix": "에 동의합니다. (필수)",
+      "termsLink": "서비스 이용약관",
+      "privacyLink": "개인정보 처리방침"
+    },
     "login": {
       "question": "이미 계정이 있으신가요?",
       "link": "로그인 하기"
     }
+  },
+
+  "signupPage": {
+    "brand": "Brify",
+    "tagline": "새 계정을 만들고 요약과 구조맵 작업을 시작해요."
+  },
+  "loginPage": {
+    "brand": "Brify",
+    "tagline": "계정을 불러와서 구조맵 작업을 이어갈게요."
   }
 }

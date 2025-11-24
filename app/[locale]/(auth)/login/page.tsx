@@ -2,8 +2,11 @@
 
 import LoginForm from "@/components/LoginForm";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 export default function Login() {
+  const t = useTranslations("loginPage");
+
   return (
     <main
       className="
@@ -49,10 +52,12 @@ export default function Login() {
             >
               B
             </div>
-            <span className="tracking-tight">Brify</span>
+            <span className="tracking-tight">
+              {t("brand")}
+            </span>
           </Link>
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            계정을 불러와서 구조맵 작업을 이어갈게요.
+            {t("tagline")}
           </p>
         </div>
 

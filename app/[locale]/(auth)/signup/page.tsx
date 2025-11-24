@@ -2,93 +2,68 @@
 
 import SignupForm from "@/components/SignupForm";
 import { Link } from "@/i18n/navigation";
-import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 export default function Signup() {
-  return (
-    <section className="relative pt-2 bg-[#f4f7f8] text-[#1f1f1f] dark:bg-[#111827] dark:text-white py-28 px-4 overflow-visible">
-      {/* 🎨 배경 SVGs */}
-      <Image
-        src="/images/hero1.svg"
-        alt=""
-        className="absolute top-[30px] left-[-20px] w-28 md:w-36 opacity-40 animate-floating pointer-events-none"
-        aria-hidden="true"
-        width={100}
-        height={100}
-      />
-      <Image
-        src="/images/hero2.svg"
-        alt=""
-        className="absolute bottom-[30px] right-[-20px] w-32 md:w-40 opacity-40 animate-floating-reverse pointer-events-none"
-        aria-hidden="true"
-        width={100}
-        height={100}
-      />
-      <Image
-        src="/images/hero3.svg"
-        alt=""
-        className="absolute top-[50px] right-8 w-24 md:w-32 opacity-30 rotate-12 pointer-events-none"
-        aria-hidden="true"
-        width={100}
-        height={100}
-      />
-      <Image
-        src="/images/hero5.svg"
-        alt=""
-        className="absolute bottom-[20px] left-6 w-20 md:w-28 opacity-30 pointer-events-none"
-        aria-hidden="true"
-        width={100}
-        height={100}
-      />
-      <div className="max-w-(--breakpoint-xl) px-4 py-8 mx-auto sm:py-16 lg:py-24 pt-20 sm:pt-24 lg:pt-32">
-        <div className="lg:grid lg:gap-20 lg:items-center lg:grid-cols-12">
-          <div className="hidden col-span-6 mr-auto lg:block">
-            <Link
-              href="/"
-              className="inline-flex items-center mb-10 text-3xl font-black uppercase tracking-tight"
-            >
-              <Image
-                src="/images/logo.png"
-                className="mr-3 h-12"
-                alt="Brify Logo"
-                width={300}
-                height={300}
-              />
-            </Link>
+  const t = useTranslations("signupPage");
 
-            <div className="space-y-8">
-              {[
-                {
-                  title: "Get started quickly",
-                  description:
-                    "Integrate with developer-friendly APIs or choose pre-built solutions.",
-                },
-                {
-                  title: "Support any business model",
-                  description:
-                    "Host code that you don’t want to share with the world in private.",
-                },
-                {
-                  title: "Join millions of businesses",
-                  description:
-                    " is trusted by ambitious startups and enterprises of every size.",
-                },
-              ].map((item, idx) => (
-                <div key={idx} className="flex items-start">
-                  <div className="w-5 h-5 mr-3 mt-1 border border-primary rounded-full bg-primary" />
-                  <div>
-                    <h3 className="text-lg font-bold">{item.title}</h3>
-                    <p className="mt-1 text-gray-600 dark:text-gray-400 text-sm">
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
+  return (
+    <main
+      className="
+        relative min-h-screen w-full
+        bg-[#f4f6fb] dark:bg-[#020617]
+        text-neutral-900 dark:text-neutral-50
+        pt-20 pb-16
+        flex items-start md:items-center justify-center
+      "
+    >
+      {/* 상단 블루 톤 그라데이션 */}
+      <div
+        className="
+          pointer-events-none absolute inset-x-0 top-0 h-72 -z-10
+          bg-[radial-gradient(900px_380px_at_20%_0%,rgb(var(--hero-a)_/_0.16),transparent_65%),radial-gradient(900px_380px_at_80%_0%,rgb(var(--hero-b)_/_0.14),transparent_65%)]
+        "
+      />
+      {/* 전체 얇은 그리드 */}
+      <div
+        className="
+          pointer-events-none absolute inset-0 -z-10
+          [mask-image:linear-gradient(to_bottom,black,transparent_70%)]
+          bg-[linear-gradient(to_right,rgb(var(--hero-grid)_/_0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgb(var(--hero-grid)_/_0.035)_1px,transparent_1px)]
+          bg-[size:26px_26px]
+          opacity-60
+          dark:opacity-30
+        "
+      />
+
+      <div className="relative w-full max-w-md px-4 sm:px-0">
+        {/* 상단 작은 브랜딩 + 한 줄 카피 */}
+        <div className="mb-6 flex flex-col items-center gap-2 text-center">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-800 dark:text-neutral-100"
+          >
+            <div
+              className="
+                h-8 w-8 rounded-2xl bg-white/90 dark:bg-white/10
+                shadow-md flex items-center justify-center
+                text-sm font-black text-blue-600 dark:text-[rgb(var(--hero-b))]
+              "
+            >
+              B
             </div>
-          </div>
-          <SignupForm />
+            <span className="tracking-tight">
+              {t("brand")}
+            </span>
+          </Link>
+          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+            {t("tagline")}
+          </p>
         </div>
+
+        {/* 회원가입 카드 */}
+        <SignupForm />
       </div>
-    </section>
+    </main>
   );
 }

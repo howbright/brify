@@ -41,13 +41,13 @@ export default function SignupForm() {
       });
 
       if (error) {
-        setMessage("구글 로그인에 실패했어요: " + error.message);
+        setMessage(`${t("errors.googlePrefix")} ${error.message}`);
         setMessageType("error");
         setIsGoogleLoading(false);
       }
       // 성공 시엔 구글 로그인 플로우로 리다이렉트됨
     } catch (e: any) {
-      setMessage("구글 로그인 중 오류가 발생했어요.");
+      setMessage(t("errors.googleGeneric"));
       setMessageType("error");
       setIsGoogleLoading(false);
     }
@@ -59,7 +59,7 @@ export default function SignupForm() {
     setMessage("");
 
     if (!agreeTerms || !agreePrivacy) {
-      setMessage("필수 약관에 동의해야 가입할 수 있습니다.");
+      setMessage(t("errors.agreeRequired"));
       setMessageType("error");
       setIsSubmitting(false);
       return;
@@ -71,14 +71,14 @@ export default function SignupForm() {
     });
 
     if (error?.message.includes("Signups not allowed")) {
-      setMessage("이미 가입된 이메일입니다. 로그인해 주세요.");
+      setMessage(t("errors.alreadyRegistered"));
       setMessageType("error");
-      // setStep("otp") 는 빼는 게 자연스러움 (코드가 안 나갔을 수 있어서)
+      // setStep("otp")는 안 가는 게 자연스러움
     } else if (error) {
-      setMessage("오류가 발생했어요: " + error.message);
+      setMessage(`${t("errors.defaultPrefix")} ${error.message}`);
       setMessageType("error");
     } else {
-      setMessage("입력하신 이메일로 인증 코드를 보냈습니다.");
+      setMessage(t("success.otpSent"));
       setMessageType("success");
       setStep("otp");
     }
@@ -100,7 +100,7 @@ export default function SignupForm() {
     });
 
     if (error) {
-      setMessage("인증 실패: " + error.message);
+      setMessage(`${t("errors.otpFailedPrefix")} ${error.message}`);
       setMessageType("error");
       setIsSubmitting(false);
       return;
@@ -125,7 +125,7 @@ export default function SignupForm() {
       }
     }
 
-    setMessage("인증 성공! 환영합니다.");
+    setMessage(t("success.otpVerified"));
     setMessageType("success");
     router.push("/summarize");
     setIsSubmitting(false);
@@ -140,7 +140,7 @@ export default function SignupForm() {
             {t("title")}
           </h1>
           <p className="text-sm text-neutral-500 dark:text-neutral-400">
-            이메일 인증 코드 또는 Google 계정으로 간편하게 가입할 수 있어요.
+            {t("subtitle")}
           </p>
         </div>
 
@@ -162,7 +162,7 @@ export default function SignupForm() {
             {isGoogleLoading ? (
               <>
                 <Icon icon="lucide:loader" className="animate-spin" width={18} />
-                <span className="ml-1">Google로 진행 중...</span>
+                <span className="ml-1">{t("googleLoading")}</span>
               </>
             ) : (
               <span className="flex items-center gap-2">
@@ -218,13 +218,14 @@ export default function SignupForm() {
                   required
                 />
                 <span>
+                  {t("terms.agreePrefix")}
                   <Link
                     href="/terms"
                     className="underline underline-offset-2 hover:text-blue-600 dark:hover:text-blue-400"
                   >
-                    서비스 이용약관
+                    {t("terms.termsLink")}
                   </Link>
-                  에 동의합니다. (필수)
+                  {t("terms.agreeSuffix")}
                 </span>
               </label>
               <label className="flex items-start gap-2">
@@ -236,13 +237,14 @@ export default function SignupForm() {
                   required
                 />
                 <span>
+                  {t("terms.agreePrivacyPrefix")}
                   <Link
                     href="/privacy"
                     className="underline underline-offset-2 hover:text-blue-600 dark:hover:text-blue-400"
                   >
-                    개인정보 처리방침
+                    {t("terms.privacyLink")}
                   </Link>
-                  에 동의합니다. (필수)
+                  {t("terms.agreePrivacySuffix")}
                 </span>
               </label>
             </div>
@@ -277,10 +279,10 @@ export default function SignupForm() {
               {isSubmitting ? (
                 <>
                   <Icon icon="lucide:loader" className="animate-spin" width={18} />
-                  코드 전송 중...
+                  {t("buttons.sendingCode")}
                 </>
               ) : (
-                <>코드 보내기</>
+                <>{t("buttons.sendCode")}</>
               )}
             </button>
           </form>
@@ -291,13 +293,13 @@ export default function SignupForm() {
                 htmlFor="token"
                 className="block text-sm font-medium text-neutral-800 dark:text-neutral-100"
               >
-                인증 코드
+                {t("otp.label")}
               </label>
               <input
                 type="text"
                 id="token"
                 ref={otpInputRef}
-                placeholder="이메일로 받은 6자리 코드를 입력하세요"
+                placeholder={t("otp.placeholder")}
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
                 className="
@@ -341,10 +343,10 @@ export default function SignupForm() {
               {isSubmitting ? (
                 <>
                   <Icon icon="lucide:loader" className="animate-spin" width={18} />
-                  인증 중...
+                  {t("buttons.verifying")}
                 </>
               ) : (
-                <>인증 완료</>
+                <>{t("buttons.verify")}</>
               )}
             </button>
           </form>

@@ -138,15 +138,56 @@
   },
   "signup": {
     "title": "Sign up",
+    "subtitle": "Sign up easily with an email verification code or your Google account.",
     "google": "Continue with Google",
+    "googleLoading": "Continuing with Google...",
     "or": "or",
     "email": {
       "label": "Email address",
       "placeholder": "Enter your email address"
     },
+    "otp": {
+      "label": "Verification code",
+      "placeholder": "Enter the 6-digit code sent to your email"
+    },
+    "errors": {
+      "googlePrefix": "Failed to sign in with Google:",
+      "googleGeneric": "An error occurred during Google sign-in.",
+      "agreeRequired": "You must agree to the required terms to sign up.",
+      "alreadyRegistered": "This email is already registered. Please log in.",
+      "defaultPrefix": "An error occurred:",
+      "otpFailedPrefix": "Verification failed:"
+    },
+    "success": {
+      "otpSent": "We’ve sent a verification code to your email.",
+      "otpVerified": "Verification successful! Welcome."
+    },
+    "buttons": {
+      "sendCode": "Send code",
+      "sendingCode": "Sending code...",
+      "verifying": "Verifying...",
+      "verify": "Complete verification"
+    },
+    "terms": {
+      "agreePrefix": "I agree to the ",
+      "agreeSuffix": " (required)",
+      "agreePrivacyPrefix": "I agree to the ",
+      "agreePrivacySuffix": " (required)",
+      "termsLink": "Terms of Service",
+      "privacyLink": "Privacy Policy"
+    },
     "login": {
       "question": "Already have an account?",
-      "link": "Sign in"
+      "link": "Log in"
     }
+  },
+
+  "signupPage": {
+    "brand": "Brify",
+    "tagline": "Create a new account and start working with summaries and structure maps."
+  },
+  "loginPage": {
+    "brand": "Brify",
+    "tagline": "Sign in to continue working on your structure maps."
   }
 }
