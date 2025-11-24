@@ -13,11 +13,6 @@ import { usePathname, useRouter } from "next/navigation";
 const locales = [
   { code: "en", label: "English" },
   { code: "ko", label: "한국어" },
-  { code: "ja", label: "日本語" },
-  { code: "zh-CN", label: "简体中文" },
-  { code: "zh-TW", label: "繁體中文" },
-  { code: "es", label: "Español" },
-  { code: "fr", label: "Français" },
 ];
 
 export default function LanguageSelector() {
@@ -30,7 +25,10 @@ export default function LanguageSelector() {
   const handleLocaleChange = (locale: string) => {
     document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000`;
 
-    const pathWithoutLocale = pathname.replace(new RegExp(`^/(${localeCodes})`), "");
+    const pathWithoutLocale = pathname.replace(
+      new RegExp(`^/(${localeCodes})`),
+      ""
+    );
     const newPath = `/${locale}${pathWithoutLocale || "/"}`;
 
     router.push(newPath);
@@ -44,7 +42,14 @@ export default function LanguageSelector() {
           {current?.label || currentLocale}
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40">
+      <DropdownMenuContent
+        align="end"
+        className="
+  w-40 rounded-xl border border-neutral-200/70
+  bg-white/95 shadow-lg backdrop-blur-md
+  dark:border-white/10 dark:bg-slate-900/95
+"
+      >
         {locales.map((locale) => (
           <DropdownMenuItem
             key={locale.code}

@@ -31,5 +31,5 @@ export const config = {
 // matcher: [
 
 //   '/',
-//   '/(en|ko|ja|zh-CN|zh-TW|es|fr)/:path*',
+//   '/(en|ko)/:path*',
 // ],
