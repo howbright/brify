@@ -4,10 +4,17 @@ import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import ScriptHelpSection from "./ScriptHelpSection";
 
-const CREDITS_PER_RUN = 3; // 한 번 실행 시 소모 크레딧
+const LONG_SCRIPT_THRESHOLD = 6000; // 🔹 이 글자 수를 넘으면 2크레딧, 아니면 1크레딧 (원하면 조정)
 
 // TODO: 실제 로그인 유저의 현재 크레딧으로 교체
 const MOCK_CURRENT_CREDITS = 42;
+
+// 길이에 따라 필요한 크레딧 계산
+function getRequiredCredits(text: string) {
+  const length = text.trim().length;
+  if (!length) return 1;
+  return length > LONG_SCRIPT_THRESHOLD ? 2 : 1;
+}
 
 export default function VideoToMapPage() {
   const [scriptText, setScriptText] = useState("");
@@ -20,6 +27,7 @@ export default function VideoToMapPage() {
 
   // 실제로는 훅/컨텍스트에서 받아오거나, 서버에서 가져온 값을 props로 받으면 됨
   const currentCredits = MOCK_CURRENT_CREDITS;
+  const requiredCredits = getRequiredCredits(scriptText);
 
   const statusMessages = [
     "영상 내용을 읽고 있어요...",
@@ -54,6 +62,15 @@ export default function VideoToMapPage() {
   };
 
   const handleConfirmUseCredits = async () => {
+    // (추가) 크레딧 부족 체크 — 실제론 서버에서도 다시 검증해야 함
+    if (currentCredits < requiredCredits) {
+      setShowCreditDialog(false);
+      setError(
+        "구조맵을 생성하기에 크레딧이 부족해요. 먼저 크레딧을 충전해 주세요."
+      );
+      return;
+    }
+
     setShowCreditDialog(false);
     setIsProcessing(true);
     setError(null);
@@ -176,10 +193,6 @@ export default function VideoToMapPage() {
                   </span>
                 </div>
               </div>
-
-              <p className="text-[12px] md:text-sm text-neutral-500 dark:text-neutral-400">
-                길수록 분석에 조금 더 시간이 걸릴 수 있어요.
-              </p>
             </div>
 
             <textarea
@@ -201,34 +214,31 @@ export default function VideoToMapPage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex flex-col gap-1">
                 <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-300">
-                  이번 변환 작업에는 약{" "}
+                  기본 기준은{" "}
                   <span className="font-semibold text-neutral-900 dark:text-neutral-50">
-                    {CREDITS_PER_RUN} credit
+                    1 credit = 최대 {LONG_SCRIPT_THRESHOLD.toLocaleString()}자
                   </span>
-                  이 사용돼요.
-                </p>
-                <p className="text-[11px] md:text-xs text-neutral-500 dark:text-neutral-400">
-                  현재 보유 크레딧:{" "}
+                  이고, 그보다 긴 스크립트는{" "}
                   <span className="font-semibold text-neutral-900 dark:text-neutral-50">
-                    {currentCredits.toLocaleString()} credit
+                    2 credit
                   </span>
+                  이 필요해요. 
                 </p>
               </div>
-
               <button
                 type="button"
                 onClick={handleClickGenerate}
                 disabled={!scriptText.trim() || isProcessing}
                 className="
-                  inline-flex items-center gap-2 rounded-2xl px-5 py-2.5
-                  text-sm md:text-[15px] font-semibold text-white
-                  bg-blue-600 hover:bg-blue-700
-                  dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
-                  shadow-sm hover:shadow-md
-                  transition-transform hover:scale-[1.03] active:scale-100
-                  disabled:bg-neutral-400 disabled:hover:scale-100 disabled:cursor-not-allowed
-                  focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60
-                "
+      inline-flex items-center gap-2 rounded-2xl px-5 py-2.5
+      text-sm md:text-[15px] font-semibold text-white
+      bg-blue-600 hover:bg-blue-700
+      dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+      shadow-sm hover:shadow-md
+      transition-transform hover:scale-[1.03] active:scale-100
+      disabled:bg-neutral-400 disabled:hover:scale-100 disabled:cursor-not-allowed
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60
+    "
               >
                 {isProcessing
                   ? "구조맵 생성 중..."
@@ -263,7 +273,7 @@ export default function VideoToMapPage() {
                     영상을 구조도로 정리하는 중이에요...
                   </p>
                   <div className="rounded-2xl bg-white/95 px-3 py-2.5 text-xs md:text-sm text-neutral-700 dark:bg-black/40 dark:text-neutral-200">
-                    <p className="mb-1 flex items-center gap-1">
+                    <p className="mb-1 flex items센터 gap-1">
                       <span>{statusMessages[statusStep]}</span>
                       <span className="inline-flex gap-0.5">
                         <span className="animate-pulse">.</span>
@@ -273,7 +283,8 @@ export default function VideoToMapPage() {
                     </p>
                     <ul className="mt-1 list-disc list-inside space-y-0.5 text-[11px] md:text-xs text-neutral-500 dark:text-neutral-400">
                       <li>
-                        요약이 아니라, 흐름 · 단계 · 분기를 먼저 분석하고 있어요.
+                        요약이 아니라, 흐름 · 단계 · 분기를 먼저 분석하고
+                        있어요.
                       </li>
                       <li>영상 길이에 따라 수십 초 이상 걸릴 수 있어요.</li>
                       <li>창을 닫지만 않으시면, 작업은 자동으로 이어져요.</li>
@@ -297,7 +308,7 @@ export default function VideoToMapPage() {
             "
           >
             <div className="flex items-center justify-between gap-2">
-              <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text:white">
+              <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
                 생성된 구조맵 결과
               </h2>
               <span className="text-[11px] md:text-xs text-neutral-500 dark:text-neutral-400">
@@ -338,7 +349,7 @@ export default function VideoToMapPage() {
             </h2>
             <p className="text-sm md:text-[15px] text-neutral-700 dark:text-neutral-200 mb-3">
               이 영상 스크립트를 구조도로 변환하는 데{" "}
-              <span className="font-semibold">{CREDITS_PER_RUN} credit</span>이
+              <span className="font-semibold">{requiredCredits} credit</span>이
               사용돼요.
             </p>
             <ul className="mb-4 list-disc list-inside text-xs md:text-sm text-neutral-600 dark:text-neutral-300 space-y-1">
@@ -371,7 +382,7 @@ export default function VideoToMapPage() {
                   shadow-sm hover:shadow-md
                 "
               >
-                {CREDITS_PER_RUN} credit 사용하고 진행하기
+                {requiredCredits} credit 사용하고 진행하기
               </button>
             </div>
           </div>
