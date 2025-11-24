@@ -71,7 +71,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
               href="/video-to-map"
               className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
             >
-              영상을 구조도로 변환
+              영상을 구조맵로 변환
             </Link>
             <Link
               href="/pricing"

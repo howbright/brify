@@ -104,7 +104,7 @@ export default function LandingBlueHero() {
               className="font-semibold"
               style={{ color: "var(--color-foreground)" }}
             >
-              영상 내용을 '다이어그램(구조도)'로 한눈에 정리
+              영상 내용을 '다이어그램(구조맵)'로 한눈에 정리
               {/* <span
                 className="font-extrabold"
                 style={{ color: "hsl(var(--primary))" }}
@@ -144,7 +144,7 @@ export default function LandingBlueHero() {
                transition-transform hover:scale-[1.03] active:scale-100
                focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60"
             >
-              영상을 '구조도'로 만들기
+              영상을 '구조맵'로 만들기
             </Link>
 
             {/* Secondary / Glass */}
@@ -166,7 +166,7 @@ export default function LandingBlueHero() {
             size="sm"
             items={[
               "세부내용까지 빠짐없이 정리", // or "상세 유실 없이 정리"
-              "다이어그램(구조도)",
+              "다이어그램(구조맵)",
               "외국어 → 모국어 변환",
               "자동 카테고리 분류",
               "공유 링크 생성",
@@ -303,7 +303,7 @@ export default function LandingBlueHero() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             {
-              title: "세부까지 '구조도'로 정리",
+              title: "세부까지 '구조맵'로 정리",
               desc: "핵심은 한눈에, 세부는 펼쳐보기로",
             },
             {

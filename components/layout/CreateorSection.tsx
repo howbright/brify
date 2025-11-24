@@ -174,7 +174,7 @@ export default function CreatorSection({
                 <br />
                 그래서{" "}
                 <b className="font-extrabold">도구를 직접 만들었습니다</b>. 방금
-                본 내용을 <b>'구조도'로 정리</b>해 두면, 다시 열어도{" "}
+                본 내용을 <b>'구조맵'로 정리</b>해 두면, 다시 열어도{" "}
                 <b>흐름과 요지</b>가 남습니다.”
               </p>
             </div>

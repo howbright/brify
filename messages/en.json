@@ -121,5 +121,32 @@
       "item2": "There may be no subtitles at all, or it might be a live/real-time stream.",
       "item3": "In that case, you’ll need to type it manually while listening, or use a separate subtitle generation tool."
     }
+  },
+  "login": {
+    "title": "Sign in",
+    "google": "Continue with Google",
+    "or": "or",
+    "email": {
+      "label": "Email address",
+      "placeholder": "Enter your email address"
+    },
+    "submit": "Send verification code",
+    "signup": {
+      "question": "Don't have an account yet?",
+      "link": "Sign up"
+    }
+  },
+  "signup": {
+    "title": "Sign up",
+    "google": "Continue with Google",
+    "or": "or",
+    "email": {
+      "label": "Email address",
+      "placeholder": "Enter your email address"
+    },
+    "login": {
+      "question": "Already have an account?",
+      "link": "Sign in"
+    }
   }
 }

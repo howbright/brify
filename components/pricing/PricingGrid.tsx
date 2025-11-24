@@ -199,7 +199,7 @@ export default function PricingGrid({
               )}
             >
               <strong className="font-extrabold">
-                '구조도'로 정리 1건당 1 크레딧이면 충분해요.
+                '구조맵'로 정리 1건당 1 크레딧이면 충분해요.
               </strong>
             </p>
 
