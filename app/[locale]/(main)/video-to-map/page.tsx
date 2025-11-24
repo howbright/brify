@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import ScriptHelpSection from "./ScriptHelpSection";
+import { useTranslations } from "next-intl";
 
-const LONG_SCRIPT_THRESHOLD = 6000; // 🔹 이 글자 수를 넘으면 2크레딧, 아니면 1크레딧 (원하면 조정)
+const LONG_SCRIPT_THRESHOLD = 6000; // 🔹 이 글자 수를 넘으면 2크레딧, 아니면 1크레딧
 
 // TODO: 실제 로그인 유저의 현재 크레딧으로 교체
 const MOCK_CURRENT_CREDITS = 42;
@@ -17,6 +18,8 @@ function getRequiredCredits(text: string) {
 }
 
 export default function VideoToMapPage() {
+  const t = useTranslations("VideoToMapPage");
+
   const [scriptText, setScriptText] = useState("");
   const [showCreditDialog, setShowCreditDialog] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -30,11 +33,11 @@ export default function VideoToMapPage() {
   const requiredCredits = getRequiredCredits(scriptText);
 
   const statusMessages = [
-    "영상 내용을 읽고 있어요...",
-    "큰 흐름을 먼저 나누는 중이에요...",
-    "핵심 키워드를 추려내는 중이에요...",
-    "구조도로 배치하고 있어요...",
-    "조금만 더 기다려 주세요!",
+    t("status.reading"),
+    t("status.splittingFlow"),
+    t("status.extractingKeywords"),
+    t("status.arrangingStructure"),
+    t("status.almostThere"),
   ];
 
   useEffect(() => {
@@ -50,12 +53,12 @@ export default function VideoToMapPage() {
     }, 2500);
 
     return () => clearInterval(interval);
-  }, [isProcessing]);
+  }, [isProcessing, statusMessages.length]);
 
   const handleClickGenerate = () => {
     setError(null);
     if (!scriptText.trim()) {
-      setError("먼저 영상 스크립트를 아래에 붙여넣어 주세요.");
+      setError(t("errors.emptyScript"));
       return;
     }
     setShowCreditDialog(true);
@@ -65,9 +68,7 @@ export default function VideoToMapPage() {
     // (추가) 크레딧 부족 체크 — 실제론 서버에서도 다시 검증해야 함
     if (currentCredits < requiredCredits) {
       setShowCreditDialog(false);
-      setError(
-        "구조맵을 생성하기에 크레딧이 부족해요. 먼저 크레딧을 충전해 주세요."
-      );
+      setError(t("errors.insufficientCredits"));
       return;
     }
 
@@ -85,16 +86,14 @@ export default function VideoToMapPage() {
       });
 
       if (!res.ok) {
-        throw new Error(
-          "서버 요청에 실패했습니다. 잠시 후 다시 시도해 주세요."
-        );
+        throw new Error(t("errors.requestFailed"));
       }
 
       const data = await res.json();
       setResult(data);
     } catch (e: any) {
       console.error(e);
-      setError(e?.message ?? "알 수 없는 오류가 발생했습니다.");
+      setError(e?.message ?? t("errors.unknown"));
     } finally {
       setIsProcessing(false);
     }
@@ -130,17 +129,17 @@ export default function VideoToMapPage() {
         {/* 상단 헤더 / 상세 기능 페이지 느낌 */}
         <header className="mt-7 flex flex-col gap-4">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight tracking-tight text-neutral-900 dark:text-white dark:[text-shadow:0_1px_10px_rgba(0,0,0,0.45)]">
-            영상 스크립트,{" "}
+            {t("title.prefix")}{" "}
             <span className="text-blue-700 dark:text-[rgb(var(--hero-b))]">
-              구조도로 자동 변환해요
+              {t("title.highlight")}
             </span>
           </h1>
           <p className="text-sm md:text-base text-neutral-700 dark:text-neutral-300 max-w-2xl">
-            유튜브/강의/설교 영상의 스크립트를{" "}
+            {t("description.beforeBold")}{" "}
             <span className="font-semibold text-neutral-900 dark:text-neutral-50">
-              그대로 붙여넣기만 하시면,
+              {t("description.bold")}
             </span>{" "}
-            흐름과 계층 구조까지 한눈에 보이도록 다이어그램으로 바꿔 드려요.
+            {t("description.afterBold")}
           </p>
         </header>
 
@@ -171,7 +170,7 @@ export default function VideoToMapPage() {
               <div className="h-1.5 w-16 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-[rgb(var(--hero-a))] dark:to-[rgb(var(--hero-b))]" />
               <div className="flex items-center justify-between gap-2">
                 <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
-                  영상 스크립트 붙여넣기
+                  {t("inputSection.title")}
                 </h2>
 
                 {/* 🔹 내 크레딧 pill */}
@@ -187,9 +186,9 @@ export default function VideoToMapPage() {
                     icon="mdi:star-four-points-outline"
                     className="h-3.5 w-3.5"
                   />
-                  <span className="font-medium">내 크레딧</span>
+                  <span className="font-medium">{t("credits.label")}</span>
                   <span className="font-semibold">
-                    {currentCredits.toLocaleString()} credit
+                    {currentCredits.toLocaleString()} {t("credits.unit")}
                   </span>
                 </div>
               </div>
@@ -204,7 +203,7 @@ export default function VideoToMapPage() {
                 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
                 dark:border-white/12 dark:bg-black/40 dark:text-neutral-50 dark:placeholder:text-neutral-500
               "
-              placeholder="유튜브 · 강의 · 설교 등의 전체 스크립트를 이곳에 그대로 붙여넣어 주세요..."
+              placeholder={t("inputSection.placeholder")}
               value={scriptText}
               onChange={(e) => setScriptText(e.target.value)}
             />
@@ -214,15 +213,7 @@ export default function VideoToMapPage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex flex-col gap-1">
                 <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-300">
-                  기본 기준은{" "}
-                  <span className="font-semibold text-neutral-900 dark:text-neutral-50">
-                    1 credit = 최대 {LONG_SCRIPT_THRESHOLD.toLocaleString()}자
-                  </span>
-                  이고, 그보다 긴 스크립트는{" "}
-                  <span className="font-semibold text-neutral-900 dark:text-neutral-50">
-                    2 credit
-                  </span>
-                  이 필요해요. 
+                  {t("credits.rule", { threshold: LONG_SCRIPT_THRESHOLD })}
                 </p>
               </div>
               <button
@@ -230,19 +221,19 @@ export default function VideoToMapPage() {
                 onClick={handleClickGenerate}
                 disabled={!scriptText.trim() || isProcessing}
                 className="
-      inline-flex items-center gap-2 rounded-2xl px-5 py-2.5
-      text-sm md:text-[15px] font-semibold text-white
-      bg-blue-600 hover:bg-blue-700
-      dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
-      shadow-sm hover:shadow-md
-      transition-transform hover:scale-[1.03] active:scale-100
-      disabled:bg-neutral-400 disabled:hover:scale-100 disabled:cursor-not-allowed
-      focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60
-    "
+                  inline-flex items-center gap-2 rounded-2xl px-5 py-2.5
+                  text-sm md:text-[15px] font-semibold text-white
+                  bg-blue-600 hover:bg-blue-700
+                  dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+                  shadow-sm hover:shadow-md
+                  transition-transform hover:scale-[1.03] active:scale-100
+                  disabled:bg-neutral-400 disabled:hover:scale-100 disabled:cursor-not-allowed
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60
+                "
               >
                 {isProcessing
-                  ? "구조맵 생성 중..."
-                  : "영상 스크립트로 구조맵 만들기"}
+                  ? t("buttons.generating")
+                  : t("buttons.generate")}
               </button>
             </div>
           </section>
@@ -270,10 +261,10 @@ export default function VideoToMapPage() {
                 </div>
                 <div className="flex-1 space-y-2">
                   <p className="text-sm md:text-[15px] font-semibold text-neutral-900 dark:text-neutral-50">
-                    영상을 구조도로 정리하는 중이에요...
+                    {t("processing.title")}
                   </p>
                   <div className="rounded-2xl bg-white/95 px-3 py-2.5 text-xs md:text-sm text-neutral-700 dark:bg-black/40 dark:text-neutral-200">
-                    <p className="mb-1 flex items센터 gap-1">
+                    <p className="mb-1 flex items-center gap-1">
                       <span>{statusMessages[statusStep]}</span>
                       <span className="inline-flex gap-0.5">
                         <span className="animate-pulse">.</span>
@@ -282,12 +273,9 @@ export default function VideoToMapPage() {
                       </span>
                     </p>
                     <ul className="mt-1 list-disc list-inside space-y-0.5 text-[11px] md:text-xs text-neutral-500 dark:text-neutral-400">
-                      <li>
-                        요약이 아니라, 흐름 · 단계 · 분기를 먼저 분석하고
-                        있어요.
-                      </li>
-                      <li>영상 길이에 따라 수십 초 이상 걸릴 수 있어요.</li>
-                      <li>창을 닫지만 않으시면, 작업은 자동으로 이어져요.</li>
+                      <li>{t("processing.bullet1")}</li>
+                      <li>{t("processing.bullet2")}</li>
+                      <li>{t("processing.bullet3")}</li>
                     </ul>
                   </div>
                 </div>
@@ -309,15 +297,14 @@ export default function VideoToMapPage() {
           >
             <div className="flex items-center justify-between gap-2">
               <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
-                생성된 구조맵 결과
+                {t("result.title")}
               </h2>
               <span className="text-[11px] md:text-xs text-neutral-500 dark:text-neutral-400">
-                이 영역에는 나중에 실제 다이어그램 컴포넌트를 연결하시면 돼요.
+                {t("result.hint")}
               </span>
             </div>
             <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-300">
-              지금은 임시로 API 응답을 JSON 형태로 보여드리고 있어요. 추후 React
-              Flow / Mindmap 뷰를 이 자리에 렌더링하시면 돼요.
+              {t("result.description")}
             </p>
             <pre
               className="
@@ -345,19 +332,15 @@ export default function VideoToMapPage() {
             "
           >
             <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white mb-2.5">
-              크레딧 사용 확인
+              {t("modal.title")}
             </h2>
             <p className="text-sm md:text-[15px] text-neutral-700 dark:text-neutral-200 mb-3">
-              이 영상 스크립트를 구조도로 변환하는 데{" "}
-              <span className="font-semibold">{requiredCredits} credit</span>이
-              사용돼요.
+              {t("modal.usageText", { credits: requiredCredits })}
             </p>
             <ul className="mb-4 list-disc list-inside text-xs md:text-sm text-neutral-600 dark:text-neutral-300 space-y-1">
-              <li>영상이 길수록 처리 시간이 길어질 수 있어요.</li>
-              <li>
-                한 번 실행하면 되돌릴 수 없고, 사용된 크레딧은 환불되지 않아요.
-              </li>
-              <li>처리 중에는 이 페이지를 닫지 않으시는 것을 추천드려요.</li>
+              <li>{t("modal.bullet1")}</li>
+              <li>{t("modal.bullet2")}</li>
+              <li>{t("modal.bullet3")}</li>
             </ul>
             <div className="flex justify-end gap-2">
               <button
@@ -370,7 +353,7 @@ export default function VideoToMapPage() {
                   dark:text-neutral-100 dark:border-white/20 dark:bg-white/5 dark:hover:bg-white/10
                 "
               >
-                취소
+                {t("modal.cancel")}
               </button>
               <button
                 type="button"
@@ -382,7 +365,7 @@ export default function VideoToMapPage() {
                   shadow-sm hover:shadow-md
                 "
               >
-                {requiredCredits} credit 사용하고 진행하기
+                {t("modal.confirmButton", { credits: requiredCredits })}
               </button>
             </div>
           </div>

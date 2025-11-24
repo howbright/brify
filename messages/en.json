@@ -1,79 +1,125 @@
 {
-  "hero": {
-    "title1": "Long articles, long videos?",
-    "title2": "Brify captures the essence!",
-    "description1": "Blogs, news, papers, even YouTube —",
-    "description2": "<ai>AI</ai> distills only what truly matters.",
-    "description3": "Not just <text>text</text>, but also <diagram>diagrams</diagram> are clearly visualized.",
-    "benefits": {
-      "time": "Save time",
-      "knowledge": "Gain insights",
-      "accuracy": "Make smarter choices"
+  "VideoToMapPage": {
+    "title": {
+      "prefix": "Video script,",
+      "highlight": "turn it into a structure map automatically"
     },
-    "button_summarize": "✨ Start distilling insights",
-    "button_guide": "🎥 View usage guide"
-  },
-  "HomePage": {
-    "title": "Hello world!",
-    "about": "Go to the about page"
-  },
-  "login": {
-    "title": "Welcome back",
-    "google": "Sign in with Google",
-    "github": "Sign in with Github",
-    "apple": "Sign in with Apple",
-    "or": "or",
-    "email": {
-      "label": "Email",
-      "placeholder": "name@example.com"
+    "description": {
+      "beforeBold": "Paste the full script from your YouTube, lecture or sermon video",
+      "bold": "just as it is,",
+      "afterBold": "and we'll turn it into a diagram that makes the flow and hierarchy easy to see at a glance."
     },
-    "password": {
-      "label": "Password",
-      "placeholder": "••••••••"
+    "inputSection": {
+      "title": "Paste your video script",
+      "placeholder": "Paste the full script from your YouTube, lecture or sermon video here..."
     },
-    "remember": "Remember me",
-    "forgot": "Forgot password?",
-    "submit": "Send login code to email",
-    "signup": {
-      "question": "Don’t have an account yet?",
-      "link": "Sign up here"
+    "credits": {
+      "label": "My credits",
+      "unit": "credits",
+      "rule": "By default, 1 credit covers up to {threshold, number} characters. Scripts longer than that require 2 credits."
+    },
+    "buttons": {
+      "generate": "Create a structure map from this script",
+      "generating": "Generating structure map..."
+    },
+    "status": {
+      "reading": "Reading the video content...",
+      "splittingFlow": "Breaking it into high-level sections...",
+      "extractingKeywords": "Extracting key points...",
+      "arrangingStructure": "Laying everything out as a structure map...",
+      "almostThere": "Almost done. Just a moment!"
+    },
+    "processing": {
+      "title": "We’re organizing your video into a structure map...",
+      "bullet1": "Instead of just summarizing, we first analyze the flow, steps and branches.",
+      "bullet2": "Depending on the length of the video, this can take tens of seconds or more.",
+      "bullet3": "As long as you keep this page open, the process will continue automatically."
+    },
+    "result": {
+      "title": "Generated structure map result",
+      "hint": "Later, you can plug your actual diagram component into this area.",
+      "description": "For now, we’re showing the raw API response as JSON. In the future, this will render a React Flow / mindmap view."
+    },
+    "modal": {
+      "title": "Confirm credit usage",
+      "usageText": "Converting this video script into a structure map will use {credits} credit(s).",
+      "bullet1": "The longer the video, the longer the processing time may be.",
+      "bullet2": "Once started, this cannot be undone and used credits are non-refundable.",
+      "bullet3": "We recommend keeping this page open while processing is in progress.",
+      "cancel": "Cancel",
+      "confirmButton": "Use {credits} credit(s) and continue"
+    },
+    "errors": {
+      "emptyScript": "Please paste the video script into the field below first.",
+      "insufficientCredits": "You don’t have enough credits to generate this structure map. Please top up your credits first.",
+      "requestFailed": "The request to the server failed. Please try again in a moment.",
+      "unknown": "An unknown error occurred."
     }
   },
-  "loading": {
-    "message": "Please wait a moment..."
-  },
-  "signup": {
-    "title": "Sign Up",
-    "google": "Sign up with Google",
-    "apple": "Sign up with Apple",
-    "or": "or",
-    "name": {
-      "label": "Name",
-      "placeholder": "John Doe"
+  "ScriptHelpSection": {
+    "badge": "Help",
+    "headerTitle": "How to copy your video script",
+    "headerSubtitle": "Here’s how to copy the script from a YouTube video.",
+
+    "sectionA": {
+      "title": "Getting the script from YouTube (desktop)",
+      "description": "Follow these steps and you can grab the full script in about 1–2 minutes."
     },
-    "email": {
-      "label": "Email",
-      "placeholder": "example@email.com"
+
+    "step1": {
+      "title": "Click the \"···\" or \"More\" button below the video.",
+      "body": "Look under the video title, next to the Like/Share buttons, for the three dots (···) or a \"More\" button.",
+      "imageAlt": "Location of the More (···) button on the YouTube watch page."
     },
-    "password": {
-      "label": "Password",
-      "placeholder": "Enter your password"
+
+    "step2": {
+      "title": "In the menu, choose \"Show transcript\" or \"Transcript\".",
+      "body": "In the menu that opens, click the item named \"Show transcript\", \"Captions\", or \"Transcript\".",
+      "imageAlt": "YouTube menu showing the Show transcript option."
     },
-    "submit": "Get sign-up link by email",
-    "login": {
-      "question": "Already have an account?",
-      "link": "Sign in"
+
+    "step3": {
+      "title": "Select the entire transcript on the right and copy it.",
+      "tip1": "1. Click once on the first line of the transcript.",
+      "tip2Part1": "2. Scroll all the way down, then",
+      "tip2Highlight": "while holding the Shift key,",
+      "tip2Part2": "click the last line once to select the entire transcript.",
+      "tip3": "3. Press Ctrl + C (or ⌘ + C on Mac) to copy.",
+      "tipNote": "※ Using Ctrl + A selects the whole page, so we don’t recommend it when you only want the transcript.",
+      "imageAlt": "Selecting the entire transcript in the YouTube transcript panel."
+    },
+
+    "step4": {
+      "title": "Paste it into the input box on the left of this page.",
+      "body": "Click the \"Paste video script\" input area, then press Ctrl + V (or ⌘ + V on Mac) to paste. Now you’re ready.",
+      "imageAlt": "Pasting text into the video script input field."
+    },
+
+    "sectionB": {
+      "title": "Want to use subtitles or an editing tool instead?",
+      "description": "If you already have a project in progress, you can simply copy the text and paste it here."
+    },
+
+    "case1": {
+      "title": "Copying subtitles or script from an editor (Premiere, CapCut, etc.)",
+      "body": "Select all subtitle text from the timeline, copy it, and paste it into the input on the left."
+    },
+
+    "case2": {
+      "title": "Opening subtitle files (srt, vtt, etc.) as text",
+      "body": "Open the srt/vtt file in a text editor like Notepad. It will contain timestamps with dialogue. Copy the lines you need and paste them here."
+    },
+
+    "case3": {
+      "title": "Using a script document you’ve already written",
+      "body": "It doesn’t matter where your script lives—blog, Word, Notion, etc. Just copy the full text and paste it as-is."
+    },
+
+    "faq": {
+      "title": "Q. I don’t see a \"Show transcript\" / \"Transcript\" menu.",
+      "item1": "Some videos may hide the transcript at the creator’s choice.",
+      "item2": "There may be no subtitles at all, or it might be a live/real-time stream.",
+      "item3": "In that case, you’ll need to type it manually while listening, or use a separate subtitle generation tool."
     }
-  },
-  "slides": {
-    "slide1": "A special way to connect with your child",
-    "slide2": "How to invest in the age of AI",
-    "slide3": "The truth about salt",
-    "slide4": "How I overcame cancer",
-    "slide5": "What’s next for real estate prices?"
-  },
-  "carouselIntro": {
-    "title": "Too many videos you’re interested in, but no time to watch?",
-    "description": "All you need is a YouTube link. Brify analyzes the full video script and delivers only the essential insights — so you can understand long videos quickly."
   }
 }

@@ -1,5 +1,8 @@
+"use client";
+
 import { Icon } from "@iconify/react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 type ScriptHelpSectionProps = {
   isHelpOpen: boolean;
@@ -10,6 +13,8 @@ export default function ScriptHelpSection({
   isHelpOpen,
   onToggle,
 }: ScriptHelpSectionProps) {
+  const t = useTranslations("ScriptHelpSection");
+
   return (
     <section
       className={`
@@ -30,7 +35,7 @@ export default function ScriptHelpSection({
       >
         <div className="flex-1 flex flex-col items-start gap-1 min-w-0">
           <span className="text-[11px] px-2 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 dark:border-[rgb(var(--hero-b))]/40 dark:bg-white/5 dark:text-[rgb(var(--hero-b))]">
-            도움말
+            {t("badge")}
           </span>
           <h2
             className="
@@ -38,10 +43,10 @@ export default function ScriptHelpSection({
               whitespace-normal md:whitespace-wrap
             "
           >
-            영상 스크립트 가져오는 방법
+            {t("headerTitle")}
           </h2>
           <p className="text-[13px] md:text-sm text-neutral-500 dark:text-neutral-400">
-            YouTube 스크립트를 복사하는 방법을 안내해 드려요.
+            {t("headerSubtitle")}
           </p>
         </div>
 
@@ -69,11 +74,10 @@ export default function ScriptHelpSection({
             <div className="flex flex-col gap-3">
               <div>
                 <h3 className="text-sm md:text-[15px] font-semibold text-neutral-900 dark:text-neutral-50">
-                  YouTube에서 스크립트 가져오기 (PC 기준)
+                  {t("sectionA.title")}
                 </h3>
                 <p className="mt-1 text-[13px] md:text-sm text-neutral-500 dark:text-neutral-400">
-                  아래 순서를 천천히 따라오시면 1–2분 안에 스크립트를 가져오실
-                  수 있어요.
+                  {t("sectionA.description")}
                 </p>
               </div>
 
@@ -84,19 +88,15 @@ export default function ScriptHelpSection({
                 </div>
                 <div className="flex-1 flex flex-col gap-2">
                   <p className="font-medium text-neutral-900 dark:text-neutral-50">
-                    영상 아래의{" "}
-                    <span className="font-semibold">&quot;···&quot;</span> 또는{" "}
-                    <span className="font-semibold">&quot;더보기&quot;</span>{" "}
-                    버튼을 눌러 주세요.
+                    {t("step1.title")}
                   </p>
                   <p className="text-[13px] md:text-sm text-neutral-600 dark:text-neutral-400">
-                    영상 제목 아래, 좋아요/공유 버튼 옆에 있는 점 세 개(···)
-                    버튼 또는 &quot;더보기&quot; 버튼을 찾으시면 돼요.
+                    {t("step1.body")}
                   </p>
                   <div className="mt-1 overflow-hidden rounded-2xl border border-neutral-200/80 dark:border-white/15 bg-neutral-50/60 dark:bg-black/40">
                     <Image
                       src="/images/help/youtube-step1-watch-page.png"
-                      alt="YouTube 재생 화면에서 더보기(···) 버튼 위치 안내"
+                      alt={t("step1.imageAlt")}
                       width={640}
                       height={360}
                       className="w-full h-auto object-cover"
@@ -112,17 +112,15 @@ export default function ScriptHelpSection({
                 </div>
                 <div className="flex-1 flex flex-col gap-2">
                   <p className="font-medium text-neutral-900 dark:text-neutral-50">
-                    메뉴에서 <strong>&quot;대본 보기&quot;</strong> 또는{" "}
-                    <strong>&quot;Transcript&quot;</strong>를 선택해 주세요.
+                    {t("step2.title")}
                   </p>
                   <p className="text-[13px] md:text-sm text-neutral-600 dark:text-neutral-400">
-                    펼쳐진 메뉴 안에서 &quot;대본 보기&quot;, &quot;자막&quot;,
-                    &quot;Transcript&quot;와 같은 이름의 항목을 눌러 주세요.
+                    {t("step2.body")}
                   </p>
                   <div className="mt-1 overflow-hidden rounded-2xl border border-neutral-200/80 dark:border-white/15 bg-neutral-50/60 dark:bg-black/40">
                     <Image
                       src="/images/help/youtube-step2-menu.png"
-                      alt="YouTube 메뉴에서 대본 보기(Transcript) 선택 화면"
+                      alt={t("step2.imageAlt")}
                       width={640}
                       height={360}
                       className="w-full h-auto object-cover"
@@ -138,50 +136,44 @@ export default function ScriptHelpSection({
                 </div>
                 <div className="flex-1 flex flex-col gap-2">
                   <p className="font-medium text-neutral-900 dark:text-neutral-50">
-                    오른쪽에 열린 대본을 전체 선택해서 복사해 주세요.
+                    {t("step3.title")}
                   </p>
 
                   {/* 🔹 형광펜 느낌 하이라이트 박스 */}
                   <div
                     className="
-        mt-1 rounded-2xl border border-amber-100 bg-amber-50/80
-        px-3 py-2.5
-        shadow-[0_12px_30px_-24px_rgba(180,83,9,0.9)]
-        flex flex-col gap-1
-        text-[13px] md:text-sm text-neutral-700
-        dark:border-amber-400/60 dark:bg-amber-500/10 dark:text-neutral-200
-      "
+                      mt-1 rounded-2xl border border-amber-100 bg-amber-50/80
+                      px-3 py-2.5
+                      shadow-[0_12px_30px_-24px_rgba(180,83,9,0.9)]
+                      flex flex-col gap-1
+                      text-[13px] md:text-sm text-neutral-700
+                      dark:border-amber-400/60 dark:bg-amber-500/10 dark:text-neutral-200
+                    "
                   >
-                    <p>1. 대본 첫 줄을 한 번 클릭합니다.</p>
+                    <p>{t("step3.tip1")}</p>
                     <p>
-                      2. 스크롤로 맨 아래까지 내린 뒤,{" "}
+                      {t("step3.tip2Part1")}{" "}
                       <span
                         className="
-            relative inline-block px-1 rounded
-            bg-amber-200/70 dark:bg-amber-400/40
-            font-semibold
-          "
+                          relative inline-block px-1 rounded
+                          bg-amber-200/70 dark:bg-amber-400/40
+                          font-semibold
+                        "
                       >
-                        반드시 Shift 키를 누른 상태에서
+                        {t("step3.tip2Highlight")}
                       </span>{" "}
-                      마지막 줄을 한 번 클릭하면 대본 전체가 선택돼요.
+                      {t("step3.tip2Part2")}
                     </p>
-                    <p>
-                      3. 그런 다음 <span className="font-medium">Ctrl + C</span>{" "}
-                      (Mac은 <span className="font-medium">⌘ + C</span>)를 눌러
-                      복사해 주세요.
-                    </p>
+                    <p>{t("step3.tip3")}</p>
                     <p className="mt-1 text-[12px] md:text-[13px] text-neutral-600 dark:text-neutral-300">
-                      ※ <span className="font-medium">Ctrl + A</span>는 페이지
-                      전체를 선택해 버려서, 대본만 복사할 때는 사용하지 않는 걸
-                      추천드려요.
+                      {t("step3.tipNote")}
                     </p>
                   </div>
 
                   <div className="mt-1 overflow-hidden rounded-2xl border border-neutral-200/80 dark:border-white/15 bg-neutral-50/60 dark:bg-black/40">
                     <Image
                       src="/images/help/youtube-step3-transcript.png"
-                      alt="YouTube Transcript 패널 전체 선택 화면"
+                      alt={t("step3.imageAlt")}
                       width={640}
                       height={360}
                       className="w-full h-auto object-cover"
@@ -197,18 +189,15 @@ export default function ScriptHelpSection({
                 </div>
                 <div className="flex-1 flex flex-col gap-2">
                   <p className="font-medium text-neutral-900 dark:text-neutral-50">
-                    이 페이지의 <strong>왼쪽 입력창</strong>에 붙여넣어 주세요.
+                    {t("step4.title")}
                   </p>
                   <p className="text-[13px] md:text-sm text-neutral-600 dark:text-neutral-400">
-                    &quot;영상 스크립트 붙여넣기&quot; 입력창을 클릭하신 뒤,{" "}
-                    <span className="font-medium">Ctrl + V</span> (Mac은{" "}
-                    <span className="font-medium">⌘ + V</span>)로 붙여넣어
-                    주시면 준비가 완료돼요.
+                    {t("step4.body")}
                   </p>
                   <div className="mt-1 overflow-hidden rounded-2xl border border-neutral-200/80 dark:border-white/15 bg-neutral-50/60 dark:bg-black/40">
                     <Image
                       src="/images/help/youtube-step4-paste.png"
-                      alt="영상 스크립트 붙여넣기 입력창에 텍스트를 붙여넣는 화면"
+                      alt={t("step4.imageAlt")}
                       width={640}
                       height={160}
                       className="w-full h-auto object-cover"
@@ -225,11 +214,10 @@ export default function ScriptHelpSection({
             <div className="flex flex-col gap-3">
               <div>
                 <h3 className="text-sm md:text-[15px] font-semibold text-neutral-900 dark:text-neutral-50">
-                  자막 파일이나 편집툴에서 가져오고 싶으신가요?
+                  {t("sectionB.title")}
                 </h3>
                 <p className="mt-1 text-[13px] md:text-sm text-neutral-500 dark:text-neutral-400">
-                  이미 작업 중인 프로젝트가 있어도, 텍스트만 복사해서 그대로
-                  붙여넣으시면 괜찮아요.
+                  {t("sectionB.description")}
                 </p>
               </div>
 
@@ -241,11 +229,10 @@ export default function ScriptHelpSection({
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-[12px] md:text-[13px] text-neutral-900 dark:text-neutral-50">
-                      편집툴(프리미어, 캡컷 등)에서 자막·대본 복사
+                      {t("case1.title")}
                     </p>
                     <p className="mt-0.5 text-[13px] md:text-sm text-neutral-600 dark:text-neutral-400">
-                      타임라인에 있는 자막 텍스트를 전체 선택해서 복사한 뒤,
-                      왼쪽 입력창에 붙여넣어 주세요.
+                      {t("case1.body")}
                     </p>
                   </div>
                 </div>
@@ -257,12 +244,10 @@ export default function ScriptHelpSection({
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-[12px] md:text-[13px] text-neutral-900 dark:text-neutral-50">
-                      자막 파일(srt, vtt 등)을 텍스트로 열기
+                      {t("case2.title")}
                     </p>
                     <p className="mt-0.5 text-[13px] md:text-sm text-neutral-600 dark:text-neutral-400">
-                      srt·vtt 파일을 메모장/텍스트 편집기로 열면 시간 정보와
-                      함께 대사가 들어 있어요. 필요한 부분의 대사 텍스트를
-                      복사해서 붙여넣어 주시면 돼요.
+                      {t("case2.body")}
                     </p>
                   </div>
                 </div>
@@ -274,12 +259,10 @@ export default function ScriptHelpSection({
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-[12px] md:text-[13px] text-neutral-900 dark:text-neutral-50">
-                      이미 정리해 두신 스크립트 문서 사용
+                      {t("case3.title")}
                     </p>
                     <p className="mt-0.5 text-[13px] md:text-sm text-neutral-600 dark:text-neutral-400">
-                      블로그, 워드, 노션 등 어디에 적어 두신 스크립트든
-                      상관없어요. 전체 텍스트를 복사해서 그대로 붙여넣어 주시면
-                      됩니다.
+                      {t("case3.body")}
                     </p>
                   </div>
                 </div>
@@ -292,21 +275,12 @@ export default function ScriptHelpSection({
             {/* 블럭 C: 작은 FAQ / 팁 */}
             <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50/80 p-3 text-[13px] md:text-sm text-neutral-700 dark:border-white/15 dark:bg-white/5 dark:text-neutral-200">
               <p className="font-semibold text-neutral-900 dark:text-neutral-50 mb-1">
-                Q. &quot;대본 보기&quot; / &quot;Transcript&quot; 메뉴가 안
-                보여요.
+                {t("faq.title")}
               </p>
               <ul className="list-disc list-inside flex flex-col gap-0.5">
-                <li>
-                  일부 영상은 제작자가 대본 노출을 막아 둔 경우일 수 있어요.
-                </li>
-                <li>
-                  자막이 아예 없는 영상이거나, 라이브/실시간 스트리밍 영상일
-                  수도 있어요.
-                </li>
-                <li>
-                  이런 경우에는 직접 들으면서 정리하시거나, 별도의 자막 생성
-                  도구를 사용해 보셔야 해요.
-                </li>
+                <li>{t("faq.item1")}</li>
+                <li>{t("faq.item2")}</li>
+                <li>{t("faq.item3")}</li>
               </ul>
             </div>
           </div>
