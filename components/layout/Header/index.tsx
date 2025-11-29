@@ -2,6 +2,7 @@
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/utils/supabase/server";
 import ClientHeaderShell from "./ClientHeaderShell";
+import SupabaseAuthListener from "./SupabaseAuthListener";
 
 export default async function Header() {
   const supabase = await createClient();
@@ -13,5 +14,10 @@ export default async function Header() {
   const email = session?.user?.email ?? null;
 
   // 필요하면 여기에 서버에서 미리 불러올 내비 아이템을 구성해서 넘겨도 됨
-  return <ClientHeaderShell isAuthed={isAuthed} email={email} />;
+  return (
+    <>
+      <ClientHeaderShell isAuthed={isAuthed} email={email} />
+      <SupabaseAuthListener />
+    </>
+  );
 }

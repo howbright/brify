@@ -94,30 +94,41 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
           </nav>
 
           {/* 우측 액션 */}
+          {/* 우측 액션 */}
           <div className="hidden md:flex items-center gap-3">
             <LanguageSelector />
             <ThemeToggle />
+
             {!isAuthed ? (
-              <>
-                <Link
-                  href="/pricing"
-                  className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
-                >
-                  가격
-                </Link>
+              <div className="flex items-center gap-2">
+                {/* 로그인: 텍스트 링크 스타일 */}
                 <Link
                   href="/login"
-                  className="text-sm px-4 py-2 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 hover:shadow-lg transition-transform hover:scale-[1.03] active:scale-100"
+                  className="
+                    text-sm text-neutral-700 dark:text-neutral-200
+                    hover:text-neutral-900 dark:hover:text-white
+                    underline-offset-4 hover:underline
+                    transition-colors
+                  "
                 >
                   로그인
                 </Link>
+
+                {/* 회원가입: 메인 CTA 버튼 */}
                 <Link
                   href="/signup"
-                  className="text-sm px-4 py-2 rounded-full bg-blue-600 text-white hover:shadow-lg transition-transform hover:scale-[1.03] active:scale-100"
+                  className="
+                    text-sm px-4 py-2 rounded-full
+                    bg-blue-600 text-white
+                    hover:bg-blue-700
+                    hover:shadow-lg
+                    transition-transform hover:scale-[1.03] active:scale-100
+                    dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+                  "
                 >
-                  회원가입
+                  무료로 시작하기
                 </Link>
-              </>
+              </div>
             ) : (
               <ClientUserMenu email={email} />
             )}
