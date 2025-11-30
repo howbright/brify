@@ -1,5 +1,6 @@
 // components/layout/Header/ClientUserMenu.tsx (Client Component)
 "use client";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +11,10 @@ import {
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
+// ⬇️ 추가
+import LanguageSelector from "@/components/LanguageSelector";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function ClientUserMenu({ email }: { email: string | null }) {
   const [mounted, setMounted] = useState(false);
@@ -23,10 +28,7 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
         cache: "no-store",
       });
     } finally {
-      // 쿠키가 정리된 뒤 RSC 스냅샷 갱신
       router.refresh();
-      // 원한다면 홈으로 보내기:
-      // router.replace("/");
     }
   }
 
@@ -46,7 +48,21 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
           <Icon icon="mdi:chevron-down" width={20} />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+
+      {/* ⬇️ 살짝 넓혀줌 */}
+      <DropdownMenuContent
+        align="end"
+        sideOffset={8}
+        className="
+          w-64 rounded-2xl
+          border border-white/70 dark:border-white/20
+          bg-white/95 dark:bg-black/95
+          shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)]
+          backdrop-blur-md
+          p-1.5
+        "
+      >
+        {/* 메인 메뉴 */}
         <DropdownMenuItem onClick={() => router.push("/summarize")}>
           핵심정리
         </DropdownMenuItem>
@@ -56,11 +72,29 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
         <DropdownMenuItem onClick={() => router.push("/account")}>
           계정 설정
         </DropdownMenuItem>
+
         <DropdownMenuSeparator />
+
+        {/* 🔥 테마 / 언어 영역 추가 */}
+        <div className="px-2 py-1.5 space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-muted-foreground">테마</span>
+            {/* 그대로 재사용 */}
+            <ThemeToggle />
+          </div>
+          <div className="space-y-1">
+            <div className="text-xs text-muted-foreground">언어</div>
+            {/* 기존 LanguageSelector 그대로 */}
+            <LanguageSelector />
+          </div>
+        </div>
+
+        <DropdownMenuSeparator />
+
+        {/* 로그아웃 */}
         <DropdownMenuItem
-          // Radix는 onClick보다 onSelect가 확실합니다.
           onSelect={(e) => {
-            e.preventDefault(); // 드롭다운 기본 처리와 충돌 방지
+            e.preventDefault();
             handleSignOut();
           }}
         >
