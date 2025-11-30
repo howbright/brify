@@ -23,30 +23,19 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // "/", "/ko", "/en" 같은 루트 성격 페이지는 hero 위에 떠 있는 느낌 유지
   const homeLikePaths = ["/", "/ko", "/en"];
   const isHomeLike = homeLikePaths.includes(pathname);
 
-  // ✅ 상세 페이지 첫 상태에서도 다크모드 그라데이션 적용되도록 수정
   const headerClassName = [
     "fixed top-0 inset-x-0 z-40 transition-all",
     scrolled
-      ? // 스크롤된 상태: 공통
-        "bg-white/90 dark:bg-neutral-900/80 backdrop-blur-md border-b border-black/10 dark:border-white/10 shadow-sm"
+      ? "bg-white/90 dark:bg-neutral-900/80 backdrop-blur-md border-b border-black/10 dark:border-white/10 shadow-sm"
       : isHomeLike
-      ? // 홈 상단: 투명 헤더
-        "bg-transparent dark:bg-neutral-950/45 dark:backdrop-blur supports-[backdrop-filter]:dark:bg-neutral-950/35 dark:border-b dark:border-white/10"
-      : // 상세 페이지 상단: 라이트/다크 그라데이션 바
-        [
+      ? "bg-transparent dark:bg-neutral-950/45 dark:backdrop-blur supports-[backdrop-filter]:dark:bg-neutral-950/35 dark:border-b dark:border-white/10"
+      : [
           "backdrop-blur-md border-b border-black/5 dark:border-white/10",
-
-          // 라이트: 파란 기조의 살짝 비치는 헤더
           "bg-[radial-gradient(circle_at_0%_0%,rgba(59,130,246,0.16),transparent_56%),radial-gradient(circle_at_100%_0%,rgba(129,140,248,0.18),transparent_56%),linear-gradient(90deg,rgba(255,255,255,0.98),rgba(239,246,255,0.98),rgba(255,255,255,0.98))]",
-
-          // 🔥 다크: 먼저 진한 남색 배경색을 깔고
           "dark:bg-[#020617]",
-
-          // 🔥 그 위에 파란 그라데이션을 background-image로만 올려줌
           "dark:bg-[radial-gradient(circle_at_0%_0%,rgba(59,130,246,0.45),transparent_60%),radial-gradient(circle_at_100%_0%,rgba(129,140,248,0.5),transparent_60%)]",
         ].join(" "),
   ].join(" ");
@@ -57,7 +46,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
         <div className="flex h-[64px] items-center justify-between">
           {/* 좌측 로고 */}
           <Link href="/" className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-2xl bg-white/90 dark:bg-white/10 shadow-md flex items-center justify-center transition-transform hover:scale-[1.03]">
+            <div className="h-9 w-9 rounded-2xl bg-white/90 dark:bg:white/10 shadow-md flex items-center justify-center transition-transform hover:scale-[1.03]">
               <span className="font-black text-blue-600">B</span>
             </div>
             <span className="font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
@@ -67,33 +56,41 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
 
           {/* 가운데 내비 — lg 이상에서만 */}
           <nav className="hidden lg:flex items-center gap-2">
-            <Link
-              href="/video-to-map"
-              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
-            >
-              영상을 구조맵로 변환
-            </Link>
-            <Link
-              href="/pricing"
-              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
-            >
-              가격
-            </Link>
-            <Link
-              href="/my-summaries"
-              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
-            >
-              나의 스크랩북
-            </Link>
-            <Link
-              href="/tags"
-              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
-            >
-              태그
-            </Link>
+            {!isAuthed ? (
+              <>
+                {/* 비로그인: 샘플 + 가격만 */}
+                <Link
+                  href="/samples" // 필요하면 실제 샘플 페이지 경로로 수정
+                  className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+                >
+                  구조맵 샘플
+                </Link>
+                <Link
+                  href="/pricing"
+                  className="text-sm px-3 py-2 rounded-full bg:white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+                >
+                  가격
+                </Link>
+              </>
+            ) : (
+              <>
+                {/* 로그인 후: 필요하면 핵심 기능 메뉴들 배치 */}
+                <Link
+                  href="/video-to-map"
+                  className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg:white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+                >
+                  영상을 구조맵로 변환
+                </Link>
+                <Link
+                  href="/pricing"
+                  className="text-sm px-3 py-2 rounded-full bg:white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+                >
+                  가격
+                </Link>
+              </>
+            )}
           </nav>
 
-          {/* 우측 액션 */}
           {/* 우측 액션 */}
           <div className="hidden md:flex items-center gap-3">
             <LanguageSelector />
@@ -123,14 +120,30 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                     hover:bg-blue-700
                     hover:shadow-lg
                     transition-transform hover:scale-[1.03] active:scale-100
-                    dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+                    dark:bg-[rgb(var(--hero-a))] dark:hover:bg:[rgb(var(--hero-b))]
                   "
                 >
                   무료로 시작하기
                 </Link>
               </div>
             ) : (
-              <ClientUserMenu email={email} />
+              <>
+                {/* 로그인 후: '나의 맵' 버튼 + 유저 메뉴 */}
+                <Link
+                  href="/my-summaries" // 혹은 /my-maps 등 실제 경로
+                  className="
+                    text-sm px-4 py-2 rounded-full
+                    bg-blue-600 text-white
+                    hover:bg-blue-700
+                    hover:shadow-lg
+                    transition-transform hover:scale-[1.03] active:scale-100
+                    dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+                  "
+                >
+                  나의 맵
+                </Link>
+                <ClientUserMenu email={email} />
+              </>
             )}
           </div>
 
@@ -140,6 +153,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
               isAuthed={isAuthed}
               email={email}
               navItems={[
+                // TODO: 여기도 나중에 비로그인/로그인에 따라 샘플/나의 맵 등 분기해도 좋음
                 {
                   href: "/summarize",
                   label: "핵심정리하기",
