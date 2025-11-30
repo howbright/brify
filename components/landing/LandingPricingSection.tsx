@@ -3,19 +3,54 @@
 
 import PricingGrid, { Pack } from "@/components/pricing/PricingGrid";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 type Props = {
   isAuthed: boolean;
   packs?: Pack[]; // 안 넘기면 기본 팩 사용
 };
 
-const DEFAULT_PACKS: Pack[] = [
-  { id: "50", credits: 50, priceUSD: 5, starter: true, badgeText: "Starter", tagline: "Try & keep" },
-  { id: "300", credits: 300, priceUSD: 25, popular: true, bonusPercent: 10, badgeText: "Best value" },
-  { id: "1000", credits: 1000, priceUSD: 70 },
-];
+export default function LandingPricingSection({ isAuthed, packs }: Props) {
+  const t = useTranslations("LandingPricingSection");
 
-export default function LandingPricingSection({ isAuthed, packs = DEFAULT_PACKS }: Props) {
+  // i18n 적용된 기본 팩
+  const defaultPacks: Pack[] = [
+    {
+      id: "50",
+      credits: 50,
+      priceUSD: 5,
+      starter: true,
+      badgeText: t("packs.50.badgeText"),
+      tagline: t("packs.50.tagline"),
+    },
+    {
+      id: "300",
+      credits: 300,
+      priceUSD: 25,
+      popular: true,
+      bonusPercent: 10,
+      badgeText: t("packs.300.badgeText"),
+      tagline: t("packs.300.tagline"),
+    },
+    {
+      id: "1000",
+      credits: 1000,
+      priceUSD: 70,
+      badgeText: t("packs.1000.badgeText"),
+      tagline: t("packs.1000.tagline"),
+    },
+  ];
+
+  const effectivePacks = packs ?? defaultPacks;
+
+  const creditRule = {
+    items: [
+      { threshold: t("creditRule.items.small.threshold"), credits: 1 },
+      { threshold: t("creditRule.items.medium.threshold"), credits: 2 },
+      { threshold: t("creditRule.items.large.threshold"), credits: 3 },
+    ],
+  };
+
   return (
     <section className="relative overflow-hidden">
       {/* ==== BG (Light) ==== */}
@@ -76,10 +111,10 @@ export default function LandingPricingSection({ isAuthed, packs = DEFAULT_PACKS 
       <div className="mx-auto w-full max-w-6xl px-4 py-14 md:py-18">
         <div className="text-center">
           <h2 className="text-2xl md:text-3xl font-semibold text-[var(--color-text)]">
-            Simple, fair pricing
+            {t("title")}
           </h2>
           <p className="mt-2 text-[color-mix(in_oklab,var(--color-foreground),transparent_35%)]">
-            Pay-as-you-go credits. No subscriptions.
+            {t("subtitle")}
           </p>
         </div>
 
@@ -94,23 +129,17 @@ export default function LandingPricingSection({ isAuthed, packs = DEFAULT_PACKS 
         >
           <div className="p-4 md:p-6">
             <PricingGrid
-              packs={packs}
+              packs={effectivePacks}
               isAuthed={isAuthed}
               signedInHref="/billing"
               signedOutHref="/login"
               variant="compact"
               showFooterNote={false}
               showPositioning
-              positioningText="No subscription — pay only what you use."
+              positioningText={t("positioningText")}
               showRefundBadge
-              refundText="Refunds on unused credits (7 days)."
-              creditRule={{
-                items: [
-                  { threshold: "≤ 15k tokens", credits: 1 },
-                  { threshold: "≤ 50k tokens", credits: 2 },
-                  { threshold: "≤ 100k tokens", credits: 3 },
-                ],
-              }}
+              refundText={t("refundText")}
+              creditRule={creditRule}
             />
           </div>
         </div>
@@ -126,7 +155,7 @@ export default function LandingPricingSection({ isAuthed, packs = DEFAULT_PACKS 
               hover:bg-[var(--color-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]
             "
           >
-            See all pricing details
+            {t("seeDetails")}
           </Link>
         </div>
       </div>

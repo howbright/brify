@@ -195,5 +195,86 @@
     "label": "Creator",
     "name": "Lina Lee",
     "quote": "“There’s always more to watch than there is time.\nI’d finish a video thinking it was incredibly helpful, but by the evening <strong>I could barely remember half of it</strong>.\nI kept telling myself I’d <highlight>come back to it later</highlight>, and of course many of those videos just disappeared into the backlog.\nWith <strong>health</strong>, <strong>kids’ education</strong>, and <strong>personal finance</strong> all competing for attention, it became even easier to lose track.\nSo I <heavy>built a tool myself</heavy>. When you save what you just watched as a <strong>“structure map”</strong>, you can reopen it later and still see the <strong>flow and the key points</strong> at a glance.”"
+  },
+  "LandingPricingSection": {
+    "title": "Simple, fair pricing",
+    "subtitle": "Pay-as-you-go credits. No subscriptions.",
+    "positioningText": "No subscription — pay only what you use.",
+    "refundText": "Refunds on unused credits (within 7 days).",
+    "seeDetails": "See all pricing details",
+    "packs": {
+      "50": {
+        "badgeText": "Starter",
+        "tagline": "Perfect to try and keep"
+      },
+      "300": {
+        "badgeText": "Best value",
+        "tagline": "Most popular for regular use"
+      },
+      "1000": {
+        "badgeText": "Power user",
+        "tagline": "For teams and heavy users"
+      }
+    },
+    "creditRule": {
+      "items": {
+        "small": {
+          "threshold": "≤ 15k tokens"
+        },
+        "medium": {
+          "threshold": "≤ 50k tokens"
+        },
+        "large": {
+          "threshold": "≤ 100k tokens"
+        }
+      }
+    }
+  },
+  "PricingGrid": {
+    "cta": {
+      "signedIn": "Buy now",
+      "signedOut": "Sign in to buy"
+    },
+    "badge": {
+      "mostPopular": "Most popular",
+      "starter": "Starter"
+    },
+    "units": {
+      "credits": "credits",
+      "perCredit": "/ credit"
+    },
+    "unit": {
+      "effective": "effective"
+    },
+    "bonus": {
+      "tag": "bonus"
+    },
+    "refund": {
+      "text": "Full refund within 7 days · pro-rated by WAPR afterwards"
+    },
+    "refundTooltip": {
+      "title": "Refund policy",
+      "ariaLabel": "View refund policy details",
+      "linkLabel": "View details",
+      "line1": "Within 7 days: full refund",
+      "line2": "After 7 days: unused paid credits × min(WAPR, $0.10)",
+      "line3": "Bonus credits excluded; per-LOT cap to prevent over-refund"
+    },
+    "footer": {
+      "note": "Payments are processed in USD via LemonSqueezy."
+    },
+    "creditRule": {
+      "label": "Long inputs may use extra credits.",
+      "itemSuffix": "→ {credits, plural, one {# credit} other {# credits}}"
+    },
+    "toggles": {
+      "details": "Details",
+      "hide": "Hide"
+    },
+    "reassurance": {
+      "line1": "1 credit is enough for most structure maps.",
+      "line2": "Only very long scripts may need 2–3 credits."
+    },
+    "positioningText": "No subscription — pay only what you use."
   }
 }

@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import * as Tooltip from "@radix-ui/react-tooltip";
+import { useTranslations } from "next-intl";
 
 export type Pack = {
   id: string;
@@ -30,30 +31,30 @@ type Props = {
   isAuthed: boolean;
   signedInHref?: string; // 기본: /billing
   signedOutHref?: string; // 기본: /login
-  signedInLabel?: string; // 기본: "Buy now"
-  signedOutLabel?: string; // 기본: "Sign in to buy"
+  signedInLabel?: string; // 기본: i18n("PricingGrid.cta.signedIn")
+  signedOutLabel?: string; // 기본: i18n("PricingGrid.cta.signedOut")
   showFooterNote?: boolean;
   variant?: "default" | "compact";
   className?: string;
 
   // 포지셔닝/환불 배지
   showPositioning?: boolean;
-  positioningText?: string; // 기본: "No subscription — pay only what you use."
+  positioningText?: string; // 기본: i18n("PricingGrid.positioningText")
   showRefundBadge?: boolean;
-  refundText?: string; // 기본: "7일 이내 전액 환불 · 이후 WAPR 비례 환불"
+  refundText?: string; // 기본: i18n("PricingGrid.refund.text")
 
   // ✅ 환불 정책 링크 + 툴팁 라인
   refundPolicyHref?: string; // 기본: "/refund-policy"
-  refundTooltipLines?: string[]; // 기본 아래 참고
+  refundTooltipLines?: string[]; // 기본: i18n("PricingGrid.refundTooltip.*")
 
   // 장문 멀티크레딧 규칙(토글로 펼침)
   creditRule?: CreditRule;
-  detailsLabel?: string; // 기본: "Details"
+  detailsLabel?: string; // 기본: i18n("PricingGrid.toggles.details")
   showCreditRuleByDefault?: boolean; // 기본: false
 
   // 안심 카피(“대부분 1 크레딧이면 충분”)
   showReassurance?: boolean; // 기본: true
-  reassuranceLines?: string[]; // 기본 문구 제공(아래 디폴트 참고)
+  reassuranceLines?: string[]; // 기본: i18n("PricingGrid.reassurance.*")
 };
 
 function usd(n: number) {
@@ -72,32 +73,45 @@ export default function PricingGrid({
   isAuthed,
   signedInHref = "/billing",
   signedOutHref = "/login",
-  signedInLabel = "Buy now",
-  signedOutLabel = "Sign in to buy",
+  signedInLabel,
+  signedOutLabel,
   showFooterNote = true,
   variant = "default",
   className = "",
   showPositioning = true,
-  positioningText = "No subscription — pay only what you use.",
+  positioningText,
   showRefundBadge = true,
-  refundText = "7일 이내 전액 환불 · 이후 WAPR 비례 환불",
+  refundText,
   refundPolicyHref = "/refund-policy",
-  refundTooltipLines = [
-    "7일 이내: 전액 환불",
-    "7일 이후: 미사용 ‘유상’ × min(WAPR, $0.10)",
-    "보너스 제외, LOT별 과환불 방지 cap 적용",
-  ],
+  refundTooltipLines,
   creditRule,
-  detailsLabel = "Details",
+  detailsLabel,
   showCreditRuleByDefault = false,
   showReassurance = true,
-  reassuranceLines = [
-    "대부분의 스크립트는 1 크레딧이면 충분해요.",
-    "아주 긴 스크립트만 2–3 크레딧이 필요할 수 있어요.",
-  ],
+  reassuranceLines,
 }: Props) {
+  const t = useTranslations("PricingGrid");
   const isCompact = variant === "compact";
   const [openDetails, setOpenDetails] = useState(showCreditRuleByDefault);
+
+  // i18n fallback들
+  const labelSignedIn = signedInLabel ?? t("cta.signedIn");
+  const labelSignedOut = signedOutLabel ?? t("cta.signedOut");
+  const labelPositioning = positioningText ?? t("positioningText");
+  const textRefund = refundText ?? t("refund.text");
+
+  const tooltipLines =
+    refundTooltipLines ??
+    [
+      t("refundTooltip.line1"),
+      t("refundTooltip.line2"),
+      t("refundTooltip.line3"),
+    ];
+
+  const labelDetails = detailsLabel ?? t("toggles.details");
+
+  const reassurance =
+    reassuranceLines ?? [t("reassurance.line1"), t("reassurance.line2")];
 
   const ctaBtn =
     "block w-full rounded-[var(--radius-lg)] px-4 py-2.5 text-center text-sm font-medium shadow-sm " +
@@ -122,7 +136,7 @@ export default function PricingGrid({
         >
           {showPositioning && (
             <span className="inline-flex items-center rounded-full border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1 text-xs text-[var(--color-muted-foreground)]">
-              {positioningText}
+              {labelPositioning}
             </span>
           )}
 
@@ -133,9 +147,9 @@ export default function PricingGrid({
                   <button
                     type="button"
                     className="inline-flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1 text-xs text-[var(--color-muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
-                    aria-label="환불 정책 자세히 보기"
+                    aria-label={t("refundTooltip.ariaLabel")}
                   >
-                    {refundText}
+                    {textRefund}
                     <span
                       className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full border border-[var(--color-border)] text-[var(--color-muted-foreground)]"
                       aria-hidden
@@ -149,22 +163,19 @@ export default function PricingGrid({
                   side="bottom"
                   align="center"
                   className="
-    z-50 max-w-[300px] rounded-md
-    /* ✅ border: var() 폴백 + 라이트/다크 보강 */
-    border border-[var(--color-border,#e5e7eb)] dark:border-[var(--color-border,#1f2937)]
-    /* ✅ bg: var() 폴백 + 라이트/다크 보강 */
-    bg-[var(--color-card,#ffffff)] dark:bg-[var(--color-card,#0b1224)]
-    /* 텍스트도 폴백 */
-    text-[var(--color-muted-foreground,#334155)] dark:text-[var(--color-muted-foreground,#cbd5e1)]
-    px-3 py-2 text-xs shadow-md
-    supports-[backdrop-filter]:backdrop-blur-[2px]
-  "
+                    z-50 max-w-[300px] rounded-md
+                    border border-[var(--color-border,#e5e7eb)] dark:border-[var(--color-border,#1f2937)]
+                    bg-[var(--color-card,#ffffff)] dark:bg-[var(--color-card,#0b1224)]
+                    text-[var(--color-muted-foreground,#334155)] dark:text-[var(--color-muted-foreground,#cbd5e1)]
+                    px-3 py-2 text-xs shadow-md
+                    supports-[backdrop-filter]:backdrop-blur-[2px]
+                  "
                 >
                   <div className="font-medium text-[var(--color-foreground)] mb-1">
-                    환불 정책
+                    {t("refundTooltip.title")}
                   </div>
                   <ul className="list-disc pl-4 space-y-1">
-                    {refundTooltipLines.map((line, i) => (
+                    {tooltipLines.map((line, i) => (
                       <li key={i}>{line}</li>
                     ))}
                   </ul>
@@ -172,7 +183,7 @@ export default function PricingGrid({
                     href={refundPolicyHref}
                     className="mt-2 inline-block underline text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)]"
                   >
-                    자세히 보기
+                    {t("refundTooltip.linkLabel")}
                   </Link>
                   <Tooltip.Arrow className="fill-[var(--color-card)]" />
                 </Tooltip.Content>
@@ -182,7 +193,7 @@ export default function PricingGrid({
         </div>
       )}
 
-      {/* 안심 카피 배너 (토큰 수치 없이 안내) */}
+      {/* 안심 카피 배너 */}
       {showReassurance && (
         <div className={cx("mb-4", isCompact && "mx-auto max-w-3xl")}>
           <div className="flex flex-col items-center gap-2 text-center">
@@ -199,20 +210,22 @@ export default function PricingGrid({
               )}
             >
               <strong className="font-extrabold">
-                '구조맵'로 정리 1건당 1 크레딧이면 충분해요.
+                {reassurance[0]}
               </strong>
             </p>
 
             {/* 서브 1줄 */}
-            <p
-              className={cx(
-                "text-xs sm:text-sm leading-relaxed",
-                "text-[var(--color-muted-foreground)]",
-                "dark:text-neutral-200"
-              )}
-            >
-              아주 긴 스크립트만 2–3 크레딧이 필요할 수 있어요.
-            </p>
+            {reassurance[1] && (
+              <p
+                className={cx(
+                  "text-xs sm:text-sm leading-relaxed",
+                  "text-[var(--color-muted-foreground)]",
+                  "dark:text-neutral-200"
+                )}
+              >
+                {reassurance[1]}
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -230,7 +243,11 @@ export default function PricingGrid({
 
           const badge =
             p.badgeText ??
-            (p.popular ? "Most popular" : p.starter ? "Starter" : "");
+            (p.popular
+              ? t("badge.mostPopular")
+              : p.starter
+              ? t("badge.starter")
+              : "");
 
           return (
             <div
@@ -281,27 +298,29 @@ export default function PricingGrid({
                 )}
               >
                 {p.credits.toLocaleString()}{" "}
-                <span className="text-base font-medium text-[color-mix(in_oklab,var(--color-foreground),transparent 40%)]">
-                  credits
+                <span className="text-base font-medium text-[color-mix(in_oklab,var(--color-foreground),transparent_40%)]">
+                  {t("units.credits")}
                 </span>
                 {(p.bonusPercent || p.bonusCredits) && (
                   <span className="ml-2 align-middle text-xs font-semibold text-[var(--color-primary-700)]">
-                    +{totalBonus.toLocaleString()} bonus
+                    +{totalBonus.toLocaleString()} {t("bonus.tag")}
                   </span>
                 )}
               </div>
-              <div className="mt-1 text-[color-mix(in_oklab,var(--color-foreground),transparent 20%)]">
+              <div className="mt-1 text-[color-mix(in_oklab,var(--color-foreground),transparent_20%)]">
                 {usd(p.priceUSD)}
               </div>
 
               {/* 단가 표기(기본 + 실효) */}
               <div className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-                ≈ {usd(unit)} / credit
+                ≈ {usd(unit)} {t("units.perCredit")}
                 {(p.bonusPercent || p.bonusCredits) && (
                   <span className="ml-1">
                     <span className="opacity-70">·</span>{" "}
-                    <span className="opacity-90">effective</span>{" "}
-                    {usd(effectiveUnit)} / credit
+                    <span className="opacity-90">
+                      {t("unit.effective")} {usd(effectiveUnit)}{" "}
+                      {t("units.perCredit")}
+                    </span>
                   </span>
                 )}
               </div>
@@ -312,11 +331,11 @@ export default function PricingGrid({
               {/* CTA */}
               {isAuthed ? (
                 <Link href={signedInHref} className={ctaBtn}>
-                  {signedInLabel}
+                  {labelSignedIn}
                 </Link>
               ) : (
                 <Link href={signedOutHref} className={ctaBtn}>
-                  {signedOutLabel}
+                  {labelSignedOut}
                 </Link>
               )}
 
@@ -327,7 +346,7 @@ export default function PricingGrid({
                     "text-xs text-[var(--color-muted-foreground)]"
                   )}
                 >
-                  Payments in USD via LemonSqueezy.
+                  {t("footer.note")}
                 </div>
               )}
             </div>
@@ -340,19 +359,19 @@ export default function PricingGrid({
         <div className="mt-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-4">
           <div className="flex items-center justify-between">
             <div className="text-sm font-medium text-[var(--color-text)]">
-              {creditRule.label ?? "Long inputs may use extra credits"}
+              {creditRule.label ?? t("creditRule.label")}
             </div>
             <button
               type="button"
               onClick={() => setOpenDetails((v) => !v)}
               className="text-xs px-2 py-1 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-muted)] text-[var(--color-foreground)]"
             >
-              {openDetails ? "Hide" : detailsLabel}
+              {openDetails ? t("toggles.hide") : labelDetails}
             </button>
           </div>
 
           {openDetails && (
-            <ul className="mt-2 grid gap-1 text-xs text-[color-mix(in_oklab,var(--color-foreground),transparent 20%)] sm:grid-cols-3">
+            <ul className="mt-2 grid gap-1 text-xs text-[color-mix(in_oklab,var(--color-foreground),transparent_20%)] sm:grid-cols-3">
               {creditRule.items.map((it, idx) => (
                 <li key={idx} className="flex items-center gap-2">
                   <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
@@ -360,8 +379,7 @@ export default function PricingGrid({
                     <span className="text-[var(--color-foreground)]">
                       {it.threshold}
                     </span>{" "}
-                    → {it.credits} credit
-                    {it.credits > 1 ? "s" : ""}
+                    {t("creditRule.itemSuffix", { credits: it.credits })}
                   </span>
                 </li>
               ))}
