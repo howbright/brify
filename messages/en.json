@@ -189,5 +189,11 @@
   "loginPage": {
     "brand": "Brify",
     "tagline": "Sign in to continue working on your structure maps."
+  },
+  "CreatorSection": {
+    "imageAlt": "Creator of Brify",
+    "label": "Creator",
+    "name": "Lina Lee",
+    "quote": "“There’s always more to watch than there is time.\nI’d finish a video thinking it was incredibly helpful, but by the evening <strong>I could barely remember half of it</strong>.\nI kept telling myself I’d <highlight>come back to it later</highlight>, and of course many of those videos just disappeared into the backlog.\nWith <strong>health</strong>, <strong>kids’ education</strong>, and <strong>personal finance</strong> all competing for attention, it became even easier to lose track.\nSo I <heavy>built a tool myself</heavy>. When you save what you just watched as a <strong>“structure map”</strong>, you can reopen it later and still see the <strong>flow and the key points</strong> at a glance.”"
   }
 }

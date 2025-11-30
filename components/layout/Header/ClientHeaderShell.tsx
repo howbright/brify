@@ -6,6 +6,8 @@ import ClientUserMenu from "./ClientUserMenu";
 import ClientMobileMenu from "./ClientMobileMenu";
 import LanguageSelector from "@/components/LanguageSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
+// ✅ 새로 추가 – + 아이콘용
+import { Icon } from "@iconify/react";
 
 type Props = {
   isAuthed: boolean;
@@ -46,7 +48,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
         <div className="flex h-[64px] items-center justify-between">
           {/* 좌측 로고 */}
           <Link href="/" className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-2xl bg-white/90 dark:bg:white/10 shadow-md flex items-center justify-center transition-transform hover:scale-[1.03]">
+            <div className="h-9 w-9 rounded-2xl bg-white/90 dark:bg-white/10 shadow-md flex items-center justify-center transition-transform hover:scale-[1.03]">
               <span className="font-black text-blue-600">B</span>
             </div>
             <span className="font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
@@ -56,45 +58,29 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
 
           {/* 가운데 내비 — lg 이상에서만 */}
           <nav className="hidden lg:flex items-center gap-2">
-            {!isAuthed ? (
-              <>
-                {/* 비로그인: 샘플 + 가격만 */}
-                <Link
-                  href="/samples" // 필요하면 실제 샘플 페이지 경로로 수정
-                  className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
-                >
-                  구조맵 샘플
-                </Link>
-                <Link
-                  href="/pricing"
-                  className="text-sm px-3 py-2 rounded-full bg:white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
-                >
-                  가격
-                </Link>
-              </>
-            ) : (
-              <>
-                {/* 로그인 후: 필요하면 핵심 기능 메뉴들 배치 */}
-                <Link
-                  href="/video-to-map"
-                  className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg:white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
-                >
-                  영상을 구조맵로 변환
-                </Link>
-                <Link
-                  href="/pricing"
-                  className="text-sm px-3 py-2 rounded-full bg:white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
-                >
-                  가격
-                </Link>
-              </>
-            )}
+            {/* 비로그인: 샘플 + 가격만 */}
+            <Link
+              href="/samples"
+              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+            >
+              샘플
+            </Link>
+            <Link
+              href="/pricing"
+              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+            >
+              가격
+            </Link>
           </nav>
 
           {/* 우측 액션 */}
           <div className="hidden md:flex items-center gap-3">
-            <LanguageSelector />
-            <ThemeToggle />
+            {!isAuthed && (
+              <>
+                <LanguageSelector />
+                <ThemeToggle />
+              </>
+            )}
 
             {!isAuthed ? (
               <div className="flex items-center gap-2">
@@ -120,17 +106,46 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                     hover:bg-blue-700
                     hover:shadow-lg
                     transition-transform hover:scale-[1.03] active:scale-100
-                    dark:bg-[rgb(var(--hero-a))] dark:hover:bg:[rgb(var(--hero-b))]
+                    dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
                   "
                 >
                   무료로 시작하기
                 </Link>
               </div>
             ) : (
-              <>
-                {/* 로그인 후: '나의 맵' 버튼 + 유저 메뉴 */}
+              // ✅ 로그인 후: 새 구조맵 버튼 + 나의 맵 + 유저 메뉴
+              <div className="flex items-center gap-3">
+                {/* ✚ 큰 생성 버튼 */}
                 <Link
-                  href="/my-summaries" // 혹은 /my-maps 등 실제 경로
+                  href="/summarize" // 구조맵 생성 페이지 경로
+                  className="
+                    group inline-flex items-center gap-2
+                    rounded-full px-4 py-2.5 text-sm font-semibold
+                    bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500
+                    text-white shadow-[0_10px_30px_rgba(37,99,235,0.40)]
+                    hover:shadow-[0_14px_40px_rgba(79,70,229,0.60)]
+                    transition-all duration-150
+                    hover:-translate-y-0.5 hover:scale-[1.03] active:scale-100
+                  "
+                >
+                  <span
+                    className="
+                      inline-flex h-6 w-6 items-center justify-center
+                      rounded-full border border-white/50
+                      bg-white/15 shadow-sm
+                    "
+                  >
+                    <Icon
+                      icon="lucide:plus"
+                      className="h-3.5 w-3.5"
+                    />
+                  </span>
+                  <span>새 구조맵 만들기</span>
+                </Link>
+
+                {/* 나의 맵 버튼 */}
+                <Link
+                  href="/my-summaries"
                   className="
                     text-sm px-4 py-2 rounded-full
                     bg-blue-600 text-white
@@ -142,8 +157,10 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                 >
                   나의 맵
                 </Link>
+
+                {/* 유저 메뉴 */}
                 <ClientUserMenu email={email} />
-              </>
+              </div>
             )}
           </div>
 
@@ -153,7 +170,6 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
               isAuthed={isAuthed}
               email={email}
               navItems={[
-                // TODO: 여기도 나중에 비로그인/로그인에 따라 샘플/나의 맵 등 분기해도 좋음
                 {
                   href: "/summarize",
                   label: "핵심정리하기",
