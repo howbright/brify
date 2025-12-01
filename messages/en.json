@@ -205,15 +205,15 @@
     "packs": {
       "50": {
         "badgeText": "Starter",
-        "tagline": "Perfect to try and keep"
+        "tagline": "A light starter pack to try Brify without any commitment."
+      },
+      "150": {
+        "badgeText": "Most popular",
+        "tagline": "The go-to pack if you summarize content regularly."
       },
       "300": {
-        "badgeText": "Best value",
-        "tagline": "Most popular for regular use"
-      },
-      "1000": {
-        "badgeText": "Power user",
-        "tagline": "For teams and heavy users"
+        "badgeText": "Focused learning",
+        "tagline": "A larger pack with enough credits for study, projects, and deep work."
       }
     },
     "creditRule": {
@@ -276,5 +276,21 @@
       "line2": "Only very long scripts may need 2–3 credits."
     },
     "positioningText": "No subscription — pay only what you use."
+  },
+  "FinalCTA": {
+    "title": "Information is your edge.",
+    "subtitle": "Turn important content into your own knowledge faster with <brand>Brify</brand>.",
+    "body": "Sign up and get <highlight>3 free credits</highlight> — start extracting the essentials right away.",
+    "primary": {
+      "signedOut": "Get started for free",
+      "signedIn": "Start summarizing now"
+    },
+    "secondary": {
+      "label": "View pricing"
+    },
+    "badges": {
+      "noSubscription": "Pay only for what you use — no subscription",
+      "refund": "Refund unused credits within 7 days"
+    }
   }
 }

@@ -66,10 +66,10 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
               샘플
             </Link>
             <Link
-              href="/pricing"
+              href={{ pathname: "/", hash: "pricing" }}
               className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
             >
-              가격
+              요금제
             </Link>
           </nav>
 
@@ -135,10 +135,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                       bg-white/15 shadow-sm
                     "
                   >
-                    <Icon
-                      icon="lucide:plus"
-                      className="h-3.5 w-3.5"
-                    />
+                    <Icon icon="lucide:plus" className="h-3.5 w-3.5" />
                   </span>
                   <span>새 구조맵 만들기</span>
                 </Link>
@@ -195,7 +192,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                     ]
                   : []),
                 {
-                  href: "/pricing",
+                  href: "/#pricing", // 또는 ClientMobileMenu 내부에서 hash 처리
                   label: "요금제",
                   icon: "mdi:currency-krw",
                 },

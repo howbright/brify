@@ -2,13 +2,14 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 type Props = {
   isAuthed?: boolean;
   primaryHrefSignedOut?: string; // default: /signup
-  primaryHrefSignedIn?: string;  // default: /summarize
+  primaryHrefSignedIn?: string; // default: /summarize
   showSecondary?: boolean;
-  secondaryHref?: string;        // default: /pricing
+  secondaryHref?: string; // default: /pricing
   className?: string;
 };
 
@@ -20,9 +21,13 @@ export default function FinalCTA({
   secondaryHref = "/pricing",
   className = "",
 }: Props) {
+  const t = useTranslations("FinalCTA");
+
   const primaryHref = isAuthed ? primaryHrefSignedIn : primaryHrefSignedOut;
-  const primaryLabel = isAuthed ? "지금 요약 시작" : "무료로 시작하기";
-  const subLabel = showSecondary ? "요금 자세히 보기" : "";
+  const primaryLabel = isAuthed
+    ? t("primary.signedIn")
+    : t("primary.signedOut");
+  const subLabel = showSecondary ? t("secondary.label") : "";
 
   return (
     // ✅ 섹션 자체는 full-bleed (w-full) + no max-width + no rounding
@@ -97,14 +102,26 @@ export default function FinalCTA({
                 text-white
               "
             >
-              정보는 곧 경쟁력!
+              {t("title")}
               <span className="block mt-1 text-white/90">
-                이제 <span className="text-[rgb(var(--hero-b))]">Brify</span>로 중요한 정보를 빠르게 내 것으로 만드세요.
+                {t.rich("subtitle", {
+                  brand: (chunks) => (
+                    <span className="text-[rgb(var(--hero-b))]">
+                      {chunks}
+                    </span>
+                  ),
+                })}
               </span>
             </h2>
 
             <p className="mt-4 text-sm md:text-base text-white/85">
-              회원가입만 해도 <span className="font-semibold text-[rgb(var(--hero-a))]">3 크레딧</span> 무료 제공 — 지금 바로 핵심을 뽑아보세요.
+              {t.rich("body", {
+                highlight: (chunks) => (
+                  <span className="font-semibold text-[rgb(var(--hero-a))]">
+                    {chunks}
+                  </span>
+                ),
+              })}
             </p>
 
             <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -141,10 +158,10 @@ export default function FinalCTA({
             {/* 보조 배지 */}
             <div className="mt-4 flex flex-wrap justify-center gap-2 text-[11px]">
               <span className="px-2.5 py-1 rounded-full border border-white/25 bg-white/10 text-white/80 backdrop-blur">
-                구독 없이 필요한 만큼 결제
+                {t("badges.noSubscription")}
               </span>
               <span className="px-2.5 py-1 rounded-full border border-white/25 bg-white/10 text-white/80 backdrop-blur">
-                미사용 크레딧 7일 환불
+                {t("badges.refund")}
               </span>
             </div>
           </div>

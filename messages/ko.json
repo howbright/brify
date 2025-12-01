@@ -205,15 +205,15 @@
     "packs": {
       "50": {
         "badgeText": "입문용",
-        "tagline": "가볍게 시작하기"
+        "tagline": "가볍게 써보는 스타터 크레딧 팩이에요."
+      },
+      "150": {
+        "badgeText": "가장 많이 선택",
+        "tagline": "자주 요약하는 분들을 위한 표준 크레딧 팩이에요."
       },
       "300": {
-        "badgeText": "가성비 최고",
-        "tagline": "자주 쓰면 이 구성이 제일 유리해요"
-      },
-      "1000": {
-        "badgeText": "헤비 유저용",
-        "tagline": "팀·헤비 유저를 위한 대용량"
+        "badgeText": "집중 학습용",
+        "tagline": "학습·프로젝트에 넉넉하게 쓰기 좋은 대용량 팩이에요."
       }
     },
     "creditRule": {
@@ -276,5 +276,21 @@
       "line2": "아주 긴 스크립트만 2–3 크레딧이 필요할 수 있어요."
     },
     "positioningText": "구독 없이, 사용한 만큼만 결제하세요."
+  },
+  "FinalCTA": {
+    "title": "정보는 곧 경쟁력!",
+    "subtitle": "이제 <brand>Brify</brand>로 중요한 정보를 빠르게 내 것으로 만드세요.",
+    "body": "회원가입만 해도 <highlight>3 크레딧</highlight> 무료 제공 — 지금 바로 핵심을 뽑아보세요.",
+    "primary": {
+      "signedOut": "무료로 시작하기",
+      "signedIn": "지금 요약 시작"
+    },
+    "secondary": {
+      "label": "요금 자세히 보기"
+    },
+    "badges": {
+      "noSubscription": "구독 없이 필요한 만큼 결제",
+      "refund": "미사용 크레딧 7일 환불"
+    }
   }
 }

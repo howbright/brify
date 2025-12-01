@@ -4,12 +4,12 @@
 import Link from "next/link";
 import { useState } from "react";
 import * as Tooltip from "@radix-ui/react-tooltip";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 export type Pack = {
   id: string;
   credits: number; // 기본 지급 크레딧
-  priceUSD: number;
+  priceUSD: number; // ⚠️ 이제 "통화 상관 없는 price"로 사용 (locale로 포맷 분기)
   unitUSD?: number; // 주어지면 사용, 없으면 price/credits
   popular?: boolean;
 
@@ -57,13 +57,6 @@ type Props = {
   reassuranceLines?: string[]; // 기본: i18n("PricingGrid.reassurance.*")
 };
 
-function usd(n: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(n);
-}
-
 function cx(...xs: (string | false | null | undefined)[]) {
   return xs.filter(Boolean).join(" ");
 }
@@ -91,8 +84,22 @@ export default function PricingGrid({
   reassuranceLines,
 }: Props) {
   const t = useTranslations("PricingGrid");
+  const locale = useLocale();
+  const isKorean = locale === "ko";
+
   const isCompact = variant === "compact";
   const [openDetails, setOpenDetails] = useState(showCreditRuleByDefault);
+
+  // 통화/포맷터 설정
+  const currency = isKorean ? "KRW" : "USD";
+  const currencyLocale = isKorean ? "ko-KR" : "en-US";
+
+  const formatCurrency = (n: number) =>
+    new Intl.NumberFormat(currencyLocale, {
+      style: "currency",
+      currency,
+      maximumFractionDigits: isKorean ? 0 : 2,
+    }).format(n);
 
   // i18n fallback들
   const labelSignedIn = signedInLabel ?? t("cta.signedIn");
@@ -115,13 +122,9 @@ export default function PricingGrid({
 
   const ctaBtn =
     "block w-full rounded-[var(--radius-lg)] px-4 py-2.5 text-center text-sm font-medium shadow-sm " +
-    // 기본 배경/텍스트 + 폴백 (화이트로 붕 뜨는 거 방지)
     "bg-[var(--color-primary-500,#2563eb)] text-[var(--color-primary-foreground,#ffffff)] " +
-    // hover 시 배경을 더 진하게, 글자색은 항상 대비 확실히 유지
     "hover:bg-[var(--color-primary-hover,#1d4ed8)] hover:text-[var(--color-primary-foreground,#ffffff)] " +
-    // 다크에서도 대비 유지(원하는 톤에 맞게 조정 가능)
     "dark:bg-[var(--color-primary-500,#3758f9)] dark:hover:bg-[var(--color-primary-hover,#2f49d1)] dark:text-white " +
-    // 포커스 링
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring,#93c5fd)]";
 
   return (
@@ -209,9 +212,7 @@ export default function PricingGrid({
                 "dark:bg-[linear-gradient(90deg,rgba(59,130,246,0.20),rgba(99,102,241,0.18))] dark:border-white/10"
               )}
             >
-              <strong className="font-extrabold">
-                {reassurance[0]}
-              </strong>
+              <strong className="font-extrabold">{reassurance[0]}</strong>
             </p>
 
             {/* 서브 1줄 */}
@@ -238,7 +239,7 @@ export default function PricingGrid({
           const totalBonus = (p.bonusCredits ?? 0) + bonusFromPercent;
           const totalCredits = p.credits + totalBonus;
 
-          const unit = p.unitUSD ?? p.priceUSD / p.credits; // 표기 단가
+          const unit = p.unitUSD ?? p.priceUSD / p.credits; // 표기 단가(숫자)
           const effectiveUnit = p.priceUSD / totalCredits; // 보너스 반영 실효 단가
 
           const badge =
@@ -307,18 +308,20 @@ export default function PricingGrid({
                   </span>
                 )}
               </div>
+
+              {/* 총액 */}
               <div className="mt-1 text-[color-mix(in_oklab,var(--color-foreground),transparent_20%)]">
-                {usd(p.priceUSD)}
+                {formatCurrency(p.priceUSD)}
               </div>
 
               {/* 단가 표기(기본 + 실효) */}
               <div className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-                ≈ {usd(unit)} {t("units.perCredit")}
+                ≈ {formatCurrency(unit)} {t("units.perCredit")}
                 {(p.bonusPercent || p.bonusCredits) && (
                   <span className="ml-1">
                     <span className="opacity-70">·</span>{" "}
                     <span className="opacity-90">
-                      {t("unit.effective")} {usd(effectiveUnit)}{" "}
+                      {t("unit.effective")} {formatCurrency(effectiveUnit)}{" "}
                       {t("units.perCredit")}
                     </span>
                   </span>

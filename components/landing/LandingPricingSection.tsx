@@ -3,45 +3,76 @@
 
 import PricingGrid, { Pack } from "@/components/pricing/PricingGrid";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 type Props = {
   isAuthed: boolean;
-  packs?: Pack[]; // 안 넘기면 기본 팩 사용
+  packs?: Pack[]; // 안 넘기면 locale에 맞는 기본 팩 사용
 };
 
 export default function LandingPricingSection({ isAuthed, packs }: Props) {
   const t = useTranslations("LandingPricingSection");
+  const locale = useLocale();
+  const isKorean = locale === "ko";
 
-  // i18n 적용된 기본 팩
-  const defaultPacks: Pack[] = [
+  // 🎯 USD 기본 팩 (글로벌용)
+  const defaultUsdPacks: Pack[] = [
     {
       id: "50",
       credits: 50,
-      priceUSD: 5,
+      priceUSD: 3, // $3
       starter: true,
       badgeText: t("packs.50.badgeText"),
       tagline: t("packs.50.tagline"),
     },
     {
+      id: "150",
+      credits: 150,
+      priceUSD: 7, // $7
+      popular: true,
+      badgeText: t("packs.150.badgeText"),
+      tagline: t("packs.150.tagline"),
+    },
+    {
       id: "300",
       credits: 300,
-      priceUSD: 25,
-      popular: true,
-      bonusPercent: 10,
+      priceUSD: 12, // $12
       badgeText: t("packs.300.badgeText"),
       tagline: t("packs.300.tagline"),
     },
+  ];
+
+  // 🎯 KRW 기본 팩 (한국용) — priceUSD 자리에 일단 원화 숫자 넣어둠
+  // 👉 이후 PricingGrid에서 currency 분리할 때 priceKRW 같은 필드로 빼는 걸 추천.
+  const defaultKrwPacks: Pack[] = [
     {
-      id: "1000",
-      credits: 1000,
-      priceUSD: 70,
-      badgeText: t("packs.1000.badgeText"),
-      tagline: t("packs.1000.tagline"),
+      id: "50",
+      credits: 50,
+      priceUSD: 4000, // 4,000원
+      starter: true,
+      badgeText: t("packs.50.badgeText"),
+      tagline: t("packs.50.tagline"),
+    },
+    {
+      id: "150",
+      credits: 150,
+      priceUSD: 9000, // 9,000원
+      popular: true,
+      badgeText: t("packs.150.badgeText"),
+      tagline: t("packs.150.tagline"),
+    },
+    {
+      id: "300",
+      credits: 300,
+      priceUSD: 15000, // 15,000원
+      badgeText: t("packs.300.badgeText"),
+      tagline: t("packs.300.tagline"),
     },
   ];
 
-  const effectivePacks = packs ?? defaultPacks;
+  // props로 packs가 오면 그걸 우선 사용, 없으면 locale별 기본팩 선택
+  const effectivePacks: Pack[] =
+    packs ?? (isKorean ? defaultKrwPacks : defaultUsdPacks);
 
   const creditRule = {
     items: [
@@ -52,7 +83,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
   };
 
   return (
-    <section className="relative overflow-hidden">
+    <section id="pricing" className="relative overflow-hidden">
       {/* ==== BG (Light) ==== */}
       <div
         aria-hidden
