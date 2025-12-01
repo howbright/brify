@@ -228,6 +228,10 @@
           "threshold": "≤ 100k tokens"
         }
       }
+    },
+    "paymentToggle": {
+      "krw": "Pay in KRW (Toss Payments)",
+      "usd": "Pay in USD (LemonSqueezy)"
     }
   },
   "PricingGrid": {

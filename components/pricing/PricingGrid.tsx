@@ -9,16 +9,16 @@ import { useTranslations, useLocale } from "next-intl";
 export type Pack = {
   id: string;
   credits: number; // 기본 지급 크레딧
-  priceUSD: number; // ⚠️ 이제 "통화 상관 없는 price"로 사용 (locale로 포맷 분기)
-  unitUSD?: number; // 주어지면 사용, 없으면 price/credits
+  priceUSD: number; // ⚠️ 통화에 상관 없는 "현재 모드의 금액" (KRW/ USD 둘 다 여기 들어옴)
+  unitUSD?: number;
   popular?: boolean;
 
   // 가격경쟁력 옵션
-  bonusPercent?: number; // 예: 10 → 10% 보너스
-  bonusCredits?: number; // 정량 보너스
-  badgeText?: string; // 배지 커스텀 텍스트
-  tagline?: string; // 카드 보조 카피
-  starter?: boolean; // 스타터 티어 표시
+  bonusPercent?: number;
+  bonusCredits?: number;
+  badgeText?: string;
+  tagline?: string;
+  starter?: boolean;
 };
 
 type CreditRule = {
@@ -29,32 +29,37 @@ type CreditRule = {
 type Props = {
   packs: Pack[];
   isAuthed: boolean;
-  signedInHref?: string; // 기본: /billing
-  signedOutHref?: string; // 기본: /login
-  signedInLabel?: string; // 기본: i18n("PricingGrid.cta.signedIn")
-  signedOutLabel?: string; // 기본: i18n("PricingGrid.cta.signedOut")
+  signedInHref?: string;
+  signedOutHref?: string;
+  signedInLabel?: string;
+  signedOutLabel?: string;
   showFooterNote?: boolean;
   variant?: "default" | "compact";
   className?: string;
 
   // 포지셔닝/환불 배지
   showPositioning?: boolean;
-  positioningText?: string; // 기본: i18n("PricingGrid.positioningText")
+  positioningText?: string;
   showRefundBadge?: boolean;
-  refundText?: string; // 기본: i18n("PricingGrid.refund.text")
+  refundText?: string;
 
-  // ✅ 환불 정책 링크 + 툴팁 라인
-  refundPolicyHref?: string; // 기본: "/refund-policy"
-  refundTooltipLines?: string[]; // 기본: i18n("PricingGrid.refundTooltip.*")
+  // 환불 정책 링크 + 툴팁 라인
+  refundPolicyHref?: string;
+  refundTooltipLines?: string[];
 
-  // 장문 멀티크레딧 규칙(토글로 펼침)
+  // 장문 멀티크레딧 규칙
   creditRule?: CreditRule;
-  detailsLabel?: string; // 기본: i18n("PricingGrid.toggles.details")
-  showCreditRuleByDefault?: boolean; // 기본: false
+  detailsLabel?: string;
+  showCreditRuleByDefault?: boolean;
 
-  // 안심 카피(“대부분 1 크레딧이면 충분”)
-  showReassurance?: boolean; // 기본: true
-  reassuranceLines?: string[]; // 기본: i18n("PricingGrid.reassurance.*")
+  // 안심 카피
+  showReassurance?: boolean;
+  reassuranceLines?: string[];
+
+  // ✅ 통화 강제 모드 (토글용)
+  //   - "KRW"면 원화, "USD"면 달러
+  //   - 안 주면 locale 기반(auto)
+  billingCurrency?: "KRW" | "USD";
 };
 
 function cx(...xs: (string | false | null | undefined)[]) {
@@ -82,34 +87,42 @@ export default function PricingGrid({
   showCreditRuleByDefault = false,
   showReassurance = true,
   reassuranceLines,
+  billingCurrency, // 👈 추가
 }: Props) {
   const t = useTranslations("PricingGrid");
+  const tLanding = useTranslations("LandingPricingSection");
   const locale = useLocale();
-  const isKorean = locale === "ko";
 
   const isCompact = variant === "compact";
   const [openDetails, setOpenDetails] = useState(showCreditRuleByDefault);
 
-  // 통화/포맷터 설정
-  const currency = isKorean ? "KRW" : "USD";
-  const currencyLocale = isKorean ? "ko-KR" : "en-US";
+  // ✅ 통화/로케일 결정 로직
+  // 1) billingCurrency prop이 오면 그걸 우선 사용
+  // 2) 없으면 locale 기반으로 auto
+  const fallbackIsKorean = locale === "ko";
+  const resolvedCurrency: "KRW" | "USD" =
+    billingCurrency ?? (fallbackIsKorean ? "KRW" : "USD");
+
+  // 포맷에 사용할 로케일은:
+  // - KRW → ko-KR
+  // - USD → en-US 로 강제 (한국어여도 USD 모드면 그냥 달러 스타일로)
+  const currencyLocale = resolvedCurrency === "KRW" ? "ko-KR" : "en-US";
 
   const formatCurrency = (n: number) =>
     new Intl.NumberFormat(currencyLocale, {
       style: "currency",
-      currency,
-      maximumFractionDigits: isKorean ? 0 : 2,
+      currency: resolvedCurrency,
+      maximumFractionDigits: resolvedCurrency === "KRW" ? 0 : 2,
     }).format(n);
 
-  // i18n fallback들
+  // i18n fallback
   const labelSignedIn = signedInLabel ?? t("cta.signedIn");
   const labelSignedOut = signedOutLabel ?? t("cta.signedOut");
   const labelPositioning = positioningText ?? t("positioningText");
   const textRefund = refundText ?? t("refund.text");
 
   const tooltipLines =
-    refundTooltipLines ??
-    [
+    refundTooltipLines ?? [
       t("refundTooltip.line1"),
       t("refundTooltip.line2"),
       t("refundTooltip.line3"),
@@ -200,7 +213,6 @@ export default function PricingGrid({
       {showReassurance && (
         <div className={cx("mb-4", isCompact && "mx-auto max-w-3xl")}>
           <div className="flex flex-col items-center gap-2 text-center">
-            {/* 강조 1줄 */}
             <p
               className={cx(
                 "inline-flex items-center gap-2",
@@ -215,7 +227,6 @@ export default function PricingGrid({
               <strong className="font-extrabold">{reassurance[0]}</strong>
             </p>
 
-            {/* 서브 1줄 */}
             {reassurance[1] && (
               <p
                 className={cx(
@@ -239,16 +250,39 @@ export default function PricingGrid({
           const totalBonus = (p.bonusCredits ?? 0) + bonusFromPercent;
           const totalCredits = p.credits + totalBonus;
 
-          const unit = p.unitUSD ?? p.priceUSD / p.credits; // 표기 단가(숫자)
-          const effectiveUnit = p.priceUSD / totalCredits; // 보너스 반영 실효 단가
+          const unit = p.unitUSD ?? p.priceUSD / p.credits;
+          const effectiveUnit = p.priceUSD / totalCredits;
 
-          const badge =
-            p.badgeText ??
-            (p.popular
-              ? t("badge.mostPopular")
-              : p.starter
-              ? t("badge.starter")
-              : "");
+          // 🔹 배지 텍스트: pack 자체 → LandingPricingSection packs.* → generic
+          let badge = p.badgeText;
+
+          if (!badge) {
+            if (p.credits === 50) {
+              badge = tLanding("packs.50.badgeText");
+            } else if (p.credits === 150) {
+              badge = tLanding("packs.150.badgeText");
+            } else if (p.credits === 300) {
+              badge = tLanding("packs.300.badgeText");
+            } else if (p.popular) {
+              badge = t("badge.mostPopular");
+            } else if (p.starter) {
+              badge = t("badge.starter");
+            } else {
+              badge = "";
+            }
+          }
+
+          // 🔹 tagline fallback: pack에 없으면 LandingPricingSection 번역 사용
+          let tagline = p.tagline;
+          if (!tagline) {
+            if (p.credits === 50) {
+              tagline = tLanding("packs.50.tagline");
+            } else if (p.credits === 150) {
+              tagline = tLanding("packs.150.tagline");
+            } else if (p.credits === 300) {
+              tagline = tLanding("packs.300.tagline");
+            }
+          }
 
           return (
             <div
@@ -284,10 +318,10 @@ export default function PricingGrid({
                 )}
               </div>
 
-              {/* 태그라인(선택) */}
-              {p.tagline && (
+              {/* 태그라인 */}
+              {tagline && (
                 <div className="mb-1 text-xs text-[var(--color-muted-foreground)]">
-                  {p.tagline}
+                  {tagline}
                 </div>
               )}
 
@@ -314,7 +348,7 @@ export default function PricingGrid({
                 {formatCurrency(p.priceUSD)}
               </div>
 
-              {/* 단가 표기(기본 + 실효) */}
+              {/* 단가 표기 */}
               <div className="mt-1 text-xs text-[var(--color-muted-foreground)]">
                 ≈ {formatCurrency(unit)} {t("units.perCredit")}
                 {(p.bonusPercent || p.bonusCredits) && (
@@ -328,7 +362,6 @@ export default function PricingGrid({
                 )}
               </div>
 
-              {/* 스페이서 */}
               <div className="mt-5 flex-1" />
 
               {/* CTA */}
@@ -357,7 +390,7 @@ export default function PricingGrid({
         })}
       </div>
 
-      {/* 장문 멀티크레딧 규칙(토글) */}
+      {/* 장문 멀티크레딧 규칙 */}
       {creditRule?.items?.length ? (
         <div className="mt-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-4">
           <div className="flex items-center justify-between">

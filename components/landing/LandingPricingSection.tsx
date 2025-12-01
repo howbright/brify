@@ -4,83 +4,84 @@
 import PricingGrid, { Pack } from "@/components/pricing/PricingGrid";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
+import { useState } from "react";
 
 type Props = {
   isAuthed: boolean;
-  packs?: Pack[]; // 안 넘기면 locale에 맞는 기본 팩 사용
+  packs?: Pack[]; // 안 넘기면 locale + paymentMode 기준 기본 팩 사용
 };
+
+type PaymentMode = "krw" | "usd";
+
+const KRW_PACKS: Pack[] = [
+  {
+    id: "50_kr",
+    credits: 50,
+    priceUSD: 4000, // 4,000원
+    starter: true,
+  },
+  {
+    id: "150_kr",
+    credits: 150,
+    priceUSD: 9000, // 9,000원
+    popular: true,
+  },
+  {
+    id: "300_kr",
+    credits: 300,
+    priceUSD: 15000, // 15,000원
+  },
+];
+
+const USD_PACKS: Pack[] = [
+  {
+    id: "50_us",
+    credits: 50,
+    priceUSD: 3, // $3
+    starter: true,
+  },
+  {
+    id: "150_us",
+    credits: 150,
+    priceUSD: 7, // $7
+    popular: true,
+  },
+  {
+    id: "300_us",
+    credits: 300,
+    priceUSD: 12, // $12
+  },
+];
 
 export default function LandingPricingSection({ isAuthed, packs }: Props) {
   const t = useTranslations("LandingPricingSection");
   const locale = useLocale();
   const isKorean = locale === "ko";
 
-  // 🎯 USD 기본 팩 (글로벌용)
-  const defaultUsdPacks: Pack[] = [
-    {
-      id: "50",
-      credits: 50,
-      priceUSD: 3, // $3
-      starter: true,
-      badgeText: t("packs.50.badgeText"),
-      tagline: t("packs.50.tagline"),
-    },
-    {
-      id: "150",
-      credits: 150,
-      priceUSD: 7, // $7
-      popular: true,
-      badgeText: t("packs.150.badgeText"),
-      tagline: t("packs.150.tagline"),
-    },
-    {
-      id: "300",
-      credits: 300,
-      priceUSD: 12, // $12
-      badgeText: t("packs.300.badgeText"),
-      tagline: t("packs.300.tagline"),
-    },
-  ];
+  // 한국어면 기본 KRW, 나머지는 USD
+  const [paymentMode, setPaymentMode] = useState<PaymentMode>(
+    isKorean ? "krw" : "usd"
+  );
 
-  // 🎯 KRW 기본 팩 (한국용) — priceUSD 자리에 일단 원화 숫자 넣어둠
-  // 👉 이후 PricingGrid에서 currency 분리할 때 priceKRW 같은 필드로 빼는 걸 추천.
-  const defaultKrwPacks: Pack[] = [
-    {
-      id: "50",
-      credits: 50,
-      priceUSD: 4000, // 4,000원
-      starter: true,
-      badgeText: t("packs.50.badgeText"),
-      tagline: t("packs.50.tagline"),
-    },
-    {
-      id: "150",
-      credits: 150,
-      priceUSD: 9000, // 9,000원
-      popular: true,
-      badgeText: t("packs.150.badgeText"),
-      tagline: t("packs.150.tagline"),
-    },
-    {
-      id: "300",
-      credits: 300,
-      priceUSD: 15000, // 15,000원
-      badgeText: t("packs.300.badgeText"),
-      tagline: t("packs.300.tagline"),
-    },
-  ];
-
-  // props로 packs가 오면 그걸 우선 사용, 없으면 locale별 기본팩 선택
+  // packs prop이 넘어오면 그대로 사용, 아니면 locale + paymentMode 기반 기본팩
   const effectivePacks: Pack[] =
-    packs ?? (isKorean ? defaultKrwPacks : defaultUsdPacks);
+    packs ??
+    (isKorean
+      ? paymentMode === "krw"
+        ? KRW_PACKS
+        : USD_PACKS
+      : USD_PACKS);
 
-  const creditRule = {
-    items: [
-      { threshold: t("creditRule.items.small.threshold"), credits: 1 },
-      { threshold: t("creditRule.items.medium.threshold"), credits: 2 },
-      { threshold: t("creditRule.items.large.threshold"), credits: 3 },
-    ],
-  };
+  // 결제 페이지로 넘겨줄 링크 (쿼리로 currency 넘겨두면 나중에 billing에서 분기하기 편함)
+  const signedInHref =
+    paymentMode === "krw" && isKorean
+      ? "/billing?currency=krw"
+      : "/billing?currency=usd";
+
+  const signedOutHref =
+    paymentMode === "krw" && isKorean
+      ? "/login?currency=krw"
+      : "/login?currency=usd";
 
   return (
     <section id="pricing" className="relative overflow-hidden">
@@ -149,6 +150,38 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
           </p>
         </div>
 
+        {/* 🔁 한국어일 때만 KRW / USD 토글 */}
+        {isKorean && !packs && (
+          <div className="mt-5 flex justify-center">
+            <div className="inline-flex rounded-full border border-[var(--color-border)] bg-[var(--color-card)] p-1 text-xs shadow-sm">
+              <button
+                type="button"
+                onClick={() => setPaymentMode("krw")}
+                className={[
+                  "px-3 py-1.5 rounded-full transition-all",
+                  paymentMode === "krw"
+                    ? "bg-[var(--color-primary-500)] text-white shadow"
+                    : "text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)]",
+                ].join(" ")}
+              >
+                {t("paymentToggle.krw")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentMode("usd")}
+                className={[
+                  "px-3 py-1.5 rounded-full transition-all",
+                  paymentMode === "usd"
+                    ? "bg-[var(--color-primary-500)] text-white shadow"
+                    : "text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)]",
+                ].join(" ")}
+              >
+                {t("paymentToggle.usd")}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Glass wrapper to lift cards from colored bg */}
         <div
           className="
@@ -162,15 +195,21 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
             <PricingGrid
               packs={effectivePacks}
               isAuthed={isAuthed}
-              signedInHref="/billing"
-              signedOutHref="/login"
+              signedInHref={signedInHref}
+              signedOutHref={signedOutHref}
               variant="compact"
               showFooterNote={false}
               showPositioning
               positioningText={t("positioningText")}
               showRefundBadge
               refundText={t("refundText")}
-              creditRule={creditRule}
+              creditRule={{
+                items: [
+                  { threshold: t("creditRule.items.small.threshold"), credits: 1 },
+                  { threshold: t("creditRule.items.medium.threshold"), credits: 2 },
+                  { threshold: t("creditRule.items.large.threshold"), credits: 3 },
+                ],
+              }}
             />
           </div>
         </div>

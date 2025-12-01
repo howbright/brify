@@ -228,6 +228,10 @@
           "threshold": "≤ 100k 토큰"
         }
       }
+    },
+    "paymentToggle": {
+      "krw": "원화 결제 (토스페이먼츠)",
+      "usd": "USD 결제 (LemonSqueezy)"
     }
   },
   "PricingGrid": {
