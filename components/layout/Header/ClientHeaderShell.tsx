@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import ClientUserMenu from "./ClientUserMenu";
-import ClientMobileMenu from "./ClientMobileMenu";
+import ClientMobileUserMenu from "./ClientMobileMenu";
 import LanguageSelector from "@/components/LanguageSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 // ✅ 새로 추가 – + 아이콘용
@@ -163,40 +163,9 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
 
           {/* 모바일 메뉴 */}
           <div className="md:hidden">
-            <ClientMobileMenu
+            <ClientMobileUserMenu
               isAuthed={isAuthed}
               email={email}
-              navItems={[
-                {
-                  href: "/summarize",
-                  label: "핵심정리하기",
-                  icon: "mdi:file-document-edit",
-                },
-                {
-                  href: "/my-summaries",
-                  label: "나의 스크랩북",
-                  icon: "mdi:folder",
-                },
-                {
-                  href: "/tags",
-                  label: "태그 보기",
-                  icon: "mdi:tag-multiple",
-                },
-                ...(isAuthed
-                  ? [
-                      {
-                        href: "/billing",
-                        label: "결제/크레딧",
-                        icon: "mdi:credit-card",
-                      } as const,
-                    ]
-                  : []),
-                {
-                  href: "/#pricing", // 또는 ClientMobileMenu 내부에서 hash 처리
-                  label: "요금제",
-                  icon: "mdi:currency-krw",
-                },
-              ]}
             />
           </div>
         </div>
