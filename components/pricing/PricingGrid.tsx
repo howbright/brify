@@ -131,7 +131,7 @@ export default function PricingGrid({
   const labelDetails = detailsLabel ?? t("toggles.details");
 
   const reassurance =
-    reassuranceLines ?? [t("reassurance.line1"), t("reassurance.line2")];
+    reassuranceLines ?? [t("reassurance.line1")];
 
   const ctaBtn =
     "block w-full rounded-[var(--radius-lg)] px-4 py-2.5 text-center text-sm font-medium shadow-sm " +

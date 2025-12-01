@@ -216,16 +216,17 @@
         "tagline": "학습·프로젝트에 넉넉하게 쓰기 좋은 대용량 팩이에요."
       }
     },
-    "creditRule": {
+   "creditRule": {
+      "label": "영상 길이에 따라 추가 크레딧이 사용될 수 있어요.",
       "items": {
         "small": {
-          "threshold": "≤ 15k 토큰"
+          "threshold": "2시간 이내 영상 스크립트"
         },
         "medium": {
-          "threshold": "≤ 50k 토큰"
+          "threshold": "2–3시간 영상 스크립트"
         },
         "large": {
-          "threshold": "≤ 100k 토큰"
+          "threshold": "3시간 이상 영상 스크립트"
         }
       }
     },
@@ -268,16 +269,15 @@
       "note": "결제는 USD 기준, LemonSqueezy를 통해 안전하게 처리됩니다."
     },
     "creditRule": {
-      "label": "길게 입력하는 경우 추가 크레딧이 사용될 수 있어요.",
-      "itemSuffix": "→ {credits} 크레딧"
+      "label": "아주 큰 분량의 입력만 추가 크레딧이 필요해요.",
+      "itemSuffix": "{credits} 크레딧이 사용됩니다."
     },
     "toggles": {
       "details": "자세히",
       "hide": "접기"
     },
     "reassurance": {
-      "line1": "'구조맵' 1건 정리에 1 크레딧이면 충분해요.",
-      "line2": "아주 긴 스크립트만 2–3 크레딧이 필요할 수 있어요."
+      "line1": "구조맵 하나당 1크레딧이면 충분해요."
     },
     "positioningText": "구독 없이, 사용한 만큼만 결제하세요."
   },

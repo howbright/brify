@@ -217,15 +217,16 @@
       }
     },
     "creditRule": {
+      "label": "Extra credits may be used depending on video length.",
       "items": {
         "small": {
-          "threshold": "≤ 15k tokens"
+          "threshold": "Video scripts up to 2 hours"
         },
         "medium": {
-          "threshold": "≤ 50k tokens"
+          "threshold": "Video scripts between 2–3 hours"
         },
         "large": {
-          "threshold": "≤ 100k tokens"
+          "threshold": "Video scripts longer than 3 hours"
         }
       }
     },
@@ -268,16 +269,15 @@
       "note": "Payments are processed in USD via LemonSqueezy."
     },
     "creditRule": {
-      "label": "Long inputs may use extra credits.",
-      "itemSuffix": "→ {credits, plural, one {# credit} other {# credits}}"
+      "label": "Only very large inputs require extra credits.",
+      "itemSuffix": "Uses {credits} credits."
     },
     "toggles": {
       "details": "Details",
       "hide": "Hide"
     },
     "reassurance": {
-      "line1": "1 credit is enough for most structure maps.",
-      "line2": "Only very long scripts may need 2–3 credits."
+      "line1": "One credit is enough for most structure maps."
     },
     "positioningText": "No subscription — pay only what you use."
   },
