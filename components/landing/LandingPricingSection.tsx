@@ -66,11 +66,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
   // packs prop이 넘어오면 그대로 사용, 아니면 locale + paymentMode 기반 기본팩
   const effectivePacks: Pack[] =
     packs ??
-    (isKorean
-      ? paymentMode === "krw"
-        ? KRW_PACKS
-        : USD_PACKS
-      : USD_PACKS);
+    (isKorean ? (paymentMode === "krw" ? KRW_PACKS : USD_PACKS) : USD_PACKS);
 
   // 결제 페이지로 넘겨줄 링크 (쿼리로 currency 넘겨두면 나중에 billing에서 분기하기 편함)
   const signedInHref =
@@ -203,11 +199,21 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
               positioningText={t("positioningText")}
               showRefundBadge
               refundText={t("refundText")}
+              billingCurrency={paymentMode === "usd" ? "USD" : "KRW"}
               creditRule={{
                 items: [
-                  { threshold: t("creditRule.items.small.threshold"), credits: 1 },
-                  { threshold: t("creditRule.items.medium.threshold"), credits: 2 },
-                  { threshold: t("creditRule.items.large.threshold"), credits: 3 },
+                  {
+                    threshold: t("creditRule.items.small.threshold"),
+                    credits: 1,
+                  },
+                  {
+                    threshold: t("creditRule.items.medium.threshold"),
+                    credits: 2,
+                  },
+                  {
+                    threshold: t("creditRule.items.large.threshold"),
+                    credits: 3,
+                  },
                 ],
               }}
             />
