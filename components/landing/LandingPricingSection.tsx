@@ -221,7 +221,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
         </div>
 
         {/* CTA under cards */}
-        <div className="mt-6 flex justify-center">
+        {/* <div className="mt-6 flex justify-center">
           <Link
             href="/pricing"
             className="
@@ -233,7 +233,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
           >
             {t("seeDetails")}
           </Link>
-        </div>
+        </div> */}
       </div>
 
       {/* soft glow accents */}
