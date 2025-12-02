@@ -21,7 +21,6 @@ export default function ClientMobileUserMenu({
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  // ClientUserMenu와 동일한 divider 스타일
   const dividerClass =
     "my-2 mx-1.5 h-px bg-gradient-to-r " +
     "from-transparent via-neutral-200 to-transparent " +
@@ -42,18 +41,23 @@ export default function ClientMobileUserMenu({
       <AnimatePresence>
         {open && (
           <>
-            {/* 오버레이 */}
+            {/* 🔹 오버레이 (다크모드에서 더 진하고 블러 강하게) */}
             <motion.div
               key="overlay"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed left-0 right-0 top-[64px] h-[calc(100vh-64px)] bg-black/40 backdrop-blur-sm z-30"
+              className="
+                fixed left-0 right-0 top-[64px] h-[calc(100vh-64px)]
+                bg-black/40 dark:bg-black/70
+                backdrop-blur-[6px]
+                z-30
+              "
               onClick={() => setOpen(false)}
             />
 
-            {/* 모바일 패널 */}
+            {/* 🔹 모바일 패널 (다크모드에서 살짝 더 밝고 유리 느낌) */}
             <motion.div
               key="mobile-menu"
               initial={{ opacity: 0, y: -20 }}
@@ -62,36 +66,39 @@ export default function ClientMobileUserMenu({
               transition={{ duration: 0.25, ease: "easeOut" }}
               className="
                 fixed top-[64px] left-0 right-0 mx-2 rounded-2xl
-                border border-white/70 dark:border-white/15
-                bg-white/95 dark:bg-[#050814]/95
-                shadow-[0_18px_40px_-24px_rgba(15,23,42,0.65)]
-                backdrop-blur-md
+                border border-white/70 dark:border-white/18
+                bg-white/95 dark:bg-[rgba(15,23,42,0.96)]
+                shadow-[0_18px_40px_-24px_rgba(15,23,42,0.55)]
+                dark:shadow-[0_22px_60px_-26px_rgba(15,23,42,0.95)]
+                backdrop-blur-xl
                 px-4 pb-4 pt-3
                 z-40
               "
             >
+              {/* 상단 내비게이션 항목 */}
               <button
                 onClick={() => {
                   setOpen(false);
                   router.push("/samples");
                 }}
-                className="w-full text-left py-2"
+                className="w-full text-left py-2 text-sm"
               >
                 샘플
               </button>
+
               <button
                 onClick={() => {
                   setOpen(false);
-                  router.push("/#pricing"); // ✅ 홈의 #pricing 섹션으로 이동
+                  router.push("/#pricing");
                 }}
-                className="w-full text-left py-2"
+                className="w-full text-left py-2 text-sm"
               >
                 요금제
               </button>
 
               {/* 인사 / 이메일 */}
               {isAuthed && (
-                <div className="text-xs text-primary font-medium mb-3 text-center truncate">
+                <div className="mt-1 text-xs text-primary font-medium mb-3 text-center truncate">
                   {email ? `${email}님, 안녕하세요` : "안녕하세요"}
                 </div>
               )}
@@ -141,20 +148,17 @@ export default function ClientMobileUserMenu({
                     </button>
                   </div>
 
-                  {/* 계정 메뉴와 테마/언어 사이 구분선 */}
                   <div className={dividerClass} />
                 </>
               )}
 
-              {/* 테마 / 언어 영역 (ClientUserMenu와 동일 구조) */}
+              {/* 테마 / 언어 영역 */}
               <div className="px-1 py-1.5 space-y-2 text-xs text-muted-foreground">
-                {/* 테마 */}
                 <div className="flex items-center justify-between gap-2">
                   <span>테마</span>
                   <ThemeToggleText />
                 </div>
 
-                {/* 언어 */}
                 <div className="flex items-center justify-between gap-2">
                   <span>언어</span>
                   <div>
@@ -163,7 +167,6 @@ export default function ClientMobileUserMenu({
                 </div>
               </div>
 
-              {/* 테마/언어와 인증 영역 사이 구분선 */}
               <div className={dividerClass} />
 
               {/* 하단: 로그인/회원가입 or 로그아웃 */}

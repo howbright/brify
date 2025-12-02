@@ -6,7 +6,6 @@ import ClientUserMenu from "./ClientUserMenu";
 import ClientMobileUserMenu from "./ClientMobileMenu";
 import LanguageSelector from "@/components/LanguageSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
-// ✅ 새로 추가 – + 아이콘용
 import { Icon } from "@iconify/react";
 
 type Props = {
@@ -56,9 +55,8 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
             </span>
           </Link>
 
-          {/* 가운데 내비 — lg 이상에서만 */}
-          <nav className="hidden lg:flex items-center gap-2">
-            {/* 비로그인: 샘플 + 가격만 */}
+          {/* 가운데 내비 — md 이상에서만 표시 */}
+          <nav className="hidden md:flex items-center gap-2">
             <Link
               href="/samples"
               className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
@@ -73,7 +71,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
             </Link>
           </nav>
 
-          {/* 우측 액션 */}
+          {/* 우측 액션 – 데스크탑 (md 이상) */}
           <div className="hidden md:flex items-center gap-3">
             {!isAuthed && (
               <>
@@ -84,7 +82,6 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
 
             {!isAuthed ? (
               <div className="flex items-center gap-2">
-                {/* 로그인: 텍스트 링크 스타일 */}
                 <Link
                   href="/login"
                   className="
@@ -97,7 +94,6 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                   로그인
                 </Link>
 
-                {/* 회원가입: 메인 CTA 버튼 */}
                 <Link
                   href="/signup"
                   className="
@@ -113,11 +109,10 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                 </Link>
               </div>
             ) : (
-              // ✅ 로그인 후: 새 구조맵 버튼 + 나의 맵 + 유저 메뉴
               <div className="flex items-center gap-3">
-                {/* ✚ 큰 생성 버튼 */}
+                {/* ✚ 새 구조맵 버튼 (데스크탑) */}
                 <Link
-                  href="/summarize" // 구조맵 생성 페이지 경로
+                  href="/summarize"
                   className="
                     group inline-flex items-center gap-2
                     rounded-full px-4 py-2.5 text-sm font-semibold
@@ -140,7 +135,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                   <span>새 구조맵 만들기</span>
                 </Link>
 
-                {/* 나의 맵 버튼 */}
+                {/* 나의 맵 */}
                 <Link
                   href="/my-summaries"
                   className="
@@ -155,18 +150,41 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                   나의 맵
                 </Link>
 
-                {/* 유저 메뉴 */}
                 <ClientUserMenu email={email} />
               </div>
             )}
           </div>
 
-          {/* 모바일 메뉴 */}
-          <div className="md:hidden">
-            <ClientMobileUserMenu
-              isAuthed={isAuthed}
-              email={email}
-            />
+          {/* 모바일 – 새 구조맵 버튼 + 모바일 메뉴 (md 미만) */}
+          <div className="md:hidden flex items-center gap-2">
+            {isAuthed && (
+              <Link
+                href="/summarize"
+                className="
+                  inline-flex items-center gap-1.5
+                  rounded-full px-3 py-1.5 text-xs font-semibold
+                  bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500
+                  text-white
+                  shadow-[0_8px_22px_rgba(37,99,235,0.45)]
+                  hover:shadow-[0_10px_28px_rgba(79,70,229,0.65)]
+                  transition-all duration-150
+                  hover:-translate-y-0.5 active:translate-y-0
+                "
+              >
+                <span
+                  className="
+                    inline-flex h-5 w-5 items-center justify-center
+                    rounded-full border border-white/50
+                    bg-white/15 shadow-sm
+                  "
+                >
+                  <Icon icon="lucide:plus" className="h-3 w-3" />
+                </span>
+                <span>새 구조맵</span>
+              </Link>
+            )}
+
+            <ClientMobileUserMenu isAuthed={isAuthed} email={email} />
           </div>
         </div>
       </div>

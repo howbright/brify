@@ -58,10 +58,11 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
         sideOffset={8}
         className="
           w-[17rem] rounded-2xl
-          border border-white/70 dark:border-white/15
-          bg-white/95 dark:bg-[#050814]/95
-          shadow-[0_18px_40px_-24px_rgba(15,23,42,0.65)]
-          backdrop-blur-md
+          border border-white/70 dark:border-white/18
+          bg-white/95 dark:bg-[rgba(15,23,42,0.98)]
+          shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)]
+          dark:shadow-[0_22px_60px_-26px_rgba(15,23,42,0.95)]
+          backdrop-blur-xl
           p-1.5
         "
       >
