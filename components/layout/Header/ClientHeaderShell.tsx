@@ -7,6 +7,7 @@ import ClientMobileUserMenu from "./ClientMobileMenu";
 import LanguageSelector from "@/components/LanguageSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Icon } from "@iconify/react";
+import { useTranslations } from "next-intl";
 
 type Props = {
   isAuthed: boolean;
@@ -16,6 +17,7 @@ type Props = {
 export default function ClientHeaderShell({ isAuthed, email }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const t = useTranslations("Header");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -61,13 +63,13 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
               href="/samples"
               className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
             >
-              샘플
+              {t("nav.samples")}
             </Link>
             <Link
               href={{ pathname: "/", hash: "pricing" }}
               className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
             >
-              요금제
+              {t("nav.pricing")}
             </Link>
           </nav>
 
@@ -91,7 +93,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                     transition-colors
                   "
                 >
-                  로그인
+                  {t("auth.login")}
                 </Link>
 
                 <Link
@@ -105,7 +107,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                     dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
                   "
                 >
-                  무료로 시작하기
+                  {t("auth.signup")}
                 </Link>
               </div>
             ) : (
@@ -132,10 +134,9 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                   >
                     <Icon icon="lucide:plus" className="h-3.5 w-3.5" />
                   </span>
-                  <span>새 구조맵</span>
+                  <span>{t("cta.newMap")}</span>
                 </Link>
 
-                {/* 나의 맵 */}
                 {/* 나의 맵 – 세컨더리 텍스트 버튼 스타일 */}
                 <Link
                   href="/my-summaries"
@@ -149,7 +150,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                     transition-colors
                   "
                 >
-                  나의 맵
+                  {t("cta.myMaps")}
                 </Link>
 
                 <ClientUserMenu email={email} />
@@ -182,7 +183,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                 >
                   <Icon icon="lucide:plus" className="h-3 w-3" />
                 </span>
-                <span>새 구조맵</span>
+                <span>{t("cta.newMap")}</span>
               </Link>
             )}
 

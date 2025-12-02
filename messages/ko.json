@@ -216,7 +216,7 @@
         "tagline": "학습·프로젝트에 넉넉하게 쓰기 좋은 대용량 팩이에요."
       }
     },
-   "creditRule": {
+    "creditRule": {
       "label": "영상 길이에 따라 추가 크레딧이 사용될 수 있어요.",
       "items": {
         "small": {
@@ -295,6 +295,42 @@
     "badges": {
       "noSubscription": "구독 없이 필요한 만큼 결제",
       "refund": "미사용 크레딧 7일 환불"
+    }
+  },
+  "Header": {
+   "userMenu": {
+      "triggerLabel": "내 계정",
+      "sectionTitle": "로그인 계정",
+      "items": {
+        "billing": "크레딧·결제",
+        "billingHistory": "결제 내역",
+        "accountSettings": "계정 설정"
+      },
+      "theme": "테마",
+      "language": "언어",
+      "logout": "로그아웃"
+    },
+    "nav": {
+      "samples": "샘플",
+      "pricing": "요금제"
+    },
+    "auth": {
+      "login": "로그인",
+      "signup": "무료로 시작하기"
+    },
+    "cta": {
+      "newMap": "새 구조맵",
+      "myMaps": "나의 맵"
+    }
+  },
+  "ThemeToggle": {
+    "label": {
+      "light": "라이트 모드",
+      "dark": "다크 모드"
+    },
+    "aria": {
+      "toLight": "라이트 모드로 전환",
+      "toDark": "다크 모드로 전환"
     }
   }
 }

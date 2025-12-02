@@ -296,5 +296,41 @@
       "noSubscription": "Pay only for what you use — no subscription",
       "refund": "Refund unused credits within 7 days"
     }
+  },
+  "Header": {
+    "userMenu": {
+      "triggerLabel": "My account",
+      "sectionTitle": "Signed-in account",
+      "items": {
+        "billing": "Credits & billing",
+        "billingHistory": "Billing history",
+        "accountSettings": "Account settings"
+      },
+      "theme": "Theme",
+      "language": "Language",
+      "logout": "Sign out"
+    },
+    "nav": {
+      "samples": "Samples",
+      "pricing": "Pricing"
+    },
+    "auth": {
+      "login": "Log in",
+      "signup": "Start for free"
+    },
+    "cta": {
+      "newMap": "New map",
+      "myMaps": "My maps"
+    }
+  },
+  "ThemeToggle": {
+    "label": {
+      "light": "Light mode",
+      "dark": "Dark mode"
+    },
+    "aria": {
+      "toLight": "Switch to light mode",
+      "toDark": "Switch to dark mode"
+    }
   }
 }
