@@ -1,4 +1,4 @@
-// components/layout/Header/ClientUserMenu.tsx (Client Component)
+// components/layout/Header/ClientUserMenu.tsx
 "use client";
 
 import {
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Icon } from "@iconify/react";
 
 import LanguageSelector from "@/components/LanguageSelector";
 import { ThemeToggleText } from "@/components/ThemeToggleText";
@@ -31,7 +32,6 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
     }
   }
 
-  // 공통 divider 스타일
   const dividerClass =
     "my-2 mx-1.5 h-px bg-gradient-to-r " +
     "from-transparent via-neutral-200 to-transparent " +
@@ -42,19 +42,16 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
       <DropdownMenuTrigger asChild>
         <button
           className="
-            flex items-center gap-2
-            px-3 py-1.5
-            rounded-full border border-border
-            bg-white/80 dark:bg-white/5
-            text-xs sm:text-sm font-medium
-            text-neutral-800 dark:text-neutral-100
-            hover:border-primary hover:text-primary
-            hover:bg-white
-            dark:hover:bg-white/10
-            transition-colors
-          "
+      inline-flex items-center justify-center
+      rounded-full border border-transparent
+      px-3 py-1.5 text-sm font-medium
+      text-neutral-700 dark:text-neutral-200
+      hover:border-blue-500/70 hover:bg-blue-50/80 hover:text-blue-700
+      dark:hover:bg-white/5 dark:hover:text-blue-300
+      transition-colors
+    "
         >
-          <span className="tracking-tight">내 계정</span>
+          내 계정
         </button>
       </DropdownMenuTrigger>
 
@@ -83,7 +80,6 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
           </>
         )}
 
-        {/* 메인 메뉴들 */}
         <DropdownMenuItem
           className="text-sm"
           onSelect={(e) => {
@@ -124,18 +120,14 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
           <span>계정 설정</span>
         </DropdownMenuItem>
 
-        {/* --- 구분선 --- */}
         <DropdownMenuSeparator className={dividerClass} />
 
-        {/* 테마 / 언어 영역 */}
         <div className="px-2 py-1.5 space-y-2 text-xs text-muted-foreground">
-          {/* 테마 */}
           <div className="flex items-center justify-between gap-2">
             <span>테마</span>
             <ThemeToggleText />
           </div>
 
-          {/* 언어 */}
           <div className="flex items-center justify-between gap-2">
             <span>언어</span>
             <div>
@@ -144,10 +136,8 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
           </div>
         </div>
 
-        {/* --- 구분선 --- */}
         <DropdownMenuSeparator className={dividerClass} />
 
-        {/* 로그아웃 */}
         <DropdownMenuItem
           className="text-sm"
           onSelect={(e) => {

@@ -136,15 +136,17 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                 </Link>
 
                 {/* 나의 맵 */}
+                {/* 나의 맵 – 세컨더리 텍스트 버튼 스타일 */}
                 <Link
                   href="/my-summaries"
                   className="
-                    text-sm px-4 py-2 rounded-full
-                    bg-blue-600 text-white
-                    hover:bg-blue-700
-                    hover:shadow-lg
-                    transition-transform hover:scale-[1.03] active:scale-100
-                    dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+                    text-sm font-medium
+                    px-2.5 py-1.5 rounded-lg
+                    text-neutral-700 dark:text-neutral-200
+                    hover:text-neutral-900 dark:hover:text-white
+                    hover:bg-white/70 dark:hover:bg-white/5
+                    border border-transparent hover:border-black/5 dark:hover:border-white/10
+                    transition-colors
                   "
                 >
                   나의 맵
