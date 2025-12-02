@@ -132,7 +132,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                   >
                     <Icon icon="lucide:plus" className="h-3.5 w-3.5" />
                   </span>
-                  <span>새 구조맵 만들기</span>
+                  <span>새 구조맵</span>
                 </Link>
 
                 {/* 나의 맵 */}

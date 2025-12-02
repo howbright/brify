@@ -37,19 +37,40 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
     "from-transparent via-neutral-200 to-transparent " +
     "dark:via-neutral-700/70";
 
+  // 이니셜 (이메일 첫 글자)
+  const initial =
+    mounted && email && email.trim().length > 0
+      ? email.trim().charAt(0).toUpperCase()
+      : "?";
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg text-sm hover:border-primary hover:text-primary transition-colors">
-          {mounted && email ? (
-            <span className="hidden sm:inline truncate max-w-[140px]">
-              {email}
-            </span>
-          ) : (
-            <span className="hidden sm:inline truncate max-w-[140px]">
-              계정
-            </span>
-          )}
+        <button
+          className="
+            flex items-center gap-2
+            px-3 py-1.5
+            rounded-full border border-border
+            bg-white/80 dark:bg-white/5
+            text-xs sm:text-sm font-medium
+            text-neutral-800 dark:text-neutral-100
+            hover:border-primary hover:text-primary
+            hover:bg-white
+            dark:hover:bg-white/10
+            transition-colors
+          "
+        >
+          <span className="tracking-tight">MY</span>
+          <span
+            className="
+              inline-flex h-7 w-7 items-center justify-center
+              rounded-full
+              bg-blue-600/10 text-blue-600 text-xs font-semibold
+              dark:bg-blue-500/25 dark:text-blue-50
+            "
+          >
+            {initial}
+          </span>
         </button>
       </DropdownMenuTrigger>
 
@@ -58,15 +79,27 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
         sideOffset={8}
         className="
           w-[17rem] rounded-2xl
-          border border-white/70 dark:border-white/18
+          border border-white/70 dark:border-white/20
           bg-white/95 dark:bg-[rgba(15,23,42,0.98)]
-          shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)]
-          dark:shadow-[0_22px_60px_-26px_rgba(15,23,42,0.95)]
+          shadow-[0_18px_40px_-18px_rgba(15,23,42,0.9)]
           backdrop-blur-xl
           p-1.5
         "
       >
-        {/* 상단 메인 메뉴들 */}
+        {/* 상단 계정 정보 */}
+        {mounted && email && (
+          <>
+            <div className="px-3 pt-2 pb-1 text-[11px] uppercase tracking-[0.08em] text-neutral-400 dark:text-neutral-500">
+              로그인 계정
+            </div>
+            <div className="px-3 pb-2 text-xs sm:text-sm text-neutral-900 dark:text-neutral-50 truncate">
+              {email}
+            </div>
+            <DropdownMenuSeparator className={dividerClass} />
+          </>
+        )}
+
+        {/* 메인 메뉴들 */}
         <DropdownMenuItem
           className="text-sm"
           onSelect={(e) => {
