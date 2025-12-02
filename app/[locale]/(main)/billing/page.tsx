@@ -196,31 +196,39 @@ export default function BillingPage() {
 
             {/* 한국어일 때만 KRW / USD 토글 */}
             {isKorean && (
-              <div className="mt-3 md:mt-0 flex justify-start md:justify-end">
-                <div className="inline-flex rounded-full border border-white/70 bg-white/80 px-1 py-1 text-[11px] shadow-sm backdrop-blur dark:border-white/20 dark:bg-black/40">
+              <div className="mt-1 md:mt-0 flex justify-end">
+                <div
+                  className="
+        inline-flex items-center
+        rounded-full border border-white/70 bg-white/80
+        px-1.5 py-0.5 text-[11px]
+        shadow-sm backdrop-blur
+        dark:border-white/20 dark:bg-black/40
+      "
+                >
                   <button
                     type="button"
                     onClick={() => setCurrency("krw")}
                     className={[
-                      "px-3 py-1.5 rounded-full transition-all",
+                      "px-2.5 py-0.5 rounded-full transition-all",
                       currency === "krw"
                         ? "bg-blue-600 text-white shadow"
                         : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100/80 dark:hover:bg-white/5",
                     ].join(" ")}
                   >
-                    KRW (원화)
+                    KRW
                   </button>
                   <button
                     type="button"
                     onClick={() => setCurrency("usd")}
                     className={[
-                      "px-3 py-1.5 rounded-full transition-all",
+                      "px-2.5 py-0.5 rounded-full transition-all",
                       currency === "usd"
                         ? "bg-blue-600 text-white shadow"
                         : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100/80 dark:hover:bg-white/5",
                     ].join(" ")}
                   >
-                    USD (달러)
+                    USD
                   </button>
                 </div>
               </div>
@@ -230,60 +238,91 @@ export default function BillingPage() {
 
         <main className="mx-auto max-w-5xl px-6 md:px-10 pb-24">
           {/* 잔액 카드 */}
-          <section className="mt-8">
+          <section className="mt-2">
             <div
               className="
-                rounded-3xl border border-white/70 bg-white/80
-                backdrop-blur
-                shadow-[0_20px_60px_-20px_rgba(15,23,42,0.35)]
-                p-5 sm:p-6 lg:p-7
-                dark:bg-black/35 dark:border-white/15
-              "
+      relative overflow-hidden
+      rounded-3xl border border-white/80 dark:border-white/15
+      bg-white/95 dark:bg-black/50
+      backdrop-blur
+      shadow-[0_18px_45px_-26px_rgba(15,23,42,0.85)]
+      px-5 py-5 sm:px-6 sm:py-6
+    "
             >
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="text-xs font-medium uppercase tracking-[0.12em] text-neutral-500 dark:text-neutral-400">
-                    현재 보유 크레딧
+              {/* 오른쪽 배경 포인트 (살짝만) */}
+              <div
+                aria-hidden
+                className="
+        pointer-events-none absolute inset-y-0 right-[-40px] w-48
+        bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.28),transparent_60%)]
+        dark:bg-[radial-gradient(circle_at_center,rgba(129,140,248,0.32),transparent_60%)]
+      "
+              />
+
+              <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                {/* 왼쪽: 아이콘 + 숫자 + 간단 설명 */}
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-2 text-xs font-medium text-neutral-600 dark:text-neutral-300">
+                    {/* ✅ 크레딧 코인 아이콘 (색 추가) */}
+                    <span
+                      className="
+              inline-flex h-7 w-7 items-center justify-center
+              rounded-full
+              bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500
+              text-[11px] font-semibold text-white
+              shadow-[0_4px_14px_rgba(37,99,235,0.55)]
+            "
+                    >
+                      CR
+                    </span>
+                    <span>지금 사용 가능한 잔액</span>
                   </div>
-                  <div className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
-                    {balance === null
-                      ? "…"
-                      : `${balance.toLocaleString()} 크레딧`}
+
+                  {/* ✅ 숫자 + '크레딧' 아래 정렬 */}
+                  <div className="mt-1 flex items-end gap-2">
+                    <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
+                      {balance === null ? "…" : balance.toLocaleString()}
+                    </span>
+                    <span className="text-sm font-medium text-neutral-500 dark:text-neutral-300 pb-[2px]">
+                      크레딧
+                    </span>
                   </div>
+
                   <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-300">
-                    구조맵 하나당 보통{" "}
-                    <span className="font-semibold">1크레딧이면 충분해요.</span>
+                    구조맵 만들 때 보통{" "}
+                    <span className="font-semibold">1개 정도만 쓰여요.</span>
                   </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+                {/* 오른쪽: 액션 버튼 두 개 */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 min-w-[180px]">
                   <Link
                     href="/"
                     className="
-                      inline-flex items-center justify-center rounded-2xl
-                      border border-white/70 bg-white/80 px-4 py-2.5 text-sm font-medium
-                      text-neutral-900
-                      hover:-translate-y-0.5 hover:shadow-md
-                      transition-all
-                      dark:bg-black/40 dark:border-white/20 dark:text-neutral-100
-                    "
+            inline-flex items-center justify-center rounded-2xl
+            border border-neutral-200/80 bg-white/90 px-4 py-2.5
+            text-sm font-medium text-neutral-900
+            hover:-translate-y-0.5 hover:shadow-md
+            transition-all
+            dark:border-white/20 dark:bg-black/70 dark:text-neutral-50
+          "
                   >
-                    메인으로 돌아가기
+                    메인으로
                   </Link>
                   <a
                     href="#packs"
                     className="
-                      inline-flex items-center justify-center rounded-2xl
-                      px-4 py-2.5 text-sm font-semibold
-                      bg-blue-600 text-white
-                      hover:bg-blue-700
-                      hover:-translate-y-0.5 hover:shadow-lg
-                      active:translate-y-0
-                      transition-all
-                      dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
-                    "
+            inline-flex items-center justify-center rounded-2xl
+            px-4 py-2.5 text-sm font-semibold
+            bg-blue-600 text-white
+            hover:bg-blue-700
+            hover:-translate-y-0.5 hover:shadow-lg
+            active:translate-y-0
+            transition-all
+            dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+          "
                   >
-                    크레딧 충전하기
+                    바로 충전하기
                   </a>
                 </div>
               </div>
@@ -328,11 +367,11 @@ export default function BillingPage() {
             {/* 결제/환불 안내 */}
             <div
               className="
-                mt-7 rounded-3xl border border-white/70 bg-white/80
-                backdrop-blur p-4 sm:p-5
-                text-xs sm:text-sm text-neutral-700 space-y-1.5
-                dark:bg-black/35 dark:border-white/20 dark:text-neutral-200
-              "
+    mt-7 rounded-3xl border border-white/80 dark:border-white/15
+    bg-white/80 backdrop-blur p-4 sm:p-5
+    text-xs sm:text-sm text-neutral-700 space-y-1.5
+    dark:bg-black/35 dark:text-neutral-200
+  "
             >
               {currency === "krw" ? (
                 <p>
@@ -357,7 +396,7 @@ export default function BillingPage() {
 
           {/* 크레딧 사용 기준 */}
           <section className="mt-10">
-            <div className="rounded-3xl border border-white/70 bg-white/90 backdrop-blur p-4 sm:p-5 dark:bg-black/40 dark:border-white/20">
+            <div className="rounded-3xl border border-white/80 dark:border-white/15 bg-white/90 backdrop-blur p-4 sm:p-5 dark:bg-black/40">
               <h3 className="text-sm sm:text-base font-semibold text-neutral-900 dark:text-neutral-50">
                 크레딧 사용 기준
               </h3>
@@ -426,7 +465,7 @@ function CreditPackCard({ pack }: { pack: CreditPack }) {
         "shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)]",
         popular
           ? "border-blue-500/70 dark:border-[rgb(var(--hero-b))]"
-          : "border-white/70 dark:border-white/18",
+          : "border-white/80 dark:border-white/15",
         "dark:bg-black/40",
       ].join(" ")}
     >
@@ -479,10 +518,10 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   return (
     <div
       className="
-        rounded-2xl border border-white/70 bg-white/85
-        p-4 backdrop-blur
-        dark:bg-black/35 dark:border-white/18
-      "
+      rounded-2xl border border-white/80 dark:border-white/15
+      bg-white/85 p-4 backdrop-blur
+      dark:bg-black/35
+    "
     >
       <div className="font-medium text-neutral-900 dark:text-neutral-50">
         {q}
