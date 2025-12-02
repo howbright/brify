@@ -37,12 +37,6 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
     "from-transparent via-neutral-200 to-transparent " +
     "dark:via-neutral-700/70";
 
-  // 이니셜 (이메일 첫 글자)
-  const initial =
-    mounted && email && email.trim().length > 0
-      ? email.trim().charAt(0).toUpperCase()
-      : "?";
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -60,17 +54,7 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
             transition-colors
           "
         >
-          <span className="tracking-tight">MY</span>
-          <span
-            className="
-              inline-flex h-7 w-7 items-center justify-center
-              rounded-full
-              bg-blue-600/10 text-blue-600 text-xs font-semibold
-              dark:bg-blue-500/25 dark:text-blue-50
-            "
-          >
-            {initial}
-          </span>
+          <span className="tracking-tight">내 계정</span>
         </button>
       </DropdownMenuTrigger>
 
