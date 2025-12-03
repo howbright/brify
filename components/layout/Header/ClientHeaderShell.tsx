@@ -66,6 +66,12 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
               {t("nav.samples")}
             </Link>
             <Link
+              href={{ pathname: "/", hash: "about" }}
+              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+            >
+              {t("nav.about")}
+            </Link>
+            <Link
               href={{ pathname: "/", hash: "pricing" }}
               className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
             >

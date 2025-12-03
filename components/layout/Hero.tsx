@@ -104,7 +104,7 @@ export default function LandingBlueHero() {
               className="font-semibold"
               style={{ color: "var(--color-foreground)" }}
             >
-              영상 내용을 '다이어그램(구조맵)'로 한눈에 정리
+              영상 내용을 '다이어그램(구조맵)'으로 한눈에 정리
               {/* <span
                 className="font-extrabold"
                 style={{ color: "hsl(var(--primary))" }}
@@ -144,7 +144,7 @@ export default function LandingBlueHero() {
                transition-transform hover:scale-[1.03] active:scale-100
                focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60"
             >
-              영상을 '구조맵'로 만들기
+              영상을 '구조맵'으로 만들기
             </Link>
 
             {/* Secondary / Glass */}
@@ -165,12 +165,8 @@ export default function LandingBlueHero() {
             className="mt-6"
             size="sm"
             items={[
-              "세부내용까지 빠짐없이 정리", // or "상세 유실 없이 정리"
-              "다이어그램(구조맵)",
-              "외국어 → 모국어 변환",
-              "자동 카테고리 분류",
-              "공유 링크 생성",
-              "타임스탬프 ON/OFF",
+              "회원가입시 3크레딧 지급", // or "상세 유실 없이 정리"
+              '친구 추천시 10크레딧 지급'
             ]}
           />
         </div>
@@ -303,15 +299,15 @@ export default function LandingBlueHero() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             {
-              title: "세부까지 '구조맵'로 정리",
+              title: "세부내용까지 놓치지 않아요.",
               desc: "핵심은 한눈에, 세부는 펼쳐보기로",
             },
             {
-              title: "붙여넣기 즉시 시작",
-              desc: "유튜브·텍스트·자막 그대로 입력",
+              title: "전문용어 자동 정리",
+              desc: "스크립트속의 전문용어의 뜻을 자동으로 정리합니다.",
             },
             { title: "자동 카테고리 분류", desc: "건강, 재테크, 교육, 정치, 경제 등" },
-            { title: "외국어도 내 언어로", desc: "외국 영상도 모국어로 정리" },
+            { title: "외국어도 내 언어로", desc: "외국어 스크립트도 모국어로 정리" },
           ].map((f, i) => (
             <motion.div
               key={f.title}

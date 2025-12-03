@@ -6,7 +6,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { useSession } from "@/components/SessionProvider";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 type Currency = "krw" | "usd";
 
@@ -90,6 +90,7 @@ function formatPrice(amount: number, currency: Currency) {
 }
 
 export default function BillingPage() {
+  const t = useTranslations("BillingPage");
   const { session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -127,6 +128,16 @@ export default function BillingPage() {
       [...PACKS_BY_CURRENCY[currency]].sort((a, b) => a.credits - b.credits),
     [currency]
   );
+
+  const currencyLabel =
+    currency === "krw"
+      ? t("packs.summary.krw")
+      : t("packs.summary.usd");
+
+  const processorLabel =
+    currency === "krw"
+      ? t("packs.summary.processor.krw")
+      : t("packs.summary.processor.usd");
 
   return (
     <>
@@ -181,16 +192,16 @@ export default function BillingPage() {
         {/* 상단 헤더 영역 */}
         <header className="mx-auto max-w-5xl px-6 md:px-10 pt-20">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-3 py-1 text-[11px] font-medium text-neutral-700 shadow-sm backdrop-blur dark:bg-black/40 dark:border-white/15 dark:text-neutral-200">
-            크레딧 종량제 · 정기 구독 없이
+            {t("badge")}
           </div>
 
           <div className="mt-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-white dark:[text-shadow:0_1px_12px_rgba(0,0,0,0.45)]">
-                크레딧 · 결제
+                {t("title")}
               </h1>
               <p className="mt-2 text-sm md:text-base text-neutral-700 dark:text-neutral-300 max-w-xl">
-                필요할 때만 크레딧을 충전해서 사용하세요.
+                {t("subtitle")}
               </p>
             </div>
 
@@ -199,12 +210,12 @@ export default function BillingPage() {
               <div className="mt-1 md:mt-0 flex justify-end">
                 <div
                   className="
-        inline-flex items-center
-        rounded-full border border-white/70 bg-white/80
-        px-1.5 py-0.5 text-[11px]
-        shadow-sm backdrop-blur
-        dark:border-white/20 dark:bg-black/40
-      "
+                    inline-flex items-center
+                    rounded-full border border-white/70 bg-white/80
+                    px-1.5 py-0.5 text-[11px]
+                    shadow-sm backdrop-blur
+                    dark:border-white/20 dark:bg-black/40
+                  "
                 >
                   <button
                     type="button"
@@ -216,7 +227,7 @@ export default function BillingPage() {
                         : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100/80 dark:hover:bg-white/5",
                     ].join(" ")}
                   >
-                    KRW
+                    {t("currencyToggle.krw")}
                   </button>
                   <button
                     type="button"
@@ -228,7 +239,7 @@ export default function BillingPage() {
                         : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100/80 dark:hover:bg-white/5",
                     ].join(" ")}
                   >
-                    USD
+                    {t("currencyToggle.usd")}
                   </button>
                 </div>
               </div>
@@ -241,56 +252,58 @@ export default function BillingPage() {
           <section className="mt-2">
             <div
               className="
-      relative overflow-hidden
-      rounded-3xl border border-white/80 dark:border-white/15
-      bg-white/95 dark:bg-black/50
-      backdrop-blur
-      shadow-[0_18px_45px_-26px_rgba(15,23,42,0.85)]
-      px-5 py-5 sm:px-6 sm:py-6
-    "
+                relative overflow-hidden
+                rounded-3xl border border-neutral-200/80 dark:border-white/15
+                bg-white/95 dark:bg-black/50
+                backdrop-blur
+                shadow-[0_18px_45px_-26px_rgba(15,23,42,0.45)]
+                px-5 py-5 sm:px-6 sm:py-6
+              "
             >
               {/* 오른쪽 배경 포인트 (살짝만) */}
               <div
                 aria-hidden
                 className="
-        pointer-events-none absolute inset-y-0 right-[-40px] w-48
-        bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.28),transparent_60%)]
-        dark:bg-[radial-gradient(circle_at_center,rgba(129,140,248,0.32),transparent_60%)]
-      "
+                  pointer-events-none absolute inset-y-0 right-[-40px] w-48
+                  bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.28),transparent_60%)]
+                  dark:bg-[radial-gradient(circle_at_center,rgba(129,140,248,0.32),transparent_60%)]
+                "
               />
 
               <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 {/* 왼쪽: 아이콘 + 숫자 + 간단 설명 */}
                 <div className="space-y-2">
                   <div className="inline-flex items-center gap-2 text-xs font-medium text-neutral-600 dark:text-neutral-300">
-                    {/* ✅ 크레딧 코인 아이콘 (색 추가) */}
+                    {/* 크레딧 코인 아이콘 */}
                     <span
                       className="
-              inline-flex h-7 w-7 items-center justify-center
-              rounded-full
-              bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500
-              text-[11px] font-semibold text-white
-              shadow-[0_4px_14px_rgba(37,99,235,0.55)]
-            "
+                        inline-flex h-7 w-7 items-center justify-center
+                        rounded-full
+                        bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500
+                        text-[11px] font-semibold text-white
+                        shadow-[0_4px_14px_rgba(37,99,235,0.55)]
+                      "
                     >
                       CR
                     </span>
-                    <span>지금 사용 가능한 잔액</span>
+                    <span>{t("balance.label")}</span>
                   </div>
 
-                  {/* ✅ 숫자 + '크레딧' 아래 정렬 */}
+                  {/* 숫자 + '크레딧' 아래 정렬 */}
                   <div className="mt-1 flex items-end gap-2">
                     <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
                       {balance === null ? "…" : balance.toLocaleString()}
                     </span>
-                    <span className="text-sm font-medium text-neutral-500 dark:text-neutral-300 pb-[2px]">
-                      크레딧
+                    <span className="text-sm font-medium text-neutral-500 dark:text-neutral-300 pb-1">
+                      {t("balance.unit")}
                     </span>
                   </div>
 
                   <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-300">
-                    구조맵 만들 때 보통{" "}
-                    <span className="font-semibold">1개 정도만 쓰여요.</span>
+                    {t("balance.hintPrefix")}{" "}
+                    <span className="font-semibold">
+                      {t("balance.hintStrong")}
+                    </span>
                   </p>
                 </div>
 
@@ -299,30 +312,30 @@ export default function BillingPage() {
                   <Link
                     href="/"
                     className="
-            inline-flex items-center justify-center rounded-2xl
-            border border-neutral-200/80 bg-white/90 px-4 py-2.5
-            text-sm font-medium text-neutral-900
-            hover:-translate-y-0.5 hover:shadow-md
-            transition-all
-            dark:border-white/20 dark:bg-black/70 dark:text-neutral-50
-          "
+                      inline-flex items-center justify-center rounded-2xl
+                      border border-neutral-200/80 bg-white/90 px-4 py-2.5
+                      text-sm font-medium text-neutral-900
+                      hover:-translate-y-0.5 hover:shadow-md
+                      transition-all
+                      dark:border-white/20 dark:bg-black/70 dark:text-neutral-50
+                    "
                   >
-                    메인으로
+                    {t("balance.mainButton")}
                   </Link>
                   <a
                     href="#packs"
                     className="
-            inline-flex items-center justify-center rounded-2xl
-            px-4 py-2.5 text-sm font-semibold
-            bg-blue-600 text-white
-            hover:bg-blue-700
-            hover:-translate-y-0.5 hover:shadow-lg
-            active:translate-y-0
-            transition-all
-            dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
-          "
+                      inline-flex items-center justify-center rounded-2xl
+                      px-4 py-2.5 text-sm font-semibold
+                      bg-blue-600 text-white
+                      hover:bg-blue-700
+                      hover:-translate-y-0.5 hover:shadow-lg
+                      active:translate-y-0
+                      transition-all
+                      dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+                    "
                   >
-                    바로 충전하기
+                    {t("balance.chargeButton")}
                   </a>
                 </div>
               </div>
@@ -334,27 +347,21 @@ export default function BillingPage() {
             <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <h2 className="text-xl md:text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
-                  크레딧 팩 선택
+                  {t("packs.title")}
                 </h2>
                 <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-                  많이 충전할수록{" "}
+                  {t("packs.subtitle")}{" "}
                   <span className="font-semibold text-blue-700 dark:text-[rgb(var(--hero-b))]">
-                    크레딧당 단가가 낮아져요.
+                    {t("packs.subtitleHighlight")}
                   </span>
                 </p>
               </div>
               <div className="text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400">
-                결제는{" "}
-                <span className="font-medium">
-                  {currency === "krw" ? "KRW(원화)" : "USD(달러)"}
-                </span>{" "}
-                기준이며{" "}
-                <span className="font-medium">
-                  {currency === "krw"
-                    ? "토스페이먼츠(Toss Payments)"
-                    : "LemonSqueezy"}
-                </span>
-                를 통해 안전하게 처리돼요.
+                {t("packs.summary.prefix")}{" "}
+                <span className="font-medium">{currencyLabel}</span>{" "}
+                {t("packs.summary.middle")}{" "}
+                <span className="font-medium">{processorLabel}</span>{" "}
+                {t("packs.summary.suffix")}
               </div>
             </div>
 
@@ -367,48 +374,33 @@ export default function BillingPage() {
             {/* 결제/환불 안내 */}
             <div
               className="
-    mt-7 rounded-3xl border border-white/80 dark:border-white/15
-    bg-white/80 backdrop-blur p-4 sm:p-5
-    text-xs sm:text-sm text-neutral-700 space-y-1.5
-    dark:bg-black/35 dark:text-neutral-200
-  "
+                mt-7 rounded-3xl border border-neutral-200/80 dark:border-white/15
+                bg-white/80 backdrop-blur p-4 sm:p-5
+                text-xs sm:text-sm text-neutral-700 space-y-1.5
+                dark:bg-black/35 dark:text-neutral-200
+              "
             >
-              {currency === "krw" ? (
-                <p>
-                  • 원화 결제는 PG사를 통해 처리되며, 카드사 규정에 따라
-                  수수료가 붙을 수 있어요.
-                </p>
-              ) : (
-                <p>
-                  • 해외 결제(USD)로 진행되며, 카드사 해외 수수료가 별도로 붙을
-                  수 있어요.
-                </p>
+              {currency === "usd" && (
+                <p>{t("packs.info.usdFee")}</p>
               )}
-              <p>
-                • 결제 완료 후 몇 초 내로 크레딧이 계정에 자동으로 충전됩니다.
-              </p>
-              <p>
-                • 미사용 크레딧에 한해 7일 이내 환불 요청이 가능하며, 자세한
-                정책은 추후 안내돼요.
-              </p>
+              <p>{t("packs.info.instant")}</p>
+              <p>{t("packs.info.refund")}</p>
             </div>
           </section>
 
           {/* 크레딧 사용 기준 */}
           <section className="mt-10">
-            <div className="rounded-3xl border border-white/80 dark:border-white/15 bg-white/90 backdrop-blur p-4 sm:p-5 dark:bg-black/40">
+            <div className="rounded-3xl border border-neutral-200/80 dark:border-white/15 bg-white/90 backdrop-blur p-4 sm:p-5 dark:bg-black/40">
               <h3 className="text-sm sm:text-base font-semibold text-neutral-900 dark:text-neutral-50">
-                크레딧 사용 기준
+                {t("usage.title")}
               </h3>
               <ul className="mt-2 space-y-1.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200">
-                <li>• 구조맵 하나당 기본 1크레딧이 차감돼요.</li>
-                <li>• 2시간 이내 영상 스크립트 → 1크레딧</li>
-                <li>• 2~3시간 분량 영상 스크립트 → 2크레딧</li>
-                <li>• 3시간 이상 초장편 영상 스크립트 → 3크레딧</li>
+                <li>{t("usage.item1")}</li>
+                <li>{t("usage.item2")}</li>
+                <li>{t("usage.item3")}</li>
               </ul>
               <p className="mt-2 text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400">
-                ※ 위 기준은 서비스 운영 상황에 따라 조정될 수 있으며, 변경 시
-                사전에 안내해 드려요.
+                {t("usage.note")}
               </p>
             </div>
           </section>
@@ -416,25 +408,13 @@ export default function BillingPage() {
           {/* FAQ 섹션 */}
           <section className="mt-12">
             <h3 className="text-lg md:text-xl font-semibold text-neutral-900 dark:text-neutral-50">
-              자주 묻는 질문
+              {t("faq.title")}
             </h3>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <FaqItem
-                q="왜 크레딧제로 운영하나요?"
-                a="자주 쓰는 날도 있고, 한동안 안 쓸 때도 있어서 정기 구독보다는 사용한 만큼만 결제하는 방식이 더 유연하다고 판단했어요."
-              />
-              <FaqItem
-                q="영상 길이에 따라 몇 크레딧이 사용되나요?"
-                a="기본은 구조맵 1건 = 1크레딧이고, 2~3시간 분량의 긴 영상은 2크레딧, 3시간 이상 초장편 영상은 3크레딧이 차감돼요."
-              />
-              <FaqItem
-                q="크레딧에 사용 기한이 있나요?"
-                a="현재는 별도의 만료 기한 없이 계정에 계속 남아 있어요. 정책이 바뀌더라도 충분한 안내 후 적용할 예정이에요."
-              />
-              <FaqItem
-                q="영수증이나 세금계산서 발급이 가능한가요?"
-                a="모든 결제 내역은 이메일 영수증으로 발송되며, 별도 증빙이 필요하다면 문의를 통해 도와드릴 예정이에요."
-              />
+              <FaqItem q={t("faq.q1")} a={t("faq.a1")} />
+              <FaqItem q={t("faq.q2")} a={t("faq.a2")} />
+              <FaqItem q={t("faq.q3")} a={t("faq.a3")} />
+              <FaqItem q={t("faq.q4")} a={t("faq.a4")} />
             </div>
           </section>
         </main>
@@ -444,6 +424,7 @@ export default function BillingPage() {
 }
 
 function CreditPackCard({ pack }: { pack: CreditPack }) {
+  const t = useTranslations("BillingPage");
   const { credits, price, currency, checkoutUrl, popular, starter } = pack;
 
   const handleBuy = () => {
@@ -465,23 +446,23 @@ function CreditPackCard({ pack }: { pack: CreditPack }) {
         "shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)]",
         popular
           ? "border-blue-500/70 dark:border-[rgb(var(--hero-b))]"
-          : "border-white/80 dark:border-white/15",
+          : "border-neutral-200/80 dark:border-white/15",
         "dark:bg-black/40",
       ].join(" ")}
     >
       {(popular || starter || isLargePack) && (
         <div className="mb-3 inline-flex items-center gap-1 self-start rounded-full border border-blue-500/40 bg-blue-500/10 px-2.5 py-0.5 text-[11px] font-medium text-blue-700 dark:border-[rgb(var(--hero-b))]/50 dark:bg-[rgb(var(--hero-b))]/15 dark:text-[rgb(var(--hero-b))]">
           {popular
-            ? "가장 많이 선택해요"
+            ? t("card.badge.popular")
             : starter
-            ? "처음 쓰기 좋아요"
-            : "많이 쓰는 분께 좋아요"}
+            ? t("card.badge.starter")
+            : t("card.badge.large")}
         </div>
       )}
       <div className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
         {credits.toLocaleString()}{" "}
         <span className="text-base font-medium text-neutral-500 dark:text-neutral-400">
-          크레딧
+          {t("card.creditsUnit")}
         </span>
       </div>
 
@@ -490,8 +471,11 @@ function CreditPackCard({ pack }: { pack: CreditPack }) {
       </div>
 
       <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-        ≈ {formatPrice(unit, currency)} / 크레딧 · 구조맵 약{" "}
-        {approxMaps.toLocaleString()}개 분량
+        {t("card.unitPricePrefix")}{" "}
+        {formatPrice(unit, currency)}{" "}
+        {t("card.unitPriceMiddle")}{" "}
+        {approxMaps.toLocaleString()}
+        {t("card.unitPriceSuffix")}
       </div>
 
       <div className="mt-5 flex-1" />
@@ -508,7 +492,7 @@ function CreditPackCard({ pack }: { pack: CreditPack }) {
           dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
         "
       >
-        지금 충전하기
+        {t("card.cta")}
       </button>
     </div>
   );
@@ -518,10 +502,10 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   return (
     <div
       className="
-      rounded-2xl border border-white/80 dark:border-white/15
-      bg-white/85 p-4 backdrop-blur
-      dark:bg-black/35
-    "
+        rounded-2xl border border-neutral-200/80 dark:border-white/15
+        bg-white/85 p-4 backdrop-blur
+        dark:bg-black/35
+      "
     >
       <div className="font-medium text-neutral-900 dark:text-neutral-50">
         {q}

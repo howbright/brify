@@ -287,7 +287,7 @@
     "body": "Sign up and get <highlight>3 free credits</highlight> — start extracting the essentials right away.",
     "primary": {
       "signedOut": "Get started for free",
-      "signedIn": "Start summarizing now"
+      "signedIn": "Get started"
     },
     "secondary": {
       "label": "View pricing"
@@ -312,6 +312,7 @@
     },
     "nav": {
       "samples": "Samples",
+      "about": "About",
       "pricing": "Pricing"
     },
     "auth": {
@@ -362,6 +363,119 @@
     "links": {
       "history": "View payment history",
       "historyDescription": "You can review past payments and receipts on the payment history page."
+    }
+  },
+  "BillingPage": {
+    "badge": "Pay-as-you-go credits · No subscription",
+    "title": "Credits & billing",
+    "subtitle": "Top up credits only when you need them.",
+
+    "currencyToggle": {
+      "krw": "KRW",
+      "usd": "USD"
+    },
+
+    "balance": {
+      "label": "Available balance",
+      "unit": "credits",
+      "hintPrefix": "Most diagrams use",
+      "hintStrong": "around 1 credit.",
+      "mainButton": "Back to home",
+      "chargeButton": "Add credits"
+    },
+
+    "packs": {
+      "title": "Choose a credit pack",
+      "subtitle": "The more you top up,",
+      "subtitleHighlight": "the less you pay per credit.",
+      "summary": {
+        "prefix": "Payments are processed in",
+        "middle": "via",
+        "suffix": "and handled securely.",
+        "krw": "KRW",
+        "usd": "USD",
+        "processor": {
+          "krw": "Toss Payments",
+          "usd": "LemonSqueezy"
+        }
+      },
+      "info": {
+        "usdFee": "• Payments are processed in USD and some cards may charge a small foreign transaction fee.",
+        "instant": "• Credits are added to your account automatically within a few seconds after payment.",
+        "refund": "• Refunds are available for unused credits within 7 days of purchase. Details will be announced later."
+      }
+    },
+
+    "usage": {
+      "title": "How credits are used",
+      "item1": "• Scripts up to 2 hours → 1 credit",
+      "item2": "• 2–3 hour long videos → 2 credits",
+      "item3": "• 3+ hour very long videos → 3 credits",
+      "note": "※ These thresholds may change in the future. We’ll let you know in advance before any updates."
+    },
+
+    "faq": {
+      "title": "FAQ",
+      "q1": "Why do you use a credit system?",
+      "a1": "Some days you use it a lot and some days not at all. A pay-as-you-go credit system is more flexible than a fixed subscription.",
+      "q2": "How many credits does a video use?",
+      "a2": "By default, 1 diagram = 1 credit. Longer videos (2–3 hours) use 2 credits, and very long videos (3+ hours) use 3 credits.",
+      "q3": "Do credits expire?",
+      "a3": "For now, credits don’t expire. If we ever change this, we’ll give you plenty of notice.",
+      "q4": "Can I get an invoice or receipt?",
+      "a4": "Every payment comes with an email receipt. If you need additional documents for your company, contact us and we’ll help."
+    },
+
+    "card": {
+      "badge": {
+        "popular": "Most popular",
+        "starter": "Good for first-timers",
+        "large": "Best if you use a lot"
+      },
+      "creditsUnit": "credits",
+      "unitPricePrefix": "≈",
+      "unitPriceMiddle": "/ credit · about",
+      "unitPriceSuffix": "diagrams",
+      "cta": "Buy now"
+    }
+  },
+  "BillingHistoryPage": {
+    "badge": "Payment history · Receipts",
+    "title": "Payment history",
+    "subtitle": "You can review your credit top-ups and receipts in one place.",
+    "summary": {
+      "title": "Credit usage overview",
+      "totalCharged": "Total purchased credits",
+      "currentBalance": "Current balance",
+      "used": "Credits used so far",
+      "unit": "credits"
+    },
+    "list": {
+      "title": "Payment history",
+      "caption": "Showing {visible} of {total} payments.",
+      "empty": "No payment history yet. Try purchasing a credit pack first.",
+      "meta": "{date} · Payment ID: {id}",
+      "creditsAndProvider": "+ {credits} credits · {provider}"
+    },
+    "button": {
+      "goToBilling": "Go to credit top-up page",
+      "loadMore": "Load more",
+      "viewReceipt": "View receipt",
+      "retryPayment": "Retry payment"
+    },
+    "status": {
+      "success": "Completed",
+      "pending": "Pending",
+      "refunded": "Refunded",
+      "failed": "Failed"
+    },
+    "info": {
+      "title": "Payment & refund information",
+      "item1": "• KRW payments are processed securely via Toss Payments.",
+      "item2": "• USD payments are processed via LemonSqueezy and your card issuer may charge an additional international fee.",
+      "item3": "• Refunded payments are shown with the \"Refunded\" status.",
+      "item4": "• Failed payments do not add any credits, and you can try the payment again if needed.",
+      "note": "More detailed payment and refund policies will be provided later on a separate policy page."
     }
   }
 }
