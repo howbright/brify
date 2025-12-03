@@ -284,7 +284,7 @@
   "FinalCTA": {
     "title": "정보는 곧 경쟁력!",
     "subtitle": "이제 <brand>Brify</brand>로 중요한 정보를 빠르게 내 것으로 만드세요.",
-    "body": "회원가입만 해도 <highlight>3 크레딧</highlight> 무료 제공 — 지금 바로 핵심을 뽑아보세요.",
+    "body": "회원가입만 해도 <highlight>5 크레딧</highlight> 무료 제공 — 지금 바로 핵심을 뽑아보세요.",
     "primary": {
       "signedOut": "무료로 시작하기",
       "signedIn": "지금 시작"
@@ -352,7 +352,6 @@
       "mainButton": "메인으로",
       "chargeButton": "바로 충전하기"
     },
-
     "packs": {
       "title": "크레딧 팩 선택",
       "subtitle": "많이 충전할수록",
