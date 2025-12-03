@@ -477,5 +477,65 @@
       "item4": "• Failed payments do not add any credits, and you can try the payment again if needed.",
       "note": "More detailed payment and refund policies will be provided later on a separate policy page."
     }
+  },
+  "BillingReceiptPage": {
+    "breadcrumb": {
+      "history": "Billing history",
+      "receipt": "Receipt"
+    },
+    "title": "Payment receipt",
+    "subtitle": "You can review the detailed information for this credit top-up.",
+    "buttons": {
+      "backToHistory": "Back to billing history",
+      "print": "Print / Save as PDF"
+    },
+    "notFound": {
+      "title": "Receipt not found.",
+      "description": "The payment ID may be invalid, or the receipt information is no longer available."
+    },
+    "summary": {
+      "paymentId": "Payment ID",
+      "paidAt": "Paid at",
+      "amountLabel": "Amount",
+      "chargedCredits": "+ {credits} credits added"
+    },
+    "section": {
+      "paymentInfo": "Payment details",
+      "creditInfo": "Credit details",
+      "notice": "Receipt & refund information"
+    },
+    "paymentInfo": {
+      "method": "Payment method",
+      "processor": "Processor",
+      "currency": "Currency",
+      "status": "Status",
+      "processorLabel": {
+        "toss": "Toss Payments",
+        "lemon": "Lemon Squeezy"
+      },
+      "currencyLabel": {
+        "krw": "KRW (Korean Won)",
+        "usd": "USD (US Dollar)"
+      }
+    },
+    "creditInfo": {
+      "chargedCredits": "Credits added",
+      "estimatedMaps": "Estimated number of diagrams",
+      "estimatedMapsValue": "Approx. {count} diagrams",
+      "ruleLabel": "Usage rule",
+      "ruleText": "By default, 1 credit is deducted per generated diagram."
+    },
+    "status": {
+      "success": "Paid",
+      "pending": "Pending",
+      "refunded": "Refunded",
+      "failed": "Payment failed"
+    },
+    "notice": {
+      "item1": "• This page shows an in-app receipt for your reference.",
+      "item2": "• The amount and posting date on your card statement may differ.",
+      "item3": "• After a refund is processed, it may take several days to appear on your card statement depending on your card issuer and the processor.",
+      "footnote": "If you have any questions, please contact us through the support page with your payment ID."
+    }
   }
 }

@@ -17,7 +17,7 @@ const KRW_PACKS: Pack[] = [
   {
     id: "50_kr",
     credits: 50,
-    priceUSD: 4000, // 4,000원
+    priceUSD: 3500, // 4,000원
     starter: true,
   },
   {

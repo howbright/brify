@@ -1,10 +1,11 @@
 // app/[locale]/billing/receipt/[id]/page.tsx
 "use client";
 
-import { useMemo, useState, useEffect, use } from "react";
+import { useMemo, useEffect, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/components/SessionProvider";
+import { useTranslations, useLocale } from "next-intl";
 
 type Currency = "krw" | "usd";
 type PaymentStatus = "success" | "pending" | "failed" | "refunded";
@@ -40,7 +41,7 @@ const MOCK_PAYMENTS: PaymentRecord[] = [
     id: "PAY-2025-02-03-002",
     createdAt: "2025-02-03T21:14:00+09:00",
     currency: "krw",
-    amount: 4000,
+    amount: 3500,
     credits: 50,
     status: "success",
     provider: "Toss",
@@ -85,24 +86,21 @@ const MOCK_PAYMENTS: PaymentRecord[] = [
   },
 ];
 
-function formatAmount(amount: number, currency: Currency) {
-  if (currency === "krw") {
-    return new Intl.NumberFormat("ko-KR", {
-      style: "currency",
-      currency: "KRW",
-      maximumFractionDigits: 0,
-    }).format(amount);
-  }
-  return new Intl.NumberFormat("en-US", {
+// 통화 포맷터 (locale 사용)
+function formatAmount(amount: number, currency: Currency, locale: string) {
+  const currencyCode = currency === "krw" ? "KRW" : "USD";
+  return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "USD",
+    currency: currencyCode,
+    maximumFractionDigits: currency === "krw" ? 0 : 2,
   }).format(amount);
 }
 
-function formatDate(iso: string) {
+// 날짜 포맷터 (locale 사용)
+function formatDate(iso: string, locale: string) {
   try {
     const d = new Date(iso);
-    return new Intl.DateTimeFormat("ko-KR", {
+    return new Intl.DateTimeFormat(locale, {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
@@ -114,9 +112,17 @@ function formatDate(iso: string) {
   }
 }
 
-function StatusBadge({ status }: { status: PaymentStatus }) {
+// 상태 뱃지 UI (텍스트는 밖에서 i18n)
+function StatusBadge({
+  status,
+  label,
+}: {
+  status: PaymentStatus;
+  label: string;
+}) {
   const base =
     "inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium";
+
   if (status === "success") {
     return (
       <span
@@ -125,7 +131,7 @@ function StatusBadge({ status }: { status: PaymentStatus }) {
           " border-emerald-500/40 bg-emerald-50 text-emerald-700 dark:border-emerald-400/40 dark:bg-emerald-950/40 dark:text-emerald-200"
         }
       >
-        결제 완료
+        {label}
       </span>
     );
   }
@@ -137,7 +143,7 @@ function StatusBadge({ status }: { status: PaymentStatus }) {
           " border-amber-500/40 bg-amber-50 text-amber-700 dark:border-amber-400/40 dark:bg-amber-950/40 dark:text-amber-200"
         }
       >
-        진행 중
+        {label}
       </span>
     );
   }
@@ -149,7 +155,7 @@ function StatusBadge({ status }: { status: PaymentStatus }) {
           " border-sky-500/40 bg-sky-50 text-sky-700 dark:border-sky-400/40 dark:bg-sky-950/40 dark:text-sky-200"
         }
       >
-        환불 완료
+        {label}
       </span>
     );
   }
@@ -160,21 +166,24 @@ function StatusBadge({ status }: { status: PaymentStatus }) {
         " border-rose-500/40 bg-rose-50 text-rose-700 dark:border-rose-400/40 dark:bg-rose-950/40 dark:text-rose-200"
       }
     >
-      결제 실패
+      {label}
     </span>
   );
 }
 
 export default function BillingReceiptPage({
-    params,
-  }: {
-    params: Promise<{ locale: string; id: string }>;
-  }) {
-    const { session } = useSession();
-    const router = useRouter();
-  
-    // 🔹 여기서 params(프라미스)를 풀어서 사용
-    const { id, locale } = use(params);
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}) {
+  const { session } = useSession();
+  const router = useRouter();
+
+  // 🔹 params(프라미스) 풀기
+  const { id } = use(params);
+
+  const t = useTranslations("BillingReceiptPage");
+  const locale = useLocale();
 
   // 로그인 안 되어 있으면 로그인 페이지로
   useEffect(() => {
@@ -194,6 +203,9 @@ export default function BillingReceiptPage({
       window.print();
     }
   };
+
+  const historyLabel = t("breadcrumb.history");
+  const receiptLabel = t("breadcrumb.receipt");
 
   return (
     <div className="relative min-h-[100dvh] bg-[#f4f6fb] dark:bg-[#020617] overflow-hidden">
@@ -245,21 +257,21 @@ export default function BillingReceiptPage({
             href="/billing/history"
             className="hover:underline hover:text-neutral-800 dark:hover:text-neutral-200"
           >
-            결제 내역
+            {historyLabel}
           </Link>{" "}
           <span className="mx-1">/</span>
           <span className="text-neutral-700 dark:text-neutral-300">
-            영수증
+            {receiptLabel}
           </span>
         </div>
 
         <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-white dark:[text-shadow:0_1px_12px_rgba(0,0,0,0.45)]">
-              결제 영수증
+              {t("title")}
             </h1>
             <p className="mt-2 text-sm md:text-base text-neutral-700 dark:text-neutral-300 max-w-xl">
-              크레딧 충전 건에 대한 상세 내역을 확인할 수 있어요.
+              {t("subtitle")}
             </p>
           </div>
 
@@ -268,14 +280,14 @@ export default function BillingReceiptPage({
               href="/billing/history"
               className="
                 inline-flex items-center justify-center rounded-2xl
-                border border-white/70 bg-white/80 px-4 py-2 text-xs sm:text-sm font-medium
+                border border-neutral-200/80 bg-white/80 px-4 py-2 text-xs sm:text-sm font-medium
                 text-neutral-900
                 hover:-translate-y-0.5 hover:shadow-md
                 transition-all
                 dark:bg-black/40 dark:border-white/20 dark:text-neutral-100
               "
             >
-              결제 내역으로 돌아가기
+              {t("buttons.backToHistory")}
             </Link>
             <button
               type="button"
@@ -288,7 +300,7 @@ export default function BillingReceiptPage({
                 dark:border-white/20 dark:bg-black/70 dark:text-neutral-100 dark:hover:bg-white/5
               "
             >
-              인쇄 / PDF 저장
+              {t("buttons.print")}
             </button>
           </div>
         </div>
@@ -297,13 +309,17 @@ export default function BillingReceiptPage({
       <main className="mx-auto max-w-5xl px-6 md:px-10 pb-24">
         {!payment ? (
           <section className="mt-10">
-            <div className="rounded-3xl border border-white/80 bg-white/95 backdrop-blur p-5 sm:p-6 text-center dark:bg-black/50 dark:border-white/20">
+            <div
+              className="
+                rounded-3xl border border-neutral-200/80 bg-white/95 backdrop-blur p-5 sm:p-6 text-center
+                dark:bg-black/50 dark:border-white/18 dark:ring-1 dark:ring-white/5
+              "
+            >
               <h2 className="text-sm sm:text-base font-semibold text-neutral-900 dark:text-neutral-50">
-                영수증을 찾을 수 없습니다.
+                {t("notFound.title")}
               </h2>
               <p className="mt-2 text-xs sm:text-sm text-neutral-600 dark:text-neutral-300">
-                유효하지 않은 결제 ID이거나, 영수증 정보가 더 이상 보관되어 있지
-                않을 수 있어요.
+                {t("notFound.description")}
               </p>
               <div className="mt-4">
                 <Link
@@ -316,7 +332,7 @@ export default function BillingReceiptPage({
                     dark:border-white/20 dark:bg-black/70 dark:text-neutral-100 dark:hover:bg-white/5
                   "
                 >
-                  결제 내역으로 돌아가기
+                  {t("buttons.backToHistory")}
                 </Link>
               </div>
             </div>
@@ -325,35 +341,46 @@ export default function BillingReceiptPage({
           <>
             {/* 상단 요약 카드 */}
             <section className="mt-8">
-              <div className="rounded-3xl border border-white/80 bg-white/95 backdrop-blur px-5 py-5 sm:px-6 sm:py-6 dark:bg-black/50 dark:border-white/20">
+              <div
+                className="
+                  rounded-3xl border border-neutral-200/80 bg-white/95 backdrop-blur px-5 py-5 sm:px-6 sm:py-6
+                  dark:bg-[#050816] dark:border-white/18 dark:ring-1 dark:ring-white/5
+                "
+              >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="space-y-2">
                     <div className="inline-flex items-center gap-2">
                       <h2 className="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-neutral-50">
                         {payment.packLabel}
                       </h2>
-                      <StatusBadge status={payment.status} />
+                      <StatusBadge
+                        status={payment.status}
+                        label={t(`status.${payment.status}`)}
+                      />
                     </div>
                     <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-300">
-                      결제 ID:{" "}
+                      {t("summary.paymentId")}:{" "}
                       <span className="font-mono text-[11px] sm:text-xs">
                         {payment.id}
                       </span>
                     </p>
                     <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-300">
-                      결제 일시: {formatDate(payment.createdAt)}
+                      {t("summary.paidAt")}:{" "}
+                      {formatDate(payment.createdAt, locale)}
                     </p>
                   </div>
 
                   <div className="text-right">
                     <div className="text-xs font-medium uppercase tracking-[0.12em] text-neutral-500 dark:text-neutral-400">
-                      결제 금액
+                      {t("summary.amountLabel")}
                     </div>
                     <div className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
-                      {formatAmount(payment.amount, payment.currency)}
+                      {formatAmount(payment.amount, payment.currency, locale)}
                     </div>
                     <div className="mt-1 text-xs sm:text-sm text-neutral-600 dark:text-neutral-300">
-                      + {payment.credits.toLocaleString()} 크레딧 충전
+                      {t("summary.chargedCredits", {
+                        credits: payment.credits.toLocaleString(locale),
+                      })}
                     </div>
                   </div>
                 </div>
@@ -363,74 +390,91 @@ export default function BillingReceiptPage({
             {/* 상세 정보 카드 */}
             <section className="mt-8 grid gap-6 lg:grid-cols-2">
               {/* 결제 정보 */}
-              <div className="rounded-3xl border border-white/80 bg-white/95 backdrop-blur p-4 sm:p-5 dark:bg-black/50 dark:border-white/20">
+              <div
+                className="
+                  rounded-3xl border border-neutral-200/80 bg-white/95 backdrop-blur p-4 sm:p-5
+                  dark:bg-[#050816] dark:border-white/18 dark:ring-1 dark:ring-white/5
+                "
+              >
                 <h3 className="text-sm sm:text-base font-semibold text-neutral-900 dark:text-neutral-50">
-                  결제 정보
+                  {t("section.paymentInfo")}
                 </h3>
                 <dl className="mt-3 space-y-1.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200">
                   <div className="flex justify-between gap-4">
                     <dt className="text-neutral-500 dark:text-neutral-400">
-                      결제 수단
+                      {t("paymentInfo.method")}
                     </dt>
                     <dd className="text-right">{payment.method}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt className="text-neutral-500 dark:text-neutral-400">
-                      결제 처리사
+                      {t("paymentInfo.processor")}
                     </dt>
                     <dd className="text-right">
                       {payment.provider === "Toss"
-                        ? "토스페이먼츠(Toss Payments)"
-                        : "LemonSqueezy"}
+                        ? t("paymentInfo.processorLabel.toss")
+                        : t("paymentInfo.processorLabel.lemon")}
                     </dd>
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt className="text-neutral-500 dark:text-neutral-400">
-                      결제 통화
+                      {t("paymentInfo.currency")}
                     </dt>
                     <dd className="text-right">
-                      {payment.currency === "krw" ? "KRW (원화)" : "USD (달러)"}
+                      {payment.currency === "krw"
+                        ? t("paymentInfo.currencyLabel.krw")
+                        : t("paymentInfo.currencyLabel.usd")}
                     </dd>
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt className="text-neutral-500 dark:text-neutral-400">
-                      상태
+                      {t("paymentInfo.status")}
                     </dt>
                     <dd className="text-right">
-                      <StatusBadge status={payment.status} />
+                      <StatusBadge
+                        status={payment.status}
+                        label={t(`status.${payment.status}`)}
+                      />
                     </dd>
                   </div>
                 </dl>
               </div>
 
               {/* 크레딧 정보 */}
-              <div className="rounded-3xl border border-white/80 bg-white/95 backdrop-blur p-4 sm:p-5 dark:bg-black/50 dark:border-white/20">
+              <div
+                className="
+                  rounded-3xl border border-neutral-200/80 bg-white/95 backdrop-blur p-4 sm:p-5
+                  dark:bg-[#050816] dark:border-white/18 dark:ring-1 dark:ring-white/5
+                "
+              >
                 <h3 className="text-sm sm:text-base font-semibold text-neutral-900 dark:text-neutral-50">
-                  크레딧 정보
+                  {t("section.creditInfo")}
                 </h3>
                 <dl className="mt-3 space-y-1.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200">
                   <div className="flex justify-between gap-4">
                     <dt className="text-neutral-500 dark:text-neutral-400">
-                      충전된 크레딧
+                      {t("creditInfo.chargedCredits")}
                     </dt>
                     <dd className="text-right">
-                      {payment.credits.toLocaleString()} 크레딧
+                      {payment.credits.toLocaleString(locale)} 크레딧
                     </dd>
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt className="text-neutral-500 dark:text-neutral-400">
-                      예상 구조맵 개수
+                      {t("creditInfo.estimatedMaps")}
                     </dt>
                     <dd className="text-right">
-                      약 {payment.credits.toLocaleString()}개 분량
+                      {t("creditInfo.estimatedMapsValue", {
+                        count: payment.credits.toLocaleString(locale),
+                      })}
                     </dd>
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt className="text-neutral-500 dark:text-neutral-400">
-                      사용 기준
+                      {t("creditInfo.ruleLabel")}
                     </dt>
                     <dd className="text-right">
-                      구조맵 1개당 기본 1크레딧 차감
+                      {t("creditInfo.ruleText")}
                     </dd>
                   </div>
                 </dl>
@@ -439,25 +483,22 @@ export default function BillingReceiptPage({
 
             {/* 안내 섹션 */}
             <section className="mt-10">
-              <div className="rounded-3xl border border-white/80 bg-white/90 backdrop-blur p-4 sm:p-5 dark:bg-black/40 dark:border-white/20">
+              <div
+                className="
+                  rounded-3xl border border-neutral-200/80 bg-white/90 backdrop-blur p-4 sm:p-5
+                  dark:bg-[#050816] dark:border-white/18 dark:ring-1 dark:ring-white/5
+                "
+              >
                 <h3 className="text-sm sm:text-base font-semibold text-neutral-900 dark:text-neutral-50">
-                  영수증 및 환불 안내
+                  {t("section.notice")}
                 </h3>
                 <ul className="mt-2 space-y-1.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200">
-                  <li>• 이 페이지는 서비스 내 참고용 영수증입니다.</li>
-                  <li>• 카드사 청구 내역과 실제 청구 시점은 다를 수 있어요.</li>
-                  <li>
-                    • 환불이 완료된 경우, 카드사/결제사 정책에 따라 환불 반영까지
-                    며칠이 소요될 수 있어요.
-                  </li>
-                  <li>
-                    • 세무용 증빙이 필요하다면, 추후 사업자용 결제/정산 기능을
-                    통해 별도 증빙을 제공할 예정입니다.
-                  </li>
+                  <li>{t("notice.item1")}</li>
+                  <li>{t("notice.item2")}</li>
+                  <li>{t("notice.item3")}</li>
                 </ul>
                 <p className="mt-2 text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400">
-                  추가 문의 사항이 있다면, 문의 페이지를 통해 결제 ID와 함께
-                  연락해 주세요.
+                  {t("notice.footnote")}
                 </p>
               </div>
             </section>

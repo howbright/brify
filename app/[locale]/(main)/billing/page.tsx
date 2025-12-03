@@ -26,7 +26,7 @@ const PACKS_BY_CURRENCY: Record<Currency, CreditPack[]> = {
     {
       id: "50_kr",
       credits: 50,
-      price: 4000, // 4,000원
+      price: 3500, // 4,000원
       currency: "krw",
       starter: true,
       checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT_50_KRW || "#",
@@ -256,7 +256,7 @@ export default function BillingPage() {
                 rounded-3xl border border-neutral-200/80 dark:border-white/15
                 bg-white/95 dark:bg-black/50
                 backdrop-blur
-                shadow-[0_18px_45px_-26px_rgba(15,23,42,0.45)]
+                shadow-[0_18px_45px_-26px_rgba(15,23,42,0.20)]
                 px-5 py-5 sm:px-6 sm:py-6
               "
             >

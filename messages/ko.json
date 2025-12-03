@@ -445,5 +445,65 @@
       "item4": "• 결제 실패 건은 실제로 크레딧이 충전되지 않으며, 필요 시 다시 결제를 시도할 수 있어요.",
       "note": "자세한 환불/결제 정책은 추후 서비스 정책 페이지에서 별도로 안내될 예정입니다."
     }
+  },
+  "BillingReceiptPage": {
+    "breadcrumb": {
+      "history": "결제 내역",
+      "receipt": "영수증"
+    },
+    "title": "결제 영수증",
+    "subtitle": "크레딧 충전 건에 대한 상세 내역을 확인할 수 있어요.",
+    "buttons": {
+      "backToHistory": "결제 내역으로 돌아가기",
+      "print": "인쇄 / PDF 저장"
+    },
+    "notFound": {
+      "title": "영수증을 찾을 수 없습니다.",
+      "description": "유효하지 않은 결제 ID이거나, 영수증 정보가 더 이상 보관되어 있지 않을 수 있어요."
+    },
+    "summary": {
+      "paymentId": "결제 ID",
+      "paidAt": "결제 일시",
+      "amountLabel": "결제 금액",
+      "chargedCredits": "+ {credits} 크레딧 충전"
+    },
+    "section": {
+      "paymentInfo": "결제 정보",
+      "creditInfo": "크레딧 정보",
+      "notice": "영수증 및 환불 안내"
+    },
+    "paymentInfo": {
+      "method": "결제 수단",
+      "processor": "결제 처리사",
+      "currency": "결제 통화",
+      "status": "상태",
+      "processorLabel": {
+        "toss": "토스페이먼츠(Toss Payments)",
+        "lemon": "LemonSqueezy"
+      },
+      "currencyLabel": {
+        "krw": "KRW (원화)",
+        "usd": "USD (달러)"
+      }
+    },
+    "creditInfo": {
+      "chargedCredits": "충전된 크레딧",
+      "estimatedMaps": "예상 구조맵 개수",
+      "estimatedMapsValue": "약 {count}개 분량",
+      "ruleLabel": "사용 기준",
+      "ruleText": "구조맵 1개당 기본 1크레딧 차감"
+    },
+    "status": {
+      "success": "결제 완료",
+      "pending": "진행 중",
+      "refunded": "환불 완료",
+      "failed": "결제 실패"
+    },
+    "notice": {
+      "item1": "• 이 페이지는 서비스 내 참고용 영수증입니다.",
+      "item2": "• 카드사 청구 내역과 실제 청구 시점은 다를 수 있어요.",
+      "item3": "• 환불이 완료된 경우, 카드사/결제사 정책에 따라 환불 반영까지 며칠이 소요될 수 있어요.",
+      "footnote": "추가 문의 사항이 있다면, 문의 페이지를 통해 결제 ID와 함께 연락해 주세요."
+    }
   }
 }
