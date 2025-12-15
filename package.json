@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "node -e \"console.log('next', require('next/package.json').version); console.log('react', require('react/package.json').version); console.log('rsd', require('react-server-dom-webpack/package.json').version)\" && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "mkdir -p app/styles/vendor && cp node_modules/mind-elixir/dist/style.css app/styles/vendor/mind-elixir.css"
