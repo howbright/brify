@@ -1,4 +1,3 @@
-
 export type Json =
   | string
   | number
@@ -8,13 +7,118 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
   }
   public: {
     Tables: {
+      credit_packs: {
+        Row: {
+          created_at: string
+          credits: number
+          currency: Database["public"]["Enums"]["currency_code"]
+          display_name: string
+          id: string
+          is_active: boolean
+          lemon_variant_id: string | null
+          price: number
+          toss_price_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credits: number
+          currency: Database["public"]["Enums"]["currency_code"]
+          display_name: string
+          id: string
+          is_active?: boolean
+          lemon_variant_id?: string | null
+          price: number
+          toss_price_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number
+          currency?: Database["public"]["Enums"]["currency_code"]
+          display_name?: string
+          id?: string
+          is_active?: boolean
+          lemon_variant_id?: string | null
+          price?: number
+          toss_price_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      credit_transactions: {
+        Row: {
+          balance_free_after: number
+          balance_paid_after: number
+          balance_total_after: number
+          created_at: string
+          delta_free: number
+          delta_paid: number
+          delta_total: number
+          id: string
+          payment_id: string | null
+          reason: string | null
+          source: Database["public"]["Enums"]["credit_transaction_source"]
+          summary_id: string | null
+          tx_type: Database["public"]["Enums"]["credit_transaction_type"]
+          user_id: string
+        }
+        Insert: {
+          balance_free_after: number
+          balance_paid_after: number
+          balance_total_after: number
+          created_at?: string
+          delta_free?: number
+          delta_paid?: number
+          delta_total: number
+          id?: string
+          payment_id?: string | null
+          reason?: string | null
+          source: Database["public"]["Enums"]["credit_transaction_source"]
+          summary_id?: string | null
+          tx_type: Database["public"]["Enums"]["credit_transaction_type"]
+          user_id: string
+        }
+        Update: {
+          balance_free_after?: number
+          balance_paid_after?: number
+          balance_total_after?: number
+          created_at?: string
+          delta_free?: number
+          delta_paid?: number
+          delta_total?: number
+          id?: string
+          payment_id?: string | null
+          reason?: string | null
+          source?: Database["public"]["Enums"]["credit_transaction_source"]
+          summary_id?: string | null
+          tx_type?: Database["public"]["Enums"]["credit_transaction_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_transactions_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_transactions_summary_id_fkey"
+            columns: ["summary_id"]
+            isOneToOne: false
+            referencedRelation: "summaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       keywords: {
         Row: {
           id: number
@@ -33,42 +137,116 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_webhook_logs: {
+        Row: {
+          event_type: string
+          id: string
+          payload: Json
+          provider: Database["public"]["Enums"]["payment_provider"]
+          received_at: string
+        }
+        Insert: {
+          event_type: string
+          id?: string
+          payload: Json
+          provider: Database["public"]["Enums"]["payment_provider"]
+          received_at?: string
+        }
+        Update: {
+          event_type?: string
+          id?: string
+          payload?: Json
+          provider?: Database["public"]["Enums"]["payment_provider"]
+          received_at?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          credit_pack_id: string | null
+          credits: number
+          currency: Database["public"]["Enums"]["currency_code"]
+          id: string
+          paid_at: string | null
+          provider: Database["public"]["Enums"]["payment_provider"]
+          provider_customer_id: string | null
+          provider_order_id: string
+          raw_payload: Json | null
+          receipt_url: string | null
+          refunded_at: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          credit_pack_id?: string | null
+          credits?: number
+          currency: Database["public"]["Enums"]["currency_code"]
+          id?: string
+          paid_at?: string | null
+          provider: Database["public"]["Enums"]["payment_provider"]
+          provider_customer_id?: string | null
+          provider_order_id: string
+          raw_payload?: Json | null
+          receipt_url?: string | null
+          refunded_at?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          credit_pack_id?: string | null
+          credits?: number
+          currency?: Database["public"]["Enums"]["currency_code"]
+          id?: string
+          paid_at?: string | null
+          provider?: Database["public"]["Enums"]["payment_provider"]
+          provider_customer_id?: string | null
+          provider_order_id?: string
+          raw_payload?: Json | null
+          receipt_url?: string | null
+          refunded_at?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_credit_pack_id_fkey"
+            columns: ["credit_pack_id"]
+            isOneToOne: false
+            referencedRelation: "credit_packs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
+          credits_free: number
+          credits_paid: number
           id: string
-          initial_credits: number | null
-          is_pro: boolean | null
-          last_reset: string | null
           locale: string | null
-          monthly_reset_credits: number | null
-          pro_expiration: string | null
-          remaining_credits: number | null
-          role: string | null
         }
         Insert: {
           created_at?: string | null
+          credits_free?: number
+          credits_paid?: number
           id: string
-          initial_credits?: number | null
-          is_pro?: boolean | null
-          last_reset?: string | null
           locale?: string | null
-          monthly_reset_credits?: number | null
-          pro_expiration?: string | null
-          remaining_credits?: number | null
-          role?: string | null
         }
         Update: {
           created_at?: string | null
+          credits_free?: number
+          credits_paid?: number
           id?: string
-          initial_credits?: number | null
-          is_pro?: boolean | null
-          last_reset?: string | null
           locale?: string | null
-          monthly_reset_credits?: number | null
-          pro_expiration?: string | null
-          remaining_credits?: number | null
-          role?: string | null
         }
         Relationships: []
       }
@@ -243,7 +421,28 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      credit_transaction_source:
+        | "lemon_squeezy"
+        | "toss"
+        | "system"
+        | "admin"
+        | "migration"
+      credit_transaction_type:
+        | "purchase"
+        | "spend"
+        | "bonus"
+        | "refund"
+        | "adjustment"
+        | "expire"
+      currency_code: "krw" | "usd"
+      payment_provider: "lemon_squeezy" | "toss"
+      payment_status:
+        | "pending"
+        | "paid"
+        | "failed"
+        | "refunded"
+        | "part_refunded"
+        | "canceled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -370,6 +569,32 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      credit_transaction_source: [
+        "lemon_squeezy",
+        "toss",
+        "system",
+        "admin",
+        "migration",
+      ],
+      credit_transaction_type: [
+        "purchase",
+        "spend",
+        "bonus",
+        "refund",
+        "adjustment",
+        "expire",
+      ],
+      currency_code: ["krw", "usd"],
+      payment_provider: ["lemon_squeezy", "toss"],
+      payment_status: [
+        "pending",
+        "paid",
+        "failed",
+        "refunded",
+        "part_refunded",
+        "canceled",
+      ],
+    },
   },
 } as const

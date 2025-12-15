@@ -335,37 +335,6 @@
     }
   },
   "BillingPage": {
-    "title": "Credits & billing",
-    "subtitle": "Check your Brify credits and top up whenever you need more structured maps.",
-    "balance": {
-      "label": "Current credit balance",
-      "unit": "credits",
-      "helper": "With this balance you can create roughly {count} structured maps."
-    },
-    "balanceCta": "Top up credits",
-    "howItWorks": {
-      "title": "How credits are used",
-      "line1": "One credit is enough for one structured map in most cases.",
-      "line2": "Video script up to 2 hours → 1 credit",
-      "line3": "2–3 hour video → 2 credits",
-      "line4": "Over 3 hours (very long video) → 3 credits"
-    },
-    "packs": {
-      "title": "Choose a credit pack",
-      "caption": "Buy only what you need now and use your credits whenever you want."
-    },
-    "summary": {
-      "title": "Payment info",
-      "line1": "Purchased credits do not expire and stay in your account.",
-      "line2": "Credits are only deducted when a structured map is generated. There are no hidden subscription fees.",
-      "line3": "All payments are processed securely through trusted payment providers."
-    },
-    "links": {
-      "history": "View payment history",
-      "historyDescription": "You can review past payments and receipts on the payment history page."
-    }
-  },
-  "BillingPage": {
     "badge": "Pay-as-you-go credits · No subscription",
     "title": "Credits & billing",
     "subtitle": "Top up credits only when you need them.",
@@ -381,7 +350,9 @@
       "hintPrefix": "Most diagrams use",
       "hintStrong": "around 1 credit.",
       "mainButton": "Back to home",
-      "chargeButton": "Add credits"
+      "chargeButton": "Add credits",
+      "paidLabel": "Paid credits",
+      "freeLabel": "Free credits"
     },
 
     "packs": {

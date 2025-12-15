@@ -20,56 +20,63 @@ type CreditPack = {
   starter?: boolean;
 };
 
+// ✅ 잔액 타입: 전체 / 유료 / 무료
+type BalanceResponse = {
+  total: number;
+  paid: number;
+  free: number;
+};
+
 // 💳 결제 링크는 환경변수로 주입 (예시)
 const PACKS_BY_CURRENCY: Record<Currency, CreditPack[]> = {
   krw: [
     {
       id: "50_kr",
       credits: 50,
-      price: 3500, // 4,000원
+      price: 3500,
       currency: "krw",
       starter: true,
-      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT_50_KRW || "#",
+      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT || "#",
     },
     {
       id: "150_kr",
       credits: 150,
-      price: 9000, // 9,000원
+      price: 9000,
       currency: "krw",
       popular: true,
-      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT_150_KRW || "#",
+      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT || "#",
     },
     {
       id: "300_kr",
       credits: 300,
-      price: 15000, // 15,000원
+      price: 15000,
       currency: "krw",
-      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT_300_KRW || "#",
+      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT || "#",
     },
   ],
   usd: [
     {
       id: "50_us",
       credits: 50,
-      price: 3, // $3
+      price: 3,
       currency: "usd",
       starter: true,
-      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT_50_USD || "#",
+      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT || "#",
     },
     {
       id: "150_us",
       credits: 150,
-      price: 7, // $7
+      price: 7,
       currency: "usd",
       popular: true,
-      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT_150_USD || "#",
+      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT || "#",
     },
     {
       id: "300_us",
       credits: 300,
-      price: 12, // $12
+      price: 12,
       currency: "usd",
-      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT_300_USD || "#",
+      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT || "#",
     },
   ],
 };
@@ -102,7 +109,7 @@ export default function BillingPage() {
     isKorean && currencyFromQuery === "krw" ? "krw" : "usd";
 
   const [currency, setCurrency] = useState<Currency>(initialCurrency);
-  const [balance, setBalance] = useState<number | null>(null);
+  const [balance, setBalance] = useState<BalanceResponse | null>(null);
 
   // 로그인 안되면 /login 으로
   useEffect(() => {
@@ -111,10 +118,47 @@ export default function BillingPage() {
     }
   }, [session, router]);
 
-  // TODO: 실제 크레딧 잔액 API 연동
+  // TODO: 실제 크레딧 잔액 API 연동 전까지는 더미 데이터
+  // 실제 크레딧 잔액 API 연동
   useEffect(() => {
-    setTimeout(() => setBalance(42), 200);
-  }, []);
+    if (!session) return;
+
+    let cancelled = false;
+
+    const fetchBalance = async () => {
+      try {
+        const res = await fetch("/api/billing/balance", {
+          method: "GET",
+          cache: "no-store",
+        });
+
+        if (res.status === 401) {
+          // 혹시 세션이 꼬였을 때 대비
+          router.push("/login");
+          return;
+        }
+
+        if (!res.ok) {
+          console.error("Failed to load balance");
+          return;
+        }
+
+        const data: BalanceResponse = await res.json();
+        if (!cancelled) {
+          setBalance(data);
+        }
+      } catch (err) {
+        console.error("Error while loading balance:", err);
+      }
+    };
+
+    fetchBalance();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session, router]);
+
 
   // locale이 한국어가 아니면 강제로 USD
   useEffect(() => {
@@ -130,9 +174,7 @@ export default function BillingPage() {
   );
 
   const currencyLabel =
-    currency === "krw"
-      ? t("packs.summary.krw")
-      : t("packs.summary.usd");
+    currency === "krw" ? t("packs.summary.krw") : t("packs.summary.usd");
 
   const processorLabel =
     currency === "krw"
@@ -292,14 +334,39 @@ export default function BillingPage() {
                   {/* 숫자 + '크레딧' 아래 정렬 */}
                   <div className="mt-1 flex items-end gap-2">
                     <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
-                      {balance === null ? "…" : balance.toLocaleString()}
+                      {balance === null ? "…" : balance.total.toLocaleString()}
                     </span>
                     <span className="text-sm font-medium text-neutral-500 dark:text-neutral-300 pb-1">
                       {t("balance.unit")}
                     </span>
                   </div>
 
-                  <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-300">
+                  {/* 유료 / 무료 크레딧 breakdown */}
+                  {/* 유료 / 무료 크레딧 breakdown */}
+                  {balance && (
+                    <div
+                      className="
+      inline-flex flex-wrap items-center gap-1.5
+      rounded-full bg-neutral-100/80 px-2.5 py-1
+      text-[10px] sm:text-[11px] text-neutral-700
+      dark:bg-white/5 dark:text-neutral-300
+    "
+                    >
+                      <span className="font-semibold">
+                        {t("balance.paidLabel")}
+                      </span>
+                      <span>{balance.paid.toLocaleString()}</span>
+
+                      <span className="mx-1 h-3 w-px bg-neutral-300/70 dark:bg-neutral-600/70" />
+
+                      <span className="font-semibold">
+                        {t("balance.freeLabel")}
+                      </span>
+                      <span>{balance.free.toLocaleString()}</span>
+                    </div>
+                  )}
+
+                  <p className="mt-2 text-xs sm:text-sm text-neutral-600 dark:text-neutral-300">
                     {t("balance.hintPrefix")}{" "}
                     <span className="font-semibold">
                       {t("balance.hintStrong")}
@@ -367,7 +434,7 @@ export default function BillingPage() {
 
             <div className="grid gap-4 sm:grid-cols-3">
               {packs.map((pack) => (
-                <CreditPackCard key={pack.id} pack={pack} />
+                <CreditPackCard key={pack.id} pack={pack} userId={session?.user?.id ?? null}/>
               ))}
             </div>
 
@@ -380,9 +447,7 @@ export default function BillingPage() {
                 dark:bg-black/35 dark:text-neutral-200
               "
             >
-              {currency === "usd" && (
-                <p>{t("packs.info.usdFee")}</p>
-              )}
+              {currency === "usd" && <p>{t("packs.info.usdFee")}</p>}
               <p>{t("packs.info.instant")}</p>
               <p>{t("packs.info.refund")}</p>
             </div>
@@ -423,16 +488,45 @@ export default function BillingPage() {
   );
 }
 
-function CreditPackCard({ pack }: { pack: CreditPack }) {
+function CreditPackCard({
+  pack,
+  userId,
+}: {
+  pack: CreditPack;
+  userId: string | null;
+}) {
   const t = useTranslations("BillingPage");
   const { credits, price, currency, checkoutUrl, popular, starter } = pack;
+  console.log(pack);
+  const router = useRouter();
 
   const handleBuy = () => {
     if (!checkoutUrl || checkoutUrl === "#") {
       alert("Checkout URL이 설정되지 않았어요.");
       return;
     }
-    window.open(checkoutUrl, "_blank", "noopener,noreferrer");
+
+    if (!userId) {
+      // 혹시 세션 풀리거나 비로그인 상태면 로그인으로
+      router.push("/login");
+      return;
+    }
+
+   // 레몬스퀴즈 기본 buy 링크에 custom 데이터 붙이기
+    // (NEXT_PUBLIC_LEMON_CHECKOUT_XXX는 https://... 로 시작하는 절대 URL이라고 가정)
+    const url = new URL(checkoutUrl);
+
+    // webhook에서 쓸 유저 id / 팩 코드
+    url.searchParams.set("checkout[custom][user_id]", userId);
+    url.searchParams.set("checkout[custom][pack_code]", pack.id);
+
+    // 결제 완료 후 리다이렉트 URL (선택)
+    url.searchParams.set(
+      "checkout[product_options][redirect_url]",
+      `${window.location.origin}/billing?success=1`
+    );
+
+    window.open(url.toString(), "_blank", "noopener,noreferrer");
   };
 
   const unit = price / credits; // 1크레딧당 대략 가격
@@ -471,10 +565,8 @@ function CreditPackCard({ pack }: { pack: CreditPack }) {
       </div>
 
       <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-        {t("card.unitPricePrefix")}{" "}
-        {formatPrice(unit, currency)}{" "}
-        {t("card.unitPriceMiddle")}{" "}
-        {approxMaps.toLocaleString()}
+        {t("card.unitPricePrefix")} {formatPrice(unit, currency)}{" "}
+        {t("card.unitPriceMiddle")} {approxMaps.toLocaleString()}
         {t("card.unitPriceSuffix")}
       </div>
 

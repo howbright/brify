@@ -343,14 +343,15 @@
       "krw": "KRW",
       "usd": "USD"
     },
-
     "balance": {
       "label": "지금 사용 가능한 잔액",
       "unit": "크레딧",
       "hintPrefix": "구조맵 만들 때 보통",
       "hintStrong": "1개 정도만 쓰여요.",
       "mainButton": "메인으로",
-      "chargeButton": "바로 충전하기"
+      "chargeButton": "바로 충전하기",
+      "paidLabel": "유료 크레딧",
+      "freeLabel": "무료 크레딧"
     },
     "packs": {
       "title": "크레딧 팩 선택",
