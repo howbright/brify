@@ -17,7 +17,7 @@ layer(base);
   /* base */
   --color-background: #ffffff; /* 페이지 배경 */
   --color-background-soft: #f7fbff; /* 아주 옅은 블루 보조 배경 */
-  --color-foreground: #0f172a; /* 본문 텍스트 */
+  /* --color-foreground: #0f172a; 본문 텍스트 */
   --color-muted-foreground: #475569; /* 보조 텍스트 */
 
   /* brand (청량 블루 + 인디고 악센트) */
@@ -217,7 +217,7 @@ layer(base);
     --ring: 220 90% 56%;
     --radius: 0.5rem;
   }
-  .dark {
+  :root.dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
     --card: 0 0% 3.9%;
@@ -288,7 +288,7 @@ layer(base);
     --color-ring: #93c5fd;
   }
 
-  .dark {
+  :root.dark {
     --color-background: hsl(var(--background));
     --color-foreground: hsl(var(--foreground));
     --color-muted-foreground: hsl(var(--muted-foreground));
