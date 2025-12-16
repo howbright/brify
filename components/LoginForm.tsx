@@ -34,6 +34,9 @@ export default function LoginForm() {
       // Supabase 대시보드에서 SITE URL / Redirect URL 설정해두었다는 전제
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
+        options: {
+          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+        },
       });
 
       if (error) {
