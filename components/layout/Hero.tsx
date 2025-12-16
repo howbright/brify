@@ -1,10 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
-import SocialBadges from "../common/SocialBadges";
-import { useState } from "react";
 import type { Variants } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
+import { useState } from "react";
+import Image from "next/image";
+import ClientMindElixir from "@/app/[locale]/demo-elixer/ClientMindElixir";
 
 const listV: Variants = {
   hidden: {},
@@ -191,7 +192,7 @@ export default function LandingBlueHero() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.45 }}
-            className="mt-7 flex flex-col sm:flex-row items-start sm:items-center gap-3"
+            className="mt-7 flex flex-row items-start sm:items-center gap-3"
           >
             <Link
               href="/summarize"
@@ -202,7 +203,7 @@ export default function LandingBlueHero() {
                 transition-transform hover:scale-[1.03] active:scale-100
                 focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60"
             >
-              시작
+              무료로 시작하기
             </Link>
 
             <Link
@@ -331,8 +332,29 @@ export default function LandingBlueHero() {
               <div className="h-2.5 w-2.5 rounded-full bg-amber-400/90 dark:bg-amber-300/80" />
               <div className="h-2.5 w-2.5 rounded-full bg-rose-400/90 dark:bg-rose-300/80" />
             </div>
+            {/* ✅ Diagram capture */}
+            <div
+              className="
+    mt-4
+    overflow-hidden rounded-2xl
+    border border-black/5 dark:border-white/10
+    bg-white/60 dark:bg-black/20
+  "
+            >
+              <div className="relative w-full aspect-[16/10]">
+                {/* <Image
+                  src="/images/diagram-capture.png"
+                  alt="Brify diagram preview"
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 520px, (min-width: 768px) 420px, 100vw"
+                  className="object-contain"
+                /> */}
+                 <ClientMindElixir  mode="light"  dragButton={0} fitOnInit={false} />
+              </div>
+            </div>
 
-            <div className="mt-4 space-y-3">
+            {/* <div className="mt-4 space-y-3">
               <div
                 className="h-4 w-5/6 rounded-md bg-gradient-to-r
                   from-[rgb(var(--hero-a)_/_0.20)] to-[rgb(var(--hero-c)_/_0.30)]
@@ -348,9 +370,9 @@ export default function LandingBlueHero() {
                   from-[rgb(var(--hero-a)_/_0.20)] to-[rgb(var(--hero-c)_/_0.30)]
                   dark:from-[rgb(var(--hero-a)_/_0.12)] dark:to-[rgb(var(--hero-c)_/_0.18)]"
               />
-            </div>
+            </div> */}
 
-            <div
+            {/* <div
               className="mt-6 rounded-2xl border border-blue-200/60 dark:border-white/10
                 bg-white/80 dark:bg-black/30 p-4"
             >
@@ -375,9 +397,9 @@ export default function LandingBlueHero() {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
 
-            <div
+            {/* <div
               className="mt-5 flex items-center justify-between rounded-2xl
                 border border-white/60 dark:border-white/10
                 bg-white/70 dark:bg-black/40 p-3"
@@ -399,7 +421,7 @@ export default function LandingBlueHero() {
               >
                 시작하기
               </Link>
-            </div>
+            </div> */}
           </div>
 
           <div className="pointer-events-none absolute -inset-8 -z-10 blur-3xl opacity-40 bg-[radial-gradient(400px_200px_at_60%_20%,rgba(59,130,246,0.35),transparent),radial-gradient(300px_200px_at_40%_80%,rgba(99,102,241,0.35),transparent)]" />

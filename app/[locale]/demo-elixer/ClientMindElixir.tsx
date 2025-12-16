@@ -83,6 +83,21 @@ export default function ClientMindElixir({
       const data = sampled;
       mind.init(data);
 
+      // ✅ 레이아웃/렌더가 끝난 다음 적용하는게 안정적이라 rAF 2번 추천
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const host = elRef.current!;
+          const cx = host.clientWidth / 2;
+          const cy = host.clientHeight / 2;
+
+          // 1) 줌아웃 (0.4~0.8 사이 추천)
+          mind.scale(0.3, { x: cx, y: cy }); // 가운데 기준으로 축소 :contentReference[oaicite:1]{index=1}
+
+          // 2) 우측으로 살짝 이동 (값은 너 화면에 맞게)
+          mind.move(300, 30, true); // dx=120, dy=0, smooth=true :contentReference[oaicite:2]{index=2}
+        });
+      });
+
       //   mind.bus?.addListener?.("operation", (op: any) => {
       //     if (op.name === "selectNode") console.log("select:", op.data?.id);
       //   });
