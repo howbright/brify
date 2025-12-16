@@ -3,9 +3,9 @@
 import type { Variants } from "framer-motion";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import { useState } from "react";
-import Image from "next/image";
+import { useEffect, useState } from "react";
 import ClientMindElixir from "@/app/[locale]/demo-elixer/ClientMindElixir";
+import { useTheme } from "next-themes";
 
 const listV: Variants = {
   hidden: {},
@@ -48,6 +48,18 @@ function Highlight({ children }: { children: React.ReactNode }) {
 
 export default function LandingBlueHero() {
   const [idx, setIdx] = useState(0);
+  const { theme, resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // hydration mismatch 방지
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  const currentTheme = resolvedTheme ?? theme;
+  const isDark = currentTheme === "dark";
 
   return (
     <main className="pt-14 min-h-screen w-full relative overflow-hidden">
@@ -342,86 +354,13 @@ export default function LandingBlueHero() {
   "
             >
               <div className="relative w-full aspect-[16/10]">
-                {/* <Image
-                  src="/images/diagram-capture.png"
-                  alt="Brify diagram preview"
-                  fill
-                  priority
-                  sizes="(min-width: 1024px) 520px, (min-width: 768px) 420px, 100vw"
-                  className="object-contain"
-                /> */}
-                 <ClientMindElixir  mode="light"  dragButton={0} fitOnInit={false} />
+                <ClientMindElixir
+                  mode={isDark ? "dark" : "light"}
+                  dragButton={0}
+                  fitOnInit={false}
+                />
               </div>
             </div>
-
-            {/* <div className="mt-4 space-y-3">
-              <div
-                className="h-4 w-5/6 rounded-md bg-gradient-to-r
-                  from-[rgb(var(--hero-a)_/_0.20)] to-[rgb(var(--hero-c)_/_0.30)]
-                  dark:from-[rgb(var(--hero-a)_/_0.12)] dark:to-[rgb(var(--hero-c)_/_0.18)]"
-              />
-              <div
-                className="h-4 w-4/6 rounded-md bg-gradient-to-r
-                  from-[rgb(var(--hero-a)_/_0.20)] to-[rgb(var(--hero-c)_/_0.30)]
-                  dark:from-[rgb(var(--hero-a)_/_0.12)] dark:to-[rgb(var(--hero-c)_/_0.18)]"
-              />
-              <div
-                className="h-4 w-2/3 rounded-md bg-gradient-to-r
-                  from-[rgb(var(--hero-a)_/_0.20)] to-[rgb(var(--hero-c)_/_0.30)]
-                  dark:from-[rgb(var(--hero-a)_/_0.12)] dark:to-[rgb(var(--hero-c)_/_0.18)]"
-              />
-            </div> */}
-
-            {/* <div
-              className="mt-6 rounded-2xl border border-blue-200/60 dark:border-white/10
-                bg-white/80 dark:bg-black/30 p-4"
-            >
-              <div className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">
-                자동 구조화 다이어그램
-              </div>
-
-              <div className="mt-3 grid grid-cols-3 gap-3">
-                {["핵심1", "핵심2", "핵심3"].map((label) => (
-                  <div
-                    key={label}
-                    className="rounded-xl border border-blue-200/60 dark:border-white/10
-                      bg-gradient-to-br from-blue-50 to-indigo-50
-                      dark:from-[rgb(var(--hero-a)_/_0.10)]
-                      dark:to-[rgb(var(--hero-c)_/_0.12)]
-                      p-3 shadow-sm"
-                  >
-                    <div className="text-[10px] text-neutral-600 dark:text-neutral-300">
-                      {label}
-                    </div>
-                    <div className="mt-1 h-2 rounded bg-blue-200/60 dark:bg-white/20" />
-                  </div>
-                ))}
-              </div>
-            </div> */}
-
-            {/* <div
-              className="mt-5 flex items-center justify-between rounded-2xl
-                border border-white/60 dark:border-white/10
-                bg-white/70 dark:bg-black/40 p-3"
-            >
-              <div className="text-sm">
-                <div className="font-semibold text-neutral-900 dark:text-white">
-                  1분 컷 요약
-                </div>
-                <div className="text-xs text-neutral-600 dark:text-neutral-300">
-                  강의·설교·인터뷰 영상 스크립트 → 핵심
-                </div>
-              </div>
-              <Link
-                href="/summarize"
-                className="px-3 py-2 text-sm rounded-xl
-                  bg-blue-600 text-white font-semibold
-                  dark:bg-[rgb(var(--hero-a))]
-                  transition-transform hover:scale-[1.03] active:scale-100"
-              >
-                시작하기
-              </Link>
-            </div> */}
           </div>
 
           <div className="pointer-events-none absolute -inset-8 -z-10 blur-3xl opacity-40 bg-[radial-gradient(400px_200px_at_60%_20%,rgba(59,130,246,0.35),transparent),radial-gradient(300px_200px_at_40%_80%,rgba(99,102,241,0.35),transparent)]" />
