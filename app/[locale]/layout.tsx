@@ -72,7 +72,7 @@ export default async function RootLayout({
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  console.log("로그인을 했으니 session을 새로 가져오자", session);
+  // console.log("로그인을 했으니 session을 새로 가져오자", session);
   if (!hasLocale(routing.locales, locale)) {
     notFound();
   }
