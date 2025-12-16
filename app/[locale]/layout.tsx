@@ -76,8 +76,6 @@ export default async function RootLayout({
   if (!hasLocale(routing.locales, locale)) {
     notFound();
   }
-  document.documentElement.classList.contains("dark")
-  document.body.classList.contains("dark") 
 
   return (
     <html lang={locale} suppressHydrationWarning>
