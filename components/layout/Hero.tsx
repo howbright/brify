@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import ClientMindElixir from "@/app/[locale]/demo-elixer/ClientMindElixir";
-import { useTheme } from "next-themes";
 
 const listV: Variants = {
   hidden: {},
@@ -48,18 +47,6 @@ function Highlight({ children }: { children: React.ReactNode }) {
 
 export default function LandingBlueHero() {
   const [idx, setIdx] = useState(0);
-  const { theme, resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  // hydration mismatch 방지
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
-  const currentTheme = resolvedTheme ?? theme;
-  const isDark = currentTheme === "dark";
 
   return (
     <main className="pt-14 min-h-screen w-full relative overflow-hidden">
@@ -279,6 +266,7 @@ export default function LandingBlueHero() {
                 "세부내용도 놓치지 않고 정리",
                 "모르는 용어는 자동 정리",
                 "외국어는 내 언어로 변환",
+                "미션 수행으로 무료 크레딧 반복 지급"
               ].map((text) => (
                 <motion.div
                   key={text}
@@ -355,8 +343,6 @@ export default function LandingBlueHero() {
             >
               <div className="relative w-full aspect-[16/10]">
                 <ClientMindElixir
-                  mode={isDark ? "dark" : "light"}
-                  dragButton={0}
                   fitOnInit={false}
                 />
               </div>
