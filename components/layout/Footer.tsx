@@ -57,7 +57,7 @@ export default function Footer() {
             <h3 className="text-base font-semibold mb-3 text-[var(--color-primary-600)] dark:text-white">서비스</h3>
             <ul className="space-y-1">
               {[
-                { href: "/summarize", label: "핵심정리하기" },
+                { href: "/video-to-map", label: "핵심정리하기" },
                 { href: "/pricing", label: "요금제" },
                 { href: "/my-summaries", label: "나의 스크랩북" },
                 { href: "/account", label: "계정 설정" },

@@ -159,7 +159,6 @@ export default function BillingPage() {
     };
   }, [session, router]);
 
-
   // locale이 한국어가 아니면 강제로 USD
   useEffect(() => {
     if (!isKorean && currency !== "usd") {
@@ -374,36 +373,68 @@ export default function BillingPage() {
                   </p>
                 </div>
 
-                {/* 오른쪽: 액션 버튼 두 개 */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 min-w-[180px]">
-                  <Link
-                    href="/"
-                    className="
-                      inline-flex items-center justify-center rounded-2xl
-                      border border-neutral-200/80 bg-white/90 px-4 py-2.5
-                      text-sm font-medium text-neutral-900
-                      hover:-translate-y-0.5 hover:shadow-md
-                      transition-all
-                      dark:border-white/20 dark:bg-black/70 dark:text-neutral-50
-                    "
-                  >
-                    {t("balance.mainButton")}
-                  </Link>
+                {/* 오른쪽: 액션 버튼 2개 (충전 + 미션) */}
+                <div className="flex flex-col gap-2 sm:items-end min-w-[220px]">
+                  {/* 1) Primary: 충전하기 */}
                   <a
                     href="#packs"
                     className="
-                      inline-flex items-center justify-center rounded-2xl
-                      px-4 py-2.5 text-sm font-semibold
-                      bg-blue-600 text-white
-                      hover:bg-blue-700
-                      hover:-translate-y-0.5 hover:shadow-lg
-                      active:translate-y-0
-                      transition-all
-                      dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
-                    "
+      inline-flex w-full sm:w-auto items-center justify-center
+      rounded-2xl px-5 py-3
+      text-sm font-semibold text-white
+      bg-blue-600 dark:bg-[rgb(var(--hero-a))]
+      border border-blue-600/20 dark:border-white/10
+      transition-all
+      hover:scale-[1.02] hover:shadow-sm
+      active:scale-[0.99]
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/35
+      dark:focus-visible:ring-[rgb(var(--hero-b))]/35
+    "
                   >
                     {t("balance.chargeButton")}
                   </a>
+
+                  {/* 2) Secondary: 미션으로 무료 크레딧 */}
+                  <Link
+                    href="/missions"
+                    className="
+      group inline-flex w-full sm:w-auto items-center justify-center gap-2
+      rounded-2xl px-5 py-3
+      text-sm font-semibold
+      text-neutral-900 dark:text-neutral-50
+      bg-white/90 dark:bg-black/40
+      border border-neutral-200/80 dark:border-white/15
+      transition-all
+      hover:scale-[1.02] hover:shadow-sm
+      active:scale-[0.99]
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/25
+    "
+                  >
+                    <span
+                      className="
+        inline-flex h-6 items-center justify-center rounded-full px-2
+        text-[11px] font-extrabold
+        bg-emerald-500/12 text-emerald-800
+        dark:bg-emerald-400/15 dark:text-emerald-100
+        border border-emerald-600/15 dark:border-emerald-300/15
+      "
+                    >
+                      +5
+                    </span>
+                    <span className="whitespace-nowrap">
+                    {t("bullets.missionCredits")}
+                    </span>
+
+                    <span
+                      aria-hidden
+                      className="
+        ml-1 inline-block h-4 w-4
+        [clip-path:polygon(25%_15%,85%_50%,25%_85%)]
+        bg-neutral-400 dark:bg-neutral-500
+        transition-transform group-hover:translate-x-0.5
+      "
+                    />
+                  </Link>
                 </div>
               </div>
             </div>
@@ -434,7 +465,11 @@ export default function BillingPage() {
 
             <div className="grid gap-4 sm:grid-cols-3">
               {packs.map((pack) => (
-                <CreditPackCard key={pack.id} pack={pack} userId={session?.user?.id ?? null}/>
+                <CreditPackCard
+                  key={pack.id}
+                  pack={pack}
+                  userId={session?.user?.id ?? null}
+                />
               ))}
             </div>
 
@@ -512,7 +547,7 @@ function CreditPackCard({
       return;
     }
 
-   // 레몬스퀴즈 기본 buy 링크에 custom 데이터 붙이기
+    // 레몬스퀴즈 기본 buy 링크에 custom 데이터 붙이기
     // (NEXT_PUBLIC_LEMON_CHECKOUT_XXX는 https://... 로 시작하는 절대 URL이라고 가정)
     const url = new URL(checkoutUrl);
 

@@ -34,7 +34,7 @@ export default function FooterOld() {
           </h3>
           <ul className="space-y-1">
             <li>
-              <Link href="/summarize" className="hover:underline hover:text-primary transition-colors">
+              <Link href="/video-to-map" className="hover:underline hover:text-primary transition-colors">
                 핵심정리하기
               </Link>
             </li>

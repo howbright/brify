@@ -120,7 +120,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
               <div className="flex items-center gap-3">
                 {/* ✚ 새 구조맵 버튼 (데스크탑) */}
                 <Link
-                  href="/summarize"
+                  href="/video-to-map"
                   className="
                     group inline-flex items-center gap-2
                     rounded-full px-4 py-2.5 text-sm font-semibold
@@ -168,7 +168,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
           <div className="md:hidden flex items-center gap-2">
             {isAuthed && (
               <Link
-                href="/summarize"
+                href="/video-to-map"
                 className="
                   inline-flex items-center gap-1.5
                   rounded-full px-3 py-1.5 text-xs font-semibold

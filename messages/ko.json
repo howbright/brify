@@ -351,7 +351,7 @@
       "mainButton": "메인으로",
       "chargeButton": "바로 충전하기",
       "paidLabel": "유료 크레딧",
-      "freeLabel": "무료 크레딧"
+      "freeLabel": "보상 크레딧"
     },
     "packs": {
       "title": "크레딧 팩 선택",
@@ -406,6 +406,9 @@
       "unitPriceMiddle": "/ 크레딧 · 구조맵 약",
       "unitPriceSuffix": "개 분량",
       "cta": "지금 충전하기"
+    },
+    "bullets": {
+      "missionCredits": "미션으로 무료 크레딧 받기"
     }
   },
   "BillingHistoryPage": {
@@ -506,5 +509,20 @@
       "item3": "• 환불이 완료된 경우, 카드사/결제사 정책에 따라 환불 반영까지 며칠이 소요될 수 있어요.",
       "footnote": "추가 문의 사항이 있다면, 문의 페이지를 통해 결제 ID와 함께 연락해 주세요."
     }
+  },
+  "LandingBlueHero": {
+    "eyebrow": "What is Brify?",
+    "titles": ["유튜브 스크립트를", "어떤 긴 글도"],
+    "titleHighlight": "다이어그램(구조맵)",
+    "titleSuffix": "으로!",
+    "switchTitleAria": "타이틀 전환",
+    "ctaPrimary": "무료로 시작하기",
+    "ctaSecondary": "데모 보기",
+    "featureItems": [
+      "세부내용도 놓치지 않고 정리",
+      "모르는 용어는 자동 정리",
+      "외국어는 내 언어로 변환",
+      "미션 수행으로 무료 크레딧 반복 지급"
+    ]
   }
 }

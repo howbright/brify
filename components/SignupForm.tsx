@@ -130,7 +130,7 @@ export default function SignupForm() {
 
     setMessage(t("success.otpVerified"));
     setMessageType("success");
-    router.push("/summarize");
+    router.push("/video-to-map");
     setIsSubmitting(false);
   };
 
