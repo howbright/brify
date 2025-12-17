@@ -144,13 +144,11 @@ function WeeklyQuotaBadge({
   used,
   limit,
   loading,
-  nextResetLabel,
   remainText,
 }: {
   used: number;
   limit: number;
   loading: boolean;
-  nextResetLabel: string;
   remainText: string;
 }) {
   const safeLimit = Math.max(1, limit);
@@ -205,18 +203,13 @@ function WeeklyQuotaBadge({
 
         <div className="text-right">
           <div className="text-[10px] text-neutral-500 dark:text-neutral-400">
-            주간 리셋 (월 00:00 KST)
+            주간 리셋
           </div>
           <div className="mt-1 text-[11px] font-semibold text-neutral-800 dark:text-neutral-200">
             {loading ? (
-              <span className="inline-block h-4 w-44 rounded bg-neutral-200/70 dark:bg-white/10" />
+              <span className="inline-block h-4 w-28 rounded bg-neutral-200/70 dark:bg-white/10" />
             ) : (
-              <>
-                {remainText} 후 리셋
-                <span className="block font-medium text-neutral-500 dark:text-neutral-400">
-                  {nextResetLabel}
-                </span>
-              </>
+              <>{remainText} 후 리셋</>
             )}
           </div>
         </div>
@@ -648,7 +641,6 @@ export default function MissionsPage() {
                   used={submittedWeek}
                   limit={POLICY.submissions.perWeek}
                   loading={loadingStats}
-                  nextResetLabel={resetInfo.nextLabel}
                   remainText={resetInfo.remainText}
                 />
 
@@ -794,10 +786,8 @@ export default function MissionsPage() {
             </div>
 
             <div className="mt-5 flex flex-col gap-3">
-              <MiniNotice title="제출 제한 및 리셋" tone="info">
+              <MiniNotice title="" tone="info">
                 • 주간 제출 제한: <b>주 {POLICY.submissions.perWeek}건</b>
-                <br />• 리셋: <b>매주 월요일 00:00 (KST)</b>
-                <br />
               </MiniNotice>
 
               <MiniNotice title="체크 포인트">
@@ -814,187 +804,258 @@ export default function MissionsPage() {
           </div>
 
           {/* Right: Upload */}
+          {/* Right: Action / Submit */}
           <div
             className="
-              rounded-3xl border border-neutral-200/80 dark:border-white/15
-              bg-white/85 dark:bg-black/40
-              backdrop-blur
-              p-5 sm:p-6
-            "
+    relative overflow-hidden self-start
+    rounded-3xl
+    border border-blue-200/70 dark:border-white/15
+    bg-white/90 dark:bg-black/45
+    backdrop-blur
+    p-5 sm:p-6
+    shadow-[0_18px_45px_-26px_rgba(59,130,246,0.25)]
+    md:sticky md:top-24
+  "
           >
-            <h2 className="text-base sm:text-lg font-semibold text-neutral-900 dark:text-neutral-50">
-              캡처 업로드
-            </h2>
-            <p className="mt-1.5 text-sm text-neutral-700 dark:text-neutral-300">
-              캡처 이미지(최대 {POLICY.capture.maxCount}장)를 업로드하시면, 검토
-              후 승인 시 보상 크레딧이 지급됩니다.
-            </p>
+            {/* Accent background */}
+            <div
+              aria-hidden
+              className="
+      pointer-events-none absolute inset-0
+      bg-[radial-gradient(260px_140px_at_18%_12%,rgba(59,130,246,0.14),transparent_60%),radial-gradient(360px_200px_at_92%_48%,rgba(99,102,241,0.12),transparent_60%)]
+      dark:bg-[radial-gradient(260px_140px_at_18%_12%,rgba(129,140,248,0.18),transparent_60%),radial-gradient(360px_200px_at_92%_48%,rgba(99,102,241,0.16),transparent_60%)]
+    "
+            />
 
-            <div className="mt-5 grid gap-3">
-              {/* platform */}
-              <div>
-                <label className="block text-[12px] font-medium text-neutral-700 dark:text-neutral-300">
-                  플랫폼
-                </label>
-                <select
-                  value={platform}
-                  onChange={(e) =>
-                    setPlatform(
-                      e.target.value as (typeof PLATFORMS)[number]["key"]
-                    )
-                  }
-                  className="
-                    mt-1 w-full rounded-2xl
-                    border border-neutral-200/80 dark:border-white/15
-                    bg-white/90 dark:bg-black/40
-                    px-3 py-2 text-sm
-                    text-neutral-900 dark:text-neutral-50
-                    outline-none
-                    focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-[rgb(var(--hero-b))]/35
-                  "
-                >
-                  {PLATFORMS.map((p) => (
-                    <option key={p.key} value={p.key}>
-                      {p.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="relative flex flex-col gap-4">
+              {/* Header */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-3">
+                  <span
+                    className="
+            inline-flex items-center rounded-full
+            border border-blue-200/70 bg-blue-50/80
+            px-2.5 py-1
+            text-[11px] font-semibold text-blue-700
+            dark:border-white/15 dark:bg-white/5 dark:text-[rgb(var(--hero-b))]
+          "
+                  >
+                    지금 제출
+                  </span>
 
-              {/* post url */}
-              <div>
-                <label className="block text-[12px] font-medium text-neutral-700 dark:text-neutral-300">
-                  게시물 링크 (선택)
-                </label>
-                <input
-                  value={postUrl}
-                  onChange={(e) => setPostUrl(e.target.value)}
-                  placeholder="https://..."
-                  className="
-                    mt-1 w-full rounded-2xl
-                    border border-neutral-200/80 dark:border-white/15
-                    bg-white/90 dark:bg-black/40
-                    px-3 py-2 text-sm
-                    text-neutral-900 dark:text-neutral-50
-                    placeholder:text-neutral-400 dark:placeholder:text-neutral-500
-                    outline-none
-                    focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-[rgb(var(--hero-b))]/35
-                  "
-                />
-              </div>
-
-              {/* note */}
-              <div>
-                <label className="block text-[12px] font-medium text-neutral-700 dark:text-neutral-300">
-                  메모 (선택)
-                </label>
-                <textarea
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder="예: 게시물에 포함한 문구 / 추가로 확인이 필요한 사항"
-                  rows={3}
-                  className="
-                    mt-1 w-full rounded-2xl
-                    border border-neutral-200/80 dark:border-white/15
-                    bg-white/90 dark:bg-black/40
-                    px-3 py-2 text-sm
-                    text-neutral-900 dark:text-neutral-50
-                    placeholder:text-neutral-400 dark:placeholder:text-neutral-500
-                    outline-none
-                    focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-[rgb(var(--hero-b))]/35
-                  "
-                />
-              </div>
-
-              {/* upload area */}
-              <div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={(e) => onFilesSelected(e.target.files)}
-                />
-
-                <button
-                  type="button"
-                  onClick={onPickFiles}
-                  disabled={submitCapReached}
-                  className={cn(
-                    "w-full rounded-2xl px-4 py-3 text-sm font-semibold transition-all",
-                    submitCapReached
-                      ? "bg-neutral-200 text-neutral-500 dark:bg-white/10 dark:text-neutral-500 cursor-not-allowed"
-                      : "border border-neutral-200/80 dark:border-white/15 bg-white/90 dark:bg-black/35 text-neutral-900 dark:text-neutral-50 hover:-translate-y-0.5 hover:shadow-md"
-                  )}
-                >
-                  캡처 이미지 선택 (최대 {POLICY.capture.maxCount}장)
-                </button>
-
-                <div className="mt-2 text-[11px] text-neutral-500 dark:text-neutral-400">
-                  이미지 형식만 가능, 1장당 최대 {POLICY.capture.maxSizeMB}MB
+                  <div className="text-[11px] text-neutral-600 dark:text-neutral-300">
+                    승인 시{" "}
+                    <span className="font-semibold">
+                      +{POLICY.rewardCreditsPerApprove} 크레딧
+                    </span>
+                  </div>
                 </div>
 
-                {previews.length > 0 && (
-                  <div className="mt-4 grid grid-cols-3 gap-2">
-                    {previews.map((p) => (
-                      <div
-                        key={p.file.name}
-                        className="
-                          relative overflow-hidden rounded-2xl
-                          border border-black/5 dark:border-white/12
-                          bg-white/70 dark:bg-black/30
-                        "
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={p.url}
-                          alt={p.file.name}
-                          className="h-24 w-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeFile(p.file.name)}
-                          className="
-                            absolute right-1 top-1
-                            rounded-full bg-black/55 text-white
-                            px-2 py-1 text-[10px]
-                            hover:bg-black/70
-                          "
-                        >
-                          삭제
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <h2 className="text-base sm:text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+                  미션 제출
+                </h2>
+
+                <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                  게시물 정보를 입력하고, 캡처 이미지를 업로드해 주세요.
+                </p>
               </div>
 
-              {/* submit */}
-              <motion.button
-                type="button"
-                onClick={submit}
-                disabled={!canSubmit}
-                whileTap={{ scale: 0.99 }}
-                className={cn(
-                  "mt-1 w-full rounded-2xl px-4 py-3 text-sm font-semibold transition-all",
-                  canSubmit
-                    ? "bg-blue-600 text-white hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]"
-                    : "bg-neutral-200 text-neutral-500 dark:bg-white/10 dark:text-neutral-500 cursor-not-allowed"
-                )}
-              >
-                {submitting ? "제출 중..." : "제출하기"}
-              </motion.button>
+              {/* Cap reached notice */}
+              {submitCapReached && (
+                <MiniNotice
+                  title="이번 주 제출 제한에 도달했습니다"
+                  tone="warn"
+                >
+                  이번 주 제출 상한({POLICY.submissions.perWeek}건)에
+                  도달했습니다. 다음 리셋 이후에 다시 제출해 주세요.
+                </MiniNotice>
+              )}
 
-              <MiniNotice title="반려되는 대표 사례">
-                <ul className="flex flex-col gap-1.5 list-disc pl-5">
-                  <li>
-                    캡처에서 게시물 식별이 어려운 경우 (내용/계정/화면이 불분명)
-                  </li>
-                  <li>동일 게시물/동일 링크/동일 캡처를 반복 제출한 경우</li>
-                  <li>정책 위반 또는 스팸성 홍보로 판단되는 경우</li>
-                </ul>
-              </MiniNotice>
+              {/* Form */}
+              <div className="grid gap-3">
+                {/* platform */}
+                <div>
+                  <label className="block text-[12px] font-medium text-neutral-700 dark:text-neutral-300">
+                    플랫폼 <span className="text-neutral-400">(필수)</span>
+                  </label>
+
+                  <select
+                    value={platform}
+                    disabled={submitCapReached}
+                    onChange={(e) =>
+                      setPlatform(
+                        e.target.value as (typeof PLATFORMS)[number]["key"]
+                      )
+                    }
+                    className={cn(
+                      "mt-1 w-full rounded-2xl px-3 py-2 text-sm outline-none",
+                      "border border-neutral-200/80 dark:border-white/15",
+                      "bg-white/90 dark:bg-black/40",
+                      "text-neutral-900 dark:text-neutral-50",
+                      "focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-[rgb(var(--hero-b))]/35",
+                      submitCapReached && "opacity-60 cursor-not-allowed"
+                    )}
+                  >
+                    {PLATFORMS.map((p) => (
+                      <option key={p.key} value={p.key}>
+                        {p.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* post url */}
+                <div>
+                  <label className="block text-[12px] font-medium text-neutral-700 dark:text-neutral-300">
+                    게시물 링크 <span className="text-neutral-400">(선택)</span>
+                  </label>
+
+                  <input
+                    value={postUrl}
+                    disabled={submitCapReached}
+                    onChange={(e) => setPostUrl(e.target.value)}
+                    placeholder="https://..."
+                    className={cn(
+                      "mt-1 w-full rounded-2xl px-3 py-2 text-sm outline-none",
+                      "border border-neutral-200/80 dark:border-white/15",
+                      "bg-white/90 dark:bg-black/40",
+                      "text-neutral-900 dark:text-neutral-50",
+                      "placeholder:text-neutral-400 dark:placeholder:text-neutral-500",
+                      "focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-[rgb(var(--hero-b))]/35",
+                      submitCapReached && "opacity-60 cursor-not-allowed"
+                    )}
+                  />
+                </div>
+
+                {/* note */}
+                <div>
+                  <label className="block text-[12px] font-medium text-neutral-700 dark:text-neutral-300">
+                    메모 <span className="text-neutral-400">(선택)</span>
+                  </label>
+
+                  <textarea
+                    value={note}
+                    disabled={submitCapReached}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder="예: 게시물에 포함한 문구 / 추가로 확인이 필요한 사항"
+                    rows={3}
+                    className={cn(
+                      "mt-1 w-full rounded-2xl px-3 py-2 text-sm outline-none",
+                      "border border-neutral-200/80 dark:border-white/15",
+                      "bg-white/90 dark:bg-black/40",
+                      "text-neutral-900 dark:text-neutral-50",
+                      "placeholder:text-neutral-400 dark:placeholder:text-neutral-500",
+                      "focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-[rgb(var(--hero-b))]/35",
+                      submitCapReached && "opacity-60 cursor-not-allowed"
+                    )}
+                  />
+                </div>
+
+                {/* upload area */}
+                <div>
+                  <label className="block text-[12px] font-medium text-neutral-700 dark:text-neutral-300">
+                    캡처 이미지 <span className="text-neutral-400">(필수)</span>
+                  </label>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => onFilesSelected(e.target.files)}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={onPickFiles}
+                    disabled={submitCapReached}
+                    className={cn(
+                      "mt-1 w-full rounded-2xl px-4 py-3 text-sm font-semibold transition-all",
+                      submitCapReached
+                        ? "bg-neutral-200 text-neutral-500 dark:bg-white/10 dark:text-neutral-500 cursor-not-allowed"
+                        : cn(
+                            "border border-blue-200/70 dark:border-white/15",
+                            "bg-white/90 dark:bg-black/35",
+                            "text-neutral-900 dark:text-neutral-50",
+                            "hover:-translate-y-0.5 hover:shadow-md"
+                          )
+                    )}
+                  >
+                    캡처 이미지 선택 (최대 {POLICY.capture.maxCount}장)
+                  </button>
+
+                  <div className="mt-2 text-[11px] text-neutral-500 dark:text-neutral-400">
+                    이미지 형식만 가능, 1장당 최대 {POLICY.capture.maxSizeMB}MB
+                  </div>
+
+                  {previews.length > 0 && (
+                    <div className="mt-4 grid grid-cols-3 gap-2">
+                      {previews.map((p) => (
+                        <div
+                          key={p.file.name}
+                          className="
+                  relative overflow-hidden rounded-2xl
+                  border border-black/5 dark:border-white/12
+                  bg-white/70 dark:bg-black/30
+                "
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={p.url}
+                            alt={p.file.name}
+                            className="h-24 w-full object-cover"
+                          />
+
+                          <button
+                            type="button"
+                            onClick={() => removeFile(p.file.name)}
+                            className="
+                    absolute right-1 top-1
+                    rounded-full bg-black/55 text-white
+                    px-2 py-1 text-[10px]
+                    hover:bg-black/70
+                  "
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* submit */}
+                <motion.button
+                  type="button"
+                  onClick={submit}
+                  disabled={!canSubmit}
+                  whileTap={{ scale: 0.99 }}
+                  className={cn(
+                    "mt-1 w-full rounded-2xl px-4 py-3 text-sm font-semibold transition-all",
+                    canSubmit
+                      ? cn(
+                          "bg-blue-600 text-white hover:bg-blue-700",
+                          "hover:-translate-y-0.5 hover:shadow-lg",
+                          "dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]"
+                        )
+                      : "bg-neutral-200 text-neutral-500 dark:bg-white/10 dark:text-neutral-500 cursor-not-allowed"
+                  )}
+                >
+                  {submitting ? "제출 중..." : "제출하기"}
+                </motion.button>
+
+                <MiniNotice title="반려되는 대표 사례">
+                  <ul className="flex flex-col gap-1.5 list-disc pl-5">
+                    <li>
+                      캡처에서 게시물 식별이 어려운 경우 (내용/계정/화면이
+                      불분명)
+                    </li>
+                    <li>동일 게시물/동일 링크/동일 캡처를 반복 제출한 경우</li>
+                    <li>정책 위반 또는 스팸성 홍보로 판단되는 경우</li>
+                  </ul>
+                </MiniNotice>
+              </div>
             </div>
           </div>
         </section>
