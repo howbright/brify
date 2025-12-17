@@ -140,6 +140,115 @@ function StatPill({
   );
 }
 
+function WeeklyQuotaBadge({
+  used,
+  limit,
+  loading,
+  nextResetLabel,
+  remainText,
+}: {
+  used: number;
+  limit: number;
+  loading: boolean;
+  nextResetLabel: string;
+  remainText: string;
+}) {
+  const safeLimit = Math.max(1, limit);
+  const remaining = Math.max(0, safeLimit - used);
+  const usedPct = Math.min(
+    100,
+    Math.max(0, Math.round((used / safeLimit) * 100))
+  );
+  const remainingPct = 100 - usedPct;
+
+  return (
+    <div
+      className="
+          w-full max-full
+          rounded-3xl border border-neutral-200/80 dark:border-white/15
+          bg-white/85 dark:bg-black/35 backdrop-blur
+          px-4 py-3 sm:px-5 sm:py-4
+        "
+      aria-label="주간 제출 한도"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <div className="text-[11px] font-medium text-neutral-600 dark:text-neutral-300">
+            이번 주 남은 제출
+          </div>
+
+          <div className="flex items-end gap-2">
+            {loading ? (
+              <span className="inline-block h-8 w-28 rounded-xl bg-neutral-200/70 dark:bg-white/10" />
+            ) : (
+              <>
+                <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
+                  {remaining}
+                </span>
+                <span className="pb-1 text-sm font-semibold text-neutral-500 dark:text-neutral-300">
+                  / {safeLimit}건
+                </span>
+              </>
+            )}
+          </div>
+
+          <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
+            {loading ? (
+              <span className="inline-block h-4 w-44 rounded bg-neutral-200/70 dark:bg-white/10 align-middle" />
+            ) : (
+              <>
+                이번 주 {used}건 사용 · {remaining}건 남음
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="text-right">
+          <div className="text-[10px] text-neutral-500 dark:text-neutral-400">
+            주간 리셋 (월 00:00 KST)
+          </div>
+          <div className="mt-1 text-[11px] font-semibold text-neutral-800 dark:text-neutral-200">
+            {loading ? (
+              <span className="inline-block h-4 w-44 rounded bg-neutral-200/70 dark:bg-white/10" />
+            ) : (
+              <>
+                {remainText} 후 리셋
+                <span className="block font-medium text-neutral-500 dark:text-neutral-400">
+                  {nextResetLabel}
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Progress */}
+      <div className="mt-3">
+        <div className="h-2.5 w-full overflow-hidden rounded-full bg-neutral-200/70 dark:bg-white/10">
+          {/* 남은 비율을 “강조”하려고 remaining bar를 앞으로 채움 */}
+          <div
+            className="
+                h-full rounded-full
+                bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600
+                transition-[width] duration-500
+              "
+            style={{ width: `${remainingPct}%` }}
+            role="progressbar"
+            aria-valuenow={remaining}
+            aria-valuemin={0}
+            aria-valuemax={safeLimit}
+          />
+        </div>
+
+        <div className="mt-1 flex items-center justify-between text-[10px] text-neutral-500 dark:text-neutral-400">
+          <span>남은 {remaining}건</span>
+          <span>사용 {used}건</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MiniNotice({
   title,
   children,
@@ -228,7 +337,10 @@ export default function MissionsPage() {
   // ✅ 주간 제한 계산
   const submittedWeek = stats?.submitted_week ?? 0;
   const submitCapReached = submittedWeek >= POLICY.submissions.perWeek;
-  const remainingSubmitWeek = Math.max(0, POLICY.submissions.perWeek - submittedWeek);
+  const remainingSubmitWeek = Math.max(
+    0,
+    POLICY.submissions.perWeek - submittedWeek
+  );
 
   // ✅ 다음 리셋(월 00:00 KST) 안내/카운트다운
   const [resetInfo, setResetInfo] = useState<{
@@ -318,7 +430,9 @@ export default function MissionsPage() {
 
     // URL은 선택사항. 넣으면 최소 형식 체크
     if (postUrl.trim() && !/^https?:\/\//i.test(postUrl.trim())) {
-      toast.error("게시물 링크는 http(s)로 시작하는 URL 형식으로 입력해 주세요.");
+      toast.error(
+        "게시물 링크는 http(s)로 시작하는 URL 형식으로 입력해 주세요."
+      );
       return;
     }
 
@@ -359,11 +473,15 @@ export default function MissionsPage() {
       }
 
       if (!res.ok || data?.ok === false) {
-        toast.error(data?.message ?? "제출에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+        toast.error(
+          data?.message ?? "제출에 실패했습니다. 잠시 후 다시 시도해 주세요."
+        );
         return;
       }
 
-      toast.success("제출이 완료되었습니다. 검토 후 승인 시 보상 크레딧이 지급됩니다.");
+      toast.success(
+        "제출이 완료되었습니다. 검토 후 승인 시 보상 크레딧이 지급됩니다."
+      );
 
       setFiles([]);
       setPostUrl("");
@@ -412,7 +530,17 @@ export default function MissionsPage() {
 
       {/* Header */}
       <header className="mx-auto max-w-5xl px-6 md:px-10 pt-20">
-        <div className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-3 py-1 text-[11px] font-medium text-neutral-700 shadow-sm backdrop-blur dark:bg-black/40 dark:border-white/15 dark:text-neutral-200">
+        <div
+          className="
+    inline-flex items-center gap-2
+    rounded-full px-3 py-1
+    text-[11px] font-semibold
+    text-blue-800 dark:text-[rgb(var(--hero-b))]
+    border border-blue-200/70 dark:border-white/15
+    bg-blue-50/70 dark:bg-white/5
+    shadow-sm backdrop-blur
+  "
+        >
           미션 센터
         </div>
 
@@ -458,7 +586,7 @@ export default function MissionsPage() {
                 dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
               "
             >
-              요약하기
+              새 구조맵
             </Link>
           </div>
         </div>
@@ -476,19 +604,18 @@ export default function MissionsPage() {
               shadow-[0_18px_45px_-26px_rgba(15,23,42,0.20)]
             "
           >
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch sm:gap-6">
+              {/* Left */}
+              <div className="flex flex-col gap-3 sm:flex-1 sm:min-w-0">
                 <div className="inline-flex items-center gap-2 text-xs font-medium text-neutral-600 dark:text-neutral-300">
                   <span
                     className="
-                      inline-flex h-7 w-7 items-center justify-center
-                      rounded-full
-                      bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500
-                      text-[11px] font-semibold text-white
-                    "
-                  >
-                    RC
-                  </span>
+    inline-flex h-2.5 w-2.5 rounded-full
+    bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500
+    shadow-[0_0_0_3px_rgba(99,102,241,0.12)]
+  "
+                    aria-hidden
+                  />
                   <span>내 미션 현황</span>
                 </div>
 
@@ -516,54 +643,98 @@ export default function MissionsPage() {
                   />
                 </div>
 
-                {/* ✅ 주간 제한 + 리셋 */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <StatPill
-                    label={`이번 주 제출(남은 ${remainingSubmitWeek})`}
-                    value={`${submittedWeek}/${POLICY.submissions.perWeek}`}
-                    loading={loadingStats}
-                    strong={!submitCapReached}
-                  />
-                  <div className="sm:col-span-3 rounded-2xl border border-neutral-200/80 dark:border-white/15 bg-white/80 dark:bg-black/35 backdrop-blur px-3 py-2">
-                    <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
-                      주간 리셋 (매주 월요일 00:00 KST)
-                    </div>
-                    <div className="mt-0.5 text-sm font-semibold text-neutral-900 dark:text-neutral-50">
-                      다음 리셋: {resetInfo.nextLabel}
-                      <span className="ml-2 text-xs font-medium text-neutral-500 dark:text-neutral-300">
-                        · 남은 시간 {resetInfo.remainText}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                {/* Weekly badge */}
+                <WeeklyQuotaBadge
+                  used={submittedWeek}
+                  limit={POLICY.submissions.perWeek}
+                  loading={loadingStats}
+                  nextResetLabel={resetInfo.nextLabel}
+                  remainText={resetInfo.remainText}
+                />
 
                 <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-300">
-                  제출 후 보통 <span className="font-semibold">{POLICY.review.etaHoursText}</span>{" "}
+                  제출 후 보통{" "}
+                  <span className="font-semibold">
+                    {POLICY.review.etaHoursText}
+                  </span>{" "}
                   내에 검토됩니다. (상황에 따라 달라질 수 있습니다)
                 </p>
               </div>
 
-              <div className="sm:text-right">
+              {/* ✅ +5 크레딧 강조 박스 */}
+              <div className="flex flex-col gap-2">
+                <div className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
+                  미션 보상
+                </div>
+
+                <div
+                  className="
+      relative overflow-hidden rounded-2xl
+      border border-neutral-200/80 dark:border-white/15
+      bg-white/70 dark:bg-black/30 backdrop-blur
+      p-4
+    "
+                >
+                  {/* 은은한 포인트 */}
+                  <div
+                    aria-hidden
+                    className="
+        pointer-events-none absolute inset-0
+        bg-[radial-gradient(180px_90px_at_18%_10%,rgba(59,130,246,0.16),transparent_60%),radial-gradient(220px_120px_at_92%_45%,rgba(99,102,241,0.14),transparent_60%)]
+        dark:bg-[radial-gradient(180px_90px_at_18%_10%,rgba(129,140,248,0.18),transparent_60%),radial-gradient(220px_120px_at_92%_45%,rgba(99,102,241,0.18),transparent_60%)]
+      "
+                  />
+
+                  <div className="relative flex items-end gap-2">
+                    {/* “보상” 배지 */}
+                    <span
+                      className="
+          inline-flex items-center rounded-full
+          border border-blue-200/70 bg-blue-50/80
+          px-2 py-1
+          text-[11px] font-semibold text-blue-700
+          dark:border-white/15 dark:bg-white/5 dark:text-[rgb(var(--hero-b))]
+        "
+                    >
+                      승인 보상
+                    </span>
+
+                    <div className="flex items-end gap-2">
+                      <span
+                        className="
+            text-4xl font-extrabold tracking-tight
+            text-transparent bg-clip-text
+            bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700
+            dark:from-[rgb(var(--hero-a))] dark:via-[rgb(var(--hero-b))] dark:to-purple-300
+          "
+                      >
+                        +{POLICY.rewardCreditsPerApprove}
+                      </span>
+                      <span className="pb-1 text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+                        크레딧
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="relative mt-2 text-[12px] text-neutral-600 dark:text-neutral-300">
+                    승인 완료 시 자동으로 지급됩니다.
+                  </div>
+                </div>
+                {/* 하단 한 줄 안내(선택) */}
                 <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
-                  승인 시 보상
-                </div>
-                <div className="mt-1 text-2xl font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
-                  +{POLICY.rewardCreditsPerApprove}{" "}
-                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-300">
-                    크레딧
-                  </span>
-                </div>
-                <div className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
-                  주 {POLICY.submissions.perWeek}건까지 (제출/보상 상한 동일)
+                  주 {POLICY.submissions.perWeek}건까지 참여 가능
                 </div>
               </div>
             </div>
 
             {submitCapReached && (
               <div className="mt-4">
-                <MiniNotice title="이번 주 제출 제한에 도달했습니다" tone="warn">
-                  이번 주 제출 상한({POLICY.submissions.perWeek}건)에 도달했습니다.
-                  다음 리셋 이후에 다시 제출해 주세요.
+                <MiniNotice
+                  title="이번 주 제출 제한에 도달했습니다"
+                  tone="warn"
+                >
+                  이번 주 제출 상한({POLICY.submissions.perWeek}건)에
+                  도달했습니다. 다음 리셋 이후에 다시 제출해 주세요.
                 </MiniNotice>
               </div>
             )}
@@ -585,7 +756,8 @@ export default function MissionsPage() {
               미션 참여 방법
             </h2>
             <p className="mt-1.5 text-sm text-neutral-700 dark:text-neutral-300">
-              아래 순서대로 진행해 주세요. 캡처는 최대 {POLICY.capture.maxCount}장까지 업로드할 수 있습니다.
+              아래 순서대로 진행해 주세요. 캡처는 최대 {POLICY.capture.maxCount}
+              장까지 업로드할 수 있습니다.
             </p>
 
             <div className="mt-5 flex flex-col gap-2">
@@ -624,17 +796,18 @@ export default function MissionsPage() {
             <div className="mt-5 flex flex-col gap-3">
               <MiniNotice title="제출 제한 및 리셋" tone="info">
                 • 주간 제출 제한: <b>주 {POLICY.submissions.perWeek}건</b>
+                <br />• 리셋: <b>매주 월요일 00:00 (KST)</b>
                 <br />
-                • 리셋: <b>매주 월요일 00:00 (KST)</b>
-                <br />
-                • 제출 상한과 보상 상한을 동일하게 운영합니다.
               </MiniNotice>
 
               <MiniNotice title="체크 포인트">
                 <ul className="flex flex-col gap-1.5 list-disc pl-5">
                   <li>게시물이 실제로 공개/확인 가능한 상태여야 합니다.</li>
                   <li>개인정보가 포함된 경우 제출 전에 가림 처리해 주세요.</li>
-                  <li>동일 게시물/동일 링크/동일 캡처의 반복 제출은 반려될 수 있습니다.</li>
+                  <li>
+                    동일 게시물/동일 링크/동일 캡처의 반복 제출은 반려될 수
+                    있습니다.
+                  </li>
                 </ul>
               </MiniNotice>
             </div>
@@ -653,7 +826,8 @@ export default function MissionsPage() {
               캡처 업로드
             </h2>
             <p className="mt-1.5 text-sm text-neutral-700 dark:text-neutral-300">
-              캡처 이미지(최대 {POLICY.capture.maxCount}장)를 업로드하시면, 검토 후 승인 시 보상 크레딧이 지급됩니다.
+              캡처 이미지(최대 {POLICY.capture.maxCount}장)를 업로드하시면, 검토
+              후 승인 시 보상 크레딧이 지급됩니다.
             </p>
 
             <div className="mt-5 grid gap-3">
@@ -665,7 +839,9 @@ export default function MissionsPage() {
                 <select
                   value={platform}
                   onChange={(e) =>
-                    setPlatform(e.target.value as (typeof PLATFORMS)[number]["key"])
+                    setPlatform(
+                      e.target.value as (typeof PLATFORMS)[number]["key"]
+                    )
                   }
                   className="
                     mt-1 w-full rounded-2xl
@@ -812,7 +988,9 @@ export default function MissionsPage() {
 
               <MiniNotice title="반려되는 대표 사례">
                 <ul className="flex flex-col gap-1.5 list-disc pl-5">
-                  <li>캡처에서 게시물 식별이 어려운 경우 (내용/계정/화면이 불분명)</li>
+                  <li>
+                    캡처에서 게시물 식별이 어려운 경우 (내용/계정/화면이 불분명)
+                  </li>
                   <li>동일 게시물/동일 링크/동일 캡처를 반복 제출한 경우</li>
                   <li>정책 위반 또는 스팸성 홍보로 판단되는 경우</li>
                 </ul>
@@ -834,7 +1012,8 @@ export default function MissionsPage() {
           >
             <div className="font-semibold">TIP</div>
             <div className="mt-1.5">
-              게시물에 Brify 링크를 함께 남기면 검토가 더 빠르게 진행될 수 있습니다. (필수 아님)
+              게시물에 Brify 링크를 함께 남기면 검토가 더 빠르게 진행될 수
+              있습니다. (필수 아님)
             </div>
           </div>
         </section>
