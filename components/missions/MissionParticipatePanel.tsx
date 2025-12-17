@@ -415,9 +415,9 @@ export default function MissionParticipatePanel() {
       {/* Participate Header */}
       <div className="mt-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-white dark:[text-shadow:0_1px_12px_rgba(0,0,0,0.45)]">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-white dark:[text-shadow:0_1px_12px_rgba(0,0,0,0.45)]">
             미션 참여로 보상 크레딧 받기
-          </h1>
+          </h2>
           <p className="mt-2 text-sm md:text-base text-neutral-700 dark:text-neutral-300 max-w-2xl">
             Brify를 SNS에 공유한 뒤 게시물 캡처를 업로드하시면, 검토 후{" "}
             <span className="font-semibold text-blue-700 dark:text-[rgb(var(--hero-b))]">
@@ -696,21 +696,44 @@ export default function MissionParticipatePanel() {
             {/* Header */}
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between gap-3">
-                <span
-                  className="
-            inline-flex items-center rounded-full
-            border border-blue-200/70 bg-blue-50/80
-            px-2.5 py-1
-            text-[11px] font-semibold text-blue-700
-            dark:border-white/15 dark:bg-white/5 dark:text-[rgb(var(--hero-b))]
-          "
-                >
-                  지금 제출
-                </span>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="
+              inline-flex items-center rounded-full
+              border border-blue-200/70 bg-blue-50/80
+              px-2.5 py-1
+              text-[11px] font-semibold text-blue-700
+              dark:border-white/15 dark:bg-white/5 dark:text-[rgb(var(--hero-b))]
+            "
+                  >
+                    지금 제출
+                  </span>
 
-                <div className="text-[11px] text-neutral-600 dark:text-neutral-300">
+                  {/* ✅ 정책 배지 */}
+                  <span
+                    className="
+              inline-flex items-center rounded-full
+              border border-neutral-200/70 bg-white/75
+              px-2.5 py-1
+              text-[11px] font-semibold text-neutral-700
+              dark:border-white/12 dark:bg-black/25 dark:text-neutral-200
+            "
+                    title="제출 후 수정은 불가합니다."
+                  >
+                    제출 후 수정 불가
+                  </span>
+                </div>
+
+                <div className="text-[11px] text-neutral-700 dark:text-neutral-200">
                   승인 시{" "}
-                  <span className="font-semibold">
+                  <span
+                    className="
+              font-extrabold
+              text-transparent bg-clip-text
+              bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700
+              dark:from-[rgb(var(--hero-a))] dark:via-[rgb(var(--hero-b))] dark:to-purple-300
+            "
+                  >
                     +{POLICY.rewardCreditsPerApprove} 크레딧
                   </span>
                 </div>
@@ -723,6 +746,30 @@ export default function MissionParticipatePanel() {
               <p className="text-sm text-neutral-700 dark:text-neutral-300">
                 게시물 정보를 입력하고, 캡처 이미지를 업로드해 주세요.
               </p>
+            </div>
+
+            {/* ✅ 정책 안내(핵심) */}
+            <div
+              className="
+        rounded-2xl border border-blue-200/60 dark:border-white/12
+        bg-blue-50/60 dark:bg-white/5
+        px-3 py-2
+      "
+            >
+              <div className="text-[12px] font-semibold text-blue-900 dark:text-[rgb(var(--hero-b))]">
+                제출 정책 안내
+              </div>
+              <ul className="mt-1.5 flex flex-col gap-1 text-[12px] text-neutral-700 dark:text-neutral-300">
+                <li>• 제출 후에는 내용을 수정할 수 없습니다.</li>
+                <li>
+                  • 검토가 시작되기 전까지는 제출 내역에서 취소(삭제)할 수
+                  있습니다.
+                </li>
+                <li>
+                  • 수정이 필요하시면 새로 제출해 주세요. (기존 건은 취소/무시
+                  처리됩니다)
+                </li>
+              </ul>
             </div>
 
             {/* Cap reached notice */}

@@ -14,6 +14,7 @@ import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { createClient } from "@/utils/supabase/server";
 import AuthRscRefresher from "@/components/AuthRscRefresher";
 import ThemeProvider from "@/components/ThemeProvider";
+import GlobalRewardNoticeStack from "@/components/notifications/GlobalRewardNoticeStack";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -77,6 +78,7 @@ export default async function RootLayout({
     notFound();
   }
 
+
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
@@ -96,6 +98,7 @@ export default async function RootLayout({
             </SessionProvider>
           </ReactQueryProvider>
         </ThemeProvider>
+        <GlobalRewardNoticeStack />
       </body>
     </html>
   );
