@@ -2,7 +2,6 @@
 "use client";
 
 import PricingGrid, { Pack } from "@/components/pricing/PricingGrid";
-import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { useState } from "react";
 
@@ -14,43 +13,15 @@ type Props = {
 type PaymentMode = "krw" | "usd";
 
 const KRW_PACKS: Pack[] = [
-  {
-    id: "50_kr",
-    credits: 50,
-    priceUSD: 3500, // 4,000원
-    starter: true,
-  },
-  {
-    id: "150_kr",
-    credits: 150,
-    priceUSD: 9000, // 9,000원
-    popular: true,
-  },
-  {
-    id: "300_kr",
-    credits: 300,
-    priceUSD: 15000, // 15,000원
-  },
+  { id: "50_kr", credits: 50, priceUSD: 3500, starter: true },
+  { id: "150_kr", credits: 150, priceUSD: 9000, popular: true },
+  { id: "300_kr", credits: 300, priceUSD: 15000 },
 ];
 
 const USD_PACKS: Pack[] = [
-  {
-    id: "50_us",
-    credits: 50,
-    priceUSD: 3, // $3
-    starter: true,
-  },
-  {
-    id: "150_us",
-    credits: 150,
-    priceUSD: 7, // $7
-    popular: true,
-  },
-  {
-    id: "300_us",
-    credits: 300,
-    priceUSD: 12, // $12
-  },
+  { id: "50_us", credits: 50, priceUSD: 3, starter: true },
+  { id: "150_us", credits: 150, priceUSD: 7, popular: true },
+  { id: "300_us", credits: 300, priceUSD: 12 },
 ];
 
 export default function LandingPricingSection({ isAuthed, packs }: Props) {
@@ -58,17 +29,14 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
   const locale = useLocale();
   const isKorean = locale === "ko";
 
-  // 한국어면 기본 KRW, 나머지는 USD
   const [paymentMode, setPaymentMode] = useState<PaymentMode>(
     isKorean ? "krw" : "usd"
   );
 
-  // packs prop이 넘어오면 그대로 사용, 아니면 locale + paymentMode 기반 기본팩
   const effectivePacks: Pack[] =
     packs ??
     (isKorean ? (paymentMode === "krw" ? KRW_PACKS : USD_PACKS) : USD_PACKS);
 
-  // 결제 페이지로 넘겨줄 링크 (쿼리로 currency 넘겨두면 나중에 billing에서 분기하기 편함)
   const signedInHref =
     paymentMode === "krw" && isKorean
       ? "/billing?currency=krw"
@@ -101,7 +69,6 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
           dark:hidden
         "
       />
-      {/* subtle glass veil */}
       <div
         aria-hidden
         className="
@@ -135,7 +102,6 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
         "
       />
 
-      {/* Section content */}
       <div className="mx-auto w-full max-w-6xl px-4 py-14 md:py-18">
         <div className="text-center">
           <h2 className="text-2xl md:text-3xl font-semibold text-[var(--color-text)]">
@@ -178,16 +144,16 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
           </div>
         )}
 
-        {/* Glass wrapper to lift cards from colored bg */}
+        {/* ✅ Wrapper: border 제거(가장자리 선 없앰). 배경은 투명 유지 */}
         <div
           className="
-            mt-8 rounded-3xl border
-            border-white/60 bg-white/70 backdrop-blur
-            shadow-[0_20px_60px_-20px_rgba(15,23,42,0.35)]
-            dark:border-white/10 dark:bg-white/8
+            mt-8 rounded-3xl
+            bg-transparent
+            backdrop-blur-[2px]
+            shadow-none
           "
         >
-          <div className="p-4 md:p-6">
+          <div className="p-2 md:p-3">
             <PricingGrid
               packs={effectivePacks}
               isAuthed={isAuthed}
@@ -202,38 +168,14 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
               billingCurrency={paymentMode === "usd" ? "USD" : "KRW"}
               creditRule={{
                 items: [
-                  {
-                    threshold: t("creditRule.items.small.threshold"),
-                    credits: 1,
-                  },
-                  {
-                    threshold: t("creditRule.items.medium.threshold"),
-                    credits: 2,
-                  },
-                  {
-                    threshold: t("creditRule.items.large.threshold"),
-                    credits: 3,
-                  },
+                  { threshold: t("creditRule.items.small.threshold"), credits: 1 },
+                  { threshold: t("creditRule.items.medium.threshold"), credits: 2 },
+                  { threshold: t("creditRule.items.large.threshold"), credits: 3 },
                 ],
               }}
             />
           </div>
         </div>
-
-        {/* CTA under cards */}
-        {/* <div className="mt-6 flex justify-center">
-          <Link
-            href="/pricing"
-            className="
-              rounded-[var(--radius-lg)] border border-[var(--color-border)] px-4 py-2 text-sm
-              text-[var(--color-foreground)]
-              hover:-translate-y-0.5 hover:shadow-md transition-all
-              hover:bg-[var(--color-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]
-            "
-          >
-            {t("seeDetails")}
-          </Link>
-        </div> */}
       </div>
 
       {/* soft glow accents */}

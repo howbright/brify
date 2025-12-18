@@ -57,8 +57,6 @@ type Props = {
   reassuranceLines?: string[];
 
   // ✅ 통화 강제 모드 (토글용)
-  //   - "KRW"면 원화, "USD"면 달러
-  //   - 안 주면 locale 기반(auto)
   billingCurrency?: "KRW" | "USD";
 };
 
@@ -87,7 +85,7 @@ export default function PricingGrid({
   showCreditRuleByDefault = false,
   showReassurance = true,
   reassuranceLines,
-  billingCurrency, // 👈 추가
+  billingCurrency,
 }: Props) {
   const t = useTranslations("PricingGrid");
   const tLanding = useTranslations("LandingPricingSection");
@@ -96,16 +94,10 @@ export default function PricingGrid({
   const isCompact = variant === "compact";
   const [openDetails, setOpenDetails] = useState(showCreditRuleByDefault);
 
-  // ✅ 통화/로케일 결정 로직
-  // 1) billingCurrency prop이 오면 그걸 우선 사용
-  // 2) 없으면 locale 기반으로 auto
   const fallbackIsKorean = locale === "ko";
   const resolvedCurrency: "KRW" | "USD" =
     billingCurrency ?? (fallbackIsKorean ? "KRW" : "USD");
 
-  // 포맷에 사용할 로케일은:
-  // - KRW → ko-KR
-  // - USD → en-US 로 강제 (한국어여도 USD 모드면 그냥 달러 스타일로)
   const currencyLocale = resolvedCurrency === "KRW" ? "ko-KR" : "en-US";
 
   const formatCurrency = (n: number) =>
@@ -115,7 +107,6 @@ export default function PricingGrid({
       maximumFractionDigits: resolvedCurrency === "KRW" ? 0 : 2,
     }).format(n);
 
-  // i18n fallback
   const labelSignedIn = signedInLabel ?? t("cta.signedIn");
   const labelSignedOut = signedOutLabel ?? t("cta.signedOut");
   const labelPositioning = positioningText ?? t("positioningText");
@@ -130,8 +121,7 @@ export default function PricingGrid({
 
   const labelDetails = detailsLabel ?? t("toggles.details");
 
-  const reassurance =
-    reassuranceLines ?? [t("reassurance.line1")];
+  const reassurance = reassuranceLines ?? [t("reassurance.line1")];
 
   const ctaBtn =
     "block w-full rounded-[var(--radius-lg)] px-4 py-2.5 text-center text-sm font-medium shadow-sm " +
@@ -142,7 +132,6 @@ export default function PricingGrid({
 
   return (
     <div className={className}>
-      {/* 상단 포지셔닝/환불 배지 */}
       {(showPositioning || showRefundBadge) && (
         <div
           className={cx(
@@ -209,7 +198,6 @@ export default function PricingGrid({
         </div>
       )}
 
-      {/* 안심 카피 배너 */}
       {showReassurance && (
         <div className={cx("mb-4", isCompact && "mx-auto max-w-3xl")}>
           <div className="flex flex-col items-center gap-2 text-center">
@@ -253,49 +241,38 @@ export default function PricingGrid({
           const unit = p.unitUSD ?? p.priceUSD / p.credits;
           const effectiveUnit = p.priceUSD / totalCredits;
 
-          // 🔹 배지 텍스트: pack 자체 → LandingPricingSection packs.* → generic
           let badge = p.badgeText;
 
           if (!badge) {
-            if (p.credits === 50) {
-              badge = tLanding("packs.50.badgeText");
-            } else if (p.credits === 150) {
-              badge = tLanding("packs.150.badgeText");
-            } else if (p.credits === 300) {
-              badge = tLanding("packs.300.badgeText");
-            } else if (p.popular) {
-              badge = t("badge.mostPopular");
-            } else if (p.starter) {
-              badge = t("badge.starter");
-            } else {
-              badge = "";
-            }
+            if (p.credits === 50) badge = tLanding("packs.50.badgeText");
+            else if (p.credits === 150) badge = tLanding("packs.150.badgeText");
+            else if (p.credits === 300) badge = tLanding("packs.300.badgeText");
+            else if (p.popular) badge = t("badge.mostPopular");
+            else if (p.starter) badge = t("badge.starter");
+            else badge = "";
           }
 
-          // 🔹 tagline fallback: pack에 없으면 LandingPricingSection 번역 사용
           let tagline = p.tagline;
           if (!tagline) {
-            if (p.credits === 50) {
-              tagline = tLanding("packs.50.tagline");
-            } else if (p.credits === 150) {
-              tagline = tLanding("packs.150.tagline");
-            } else if (p.credits === 300) {
-              tagline = tLanding("packs.300.tagline");
-            }
+            if (p.credits === 50) tagline = tLanding("packs.50.tagline");
+            else if (p.credits === 150) tagline = tLanding("packs.150.tagline");
+            else if (p.credits === 300) tagline = tLanding("packs.300.tagline");
           }
 
           return (
             <div
               key={p.id}
               className={cx(
-                "flex h-full flex-col rounded-2xl border bg-[var(--color-card)] text-[var(--color-card-foreground)] shadow-sm",
+                "flex h-full flex-col rounded-2xl border shadow-sm",
+                // ✅ 라이트는 흰 카드, 다크는 다크 카드(토큰 기반)
+                "bg-white text-neutral-900",
+                "dark:bg-[var(--color-card,#0b1224)] dark:text-[var(--color-card-foreground,#e5e7eb)]",
                 isCompact ? "p-4" : "p-5",
                 p.popular
                   ? "border-[var(--color-primary-500)]"
                   : "border-[var(--color-border)]"
               )}
             >
-              {/* 배지 슬롯 */}
               <div className={cx(isCompact ? "mb-1 h-6" : "mb-2 h-6")}>
                 {badge ? (
                   <div
@@ -318,22 +295,20 @@ export default function PricingGrid({
                 )}
               </div>
 
-              {/* 태그라인 */}
               {tagline && (
-                <div className="mb-1 text-xs text-[var(--color-muted-foreground)]">
+                <div className="mb-1 text-xs text-neutral-600 dark:text-[var(--color-muted-foreground,#cbd5e1)]">
                   {tagline}
                 </div>
               )}
 
-              {/* 가격 영역 */}
               <div
                 className={cx(
                   isCompact ? "text-xl" : "text-2xl",
-                  "font-bold text-[var(--color-text)]"
+                  "font-bold text-neutral-900 dark:text-[var(--color-foreground,#e5e7eb)]"
                 )}
               >
                 {p.credits.toLocaleString()}{" "}
-                <span className="text-base font-medium text-[color-mix(in_oklab,var(--color-foreground),transparent_40%)]">
+                <span className="text-base font-medium text-neutral-500 dark:text-[var(--color-muted-foreground,#cbd5e1)]">
                   {t("units.credits")}
                 </span>
                 {(p.bonusPercent || p.bonusCredits) && (
@@ -343,13 +318,11 @@ export default function PricingGrid({
                 )}
               </div>
 
-              {/* 총액 */}
-              <div className="mt-1 text-[color-mix(in_oklab,var(--color-foreground),transparent_20%)]">
+              <div className="mt-1 text-neutral-800 dark:text-[var(--color-card-foreground,#e5e7eb)]">
                 {formatCurrency(p.priceUSD)}
               </div>
 
-              {/* 단가 표기 */}
-              <div className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+              <div className="mt-1 text-xs text-neutral-600 dark:text-[var(--color-muted-foreground,#cbd5e1)]">
                 ≈ {formatCurrency(unit)} {t("units.perCredit")}
                 {(p.bonusPercent || p.bonusCredits) && (
                   <span className="ml-1">
@@ -364,7 +337,6 @@ export default function PricingGrid({
 
               <div className="mt-5 flex-1" />
 
-              {/* CTA */}
               {isAuthed ? (
                 <Link href={signedInHref} className={ctaBtn}>
                   {labelSignedIn}
@@ -379,7 +351,7 @@ export default function PricingGrid({
                 <div
                   className={cx(
                     isCompact ? "mt-2" : "mt-3",
-                    "text-xs text-[var(--color-muted-foreground)]"
+                    "text-xs text-neutral-500 dark:text-[var(--color-muted-foreground,#cbd5e1)]"
                   )}
                 >
                   {t("footer.note")}
@@ -390,7 +362,6 @@ export default function PricingGrid({
         })}
       </div>
 
-      {/* 장문 멀티크레딧 규칙 */}
       {creditRule?.items?.length ? (
         <div className="mt-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-4">
           <div className="flex items-center justify-between">
