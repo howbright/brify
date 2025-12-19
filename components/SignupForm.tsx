@@ -4,13 +4,14 @@ import { Link } from "@/i18n/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function SignupForm() {
   const supabase = createClient();
   const t = useTranslations("signup");
+  const locale = useLocale();
 
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
@@ -31,39 +32,56 @@ export default function SignupForm() {
     }
   }, [step]);
 
+  const requireAgreementsOrShowError = () => {
+    if (!agreeTerms || !agreePrivacy) {
+      setMessage(t("errors.agreeRequired"));
+      setMessageType("error");
+      return false;
+    }
+    return true;
+  };
+
   const handleGoogleSignup = async () => {
+    // ✅ 구글 가입도 약관 동의 필수
+    if (!requireAgreementsOrShowError()) return;
+  
     try {
       setIsGoogleLoading(true);
       setMessage("");
-
+  
+      // ✅ callback에 signup + 약관동의 플래그 전달
+      const redirectUrl = new URL(`${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`);
+      redirectUrl.searchParams.set("flow", "signup");
+      redirectUrl.searchParams.set("terms", "1"); // 약관 동의함
+      redirectUrl.searchParams.set("locale", locale); // 약관 동의함
+  
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+          redirectTo: redirectUrl.toString(),
         },
       });
-
+  
       if (error) {
         setMessage(`${t("errors.googlePrefix")} ${error.message}`);
         setMessageType("error");
         setIsGoogleLoading(false);
       }
-      // 성공 시엔 구글 로그인 플로우로 리다이렉트됨
     } catch (e: any) {
       setMessage(t("errors.googleGeneric"));
       setMessageType("error");
       setIsGoogleLoading(false);
     }
   };
+  
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setMessage("");
 
-    if (!agreeTerms || !agreePrivacy) {
-      setMessage(t("errors.agreeRequired"));
-      setMessageType("error");
+    // ✅ 이메일 가입도 약관 동의 필수
+    if (!requireAgreementsOrShowError()) {
       setIsSubmitting(false);
       return;
     }
@@ -76,7 +94,6 @@ export default function SignupForm() {
     if (error?.message.includes("Signups not allowed")) {
       setMessage(t("errors.alreadyRegistered"));
       setMessageType("error");
-      // setStep("otp")는 안 가는 게 자연스러움
     } else if (error) {
       setMessage(`${t("errors.defaultPrefix")} ${error.message}`);
       setMessageType("error");
@@ -111,20 +128,25 @@ export default function SignupForm() {
 
     const user = session?.user;
     if (user) {
-      const { error: insertError } = await supabase.from("profiles").insert({
-        id: user.id,
-        role: "basic",
-        remaining_credits: 5,
-        initial_credits: 5,
-        monthly_reset_credits: 3,
-        last_reset: new Date().toISOString().split("T")[0],
-        is_pro: false,
-        pro_expiration: null,
-        locale: navigator.language.slice(0, 2) || "en",
-      });
-
-      if (insertError && !insertError.message.includes("duplicate key")) {
-        console.error("프로필 생성 실패:", insertError.message);
+      const { error: upsertError } = await supabase.from("profiles").upsert(
+        {
+          id: user.id,
+          email: user.email ?? email.trim(),
+          locale: navigator.language.slice(0, 2) || "en",
+          terms_accepted: true,
+    
+          // 초기 크레딧 정책이 있으면 여기서 세팅
+          credits_free: 5,
+          credits_paid: 0,
+    
+          // created_at 컬럼이 DB default(now()) 있으면 굳이 안 넣어도 됨
+          // created_at: new Date().toISOString(),
+        },
+        { onConflict: "id" }
+      );
+    
+      if (upsertError) {
+        console.error("프로필 upsert 실패:", upsertError.message);
       }
     }
 
@@ -146,6 +168,65 @@ export default function SignupForm() {
             {t("subtitle")}
           </p>
         </div>
+
+        {/* ✅ 약관 체크 (구글/이메일 공통) */}
+        {step === "email" && (
+          <div className="text-sm flex flex-col gap-2 text-neutral-700 dark:text-neutral-200">
+            <label className="flex items-start gap-2">
+              <input
+                type="checkbox"
+                checked={agreeTerms}
+                onChange={() => setAgreeTerms(!agreeTerms)}
+                className="mt-1 h-4 w-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
+                required
+              />
+              <span>
+                {t("terms.agreePrefix")}
+                <Link
+                  href="/terms"
+                  className="underline underline-offset-2 hover:text-blue-600 dark:hover:text-blue-400"
+                >
+                  {t("terms.termsLink")}
+                </Link>
+                {t("terms.agreeSuffix")}
+              </span>
+            </label>
+
+            <label className="flex items-start gap-2">
+              <input
+                type="checkbox"
+                checked={agreePrivacy}
+                onChange={() => setAgreePrivacy(!agreePrivacy)}
+                className="mt-1 h-4 w-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
+                required
+              />
+              <span>
+                {t("terms.agreePrivacyPrefix")}
+                <Link
+                  href="/privacy"
+                  className="underline underline-offset-2 hover:text-blue-600 dark:hover:text-blue-400"
+                >
+                  {t("terms.privacyLink")}
+                </Link>
+                {t("terms.agreePrivacySuffix")}
+              </span>
+            </label>
+          </div>
+        )}
+
+        {/* 메시지 (구글 버튼 클릭 에러도 여기서 보이게) */}
+        {message && (
+          <p
+            className={clsx(
+              "text-sm text-center",
+              messageType === "success"
+                ? "text-emerald-600 dark:text-emerald-400"
+                : "text-red-600 dark:text-red-400"
+            )}
+          >
+            {message}
+          </p>
+        )}
 
         {/* 👉 소셜 (Google만) */}
         <div className="flex flex-col gap-3">
@@ -210,61 +291,6 @@ export default function SignupForm() {
               />
             </div>
 
-            {/* 약관 체크 */}
-            <div className="text-sm flex flex-col gap-2 text-neutral-700 dark:text-neutral-200">
-              <label className="flex items-start gap-2">
-                <input
-                  type="checkbox"
-                  checked={agreeTerms}
-                  onChange={() => setAgreeTerms(!agreeTerms)}
-                  className="mt-1 h-4 w-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
-                  required
-                />
-                <span>
-                  {t("terms.agreePrefix")}
-                  <Link
-                    href="/terms"
-                    className="underline underline-offset-2 hover:text-blue-600 dark:hover:text-blue-400"
-                  >
-                    {t("terms.termsLink")}
-                  </Link>
-                  {t("terms.agreeSuffix")}
-                </span>
-              </label>
-              <label className="flex items-start gap-2">
-                <input
-                  type="checkbox"
-                  checked={agreePrivacy}
-                  onChange={() => setAgreePrivacy(!agreePrivacy)}
-                  className="mt-1 h-4 w-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
-                  required
-                />
-                <span>
-                  {t("terms.agreePrivacyPrefix")}
-                  <Link
-                    href="/privacy"
-                    className="underline underline-offset-2 hover:text-blue-600 dark:hover:text-blue-400"
-                  >
-                    {t("terms.privacyLink")}
-                  </Link>
-                  {t("terms.agreePrivacySuffix")}
-                </span>
-              </label>
-            </div>
-
-            {message && (
-              <p
-                className={clsx(
-                  "text-sm text-center",
-                  messageType === "success"
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-red-600 dark:text-red-400"
-                )}
-              >
-                {message}
-              </p>
-            )}
-
             <button
               type="submit"
               disabled={isSubmitting || isGoogleLoading}
@@ -314,19 +340,6 @@ export default function SignupForm() {
                 "
                 required
               />
-
-              {message && (
-                <p
-                  className={clsx(
-                    "text-sm text-center mt-3",
-                    messageType === "success"
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-red-600 dark:text-red-400"
-                  )}
-                >
-                  {message}
-                </p>
-              )}
             </div>
 
             <button

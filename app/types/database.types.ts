@@ -231,22 +231,28 @@ export type Database = {
           created_at: string | null
           credits_free: number
           credits_paid: number
+          email: string | null
           id: string
           locale: string | null
+          terms_accepted: boolean
         }
         Insert: {
           created_at?: string | null
           credits_free?: number
           credits_paid?: number
+          email?: string | null
           id: string
           locale?: string | null
+          terms_accepted?: boolean
         }
         Update: {
           created_at?: string | null
           credits_free?: number
           credits_paid?: number
+          email?: string | null
           id?: string
           locale?: string | null
+          terms_accepted?: boolean
         }
         Relationships: []
       }
