@@ -526,5 +526,10 @@
       "Translate foreign-language text into your language",
       "Earn free credits repeatedly through missions"
     ]
+  },
+  "WelcomePage": {
+    "subtitle": "welcome to brify",
+    "title": "Welcome to Brify 🎉",
+    "cta": "Get started"
   }
 }
