@@ -54,6 +54,7 @@ export default function SignupForm() {
       redirectUrl.searchParams.set("flow", "signup");
       redirectUrl.searchParams.set("terms", "1"); // 약관 동의함
       redirectUrl.searchParams.set("locale", locale); // 약관 동의함
+      redirectUrl.searchParams.set("next", "/welcome"); // 약관 동의함
   
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -152,7 +153,7 @@ export default function SignupForm() {
 
     setMessage(t("success.otpVerified"));
     setMessageType("success");
-    router.push("/video-to-map");
+    router.push("/welcome");
     setIsSubmitting(false);
   };
 
