@@ -9,6 +9,7 @@ import { useState } from "react";
 import OcrHelpDialog from "./OcrHelpDialog";
 import OcrSuggestDialog from "./OcrSuggestDialog";
 import UploadCard from "./UploadCard";
+import { useLocale } from "next-intl";
 
 interface Props {
   type: SourceType;
@@ -33,6 +34,8 @@ export default function InputSection({
   const [alertText, setAlertText] = useState<string>("");
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const [dragOver, setDragOver] = useState(false);
+
+  const locale = useLocale();
 
   const handleSubmit = async () => {
     if (type === SourceType.FILE && !fileInput) {
@@ -244,11 +247,7 @@ export default function InputSection({
 
     const formData = new FormData();
     formData.append("file", fileInput);
-
-    // 언어 자동 설정 예시 (locale에 따라)
-    const userLang = navigator.language.startsWith("ko") ? "kor+eng" : "eng";
-
-    formData.append("lang", userLang); // OCR 서버에서 lang 파라미터 수신
+    formData.append("lang", locale); // OCR 서버에서 lang 파라미터 수신
 
     try {
       const res = await fetch(`${apiBaseUrl}/ocr/extract`, {

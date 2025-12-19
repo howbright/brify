@@ -132,7 +132,7 @@ export default function SignupForm() {
         {
           id: user.id,
           email: user.email ?? email.trim(),
-          locale: navigator.language.slice(0, 2) || "en",
+          locale: locale,
           terms_accepted: true,
     
           // 초기 크레딧 정책이 있으면 여기서 세팅
