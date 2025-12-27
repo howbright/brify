@@ -313,7 +313,8 @@
     "nav": {
       "samples": "Samples",
       "about": "About",
-      "pricing": "Pricing"
+      "pricing": "Pricing",
+      "contactFeedback": "Contact / Feedback"
     },
     "auth": {
       "login": "Log in",

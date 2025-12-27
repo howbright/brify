@@ -390,6 +390,48 @@ export type Database = {
           },
         ]
       }
+      support_tickets: {
+        Row: {
+          category: string
+          created_at: string
+          email: string | null
+          id: number
+          message: string
+          meta: Json | null
+          needs_reply: boolean
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          email?: string | null
+          id?: number
+          message: string
+          meta?: Json | null
+          needs_reply?: boolean
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          email?: string | null
+          id?: number
+          message?: string
+          meta?: Json | null
+          needs_reply?: boolean
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       terminologies: {
         Row: {
           definition: string | null

@@ -313,7 +313,8 @@
     "nav": {
       "samples": "샘플",
       "about": "소개",
-      "pricing": "요금제"
+      "pricing": "요금제",
+      "contactFeedback": "문의/피드백"
     },
     "auth": {
       "login": "로그인",
