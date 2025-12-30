@@ -193,13 +193,13 @@ export default function LoginForm() {
               type="submit"
               disabled={isSubmitting || isGoogleLoading}
               className="
-                w-full mt-1 inline-flex justify-center items-center gap-2
+                w-full mt-2 inline-flex justify-center items-center gap-2
                 rounded-2xl px-4 py-2.5 text-sm font-semibold
                 text-white bg-neutral-900 border border-neutral-900
                 hover:bg-neutral-950 hover:-translate-y-0.5 hover:shadow-lg
                 active:translate-y-0
                 dark:bg-white dark:text-neutral-900 dark:border-white
-                transition-transform transition-shadow
+                transition-shadow
                 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0
               "
             >

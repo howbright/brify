@@ -29,7 +29,11 @@ export async function POST(req: Request) {
     return json(400, { ok: false, error: "INVALID_JSON" });
   }
 
+  console.log(body)
   const needs_reply = body.needs_reply ?? true;
+
+  const { data: u } = await supabase.auth.getUser();
+console.log("user.id", u.user?.id);
 
   // 3) DB insert (DB 제약조건에서 걸러지면 여기서 error로 떨어짐)
   const { data: inserted, error: insertErr } = await supabase
@@ -47,6 +51,9 @@ export async function POST(req: Request) {
     .select("id")
     .single();
 
+    console.log(inserted);
+    console.log(insertErr);
+
   if (insertErr) {
     // 제약조건 위반/권한/RLS 등은 여기로 옴
     return json(400, { ok: false, error: insertErr.message });
@@ -63,6 +70,9 @@ export async function POST(req: Request) {
   try {
     const backendUrl = process.env.BRIFY_BACKEND_URL;
     const backendToken = process.env.BRIFY_BACKEND_INTERNAL_TOKEN; // 선택(권장)
+
+    console.log('backendUrl', backendUrl);
+    console.log('backendToken', backendToken);
 
     if (!backendUrl) throw new Error("BRIFY_BACKEND_URL is not set");
 

@@ -56,9 +56,9 @@ export default function Login() {
               {t("brand")}
             </span>
           </Link>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          {/* <p className="text-sm text-neutral-600 dark:text-neutral-400">
             {t("tagline")}
-          </p>
+          </p> */}
         </div>
 
         {/* 로그인 카드 */}

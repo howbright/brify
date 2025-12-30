@@ -1,19 +1,19 @@
 // components/layout/Header/index.tsx
-import { Link } from "@/i18n/navigation";
 import { createClient } from "@/utils/supabase/server";
 import ClientHeaderShell from "./ClientHeaderShell";
 import SupabaseAuthListener from "./SupabaseAuthListener";
 
 export default async function Header() {
   const supabase = await createClient();
+
+  // ✅ 인증 서버에 확인해서 user를 가져옴 (권장)
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const isAuthed = !!session;
-  const email = session?.user?.email ?? null;
+  const isAuthed = !!user;
+  const email = user?.email ?? null;
 
-  // 필요하면 여기에 서버에서 미리 불러올 내비 아이템을 구성해서 넘겨도 됨
   return (
     <>
       <ClientHeaderShell isAuthed={isAuthed} email={email} />
