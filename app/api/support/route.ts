@@ -2,8 +2,9 @@
 import { SupportTicketCreateBody } from "@/app/types/support";
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
-export const runtime = "nodejs"; // (이메일/백엔드 호출 포함이면 nodejs 추천)
+export const runtime = "nodejs";
 
 function json(status: number, body: Record<string, any>) {
   return NextResponse.json(body, { status });
@@ -12,16 +13,37 @@ function json(status: number, body: Record<string, any>) {
 export async function POST(req: Request) {
   const supabase = await createClient();
 
+  // ✅ (디버깅용) 요청에 쿠키가 들어오는지 확인
+  // 배포에서 noisy하면 지워도 됨
+  const cookieStore = await cookies();
+  const cookieNames = cookieStore.getAll().map((c) => c.name);
+  console.log("cookie names:", cookieNames);
+
   // 1) 로그인 확인 (RLS + user_id 필요)
-  const {
-    data: { user },
-    error: userErr,
-  } = await supabase.auth.getUser();
+  const { data, error: userErr } = await supabase.auth.getUser();
+  const user = data?.user ?? null;
 
-  if (userErr) return json(401, { ok: false, error: userErr.message });
-  if (!user) return json(401, { ok: false, error: "UNAUTHENTICATED" });
+  if (userErr) {
+    console.log(userErr);
+    return json(401, {
+      ok: false,
+      error: "AUTH_GET_USER_FAILED",
+      message: userErr.message,
+      // 디버깅 힌트(개발 중에만 남겨도 됨)
+      has_cookie: cookieNames.length > 0,
+    });
+  }
 
-  // 2) 바디 파싱 (형식 검증은 DB 제약/타입에 맡김)
+  if (!user) {
+    console.log("유저없음");
+    return json(401, {
+      ok: false,
+      error: "UNAUTHENTICATED",
+      has_cookie: cookieNames.length > 0,
+    });
+  }
+
+  // 2) 바디 파싱
   let body: SupportTicketCreateBody;
   try {
     body = (await req.json()) as SupportTicketCreateBody;
@@ -29,52 +51,54 @@ export async function POST(req: Request) {
     return json(400, { ok: false, error: "INVALID_JSON" });
   }
 
-  console.log(body)
   const needs_reply = body.needs_reply ?? true;
 
-  const { data: u } = await supabase.auth.getUser();
-console.log("user.id", u.user?.id);
+  // ✅ (디버그) 지금 서버에서 user id 확인
+  console.log("[/api/support] user.id:", user.id);
+  console.log("[/api/support] category/title/message/email:", {
+    category: body.category,
+    titleLen: body.title?.length,
+    messageLen: body.message?.length,
+    email: body.email ?? null,
+    needs_reply,
+  });
 
-  // 3) DB insert (DB 제약조건에서 걸러지면 여기서 error로 떨어짐)
+    // ✅ 3) INSERT
+    const insertPayload = {
+        user_id: user.id,
+        category: body.category,
+        title: body.title,
+        message: body.message,
+        email: body.email ?? null,
+        needs_reply,
+        meta: body.meta ?? null,
+        status: "open" as const,
+      };
+    console.log("insertPayload.user_id", insertPayload.user_id)
+
+  // 3) DB insert
   const { data: inserted, error: insertErr } = await supabase
     .from("support_tickets")
-    .insert({
-      user_id: user.id,
-      category: body.category,
-      title: body.title,
-      message: body.message,
-      email: body.email ?? null,
-      needs_reply,
-      meta: body.meta ?? null,
-      status: "open",
-    })
+    .insert(insertPayload)
     .select("id")
     .single();
 
-    console.log(inserted);
-    console.log(insertErr);
-
   if (insertErr) {
-    // 제약조건 위반/권한/RLS 등은 여기로 옴
+    console.log(insertErr);
     return json(400, { ok: false, error: insertErr.message });
   }
 
   const ticket_id = inserted.id;
 
-  // 4) brify-backend enqueue 호출 (ticket_id만)
-  //    실패해도 티켓은 접수된 상태이므로 "접수 완료"는 반환하고,
-  //    enqueue 실패 여부만 같이 내려줌(원하면 서버 로그만 남겨도 됨)
+  // 4) brify-backend enqueue 호출
   let enqueue_ok = true;
   let enqueue_error: string | null = null;
 
   try {
-    const backendUrl = process.env.BRIFY_BACKEND_URL;
-    const backendToken = process.env.BRIFY_BACKEND_INTERNAL_TOKEN; // 선택(권장)
+    const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL; // 네가 바꿨다 했으니 여기 맞춰서 써도 됨
+    const backendToken = process.env.BRIFY_BACKEND_INTERNAL_TOKEN;
 
-    console.log('backendUrl', backendUrl);
-    console.log('backendToken', backendToken);
-
-    if (!backendUrl) throw new Error("BRIFY_BACKEND_URL is not set");
+    if (!backendUrl) throw new Error("NEXT_PUBLIC_API_BASE_URL is not set");
 
     const acceptLang = req.headers.get("accept-language") ?? "";
     const locale = acceptLang.split(",")[0]?.trim() || undefined;
@@ -98,11 +122,5 @@ console.log("user.id", u.user?.id);
     enqueue_error = e?.message ?? "ENQUEUE_FAILED";
   }
 
-  // 5) 응답
-  return json(200, {
-    ok: true,
-    ticket_id,
-    enqueue_ok,
-    enqueue_error,
-  });
+  return json(200, { ok: true, ticket_id, enqueue_ok, enqueue_error });
 }
