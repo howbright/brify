@@ -6,33 +6,36 @@ import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SupportTicketCategory, SupportTicketCreateBody } from "@/app/types/support";
+import type {
+  SupportTicketCategory,
+  SupportTicketCreateBody,
+} from "@/app/types/support";
 
 const categoryValues = ["bug", "idea", "billing", "other"] as const;
 
 const SupportTicketSchema = z.object({
-    category: z.enum(categoryValues),
-    title: z.string().trim().min(1, "제목을 입력해 주세요."),
-    message: z.string().trim().min(1, "상세 내용을 입력해 주세요."),
-    email: z
-      .union([
-        z.string().trim().email("이메일 형식이 올바르지 않아요."),
-        z.literal(""),
-        z.null(),
-        z.undefined(),
-      ])
-      .optional(),
-    needs_reply: z.boolean().optional(),
-  
-    // ✅ fix: key/value schema 둘 다 넣기
-    meta: z.record(z.string(), z.any()).nullable().optional(),
-  });
-  
+  category: z.enum(categoryValues),
+  title: z.string().trim().min(1, "제목을 입력해 주세요."),
+  message: z.string().trim().min(1, "상세 내용을 입력해 주세요."),
+  email: z
+    .union([
+      z.string().trim().email("이메일 형식이 올바르지 않습니다."),
+      z.literal(""),
+      z.null(),
+      z.undefined(),
+    ])
+    .optional(),
+  needs_reply: z.boolean().optional(),
+  meta: z.record(z.string(), z.any()).nullable().optional(),
+});
 
 type SupportTicketFormValues = z.infer<typeof SupportTicketSchema>;
 
 export default function SupportPage() {
-  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "success" | "warn" | "error">(
+    "idle"
+  );
+  const [warnMessage, setWarnMessage] = useState<string | null>(null);
 
   const categoryLabel: Record<SupportTicketCategory, string> = useMemo(
     () => ({
@@ -69,9 +72,8 @@ export default function SupportPage() {
 
   async function onSubmit(values: SupportTicketFormValues) {
     setStatus("idle");
+    setWarnMessage(null);
 
-    // ✅ types/supports.ts의 요청 바디 타입을 그대로 따르되,
-    // email은 ""면 null로 보내는게 보통 깔끔함
     const body: SupportTicketCreateBody = {
       category: values.category,
       title: values.title,
@@ -88,15 +90,33 @@ export default function SupportPage() {
         body: JSON.stringify(body),
       });
 
+      // API 자체가 실패면 진짜 실패
       if (!res.ok) {
         setStatus("error");
         return;
       }
 
-      setStatus("success");
+      // ✅ API 응답(JSON)에 enqueue 결과가 들어있다고 가정
+      const data = await res.json().catch(() => null);
+
+      const enqueue_ok = data?.enqueue_ok === true;
+      const enqueue_error = (data?.enqueue_error as string | undefined) ?? undefined;
+
+      if (!enqueue_ok) {
+        setStatus("warn");
+        setWarnMessage(
+          enqueue_error
+            ? `문의는 정상적으로 접수되었지만, 메일 발송 큐 처리에 실패했습니다. (${enqueue_error})`
+            : "문의는 정상적으로 접수되었지만, 메일 발송 큐 처리에 실패했습니다."
+        );
+      } else {
+        setStatus("success");
+        setWarnMessage(null);
+      }
+
       reset(
         {
-          category: values.category, // 카테고리/needsReply/email 유지하고 싶으면 이렇게
+          category: values.category,
           title: "",
           message: "",
           email: values.email ?? "",
@@ -127,92 +147,122 @@ export default function SupportPage() {
         <section className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
           {/* 문의 폼 */}
           <div className="rounded-[var(--radius-lg)] border border-border bg-white p-5 shadow-sm dark:bg-card/95 sm:p-6">
-            <h2 className="text-base font-semibold text-foreground">문의 내용 작성</h2>
+            <h2 className="text-base font-semibold text-foreground">
+              문의 내용 작성
+            </h2>
             <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
-              최대한 구체적으로 적어 주시면 더 빠르고 정확하게 도와드릴 수 있어요.
+              최대한 구체적으로 작성해 주시면 더 빠르고 정확하게 도와드릴 수 있습니다.
             </p>
 
-            <form className="mt-4 flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+            <form
+              className="mt-4 flex flex-col gap-4"
+              onSubmit={handleSubmit(onSubmit)}
+            >
               {/* 카테고리 선택 */}
               <div className="space-y-2">
-                <label className="text-xs font-medium text-foreground/80">문의 유형</label>
+                <label className="text-xs font-medium text-foreground/80">
+                  문의 유형
+                </label>
                 <div className="flex flex-wrap gap-2">
-                  {(Object.keys(categoryLabel) as SupportTicketCategory[]).map((key) => {
-                    const isActive = category === key;
-                    return (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => setValue("category", key, { shouldDirty: true })}
-                        className={[
-                          "inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium transition",
-                          isActive
-                            ? "border-[color:var(--color-primary-300)] bg-[rgb(var(--primary-rgb)/0.06)] text-[color:var(--color-primary-600)]"
-                            : "border-border bg-background text-muted-foreground hover:bg-muted",
-                        ].join(" ")}
-                      >
-                        {categoryLabel[key]}
-                      </button>
-                    );
-                  })}
+                  {(Object.keys(categoryLabel) as SupportTicketCategory[]).map(
+                    (key) => {
+                      const isActive = category === key;
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() =>
+                            setValue("category", key, { shouldDirty: true })
+                          }
+                          className={[
+                            "inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium transition",
+                            isActive
+                              ? "border-[color:var(--color-primary-300)] bg-[rgb(var(--primary-rgb)/0.06)] text-[color:var(--color-primary-600)]"
+                              : "border-border bg-background text-muted-foreground hover:bg-muted",
+                          ].join(" ")}
+                        >
+                          {categoryLabel[key]}
+                        </button>
+                      );
+                    }
+                  )}
                 </div>
               </div>
 
               {/* 제목 */}
               <div className="space-y-1.5">
-                <label htmlFor="title" className="text-xs font-medium text-foreground/80">
+                <label
+                  htmlFor="title"
+                  className="text-xs font-medium text-foreground/80"
+                >
                   제목
                 </label>
                 <input
                   id="title"
                   type="text"
-                  placeholder="예: 요약 결과가 보이지 않는 문제가 있어요"
+                  placeholder="예: 요약 결과가 보이지 않는 문제가 있습니다"
                   className={[
                     "w-full rounded-[var(--radius-md)] border bg-white px-3 py-2 text-sm text-foreground outline-none ring-0 transition placeholder:text-muted-foreground/70 dark:bg-card",
                     "focus:border-[color:var(--color-primary-500)] focus:ring-2 focus:ring-[rgba(37,99,235,0.12)]",
-                    errors.title ? "border-red-300 focus:border-red-500 focus:ring-[rgba(239,68,68,0.12)]" : "border-border",
+                    errors.title
+                      ? "border-red-300 focus:border-red-500 focus:ring-[rgba(239,68,68,0.12)]"
+                      : "border-border",
                   ].join(" ")}
                   {...register("title")}
                 />
                 {errors.title && (
-                  <p className="text-xs font-medium text-red-600">{errors.title.message}</p>
+                  <p className="text-xs font-medium text-red-600">
+                    {errors.title.message}
+                  </p>
                 )}
               </div>
 
               {/* 내용 */}
               <div className="space-y-1.5">
-                <label htmlFor="message" className="text-xs font-medium text-foreground/80">
+                <label
+                  htmlFor="message"
+                  className="text-xs font-medium text-foreground/80"
+                >
                   상세 내용
                 </label>
                 <textarea
                   id="message"
-                  placeholder={`어떤 상황에서 문제가 발생했는지,\n사용하던 브라우저·OS, 오류 화면이 있었다면 메시지를 적어 주세요.\n기능 제안이라면 어떤 작업을 더 쉽게 하고 싶은지도 알려주시면 좋아요.`}
+                  placeholder={`어떤 상황에서 문제가 발생했는지,\n사용 중인 브라우저·OS, 오류 화면이 있었다면 메시지를 적어 주세요.\n기능 제안이라면 어떤 작업을 더 쉽게 하고 싶은지도 알려주시면 좋습니다.`}
                   rows={7}
                   className={[
                     "w-full rounded-[var(--radius-md)] border bg-white px-3 py-2 text-sm text-foreground outline-none ring-0 transition placeholder:text-muted-foreground/70 dark:bg-card",
                     "focus:border-[color:var(--color-primary-500)] focus:ring-2 focus:ring-[rgba(37,99,235,0.12)]",
-                    errors.message ? "border-red-300 focus:border-red-500 focus:ring-[rgba(239,68,68,0.12)]" : "border-border",
+                    errors.message
+                      ? "border-red-300 focus:border-red-500 focus:ring-[rgba(239,68,68,0.12)]"
+                      : "border-border",
                   ].join(" ")}
                   {...register("message")}
                 />
                 {errors.message && (
-                  <p className="text-xs font-medium text-red-600">{errors.message.message}</p>
+                  <p className="text-xs font-medium text-red-600">
+                    {errors.message.message}
+                  </p>
                 )}
               </div>
 
               {/* 이메일 + 답장 필요 여부 */}
               <div className="space-y-1.5">
-                <label htmlFor="email" className="text-xs font-medium text-foreground/80">
+                <label
+                  htmlFor="email"
+                  className="text-xs font-medium text-foreground/80"
+                >
                   답변을 받을 이메일 (선택)
                 </label>
                 <input
                   id="email"
                   type="email"
-                  placeholder="회원 이메일로 답장 드려요. 다른 메일로 받고 싶다면 적어 주세요."
+                  placeholder="회원 이메일로 답장 드립니다. 다른 이메일로 받고 싶으시면 입력해 주세요."
                   className={[
                     "w-full rounded-[var(--radius-md)] border bg-white px-3 py-2 text-sm text-foreground outline-none ring-0 transition placeholder:text-muted-foreground/70 dark:bg-card",
                     "focus:border-[color:var(--color-primary-500)] focus:ring-2 focus:ring-[rgba(37,99,235,0.12)]",
-                    errors.email ? "border-red-300 focus:border-red-500 focus:ring-[rgba(239,68,68,0.12)]" : "border-border",
+                    errors.email
+                      ? "border-red-300 focus:border-red-500 focus:ring-[rgba(239,68,68,0.12)]"
+                      : "border-border",
                   ].join(" ")}
                   {...register("email")}
                 />
@@ -224,32 +274,42 @@ export default function SupportPage() {
 
                 <button
                   type="button"
-                  onClick={() => setValue("needs_reply", !(needsReply ?? true), { shouldDirty: true })}
+                  onClick={() =>
+                    setValue("needs_reply", !(needsReply ?? true), {
+                      shouldDirty: true,
+                    })
+                  }
                   className="mt-1 inline-flex items-center gap-2 text-xs text-muted-foreground"
                 >
                   <span
                     className={[
                       "flex h-4 w-4 items-center justify-center rounded border text-[10px] leading-none transition",
-                      (needsReply ?? true)
+                      needsReply ?? true
                         ? "border-[color:var(--color-primary-500)] bg-[rgb(var(--primary-rgb)/0.08)] text-[color:var(--color-primary-600)]"
                         : "border-border bg-background text-transparent",
                     ].join(" ")}
                   >
                     ✓
                   </span>
-                  <span>이 문의에 대한 답장이 필요해요</span>
+                  <span>이 문의에 대한 답변이 필요합니다</span>
                 </button>
               </div>
 
               {/* 상태 메시지 */}
               {status === "success" && (
                 <p className="text-xs font-medium text-emerald-600">
-                  문의가 정상적으로 접수되었어요. 빠르게 확인하고 답장 드릴게요.
+                  문의가 정상적으로 접수되었습니다. 빠르게 확인 후 답변드리겠습니다.
+                </p>
+              )}
+              {status === "warn" && (
+                <p className="text-xs font-medium text-amber-600">
+                  {warnMessage ??
+                    "문의는 정상적으로 접수되었지만, 메일 발송 처리에 문제가 발생했습니다. 곧 확인 후 조치하겠습니다."}
                 </p>
               )}
               {status === "error" && (
                 <p className="text-xs font-medium text-red-600">
-                  제목과 내용을 다시 한 번 확인해 주세요. 계속 문제가 발생하면 다른 브라우저에서 다시 시도해 주세요.
+                  제목과 내용을 다시 한 번 확인해 주세요. 문제가 계속되면 잠시 후 다시 시도해 주세요.
                 </p>
               )}
 
@@ -265,7 +325,7 @@ export default function SupportPage() {
                     "disabled:cursor-not-allowed disabled:opacity-60",
                   ].join(" ")}
                 >
-                  {isSubmitting ? "보내는 중..." : "문의 보내기"}
+                  {isSubmitting ? "전송 중..." : "문의 보내기"}
                 </button>
               </div>
             </form>
@@ -274,26 +334,37 @@ export default function SupportPage() {
           {/* 우측 안내 패널 */}
           <aside className="flex flex-col gap-4">
             <div className="rounded-[var(--radius-lg)] border border-border bg-white p-4 text-sm dark:bg-card/90">
-              <h2 className="text-sm font-semibold text-foreground">응답 속도 안내</h2>
+              <h2 className="text-sm font-semibold text-foreground">
+                응답 속도 안내
+              </h2>
               <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
                 문의가 많지 않은 현재에는 보통{" "}
-                <span className="font-medium text-foreground">24시간 이내</span>에 답장을 드리려고 노력하고 있어요.
+                <span className="font-medium text-foreground">24시간 이내</span>
+                에 답변드리기 위해 노력하고 있습니다.
                 <br />
-                주말·공휴일에는 다소 늦어질 수 있어요.
+                주말·공휴일에는 다소 지연될 수 있습니다.
               </p>
             </div>
 
             <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-white p-4 text-xs leading-relaxed text-muted-foreground dark:bg-muted/70">
-              <h3 className="text-sm font-semibold text-foreground">더 빠른 처리를 위한 TIP</h3>
+              <h3 className="text-sm font-semibold text-foreground">
+                더 빠른 처리를 위한 안내
+              </h3>
               <ul className="mt-2 list-disc space-y-1 pl-4">
-                <li>가능하다면 재현 방법을 순서대로 적어 주세요.</li>
-                <li>특정 브라우저/기기에서만 발생하면 그 정보를 함께 적어 주세요.</li>
-                <li>스크린샷이 있다면, 답장 메일을 받으신 뒤 회신으로 첨부해 주세요.</li>
+                <li>가능하시면 재현 방법을 순서대로 작성해 주세요.</li>
+                <li>
+                  특정 브라우저/기기에서만 발생한다면 해당 정보를 함께 작성해 주세요.
+                </li>
+                <li>
+                  스크린샷이 있으시면, 답변 이메일을 받으신 뒤 회신으로 첨부해 주세요.
+                </li>
               </ul>
             </div>
 
             <div className="rounded-[var(--radius-lg)] border border-border bg-white p-4 text-xs text-muted-foreground dark:bg-card/90">
-              <h3 className="text-sm font-semibold text-foreground">자주 묻는 질문</h3>
+              <h3 className="text-sm font-semibold text-foreground">
+                자주 묻는 질문
+              </h3>
               <p className="mt-2">
                 크레딧, 가격 정책, 결제 영수증 관련 안내는{" "}
                 <Link
@@ -302,7 +373,7 @@ export default function SupportPage() {
                 >
                   요금제 페이지
                 </Link>
-                에서 한 번 더 확인하실 수 있어요.
+                에서 확인하실 수 있습니다.
               </p>
             </div>
           </aside>

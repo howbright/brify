@@ -63,18 +63,18 @@ export async function POST(req: Request) {
     needs_reply,
   });
 
-    // ✅ 3) INSERT
-    const insertPayload = {
-        user_id: user.id,
-        category: body.category,
-        title: body.title,
-        message: body.message,
-        email: body.email ?? null,
-        needs_reply,
-        meta: body.meta ?? null,
-        status: "open" as const,
-      };
-    console.log("insertPayload.user_id", insertPayload.user_id)
+  // ✅ 3) INSERT
+  const insertPayload = {
+    user_id: user.id,
+    category: body.category,
+    title: body.title,
+    message: body.message,
+    email: body.email ?? null,
+    needs_reply,
+    meta: body.meta ?? null,
+    status: "open" as const,
+  };
+  console.log("insertPayload.user_id", insertPayload.user_id);
 
   // 3) DB insert
   const { data: inserted, error: insertErr } = await supabase
@@ -112,6 +112,10 @@ export async function POST(req: Request) {
       body: JSON.stringify({ ticket_id, locale }),
       cache: "no-store",
     });
+
+    const data = await res.json();
+    console.log("enqueue response status:", res.status);
+    console.log("enqueue response body:", data);
 
     if (!res.ok) {
       enqueue_ok = false;
