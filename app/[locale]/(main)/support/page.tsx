@@ -6,6 +6,8 @@ import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
+
 import type {
   SupportTicketCategory,
   SupportTicketCreateBody,
@@ -13,38 +15,52 @@ import type {
 
 const categoryValues = ["bug", "idea", "billing", "other"] as const;
 
-const SupportTicketSchema = z.object({
-  category: z.enum(categoryValues),
-  title: z.string().trim().min(1, "제목을 입력해 주세요."),
-  message: z.string().trim().min(1, "상세 내용을 입력해 주세요."),
-  email: z
-    .union([
-      z.string().trim().email("이메일 형식이 올바르지 않습니다."),
-      z.literal(""),
-      z.null(),
-      z.undefined(),
-    ])
-    .optional(),
-  needs_reply: z.boolean().optional(),
-  meta: z.record(z.string(), z.any()).nullable().optional(),
-});
-
-type SupportTicketFormValues = z.infer<typeof SupportTicketSchema>;
+type SupportTicketFormValues = {
+  category: SupportTicketCategory;
+  title: string;
+  message: string;
+  email?: string | null;
+  needs_reply?: boolean;
+  meta?: Record<string, any> | null;
+};
 
 export default function SupportPage() {
+  const t = useTranslations("Support");
+
   const [status, setStatus] = useState<"idle" | "success" | "warn" | "error">(
     "idle"
   );
   const [warnMessage, setWarnMessage] = useState<string | null>(null);
 
+  // ✅ zod schema를 컴포넌트 내부에서 만들면 t()를 바로 쓸 수 있음
+  const SupportTicketSchema = useMemo(
+    () =>
+      z.object({
+        category: z.enum(categoryValues),
+        title: z.string().trim().min(1, t("form.validation.titleRequired")),
+        message: z.string().trim().min(1, t("form.validation.messageRequired")),
+        email: z
+          .union([
+            z.string().trim().email(t("form.validation.emailInvalid")),
+            z.literal(""),
+            z.null(),
+            z.undefined(),
+          ])
+          .optional(),
+        needs_reply: z.boolean().optional(),
+        meta: z.record(z.string(), z.any()).nullable().optional(),
+      }),
+    [t]
+  );
+
   const categoryLabel: Record<SupportTicketCategory, string> = useMemo(
     () => ({
-      bug: "버그 제보",
-      idea: "기능 제안",
-      billing: "결제·크레딧",
-      other: "기타 문의",
+      bug: t("form.category.bug"),
+      idea: t("form.category.idea"),
+      billing: t("form.category.billing"),
+      other: t("form.category.other"),
     }),
-    []
+    [t]
   );
 
   const {
@@ -90,13 +106,11 @@ export default function SupportPage() {
         body: JSON.stringify(body),
       });
 
-      // API 자체가 실패면 진짜 실패
       if (!res.ok) {
         setStatus("error");
         return;
       }
 
-      // ✅ API 응답(JSON)에 enqueue 결과가 들어있다고 가정
       const data = await res.json().catch(() => null);
 
       const enqueue_ok = data?.enqueue_ok === true;
@@ -106,8 +120,8 @@ export default function SupportPage() {
         setStatus("warn");
         setWarnMessage(
           enqueue_error
-            ? `문의는 정상적으로 접수되었지만, 메일 발송 큐 처리에 실패했습니다. (${enqueue_error})`
-            : "문의는 정상적으로 접수되었지만, 메일 발송 큐 처리에 실패했습니다."
+            ? t("form.status.warnWithError", { error: enqueue_error })
+            : t("form.status.warnPrefix")
         );
       } else {
         setStatus("success");
@@ -136,10 +150,10 @@ export default function SupportPage() {
         {/* 상단 헤더 영역 */}
         <section className="flex flex-col gap-3">
           <div className="inline-flex w-fit items-center rounded-full border border-border bg-[color:var(--glass)] px-3 py-1 text-xs font-medium text-muted-foreground">
-            문의 / 피드백
+            {t("badge")}
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-            브리피에게 한마디
+            {t("title")}
           </h1>
         </section>
 
@@ -148,10 +162,10 @@ export default function SupportPage() {
           {/* 문의 폼 */}
           <div className="rounded-[var(--radius-lg)] border border-border bg-white p-5 shadow-sm dark:bg-card/95 sm:p-6">
             <h2 className="text-base font-semibold text-foreground">
-              문의 내용 작성
+              {t("form.title")}
             </h2>
             <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
-              최대한 구체적으로 작성해 주시면 더 빠르고 정확하게 도와드릴 수 있습니다.
+              {t("form.subtitle")}
             </p>
 
             <form
@@ -161,7 +175,7 @@ export default function SupportPage() {
               {/* 카테고리 선택 */}
               <div className="space-y-2">
                 <label className="text-xs font-medium text-foreground/80">
-                  문의 유형
+                  {t("form.categoryLabel")}
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {(Object.keys(categoryLabel) as SupportTicketCategory[]).map(
@@ -195,12 +209,12 @@ export default function SupportPage() {
                   htmlFor="title"
                   className="text-xs font-medium text-foreground/80"
                 >
-                  제목
+                  {t("form.field.titleLabel")}
                 </label>
                 <input
                   id="title"
                   type="text"
-                  placeholder="예: 요약 결과가 보이지 않는 문제가 있습니다"
+                  placeholder={t("form.field.titlePlaceholder")}
                   className={[
                     "w-full rounded-[var(--radius-md)] border bg-white px-3 py-2 text-sm text-foreground outline-none ring-0 transition placeholder:text-muted-foreground/70 dark:bg-card",
                     "focus:border-[color:var(--color-primary-500)] focus:ring-2 focus:ring-[rgba(37,99,235,0.12)]",
@@ -223,11 +237,11 @@ export default function SupportPage() {
                   htmlFor="message"
                   className="text-xs font-medium text-foreground/80"
                 >
-                  상세 내용
+                  {t("form.field.messageLabel")}
                 </label>
                 <textarea
                   id="message"
-                  placeholder={`어떤 상황에서 문제가 발생했는지,\n사용 중인 브라우저·OS, 오류 화면이 있었다면 메시지를 적어 주세요.\n기능 제안이라면 어떤 작업을 더 쉽게 하고 싶은지도 알려주시면 좋습니다.`}
+                  placeholder={t("form.field.messagePlaceholder")}
                   rows={7}
                   className={[
                     "w-full rounded-[var(--radius-md)] border bg-white px-3 py-2 text-sm text-foreground outline-none ring-0 transition placeholder:text-muted-foreground/70 dark:bg-card",
@@ -251,12 +265,12 @@ export default function SupportPage() {
                   htmlFor="email"
                   className="text-xs font-medium text-foreground/80"
                 >
-                  답변을 받을 이메일 (선택)
+                  {t("form.field.emailLabel")}
                 </label>
                 <input
                   id="email"
                   type="email"
-                  placeholder="회원 이메일로 답장 드립니다. 다른 이메일로 받고 싶으시면 입력해 주세요."
+                  placeholder={t("form.field.emailPlaceholder")}
                   className={[
                     "w-full rounded-[var(--radius-md)] border bg-white px-3 py-2 text-sm text-foreground outline-none ring-0 transition placeholder:text-muted-foreground/70 dark:bg-card",
                     "focus:border-[color:var(--color-primary-500)] focus:ring-2 focus:ring-[rgba(37,99,235,0.12)]",
@@ -291,25 +305,24 @@ export default function SupportPage() {
                   >
                     ✓
                   </span>
-                  <span>이 문의에 대한 답변이 필요합니다</span>
+                  <span>{t("form.field.needsReply")}</span>
                 </button>
               </div>
 
               {/* 상태 메시지 */}
               {status === "success" && (
                 <p className="text-xs font-medium text-emerald-600">
-                  문의가 정상적으로 접수되었습니다. 빠르게 확인 후 답변드리겠습니다.
+                  {t("form.status.success")}
                 </p>
               )}
               {status === "warn" && (
                 <p className="text-xs font-medium text-amber-600">
-                  {warnMessage ??
-                    "문의는 정상적으로 접수되었지만, 메일 발송 처리에 문제가 발생했습니다. 곧 확인 후 조치하겠습니다."}
+                  {warnMessage ?? t("form.status.warnFallback")}
                 </p>
               )}
               {status === "error" && (
                 <p className="text-xs font-medium text-red-600">
-                  제목과 내용을 다시 한 번 확인해 주세요. 문제가 계속되면 잠시 후 다시 시도해 주세요.
+                  {t("form.status.error")}
                 </p>
               )}
 
@@ -325,7 +338,7 @@ export default function SupportPage() {
                     "disabled:cursor-not-allowed disabled:opacity-60",
                   ].join(" ")}
                 >
-                  {isSubmitting ? "전송 중..." : "문의 보내기"}
+                  {isSubmitting ? t("form.button.submitting") : t("form.button.submit")}
                 </button>
               </div>
             </form>
@@ -335,45 +348,41 @@ export default function SupportPage() {
           <aside className="flex flex-col gap-4">
             <div className="rounded-[var(--radius-lg)] border border-border bg-white p-4 text-sm dark:bg-card/90">
               <h2 className="text-sm font-semibold text-foreground">
-                응답 속도 안내
+                {t("aside.speed.title")}
               </h2>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                문의가 많지 않은 현재에는 보통{" "}
-                <span className="font-medium text-foreground">24시간 이내</span>
-                에 답변드리기 위해 노력하고 있습니다.
-                <br />
-                주말·공휴일에는 다소 지연될 수 있습니다.
+              <p className="mt-2 whitespace-pre-line text-xs leading-relaxed text-muted-foreground">
+                {t("aside.speed.descBefore")}
+                <span className="font-medium text-foreground">
+                  {t("aside.speed.descStrong")}
+                </span>
+                {t("aside.speed.descAfter")}
               </p>
             </div>
 
             <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-white p-4 text-xs leading-relaxed text-muted-foreground dark:bg-muted/70">
               <h3 className="text-sm font-semibold text-foreground">
-                더 빠른 처리를 위한 안내
+                {t("aside.tips.title")}
               </h3>
               <ul className="mt-2 list-disc space-y-1 pl-4">
-                <li>가능하시면 재현 방법을 순서대로 작성해 주세요.</li>
-                <li>
-                  특정 브라우저/기기에서만 발생한다면 해당 정보를 함께 작성해 주세요.
-                </li>
-                <li>
-                  스크린샷이 있으시면, 답변 이메일을 받으신 뒤 회신으로 첨부해 주세요.
-                </li>
+                {(t.raw("aside.tips.items") as string[]).map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
               </ul>
             </div>
 
             <div className="rounded-[var(--radius-lg)] border border-border bg-white p-4 text-xs text-muted-foreground dark:bg-card/90">
               <h3 className="text-sm font-semibold text-foreground">
-                자주 묻는 질문
+                {t("aside.faq.title")}
               </h3>
               <p className="mt-2">
-                크레딧, 가격 정책, 결제 영수증 관련 안내는{" "}
+                {t("aside.faq.descBefore")}
                 <Link
                   href="/pricing"
                   className="font-medium text-[color:var(--color-primary-600)] underline-offset-2 hover:underline"
                 >
-                  요금제 페이지
+                  {t("aside.faq.linkText")}
                 </Link>
-                에서 확인하실 수 있습니다.
+                {t("aside.faq.descAfter")}
               </p>
             </div>
           </aside>

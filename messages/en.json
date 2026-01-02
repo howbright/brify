@@ -532,5 +532,74 @@
     "subtitle": "welcome to brify",
     "title": "Welcome to Brify 🎉",
     "cta": "Get started"
+  },
+  "Support": {
+    "badge": "Support / Feedback",
+    "title": "Send a note to Brify",
+
+    "form": {
+      "title": "Write your message",
+      "subtitle": "The more details you provide, the faster and more accurately we can help.",
+
+      "categoryLabel": "Category",
+      "category": {
+        "bug": "Bug report",
+        "idea": "Feature request",
+        "billing": "Billing / Credits",
+        "other": "Other"
+      },
+
+      "field": {
+        "titleLabel": "Title",
+        "titlePlaceholder": "e.g., I can’t see the summary result",
+        "messageLabel": "Details",
+        "messagePlaceholder": "Please describe what happened,\nincluding your browser/OS and any error messages.\nIf this is a feature request, tell us what you want to do more easily.",
+        "emailLabel": "Email for reply (optional)",
+        "emailPlaceholder": "We’ll reply to your account email. Enter a different email if you prefer.",
+        "needsReply": "I would like a reply to this request"
+      },
+
+      "validation": {
+        "titleRequired": "Please enter a title.",
+        "messageRequired": "Please enter details.",
+        "emailInvalid": "Please enter a valid email."
+      },
+
+      "status": {
+        "success": "Your request has been received. We’ll review it and reply as soon as possible.",
+        "warnFallback": "Your request was received, but there was an issue enqueueing the email sending job. We’ll investigate soon.",
+        "error": "Please check the title and details. If the issue persists, try again later.",
+        "warnPrefix": "Your request was received, but failed to enqueue the email sending job.",
+        "warnWithError": "Your request was received, but failed to enqueue the email sending job. ({error})"
+      },
+
+      "button": {
+        "submitting": "Sending...",
+        "submit": "Send"
+      }
+    },
+
+    "aside": {
+      "speed": {
+        "title": "Response time",
+        "descBefore": "We usually respond within ",
+        "descStrong": "24 hours",
+        "descAfter": ".\nResponse may be slower on weekends and holidays."
+      },
+      "tips": {
+        "title": "Tips for faster support",
+        "items": [
+          "Please write the steps to reproduce in order, if possible.",
+          "If it happens only on a specific browser/device, include that information.",
+          "If you have screenshots, please reply to our email and attach them."
+        ]
+      },
+      "faq": {
+        "title": "FAQ",
+        "descBefore": "For credits, pricing, and receipts, please check the ",
+        "linkText": "Pricing page",
+        "descAfter": "."
+      }
+    }
   }
 }
