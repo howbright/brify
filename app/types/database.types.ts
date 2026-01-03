@@ -137,6 +137,60 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          category: string
+          created_at: string
+          dedupe_key: string | null
+          delta_credits: number
+          entity_id: string | null
+          event_type: string
+          id: string
+          is_read: boolean
+          message_key: string
+          params: Json
+          read_at: string | null
+          source: string | null
+          status: string
+          title_key: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          dedupe_key?: string | null
+          delta_credits?: number
+          entity_id?: string | null
+          event_type: string
+          id?: string
+          is_read?: boolean
+          message_key: string
+          params?: Json
+          read_at?: string | null
+          source?: string | null
+          status: string
+          title_key: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          dedupe_key?: string | null
+          delta_credits?: number
+          entity_id?: string | null
+          event_type?: string
+          id?: string
+          is_read?: boolean
+          message_key?: string
+          params?: Json
+          read_at?: string | null
+          source?: string | null
+          status?: string
+          title_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       payment_webhook_logs: {
         Row: {
           event_type: string
