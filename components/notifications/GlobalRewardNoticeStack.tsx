@@ -2,15 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-
-type RewardNotice = {
-  id: string;
-  created_at: string; // ISO
-  title: string;
-  message: string;
-  delta_credits: number;
-  source?: "mission" | "billing" | "system";
-};
+import { useTranslations } from "next-intl";
+import type { NotificationItem, NotificationStatus } from "@/app/types/notice";
+import { MOCK_NOTICES } from "@/app/types/notice";
 
 function cn(...xs: Array<string | false | undefined | null>) {
   return xs.filter(Boolean).join(" ");
@@ -27,36 +21,152 @@ function formatDateTime(iso: string) {
   });
 }
 
-// ✅ 가데이터 3건
-const MOCK_NOTICES: RewardNotice[] = [
-  {
-    id: "rw_001",
-    created_at: "2025-12-17T13:57:00+09:00",
-    title: "보상 지급 완료",
-    message: "미션 검토가 승인되어 크레딧이 지급되었습니다.",
-    delta_credits: 5,
-    source: "mission",
-  },
-  {
-    id: "rw_002",
-    created_at: "2025-12-17T13:57:00+09:00",
-    title: "보상 지급 완료",
-    message: "미션 검토가 승인되어 크레딧이 지급되었습니다.",
-    delta_credits: 5,
-    source: "mission",
-  },
-  {
-    id: "rw_003",
-    created_at: "2025-12-17T13:57:00+09:00",
-    title: "보상 지급 완료",
-    message: "미션 검토가 승인되어 크레딧이 지급되었습니다.",
-    delta_credits: 5,
-    source: "mission",
-  },
-];
+function getStatusBadgeClassName(status: NotificationStatus) {
+  switch (status) {
+    case "approved":
+      return "border-emerald-200/70 bg-emerald-50/80 text-emerald-800 dark:border-emerald-300/20 dark:bg-emerald-400/5 dark:text-emerald-200";
+    case "rejected":
+      return "border-rose-200/70 bg-rose-50/80 text-rose-800 dark:border-rose-300/20 dark:bg-rose-400/5 dark:text-rose-200";
+    case "completed":
+      return "border-blue-200/70 bg-blue-50/80 text-blue-800 dark:border-blue-300/20 dark:bg-blue-400/5 dark:text-blue-200";
+    case "failed":
+      return "border-red-200/70 bg-red-50/80 text-red-800 dark:border-red-300/20 dark:bg-red-400/5 dark:text-red-emerald-200";
+    case "refunded":
+      return "border-violet-200/70 bg-violet-50/80 text-violet-800 dark:border-violet-300/20 dark:bg-violet-400/5 dark:text-violet-200";
+    case "insufficient":
+      return "border-amber-200/70 bg-amber-50/80 text-amber-900 dark:border-amber-300/20 dark:bg-amber-400/5 dark:text-amber-200";
+    case "info":
+    default:
+      return "border-neutral-200/70 bg-neutral-50/80 text-neutral-800 dark:border-white/12 dark:bg-white/5 dark:text-neutral-200";
+  }
+}
+
+/**
+ * ✅ 알림 1건 카드 컴포넌트
+ */
+function NotificationCard({
+  item,
+  onDismiss,
+}: {
+  item: NotificationItem;
+  onDismiss: (id: string) => void;
+}) {
+  const t = useTranslations();
+  const badgeLabel = t(`notification_status.${item.status}`);
+  const categoryLabel = t(`notification_category.${item.category}`);
+
+  const creditsText = (() => {
+    const v = item.delta_credits ?? 0;
+    if (v === 0) return null;
+    return v > 0 ? `+${v}` : `${v}`;
+  })();
+
+  const titleText = t(item.title_key, item.params ?? {});
+  const messageText = t(item.message_key, item.params ?? {});
+
+  return (
+    <motion.div
+      key={item.id}
+      layout
+      initial={{ opacity: 0, y: -8, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -8, scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 520, damping: 42 }}
+      className={cn(
+        "pointer-events-auto",
+        "relative overflow-hidden rounded-2xl",
+        "border border-neutral-200/80 dark:border-white/12",
+        "bg-white/80 dark:bg-black/35 backdrop-blur",
+        "shadow-[0_18px_45px_-26px_rgba(15,23,42,0.28)]"
+      )}
+    >
+      {/* 은은한 포인트 */}
+      <div
+        aria-hidden
+        className="
+          pointer-events-none absolute inset-0
+          bg-[radial-gradient(240px_120px_at_18%_10%,rgba(16,185,129,0.16),transparent_60%),radial-gradient(240px_120px_at_92%_45%,rgba(59,130,246,0.12),transparent_60%)]
+          dark:bg-[radial-gradient(240px_120px_at_18%_10%,rgba(16,185,129,0.18),transparent_60%),radial-gradient(240px_120px_at_92%_45%,rgba(99,102,241,0.16),transparent_60%)]
+        "
+      />
+
+      <div className="relative p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              {/* 상태 배지 */}
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-full border px-2 py-1 text-[11px] font-semibold",
+                  getStatusBadgeClassName(item.status)
+                )}
+              >
+                {badgeLabel}
+              </span>
+
+              <div className="text-[12px] font-semibold text-neutral-900 dark:text-neutral-50 truncate">
+                {titleText}
+              </div>
+            </div>
+
+            <div className="mt-1 text-[12px] text-neutral-700 dark:text-neutral-300">
+              {creditsText ? (
+                <span className="font-extrabold text-emerald-700 dark:text-emerald-300">
+                  {creditsText}{" "}
+                  {t("common.credits", { default: "credits" }) /* 안전장치 */}
+                </span>
+              ) : null}
+              <span className="text-neutral-500 dark:text-neutral-400">
+                {creditsText ? " · " : ""}
+                {messageText}
+              </span>
+            </div>
+
+            <div className="mt-2 text-[11px] text-neutral-500 dark:text-neutral-400">
+              <CreatedAtText createdAt={item.created_at} />
+              <span className="ml-2 text-neutral-400 dark:text-neutral-500">
+                · {categoryLabel}
+              </span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onDismiss(item.id)}
+            className="
+              -mr-1 -mt-1
+              inline-flex h-8 w-8 items-center justify-center
+              rounded-full
+              text-neutral-500 hover:text-neutral-900
+              hover:bg-white/70
+              dark:text-neutral-400 dark:hover:text-neutral-50
+              dark:hover:bg-white/5
+              transition
+            "
+            aria-label={t("notifications.ui.dismiss_one", {
+              default: "Dismiss notification",
+            })}
+            title={t("notifications.ui.dismiss", { default: "Dismiss" })}
+          >
+            <span className="text-[18px] leading-none">×</span>
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function CreatedAtText({ createdAt }: { createdAt: string }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return <>{mounted ? formatDateTime(createdAt) : ""}</>;
+}
 
 export default function GlobalRewardNoticeStack() {
-  const [items, setItems] = useState<RewardNotice[]>(MOCK_NOTICES);
+  const t = useTranslations();
+
+  // ✅ 여기서 이제 notice.ts의 MOCK_NOTICES 사용
+  const [items, setItems] = useState<NotificationItem[]>(MOCK_NOTICES);
 
   const count = items.length;
 
@@ -65,7 +175,9 @@ export default function GlobalRewardNoticeStack() {
     [items]
   );
 
-  const dismiss = (id: string) => setItems((prev) => prev.filter((x) => x.id !== id));
+  const dismiss = (id: string) =>
+    setItems((prev) => prev.filter((x) => x.id !== id));
+
   const dismissAll = () => setItems([]);
 
   if (items.length === 0) return null;
@@ -78,9 +190,9 @@ export default function GlobalRewardNoticeStack() {
         w-[360px] max-w-[calc(100vw-2rem)]
       "
       aria-live="polite"
-      aria-label="보상 알림"
+      aria-label={t("notifications.ui.aria_label", { default: "Notifications" })}
     >
-      {/* 헤더(작게) */}
+      {/* 헤더 */}
       <div className="pointer-events-auto mb-2 flex items-center justify-between">
         <div
           className="
@@ -99,12 +211,16 @@ export default function GlobalRewardNoticeStack() {
             "
             aria-hidden
           />
-          알림 {count}건
+          {t("notifications.ui.header_count", {
+            count,
+            default: `Notifications ${count}`,
+          })}
           <span className="text-neutral-400 dark:text-neutral-400" aria-hidden>
             ·
           </span>
           <span className="text-emerald-700 dark:text-emerald-300">
-            +{totalCredits} 크레딧
+            {totalCredits >= 0 ? `+${totalCredits}` : totalCredits}{" "}
+            {t("common.credits", { default: "credits" })}
           </span>
         </div>
 
@@ -121,7 +237,7 @@ export default function GlobalRewardNoticeStack() {
             transition
           "
         >
-          모두 닫기
+          {t("notifications.ui.dismiss_all", { default: "Dismiss all" })}
         </button>
       </div>
 
@@ -129,109 +245,10 @@ export default function GlobalRewardNoticeStack() {
       <div className="flex flex-col gap-2">
         <AnimatePresence initial={false}>
           {items.map((it) => (
-            <motion.div
-              key={it.id}
-              layout
-              initial={{ opacity: 0, y: -8, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 520, damping: 42 }}
-              className={cn(
-                "pointer-events-auto",
-                "relative overflow-hidden rounded-2xl",
-                "border border-neutral-200/80 dark:border-white/12",
-                "bg-white/80 dark:bg-black/35 backdrop-blur",
-                "shadow-[0_18px_45px_-26px_rgba(15,23,42,0.28)]"
-              )}
-            >
-              {/* 은은한 포인트 */}
-              <div
-                aria-hidden
-                className="
-                  pointer-events-none absolute inset-0
-                  bg-[radial-gradient(240px_120px_at_18%_10%,rgba(16,185,129,0.16),transparent_60%),radial-gradient(240px_120px_at_92%_45%,rgba(59,130,246,0.12),transparent_60%)]
-                  dark:bg-[radial-gradient(240px_120px_at_18%_10%,rgba(16,185,129,0.18),transparent_60%),radial-gradient(240px_120px_at_92%_45%,rgba(99,102,241,0.16),transparent_60%)]
-                "
-              />
-
-              <div className="relative p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      {/* 상태 배지(승인 강조) */}
-                      <span
-                        className="
-                          inline-flex items-center rounded-full
-                          border border-emerald-200/70 bg-emerald-50/80
-                          px-2 py-1
-                          text-[11px] font-semibold text-emerald-800
-                          dark:border-emerald-300/20 dark:bg-emerald-400/5 dark:text-emerald-200
-                        "
-                      >
-                        승인
-                      </span>
-
-                      <div className="text-[12px] font-semibold text-neutral-900 dark:text-neutral-50 truncate">
-                        {it.title}
-                      </div>
-                    </div>
-
-                    <div className="mt-1 text-[12px] text-neutral-700 dark:text-neutral-300">
-                      <span className="font-extrabold text-emerald-700 dark:text-emerald-300">
-                        +{it.delta_credits} 크레딧
-                      </span>
-                      <span className="text-neutral-500 dark:text-neutral-400">
-                        {" "}
-                        · {it.message}
-                      </span>
-                    </div>
-
-                    <div className="mt-2 text-[11px] text-neutral-500 dark:text-neutral-400">
-                      {formatDateTime(it.created_at)}
-                      {it.source ? (
-                        <span className="ml-2 text-neutral-400 dark:text-neutral-500">
-                          · {it.source === "mission" ? "미션" : it.source}
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => dismiss(it.id)}
-                    className="
-                      -mr-1 -mt-1
-                      inline-flex h-8 w-8 items-center justify-center
-                      rounded-full
-                      text-neutral-500 hover:text-neutral-900
-                      hover:bg-white/70
-                      dark:text-neutral-400 dark:hover:text-neutral-50
-                      dark:hover:bg-white/5
-                      transition
-                    "
-                    aria-label="알림 닫기"
-                    title="닫기"
-                  >
-                    <span className="text-[18px] leading-none">×</span>
-                  </button>
-                </div>
-              </div>
-            </motion.div>
+            <NotificationCard key={it.id} item={it} onDismiss={dismiss} />
           ))}
         </AnimatePresence>
       </div>
     </div>
   );
 }
-
-
-function CreatedAtText({ createdAt }: { createdAt: string }) {
-    const [mounted, setMounted] = useState(false);
-    useEffect(() => setMounted(true), []);
-  
-    return (
-      <div className="mt-2 text-[11px] text-neutral-500 dark:text-neutral-400">
-        {mounted ? formatDateTime(createdAt) : ""} 
-      </div>
-    );
-  }

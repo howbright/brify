@@ -1,3 +1,5 @@
+//app/[locale]/layout.tsx
+
 import { SessionProvider } from "@/components/SessionProvider";
 import { routing } from "@/i18n/routing";
 import type { Metadata } from "next";
@@ -93,12 +95,13 @@ export default async function RootLayout({
                 <TooltipProvider delayDuration={300}>
                   {children}
                 </TooltipProvider>
+                <GlobalRewardNoticeStack />
               </NextIntlClientProvider>
               <Toaster richColors position="top-center" duration={2000} />
             </SessionProvider>
           </ReactQueryProvider>
         </ThemeProvider>
-        <GlobalRewardNoticeStack />
+        
       </body>
     </html>
   );

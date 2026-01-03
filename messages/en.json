@@ -601,5 +601,61 @@
         "descAfter": "."
       }
     }
-  }
+  },
+  "notifications": {
+    "signup_reward": {
+      "title": "Signup reward granted",
+      "message": "You have received {credits} credits as a signup reward."
+    },
+    "mission_approved": {
+      "title": "Mission reward granted",
+      "message": "Your mission \"{missionName}\" was approved and {credits} credits have been granted."
+    },
+    "mission_rejected": {
+      "title": "Mission rejected",
+      "message": "Your mission \"{missionName}\" was rejected and no reward was granted. Reason: {reason}"
+    },
+    "payment_completed": {
+      "title": "Payment completed",
+      "message": "Your payment for {pack} was successful and {credits} credits have been granted. (Amount: {amount} {currency})"
+    },
+    "payment_failed": {
+      "title": "Payment failed",
+      "message": "Your payment was not completed. Please check your payment method and try again. (Code: {code})"
+    },
+    "refund_completed": {
+      "title": "Refund completed",
+      "message": "Your refund has been processed. It may take time to appear on your statement. (Refund credits: {credits}, Amount: {amount} {currency})"
+    },
+    "credit_insufficient": {
+      "title": "Insufficient credits",
+      "message": "Your request could not be processed due to insufficient credits. (Required: {required} / Balance: {balance}) Please top up your credits."
+    },
+    "system_info": {
+      "title": "System notice",
+      "message": "Scheduled maintenance is planned for service stability. Please check the notice for details."
+    },
+    "ui": {
+      "aria_label": "Notifications",
+      "dismiss": "Dismiss",
+      "dismiss_one": "Dismiss notification",
+      "dismiss_all": "Dismiss all",
+      "header_count": "Notifications {count}"
+    }
+  },
+  "notification_status": {
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "completed": "Completed",
+    "failed": "Failed",
+    "refunded": "Refunded",
+    "insufficient": "Insufficient",
+    "info": "Info"
+  },
+  "notification_category": {
+    "mission": "Mission",
+    "billing": "Billing",
+    "system": "System"
+  },
+  "common": { "credits": "credits" }
 }
