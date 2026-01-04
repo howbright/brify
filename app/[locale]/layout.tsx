@@ -16,7 +16,7 @@ import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { createClient } from "@/utils/supabase/server";
 import AuthRscRefresher from "@/components/AuthRscRefresher";
 import ThemeProvider from "@/components/ThemeProvider";
-import GlobalRewardNoticeStack from "@/components/notifications/GlobalRewardNoticeStack";
+import GlobalNotificationStack from "@/components/notifications/GlobalNotificationStack";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -95,7 +95,7 @@ export default async function RootLayout({
                 <TooltipProvider delayDuration={300}>
                   {children}
                 </TooltipProvider>
-                <GlobalRewardNoticeStack />
+                <GlobalNotificationStack />
               </NextIntlClientProvider>
               <Toaster richColors position="top-center" duration={2000} />
             </SessionProvider>

@@ -1,3 +1,5 @@
+//components/notifications/GaobalNotificationStack
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -162,7 +164,7 @@ function CreatedAtText({ createdAt }: { createdAt: string }) {
   return <>{mounted ? formatDateTime(createdAt) : ""}</>;
 }
 
-export default function GlobalRewardNoticeStack() {
+export default function GaobalNotificationStack() {
   const t = useTranslations();
 
   // ✅ 여기서 이제 notice.ts의 MOCK_NOTICES 사용
