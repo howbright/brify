@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { NotificationItem, NotificationStatus } from "@/app/types/notice";
 
 function cn(...xs: Array<string | false | undefined | null>) {
@@ -63,7 +63,6 @@ function NotificationCard({
     return v > 0 ? `+${v}` : `${v}`;
   })();
 
-  // ✅ DB에는 key + params만 들어있고, 여기서 i18n 변환
   const titleText = t(item.title_key, item.params ?? {});
   const messageText = t(item.message_key, item.params ?? {});
 
@@ -83,7 +82,6 @@ function NotificationCard({
         "shadow-[0_18px_45px_-26px_rgba(15,23,42,0.28)]"
       )}
     >
-      {/* 은은한 포인트 */}
       <div
         aria-hidden
         className="
@@ -97,7 +95,6 @@ function NotificationCard({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              {/* 상태 배지 */}
               <span
                 className={cn(
                   "inline-flex items-center rounded-full border px-2 py-1 text-[11px] font-semibold",
@@ -163,10 +160,6 @@ function CreatedAtText({ createdAt }: { createdAt: string }) {
   return <>{mounted ? formatDateTime(createdAt) : ""}</>;
 }
 
-/**
- * ✅ GET /api/notifications?limit=5
- * 응답: { ok: true, items: NotificationItem[] }
- */
 async function fetchNotifications(limit = 5): Promise<NotificationItem[]> {
   const res = await fetch(`/api/notifications?limit=${limit}`, {
     method: "GET",
@@ -176,42 +169,106 @@ async function fetchNotifications(limit = 5): Promise<NotificationItem[]> {
   });
 
   if (!res.ok) return [];
+
   const data = await res.json().catch(() => null);
   const items = (data?.items ?? data?.data ?? []) as NotificationItem[];
   return Array.isArray(items) ? items : [];
 }
 
+async function markNotificationRead(id: string) {
+  const res = await fetch(`/api/notifications/${id}/read`, {
+    method: "PATCH",
+    cache: "no-store",
+    credentials: "include",
+    headers: { "content-type": "application/json" },
+  });
+  if (!res.ok) throw new Error(`MARK_READ_FAILED_${res.status}`);
+  const data = await res.json().catch(() => null);
+  if (data?.ok !== true) throw new Error(data?.error ?? "MARK_READ_FAILED");
+}
+
+async function markAllNotificationsRead() {
+  const res = await fetch(`/api/notifications/read-all`, {
+    method: "PATCH",
+    cache: "no-store",
+    credentials: "include",
+    headers: { "content-type": "application/json" },
+  });
+  if (!res.ok) throw new Error(`MARK_ALL_READ_FAILED_${res.status}`);
+  const data = await res.json().catch(() => null);
+  if (data?.ok !== true) throw new Error(data?.error ?? "MARK_ALL_READ_FAILED");
+}
+
 export default function GlobalNotificationsStack() {
   const t = useTranslations();
+  const qc = useQueryClient();
 
   const limit = 5;
+  const queryKey = ["notifications", { limit }] as const;
 
-  // ✅ React Query로 10초 폴링
   const { data, isFetched, isLoading } = useQuery({
-    queryKey: ["notifications", { limit }],
+    queryKey,
     queryFn: () => fetchNotifications(limit),
-
-    // ✅ 10초 폴링
     refetchInterval: 10_000,
     refetchIntervalInBackground: true,
-
-    // 폴링이라 staleTime은 의미가 덜하지만, 0으로 두면 확실함
     staleTime: 0,
-
-    // 포커스/리커넥트 시에도 즉시 한번 더 당겨오고 싶으면 true 유지
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-
     retry: 1,
   });
 
-  // ✅ UI 닫기(임시) 때문에 로컬 상태 유지
+  // ✅ UI 닫기 즉시 반영 + 폴링과 병행
   const [items, setItems] = useState<NotificationItem[]>([]);
 
-  // ✅ 서버 데이터 -> 로컬 동기화
   useEffect(() => {
     if (Array.isArray(data)) setItems(data);
   }, [data]);
+
+  // ✅ 1건 읽음 처리
+  const readOneMutation = useMutation({
+    mutationFn: (id: string) => markNotificationRead(id),
+    onMutate: async (id) => {
+      // optimistic: UI 먼저 제거 + 캐시도 같이 제거
+      await qc.cancelQueries({ queryKey });
+
+      const prev = qc.getQueryData<NotificationItem[]>(queryKey) ?? [];
+      qc.setQueryData<NotificationItem[]>(
+        queryKey,
+        prev.filter((x) => x.id !== id)
+      );
+
+      setItems((cur) => cur.filter((x) => x.id !== id));
+      return { prev };
+    },
+    onError: (_err, _id, ctx) => {
+      // 실패하면 롤백 + 다시 가져오기
+      if (ctx?.prev) qc.setQueryData(queryKey, ctx.prev);
+      qc.invalidateQueries({ queryKey });
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey });
+    },
+  });
+
+  // ✅ 모두 읽음 처리
+  const readAllMutation = useMutation({
+    mutationFn: () => markAllNotificationsRead(),
+    onMutate: async () => {
+      await qc.cancelQueries({ queryKey });
+
+      const prev = qc.getQueryData<NotificationItem[]>(queryKey) ?? [];
+      qc.setQueryData<NotificationItem[]>(queryKey, []);
+      setItems([]);
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) qc.setQueryData(queryKey, ctx.prev);
+      qc.invalidateQueries({ queryKey });
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey });
+    },
+  });
 
   const count = items.length;
 
@@ -220,12 +277,16 @@ export default function GlobalNotificationsStack() {
     [items]
   );
 
-  const dismiss = (id: string) =>
-    setItems((prev) => prev.filter((x) => x.id !== id));
+  const dismiss = (id: string) => {
+    if (readOneMutation.isPending) return;
+    readOneMutation.mutate(id);
+  };
 
-  const dismissAll = () => setItems([]);
+  const dismissAll = () => {
+    if (readAllMutation.isPending) return;
+    readAllMutation.mutate();
+  };
 
-  // ✅ 초기 로딩 깜빡임 방지
   if (!isFetched && isLoading) return null;
   if (items.length === 0) return null;
 
@@ -239,7 +300,6 @@ export default function GlobalNotificationsStack() {
       aria-live="polite"
       aria-label={t("notifications.ui.aria_label")}
     >
-      {/* 헤더 */}
       <div className="pointer-events-auto mb-2 flex items-center justify-between">
         <div
           className="
@@ -271,6 +331,7 @@ export default function GlobalNotificationsStack() {
         <button
           type="button"
           onClick={dismissAll}
+          disabled={readAllMutation.isPending}
           className="
             pointer-events-auto
             rounded-full px-2 py-1
@@ -279,13 +340,15 @@ export default function GlobalNotificationsStack() {
             dark:text-neutral-400 dark:hover:text-neutral-200
             hover:bg-white/60 dark:hover:bg-white/5
             transition
+            disabled:opacity-60 disabled:cursor-not-allowed
           "
+          aria-label={t("notifications.ui.dismiss_all")}
+          title={t("notifications.ui.dismiss_all")}
         >
           {t("notifications.ui.dismiss_all")}
         </button>
       </div>
 
-      {/* 카드 스택 */}
       <div className="flex flex-col gap-2">
         <AnimatePresence initial={false}>
           {items.map((it) => (

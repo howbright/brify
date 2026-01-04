@@ -13,13 +13,16 @@ function toInt(v: string | null, fallback: number) {
 
 /**
  * GET /api/notifications?limit=5
- * - 로그인된 유저의 notifications를 최신순으로 가져옵니다.
+ * - 로그인된 유저의 "미읽음(is_read=false)" notifications를 최신순으로 가져옵니다.
  * - Supabase RLS가 (user_id = auth.uid()) select만 허용한다고 가정합니다.
  */
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
-    const limit = Math.min(Math.max(toInt(url.searchParams.get("limit"), 5), 1), 30);
+    const limit = Math.min(
+      Math.max(toInt(url.searchParams.get("limit"), 5), 1),
+      30
+    );
 
     const supabase = await createClient();
     const {
@@ -37,6 +40,7 @@ export async function GET(req: Request) {
       .select(
         "id, created_at, category, status, delta_credits, title_key, message_key, params"
       )
+      .eq("is_read", false) // ✅ 추가: 미읽음만
       .order("created_at", { ascending: false })
       .limit(limit);
 
