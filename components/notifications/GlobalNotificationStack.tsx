@@ -1,12 +1,11 @@
-//components/notifications/GaobalNotificationStack
-
+// components/notifications/GlobalNotificationsStack.tsx
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
 import type { NotificationItem, NotificationStatus } from "@/app/types/notice";
-import { MOCK_NOTICES } from "@/app/types/notice";
 
 function cn(...xs: Array<string | false | undefined | null>) {
   return xs.filter(Boolean).join(" ");
@@ -32,7 +31,7 @@ function getStatusBadgeClassName(status: NotificationStatus) {
     case "completed":
       return "border-blue-200/70 bg-blue-50/80 text-blue-800 dark:border-blue-300/20 dark:bg-blue-400/5 dark:text-blue-200";
     case "failed":
-      return "border-red-200/70 bg-red-50/80 text-red-800 dark:border-red-300/20 dark:bg-red-400/5 dark:text-red-emerald-200";
+      return "border-red-200/70 bg-red-50/80 text-red-800 dark:border-red-300/20 dark:bg-red-400/5 dark:text-red-200";
     case "refunded":
       return "border-violet-200/70 bg-violet-50/80 text-violet-800 dark:border-violet-300/20 dark:bg-violet-400/5 dark:text-violet-200";
     case "insufficient":
@@ -54,6 +53,7 @@ function NotificationCard({
   onDismiss: (id: string) => void;
 }) {
   const t = useTranslations();
+
   const badgeLabel = t(`notification_status.${item.status}`);
   const categoryLabel = t(`notification_category.${item.category}`);
 
@@ -63,6 +63,7 @@ function NotificationCard({
     return v > 0 ? `+${v}` : `${v}`;
   })();
 
+  // ✅ DB에는 key + params만 들어있고, 여기서 i18n 변환
   const titleText = t(item.title_key, item.params ?? {});
   const messageText = t(item.message_key, item.params ?? {});
 
@@ -114,10 +115,10 @@ function NotificationCard({
             <div className="mt-1 text-[12px] text-neutral-700 dark:text-neutral-300">
               {creditsText ? (
                 <span className="font-extrabold text-emerald-700 dark:text-emerald-300">
-                  {creditsText}{" "}
-                  {t("common.credits", { default: "credits" }) /* 안전장치 */}
+                  {creditsText} {t("common.credits")}
                 </span>
               ) : null}
+
               <span className="text-neutral-500 dark:text-neutral-400">
                 {creditsText ? " · " : ""}
                 {messageText}
@@ -145,10 +146,8 @@ function NotificationCard({
               dark:hover:bg-white/5
               transition
             "
-            aria-label={t("notifications.ui.dismiss_one", {
-              default: "Dismiss notification",
-            })}
-            title={t("notifications.ui.dismiss", { default: "Dismiss" })}
+            aria-label={t("notifications.ui.dismiss_one")}
+            title={t("notifications.ui.dismiss")}
           >
             <span className="text-[18px] leading-none">×</span>
           </button>
@@ -164,11 +163,55 @@ function CreatedAtText({ createdAt }: { createdAt: string }) {
   return <>{mounted ? formatDateTime(createdAt) : ""}</>;
 }
 
-export default function GaobalNotificationStack() {
+/**
+ * ✅ GET /api/notifications?limit=5
+ * 응답: { ok: true, items: NotificationItem[] }
+ */
+async function fetchNotifications(limit = 5): Promise<NotificationItem[]> {
+  const res = await fetch(`/api/notifications?limit=${limit}`, {
+    method: "GET",
+    cache: "no-store",
+    credentials: "include",
+    headers: { "content-type": "application/json" },
+  });
+
+  if (!res.ok) return [];
+  const data = await res.json().catch(() => null);
+  const items = (data?.items ?? data?.data ?? []) as NotificationItem[];
+  return Array.isArray(items) ? items : [];
+}
+
+export default function GlobalNotificationsStack() {
   const t = useTranslations();
 
-  // ✅ 여기서 이제 notice.ts의 MOCK_NOTICES 사용
-  const [items, setItems] = useState<NotificationItem[]>(MOCK_NOTICES);
+  const limit = 5;
+
+  // ✅ React Query로 10초 폴링
+  const { data, isFetched, isLoading } = useQuery({
+    queryKey: ["notifications", { limit }],
+    queryFn: () => fetchNotifications(limit),
+
+    // ✅ 10초 폴링
+    refetchInterval: 10_000,
+    refetchIntervalInBackground: true,
+
+    // 폴링이라 staleTime은 의미가 덜하지만, 0으로 두면 확실함
+    staleTime: 0,
+
+    // 포커스/리커넥트 시에도 즉시 한번 더 당겨오고 싶으면 true 유지
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+
+    retry: 1,
+  });
+
+  // ✅ UI 닫기(임시) 때문에 로컬 상태 유지
+  const [items, setItems] = useState<NotificationItem[]>([]);
+
+  // ✅ 서버 데이터 -> 로컬 동기화
+  useEffect(() => {
+    if (Array.isArray(data)) setItems(data);
+  }, [data]);
 
   const count = items.length;
 
@@ -182,6 +225,8 @@ export default function GaobalNotificationStack() {
 
   const dismissAll = () => setItems([]);
 
+  // ✅ 초기 로딩 깜빡임 방지
+  if (!isFetched && isLoading) return null;
   if (items.length === 0) return null;
 
   return (
@@ -192,7 +237,7 @@ export default function GaobalNotificationStack() {
         w-[360px] max-w-[calc(100vw-2rem)]
       "
       aria-live="polite"
-      aria-label={t("notifications.ui.aria_label", { default: "Notifications" })}
+      aria-label={t("notifications.ui.aria_label")}
     >
       {/* 헤더 */}
       <div className="pointer-events-auto mb-2 flex items-center justify-between">
@@ -213,16 +258,13 @@ export default function GaobalNotificationStack() {
             "
             aria-hidden
           />
-          {t("notifications.ui.header_count", {
-            count,
-            default: `Notifications ${count}`,
-          })}
+          {t("notifications.ui.header_count", { count })}
           <span className="text-neutral-400 dark:text-neutral-400" aria-hidden>
             ·
           </span>
           <span className="text-emerald-700 dark:text-emerald-300">
             {totalCredits >= 0 ? `+${totalCredits}` : totalCredits}{" "}
-            {t("common.credits", { default: "credits" })}
+            {t("common.credits")}
           </span>
         </div>
 
@@ -239,7 +281,7 @@ export default function GaobalNotificationStack() {
             transition
           "
         >
-          {t("notifications.ui.dismiss_all", { default: "Dismiss all" })}
+          {t("notifications.ui.dismiss_all")}
         </button>
       </div>
 
