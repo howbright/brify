@@ -42,46 +42,44 @@ export default function SignupForm() {
   };
 
   const handleGoogleSignup = async () => {
-    // ✅ 구글 가입도 약관 동의 필수
     if (!requireAgreementsOrShowError()) return;
-  
+
     try {
       setIsGoogleLoading(true);
       setMessage("");
-  
-      // ✅ callback에 signup + 약관동의 플래그 전달
-      const redirectUrl = new URL(`${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`);
+
+      const redirectUrl = new URL(
+        `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
+      );
       redirectUrl.searchParams.set("flow", "signup");
-      redirectUrl.searchParams.set("terms", "1"); // 약관 동의함
-      redirectUrl.searchParams.set("locale", locale); // 약관 동의함
-      redirectUrl.searchParams.set("next", "/welcome"); // 약관 동의함
-  
+      redirectUrl.searchParams.set("terms", "1");
+      redirectUrl.searchParams.set("locale", locale);
+      redirectUrl.searchParams.set("next", "/welcome");
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: redirectUrl.toString(),
         },
       });
-  
+
       if (error) {
         setMessage(`${t("errors.googlePrefix")} ${error.message}`);
         setMessageType("error");
         setIsGoogleLoading(false);
       }
-    } catch (e: any) {
+    } catch {
       setMessage(t("errors.googleGeneric"));
       setMessageType("error");
       setIsGoogleLoading(false);
     }
   };
-  
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setMessage("");
 
-    // ✅ 이메일 가입도 약관 동의 필수
     if (!requireAgreementsOrShowError()) {
       setIsSubmitting(false);
       return;
@@ -110,7 +108,7 @@ export default function SignupForm() {
   const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
+  
     const {
       data: { session },
       error,
@@ -119,48 +117,63 @@ export default function SignupForm() {
       token: token.trim(),
       type: "email",
     });
-
+  
     if (error) {
       setMessage(`${t("errors.otpFailedPrefix")} ${error.message}`);
       setMessageType("error");
       setIsSubmitting(false);
       return;
     }
-
+  
     const user = session?.user;
+  
+    // ✅ 프로필 업서트(크레딧은 만지지 않음)
     if (user) {
       const { error: upsertError } = await supabase.from("profiles").upsert(
         {
           id: user.id,
           email: user.email ?? email.trim(),
-          locale: locale,
+          locale,
           terms_accepted: true,
-    
-          // 초기 크레딧 정책이 있으면 여기서 세팅
-          credits_free: 5,
-          credits_paid: 0,
-    
-          // created_at 컬럼이 DB default(now()) 있으면 굳이 안 넣어도 됨
-          // created_at: new Date().toISOString(),
         },
         { onConflict: "id" }
       );
-    
+  
       if (upsertError) {
         console.error("프로필 upsert 실패:", upsertError.message);
+        // 프로필 upsert 실패해도 가입 자체는 되었으니 흐름은 계속 진행
       }
     }
-
+  
+    // ✅ B) 회원가입 보상 지급 API 호출 (세션 생성 후 /welcome 이동 전)
+    // - 서버에서 credit_transactions(reason='signup_reward')로 중복 방지한다고 가정
+    try {
+      const res = await fetch("/api/rewards/signup", {
+        method: "POST",
+        cache: "no-store",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      // 실패해도 회원가입/로그인은 성공이므로 UX 깨지지 않게 조용히 처리
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        console.warn("signup reward failed:", data?.error ?? res.statusText);
+      }
+    } catch (err) {
+      console.warn("signup reward request error:", err);
+    }
+  
     setMessage(t("success.otpVerified"));
     setMessageType("success");
     router.push("/welcome");
     setIsSubmitting(false);
   };
+  
 
   return (
     <div className="w-full col-span-6 mx-auto sm:max-w-lg rounded-3xl border border-neutral-200 bg-white/95 dark:bg-[#020617] dark:border-white/12 shadow-[0_22px_45px_-28px_rgba(15,23,42,0.85)]">
       <div className="p-6 sm:p-8 flex flex-col gap-6">
-        {/* 타이틀 & 서브텍스트 */}
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-black tracking-tight text-neutral-900 dark:text-white">
             {t("title")}
@@ -170,7 +183,6 @@ export default function SignupForm() {
           </p>
         </div>
 
-        {/* ✅ 약관 체크 (구글/이메일 공통) */}
         {step === "email" && (
           <div className="text-sm flex flex-col gap-2 text-neutral-700 dark:text-neutral-200">
             <label className="flex items-start gap-2">
@@ -215,7 +227,6 @@ export default function SignupForm() {
           </div>
         )}
 
-        {/* 메시지 (구글 버튼 클릭 에러도 여기서 보이게) */}
         {message && (
           <p
             className={clsx(
@@ -229,7 +240,6 @@ export default function SignupForm() {
           </p>
         )}
 
-        {/* 👉 소셜 (Google만) */}
         <div className="flex flex-col gap-3">
           <button
             type="button"
@@ -258,14 +268,12 @@ export default function SignupForm() {
           </button>
         </div>
 
-        {/* Divider */}
         <div className="flex items-center text-[11px] font-semibold uppercase text-neutral-400 tracking-wider">
           <div className="grow border-t border-neutral-200 dark:border-white/10" />
           <span className="px-3">{t("or")}</span>
           <div className="grow border-t border-neutral-200 dark:border-white/10" />
         </div>
 
-        {/* 👉 이메일 인증 단계 */}
         {step === "email" ? (
           <form className="flex flex-col gap-5" onSubmit={handleEmailSubmit}>
             <div className="flex flex-col gap-1.5">
@@ -369,7 +377,6 @@ export default function SignupForm() {
           </form>
         )}
 
-        {/* 로그인 링크 */}
         <p className="text-sm text-center text-neutral-600 dark:text-neutral-400">
           {t("login.question")}{" "}
           <Link
