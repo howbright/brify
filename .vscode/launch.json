@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Next.js: dev (server)",
+        "type": "node",
+        "request": "launch",
+        "runtimeExecutable": "pnpm",
+        "runtimeArgs": ["dev"],
+        "env": {
+          "NODE_OPTIONS": "--inspect=9229"
+        },
+        "console": "integratedTerminal",
+        "skipFiles": ["<node_internals>/**"],
+        "sourceMaps": true,
+        "resolveSourceMapLocations": [
+          "${workspaceFolder}/**",
+          "!**/node_modules/**"
+        ]
+      },
+      {
+        "name": "Chrome: localhost:3000",
+        "type": "pwa-chrome",
+        "request": "launch",
+        "url": "http://localhost:3000",
+        "webRoot": "${workspaceFolder}"
+      }
+    ],
+    "compounds": [
+      {
+        "name": "Fullstack: Next + Chrome",
+        "configurations": ["Next.js: dev (server)", "Chrome: localhost:3000"]
+      }
+    ]
+  }
+  
