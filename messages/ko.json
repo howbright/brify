@@ -2,7 +2,7 @@
   "VideoToMapPage": {
     "title": {
       "prefix": "영상 스크립트,",
-      "highlight": "구조맵로 자동 변환해요"
+      "highlight": "구조맵으로 자동 변환해요"
     },
     "description": {
       "beforeBold": "유튜브/강의/설교 영상의 스크립트를",

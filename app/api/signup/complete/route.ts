@@ -1,8 +1,8 @@
 // app/api/signup/complete/route.ts
-import { NextResponse, type NextRequest } from "next/server";
+import { grantSignupReward } from "@/app/lib/rewards/grantSignupReward";
 import { adminSupabase } from "@/utils/supabase/admin";
 import crypto from "crypto";
-import { grantSignupReward } from "@/app/lib/rewards/grantSignupReward";
+import { NextResponse, type NextRequest } from "next/server";
 
 function signSignup(uid: string, next: string) {
   const secret = process.env.SIGNUP_COMPLETE_SECRET!;
@@ -23,7 +23,6 @@ function safeEqual(a: string, b: string) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => null);
-
     const uid = String(body?.uid ?? "");
     const sig = String(body?.sig ?? "");
     const next = String(body?.next ?? "/");
@@ -78,7 +77,6 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
-
     // ✅ 가입보상: signup 플로우일 때만 (중복은 grantSignupReward가 자체 처리)
     let rewardInfo: any = null;
     if (flow === "signup") {
