@@ -82,25 +82,61 @@ export default function LoginForm() {
   const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    const { error } = await supabase.auth.verifyOtp({
+    setMessage("");
+  
+    const { data, error } = await supabase.auth.verifyOtp({
       email: email.trim(),
       token: token.trim(),
       type: "email",
     });
-
-    setIsSubmitting(false);
-
+  
     if (error) {
-      setMessage("인증 실패: " + error.message);
+      setIsSubmitting(false);
+      setMessage("인증에 실패했습니다: " + error.message);
       setMessageType("error");
-    } else {
-      setMessage("로그인 성공! 환영합니다.");
-      setMessageType("success");
-      router.push("/dashboard");
-      // 필요하면 "/video-to-map"이나 "/maps"로 바꿔도 됨
+      return;
     }
+  
+    // ✅ 세션이 생성되었으므로 user id를 확인합니다.
+    const userId = data?.session?.user?.id;
+  
+    if (!userId) {
+      setIsSubmitting(false);
+      setMessage("로그인 세션을 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.");
+      setMessageType("error");
+      return;
+    }
+  
+    // ✅ 가입 완료 여부(profiles.terms_accepted)를 확인합니다.
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("terms_accepted")
+      .eq("id", userId)
+      .maybeSingle();
+  
+    // profile row가 없거나, terms_accepted가 true가 아니면 => 가입 미완료
+    const isCompletedSignup = !!profile && profile.terms_accepted === true;
+  
+    if (profileError || !isCompletedSignup) {
+      // (선택) 로그인 상태를 유지하지 않도록 로그아웃합니다.
+      await supabase.auth.signOut();
+  
+      setIsSubmitting(false);
+      setMessage("회원가입이 완료되지 않았습니다. 회원가입을 먼저 진행해 주세요.");
+      setMessageType("error");
+  
+      // 로그인 화면에서 회원가입 페이지로 이동합니다.
+      router.push("/signup");
+      return;
+    }
+  
+    setIsSubmitting(false);
+    setMessage("로그인에 성공했습니다. 환영합니다.");
+    setMessageType("success");
+    router.push("/dashboard");
   };
+  
+  
 
   return (
     <div className="w-full col-span-6 mx-auto sm:max-w-lg rounded-3xl border border-neutral-200 bg-white/95 dark:bg-[#020617] dark:border-white/12 shadow-[0_22px_45px_-28px_rgba(15,23,42,0.85)]">
