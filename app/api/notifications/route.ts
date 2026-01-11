@@ -1,7 +1,13 @@
 // app/api/notifications/route.ts
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
-import type { NotificationItem } from "@/app/types/notice";
+import type {
+  NotificationItem,
+  NotificationCategory,
+  NotificationStatus,
+  NotificationEventType,
+  NotificationParams,
+} from "@/app/types/notice";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -11,11 +17,22 @@ function toInt(v: string | null, fallback: number) {
   return Number.isFinite(n) ? n : fallback;
 }
 
-/**
- * GET /api/notifications?limit=5
- * - 로그인된 유저의 "미읽음(is_read=false)" notifications를 최신순으로 가져옵니다.
- * - Supabase RLS가 (user_id = auth.uid()) select만 허용한다고 가정합니다.
- */
+// ✅ DB(Json) → next-intl용 params로 최소 정리
+// - string/number만 남기고 나머지(boolean/null/undefined/object/array)는 버림
+function normalizeParams(input: unknown): NotificationParams {
+  if (!input || typeof input !== "object") return {};
+  const obj = input as Record<string, unknown>;
+  const out: Record<string, string | number | Date> = {};
+
+  for (const [k, v] of Object.entries(obj)) {
+    if (typeof v === "string" || typeof v === "number") out[k] = v;
+    // 혹시 서버에서 Date를 직접 넣는 케이스만 허용
+    else if (v instanceof Date) out[k] = v;
+  }
+
+  return out;
+}
+
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
@@ -30,7 +47,7 @@ export async function GET(req: Request) {
       error: sessionError,
     } = await supabase.auth.getSession();
 
-    // 로그인 안 되어있으면 빈 배열 반환(프론트에서 조용히 무시)
+    // 로그인 안 되어있으면 빈 배열 반환
     if (sessionError || !session?.user) {
       return NextResponse.json({ ok: true, items: [] }, { status: 200 });
     }
@@ -38,9 +55,9 @@ export async function GET(req: Request) {
     const { data, error } = await supabase
       .from("notifications")
       .select(
-        "id, created_at, category, status, delta_credits, title_key, message_key, params"
+        "id, created_at, category, status, event_type, delta_credits, title_key, message_key, params"
       )
-      .eq("is_read", false) // ✅ 추가: 미읽음만
+      .eq("is_read", false)
       .order("created_at", { ascending: false })
       .limit(limit);
 
@@ -51,16 +68,20 @@ export async function GET(req: Request) {
       );
     }
 
-    // DB row -> NotificationItem (형 변환 최소)
     const items: NotificationItem[] = (data ?? []).map((row: any) => ({
       id: String(row.id),
       created_at: String(row.created_at),
-      category: row.category,
-      status: row.status,
+
+      category: row.category as NotificationCategory,
+      status: row.status as NotificationStatus,
+      event_type: row.event_type as NotificationEventType,
+
       delta_credits: Number(row.delta_credits ?? 0),
+
       title_key: String(row.title_key),
       message_key: String(row.message_key),
-      params: (row.params ?? {}) as Record<string, any>,
+
+      params: row.params ? normalizeParams(row.params) : null,
     }));
 
     return NextResponse.json({ ok: true, items }, { status: 200 });

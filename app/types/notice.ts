@@ -34,12 +34,14 @@ export type NotificationUpdate =
 export type NotificationParams = Record<string, string | number | Date>;
 
 
-export type NotificationItem = Omit<
-  NotificationRow,
-  "category" | "status" | "event_type" | "params"
-> & {
+export type NotificationItem = {
+  id: string;
+  created_at: string;
   category: NotificationCategory;
   status: NotificationStatus;
   event_type: NotificationEventType;
+  delta_credits: number;
+  title_key: string;
+  message_key: string;
   params: NotificationParams | null;
 };
