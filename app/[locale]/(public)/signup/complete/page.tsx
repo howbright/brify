@@ -17,9 +17,9 @@ export default function SignupCompletePage() {
   const nextForSig = sp.get("next") ?? "/";
 
   // ✅ 실제 이동은 UX 기준으로 보정
-  // "/"면 /welcome으로 보내기 (너 미들웨어가 locale 붙여준다 했으니 강제 locale prefix 안 붙임)
+  // "/"면 /video-to-map으로 보내기 (너 미들웨어가 locale 붙여준다 했으니 강제 locale prefix 안 붙임)
   const redirectTo = useMemo(() => {
-    return nextForSig === "/" ? "/welcome" : nextForSig;
+    return nextForSig === "/" ? "/video-to-map" : nextForSig;
   }, [nextForSig]);
 
   const uidFromQuery = sp.get("uid") ?? "";

@@ -54,7 +54,7 @@ export default function SignupForm() {
       redirectUrl.searchParams.set("flow", "signup");
       redirectUrl.searchParams.set("terms", "1");
       redirectUrl.searchParams.set("locale", locale);
-      redirectUrl.searchParams.set("next", "/welcome");
+      redirectUrl.searchParams.set("next", "/video-to-map");
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -145,7 +145,7 @@ export default function SignupForm() {
       }
     }
   
-    // ✅ B) 회원가입 보상 지급 API 호출 (세션 생성 후 /welcome 이동 전)
+    // ✅ B) 회원가입 보상 지급 API 호출 (세션 생성 후 /video-to-map 이동 전)
     // - 서버에서 credit_transactions(reason='signup_reward')로 중복 방지한다고 가정
     try {
       const res = await fetch("/api/rewards/signup", {
@@ -166,7 +166,7 @@ export default function SignupForm() {
   
     setMessage(t("success.otpVerified"));
     setMessageType("success");
-    router.push("/welcome");
+    router.push("/video-to-map");
     setIsSubmitting(false);
   };
   
