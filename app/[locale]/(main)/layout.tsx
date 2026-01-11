@@ -1,4 +1,4 @@
-// app/[locale]/(main)/layout.ts
+// app/[locale]/(main)/layout.tsx
 import { redirect } from "next/navigation";
 import FooterNew from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
@@ -9,18 +9,20 @@ export default async function MainLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params; // ✅ 필요하면 쓰고, 아니면 안 써도 됨
+
   const supabase = await createClient();
 
-  // 서버에서 현재 유저 확인
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // 미로그인 -> 로그인 페이지로
   if (!user) {
-    redirect(`/login`);
+    redirect(`/${locale}/login`); // ✅ locale 라우트면 이게 더 안전
+    // locale 안 쓰고 싶으면 redirect("/login")도 가능하지만,
+    // 너 구조상 /ko/login /en/login 이면 위가 맞음
   }
 
   return (
