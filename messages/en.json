@@ -123,7 +123,7 @@
     }
   },
   "login": {
-    "title": "Sign in",
+    "title": "Get started",
     "google": "Continue with Google",
     "or": "or",
     "email": {
@@ -131,9 +131,23 @@
       "placeholder": "Enter your email address"
     },
     "submit": "Send verification code",
-    "signup": {
-      "question": "Don't have an account yet?",
-      "link": "Sign up"
+    "otp": {
+      "label": "Verification code",
+      "hint": "Complete verification to start using the service right away.",
+      "placeholder": "Enter the 6-digit code sent to your email",
+      "submit": "Continue",
+      "loading": "Verifying..."
+    },
+    "googleLoading": "Redirecting to Google...",
+    "loading": "Processing...",
+    "messages": {
+      "googleFail": "Google sign-in failed: {message}",
+      "googleError": "An error occurred during Google sign-in.",
+      "signupsNotAllowed": "Signups are not allowed.",
+      "genericError": "Something went wrong: {message}",
+      "codeSent": "We sent a verification code to your email.",
+      "verifyFail": "Verification failed: {message}",
+      "verifySuccessMoving": "Verified! Redirecting..."
     }
   },
   "signup": {
@@ -318,7 +332,7 @@
     },
     "auth": {
       "login": "Log in",
-      "signup": "Start for free"
+      "signup": "Get Started"
     },
     "cta": {
       "newMap": "New map",

@@ -25,7 +25,7 @@ export default async function PricingPage() {
         <div className="mt-6 flex gap-3">
           {!isAuthed ? (
             <>
-              <Link href="/signup" className="rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] hover:bg-[var(--color-primary-hover)]
+              <Link href="/login" className="rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] hover:bg-[var(--color-primary-hover)]
                          text-[var(--color-primary-foreground)] px-4 py-2 text-sm shadow-sm
                          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]">
                 Start free

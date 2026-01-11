@@ -27,11 +27,7 @@ function normalizeNext(nextRaw: string | null) {
 // base(쿠키 심긴 응답) -> 최종 redirect 응답으로 쿠키 복사
 function redirectWithCookies(to: URL, base: NextResponse) {
   const r = NextResponse.redirect(to);
-
-  for (const c of base.cookies.getAll()) {
-    r.cookies.set(c.name, c.value, c);
-  }
-
+  for (const c of base.cookies.getAll()) r.cookies.set(c.name, c.value, c);
   return r;
 }
 
@@ -40,7 +36,7 @@ export async function GET(req: NextRequest) {
 
   const code = url.searchParams.get("code");
 
-  // signupForm에서 보낸 값들
+  // signup/complete에서 보낸 값들 (terms 완료 후 다시 callback로 보내는 흐름 포함)
   const flow = url.searchParams.get("flow"); // "signup" 기대
   const terms = url.searchParams.get("terms"); // "1" 기대
   const localeFromQuery = url.searchParams.get("locale");
@@ -48,12 +44,10 @@ export async function GET(req: NextRequest) {
   // locale 우선순위: query > cookie > en
   const locale = localeFromQuery ?? req.cookies.get("NEXT_LOCALE")?.value ?? "en";
 
-  // ✅ 너 말대로 "/"도 정상 (미들웨어가 locale 붙임)
+  // ✅ "/"도 정상 (미들웨어가 locale 붙임)
   const next = normalizeNext(url.searchParams.get("next"));
 
-  // ✅ NextResponse.next()는 app route에서 금지라서,
-  //    쿠키를 심어둘 "base redirect response"를 하나 만든다.
-  //    (일단 임시로 "/"로)
+  // ✅ app route에서 NextResponse.next() 금지 → 쿠키 심을 base response 준비
   const base = NextResponse.redirect(new URL("/", req.nextUrl));
 
   const supabase = createServerClient(
@@ -70,35 +64,35 @@ export async function GET(req: NextRequest) {
     }
   );
 
-  // code 없으면 그냥 next로 (쿠키 없음)
-  if (!code) {
-    return NextResponse.redirect(new URL(next, req.nextUrl));
+  // 0) ✅ code가 있으면(= OAuth 콜백) 세션 교환해서 쿠키 심기
+  if (code) {
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+    if (exchangeError) {
+      console.error("exchangeCodeForSession error:", exchangeError.message);
+      // 교환 실패면 쿠키도 의미 없을 수 → 그냥 next로
+      return NextResponse.redirect(new URL(next, req.nextUrl));
+    }
   }
 
-  // 1) 세션 교환 (✅ base에 Set-Cookie 심김)
-  const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-  if (exchangeError) {
-    console.error("exchangeCodeForSession error:", exchangeError.message);
-    // exchange 실패면 쿠키도 의미 없으니 그냥 redirect
-    return NextResponse.redirect(new URL(next, req.nextUrl));
-  }
-
-  // 2) 유저 확인
+  // 1) ✅ (code 유무 상관없이) 현재 세션에서 유저 확인 (OTP도 여기로 들어오게 됨)
   const {
     data: { user },
     error: userError,
   } = await supabase.auth.getUser();
 
+  // 세션이 없으면: 통합게이트 입장 불가
+  // 정책: 그냥 next로 보내기보단 로그인으로 보내는 게 일반적
   if (userError || !user) {
-    console.error("getUser error:", userError?.message);
-    // 쿠키는 생겼을 수도 있으니 복사해서 next로
-    return redirectWithCookies(new URL(next, req.nextUrl), base);
+    // 필요하면 next 유지해서 로그인으로
+    const loginUrl = new URL(`/${locale}/login`, req.nextUrl);
+    if (next) loginUrl.searchParams.set("next", next);
+    return redirectWithCookies(loginUrl, base);
   }
 
-  // ✅ signup flow에서 terms=1로 왔을 때만 "약관동의 완료"
+  // ✅ signup flow에서 terms=1로 왔을 때만 "약관동의 완료"로 간주
   const termsAcceptedFromSignup = flow === "signup" && terms === "1";
 
-  // 3) profiles 상태 확인
+  // 2) profiles 상태 확인
   const { data: existing, error: existingError } = await adminSupabase
     .from("profiles")
     .select("id, terms_accepted")
@@ -112,7 +106,7 @@ export async function GET(req: NextRequest) {
 
   const isFirstSignup = !existing;
 
-  // 4) profiles 생성/업데이트
+  // 3) profiles 생성/업데이트 (경쟁조건 고려)
   if (isFirstSignup) {
     const { error: insertProfileError } = await adminSupabase.from("profiles").insert({
       id: user.id,
@@ -139,10 +133,10 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // 5) 최종 terms_accepted 재확인
+  // 4) 최종 terms_accepted 재확인
   const { data: finalProfile, error: finalProfileError } = await adminSupabase
     .from("profiles")
-    .select("terms_accepted, credits_free, credits_paid")
+    .select("terms_accepted")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -153,7 +147,7 @@ export async function GET(req: NextRequest) {
 
   const finalTermsAccepted = finalProfile.terms_accepted === true;
 
-  // 6) terms 미동의면 complete로 (+ uid/sig) — ✅ 쿠키 유지
+  // 5) ✅ terms 미동의면 complete로 (OTP/Google 동일)
   if (!finalTermsAccepted) {
     const completeUrl = new URL(`/${locale}/signup/complete`, req.nextUrl);
     completeUrl.searchParams.set("next", next);
@@ -162,13 +156,13 @@ export async function GET(req: NextRequest) {
     completeUrl.searchParams.set("uid", user.id);
     completeUrl.searchParams.set("sig", sig);
 
-    // 보상 트리거용
+    // 보상 트리거용 (complete에서 terms=1 후 callback로 돌아올 때 사용)
     completeUrl.searchParams.set("flow", "signup");
 
     return redirectWithCookies(completeUrl, base);
   }
 
-  // 7) terms 이미 true + signup에서 terms=1이면 보상 지급
+  // 6) ✅ terms 완료된 “이번 흐름”에서만 보상 지급 (중복 방지는 grantSignupReward 내부가 처리)
   if (termsAcceptedFromSignup) {
     const rewardResult = await grantSignupReward({
       userId: user.id,
@@ -181,6 +175,6 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // 8) 최종 next로 (✅ 쿠키 유지)
+  // 7) 최종 next로 (✅ 쿠키 유지)
   return redirectWithCookies(new URL(next, req.nextUrl), base);
 }

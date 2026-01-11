@@ -123,17 +123,31 @@
     }
   },
   "login": {
-    "title": "로그인",
-    "google": "Google 계정으로 로그인",
+    "title": "시작하기",
+    "google": "Google로 시작하기",
     "or": "또는",
     "email": {
       "label": "이메일 주소",
       "placeholder": "이메일 주소를 입력하세요"
     },
-    "submit": "인증 코드 보내기",
-    "signup": {
-      "question": "아직 계정이 없으신가요?",
-      "link": "회원가입 하기"
+    "submit": "인증 코드 받기",
+    "otp": {
+      "label": "인증 코드",
+      "hint": "인증을 완료하면 바로 서비스를 시작할 수 있어요.",
+      "placeholder": "이메일로 받은 6자리 코드를 입력하세요",
+      "submit": "계속하기",
+      "loading": "확인 중..."
+    },
+    "googleLoading": "Google로 이동 중...",
+    "loading": "처리 중...",
+    "messages": {
+      "googleFail": "Google 로그인에 실패했어요: {message}",
+      "googleError": "Google 로그인 중 오류가 발생했어요.",
+      "signupsNotAllowed": "가입이 허용되지 않았습니다.",
+      "genericError": "오류가 발생했어요: {message}",
+      "codeSent": "인증 코드를 이메일로 보냈습니다.",
+      "verifyFail": "인증에 실패했습니다: {message}",
+      "verifySuccessMoving": "인증 성공! 이동 중..."
     }
   },
   "signup": {
@@ -318,7 +332,7 @@
     },
     "auth": {
       "login": "로그인",
-      "signup": "무료로 시작하기"
+      "signup": "시작하기"
     },
     "cta": {
       "newMap": "새 구조맵",

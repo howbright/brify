@@ -93,7 +93,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
 
             {!isAuthed ? (
               <div className="flex items-center gap-2">
-                <Link
+                {/* <Link
                   href="/login"
                   className="
                     text-sm text-neutral-700 dark:text-neutral-200
@@ -103,10 +103,10 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                   "
                 >
                   {t("auth.login")}
-                </Link>
+                </Link> */}
 
                 <Link
-                  href="/signup"
+                  href="/login"
                   className="
                     text-sm px-4 py-2 rounded-full
                     bg-blue-600 text-white

@@ -182,7 +182,7 @@ export default function ClientMobileUserMenu({
                       로그인
                     </Link>
                     <Link
-                      href="/signup"
+                      href="/login"
                       className="w-full text-white bg-primary hover:bg-primary-hover font-medium 
                         rounded-lg text-sm px-4 py-2 text-center"
                       onClick={() => setOpen(false)}

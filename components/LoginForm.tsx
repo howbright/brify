@@ -1,6 +1,5 @@
 "use client";
 
-import { Link } from "@/i18n/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { Icon } from "@iconify/react";
 import { useTranslations } from "next-intl";
@@ -10,6 +9,8 @@ import { useEffect, useRef, useState } from "react";
 export default function LoginForm() {
   const supabase = createClient();
   const t = useTranslations("login");
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
   const [message, setMessage] = useState("");
@@ -18,35 +19,36 @@ export default function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
-  const router = useRouter();
   const otpInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (step === "otp" && otpInputRef.current) {
-      otpInputRef.current.focus();
-    }
+    if (step === "otp" && otpInputRef.current) otpInputRef.current.focus();
   }, [step]);
 
   const handleGoogleLogin = async () => {
     try {
       setIsGoogleLoading(true);
       setMessage("");
-      // Supabase 대시보드에서 SITE URL / Redirect URL 설정해두었다는 전제
+
+      const next =
+        new URLSearchParams(window.location.search).get("next") ?? "/video-to-map";
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent(
+            next
+          )}`,
         },
       });
 
       if (error) {
-        setMessage("구글 로그인에 실패했어요: " + error.message);
+        setMessage(t("messages.googleFail", { message: error.message }));
         setMessageType("error");
         setIsGoogleLoading(false);
       }
-      // 성공 시에는 구글 로그인 플로우로 리다이렉트되므로 여기서 따로 처리할 건 거의 없음
-    } catch (e: any) {
-      setMessage("구글 로그인 중 오류가 발생했어요.");
+    } catch {
+      setMessage(t("messages.googleError"));
       setMessageType("error");
       setIsGoogleLoading(false);
     }
@@ -60,20 +62,21 @@ export default function LoginForm() {
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
-        shouldCreateUser: false,
+        shouldCreateUser: true,
       },
     });
 
     setIsSubmitting(false);
 
     if (error?.message.includes("Signups not allowed")) {
-      setMessage("가입되지 않은 이메일입니다. 먼저 회원가입을 해주세요.");
+      // 이제 shouldCreateUser: true라서 보통 여기 안 옴. 그래도 안전하게.
+      setMessage(t("messages.signupsNotAllowed"));
       setMessageType("error");
     } else if (error) {
-      setMessage("오류가 발생했어요: " + error.message);
+      setMessage(t("messages.genericError", { message: error.message }));
       setMessageType("error");
     } else {
-      setMessage("인증 코드를 이메일로 보냈습니다.");
+      setMessage(t("messages.codeSent"));
       setMessageType("success");
       setStep("otp");
     }
@@ -83,60 +86,28 @@ export default function LoginForm() {
     e.preventDefault();
     setIsSubmitting(true);
     setMessage("");
-  
-    const { data, error } = await supabase.auth.verifyOtp({
+
+    const { error } = await supabase.auth.verifyOtp({
       email: email.trim(),
       token: token.trim(),
       type: "email",
     });
-  
+
     if (error) {
       setIsSubmitting(false);
-      setMessage("인증에 실패했습니다: " + error.message);
+      setMessage(t("messages.verifyFail", { message: error.message }));
       setMessageType("error");
       return;
     }
-  
-    // ✅ 세션이 생성되었으므로 user id를 확인합니다.
-    const userId = data?.session?.user?.id;
-  
-    if (!userId) {
-      setIsSubmitting(false);
-      setMessage("로그인 세션을 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.");
-      setMessageType("error");
-      return;
-    }
-  
-    // ✅ 가입 완료 여부(profiles.terms_accepted)를 확인합니다.
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("terms_accepted")
-      .eq("id", userId)
-      .maybeSingle();
-  
-    // profile row가 없거나, terms_accepted가 true가 아니면 => 가입 미완료
-    const isCompletedSignup = !!profile && profile.terms_accepted === true;
-  
-    if (profileError || !isCompletedSignup) {
-      // (선택) 로그인 상태를 유지하지 않도록 로그아웃합니다.
-      await supabase.auth.signOut();
-  
-      setIsSubmitting(false);
-      setMessage("회원가입이 완료되지 않았습니다. 회원가입을 먼저 진행해 주세요.");
-      setMessageType("error");
-  
-      // 로그인 화면에서 회원가입 페이지로 이동합니다.
-      router.push("/signup");
-      return;
-    }
-  
+
     setIsSubmitting(false);
-    setMessage("로그인에 성공했습니다. 환영합니다.");
     setMessageType("success");
-    router.push("/dashboard");
+    setMessage(t("messages.verifySuccessMoving"));
+
+    const next =
+      new URLSearchParams(window.location.search).get("next") ?? "/dashboard";
+    router.push(`/auth/callback?next=${encodeURIComponent(next)}`);
   };
-  
-  
 
   return (
     <div className="w-full col-span-6 mx-auto sm:max-w-lg rounded-3xl border border-neutral-200 bg-white/95 dark:bg-[#020617] dark:border-white/12 shadow-[0_22px_45px_-28px_rgba(15,23,42,0.85)]">
@@ -145,12 +116,9 @@ export default function LoginForm() {
           <h1 className="text-2xl font-black tracking-tight text-neutral-900 dark:text-white">
             {t("title")}
           </h1>
-          {/* <p className="text-sm text-neutral-500 dark:text-neutral-400">
-            이메일로 받은 인증 코드 또는 Google 계정으로 로그인할 수 있어요.
-          </p> */}
         </div>
 
-        {/* 👉 소셜 로그인 (Google만) */}
+        {/* 👉 Social (Google) */}
         <div className="flex flex-col gap-3">
           <button
             type="button"
@@ -168,7 +136,7 @@ export default function LoginForm() {
             {isGoogleLoading ? (
               <>
                 <Icon icon="lucide:loader" className="animate-spin" width={18} />
-                <span className="ml-1">Google 로그인 중...</span>
+                <span className="ml-1">{t("googleLoading")}</span>
               </>
             ) : (
               <span className="flex items-center gap-2">
@@ -186,7 +154,7 @@ export default function LoginForm() {
           <div className="grow border-t border-neutral-200 dark:border-white/10" />
         </div>
 
-        {/* 👉 이메일 기반 OTP 로그인 */}
+        {/* 👉 Email OTP */}
         {step === "email" ? (
           <form className="space-y-5" onSubmit={handleEmailSubmit}>
             <div className="flex flex-col gap-1.5">
@@ -196,6 +164,11 @@ export default function LoginForm() {
               >
                 {t("email.label")}
               </label>
+
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                {t("otp.hint")}
+              </p>
+
               <input
                 type="email"
                 id="email"
@@ -242,7 +215,7 @@ export default function LoginForm() {
               {isSubmitting ? (
                 <>
                   <Icon icon="lucide:loader" className="animate-spin" width={18} />
-                  처리 중...
+                  {t("loading")}
                 </>
               ) : (
                 t("submit")
@@ -256,13 +229,18 @@ export default function LoginForm() {
                 htmlFor="token"
                 className="block text-sm font-medium text-neutral-800 dark:text-neutral-100"
               >
-                인증 코드
+                {t("otp.label")}
               </label>
+
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                {t("otp.hint")}
+              </p>
+
               <input
                 type="text"
                 id="token"
                 ref={otpInputRef}
-                placeholder="이메일로 받은 6자리 코드를 입력하세요"
+                placeholder={t("otp.placeholder")}
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
                 className="
@@ -305,25 +283,14 @@ export default function LoginForm() {
               {isSubmitting ? (
                 <>
                   <Icon icon="lucide:loader" className="animate-spin" width={18} />
-                  확인 중...
+                  {t("otp.loading")}
                 </>
               ) : (
-                "인증 완료"
+                t("otp.submit")
               )}
             </button>
           </form>
         )}
-
-        {/* 👉 회원가입 링크 */}
-        <p className="text-sm text-center text-neutral-600 dark:text-neutral-400">
-          {t("signup.question")}{" "}
-          <Link
-            href="/signup"
-            className="font-semibold hover:underline text-neutral-900 dark:text-white"
-          >
-            {t("signup.link")}
-          </Link>
-        </p>
       </div>
     </div>
   );
