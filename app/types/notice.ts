@@ -1,17 +1,18 @@
 // app/types/notice.ts
 
+import { Database } from "./database.types";
+
 export type NotificationCategory = "mission" | "billing" | "system";
 
 export type NotificationStatus =
-  | "approved" // 미션 승인/보상 지급 같은 확정 상태
-  | "rejected" // 미션 반려
-  | "completed" // 결제 완료/처리 완료
-  | "failed" // 결제 실패/처리 실패
-  | "refunded" // 환불 완료
-  | "insufficient" // 크레딧 부족
-  | "info"; // 시스템 안내/정보
+  | "approved"
+  | "rejected"
+  | "completed"
+  | "failed"
+  | "refunded"
+  | "insufficient"
+  | "info";
 
-// ✅ DB constraint (notifications_event_type_check)와 1:1로 맞춘 이벤트 타입
 export type NotificationEventType =
   | "signup_bonus"
   | "mission_approved"
@@ -21,3 +22,24 @@ export type NotificationEventType =
   | "refund_completed"
   | "credit_insufficient"
   | "system_info";
+
+export type NotificationRow = Database["public"]["Tables"]["notifications"]["Row"];
+export type NotificationInsert =
+  Database["public"]["Tables"]["notifications"]["Insert"];
+export type NotificationUpdate =
+  Database["public"]["Tables"]["notifications"]["Update"];
+
+// ✅ next-intl t()에 바로 넣을 params 타입(복잡한 Json 말고 평평한 값만)
+// app/types/notice.ts
+export type NotificationParams = Record<string, string | number | Date>;
+
+
+export type NotificationItem = Omit<
+  NotificationRow,
+  "category" | "status" | "event_type" | "params"
+> & {
+  category: NotificationCategory;
+  status: NotificationStatus;
+  event_type: NotificationEventType;
+  params: NotificationParams | null;
+};

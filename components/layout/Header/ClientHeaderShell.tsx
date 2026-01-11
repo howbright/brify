@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Link, usePathname } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import ClientUserMenu from "./ClientUserMenu";
 import ClientMobileUserMenu from "./ClientMobileMenu";
 import LanguageSelector from "@/components/LanguageSelector";
@@ -16,7 +16,6 @@ type Props = {
 
 export default function ClientHeaderShell({ isAuthed, email }: Props) {
   const [scrolled, setScrolled] = useState(false);
-  const pathname = usePathname();
   const t = useTranslations("Header");
 
   useEffect(() => {
@@ -26,15 +25,12 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const homeLikePaths = ["/", "/ko", "/en"];
-  const isHomeLike = homeLikePaths.includes(pathname);
-
+  // ✅ A 방법: pathname에 따른 분기 제거 (서버/클라 불일치 원천 차단)
+  // homeLike 처리 없이 항상 동일한 배경 로직만 사용
   const headerClassName = [
     "fixed top-0 inset-x-0 z-40 transition-all",
     scrolled
       ? "bg-white/90 dark:bg-neutral-900/80 backdrop-blur-md border-b border-black/10 dark:border-white/10 shadow-sm"
-      : isHomeLike
-      ? "bg-transparent dark:bg-neutral-950/45 dark:backdrop-blur supports-[backdrop-filter]:dark:bg-neutral-950/35 dark:border-b dark:border-white/10"
       : [
           "backdrop-blur-md border-b border-black/5 dark:border-white/10",
           "bg-[radial-gradient(circle_at_0%_0%,rgba(59,130,246,0.16),transparent_56%),radial-gradient(circle_at_100%_0%,rgba(129,140,248,0.18),transparent_56%),linear-gradient(90deg,rgba(255,255,255,0.98),rgba(239,246,255,0.98),rgba(255,255,255,0.98))]",
@@ -77,7 +73,10 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
             >
               {t("nav.pricing")}
             </Link>
-            <Link href="/support"  className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5">
+            <Link
+              href="/support"
+              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+            >
               {t("nav.contactFeedback")}
             </Link>
           </nav>
@@ -93,18 +92,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
 
             {!isAuthed ? (
               <div className="flex items-center gap-2">
-                {/* <Link
-                  href="/login"
-                  className="
-                    text-sm text-neutral-700 dark:text-neutral-200
-                    hover:text-neutral-900 dark:hover:text-white
-                    underline-offset-4 hover:underline
-                    transition-colors
-                  "
-                >
-                  {t("auth.login")}
-                </Link> */}
-
+                {/* ✅ A 방법: CTA는 항상 동일하게(텍스트/스타일 고정) */}
                 <Link
                   href="/login"
                   className="
