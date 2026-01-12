@@ -15,17 +15,20 @@ export default function SignupCompletePage() {
   const sp = useSearchParams();
   const t = useTranslations("signupComplete");
 
-  // ✅ 서명 검증은 "쿼리 원본 next" 그대로 써야 함
+  // ✅ next는 UX용 이동 목적지(원본 유지)
   const nextForSig = sp.get("next") ?? "/";
 
-  // ✅ 실제 이동은 UX 기준으로 보정
   // "/"면 /video-to-map으로 보내기
   const redirectTo = useMemo(() => {
     return nextForSig === "/" ? "/video-to-map" : nextForSig;
   }, [nextForSig]);
 
+  // ✅ (옵션) 서명 기반 플로우: callback에서 넘어온 경우만 존재
   const uidFromQuery = sp.get("uid") ?? "";
   const sigFromQuery = sp.get("sig") ?? "";
+  const hasSignedFlow = useMemo(() => {
+    return Boolean(uidFromQuery && sigFromQuery);
+  }, [uidFromQuery, sigFromQuery]);
 
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [agreePrivacy, setAgreePrivacy] = useState(false);
@@ -35,10 +38,6 @@ export default function SignupCompletePage() {
 
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error">("success");
-
-  const hasSignedUid = useMemo(() => {
-    return Boolean(uidFromQuery && sigFromQuery);
-  }, [uidFromQuery, sigFromQuery]);
 
   useEffect(() => {
     let alive = true;
@@ -55,10 +54,8 @@ export default function SignupCompletePage() {
 
       // 세션이 늦게 잡히는 케이스 대비
       for (let i = 0; i < 10; i++) {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        sessionUser = session?.user ?? null;
+        const { data } = await supabase.auth.getSession();
+        sessionUser = data.session?.user ?? null;
         if (sessionUser) break;
 
         await sleep(150);
@@ -109,26 +106,28 @@ export default function SignupCompletePage() {
   async function handleComplete() {
     if (!requireAgreementsOrShowError()) return;
 
-    if (!hasSignedUid) {
-      setMessage(t("messages.missingFlow"));
-      setMessageType("error");
-      return;
-    }
-
     setSubmitting(true);
     setMessage("");
 
     try {
+      // ✅ 서버가 "세션 기반 모드"를 지원하도록 호출
+      // - signed flow면: uid/sig/next를 그대로 보냄(기존 호환)
+      // - 아니면: next만 보내고(혹은 아예 안 보내도 됨), 서버가 세션 uid로 처리
+      const payload: any = {
+        next: nextForSig,
+      };
+
+      if (hasSignedFlow) {
+        payload.uid = uidFromQuery;
+        payload.sig = sigFromQuery;
+      }
+
       const r = await fetch("/api/signup/complete", {
         method: "POST",
         cache: "no-store",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          uid: uidFromQuery,
-          sig: sigFromQuery,
-          next: nextForSig, // ✅ 서명 검증과 동일한 next(원본)
-        }),
+        body: JSON.stringify(payload),
       });
 
       const j = await r.json().catch(() => null);

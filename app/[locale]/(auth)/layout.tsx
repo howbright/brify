@@ -1,5 +1,4 @@
 import { ReactNode } from 'react';
-import Image from 'next/image';
 // import SimpleHeader from '@/components/layout/SimpleHeader.tsx';
 import Header from '@/components/layout/Header';
 

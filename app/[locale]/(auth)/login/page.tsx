@@ -1,11 +1,41 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import LoginForm from "@/components/LoginForm";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 
 export default function Login() {
   const t = useTranslations("loginPage");
+  const router = useRouter();
+  const sp = useSearchParams();
+  const supabase = createClient();
+
+  // ✅ StrictMode에서 effect 2번 도는 것 방지용
+  const onceRef = useRef(false);
+
+  useEffect(() => {
+    if (onceRef.current) return;
+    onceRef.current = true;
+
+    const run = async () => {
+      // next가 있으면 그쪽으로, 없으면 "/"로
+      const next = sp.get("next") ?? "/";
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      // ✅ 이미 로그인 상태면 로그인 페이지 보여줄 이유가 없음
+      if (session?.user) {
+        router.replace(next); // next가 /video-to-map이면 거기로도 가능
+      }
+    };
+
+    run();
+  }, [router, sp, supabase]);
 
   return (
     <main
@@ -52,9 +82,7 @@ export default function Login() {
             >
               B
             </div>
-            <span className="tracking-tight">
-              {t("brand")}
-            </span>
+            <span className="tracking-tight">{t("brand")}</span>
           </Link>
           {/* <p className="text-sm text-neutral-600 dark:text-neutral-400">
             {t("tagline")}

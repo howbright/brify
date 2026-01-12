@@ -105,7 +105,7 @@ export default function LoginForm() {
     setMessage(t("messages.verifySuccessMoving"));
 
     const next =
-      new URLSearchParams(window.location.search).get("next") ?? "/dashboard";
+      new URLSearchParams(window.location.search).get("next") ?? "/";
     router.push(`/auth/callback?next=${encodeURIComponent(next)}`);
   };
 
