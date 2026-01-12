@@ -4,7 +4,6 @@ import { SessionProvider } from "@/components/SessionProvider";
 import { routing } from "@/i18n/routing";
 import type { Metadata } from "next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
-import { Geist, Geist_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 import { Toaster } from "sonner";
 import "@mind-elixir/node-menu/dist/style.css";
@@ -20,16 +19,6 @@ import GlobalNotificationStack from "@/components/notifications/GlobalNotificati
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Brify – 긴 글을 한눈에 정리하세요",
@@ -80,29 +69,20 @@ export default async function RootLayout({
     notFound();
   }
 
-
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <ThemeProvider>
-          {" "}
-          {/* ✅ 여기! 최상단에 감싸주기 */}
-          <ReactQueryProvider>
-            <SessionProvider session={session}>
-              <AuthRscRefresher />{" "}
-              {/* ← 여기! 헤더보다 위든 아래든 상관 없음 */}
-              <NextIntlClientProvider>
-                <TooltipProvider delayDuration={300}>
-                  {children}
-                </TooltipProvider>
-                <GlobalNotificationStack />
-              </NextIntlClientProvider>
-              <Toaster richColors position="top-center" duration={2000} />
-            </SessionProvider>
-          </ReactQueryProvider>
-        </ThemeProvider>
-        
-      </body>
-    </html>
+    <ThemeProvider>
+      {" "}
+      {/* ✅ 여기! 최상단에 감싸주기 */}
+      <ReactQueryProvider>
+        <SessionProvider session={session}>
+          <AuthRscRefresher /> {/* ← 여기! 헤더보다 위든 아래든 상관 없음 */}
+          <NextIntlClientProvider>
+            <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+            <GlobalNotificationStack />
+          </NextIntlClientProvider>
+          <Toaster richColors position="top-center" duration={2000} />
+        </SessionProvider>
+      </ReactQueryProvider>
+    </ThemeProvider>
   );
 }
