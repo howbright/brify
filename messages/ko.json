@@ -669,5 +669,34 @@
     "billing": "결제",
     "system": "시스템"
   },
-  "common": { "credits": "크레딧" }
+  "common": { "credits": "크레딧" },
+  "signupComplete": {
+    "loading": "준비 중이에요...",
+    "checking": "확인 중입니다...",
+
+    "title": "거의 다 됐어요 🙌",
+    "subtitle": "마지막으로 약관만 확인하면 바로 시작할 수 있어요.",
+
+    "agree": {
+      "terms": "이용약관에 동의해요",
+      "privacy": "개인정보 처리방침에 동의해요",
+      "view": "(보기)"
+    },
+
+    "helper": "체크한 내용은 언제든지 약관 페이지에서 다시 볼 수 있어요.",
+
+    "button": {
+      "submit": "동의하고 시작하기",
+      "submitting": "진행 중..."
+    },
+
+    "messages": {
+      "needAllAgreements": "두 가지 모두 체크해 주세요 🙂",
+      "missingFlow": "진행 정보를 확인할 수 없어요. 다시 처음부터 시도해 주세요.",
+      "sessionNotFound": "로그인 상태를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.",
+      "successMove": "좋아요! 이제 시작해요 🚀",
+      "failed": "처리 중 문제가 생겼어요. ({error})",
+      "network": "네트워크 오류가 발생했어요. ({message})"
+    }
+  }
 }

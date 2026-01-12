@@ -671,5 +671,34 @@
     "billing": "Billing",
     "system": "System"
   },
-  "common": { "credits": "credits" }
+  "common": { "credits": "credits" },
+  "signupComplete": {
+    "loading": "Getting things ready...",
+    "checking": "Checking...",
+
+    "title": "Almost there 🙌",
+    "subtitle": "One last step—please review and agree to the terms to get started.",
+
+    "agree": {
+      "terms": "I agree to the Terms of Service",
+      "privacy": "I agree to the Privacy Policy",
+      "view": "(View)"
+    },
+
+    "helper": "You can always review these policies again later from the links above.",
+
+    "button": {
+      "submit": "Agree & Get Started",
+      "submitting": "Working on it..."
+    },
+
+    "messages": {
+      "needAllAgreements": "Please check both boxes 🙂",
+      "missingFlow": "We couldn't verify this step. Please start again from the beginning.",
+      "sessionNotFound": "We couldn't confirm your login session. Please try again in a moment.",
+      "successMove": "Awesome—taking you in 🚀",
+      "failed": "Something went wrong. ({error})",
+      "network": "Network error. ({message})"
+    }
+  }
 }

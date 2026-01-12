@@ -7,17 +7,19 @@ import clsx from "clsx";
 import { Icon } from "@iconify/react";
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/utils/supabase/client";
+import { useTranslations } from "next-intl";
 
 export default function SignupCompletePage() {
   const supabase = createClient();
   const router = useRouter();
   const sp = useSearchParams();
+  const t = useTranslations("signupComplete");
 
   // ✅ 서명 검증은 "쿼리 원본 next" 그대로 써야 함
   const nextForSig = sp.get("next") ?? "/";
 
   // ✅ 실제 이동은 UX 기준으로 보정
-  // "/"면 /video-to-map으로 보내기 (너 미들웨어가 locale 붙여준다 했으니 강제 locale prefix 안 붙임)
+  // "/"면 /video-to-map으로 보내기
   const redirectTo = useMemo(() => {
     return nextForSig === "/" ? "/video-to-map" : nextForSig;
   }, [nextForSig]);
@@ -32,9 +34,7 @@ export default function SignupCompletePage() {
   const [submitting, setSubmitting] = useState(false);
 
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error">(
-    "success"
-  );
+  const [messageType, setMessageType] = useState<"success" | "error">("success");
 
   const hasSignedUid = useMemo(() => {
     return Boolean(uidFromQuery && sigFromQuery);
@@ -53,6 +53,7 @@ export default function SignupCompletePage() {
 
       let sessionUser: any = null;
 
+      // 세션이 늦게 잡히는 케이스 대비
       for (let i = 0; i < 10; i++) {
         const {
           data: { session },
@@ -68,21 +69,12 @@ export default function SignupCompletePage() {
 
       if (!sessionUser) {
         setLoading(false);
-
-        if (!hasSignedUid) {
-          setMessage(
-            "가입 완료 링크 정보(uid/sig)가 없어 처리를 진행할 수 없습니다. 다시 로그인/가입을 시도해 주세요."
-          );
-          setMessageType("error");
-        } else {
-          setMessage(
-            "로그인 정보를 확인하는 중입니다. 잠시 후 동의 후 진행해 주세요."
-          );
-          setMessageType("error");
-        }
+        setMessage(t("messages.sessionNotFound"));
+        setMessageType("error");
         return;
       }
 
+      // 이미 terms_accepted=true면 바로 목적지로
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id, terms_accepted")
@@ -103,11 +95,11 @@ export default function SignupCompletePage() {
     return () => {
       alive = false;
     };
-  }, [router, supabase, hasSignedUid, redirectTo]);
+  }, [router, supabase, redirectTo, t]);
 
   const requireAgreementsOrShowError = () => {
     if (!agreeTerms || !agreePrivacy) {
-      setMessage("약관에 동의해 주세요.");
+      setMessage(t("messages.needAllAgreements"));
       setMessageType("error");
       return false;
     }
@@ -118,9 +110,7 @@ export default function SignupCompletePage() {
     if (!requireAgreementsOrShowError()) return;
 
     if (!hasSignedUid) {
-      setMessage(
-        "가입 완료 링크 정보(uid/sig)가 없어 처리를 진행할 수 없습니다. 다시 로그인/가입을 시도해 주세요."
-      );
+      setMessage(t("messages.missingFlow"));
       setMessageType("error");
       return;
     }
@@ -137,7 +127,7 @@ export default function SignupCompletePage() {
         body: JSON.stringify({
           uid: uidFromQuery,
           sig: sigFromQuery,
-          next: nextForSig, // ✅ 서명 검증과 동일한 next(원본)로 보내야 함
+          next: nextForSig, // ✅ 서명 검증과 동일한 next(원본)
         }),
       });
 
@@ -145,19 +135,17 @@ export default function SignupCompletePage() {
 
       if (!r.ok || !j?.ok) {
         setSubmitting(false);
-        setMessage(
-          `가입 완료 처리 중 오류가 발생했습니다. (${j?.error ?? "UNKNOWN"})`
-        );
+        setMessage(t("messages.failed", { error: j?.error ?? "UNKNOWN" }));
         setMessageType("error");
         return;
       }
 
-      setMessage("가입이 완료되었습니다. 이동합니다...");
+      setMessage(t("messages.successMove"));
       setMessageType("success");
       router.replace(redirectTo);
     } catch (e: any) {
       setSubmitting(false);
-      setMessage(`네트워크 오류가 발생했습니다. (${e?.message ?? "NETWORK"})`);
+      setMessage(t("messages.network", { message: e?.message ?? "NETWORK" }));
       setMessageType("error");
     }
   }
@@ -168,7 +156,7 @@ export default function SignupCompletePage() {
         <div className="rounded-3xl px-3 border border-neutral-200 bg-white/95 p-6 shadow-[0_22px_45px_-28px_rgba(15,23,42,0.35)] dark:border-white/12 dark:bg-[#020617]">
           <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
             <Icon icon="lucide:loader" className="animate-spin" />
-            확인 중입니다...
+            {t("checking")}
           </div>
         </div>
       </div>
@@ -181,10 +169,10 @@ export default function SignupCompletePage() {
         <div className="flex flex-col gap-6 p-6 sm:p-8">
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-black tracking-tight text-neutral-900 dark:text-white">
-              회원가입 완료
+              {t("title")}
             </h1>
             <p className="text-sm text-neutral-500 dark:text-neutral-400">
-              서비스 이용을 위해 약관 동의가 필요합니다.
+              {t("subtitle")}
             </p>
           </div>
 
@@ -197,12 +185,12 @@ export default function SignupCompletePage() {
                 className="mt-1 h-4 w-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
               />
               <span>
-                이용약관에 동의합니다.{" "}
+                {t("agree.terms")}{" "}
                 <Link
                   href="/terms"
                   className="underline underline-offset-2 hover:text-blue-600 dark:hover:text-blue-400"
                 >
-                  이용약관
+                  {t("agree.view")}
                 </Link>
               </span>
             </label>
@@ -215,12 +203,12 @@ export default function SignupCompletePage() {
                 className="mt-1 h-4 w-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
               />
               <span>
-                개인정보 처리방침에 동의합니다.{" "}
+                {t("agree.privacy")}{" "}
                 <Link
                   href="/privacy"
                   className="underline underline-offset-2 hover:text-blue-600 dark:hover:text-blue-400"
                 >
-                  개인정보 처리방침
+                  {t("agree.view")}
                 </Link>
               </span>
             </label>
@@ -256,21 +244,16 @@ export default function SignupCompletePage() {
           >
             {submitting ? (
               <>
-                <Icon
-                  icon="lucide:loader"
-                  className="animate-spin"
-                  width={18}
-                />
-                처리 중...
+                <Icon icon="lucide:loader" className="animate-spin" width={18} />
+                {t("button.submitting")}
               </>
             ) : (
-              <>동의하고 시작하기</>
+              <>{t("button.submit")}</>
             )}
           </button>
 
           <p className="text-center text-xs text-neutral-500 dark:text-neutral-400">
-            동의 후 서비스 이용이 가능합니다. 동의 내용을 확인하려면 약관 링크를
-            눌러 주세요.
+            {t("helper")}
           </p>
         </div>
       </div>
