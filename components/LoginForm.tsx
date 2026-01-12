@@ -69,7 +69,6 @@ export default function LoginForm() {
     setIsSubmitting(false);
 
     if (error?.message.includes("Signups not allowed")) {
-      // 이제 shouldCreateUser: true라서 보통 여기 안 옴. 그래도 안전하게.
       setMessage(t("messages.signupsNotAllowed"));
       setMessageType("error");
     } else if (error) {
@@ -110,7 +109,18 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="w-full col-span-6 mx-auto sm:max-w-lg rounded-3xl border border-neutral-200 bg-white/95 dark:bg-[#020617] dark:border-white/12 shadow-[0_22px_45px_-28px_rgba(15,23,42,0.85)]">
+    <div
+      className="
+        w-full col-span-6 mx-auto sm:max-w-lg
+        rounded-3xl border border-neutral-200
+        bg-white/95
+        shadow-[0_22px_45px_-28px_rgba(15,23,42,0.85)]
+        dark:border-white/10
+        dark:bg-[#0b1220]/95
+        dark:shadow-[0_28px_70px_-34px_rgba(0,0,0,0.85)]
+        backdrop-blur
+      "
+    >
       <div className="p-6 sm:p-8 flex flex-col gap-5">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-black tracking-tight text-neutral-900 dark:text-white">
@@ -129,8 +139,15 @@ export default function LoginForm() {
               rounded-2xl border border-neutral-300 bg-white
               py-2.5 px-5 text-sm font-medium text-neutral-900
               hover:-translate-y-0.5 hover:shadow-md
-              dark:bg-white/5 dark:border-white/20 dark:text-neutral-50
-              transition-all disabled:opacity-60 disabled:hover:shadow-none disabled:hover:translate-y-0
+              transition-all
+              disabled:opacity-60 disabled:hover:shadow-none disabled:hover:translate-y-0
+
+              dark:bg-white/6
+              dark:border-white/14
+              dark:text-neutral-50
+              dark:hover:bg-white/10
+              dark:hover:border-white/20
+              dark:hover:shadow-[0_16px_40px_-26px_rgba(0,0,0,0.85)]
             "
           >
             {isGoogleLoading ? (
@@ -180,7 +197,13 @@ export default function LoginForm() {
                   px-3 py-2.5 text-sm text-neutral-900
                   placeholder:text-neutral-400
                   focus:outline-none focus:ring-2 focus:ring-blue-500/70 focus:border-blue-500
-                  dark:bg-black/40 dark:border-white/15 dark:text-neutral-50 dark:placeholder:text-neutral-500
+
+                  dark:bg-white/5
+                  dark:border-white/14
+                  dark:text-neutral-50
+                  dark:placeholder:text-neutral-500
+                  dark:focus:border-blue-400/60
+                  dark:focus:ring-blue-400/35
                 "
                 required
               />
@@ -207,9 +230,13 @@ export default function LoginForm() {
                 text-white bg-neutral-900 border border-neutral-900
                 hover:bg-neutral-950 hover:-translate-y-0.5 hover:shadow-lg
                 active:translate-y-0
-                dark:bg-white dark:text-neutral-900 dark:border-white
                 transition-shadow
                 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0
+
+                dark:bg-gradient-to-r dark:from-blue-600 dark:via-indigo-500 dark:to-purple-500
+                dark:border-white/10
+                dark:text-white
+                dark:hover:shadow-[0_18px_50px_-28px_rgba(79,70,229,0.75)]
               "
             >
               {isSubmitting ? (
@@ -248,7 +275,13 @@ export default function LoginForm() {
                   px-3 py-2.5 text-sm text-neutral-900
                   placeholder:text-neutral-400
                   focus:outline-none focus:ring-2 focus:ring-blue-500/70 focus:border-blue-500
-                  dark:bg-black/40 dark:border-white/15 dark:text-neutral-50 dark:placeholder:text-neutral-500
+
+                  dark:bg-white/5
+                  dark:border-white/14
+                  dark:text-neutral-50
+                  dark:placeholder:text-neutral-500
+                  dark:focus:border-blue-400/60
+                  dark:focus:ring-blue-400/35
                 "
                 required
               />
@@ -275,9 +308,13 @@ export default function LoginForm() {
                 text-white bg-neutral-900 border border-neutral-900
                 hover:bg-neutral-950 hover:-translate-y-0.5 hover:shadow-lg
                 active:translate-y-0
-                dark:bg-white dark:text-neutral-900 dark:border-white
                 transition-transform transition-shadow
                 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0
+
+                dark:bg-gradient-to-r dark:from-blue-600 dark:via-indigo-500 dark:to-purple-500
+                dark:border-white/10
+                dark:text-white
+                dark:hover:shadow-[0_18px_50px_-28px_rgba(79,70,229,0.75)]
               "
             >
               {isSubmitting ? (

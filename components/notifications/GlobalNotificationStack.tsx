@@ -77,9 +77,11 @@ function NotificationCard({
       className={cn(
         "pointer-events-auto",
         "relative overflow-hidden rounded-2xl",
-        "border border-neutral-200/80 dark:border-white/12",
-        "bg-white/80 dark:bg-black/35 backdrop-blur",
-        "shadow-[0_18px_45px_-26px_rgba(15,23,42,0.28)]"
+        "border border-neutral-200/80 dark:border-white/14",
+        // ✅ 다크에서 카드가 배경에 묻히지 않게: 조금 더 밝은 카드 + 더 강한 그림자
+        "bg-white/80 dark:bg-[#0b1220]/92 backdrop-blur",
+        "shadow-[0_18px_45px_-26px_rgba(15,23,42,0.28)]",
+        "dark:shadow-[0_26px_70px_-36px_rgba(0,0,0,0.85)]"
       )}
     >
       <div
@@ -87,7 +89,16 @@ function NotificationCard({
         className="
           pointer-events-none absolute inset-0
           bg-[radial-gradient(240px_120px_at_18%_10%,rgba(16,185,129,0.16),transparent_60%),radial-gradient(240px_120px_at_92%_45%,rgba(59,130,246,0.12),transparent_60%)]
-          dark:bg-[radial-gradient(240px_120px_at_18%_10%,rgba(16,185,129,0.18),transparent_60%),radial-gradient(240px_120px_at_92%_45%,rgba(99,102,241,0.16),transparent_60%)]
+          dark:bg-[radial-gradient(260px_140px_at_18%_12%,rgba(16,185,129,0.22),transparent_62%),radial-gradient(320px_180px_at_92%_48%,rgba(99,102,241,0.22),transparent_62%)]
+        "
+      />
+
+      {/* ✅ 다크모드에서 “테두리 글로우” 살짝 */}
+      <div
+        aria-hidden
+        className="
+          pointer-events-none absolute inset-0 rounded-2xl
+          dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]
         "
       />
 
@@ -140,7 +151,7 @@ function NotificationCard({
               text-neutral-500 hover:text-neutral-900
               hover:bg-white/70
               dark:text-neutral-400 dark:hover:text-neutral-50
-              dark:hover:bg-white/5
+              dark:hover:bg-white/8
               transition
             "
             aria-label={t("notifications.ui.dismiss_one")}
@@ -228,7 +239,6 @@ export default function GlobalNotificationsStack() {
   const readOneMutation = useMutation({
     mutationFn: (id: string) => markNotificationRead(id),
     onMutate: async (id) => {
-      // optimistic: UI 먼저 제거 + 캐시도 같이 제거
       await qc.cancelQueries({ queryKey });
 
       const prev = qc.getQueryData<NotificationItem[]>(queryKey) ?? [];
@@ -241,7 +251,6 @@ export default function GlobalNotificationsStack() {
       return { prev };
     },
     onError: (_err, _id, ctx) => {
-      // 실패하면 롤백 + 다시 가져오기
       if (ctx?.prev) qc.setQueryData(queryKey, ctx.prev);
       qc.invalidateQueries({ queryKey });
     },
@@ -300,14 +309,16 @@ export default function GlobalNotificationsStack() {
       aria-live="polite"
       aria-label={t("notifications.ui.aria_label")}
     >
+      {/* ✅ 헤더칩도 다크에서 살짝 더 떠보이게 */}
       <div className="pointer-events-auto mb-2 flex items-center justify-between">
         <div
           className="
             inline-flex items-center gap-2
-            rounded-full border border-neutral-200/70 dark:border-white/12
-            bg-white/65 dark:bg-black/25 backdrop-blur
+            rounded-full border border-neutral-200/70 dark:border-white/14
+            bg-white/65 dark:bg-[#0b1220]/70 backdrop-blur
             px-3 py-1
             text-[11px] font-semibold text-neutral-700 dark:text-neutral-200
+            dark:shadow-[0_14px_40px_-28px_rgba(0,0,0,0.85)]
           "
         >
           <span
@@ -338,7 +349,7 @@ export default function GlobalNotificationsStack() {
             text-[11px] font-semibold
             text-neutral-500 hover:text-neutral-800
             dark:text-neutral-400 dark:hover:text-neutral-200
-            hover:bg-white/60 dark:hover:bg-white/5
+            hover:bg-white/60 dark:hover:bg-white/8
             transition
             disabled:opacity-60 disabled:cursor-not-allowed
           "
