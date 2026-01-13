@@ -4,17 +4,17 @@ import type { Variants } from "framer-motion";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "@/i18n/navigation";
 import { useState } from "react";
-import ClientMindElixir from "@/app/[locale]/demo-elixer/ClientMindElixir";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 const listV: Variants = {
   hidden: {},
   show: {
     transition: {
       delayChildren: 0.2,
-      staggerChildren: 0.18
-    }
-  }
+      staggerChildren: 0.18,
+    },
+  },
 };
 
 const itemV: Variants = {
@@ -24,8 +24,8 @@ const itemV: Variants = {
     y: 0,
     x: 0,
     filter: "blur(0px)",
-    transition: { type: "spring", stiffness: 520, damping: 30 }
-  }
+    transition: { type: "spring", stiffness: 520, damping: 30 },
+  },
 };
 
 function Highlight({ children }: { children: React.ReactNode }) {
@@ -41,6 +41,57 @@ function Highlight({ children }: { children: React.ReactNode }) {
     >
       {children}
     </span>
+  );
+}
+
+/**
+ * ✅ 브라우저 프레임/패딩 전부 제거
+ * - 이미지가 카드 전체를 꽉 채움
+ * - 라이트/다크 이미지 스위치 유지
+ * - 테두리/그림자만 "이쁘게" 정리
+ */
+function HeroDiagramImage({ alt }: { alt: string }) {
+  return (
+    <div
+      className="
+        relative overflow-hidden
+        rounded-3xl
+        border border-black/5 dark:border-white/10
+        bg-white/40 dark:bg-white/5
+        shadow-[0_18px_55px_-26px_rgba(15,23,42,0.40)]
+      "
+    >
+      <div className="relative w-full aspect-[16/10]">
+        {/* 🌞 Light image */}
+        <Image
+          src="/images/hero/mindmap-preview-light.png"
+          alt={alt}
+          fill
+          priority
+          sizes="(max-width: 768px) 100vw, 520px"
+          className="object-cover dark:hidden"
+        />
+
+        {/* 🌙 Dark image */}
+        <Image
+          src="/images/hero/mindmap-preview-dark.png"
+          alt={alt}
+          fill
+          priority
+          sizes="(max-width: 768px) 100vw, 520px"
+          className="object-cover hidden dark:block"
+        />
+      </div>
+
+      {/* ✅ 아주 얇은 하이라이트 링 (선택, 깔끔하게만) */}
+      <div
+        aria-hidden
+        className="
+          pointer-events-none absolute inset-0
+          ring-1 ring-white/40 dark:ring-white/10
+        "
+      />
+    </div>
   );
 }
 
@@ -61,7 +112,7 @@ export default function LandingBlueHero() {
           "세부내용도 놓치지 않고 정리",
           "모르는 용어는 자동 정리",
           "외국어는 내 언어로 변환",
-          "미션 수행으로 무료 크레딧 반복 지급"
+          "미션 수행으로 무료 크레딧 반복 지급",
         ];
   })();
 
@@ -119,15 +170,18 @@ export default function LandingBlueHero() {
       />
 
       {/* Hero */}
-      <section className="px-6 md:px-10 grid md:grid-cols-2 gap-10 md:gap-14 items-center max-w-7xl mx-auto py-10 md:py-18 lg:py-24">
+      <section className="px-6 md:px-10 grid md:grid-cols-2 gap-10 md:gap-14 items-start md:items-center max-w-7xl mx-auto py-10 md:py-18 lg:py-24">
+        {/* Left */}
         <div className="text-neutral-900">
-          <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            {/* 작은 문구 */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
             <div className="text-sm md:text-base font-semibold text-neutral-600 dark:text-neutral-300 tracking-tight">
               {t("eyebrow")}
             </div>
 
-            {/* ✅ 타이틀 + 오른쪽 삼각 버튼 */}
             <div className="mt-3 flex items-start gap-4">
               <div className="min-w-0 flex-1">
                 <AnimatePresence mode="wait">
@@ -150,7 +204,6 @@ export default function LandingBlueHero() {
                 </AnimatePresence>
               </div>
 
-              {/* 삼각형 버튼 */}
               <motion.button
                 type="button"
                 aria-label={t("switchTitleAria")}
@@ -193,21 +246,33 @@ export default function LandingBlueHero() {
             </div>
           </motion.div>
 
-          {/* CTAs */}
+          {/* ✅ 모바일: 타이틀 아래 이미지만 꽉 */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.99, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: 0.12, duration: 0.45 }}
+            className="mt-6 md:hidden"
+          >
+            <HeroDiagramImage alt={t("visualAlt")} />
+          </motion.div>
+
+          {/* CTA */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.45 }}
+            transition={{ delay: 0.18, duration: 0.45 }}
             className="mt-7 flex flex-row items-start sm:items-center gap-3"
           >
             <Link
               href="/video-to-map"
-              className="px-6 py-3 rounded-2xl
+              className="
+                px-6 py-3 rounded-2xl
                 bg-blue-600 text-white font-semibold
                 dark:bg-[rgb(var(--hero-a))] dark:text-white
                 shadow-sm hover:shadow-lg
                 transition-transform hover:scale-[1.03] active:scale-100
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60"
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60
+              "
             >
               {t("ctaPrimary")}
             </Link>
@@ -300,39 +365,14 @@ export default function LandingBlueHero() {
           </div>
         </div>
 
-        {/* Right visual */}
+        {/* ✅ 데스크탑에서만 오른쪽 비주얼 */}
         <motion.div
           initial={{ opacity: 0, scale: 0.98, y: 8 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="relative"
+          className="relative hidden md:block"
         >
-          <div
-            className="relative rounded-3xl p-5 md:p-6 lg:p-7
-              bg-white/70 dark:bg-black/40
-              backdrop-blur
-              border border-white/60 dark:border-white/10
-              shadow-[0_20px_60px_-20px_rgba(15,23,42,0.35)]"
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/90 dark:bg-emerald-300/80" />
-              <div className="h-2.5 w-2.5 rounded-full bg-amber-400/90 dark:bg-amber-300/80" />
-              <div className="h-2.5 w-2.5 rounded-full bg-rose-400/90 dark:bg-rose-300/80" />
-            </div>
-
-            <div
-              className="
-                mt-4
-                overflow-hidden rounded-2xl
-                border border-black/5 dark:border-white/10
-                bg-white/60 dark:bg-black/20
-              "
-            >
-              <div className="relative w-full aspect-[16/10]">
-                <ClientMindElixir fitOnInit={false} />
-              </div>
-            </div>
-          </div>
+          <HeroDiagramImage alt={t("visualAlt")} />
 
           <div className="pointer-events-none absolute -inset-8 -z-10 blur-3xl opacity-40 bg-[radial-gradient(400px_200px_at_60%_20%,rgba(59,130,246,0.35),transparent),radial-gradient(300px_200px_at_40%_80%,rgba(99,102,241,0.35),transparent)]" />
         </motion.div>

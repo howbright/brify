@@ -540,7 +540,8 @@
       "Auto-define unfamiliar terms",
       "Translate foreign-language text into your language",
       "Earn free credits repeatedly through missions"
-    ]
+    ],
+    "visualAlt": "Summary diagram preview"
   },
   "WelcomePage": {
     "subtitle": "welcome to brify",

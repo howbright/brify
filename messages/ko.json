@@ -538,7 +538,8 @@
       "모르는 용어는 자동 정리",
       "외국어는 내 언어로 변환",
       "미션 수행으로 무료 크레딧 반복 지급"
-    ]
+    ],
+    "visualAlt": "요약 다이어그램 미리보기"
   },
   "WelcomePage": {
     "subtitle": "welcome to brify",
