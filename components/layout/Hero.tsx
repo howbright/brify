@@ -93,7 +93,9 @@ export default function LandingBlueHero() {
 
   const titles = (() => {
     const raw = t.raw("titles");
-    return Array.isArray(raw) ? (raw as string[]) : ["유튜브 스크립트를", "어떤 긴 글도"];
+    return Array.isArray(raw)
+      ? (raw as string[])
+      : ["유튜브 스크립트를", "어떤 긴 글도"];
   })();
 
   const features = (() => {
@@ -162,46 +164,73 @@ export default function LandingBlueHero() {
               type="button"
               aria-label={t("switchTitleAria")}
               onClick={() => setIdx((v) => (v + 1) % titles.length)}
-              whileHover={{ x: 3 }}
-              whileTap={{ scale: 0.96 }}
+              whileHover={{ x: 5 }}
+              whileTap={{ scale: 0.98 }}
               className="
-                absolute right-0 top-1/2 -translate-y-1/2
-                h-24 md:h-28
-                w-[18px]
-                rounded-full
-                overflow-hidden
-                bg-gradient-to-b
-                  from-blue-500/70
-                  via-indigo-500/80
-                  to-sky-400/70
-                dark:from-indigo-400/80
-                dark:via-sky-400/80
-                dark:to-cyan-300/80
-                shadow-[0_8px_30px_-10px_rgba(59,130,246,0.8)]
-                transition-all
-                group
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/50
-              "
+    absolute right-0 top-1/2 -translate-y-1/2
+    h-32 md:h-36
+    w-[30px]
+    overflow-hidden
+    transition-all
+    group
+    focus:outline-none
+  "
             >
+              {/* 배경 그라데이션 바 */}
               <span
                 aria-hidden
                 className="
-                  absolute inset-0
-                  bg-[radial-gradient(80%_40%_at_50%_50%,rgba(255,255,255,0.45),transparent_70%)]
-                  opacity-60
-                "
+      absolute inset-0
+      bg-gradient-to-r
+        from-transparent
+        via-blue-500/15
+        to-indigo-600/70
+      dark:from-transparent
+      dark:via-sky-400/20
+      dark:to-cyan-400/80
+      opacity-90
+    "
               />
+
+              {/* 오른쪽 엣지 라이트 */}
+              <span
+                aria-hidden
+                className="
+      absolute top-0 right-0 h-full w-[3px]
+      bg-gradient-to-b
+        from-transparent
+        via-indigo-500/90
+        to-transparent
+      dark:via-cyan-300/90
+      opacity-80
+    "
+              />
+
+              {/* 🎯 컬러 화살표 */}
               <span
                 className="
-                  relative z-10 mx-auto block
-                  w-3 h-3
-                  [clip-path:polygon(25%_15%,85%_50%,25%_85%)]
-                  bg-white dark:bg-slate-900
-                  drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]
-                  group-hover:translate-x-[1px]
-                  transition-transform
-                "
-              />
+      absolute inset-0 flex items-center justify-center
+      pointer-events-none
+    "
+              >
+                <span
+                  className="
+        block w-3.5 h-3.5
+        translate-x-[2px]
+        [clip-path:polygon(28%_15%,88%_50%,28%_85%)]
+        bg-gradient-to-br
+          from-blue-600
+          via-indigo-600
+          to-sky-500
+        dark:from-sky-400
+        dark:via-cyan-400
+        dark:to-indigo-400
+        drop-shadow-[0_4px_12px_rgba(59,130,246,0.55)]
+        transition-transform
+        group-hover:translate-x-[5px]
+      "
+                />
+              </span>
             </motion.button>
           </div>
 
@@ -239,8 +268,8 @@ export default function LandingBlueHero() {
           </div>
 
           {/* features */}
-          <div className="mt-6 flex flex-col gap-2.5">
-            <motion.div variants={listV} initial="hidden" animate="show">
+          <div className="mt-6">
+            <motion.div className="flex flex-col gap-2.5" variants={listV} initial="hidden" animate="show">
               {features.map((text, i) => (
                 <motion.div
                   key={i}
