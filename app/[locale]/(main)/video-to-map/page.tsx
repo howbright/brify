@@ -1,44 +1,111 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Icon } from "@iconify/react";
-import ScriptHelpSection from "./ScriptHelpSection";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { MapDraft } from "./types";
+import ScriptInputCard from "./ScriptInputCard";
+import ScriptHelpSection from "../video-to-map2/ScriptHelpSection";
+import ProcessingStatusCard from "./ProcessingStatusCard";
+import DraftMapCard from "./DraftMapCard";
+import CreditConfirmModal from "./CreditConfirmModal";
+import MetadataDialog from "./MetadataDialog";
+import YoutubeScriptDialog from "./YoutubeScriptDialog";
 
-const LONG_SCRIPT_THRESHOLD = 6000; // 🔹 이 글자 수를 넘으면 2크레딧, 아니면 1크레딧
-
-// TODO: 실제 로그인 유저의 현재 크레딧으로 교체
+const LONG_SCRIPT_THRESHOLD = 6000;
 const MOCK_CURRENT_CREDITS = 42;
 
-// 길이에 따라 필요한 크레딧 계산
 function getRequiredCredits(text: string) {
   const length = text.trim().length;
   if (!length) return 1;
   return length > LONG_SCRIPT_THRESHOLD ? 2 : 1;
 }
 
+function genId() {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+/**
+ * ✅ 프로토타입용: 유튜브 URL에서 스크립트를 "가져오는 척" 합니다.
+ * - 실데이터/실API 신경 X
+ * - UX 플로우 검증용
+ * - 사용자 노출 문구는 존대말 유지
+ */
+async function mockFetchYoutubeScript(url: string) {
+  await new Promise((r) => setTimeout(r, 900));
+
+  const u = url.trim();
+  if (!u) throw new Error("유튜브 URL을 입력해 주세요.");
+
+  const isYoutube = u.includes("youtube.com") || u.includes("youtu.be");
+  if (!isYoutube) {
+    throw new Error(
+      "유효한 유튜브 링크가 아닌 것 같습니다. (youtube.com / youtu.be)"
+    );
+  }
+
+  return `# (데모) 유튜브 스크립트 추출 결과
+
+- 이 텍스트는 “유튜브 URL로도 시도 가능” 경험을 보여드리기 위한 더미입니다.
+- 실제 연결 시 이 자리에는 영상 자막/스크립트가 들어오게 됩니다.
+
+[인트로]
+안녕하세요. 오늘은 Video-to-Map 플로우를 더 자연스럽게 개선해 보겠습니다.
+
+[핵심]
+1) 텍스트 붙여넣기가 기본입니다.
+2) 텍스트가 없으시면 URL로도 시도하실 수 있습니다.
+3) 성공하면 입력칸에 자동으로 채워 드립니다.
+
+[마무리]
+이제 “생성하기”를 눌러 다음 단계로 진행해 주세요.
+`;
+}
+
 export default function VideoToMapPage() {
   const t = useTranslations("VideoToMapPage");
 
   const [scriptText, setScriptText] = useState("");
+
   const [showCreditDialog, setShowCreditDialog] = useState(false);
+  const [showMetadataDialog, setShowMetadataDialog] = useState(false);
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusStep, setStatusStep] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<any>(null); // TODO: 구조맵 결과 타입으로 변경
-  const [isHelpOpen, setIsHelpOpen] = useState(false); // 🔹 도움말 토글 상태
 
-  // 실제로는 훅/컨텍스트에서 받아오거나, 서버에서 가져온 값을 props로 받으면 됨
+  const [error, setError] = useState<string | null>(null);
+
+  // ✅ “저장 후 카드” 리스트 (DB 대신)
+  const [drafts, setDrafts] = useState<MapDraft[]>([]);
+
+  // ✅ 지금 클릭해서 진행 중인 작업을 연결하기 위한 임시 job context
+  const pendingJobIdRef = useRef<string | null>(null);
+  const pendingScriptRef = useRef<string>("");
+
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+
   const currentCredits = MOCK_CURRENT_CREDITS;
   const requiredCredits = getRequiredCredits(scriptText);
 
-  const statusMessages = [
-    t("status.reading"),
-    t("status.splittingFlow"),
-    t("status.extractingKeywords"),
-    t("status.arrangingStructure"),
-    t("status.almostThere"),
-  ];
+  // ✅ 유튜브 모달 상태
+  const [showYoutubeDialog, setShowYoutubeDialog] = useState(false);
+
+  // ✅ 유튜브 플로우 state
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [isFetchingYoutube, setIsFetchingYoutube] = useState(false);
+  const [youtubeError, setYoutubeError] = useState<string | null>(null);
+  const [youtubeSuccess, setYoutubeSuccess] = useState<string | null>(null);
+  const [outputLang, setOutputLang] = useState("auto");
+
+  const statusMessages = useMemo(
+    () => [
+      t("status.reading"),
+      t("status.splittingFlow"),
+      t("status.extractingKeywords"),
+      t("status.arrangingStructure"),
+      t("status.almostThere"),
+    ],
+    [t]
+  );
 
   useEffect(() => {
     if (!isProcessing) {
@@ -46,10 +113,8 @@ export default function VideoToMapPage() {
       return;
     }
 
-    let step = 0;
     const interval = setInterval(() => {
-      step = (step + 1) % statusMessages.length;
-      setStatusStep(step);
+      setStatusStep((s) => (s + 1) % statusMessages.length);
     }, 2500);
 
     return () => clearInterval(interval);
@@ -57,15 +122,47 @@ export default function VideoToMapPage() {
 
   const handleClickGenerate = () => {
     setError(null);
+
     if (!scriptText.trim()) {
       setError(t("errors.emptyScript"));
       return;
     }
+
     setShowCreditDialog(true);
   };
 
+  /**
+   * ✅ URL로 스크립트 채우기 (모달에서 실행)
+   */
+  const handleFetchYoutube = async () => {
+    setYoutubeError(null);
+    setYoutubeSuccess(null);
+
+    try {
+      setIsFetchingYoutube(true);
+      const text = await mockFetchYoutubeScript(youtubeUrl);
+
+      setScriptText(text);
+      setError(null);
+
+      setYoutubeSuccess(
+        "스크립트를 가져와 입력칸에 채워 드렸습니다. 이제 바로 생성하실 수 있습니다."
+      );
+
+      // ✅ 성공하면 0.6초 후 자동 닫기 (성공 메시지 잠깐 보여주고)
+      setTimeout(() => {
+        setShowYoutubeDialog(false);
+        setYoutubeSuccess(null);
+      }, 600);
+    } catch (e: any) {
+      setYoutubeError(e?.message ?? "스크립트를 가져오지 못했습니다.");
+    } finally {
+      setIsFetchingYoutube(false);
+    }
+  };
+
+  // ✅ (2) 크레딧 확인 후: “작업 시작(모킹)” + “메타데이터 팝업 열기”
   const handleConfirmUseCredits = async () => {
-    // (추가) 크레딧 부족 체크 — 실제론 서버에서도 다시 검증해야 함
     if (currentCredits < requiredCredits) {
       setShowCreditDialog(false);
       setError(t("errors.insufficientCredits"));
@@ -73,30 +170,71 @@ export default function VideoToMapPage() {
     }
 
     setShowCreditDialog(false);
-    setIsProcessing(true);
     setError(null);
-    setResult(null);
 
-    try {
-      // TODO: 실제 백엔드 API 경로로 변경
-      const res = await fetch("/api/video-to-map", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ script: scriptText }),
+    const jobId = genId();
+    pendingJobIdRef.current = jobId;
+    pendingScriptRef.current = scriptText;
+
+    setIsProcessing(true);
+    setShowMetadataDialog(true);
+
+    setTimeout(() => {
+      setDrafts((prev) => {
+        const idx = prev.findIndex((d) => d.id === jobId);
+        if (idx >= 0) {
+          const next = [...prev];
+          next[idx] = {
+            ...next[idx],
+            status: "done",
+            result: { ok: true, mock: true, nodes: 12, edges: 14 },
+          };
+          return next;
+        }
+        return prev;
       });
 
-      if (!res.ok) {
-        throw new Error(t("errors.requestFailed"));
-      }
-
-      const data = await res.json();
-      setResult(data);
-    } catch (e: any) {
-      console.error(e);
-      setError(e?.message ?? t("errors.unknown"));
-    } finally {
       setIsProcessing(false);
-    }
+    }, 9000);
+  };
+
+  // ✅ (3) 메타데이터 저장 → 카드 생성/업데이트
+  const handleSaveMetadata = (meta: {
+    sourceUrl?: string;
+    title: string;
+    channelName?: string;
+    thumbnailUrl?: string;
+    tags: string[];
+    description?: string;
+  }) => {
+    const jobId = pendingJobIdRef.current ?? genId();
+
+    setDrafts((prev) => {
+      const exists = prev.some((d) => d.id === jobId);
+      const status = isProcessing ? "processing" : "done";
+
+      const draft: MapDraft = {
+        id: jobId,
+        createdAt: Date.now(),
+        sourceUrl: meta.sourceUrl,
+        title: meta.title || "Untitled",
+        channelName: meta.channelName,
+        thumbnailUrl: meta.thumbnailUrl,
+        tags: meta.tags ?? [],
+        description: meta.description,
+        status,
+        result: status === "done" ? { ok: true, mock: true } : undefined,
+      };
+
+      if (exists) {
+        return prev.map((d) => (d.id === jobId ? { ...d, ...draft } : d));
+      }
+      return [draft, ...prev];
+    });
+
+    setShowMetadataDialog(false);
+    pendingJobIdRef.current = null;
+    pendingScriptRef.current = "";
   };
 
   return (
@@ -107,7 +245,7 @@ export default function VideoToMapPage() {
         text-neutral-900 dark:text-neutral-50
       "
     >
-      {/* 상단만 살짝 블루 톤 그라데이션 + 아주 약한 그리드 */}
+      {/* 배경 유지 */}
       <div
         className="
           pointer-events-none absolute inset-x-0 top-0 h-72 -z-10
@@ -125,251 +263,121 @@ export default function VideoToMapPage() {
         "
       />
 
-      <div className="max-w-6xl mx-auto px-6 md:px-10 flex flex-col gap-10 relative">
-        {/* 상단 헤더 / 상세 기능 페이지 느낌 */}
-        <header className="mt-7 flex flex-col gap-4">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight tracking-tight text-neutral-900 dark:text-white dark:[text-shadow:0_1px_10px_rgba(0,0,0,0.45)]">
+      <div className="max-w-6xl mx-auto px-2 md:px-10 flex flex-col gap-3 relative">
+        <header className="mt-7">
+          <h1 className="text-2xl sm:text-2xl md:text-2xl font-extrabold leading-tight tracking-tight text-neutral-900 dark:text-white">
             {t("title.prefix")}{" "}
             <span className="text-blue-700 dark:text-[rgb(var(--hero-b))]">
               {t("title.highlight")}
             </span>
           </h1>
-          <p className="text-sm md:text-base text-neutral-700 dark:text-neutral-300 max-w-2xl">
-            {t("description.beforeBold")}{" "}
-            <span className="font-semibold text-neutral-900 dark:text-neutral-50">
-              {t("description.bold")}
-            </span>{" "}
-            {t("description.afterBold")}
-          </p>
         </header>
 
-        {/* 메인 레이아웃 */}
         <div
           className={`
             grid gap-8 items-start
             transition-[grid-template-columns] duration-300 ease-out
             ${
               isHelpOpen
-                ? "lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]" // 🔓 도움말 펼쳐진 상태
-                : "lg:grid-cols-[minmax(0,1.8fr)_minmax(0,0.4fr)]" // 🔒 기본: 왼쪽 넓고, 오른쪽 좁게
+                ? "lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]"
+                : "lg:grid-cols-[minmax(0,1.8fr)_minmax(0,0.4fr)]"
             }
           `}
         >
-          {/* 왼쪽: 입력 카드 */}
-          <section
-            className="
-              mt-1 rounded-3xl border border-neutral-200 bg-white
-              shadow-[0_22px_45px_-24px_rgba(15,23,42,0.55)]
-              backdrop-blur-sm
-              dark:bg-[#020818] dark:border-white/15
-              p-5 md:p-6 flex flex-col gap-4
-            "
-          >
-            {/* 상단 강조 라인 */}
-            <div className="flex flex-col gap-3">
-              <div className="h-1.5 w-16 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-[rgb(var(--hero-a))] dark:to-[rgb(var(--hero-b))]" />
-              <div className="flex items-center justify-between gap-2">
-                <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
-                  {t("inputSection.title")}
-                </h2>
+          <ScriptInputCard
+            scriptText={scriptText}
+            setScriptText={setScriptText}
+            error={error}
+            isProcessing={isProcessing}
+            currentCredits={currentCredits}
+            requiredCredits={requiredCredits}
+            onGenerate={handleClickGenerate}
+            onOpenYoutubeDialog={() => {
+              setYoutubeError(null);
+              setYoutubeSuccess(null);
+              setShowYoutubeDialog(true);
+            }}
+            outputLang={outputLang}
+            setOutputLang={setOutputLang}
+          />
 
-                {/* 🔹 내 크레딧 pill */}
-                <div
-                  className="
-                    flex items-center gap-1.5 rounded-full
-                    border border-amber-200 bg-amber-50
-                    px-2.5 py-1 text-[11px] md:text-xs text-amber-700
-                    dark:border-amber-300/40 dark:bg-amber-100/10 dark:text-amber-200
-                  "
-                >
-                  <Icon
-                    icon="mdi:star-four-points-outline"
-                    className="h-3.5 w-3.5"
-                  />
-                  <span className="font-medium">{t("credits.label")}</span>
-                  <span className="font-semibold">
-                    {currentCredits.toLocaleString()} {t("credits.unit")}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <textarea
-              className="
-                w-full min-h-[260px] md:min-h-[300px] resize-y
-                rounded-2xl border border-neutral-200 bg-neutral-50
-                px-3 py-2 text-sm md:text-[15px] text-neutral-900
-                placeholder:text-neutral-400
-                focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-                dark:border-white/12 dark:bg-black/40 dark:text-neutral-50 dark:placeholder:text-neutral-500
-              "
-              placeholder={t("inputSection.placeholder")}
-              value={scriptText}
-              onChange={(e) => setScriptText(e.target.value)}
-            />
-
-            {error && <p className="text-sm text-red-500">{error}</p>}
-
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div className="flex flex-col gap-1">
-                <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-300">
-                  {t("credits.rule", { threshold: LONG_SCRIPT_THRESHOLD })}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleClickGenerate}
-                disabled={!scriptText.trim() || isProcessing}
-                className="
-                  inline-flex items-center gap-2 rounded-2xl px-5 py-2.5
-                  text-sm md:text-[15px] font-semibold text-white
-                  bg-blue-600 hover:bg-blue-700
-                  dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
-                  shadow-sm hover:shadow-md
-                  transition-transform hover:scale-[1.03] active:scale-100
-                  disabled:bg-neutral-400 disabled:hover:scale-100 disabled:cursor-not-allowed
-                  focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60
-                "
-              >
-                {isProcessing
-                  ? t("buttons.generating")
-                  : t("buttons.generate")}
-              </button>
-            </div>
-          </section>
-
-          {/* 오른쪽: 가이드 + 진행 상태 */}
           <div className="flex flex-col gap-4">
             <ScriptHelpSection
               isHelpOpen={isHelpOpen}
               onToggle={() => setIsHelpOpen((prev) => !prev)}
             />
 
-            {/* 진행 중 표시 */}
             {isProcessing && (
-              <section
-                className="
-                  rounded-3xl border border-blue-200 bg-blue-50
-                  shadow-[0_18px_40px_-24px_rgba(37,99,235,0.45)]
-                  backdrop-blur-sm
-                  dark:bg-[#020818]/98 dark:border-[rgb(var(--hero-b))]/50
-                  p-4 md:p-5 flex items-start gap-3
-                "
-              >
-                <div className="mt-0.5 h-8 w-8 flex items-center justify-center rounded-full bg-neutral-900 text-white text-xs font-semibold dark:bg-white dark:text-neutral-900">
-                  AI
-                </div>
-                <div className="flex-1 space-y-2">
-                  <p className="text-sm md:text-[15px] font-semibold text-neutral-900 dark:text-neutral-50">
-                    {t("processing.title")}
-                  </p>
-                  <div className="rounded-2xl bg-white/95 px-3 py-2.5 text-xs md:text-sm text-neutral-700 dark:bg-black/40 dark:text-neutral-200">
-                    <p className="mb-1 flex items-center gap-1">
-                      <span>{statusMessages[statusStep]}</span>
-                      <span className="inline-flex gap-0.5">
-                        <span className="animate-pulse">.</span>
-                        <span className="animate-pulse delay-150">.</span>
-                        <span className="animate-pulse delay-300">.</span>
-                      </span>
-                    </p>
-                    <ul className="mt-1 list-disc list-inside space-y-0.5 text-[11px] md:text-xs text-neutral-500 dark:text-neutral-400">
-                      <li>{t("processing.bullet1")}</li>
-                      <li>{t("processing.bullet2")}</li>
-                      <li>{t("processing.bullet3")}</li>
-                    </ul>
-                  </div>
-                </div>
-              </section>
+              <ProcessingStatusCard
+                title={t("processing.title")}
+                message={statusMessages[statusStep]}
+                bullets={[
+                  t("processing.bullet1"),
+                  t("processing.bullet2"),
+                  t("processing.bullet3"),
+                ]}
+              />
             )}
           </div>
         </div>
 
-        {/* 결과 영역 */}
-        {result && (
-          <section
-            className="
-              mt-6 rounded-3xl border border-neutral-200 bg-white
-              shadow-[0_22px_45px_-24px_rgba(15,23,42,0.55)]
-              backdrop-blur-sm
-              dark:bg-[#020818]/98 dark:border-white/15
-              p-4 md:p-6 space-y-3
-            "
-          >
-            <div className="flex items-center justify-between gap-2">
-              <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
-                {t("result.title")}
+        {drafts.length > 0 && (
+          <section className="mt-2 space-y-3">
+            <div className="flex items-end justify-between gap-2">
+              <h2 className="text-base md:text-lg font-semibold">
+                만든 구조맵
               </h2>
-              <span className="text-[11px] md:text-xs text-neutral-500 dark:text-neutral-400">
-                {t("result.hint")}
+              <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                프로토타입: DB 없이 임시 저장
               </span>
             </div>
-            <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-300">
-              {t("result.description")}
-            </p>
-            <pre
-              className="
-                max-h-[360px] overflow-auto rounded-2xl
-                bg-neutral-950/90 text-[11px] md:text-xs text-neutral-50
-                p-3 border border-neutral-800
-              "
-            >
-              {JSON.stringify(result, null, 2)}
-            </pre>
+
+            <div className="grid gap-3">
+              {drafts.map((d) => (
+                <DraftMapCard key={d.id} draft={d} />
+              ))}
+            </div>
           </section>
         )}
       </div>
 
-      {/* 크레딧 사용 안내 모달 */}
+      {/* ✅ 유튜브 모달 */}
+      <YoutubeScriptDialog
+        open={showYoutubeDialog}
+        onClose={() => {
+          setShowYoutubeDialog(false);
+          setYoutubeError(null);
+          setYoutubeSuccess(null);
+        }}
+        youtubeUrl={youtubeUrl}
+        setYoutubeUrl={setYoutubeUrl}
+        onFetch={handleFetchYoutube}
+        isFetching={isFetchingYoutube}
+        error={youtubeError}
+        success={youtubeSuccess}
+      />
+
       {showCreditDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-sm">
-          <div
-            className="
-              w-full max-w-md rounded-3xl
-              bg-white/98 border border-neutral-200
-              shadow-[0_24px_70px_-30px_rgba(15,23,42,0.85)]
-              p-5 md:p-6
-              dark:bg-[#020617]/98 dark:border-white/12
-            "
-          >
-            <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white mb-2.5">
-              {t("modal.title")}
-            </h2>
-            <p className="text-sm md:text-[15px] text-neutral-700 dark:text-neutral-200 mb-3">
-              {t("modal.usageText", { credits: requiredCredits })}
-            </p>
-            <ul className="mb-4 list-disc list-inside text-xs md:text-sm text-neutral-600 dark:text-neutral-300 space-y-1">
-              <li>{t("modal.bullet1")}</li>
-              <li>{t("modal.bullet2")}</li>
-              <li>{t("modal.bullet3")}</li>
-            </ul>
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setShowCreditDialog(false)}
-                className="
-                  rounded-2xl px-3 py-1.5 text-xs md:text-sm text-neutral-700
-                  border border-neutral-300 bg-white
-                  hover:bg-neutral-100
-                  dark:text-neutral-100 dark:border-white/20 dark:bg-white/5 dark:hover:bg-white/10
-                "
-              >
-                {t("modal.cancel")}
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmUseCredits}
-                className="
-                  rounded-2xl px-3.5 py-1.5 text-xs md:text-sm font-semibold text-white
-                  bg-blue-600 hover:bg-blue-700
-                  dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
-                  shadow-sm hover:shadow-md
-                "
-              >
-                {t("modal.confirmButton", { credits: requiredCredits })}
-              </button>
-            </div>
-          </div>
-        </div>
+        <CreditConfirmModal
+          credits={requiredCredits}
+          onCancel={() => setShowCreditDialog(false)}
+          onConfirm={handleConfirmUseCredits}
+        />
+      )}
+
+      {showMetadataDialog && (
+        <MetadataDialog
+          initial={{
+            sourceUrl: "",
+            title: "",
+            channelName: "",
+            tags: [],
+            description: "",
+            thumbnailUrl: "",
+          }}
+          onClose={() => setShowMetadataDialog(false)}
+          onSave={handleSaveMetadata}
+        />
       )}
     </main>
   );

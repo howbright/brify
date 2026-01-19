@@ -1,11 +1,11 @@
 {
   "VideoToMapPage": {
     "title": {
-      "prefix": "Video script,",
-      "highlight": "turn it into a structure map automatically"
+      "prefix": "Turn text",
+      "highlight": "into a structured map automatically"
     },
     "description": {
-      "beforeBold": "Paste the full script from your YouTube, lecture or sermon video",
+      "beforeBold": "Paste the full script from your video",
       "bold": "just as it is,",
       "afterBold": "and we'll turn it into a diagram that makes the flow and hierarchy easy to see at a glance."
     },
@@ -58,9 +58,7 @@
   },
   "ScriptHelpSection": {
     "badge": "Help",
-    "headerTitle": "How to copy your video script",
-    "headerSubtitle": "Here’s how to copy the script from a YouTube video.",
-
+    "headerTitle": "How to copy your YouTube script",
     "sectionA": {
       "title": "Getting the script from YouTube (desktop)",
       "description": "Follow these steps and you can grab the full script in about 1–2 minutes."
@@ -212,7 +210,7 @@
   },
   "LandingPricingSection": {
     "title": "Simple, fair pricing",
-    "subtitle": "Pay-as-you-go credits. No subscriptions.",
+    "subtitle": "In most cases, one structure map requires just 1 credit.",
     "positioningText": "No subscription — pay only what you use.",
     "refundText": "Refunds on unused credits (within 7 days).",
     "seeDetails": "See all pricing details",
@@ -291,7 +289,7 @@
       "hide": "Hide"
     },
     "reassurance": {
-      "line1": "One credit is enough for most structure maps."
+       "line1": "No subscriptions · No auto-renewals."
     },
     "positioningText": "No subscription — pay only what you use."
   },

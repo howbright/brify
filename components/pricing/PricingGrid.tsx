@@ -1,19 +1,16 @@
 // components/pricing/PricingGrid.tsx
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
-import * as Tooltip from "@radix-ui/react-tooltip";
-import { useTranslations, useLocale } from "next-intl";
 
 export type Pack = {
   id: string;
-  credits: number; // 기본 지급 크레딧
-  priceUSD: number; // ⚠️ 통화에 상관 없는 "현재 모드의 금액" (KRW/ USD 둘 다 여기 들어옴)
+  credits: number;
+  priceUSD: number;
   unitUSD?: number;
   popular?: boolean;
-
-  // 가격경쟁력 옵션
   bonusPercent?: number;
   bonusCredits?: number;
   badgeText?: string;
@@ -26,6 +23,8 @@ type CreditRule = {
   items: { threshold: string; credits: number }[];
 };
 
+type PaymentMode = "krw" | "usd";
+
 type Props = {
   packs: Pack[];
   isAuthed: boolean;
@@ -37,27 +36,28 @@ type Props = {
   variant?: "default" | "compact";
   className?: string;
 
-  // 포지셔닝/환불 배지
   showPositioning?: boolean;
   positioningText?: string;
   showRefundBadge?: boolean;
   refundText?: string;
 
-  // 환불 정책 링크 + 툴팁 라인
   refundPolicyHref?: string;
   refundTooltipLines?: string[];
 
-  // 장문 멀티크레딧 규칙
   creditRule?: CreditRule;
   detailsLabel?: string;
   showCreditRuleByDefault?: boolean;
 
-  // 안심 카피
   showReassurance?: boolean;
   reassuranceLines?: string[];
 
-  // ✅ 통화 강제 모드 (토글용)
   billingCurrency?: "KRW" | "USD";
+
+  // ✅ 추가: 통화 토글(재사용 목적)
+  showCurrencyToggle?: boolean;
+  paymentMode?: PaymentMode; // controlled
+  onPaymentModeChange?: (mode: PaymentMode) => void;
+  currencyLabels?: { krw: string; usd: string };
 };
 
 function cx(...xs: (string | false | null | undefined)[]) {
@@ -86,6 +86,12 @@ export default function PricingGrid({
   showReassurance = true,
   reassuranceLines,
   billingCurrency,
+
+  // ✅ currency toggle
+  showCurrencyToggle = false,
+  paymentMode = "krw",
+  onPaymentModeChange,
+  currencyLabels = { krw: "KRW", usd: "USD" },
 }: Props) {
   const t = useTranslations("PricingGrid");
   const tLanding = useTranslations("LandingPricingSection");
@@ -132,72 +138,6 @@ export default function PricingGrid({
 
   return (
     <div className={className}>
-      {(showPositioning || showRefundBadge) && (
-        <div
-          className={cx(
-            "mb-4 flex flex-wrap items-center gap-2",
-            isCompact && "justify-center text-center"
-          )}
-        >
-          {showPositioning && (
-            <span className="inline-flex items-center rounded-full border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1 text-xs text-[var(--color-muted-foreground)]">
-              {labelPositioning}
-            </span>
-          )}
-
-          {showRefundBadge && (
-            <Tooltip.Provider delayDuration={80}>
-              <Tooltip.Root>
-                <Tooltip.Trigger asChild>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1 text-xs text-[var(--color-muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
-                    aria-label={t("refundTooltip.ariaLabel")}
-                  >
-                    {textRefund}
-                    <span
-                      className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full border border-[var(--color-border)] text-[var(--color-muted-foreground)]"
-                      aria-hidden
-                    >
-                      i
-                    </span>
-                  </button>
-                </Tooltip.Trigger>
-
-                <Tooltip.Content
-                  side="bottom"
-                  align="center"
-                  className="
-                    z-50 max-w-[300px] rounded-md
-                    border border-[var(--color-border,#e5e7eb)] dark:border-[var(--color-border,#1f2937)]
-                    bg-[var(--color-card,#ffffff)] dark:bg-[var(--color-card,#0b1224)]
-                    text-[var(--color-muted-foreground,#334155)] dark:text-[var(--color-muted-foreground,#cbd5e1)]
-                    px-3 py-2 text-xs shadow-md
-                    supports-[backdrop-filter]:backdrop-blur-[2px]
-                  "
-                >
-                  <div className="font-medium text-[var(--color-foreground)] mb-1">
-                    {t("refundTooltip.title")}
-                  </div>
-                  <ul className="list-disc pl-4 space-y-1">
-                    {tooltipLines.map((line, i) => (
-                      <li key={i}>{line}</li>
-                    ))}
-                  </ul>
-                  <Link
-                    href={refundPolicyHref}
-                    className="mt-2 inline-block underline text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)]"
-                  >
-                    {t("refundTooltip.linkLabel")}
-                  </Link>
-                  <Tooltip.Arrow className="fill-[var(--color-card)]" />
-                </Tooltip.Content>
-              </Tooltip.Root>
-            </Tooltip.Provider>
-          )}
-        </div>
-      )}
-
       {showReassurance && (
         <div className={cx("mb-4", isCompact && "mx-auto max-w-3xl")}>
           <div className="flex flex-col items-center gap-2 text-center">
@@ -226,6 +166,38 @@ export default function PricingGrid({
                 {reassurance[1]}
               </p>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ✅ 여기! (Landing/Billing 공용) KRW/USD 토글을 PricingGrid 내부로 이동 */}
+      {showCurrencyToggle && (
+        <div className="mb-3 flex justify-center sm:justify-end">
+          <div className="inline-flex rounded-full border border-[var(--color-border)] bg-[var(--color-card)] p-1 text-xs shadow-sm">
+            <button
+              type="button"
+              onClick={() => onPaymentModeChange?.("krw")}
+              className={[
+                "px-3 py-1.5 rounded-full transition-all",
+                paymentMode === "krw"
+                  ? "bg-[var(--color-primary-500)] text-white shadow"
+                  : "text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)]",
+              ].join(" ")}
+            >
+              {currencyLabels.krw}
+            </button>
+            <button
+              type="button"
+              onClick={() => onPaymentModeChange?.("usd")}
+              className={[
+                "px-3 py-1.5 rounded-full transition-all",
+                paymentMode === "usd"
+                  ? "bg-[var(--color-primary-500)] text-white shadow"
+                  : "text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)]",
+              ].join(" ")}
+            >
+              {currencyLabels.usd}
+            </button>
           </div>
         </div>
       )}
@@ -264,7 +236,6 @@ export default function PricingGrid({
               key={p.id}
               className={cx(
                 "flex h-full flex-col rounded-2xl border shadow-sm",
-                // ✅ 라이트는 흰 카드, 다크는 다크 카드(토큰 기반)
                 "bg-white text-neutral-900",
                 "dark:bg-[var(--color-card,#0b1224)] dark:text-[var(--color-card-foreground,#e5e7eb)]",
                 isCompact ? "p-4" : "p-5",

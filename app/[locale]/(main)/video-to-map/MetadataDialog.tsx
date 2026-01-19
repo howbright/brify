@@ -1,0 +1,336 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { Icon } from "@iconify/react";
+
+type Meta = {
+  sourceUrl?: string;
+  title: string;
+  channelName?: string;
+  thumbnailUrl?: string;
+  tags: string[];
+  description?: string;
+};
+
+function isYouTubeUrl(url: string) {
+  const u = url.toLowerCase();
+  return u.includes("youtube.com") || u.includes("youtu.be");
+}
+
+function splitTags(input: string) {
+  return input
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .slice(0, 12);
+}
+
+type Props = {
+  initial: {
+    sourceUrl?: string;
+    title?: string;
+    channelName?: string;
+    thumbnailUrl?: string;
+    tags?: string[];
+    description?: string;
+  };
+  onClose: () => void;
+  onSave: (meta: Meta) => void;
+};
+
+export default function MetadataDialog({ initial, onClose, onSave }: Props) {
+  const [sourceUrl, setSourceUrl] = useState(initial.sourceUrl ?? "");
+  const [title, setTitle] = useState(initial.title ?? "");
+  const [channelName, setChannelName] = useState(initial.channelName ?? "");
+  const [thumbnailUrl, setThumbnailUrl] = useState(initial.thumbnailUrl ?? "");
+  const [tagInput, setTagInput] = useState((initial.tags ?? []).join(", "));
+  const [description, setDescription] = useState(initial.description ?? "");
+
+  const youtube = useMemo(() => isYouTubeUrl(sourceUrl), [sourceUrl]);
+
+  // ✅ 프로토타입: 유튜브 URL이면 “자동 추출 모킹”
+  const mockFetchYouTubeMeta = () => {
+    // 실제론 서버에서 oEmbed or 자체 크롤링/메타 추출을 하겠지만,
+    // 프로토타입이니까 여기서 그냥 값 채워 넣자.
+    const mock = {
+      title: "【Mock】유튜브 영상 제목이 자동으로 들어옴",
+      channelName: "【Mock】Channel Name",
+      thumbnailUrl:
+        "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+    };
+    if (!title) setTitle(mock.title);
+    if (!channelName) setChannelName(mock.channelName);
+    if (!thumbnailUrl) setThumbnailUrl(mock.thumbnailUrl);
+  };
+
+  useEffect(() => {
+    if (youtube) {
+      // URL 붙여넣는 즉시 “자동 추출” 느낌(모킹)
+      mockFetchYouTubeMeta();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [youtube]);
+
+  const handlePickThumbFile = (file: File | null) => {
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setThumbnailUrl(url);
+  };
+
+  const handleSave = () => {
+    const meta: Meta = {
+      sourceUrl: sourceUrl.trim() || undefined,
+      title: (title || "").trim() || "Untitled",
+      channelName: channelName.trim() || undefined,
+      thumbnailUrl: thumbnailUrl.trim() || undefined,
+      tags: splitTags(tagInput),
+      description: description.trim() || undefined,
+    };
+    onSave(meta);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50">
+      {/* backdrop */}
+      <div
+        className="absolute inset-0 bg-black/55 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* dialog */}
+      <div className="absolute inset-0 flex items-center justify-center p-4">
+        <div
+          className="
+            w-full max-w-2xl
+            rounded-3xl
+            bg-white/98 border border-neutral-200
+            shadow-[0_26px_90px_-40px_rgba(15,23,42,0.9)]
+            dark:bg-[#020617]/98 dark:border-white/12
+            overflow-hidden
+          "
+        >
+          {/* header */}
+          <div className="px-5 md:px-6 py-4 border-b border-neutral-200 dark:border-white/10 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="h-9 w-9 rounded-2xl bg-blue-600 text-white flex items-center justify-center">
+                <Icon icon="mdi:information-outline" className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="font-semibold text-neutral-900 dark:text-white">
+                  콘텐츠 정보 입력
+                </p>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  구조맵 생성이 진행되는 동안 미리 입력해두자
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={onClose}
+              className="rounded-xl p-2 hover:bg-neutral-100 dark:hover:bg-white/10"
+              aria-label="close"
+            >
+              <Icon icon="mdi:close" className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* body */}
+          <div className="px-5 md:px-6 py-5 grid gap-4">
+            {/* URL */}
+            <div className="grid gap-1.5">
+              <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">
+                URL (선택)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  value={sourceUrl}
+                  onChange={(e) => setSourceUrl(e.target.value)}
+                  placeholder="https://youtube.com/watch?v=..."
+                  className="
+                    flex-1 rounded-2xl border border-neutral-200 bg-neutral-50
+                    px-3 py-2 text-sm
+                    dark:border-white/12 dark:bg-black/35
+                  "
+                />
+                <button
+                  type="button"
+                  onClick={mockFetchYouTubeMeta}
+                  disabled={!youtube}
+                  className="
+                    rounded-2xl px-3 py-2 text-sm font-semibold
+                    border border-neutral-200 bg-white hover:bg-neutral-50
+                    disabled:opacity-40 disabled:cursor-not-allowed
+                    dark:border-white/12 dark:bg-white/5 dark:hover:bg-white/10
+                  "
+                >
+                  유튜브 자동추출(모킹)
+                </button>
+              </div>
+              {youtube ? (
+                <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                  유튜브 URL이라면 제목/채널/썸네일을 자동으로 채울 수 있어.
+                </p>
+              ) : (
+                <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                  유튜브 URL이 아니면 아래 항목을 직접 입력하면 돼.
+                </p>
+              )}
+            </div>
+
+            {/* Title + Channel */}
+            <div className="grid md:grid-cols-2 gap-3">
+              <div className="grid gap-1.5">
+                <label className="text-xs font-semibold">제목</label>
+                <input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="예: 창세기 강해 1강"
+                  className="
+                    rounded-2xl border border-neutral-200 bg-neutral-50
+                    px-3 py-2 text-sm
+                    dark:border-white/12 dark:bg-black/35
+                  "
+                />
+              </div>
+
+              <div className="grid gap-1.5">
+                <label className="text-xs font-semibold">채널/출처</label>
+                <input
+                  value={channelName}
+                  onChange={(e) => setChannelName(e.target.value)}
+                  placeholder="예: OO교회 / OO강사"
+                  className="
+                    rounded-2xl border border-neutral-200 bg-neutral-50
+                    px-3 py-2 text-sm
+                    dark:border-white/12 dark:bg-black/35
+                  "
+                />
+              </div>
+            </div>
+
+            {/* Thumbnail */}
+            <div className="grid gap-1.5">
+              <label className="text-xs font-semibold">썸네일</label>
+
+              <div className="flex items-center gap-3">
+                <div
+                  className="
+                    h-16 w-28 rounded-2xl overflow-hidden
+                    border border-neutral-200 bg-neutral-50
+                    dark:border-white/12 dark:bg-black/35
+                  "
+                >
+                  {thumbnailUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={thumbnailUrl}
+                      alt="thumbnail"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center text-[11px] text-neutral-400">
+                      no image
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 grid gap-2">
+                  <input
+                    value={thumbnailUrl}
+                    onChange={(e) => setThumbnailUrl(e.target.value)}
+                    placeholder="(선택) 썸네일 URL"
+                    className="
+                      rounded-2xl border border-neutral-200 bg-neutral-50
+                      px-3 py-2 text-sm
+                      dark:border-white/12 dark:bg-black/35
+                    "
+                  />
+                  <div className="flex items-center gap-2">
+                    <label
+                      className="
+                        inline-flex items-center gap-2 cursor-pointer
+                        rounded-2xl px-3 py-2 text-sm font-semibold
+                        border border-neutral-200 bg-white hover:bg-neutral-50
+                        dark:border-white/12 dark:bg-white/5 dark:hover:bg-white/10
+                      "
+                    >
+                      <Icon icon="mdi:upload" className="h-4 w-4" />
+                      썸네일 업로드
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handlePickThumbFile(e.target.files?.[0] ?? null)}
+                      />
+                    </label>
+                    <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                      프로토타입: 로컬 미리보기만
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tags */}
+            <div className="grid gap-1.5">
+              <label className="text-xs font-semibold">태그</label>
+              <input
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                placeholder="예: 설교, 창세기, 제자훈련 (쉼표로 구분)"
+                className="
+                  rounded-2xl border border-neutral-200 bg-neutral-50
+                  px-3 py-2 text-sm
+                  dark:border-white/12 dark:bg-black/35
+                "
+              />
+              <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                쉼표로 구분해서 입력하면 태그 배열로 저장돼.
+              </p>
+            </div>
+
+            {/* Description */}
+            <div className="grid gap-1.5">
+              <label className="text-xs font-semibold">설명</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="이 구조맵에 대한 메모/요약/설명…"
+                className="
+                  min-h-[110px] resize-y rounded-2xl
+                  border border-neutral-200 bg-neutral-50
+                  px-3 py-2 text-sm
+                  dark:border-white/12 dark:bg-black/35
+                "
+              />
+            </div>
+          </div>
+
+          {/* footer */}
+          <div className="px-5 md:px-6 py-4 border-t border-neutral-200 dark:border-white/10 flex justify-end gap-2">
+            <button
+              onClick={onClose}
+              className="
+                rounded-2xl px-3.5 py-2 text-sm
+                border border-neutral-300 bg-white hover:bg-neutral-100
+                dark:border-white/20 dark:bg-white/5 dark:hover:bg-white/10
+              "
+            >
+              나중에
+            </button>
+            <button
+              onClick={handleSave}
+              className="
+                rounded-2xl px-4 py-2 text-sm font-semibold text-white
+                bg-blue-600 hover:bg-blue-700
+                dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+              "
+            >
+              저장하고 계속
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,13 +1,13 @@
 {
   "VideoToMapPage": {
     "title": {
-      "prefix": "영상 스크립트,",
-      "highlight": "구조맵으로 자동 변환해요"
+      "prefix": "텍스트를,",
+      "highlight": "구조맵으로 자동 변환해 드립니다"
     },
     "description": {
-      "beforeBold": "유튜브/강의/설교 영상의 스크립트를",
-      "bold": "그대로 붙여넣기만 하시면,",
-      "afterBold": "흐름과 계층 구조까지 한눈에 보이도록 다이어그램으로 바꿔 드려요."
+      "beforeBold": "영상 스크립트나 긴 글을",
+      "bold": "그대로 붙여넣기만 하세요.",
+      "afterBold": "복잡한 내용을 흐름과 계층 구조가 보이는 다이어그램으로 바꿔 드립니다."
     },
     "inputSection": {
       "title": "영상 스크립트 붙여넣기",
@@ -58,9 +58,7 @@
   },
   "ScriptHelpSection": {
     "badge": "도움말",
-    "headerTitle": "영상 스크립트 가져오는 방법",
-    "headerSubtitle": "YouTube 스크립트를 복사하는 방법을 안내해 드려요.",
-
+    "headerTitle": "YouTube 스크립트 가져오는 방법",
     "sectionA": {
       "title": "YouTube에서 스크립트 가져오기 (PC 기준)",
       "description": "아래 순서를 천천히 따라오시면 1–2분 안에 스크립트를 가져오실 수 있어요."
@@ -212,7 +210,7 @@
   },
   "LandingPricingSection": {
     "title": "단순하고 공정한 크레딧 요금제",
-    "subtitle": "필요할 때마다 충전해서 사용하는 선불 크레딧. 구독은 없습니다.",
+    "subtitle": "대부분의 경우 구조 맵 하나에 1크레딧이면 충분합니다.",
     "positioningText": "구독 없이, 사용한 만큼만 결제하세요.",
     "refundText": "사용하지 않은 크레딧은 7일 이내 환불 가능합니다.",
     "seeDetails": "요금 자세히 보기",
@@ -291,7 +289,7 @@
       "hide": "접기"
     },
     "reassurance": {
-      "line1": "구조맵 하나당 1크레딧이면 충분해요."
+      "line1": "정기구독 없음 · 자동결제 없음"
     },
     "positioningText": "구독 없이, 사용한 만큼만 결제하세요."
   },

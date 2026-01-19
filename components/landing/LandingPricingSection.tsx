@@ -3,7 +3,7 @@
 
 import PricingGrid, { Pack } from "@/components/pricing/PricingGrid";
 import { useTranslations, useLocale } from "next-intl";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 type Props = {
   isAuthed: boolean;
@@ -33,19 +33,17 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
     isKorean ? "krw" : "usd"
   );
 
-  const effectivePacks: Pack[] =
-    packs ??
-    (isKorean ? (paymentMode === "krw" ? KRW_PACKS : USD_PACKS) : USD_PACKS);
+  const effectivePacks: Pack[] = useMemo(() => {
+    // packs를 외부에서 주면 토글 의미가 없으니 그대로 사용
+    if (packs) return packs;
+    if (!isKorean) return USD_PACKS;
+    return paymentMode === "krw" ? KRW_PACKS : USD_PACKS;
+  }, [packs, isKorean, paymentMode]);
 
-  const signedInHref =
-    paymentMode === "krw" && isKorean
-      ? "/billing?currency=krw"
-      : "/billing?currency=usd";
+  const currency = paymentMode === "usd" ? "usd" : "krw";
 
-  const signedOutHref =
-    paymentMode === "krw" && isKorean
-      ? "/login?currency=krw"
-      : "/login?currency=usd";
+  const signedInHref = `/billing?currency=${currency}`;
+  const signedOutHref = `/login?currency=${currency}`;
 
   return (
     <section id="pricing" className="relative overflow-hidden">
@@ -112,42 +110,10 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
           </p>
         </div>
 
-        {/* 🔁 한국어일 때만 KRW / USD 토글 */}
-        {isKorean && !packs && (
-          <div className="mt-5 flex justify-center">
-            <div className="inline-flex rounded-full border border-[var(--color-border)] bg-[var(--color-card)] p-1 text-xs shadow-sm">
-              <button
-                type="button"
-                onClick={() => setPaymentMode("krw")}
-                className={[
-                  "px-3 py-1.5 rounded-full transition-all",
-                  paymentMode === "krw"
-                    ? "bg-[var(--color-primary-500)] text-white shadow"
-                    : "text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)]",
-                ].join(" ")}
-              >
-                {t("paymentToggle.krw")}
-              </button>
-              <button
-                type="button"
-                onClick={() => setPaymentMode("usd")}
-                className={[
-                  "px-3 py-1.5 rounded-full transition-all",
-                  paymentMode === "usd"
-                    ? "bg-[var(--color-primary-500)] text-white shadow"
-                    : "text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)]",
-                ].join(" ")}
-              >
-                {t("paymentToggle.usd")}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ✅ Wrapper: border 제거(가장자리 선 없앰). 배경은 투명 유지 */}
+        {/* ✅ Wrapper */}
         <div
           className="
-            mt-8 rounded-3xl
+            rounded-3xl
             bg-transparent
             backdrop-blur-[2px]
             shadow-none
@@ -162,9 +128,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
               variant="compact"
               showFooterNote={false}
               showPositioning
-              positioningText={t("positioningText")}
               showRefundBadge
-              refundText={t("refundText")}
               billingCurrency={paymentMode === "usd" ? "USD" : "KRW"}
               creditRule={{
                 items: [
@@ -172,6 +136,14 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
                   { threshold: t("creditRule.items.medium.threshold"), credits: 2 },
                   { threshold: t("creditRule.items.large.threshold"), credits: 3 },
                 ],
+              }}
+              // ✅ 토글을 PricingGrid가 렌더하도록 넘겨줌
+              showCurrencyToggle={isKorean && !packs}
+              paymentMode={paymentMode}
+              onPaymentModeChange={setPaymentMode}
+              currencyLabels={{
+                krw: t("paymentToggle.krw"),
+                usd: t("paymentToggle.usd"),
               }}
             />
           </div>

@@ -45,9 +45,6 @@ export default function ScriptHelpSection({
           >
             {t("headerTitle")}
           </h2>
-          <p className="text-[13px] md:text-sm text-neutral-500 dark:text-neutral-400">
-            {t("headerSubtitle")}
-          </p>
         </div>
 
         <Icon

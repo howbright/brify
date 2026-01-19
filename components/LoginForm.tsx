@@ -2,13 +2,14 @@
 
 import { createClient } from "@/utils/supabase/client";
 import { Icon } from "@iconify/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function LoginForm() {
   const supabase = createClient();
   const t = useTranslations("login");
+  const locale = useLocale(); // e.g. "ko", "en", ...
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -39,6 +40,8 @@ export default function LoginForm() {
           redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent(
             next
           )}`,
+          // (참고) OAuth는 이메일 템플릿을 안 타는 경우가 많아서
+          // language를 템플릿에 심는 목적이라면 OTP 흐름에서 주로 필요함.
         },
       });
 
@@ -58,11 +61,14 @@ export default function LoginForm() {
     e.preventDefault();
     setIsSubmitting(true);
     setMessage("");
+    const lang = locale === "ko" ? "ko" : "en"; // ✅ submit 시점에 확정
 
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
         shouldCreateUser: true,
+        // ✅ 이메일 템플릿에서 {{ .Data.language }} 로 접근 가능
+        data: { language: lang },
       },
     });
 
@@ -98,13 +104,24 @@ export default function LoginForm() {
       setMessageType("error");
       return;
     }
+    const lang = locale === "ko" ? "ko" : "en"; // ✅ submit 시점에 확정
+
+    // ✅ (권장) 예전에 가입한 유저/메타데이터 없는 유저 대비:
+    // OTP 성공 후 user_metadata에 language를 저장해두면,
+    // 다음 이메일 템플릿에서도 안정적으로 언어 분기 가능
+    try {
+      await supabase.auth.updateUser({
+        data: { language: lang },
+      });
+    } catch {
+      // 언어 저장 실패는 로그인 자체를 막을 필요는 없으니 무시
+    }
 
     setIsSubmitting(false);
     setMessageType("success");
     setMessage(t("messages.verifySuccessMoving"));
 
-    const next =
-      new URLSearchParams(window.location.search).get("next") ?? "/";
+    const next = new URLSearchParams(window.location.search).get("next") ?? "/";
     router.push(`/auth/callback?next=${encodeURIComponent(next)}`);
   };
 

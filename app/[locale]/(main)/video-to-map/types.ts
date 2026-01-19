@@ -1,0 +1,23 @@
+export type MapJobStatus = "processing" | "done" | "failed";
+
+export type MapDraft = {
+  id: string;
+  createdAt: number;
+
+  // user 입력/자동추출 메타
+  sourceUrl?: string;
+  title: string;
+  channelName?: string;
+  tags: string[];
+  description?: string;
+
+  // 썸네일: 프로토타입이라 URL or 로컬 미리보기
+  thumbnailUrl?: string;
+
+  // 작업 상태
+  status: MapJobStatus;
+
+  // 결과(가짜)
+  result?: any;
+  error?: string;
+};
