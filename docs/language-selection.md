@@ -76,3 +76,10 @@ if (!quickOptions.includes(value)) {
     ...quickOptions,
   ];
 }
+
+
+
+## 7. 관련 커밋
+
+- 출력 언어 선택 UI 추가  
+  commit: 1f01b0e
