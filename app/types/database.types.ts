@@ -515,6 +515,54 @@ export type Database = {
           },
         ]
       }
+      youtube_scripts: {
+        Row: {
+          channel_name: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          language: string | null
+          script_raw: string | null
+          status: string
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string
+          url: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          channel_name?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          language?: string | null
+          script_raw?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          title?: string | null
+          updated_at?: string
+          url: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          channel_name?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          language?: string | null
+          script_raw?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          title?: string | null
+          updated_at?: string
+          url?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

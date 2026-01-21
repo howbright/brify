@@ -10,6 +10,8 @@ import DraftMapCard from "./DraftMapCard";
 import CreditConfirmModal from "./CreditConfirmModal";
 import MetadataDialog from "./MetadataDialog";
 import YoutubeScriptDialog from "./YoutubeScriptDialog";
+import { createClient } from "@/utils/supabase/client"; // ✅ 너 경로에 맞게!
+
 
 const LONG_SCRIPT_THRESHOLD = 6000;
 const MOCK_CURRENT_CREDITS = 42;
@@ -24,42 +26,6 @@ function genId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-/**
- * ✅ 프로토타입용: 유튜브 URL에서 스크립트를 "가져오는 척" 합니다.
- * - 실데이터/실API 신경 X
- * - UX 플로우 검증용
- * - 사용자 노출 문구는 존대말 유지
- */
-async function mockFetchYoutubeScript(url: string) {
-  await new Promise((r) => setTimeout(r, 900));
-
-  const u = url.trim();
-  if (!u) throw new Error("유튜브 URL을 입력해 주세요.");
-
-  const isYoutube = u.includes("youtube.com") || u.includes("youtu.be");
-  if (!isYoutube) {
-    throw new Error(
-      "유효한 유튜브 링크가 아닌 것 같습니다. (youtube.com / youtu.be)"
-    );
-  }
-
-  return `# (데모) 유튜브 스크립트 추출 결과
-
-- 이 텍스트는 “유튜브 URL로도 시도 가능” 경험을 보여드리기 위한 더미입니다.
-- 실제 연결 시 이 자리에는 영상 자막/스크립트가 들어오게 됩니다.
-
-[인트로]
-안녕하세요. 오늘은 Video-to-Map 플로우를 더 자연스럽게 개선해 보겠습니다.
-
-[핵심]
-1) 텍스트 붙여넣기가 기본입니다.
-2) 텍스트가 없으시면 URL로도 시도하실 수 있습니다.
-3) 성공하면 입력칸에 자동으로 채워 드립니다.
-
-[마무리]
-이제 “생성하기”를 눌러 다음 단계로 진행해 주세요.
-`;
-}
 
 export default function VideoToMapPage() {
   const t = useTranslations("VideoToMapPage");
@@ -95,6 +61,14 @@ export default function VideoToMapPage() {
   const [youtubeError, setYoutubeError] = useState<string | null>(null);
   const [youtubeSuccess, setYoutubeSuccess] = useState<string | null>(null);
   const [outputLang, setOutputLang] = useState("auto");
+
+  const [youtubeMeta, setYoutubeMeta] = useState<{
+    sourceUrl?: string;
+    title?: string | null;
+    channelName?: string | null;
+    thumbnailUrl?: string | null;
+  } | null>(null);
+  
 
   const statusMessages = useMemo(
     () => [
@@ -137,19 +111,77 @@ export default function VideoToMapPage() {
   const handleFetchYoutube = async () => {
     setYoutubeError(null);
     setYoutubeSuccess(null);
-
+  
     try {
       setIsFetchingYoutube(true);
-      const text = await mockFetchYoutubeScript(youtubeUrl);
+  
+      const u = youtubeUrl.trim();
+      if (!u) throw new Error("유튜브 URL을 입력해 주세요.");
+  
+      // ✅ 1) 브라우저 Supabase 세션에서 access_token 가져오기
+      const supabase = createClient();
+      const { data: sessionData, error: sessionErr } =
+        await supabase.auth.getSession();
+  
+      if (sessionErr) {
+        throw new Error("세션을 가져오지 못했습니다: " + sessionErr.message);
+      }
+  
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        throw new Error("로그인이 필요합니다.");
+      }
+  
+      // ✅ 2) Nest API 호출 (Bearer 토큰)
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!base) {
+        throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
+      }
+  
+      const res = await fetch(`${base}/youtube-scripts/fetch`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          youtubeUrl: u,
+          preferredLang: outputLang === "auto" ? undefined : outputLang,
+        }),
+      });
+  
+      const json = await res.json().catch(() => ({}));
+  
+      if (!res.ok) {
+        const msg =
+          json?.message || json?.error || "스크립트를 가져오지 못했습니다.";
+        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+      }
+  
+      // ✅ 3) previewText를 입력칸에 채우기
+      const previewText = String(json?.previewText ?? "");
+      if (!previewText.trim()) {
+        throw new Error(
+          "자막/스크립트를 찾지 못했습니다. (영상에 자막이 없을 수 있어요)"
+        );
+      }
+  
+      setScriptText(previewText);
+      setYoutubeMeta({
+        sourceUrl: u,
+        title: json?.title ?? "",
+        channelName: json?.channelName ?? "",
+        thumbnailUrl: json?.thumbnailUrl ?? "",
+      });
+      
 
-      setScriptText(text);
       setError(null);
-
+  
       setYoutubeSuccess(
         "스크립트를 가져와 입력칸에 채워 드렸습니다. 이제 바로 생성하실 수 있습니다."
       );
-
-      // ✅ 성공하면 0.6초 후 자동 닫기 (성공 메시지 잠깐 보여주고)
+  
+      // ✅ 성공하면 0.6초 후 자동 닫기
       setTimeout(() => {
         setShowYoutubeDialog(false);
         setYoutubeSuccess(null);
@@ -160,6 +192,8 @@ export default function VideoToMapPage() {
       setIsFetchingYoutube(false);
     }
   };
+  
+  
 
   // ✅ (2) 크레딧 확인 후: “작업 시작(모킹)” + “메타데이터 팝업 열기”
   const handleConfirmUseCredits = async () => {
@@ -235,6 +269,9 @@ export default function VideoToMapPage() {
     setShowMetadataDialog(false);
     pendingJobIdRef.current = null;
     pendingScriptRef.current = "";
+
+    setYoutubeMeta(null);
+  
   };
 
   return (
@@ -367,17 +404,17 @@ export default function VideoToMapPage() {
 
       {showMetadataDialog && (
         <MetadataDialog
-          initial={{
-            sourceUrl: "",
-            title: "",
-            channelName: "",
-            tags: [],
-            description: "",
-            thumbnailUrl: "",
-          }}
-          onClose={() => setShowMetadataDialog(false)}
-          onSave={handleSaveMetadata}
-        />
+        initial={{
+          sourceUrl: youtubeMeta?.sourceUrl ?? "",
+          title: youtubeMeta?.title ?? "",
+          channelName: youtubeMeta?.channelName ?? "",
+          tags: [],
+          description: "",
+          thumbnailUrl: youtubeMeta?.thumbnailUrl ?? "",
+        }}
+        onClose={() => setShowMetadataDialog(false)}
+        onSave={handleSaveMetadata}
+      />
       )}
     </main>
   );
