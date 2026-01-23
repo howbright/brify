@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
+
 import { MapDraft } from "./types";
 import ScriptInputCard from "./ScriptInputCard";
 import ScriptHelpSection from "../video-to-map2/ScriptHelpSection";
@@ -10,6 +12,8 @@ import DraftMapCard from "./DraftMapCard";
 import CreditConfirmModal from "./CreditConfirmModal";
 import MetadataDialog from "./MetadataDialog";
 import YoutubeScriptDialog from "./YoutubeScriptDialog";
+import ResultReadyPanel from "./ResultReadyPanel";
+
 import { createClient } from "@/utils/supabase/client"; // ✅ 너 경로에 맞게!
 
 const LONG_SCRIPT_THRESHOLD = 6000;
@@ -27,6 +31,8 @@ function genId() {
 
 export default function VideoToMapPage() {
   const t = useTranslations("VideoToMapPage");
+  const locale = useLocale();
+  const router = useRouter();
 
   const [scriptText, setScriptText] = useState("");
 
@@ -66,6 +72,10 @@ export default function VideoToMapPage() {
     channelName?: string | null;
     thumbnailUrl?: string | null;
   } | null>(null);
+
+  // ✅ (1) 완료 즉시: 입력 영역을 결과 패널로 교체하기 위한 상태
+  const [viewMode, setViewMode] = useState<"input" | "result">("input");
+  const [lastJobId, setLastJobId] = useState<string | null>(null);
 
   const statusMessages = useMemo(
     () => [
@@ -134,7 +144,6 @@ export default function VideoToMapPage() {
       if (!base) {
         throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
       }
-      console.log(base);
 
       const res = await fetch(`${base}/youtube-scripts/fetch`, {
         method: "POST",
@@ -153,16 +162,14 @@ export default function VideoToMapPage() {
       if (!res.ok) {
         const msg =
           json?.message || json?.error || "스크립트를 가져오지 못했습니다.";
-        throw new Error(
-          typeof msg === "string" ? msg : msg?.[0] || "요청 실패"
-        );
+        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
       }
 
       // ✅ 3) previewText를 입력칸에 채우기
       const previewText = String(json?.previewText ?? "");
       if (!previewText.trim()) {
         throw new Error(
-          "자막/스크립트를 찾지 못했습니다. (영상에 자막이 없을 수 있어요)"
+          "자막/스크립트를 찾지 못했습니다. (영상에 자막이 없을 수 있습니다.)"
         );
       }
 
@@ -210,6 +217,9 @@ export default function VideoToMapPage() {
     setIsProcessing(true);
     setShowMetadataDialog(true);
 
+    // ✅ (중요) 처리 시작 시점에는 input 모드 유지
+    setViewMode("input");
+
     setTimeout(() => {
       setDrafts((prev) => {
         const idx = prev.findIndex((d) => d.id === jobId);
@@ -226,6 +236,10 @@ export default function VideoToMapPage() {
       });
 
       setIsProcessing(false);
+
+      // ✅ (3) 완료 즉시: 결과 패널로 교체
+      setLastJobId(jobId);
+      setViewMode("result");
     }, 9000);
   };
 
@@ -317,23 +331,42 @@ export default function VideoToMapPage() {
             }
           `}
         >
-          <ScriptInputCard
-            scriptText={scriptText}
-            setScriptText={setScriptText}
-            error={error}
-            isProcessing={isProcessing}
-            currentCredits={currentCredits}
-            requiredCredits={requiredCredits}
-            onGenerate={handleClickGenerate}
-            onOpenYoutubeDialog={() => {
-              setYoutubeError(null);
-              setYoutubeSuccess(null);
-              setShowYoutubeDialog(true);
-            }}
-            outputLang={outputLang}
-            setOutputLang={setOutputLang}
-          />
-
+          {/* ✅ (1)(2)(3) 입력영역 ↔ 결과패널 교체 */}
+          {viewMode === "input" ? (
+            <ScriptInputCard
+              scriptText={scriptText}
+              setScriptText={setScriptText}
+              error={error}
+              isProcessing={isProcessing}
+              currentCredits={currentCredits}
+              requiredCredits={requiredCredits}
+              onGenerate={handleClickGenerate}
+              onOpenYoutubeDialog={() => {
+                setYoutubeError(null);
+                setYoutubeSuccess(null);
+                setShowYoutubeDialog(true);
+              }}
+              outputLang={outputLang}
+              setOutputLang={setOutputLang}
+              disabled={showMetadataDialog} // ✅ 이미 적용한 잠금
+            />
+          ) : (
+            <ResultReadyPanel
+              draft={drafts.find((d) => d.id === lastJobId) ?? null}
+              onOpen={() => {
+                if (!lastJobId) return;
+                // ✅ 상세 페이지로 이동: /[locale]/maps/[id]
+                router.push(`/${locale}/maps/${lastJobId}`);
+              }}
+              onCreateNew={() => {
+                setViewMode("input");
+                setLastJobId(null);
+                // (선택) 새로 시작 시 입력 초기화하고 싶으면:
+                // setScriptText("");
+                // setYoutubeMeta(null);
+              }}
+            />
+          )}
           <div className="flex flex-col gap-4">
             <ScriptHelpSection
               isHelpOpen={isHelpOpen}
@@ -345,9 +378,7 @@ export default function VideoToMapPage() {
         {drafts.length > 0 && (
           <section className="mt-2 space-y-3">
             <div className="flex items-end justify-between gap-2">
-              <h2 className="text-base md:text-lg font-semibold">
-                만든 구조맵
-              </h2>
+              <h2 className="text-base md:text-lg font-semibold">만든 구조맵</h2>
               <span className="text-xs text-neutral-500 dark:text-neutral-400">
                 프로토타입: DB 없이 임시 저장
               </span>

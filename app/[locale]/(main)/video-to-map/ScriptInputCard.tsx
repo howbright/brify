@@ -17,6 +17,9 @@ type Props = {
   // ✅ 출력 언어 state (부모에서 관리)
   outputLang: string;
   setOutputLang: (v: string) => void;
+
+  // ✅ 추가: 입력 잠금 (메타다이얼로그가 열렸을 때 true)
+  disabled?: boolean;
 };
 
 export default function ScriptInputCard({
@@ -30,10 +33,14 @@ export default function ScriptInputCard({
   onOpenYoutubeDialog,
   outputLang,
   setOutputLang,
+  disabled = false,
 }: Props) {
+  const locked = disabled || isProcessing;
+
   return (
     <section
       className="
+        relative
         mt-1 rounded-3xl border border-neutral-200 bg-white
         shadow-[0_22px_45px_-24px_rgba(15,23,42,0.55)]
         backdrop-blur-sm
@@ -41,6 +48,30 @@ export default function ScriptInputCard({
         p-5 md:p-6 flex flex-col gap-4
       "
     >
+      {/* ✅ 잠금 오버레이: 메타다이얼로그 열림/처리중일 때 입력 영역 전체 잠금 */}
+      {locked && (
+        <div
+          className="
+            absolute inset-0 z-20 rounded-3xl
+            bg-white/55 backdrop-blur-sm
+            dark:bg-black/35
+          "
+        >
+          <div className="absolute inset-0 flex items-center justify-center p-4">
+            <div
+              className="
+                rounded-2xl border border-neutral-200 bg-white/90
+                px-4 py-3 text-sm font-semibold text-neutral-800
+                shadow-[0_18px_60px_-40px_rgba(15,23,42,0.6)]
+                dark:border-white/12 dark:bg-white/[0.06] dark:text-white
+              "
+            >
+              작업이 진행 중입니다. 잠시만 기다려 주세요.
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 상단: 제목 (좌) + 유튜브 옵션 버튼 (우) */}
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
@@ -50,7 +81,7 @@ export default function ScriptInputCard({
         <button
           type="button"
           onClick={onOpenYoutubeDialog}
-          disabled={isProcessing}
+          disabled={locked}
           className="
             inline-flex items-center gap-1.5
             rounded-full border border-neutral-200 bg-neutral-50
@@ -75,10 +106,12 @@ export default function ScriptInputCard({
           placeholder:text-neutral-400
           focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
           dark:border-white/12 dark:bg-black/40 dark:text-neutral-50 dark:placeholder:text-neutral-500
+          disabled:opacity-60 disabled:cursor-not-allowed
         "
         placeholder="여기에 텍스트를 그대로 붙여 넣어 주세요."
         value={scriptText}
         onChange={(e) => setScriptText(e.target.value)}
+        disabled={locked}
       />
 
       {error && <p className="text-sm text-red-500">{error}</p>}
@@ -96,7 +129,7 @@ export default function ScriptInputCard({
           <OutputLanguageSelect
             value={outputLang}
             onChange={setOutputLang}
-            disabled={isProcessing}
+            disabled={locked}
           />
         </div>
 
@@ -104,7 +137,7 @@ export default function ScriptInputCard({
         <button
           type="button"
           onClick={onGenerate}
-          disabled={!scriptText.trim() || isProcessing}
+          disabled={!scriptText.trim() || locked}
           className="
             inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-2.5
             text-sm md:text-[15px] font-semibold text-white
