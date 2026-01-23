@@ -6,26 +6,39 @@ type Props = {
   onConfirm: () => void;
 };
 
-export default function CreditConfirmModal({ credits, onCancel, onConfirm }: Props) {
+export default function CreditConfirmModal({
+  credits,
+  onCancel,
+  onConfirm,
+}: Props) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-sm">
       <div
         className="
+          relative overflow-hidden
           w-full max-w-md rounded-3xl
           bg-white/98 border border-neutral-200
           shadow-[0_24px_70px_-30px_rgba(15,23,42,0.85)]
           p-5 md:p-6
-          dark:bg-[#020617]/98 dark:border-white/12
+
+          /* ✅ 다크모드: 바닥색보다 한 톤 밝은 '카드' 표면 */
+          dark:bg-[#0b1220]
+          dark:border-white/12
+          dark:shadow-[0_24px_90px_-40px_rgba(0,0,0,0.75)]
         "
       >
-        <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white mb-2.5">
+        {/* subtle highlight layer (다크에서 '시커먼 덩어리' 느낌 완화) */}
+        <div className="pointer-events-none absolute inset-0 bg-white/0 dark:bg-white/[0.03]" />
+
+        <h2 className="relative text-base md:text-lg font-semibold text-neutral-900 dark:text-white mb-2.5">
           크레딧 사용
         </h2>
-        <p className="text-sm md:text-[15px] text-neutral-700 dark:text-neutral-200 mb-4">
-          이번 작업에 <span className="font-semibold">{credits}</span> 크레딧이 사용돼.
+        <p className="relative text-sm md:text-[15px] text-neutral-700 dark:text-white/80 mb-4">
+          이번 작업에 <span className="font-semibold">{credits}</span> 크레딧이
+          사용됩니다.
         </p>
 
-        <div className="flex justify-end gap-2">
+        <div className="relative flex justify-end gap-2">
           <button
             type="button"
             onClick={onCancel}
@@ -33,11 +46,16 @@ export default function CreditConfirmModal({ credits, onCancel, onConfirm }: Pro
               rounded-2xl px-3 py-1.5 text-xs md:text-sm text-neutral-700
               border border-neutral-300 bg-white
               hover:bg-neutral-100
-              dark:text-neutral-100 dark:border-white/20 dark:bg-white/5 dark:hover:bg-white/10
+
+              dark:text-white/90
+              dark:border-white/15
+              dark:bg-white/5
+              dark:hover:bg-white/10
             "
           >
             취소
           </button>
+
           <button
             type="button"
             onClick={onConfirm}
@@ -48,7 +66,7 @@ export default function CreditConfirmModal({ credits, onCancel, onConfirm }: Pro
               shadow-sm hover:shadow-md
             "
           >
-            {credits} 크레딧 사용하고 시작
+            {credits} 크레딧 사용하고 시작하기
           </button>
         </div>
       </div>

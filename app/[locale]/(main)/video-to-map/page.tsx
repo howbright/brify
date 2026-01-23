@@ -12,7 +12,6 @@ import MetadataDialog from "./MetadataDialog";
 import YoutubeScriptDialog from "./YoutubeScriptDialog";
 import { createClient } from "@/utils/supabase/client"; // ✅ 너 경로에 맞게!
 
-
 const LONG_SCRIPT_THRESHOLD = 6000;
 const MOCK_CURRENT_CREDITS = 42;
 
@@ -25,7 +24,6 @@ function getRequiredCredits(text: string) {
 function genId() {
   return Math.random().toString(36).slice(2, 10);
 }
-
 
 export default function VideoToMapPage() {
   const t = useTranslations("VideoToMapPage");
@@ -68,7 +66,6 @@ export default function VideoToMapPage() {
     channelName?: string | null;
     thumbnailUrl?: string | null;
   } | null>(null);
-  
 
   const statusMessages = useMemo(
     () => [
@@ -111,33 +108,34 @@ export default function VideoToMapPage() {
   const handleFetchYoutube = async () => {
     setYoutubeError(null);
     setYoutubeSuccess(null);
-  
+
     try {
       setIsFetchingYoutube(true);
-  
+
       const u = youtubeUrl.trim();
       if (!u) throw new Error("유튜브 URL을 입력해 주세요.");
-  
+
       // ✅ 1) 브라우저 Supabase 세션에서 access_token 가져오기
       const supabase = createClient();
       const { data: sessionData, error: sessionErr } =
         await supabase.auth.getSession();
-  
+
       if (sessionErr) {
         throw new Error("세션을 가져오지 못했습니다: " + sessionErr.message);
       }
-  
+
       const accessToken = sessionData.session?.access_token;
       if (!accessToken) {
         throw new Error("로그인이 필요합니다.");
       }
-  
+
       // ✅ 2) Nest API 호출 (Bearer 토큰)
       const base = process.env.NEXT_PUBLIC_API_BASE_URL;
       if (!base) {
         throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
       }
-  
+      console.log(base);
+
       const res = await fetch(`${base}/youtube-scripts/fetch`, {
         method: "POST",
         headers: {
@@ -149,15 +147,17 @@ export default function VideoToMapPage() {
           preferredLang: outputLang === "auto" ? undefined : outputLang,
         }),
       });
-  
+
       const json = await res.json().catch(() => ({}));
-  
+
       if (!res.ok) {
         const msg =
           json?.message || json?.error || "스크립트를 가져오지 못했습니다.";
-        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+        throw new Error(
+          typeof msg === "string" ? msg : msg?.[0] || "요청 실패"
+        );
       }
-  
+
       // ✅ 3) previewText를 입력칸에 채우기
       const previewText = String(json?.previewText ?? "");
       if (!previewText.trim()) {
@@ -165,7 +165,7 @@ export default function VideoToMapPage() {
           "자막/스크립트를 찾지 못했습니다. (영상에 자막이 없을 수 있어요)"
         );
       }
-  
+
       setScriptText(previewText);
       setYoutubeMeta({
         sourceUrl: u,
@@ -173,14 +173,13 @@ export default function VideoToMapPage() {
         channelName: json?.channelName ?? "",
         thumbnailUrl: json?.thumbnailUrl ?? "",
       });
-      
 
       setError(null);
-  
+
       setYoutubeSuccess(
         "스크립트를 가져와 입력칸에 채워 드렸습니다. 이제 바로 생성하실 수 있습니다."
       );
-  
+
       // ✅ 성공하면 0.6초 후 자동 닫기
       setTimeout(() => {
         setShowYoutubeDialog(false);
@@ -192,8 +191,6 @@ export default function VideoToMapPage() {
       setIsFetchingYoutube(false);
     }
   };
-  
-  
 
   // ✅ (2) 크레딧 확인 후: “작업 시작(모킹)” + “메타데이터 팝업 열기”
   const handleConfirmUseCredits = async () => {
@@ -271,7 +268,6 @@ export default function VideoToMapPage() {
     pendingScriptRef.current = "";
 
     setYoutubeMeta(null);
-  
   };
 
   return (
@@ -343,18 +339,6 @@ export default function VideoToMapPage() {
               isHelpOpen={isHelpOpen}
               onToggle={() => setIsHelpOpen((prev) => !prev)}
             />
-
-            {isProcessing && (
-              <ProcessingStatusCard
-                title={t("processing.title")}
-                message={statusMessages[statusStep]}
-                bullets={[
-                  t("processing.bullet1"),
-                  t("processing.bullet2"),
-                  t("processing.bullet3"),
-                ]}
-              />
-            )}
           </div>
         </div>
 
@@ -404,17 +388,25 @@ export default function VideoToMapPage() {
 
       {showMetadataDialog && (
         <MetadataDialog
-        initial={{
-          sourceUrl: youtubeMeta?.sourceUrl ?? "",
-          title: youtubeMeta?.title ?? "",
-          channelName: youtubeMeta?.channelName ?? "",
-          tags: [],
-          description: "",
-          thumbnailUrl: youtubeMeta?.thumbnailUrl ?? "",
-        }}
-        onClose={() => setShowMetadataDialog(false)}
-        onSave={handleSaveMetadata}
-      />
+          initial={{
+            sourceUrl: youtubeMeta?.sourceUrl ?? "",
+            title: youtubeMeta?.title ?? "",
+            channelName: youtubeMeta?.channelName ?? "",
+            tags: [],
+            description: "",
+            thumbnailUrl: youtubeMeta?.thumbnailUrl ?? "",
+          }}
+          onClose={() => setShowMetadataDialog(false)}
+          onSave={handleSaveMetadata}
+          isProcessing={isProcessing}
+          processingTitle={t("processing.title")}
+          processingMessage={statusMessages[statusStep]}
+          processingBullets={[
+            t("processing.bullet1"),
+            t("processing.bullet2"),
+            t("processing.bullet3"),
+          ]}
+        />
       )}
     </main>
   );
