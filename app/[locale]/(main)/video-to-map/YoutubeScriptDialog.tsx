@@ -41,7 +41,10 @@ export default function YoutubeScriptDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-sm"
+      className="
+        fixed inset-0 z-50 flex items-center justify-center
+        bg-black/55 backdrop-blur-sm
+      "
       role="dialog"
       aria-modal="true"
       aria-label="유튜브 링크로 스크립트 가져오기"
@@ -56,7 +59,12 @@ export default function YoutubeScriptDialog({
           bg-white/98 border border-neutral-200
           shadow-[0_24px_70px_-30px_rgba(15,23,42,0.85)]
           p-5 md:p-6
-          dark:bg-[#020617]/98 dark:border-white/12
+
+          dark:bg-[#0F172A]
+          dark:border-white/10
+          dark:ring-1 dark:ring-white/5
+          dark:shadow-[0_28px_90px_-55px_rgba(0,0,0,0.85)]
+          dark:bg-[linear-gradient(to_bottom,rgba(255,255,255,0.06),rgba(255,255,255,0.0))]
         "
       >
         <div className="flex items-start justify-between gap-3">
@@ -97,14 +105,27 @@ export default function YoutubeScriptDialog({
               px-3 py-2 text-sm text-neutral-900
               placeholder:text-neutral-400
               focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-              dark:border-white/12 dark:bg-black/35 dark:text-neutral-50 dark:placeholder:text-neutral-500
+
+              dark:border-white/10
+              dark:bg-white/6
+              dark:text-neutral-50
+              dark:placeholder:text-neutral-400
+              dark:focus:border-[rgb(var(--hero-b))]/60
+              dark:focus:ring-[rgb(var(--hero-b))]/25
             "
           />
 
           {error && (
             <div
               role="alert"
-              className="rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-400/30 dark:bg-red-500/10 dark:text-red-200"
+              className="
+                rounded-2xl border border-red-200 bg-red-50
+                px-3 py-2 text-xs text-red-700
+
+                dark:border-red-400/30
+                dark:bg-red-500/10
+                dark:text-red-200
+              "
             >
               {error}
             </div>
@@ -113,7 +134,14 @@ export default function YoutubeScriptDialog({
           {success && (
             <div
               role="status"
-              className="rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-500/10 dark:text-emerald-200"
+              className="
+                rounded-2xl border border-emerald-200 bg-emerald-50
+                px-3 py-2 text-xs text-emerald-800
+
+                dark:border-emerald-400/30
+                dark:bg-emerald-500/10
+                dark:text-emerald-200
+              "
             >
               {success}
             </div>
@@ -128,7 +156,11 @@ export default function YoutubeScriptDialog({
               rounded-2xl px-3.5 py-2 text-xs md:text-sm text-neutral-700
               border border-neutral-300 bg-white
               hover:bg-neutral-100
-              dark:text-neutral-100 dark:border-white/20 dark:bg-white/5 dark:hover:bg-white/10
+
+              dark:text-neutral-100
+              dark:border-white/15
+              dark:bg-white/6
+              dark:hover:bg-white/10
             "
           >
             취소
@@ -142,9 +174,14 @@ export default function YoutubeScriptDialog({
               inline-flex items-center gap-2 rounded-2xl px-3.5 py-2
               text-xs md:text-sm font-semibold text-white
               bg-neutral-900 hover:bg-neutral-800
-              dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200
+
+              dark:bg-[rgb(var(--hero-b))]
+              dark:text-neutral-950
+              dark:hover:bg-[rgb(var(--hero-a))]
+
               transition-transform hover:scale-[1.02] active:scale-100
               disabled:opacity-60 disabled:hover:scale-100 disabled:cursor-not-allowed
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-b))]/35
             "
           >
             {isFetching ? (

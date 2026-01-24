@@ -12,27 +12,44 @@ export default function CreditConfirmModal({
   onConfirm,
 }: Props) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-sm">
+    <div
+      className="
+        fixed inset-0 z-50 flex items-center justify-center
+        bg-black/50 backdrop-blur-sm
+      "
+    >
       <div
         className="
           relative overflow-hidden
           w-full max-w-md rounded-3xl
           bg-white/98 border border-neutral-200
-          shadow-[0_24px_70px_-30px_rgba(15,23,42,0.85)]
+          shadow-[0_28px_90px_-40px_rgba(15,23,42,0.85)]
           p-5 md:p-6
 
-          /* ✅ 다크모드: 바닥색보다 한 톤 밝은 '카드' 표면 */
-          dark:bg-[#0b1220]
-          dark:border-white/12
-          dark:shadow-[0_24px_90px_-40px_rgba(0,0,0,0.75)]
+          /* ✅ dark: 배경보다 한 톤 밝게 + ring으로 경계 확실히 */
+          dark:bg-[#0F172A]
+          dark:border-white/10
+          dark:ring-1 dark:ring-white/10
+          dark:shadow-[0_34px_120px_-60px_rgba(0,0,0,0.95)]
         "
       >
-        {/* subtle highlight layer (다크에서 '시커먼 덩어리' 느낌 완화) */}
-        <div className="pointer-events-none absolute inset-0 bg-white/0 dark:bg-white/[0.03]" />
+        {/* ✅ 상단 하이라이트 + 가장자리 그라데이션(카드 표면감) */}
+        <div
+          className="
+            pointer-events-none absolute inset-0
+            bg-[radial-gradient(800px_260px_at_20%_0%,rgba(59,130,246,0.18),transparent_55%)]
+            dark:bg-[radial-gradient(800px_260px_at_20%_0%,rgba(56,189,248,0.18),transparent_55%)]
+          "
+        />
+        <div className="pointer-events-none absolute inset-0 dark:bg-white/[0.03]" />
+
+        {/* ✅ 아주 얇은 하단 경계(카드가 떠 보이게) */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-neutral-200/70 dark:bg-white/10" />
 
         <h2 className="relative text-base md:text-lg font-semibold text-neutral-900 dark:text-white mb-2.5">
           크레딧 사용
         </h2>
+
         <p className="relative text-sm md:text-[15px] text-neutral-700 dark:text-white/80 mb-4">
           이번 작업에 <span className="font-semibold">{credits}</span> 크레딧이
           사용됩니다.
@@ -49,7 +66,7 @@ export default function CreditConfirmModal({
 
               dark:text-white/90
               dark:border-white/15
-              dark:bg-white/5
+              dark:bg-white/6
               dark:hover:bg-white/10
             "
           >
@@ -62,8 +79,10 @@ export default function CreditConfirmModal({
             className="
               rounded-2xl px-3.5 py-1.5 text-xs md:text-sm font-semibold text-white
               bg-blue-600 hover:bg-blue-700
-              dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+              dark:bg-[rgb(var(--hero-b))] dark:text-neutral-950
+              dark:hover:bg-[rgb(var(--hero-a))]
               shadow-sm hover:shadow-md
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-b))]/35
             "
           >
             {credits} 크레딧 사용하고 시작하기
