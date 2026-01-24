@@ -40,13 +40,18 @@ export default function ScriptInputCard({
   return (
     <section
       className="
-        relative
-        mt-1 rounded-3xl border border-neutral-200 bg-white
-        shadow-[0_22px_45px_-24px_rgba(15,23,42,0.55)]
-        backdrop-blur-sm
-        dark:bg-[#020818] dark:border-white/15
-        p-5 md:p-6 flex flex-col gap-4
-      "
+    relative
+    mt-1 rounded-3xl border border-neutral-200 bg-white
+    shadow-[0_22px_45px_-24px_rgba(15,23,42,0.55)]
+    backdrop-blur-sm
+    p-5 md:p-6 flex flex-col gap-4
+
+    dark:bg-[#0F172A]
+    dark:border-white/10
+    dark:ring-1 dark:ring-white/5
+    dark:shadow-[0_28px_90px_-55px_rgba(0,0,0,0.85)]
+    dark:bg-[linear-gradient(to_bottom,rgba(255,255,255,0.06),rgba(255,255,255,0.0))]
+  "
     >
       {/* ✅ 잠금 오버레이: 메타다이얼로그 열림/처리중일 때 입력 영역 전체 잠금 */}
       {locked && (
@@ -54,16 +59,16 @@ export default function ScriptInputCard({
           className="
             absolute inset-0 z-20 rounded-3xl
             bg-white/55 backdrop-blur-sm
-            dark:bg-black/35
+            dark:bg-black/25
           "
         >
           <div className="absolute inset-0 flex items-center justify-center p-4">
             <div
               className="
-                rounded-2xl border border-neutral-200 bg-white/90
+                rounded-2xl border border-neutral-200 bg-white/92
                 px-4 py-3 text-sm font-semibold text-neutral-800
                 shadow-[0_18px_60px_-40px_rgba(15,23,42,0.6)]
-                dark:border-white/12 dark:bg-white/[0.06] dark:text-white
+                dark:border-white/12 dark:bg-[#0F172A]/80 dark:text-white
               "
             >
               작업이 진행 중입니다. 잠시만 기다려 주세요.
@@ -87,7 +92,7 @@ export default function ScriptInputCard({
             rounded-full border border-neutral-200 bg-neutral-50
             px-2.5 py-1 text-[11px] md:text-xs font-semibold text-neutral-700
             hover:bg-neutral-100
-            dark:border-white/12 dark:bg-white/5 dark:text-neutral-200 dark:hover:bg-white/10
+            dark:border-white/12 dark:bg-white/6 dark:text-neutral-200 dark:hover:bg-white/10
             disabled:opacity-60 disabled:cursor-not-allowed
           "
         >
@@ -105,7 +110,8 @@ export default function ScriptInputCard({
           px-3 py-2 text-sm md:text-[15px] text-neutral-900
           placeholder:text-neutral-400
           focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-          dark:border-white/12 dark:bg-black/40 dark:text-neutral-50 dark:placeholder:text-neutral-500
+          dark:border-white/10 dark:bg-white/5 dark:text-neutral-50 dark:placeholder:text-neutral-500
+          dark:focus:border-[rgb(var(--hero-b))] dark:focus:ring-[rgb(var(--hero-b))]/25
           disabled:opacity-60 disabled:cursor-not-allowed
         "
         placeholder="여기에 텍스트를 그대로 붙여 넣어 주세요."
@@ -122,7 +128,9 @@ export default function ScriptInputCard({
         <div className="flex flex-col gap-2">
           <p className="text-xs text-neutral-600 dark:text-neutral-300">
             예상 사용: <b>{requiredCredits}</b> 크레딧{" "}
-            <span className="mx-1.5 text-neutral-300 dark:text-white/20">·</span>
+            <span className="mx-1.5 text-neutral-300 dark:text-white/20">
+              ·
+            </span>
             보유: <b>{currentCredits.toLocaleString()}</b> 크레딧
           </p>
 
