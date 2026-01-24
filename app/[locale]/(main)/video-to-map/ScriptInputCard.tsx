@@ -157,7 +157,7 @@ export default function ScriptInputCard({
             focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60
           "
         >
-          생성하기
+          구조맵 생성하기
         </button>
       </div>
     </section>

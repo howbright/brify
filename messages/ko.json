@@ -2,7 +2,7 @@
   "VideoToMapPage": {
     "title": {
       "prefix": "텍스트를,",
-      "highlight": "구조맵으로 자동 변환해 드립니다"
+      "highlight": "구조맵으로 변환해 드립니다"
     },
     "description": {
       "beforeBold": "영상 스크립트나 긴 글을",
@@ -25,7 +25,6 @@
     "status": {
       "reading": "영상 내용을 읽고 있어요...",
       "splittingFlow": "큰 흐름을 먼저 나누는 중이에요...",
-      "extractingKeywords": "핵심 키워드를 추려내는 중이에요...",
       "arrangingStructure": "구조맵로 배치하고 있어요...",
       "almostThere": "조금만 더 기다려 주세요!"
     },

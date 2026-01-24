@@ -17,6 +17,13 @@ export default function CreditConfirmModal({
         fixed inset-0 z-50 flex items-center justify-center
         bg-black/50 backdrop-blur-sm
       "
+      role="dialog"
+      aria-modal="true"
+      aria-label="크레딧 사용 확인"
+      onMouseDown={(e) => {
+        // 바깥 클릭은 '취소'와 동일하게 처리
+        if (e.target === e.currentTarget) onCancel();
+      }}
     >
       <div
         className="
@@ -50,10 +57,24 @@ export default function CreditConfirmModal({
           크레딧 사용
         </h2>
 
-        <p className="relative text-sm md:text-[15px] text-neutral-700 dark:text-white/80 mb-4">
+        <p className="relative text-sm md:text-[15px] text-neutral-700 dark:text-white/80 mb-2">
           이번 작업에 <span className="font-semibold">{credits}</span> 크레딧이
           사용됩니다.
         </p>
+
+        {/* ✅ 핵심 고지: 시작 후 취소 불가 */}
+        <div
+          className="
+            relative mb-4
+            rounded-2xl border border-amber-200/70 bg-amber-50/70
+            px-3 py-2.5 text-[12px] md:text-[13px] text-amber-900/90
+            dark:border-amber-300/25 dark:bg-amber-500/10 dark:text-amber-100/90
+          "
+          role="note"
+        >
+          이 작업은 <span className="font-semibold">시작 후 취소할 수 없습니다.</span>{" "}
+          크레딧은 즉시 차감되며, 생성이 완료되면 결과가 저장됩니다.
+        </div>
 
         <div className="relative flex justify-end gap-2">
           <button
@@ -68,6 +89,7 @@ export default function CreditConfirmModal({
               dark:border-white/15
               dark:bg-white/6
               dark:hover:bg-white/10
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-white/25
             "
           >
             취소

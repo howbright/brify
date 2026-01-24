@@ -326,7 +326,7 @@ export default function MetadataDialog({
                 <input
                   value={title}
                   onChange={(e) => setTitle(e.target.value.slice(0, 80))}
-                  placeholder="예: 창세기 강해 1강"
+                  placeholder="예: 콘텐츠 제목을 입력해 주세요"
                   className={`
                     rounded-2xl border bg-neutral-50 px-3 py-2 text-sm
                     focus:outline-none focus:ring-2
@@ -352,7 +352,7 @@ export default function MetadataDialog({
                 <input
                   value={channelName}
                   onChange={(e) => setChannelName(e.target.value)}
-                  placeholder="예: OO교회 / OO강사"
+                  placeholder="채널명 / 작성자 / 출처"
                   className="
                     rounded-2xl border border-neutral-200 bg-neutral-50
                     px-3 py-2 text-sm
@@ -423,9 +423,6 @@ export default function MetadataDialog({
                         }
                       />
                     </label>
-                    <span className="text-[11px] text-neutral-500 dark:text-white/60">
-                      프로토타입: 로컬 미리보기만 지원합니다.
-                    </span>
                   </div>
                 </div>
               </div>
@@ -439,7 +436,7 @@ export default function MetadataDialog({
               <input
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                placeholder="예: 설교, 창세기, 제자훈련 (쉼표로 구분)"
+                placeholder="회의, 마케팅, 기획, OKR (쉼표로 구분)"
                 className="
                   rounded-2xl border border-neutral-200 bg-neutral-50
                   px-3 py-2 text-sm

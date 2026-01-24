@@ -2,7 +2,7 @@
   "VideoToMapPage": {
     "title": {
       "prefix": "Turn text",
-      "highlight": "into a structured map automatically"
+      "highlight": "into a structured map"
     },
     "description": {
       "beforeBold": "Paste the full script from your video",
@@ -25,7 +25,6 @@
     "status": {
       "reading": "Reading the video content...",
       "splittingFlow": "Breaking it into high-level sections...",
-      "extractingKeywords": "Extracting key points...",
       "arrangingStructure": "Laying everything out as a structure map...",
       "almostThere": "Almost done. Just a moment!"
     },

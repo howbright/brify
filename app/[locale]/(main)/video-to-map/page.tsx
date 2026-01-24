@@ -81,7 +81,6 @@ export default function VideoToMapPage() {
     () => [
       t("status.reading"),
       t("status.splittingFlow"),
-      t("status.extractingKeywords"),
       t("status.arrangingStructure"),
       t("status.almostThere"),
     ],
@@ -162,7 +161,9 @@ export default function VideoToMapPage() {
       if (!res.ok) {
         const msg =
           json?.message || json?.error || "스크립트를 가져오지 못했습니다.";
-        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+        throw new Error(
+          typeof msg === "string" ? msg : msg?.[0] || "요청 실패"
+        );
       }
 
       // ✅ 3) previewText를 입력칸에 채우기
@@ -378,10 +379,9 @@ export default function VideoToMapPage() {
         {drafts.length > 0 && (
           <section className="mt-2 space-y-3">
             <div className="flex items-end justify-between gap-2">
-              <h2 className="text-base md:text-lg font-semibold">만든 구조맵</h2>
-              <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                프로토타입: DB 없이 임시 저장
-              </span>
+              <h2 className="text-base md:text-lg font-semibold">
+                만든 구조맵
+              </h2>
             </div>
 
             <div className="grid gap-3">

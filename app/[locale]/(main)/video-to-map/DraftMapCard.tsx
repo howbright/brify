@@ -134,7 +134,7 @@ export default function DraftMapCard({ draft }: { draft: MapDraft }) {
             "
           >
             <Icon icon="mdi:open-in-new" className="h-4 w-4" />
-            열기(프로토타입)
+            열기
           </button>
         </div>
       </div>

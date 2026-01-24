@@ -100,7 +100,7 @@ export default function ResultReadyPanel({
           "
         >
           <Icon icon="mdi:plus" className="h-4 w-4" />
-          다른 콘텐츠 생성하기
+          다른 구조맵 생성하기
         </button>
 
         <button
