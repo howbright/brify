@@ -82,9 +82,9 @@ export default function ScriptHelpSection({
             {/* 블럭 A: YouTube에서 스크립트 가져오기 */}
             <div className="flex flex-col gap-3">
               <div>
-                <h3 className="text-sm md:text-[15px] font-semibold text-neutral-900 dark:text-neutral-50">
+                {/* <h3 className="text-sm md:text-[15px] font-semibold text-neutral-900 dark:text-neutral-50">
                   {t("sectionA.title")}
-                </h3>
+                </h3> */}
                 <p className="mt-1 text-[13px] md:text-sm text-neutral-500 dark:text-neutral-300">
                   {t("sectionA.description")}
                 </p>

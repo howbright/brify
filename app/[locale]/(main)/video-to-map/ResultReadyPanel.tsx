@@ -15,14 +15,30 @@ export default function ResultReadyPanel({
   return (
     <section
       className="
+        relative overflow-hidden
         mt-1 rounded-3xl border border-neutral-200 bg-white
         shadow-[0_22px_45px_-24px_rgba(15,23,42,0.55)]
         backdrop-blur-sm
-        dark:bg-[#020818] dark:border-white/15
         p-5 md:p-6
+
+        /* ✅ dark: 페이지 배경(#020818)보다 한 톤 밝은 surface */
+        dark:bg-[#111C2E]
+        dark:border-white/10
+        dark:ring-1 dark:ring-white/10
+        dark:shadow-[0_38px_140px_-70px_rgba(0,0,0,0.95)]
       "
     >
-      <div className="flex items-start justify-between gap-3">
+      {/* ✅ 상단 하이라이트(분리감 + 제품스러운 표면감) */}
+      <div
+        className="
+          pointer-events-none absolute inset-0
+          bg-[radial-gradient(900px_260px_at_15%_0%,rgba(59,130,246,0.14),transparent_60%)]
+          dark:bg-[radial-gradient(900px_260px_at_15%_0%,rgba(56,189,248,0.16),transparent_60%)]
+        "
+      />
+      <div className="pointer-events-none absolute inset-0 dark:bg-white/[0.03]" />
+
+      <div className="relative flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <div
@@ -36,22 +52,26 @@ export default function ResultReadyPanel({
             >
               <Icon icon="mdi:check-bold" className="h-5 w-5" />
             </div>
+
             <div className="min-w-0">
               <p className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
                 생성이 완료되었습니다
               </p>
-              <p className="text-xs text-neutral-500 dark:text-white/55 truncate">
+              <p className="text-xs text-neutral-500 dark:text-white/60 truncate">
                 {draft?.title ? `“${draft.title}”` : "방금 생성된 구조맵을 확인해 주세요."}
               </p>
             </div>
           </div>
 
-          {/* ✅ 미니 프리뷰(선택) */}
+          {/* ✅ 미니 프리뷰: 다크에서 더 '카드'처럼 보이게 */}
           <div
             className="
               mt-4 rounded-2xl border border-blue-200/70 bg-blue-50/70
-              dark:border-[rgb(var(--hero-b))]/45 dark:bg-[rgba(30,58,138,0.16)]
               px-3 py-2.5
+
+              dark:border-white/10
+              dark:bg-white/[0.06]
+              dark:shadow-[0_20px_70px_-55px_rgba(0,0,0,0.95)]
             "
           >
             <p className="text-sm font-semibold text-neutral-900 dark:text-white">
@@ -64,7 +84,7 @@ export default function ResultReadyPanel({
         </div>
       </div>
 
-      <div className="mt-4 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-end">
+      <div className="relative mt-4 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-end">
         <button
           type="button"
           onClick={onCreateNew}
@@ -72,7 +92,11 @@ export default function ResultReadyPanel({
             inline-flex items-center justify-center gap-2
             rounded-2xl px-4 py-2 text-sm font-semibold
             border border-neutral-200 bg-white hover:bg-neutral-50
-            dark:border-white/12 dark:bg-white/5 dark:text-neutral-200 dark:hover:bg-white/10
+
+            dark:border-white/12
+            dark:bg-white/[0.06]
+            dark:text-neutral-100
+            dark:hover:bg-white/10
           "
         >
           <Icon icon="mdi:plus" className="h-4 w-4" />

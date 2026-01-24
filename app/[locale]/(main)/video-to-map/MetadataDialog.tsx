@@ -77,9 +77,7 @@ export default function MetadataDialog({
   };
 
   useEffect(() => {
-    if (youtube) {
-      mockFetchYouTubeMeta();
-    }
+    if (youtube) mockFetchYouTubeMeta();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [youtube]);
 
@@ -128,9 +126,9 @@ export default function MetadataDialog({
 
   return (
     <div className="fixed inset-0 z-50">
-      {/* backdrop: 제목 없으면 닫히지 않도록 동일 로직 적용 */}
+      {/* ✅ backdrop: 다크에서 살짝 더 진하게(카드 분리감 ↑) */}
       <div
-        className="absolute inset-0 bg-black/35 backdrop-blur-sm dark:bg-black/55"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm dark:bg-black/65"
         onClick={handleTryClose}
       />
 
@@ -138,24 +136,42 @@ export default function MetadataDialog({
       <div className="absolute inset-0 flex items-center justify-center p-4">
         <div
           className="
+            relative overflow-hidden
             w-full max-w-2xl
             rounded-3xl
             bg-white/98 border border-neutral-200
             shadow-[0_26px_90px_-40px_rgba(15,23,42,0.9)]
-            dark:bg-[#0b1220]/98 dark:border-white/12
             overflow-hidden
             max-h-[85vh]
             flex flex-col
+
+            /* ✅ dark: '페이지 배경'보다 확실히 밝은 surface + ring + 큰 그림자 */
+            dark:bg-[#111C2E]
+            dark:border-white/10
+            dark:ring-1 dark:ring-white/10
+            dark:shadow-[0_38px_140px_-70px_rgba(0,0,0,0.95)]
           "
         >
+          {/* ✅ 표면감(상단 하이라이트) */}
+          <div
+            className="
+              pointer-events-none absolute inset-0
+              bg-[radial-gradient(900px_280px_at_20%_0%,rgba(59,130,246,0.16),transparent_60%)]
+              dark:bg-[radial-gradient(900px_280px_at_20%_0%,rgba(56,189,248,0.16),transparent_60%)]
+            "
+          />
+          <div className="pointer-events-none absolute inset-0 dark:bg-white/[0.03]" />
+
           {/* header (sticky) */}
           <div
             className="
+              relative
               px-5 md:px-6 py-4
               border-b border-neutral-200/80 dark:border-white/10
               flex items-center justify-between
               sticky top-0 z-10
-              bg-white/98 dark:bg-[#0b1220]/98
+              bg-white/90 dark:bg-[#111C2E]/92
+              backdrop-blur-md
             "
           >
             <div className="flex items-center gap-2">
@@ -173,7 +189,7 @@ export default function MetadataDialog({
                 <p className="font-semibold text-neutral-900 dark:text-white">
                   콘텐츠 정보 입력
                 </p>
-                <p className="text-xs text-neutral-500 dark:text-white/55">
+                <p className="text-xs text-neutral-500 dark:text-white/60">
                   제목은 필수이며, 나머지는 선택입니다.
                 </p>
               </div>
@@ -195,9 +211,10 @@ export default function MetadataDialog({
           {isProcessing && (
             <div
               className="
+                relative
                 px-5 md:px-6 py-3
                 border-b border-neutral-200/70 dark:border-white/10
-                bg-blue-50/70 dark:bg-[rgba(30,58,138,0.14)]
+                bg-blue-50/70 dark:bg-white/[0.06]
               "
             >
               <div className="flex items-center gap-2">
@@ -233,13 +250,13 @@ export default function MetadataDialog({
                     )}
                 </div>
 
-                {/* ✅ 진행바: 더 튀게 */}
+                {/* ✅ 진행바: 튀는 색 + 대비 강화 */}
                 <div className="w-28 md:w-40">
                   <div className="h-2 rounded-full bg-blue-200/80 dark:bg-white/10 overflow-hidden">
                     <div
                       className="
                         h-full w-1/2 rounded-full
-                        bg-[linear-gradient(90deg,#2563eb,#22c55e,#a855f7)]
+                        bg-[linear-gradient(90deg,#3b82f6,#22c55e,#a855f7)]
                         animate-[pulse_1.2s_ease-in-out_infinite]
                       "
                     />
@@ -250,7 +267,7 @@ export default function MetadataDialog({
           )}
 
           {/* body (scroll) */}
-          <div className="px-5 md:px-6 py-5 grid gap-4 overflow-y-auto">
+          <div className="relative px-5 md:px-6 py-5 grid gap-4 overflow-y-auto">
             {/* URL */}
             <div className="grid gap-1.5">
               <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">
@@ -276,7 +293,7 @@ export default function MetadataDialog({
                     rounded-2xl px-3 py-2 text-sm font-semibold
                     border border-neutral-200 bg-white hover:bg-neutral-50
                     disabled:opacity-40 disabled:cursor-not-allowed
-                    dark:border-white/12 dark:bg-white/5 dark:text-white dark:hover:bg-white/10
+                    dark:border-white/12 dark:bg-white/6 dark:text-white dark:hover:bg-white/10
                   "
                 >
                   유튜브 자동추출(모킹)
@@ -284,11 +301,11 @@ export default function MetadataDialog({
               </div>
 
               {youtube ? (
-                <p className="text-[11px] text-neutral-500 dark:text-white/55">
+                <p className="text-[11px] text-neutral-500 dark:text-white/60">
                   유튜브 URL이라면 제목/채널/썸네일을 자동으로 채울 수 있습니다.
                 </p>
               ) : (
-                <p className="text-[11px] text-neutral-500 dark:text-white/55">
+                <p className="text-[11px] text-neutral-500 dark:text-white/60">
                   유튜브 URL이 아니라면 아래 항목을 직접 입력해 주세요.
                 </p>
               )}
@@ -301,7 +318,7 @@ export default function MetadataDialog({
                   <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-100">
                     제목 <span className="text-rose-500">*</span>
                   </label>
-                  <span className="text-[11px] text-neutral-500 dark:text-white/55">
+                  <span className="text-[11px] text-neutral-500 dark:text-white/60">
                     {titleCounter}
                   </span>
                 </div>
@@ -392,7 +409,7 @@ export default function MetadataDialog({
                         inline-flex items-center gap-2 cursor-pointer
                         rounded-2xl px-3 py-2 text-sm font-semibold
                         border border-neutral-200 bg-white hover:bg-neutral-50
-                        dark:border-white/12 dark:bg-white/5 dark:text-white dark:hover:bg-white/10
+                        dark:border-white/12 dark:bg-white/6 dark:text-white dark:hover:bg-white/10
                       "
                     >
                       <Icon icon="mdi:upload" className="h-4 w-4" />
@@ -406,7 +423,7 @@ export default function MetadataDialog({
                         }
                       />
                     </label>
-                    <span className="text-[11px] text-neutral-500 dark:text-white/55">
+                    <span className="text-[11px] text-neutral-500 dark:text-white/60">
                       프로토타입: 로컬 미리보기만 지원합니다.
                     </span>
                   </div>
@@ -430,7 +447,7 @@ export default function MetadataDialog({
                   dark:border-white/12 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
                 "
               />
-              <p className="text-[11px] text-neutral-500 dark:text-white/55">
+              <p className="text-[11px] text-neutral-500 dark:text-white/60">
                 쉼표로 구분해 입력하시면 태그로 저장됩니다.
               </p>
             </div>
@@ -458,14 +475,16 @@ export default function MetadataDialog({
           {/* footer (sticky) */}
           <div
             className="
+              relative
               px-5 md:px-6 py-4
               border-t border-neutral-200 dark:border-white/10
               flex items-center justify-end gap-2
               sticky bottom-0 z-10
-              bg-white/98 dark:bg-[#0b1220]/98
+              bg-white/90 dark:bg-[#111C2E]/92
+              backdrop-blur-md
             "
           >
-            <div className="mr-auto text-[11px] text-neutral-500 dark:text-white/55">
+            <div className="mr-auto text-[11px] text-neutral-500 dark:text-white/60">
               제목 입력 후 저장하시면 구조맵 목록에서 관리하실 수 있습니다.
             </div>
 
