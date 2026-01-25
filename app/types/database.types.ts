@@ -110,13 +110,6 @@ export type Database = {
             referencedRelation: "payments"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "credit_transactions_summary_id_fkey"
-            columns: ["summary_id"]
-            isOneToOne: false
-            referencedRelation: "summaries"
-            referencedColumns: ["id"]
-          },
         ]
       }
       keywords: {
@@ -310,140 +303,6 @@ export type Database = {
         }
         Relationships: []
       }
-      summaries: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          detailed_summary_text: string | null
-          diagram_json: Json | null
-          error_message: string | null
-          id: string
-          is_public: boolean | null
-          lang: string | null
-          original_expire_at: string | null
-          original_text: string | null
-          public_comment: string | null
-          source_title: string | null
-          source_type: string
-          source_url: string | null
-          status: string
-          summary_text: string | null
-          temp_diagram_json: Json | null
-          temp_summary_text: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          detailed_summary_text?: string | null
-          diagram_json?: Json | null
-          error_message?: string | null
-          id?: string
-          is_public?: boolean | null
-          lang?: string | null
-          original_expire_at?: string | null
-          original_text?: string | null
-          public_comment?: string | null
-          source_title?: string | null
-          source_type: string
-          source_url?: string | null
-          status?: string
-          summary_text?: string | null
-          temp_diagram_json?: Json | null
-          temp_summary_text?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          detailed_summary_text?: string | null
-          diagram_json?: Json | null
-          error_message?: string | null
-          id?: string
-          is_public?: boolean | null
-          lang?: string | null
-          original_expire_at?: string | null
-          original_text?: string | null
-          public_comment?: string | null
-          source_title?: string | null
-          source_type?: string
-          source_url?: string | null
-          status?: string
-          summary_text?: string | null
-          temp_diagram_json?: Json | null
-          temp_summary_text?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      summary_keywords: {
-        Row: {
-          keyword_id: number
-          summary_id: string
-        }
-        Insert: {
-          keyword_id: number
-          summary_id: string
-        }
-        Update: {
-          keyword_id?: number
-          summary_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "summary_keywords_keyword_id_fkey"
-            columns: ["keyword_id"]
-            isOneToOne: false
-            referencedRelation: "keywords"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "summary_keywords_summary_id_fkey"
-            columns: ["summary_id"]
-            isOneToOne: false
-            referencedRelation: "summaries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      summary_questions: {
-        Row: {
-          answer: string | null
-          created_at: string | null
-          id: string
-          question: string
-          summary_id: string | null
-          user_id: string | null
-        }
-        Insert: {
-          answer?: string | null
-          created_at?: string | null
-          id?: string
-          question: string
-          summary_id?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          answer?: string | null
-          created_at?: string | null
-          id?: string
-          question?: string
-          summary_id?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "summary_questions_summary_id_fkey"
-            columns: ["summary_id"]
-            isOneToOne: false
-            referencedRelation: "summaries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       support_tickets: {
         Row: {
           category: string
@@ -485,35 +344,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      terminologies: {
-        Row: {
-          definition: string | null
-          id: number
-          summary_id: string | null
-          term: string
-        }
-        Insert: {
-          definition?: string | null
-          id?: number
-          summary_id?: string | null
-          term: string
-        }
-        Update: {
-          definition?: string | null
-          id?: number
-          summary_id?: string | null
-          term?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "terminologies_summary_id_fkey"
-            columns: ["summary_id"]
-            isOneToOne: false
-            referencedRelation: "summaries"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       youtube_scripts: {
         Row: {
