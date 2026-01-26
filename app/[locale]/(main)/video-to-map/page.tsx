@@ -17,7 +17,11 @@ import ResultReadyPanel from "./ResultReadyPanel";
 import { createClient } from "@/utils/supabase/client"; // ✅ 너 경로에 맞게!
 
 const LONG_SCRIPT_THRESHOLD = 6000;
-const MOCK_CURRENT_CREDITS = 42;
+type BalanceResponse = {
+  total: number;
+  paid: number;
+  free: number;
+};
 
 function getRequiredCredits(text: string) {
   const length = text.trim().length;
@@ -53,7 +57,7 @@ export default function VideoToMapPage() {
 
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
-  const currentCredits = MOCK_CURRENT_CREDITS;
+  const [currentCredits, setCurrentCredits] = useState(0);
   const requiredCredits = getRequiredCredits(scriptText);
 
   // ✅ 유튜브 모달 상태
@@ -86,6 +90,41 @@ export default function VideoToMapPage() {
     ],
     [t]
   );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchBalance = async () => {
+      try {
+        const res = await fetch("/api/billing/balance", {
+          method: "GET",
+          cache: "no-store",
+        });
+
+        if (res.status === 401) {
+          return;
+        }
+
+        if (!res.ok) {
+          console.error("Failed to load balance");
+          return;
+        }
+
+        const data: BalanceResponse = await res.json();
+        if (!cancelled) {
+          setCurrentCredits(data.total ?? 0);
+        }
+      } catch (err) {
+        console.error("Error while loading balance:", err);
+      }
+    };
+
+    fetchBalance();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!isProcessing) {
