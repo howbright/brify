@@ -130,6 +130,81 @@ export type Database = {
         }
         Relationships: []
       }
+      maps: {
+        Row: {
+          channel_name: string | null
+          created_at: string
+          credits_charged: number
+          credits_charged_at: string | null
+          description: string | null
+          extract_error: string | null
+          extract_job_id: string | null
+          extract_status: string
+          extracted_text: string | null
+          id: string
+          map_status: string
+          mind_elixir: Json | null
+          mind_elixir_draft: Json | null
+          required_credits: number
+          schema_version: number
+          source_type: string
+          source_url: string | null
+          tags: string[]
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel_name?: string | null
+          created_at?: string
+          credits_charged?: number
+          credits_charged_at?: string | null
+          description?: string | null
+          extract_error?: string | null
+          extract_job_id?: string | null
+          extract_status?: string
+          extracted_text?: string | null
+          id?: string
+          map_status?: string
+          mind_elixir?: Json | null
+          mind_elixir_draft?: Json | null
+          required_credits?: number
+          schema_version?: number
+          source_type: string
+          source_url?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel_name?: string | null
+          created_at?: string
+          credits_charged?: number
+          credits_charged_at?: string | null
+          description?: string | null
+          extract_error?: string | null
+          extract_job_id?: string | null
+          extract_status?: string
+          extracted_text?: string | null
+          id?: string
+          map_status?: string
+          mind_elixir?: Json | null
+          mind_elixir_draft?: Json | null
+          required_credits?: number
+          schema_version?: number
+          source_type?: string
+          source_url?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           category: string
