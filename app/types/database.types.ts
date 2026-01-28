@@ -63,10 +63,10 @@ export type Database = {
           delta_paid: number
           delta_total: number
           id: string
+          map_id: string | null
           payment_id: string | null
           reason: string | null
           source: Database["public"]["Enums"]["credit_transaction_source"]
-          summary_id: string | null
           tx_type: Database["public"]["Enums"]["credit_transaction_type"]
           user_id: string
         }
@@ -79,10 +79,10 @@ export type Database = {
           delta_paid?: number
           delta_total: number
           id?: string
+          map_id?: string | null
           payment_id?: string | null
           reason?: string | null
           source: Database["public"]["Enums"]["credit_transaction_source"]
-          summary_id?: string | null
           tx_type: Database["public"]["Enums"]["credit_transaction_type"]
           user_id: string
         }
@@ -95,14 +95,21 @@ export type Database = {
           delta_paid?: number
           delta_total?: number
           id?: string
+          map_id?: string | null
           payment_id?: string | null
           reason?: string | null
           source?: Database["public"]["Enums"]["credit_transaction_source"]
-          summary_id?: string | null
           tx_type?: Database["public"]["Enums"]["credit_transaction_type"]
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "credit_transactions_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "credit_transactions_payment_id_fkey"
             columns: ["payment_id"]
@@ -139,15 +146,15 @@ export type Database = {
           description: string | null
           extract_error: string | null
           extract_job_id: string | null
-          extract_status: string
+          extract_status: Database["public"]["Enums"]["map_extract_status"]
           extracted_text: string | null
           id: string
-          map_status: string
+          map_status: Database["public"]["Enums"]["map_status"]
           mind_elixir: Json | null
           mind_elixir_draft: Json | null
           required_credits: number
           schema_version: number
-          source_type: string
+          source_type: Database["public"]["Enums"]["map_source_type"]
           source_url: string | null
           tags: string[]
           thumbnail_url: string | null
@@ -163,15 +170,15 @@ export type Database = {
           description?: string | null
           extract_error?: string | null
           extract_job_id?: string | null
-          extract_status?: string
+          extract_status?: Database["public"]["Enums"]["map_extract_status"]
           extracted_text?: string | null
           id?: string
-          map_status?: string
+          map_status?: Database["public"]["Enums"]["map_status"]
           mind_elixir?: Json | null
           mind_elixir_draft?: Json | null
           required_credits?: number
           schema_version?: number
-          source_type: string
+          source_type?: Database["public"]["Enums"]["map_source_type"]
           source_url?: string | null
           tags?: string[]
           thumbnail_url?: string | null
@@ -187,15 +194,15 @@ export type Database = {
           description?: string | null
           extract_error?: string | null
           extract_job_id?: string | null
-          extract_status?: string
+          extract_status?: Database["public"]["Enums"]["map_extract_status"]
           extracted_text?: string | null
           id?: string
-          map_status?: string
+          map_status?: Database["public"]["Enums"]["map_status"]
           mind_elixir?: Json | null
           mind_elixir_draft?: Json | null
           required_credits?: number
           schema_version?: number
-          source_type?: string
+          source_type?: Database["public"]["Enums"]["map_source_type"]
           source_url?: string | null
           tags?: string[]
           thumbnail_url?: string | null
@@ -490,6 +497,17 @@ export type Database = {
         | "adjustment"
         | "expire"
       currency_code: "krw" | "usd"
+      map_extract_status:
+        | "idle"
+        | "queued"
+        | "processing"
+        | "cached"
+        | "completed"
+        | "failed"
+        | "error"
+        | "not_found"
+      map_source_type: "youtube" | "website" | "file" | "manual"
+      map_status: "processing" | "done" | "failed"
       payment_provider: "lemon_squeezy" | "toss"
       payment_status:
         | "pending"
@@ -641,6 +659,18 @@ export const Constants = {
         "expire",
       ],
       currency_code: ["krw", "usd"],
+      map_extract_status: [
+        "idle",
+        "queued",
+        "processing",
+        "cached",
+        "completed",
+        "failed",
+        "error",
+        "not_found",
+      ],
+      map_source_type: ["youtube", "website", "file", "manual"],
+      map_status: ["processing", "done", "failed"],
       payment_provider: ["lemon_squeezy", "toss"],
       payment_status: [
         "pending",
