@@ -208,39 +208,47 @@
     "quote": "“There’s always more to watch than there is time.\nI’d finish a video thinking it was incredibly helpful, but by the evening <strong>I could barely remember half of it</strong>.\nI kept telling myself I’d <highlight>come back to it later</highlight>, and of course many of those videos just disappeared into the backlog.\nWith <strong>health</strong>, <strong>kids’ education</strong>, and <strong>personal finance</strong> all competing for attention, it became even easier to lose track.\nSo I <heavy>built a tool myself</heavy>. When you save what you just watched as a <strong>“structure map”</strong>, you can reopen it later and still see the <strong>flow and the key points</strong> at a glance.”"
   },
   "LandingPricingSection": {
-    "title": "Simple, fair pricing",
-    "subtitle": "In most cases, one structure map requires just 1 credit.",
-    "positioningText": "No subscription — pay only what you use.",
-    "refundText": "Refunds on unused credits (within 7 days).",
-    "seeDetails": "See all pricing details",
+    "title": "Simple, fair credit pricing",
+    "subtitle": "In most cases, 1 credit is enough for one structure map.",
+    "positioningText": "No subscription — pay only for what you use.",
+    "refundText": "Unused credits are refundable within 7 days.",
+    "seeDetails": "View pricing details",
+
     "packs": {
       "50": {
         "badgeText": "Starter",
-        "tagline": "A light starter pack to try Brify without any commitment."
+        "tagline": "A light starter pack to try things out."
       },
       "150": {
         "badgeText": "Most popular",
-        "tagline": "The go-to pack if you summarize content regularly."
+        "tagline": "A standard pack for frequent summarizers."
       },
       "300": {
-        "badgeText": "High-volume pack",
-        "tagline": "A larger pack with enough credits for study, projects, and deep work."
+        "badgeText": "Large pack",
+        "tagline": "A generous pack for study and projects."
       }
     },
+
     "creditRule": {
-      "label": "Extra credits may be used depending on video length.",
-      "items": {
-        "small": {
-          "threshold": "Video scripts up to 2 hours"
-        },
-        "medium": {
-          "threshold": "Video scripts between 2–3 hours"
-        },
-        "large": {
-          "threshold": "Video scripts longer than 3 hours"
-        }
+      "title": "Most content uses only 1 credit",
+      "desc": "Only very large texts require 2 credits",
+      "details": {
+        "small": "Up to 70,000 chars",
+        "medium": "70,001 to 110,000 chars",
+        "large": "Over 110,000 chars"
+      },
+      "result": {
+        "one": "1 credit",
+        "two": "2 credits",
+        "blocked": "Not supported"
       }
     },
+
+    "toggles": {
+      "details": "Details",
+      "collapse": "Collapse"
+    },
+
     "paymentToggle": {
       "krw": "Pay in KRW (Toss Payments)",
       "usd": "Pay in USD (LemonSqueezy)"
@@ -288,7 +296,7 @@
       "hide": "Hide"
     },
     "reassurance": {
-       "line1": "No subscriptions · No auto-renewals."
+      "line1": "No subscriptions · No auto-renewals."
     },
     "positioningText": "No subscription — pay only what you use."
   },

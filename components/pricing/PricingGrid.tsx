@@ -118,12 +118,11 @@ export default function PricingGrid({
   const labelPositioning = positioningText ?? t("positioningText");
   const textRefund = refundText ?? t("refund.text");
 
-  const tooltipLines =
-    refundTooltipLines ?? [
-      t("refundTooltip.line1"),
-      t("refundTooltip.line2"),
-      t("refundTooltip.line3"),
-    ];
+  const tooltipLines = refundTooltipLines ?? [
+    t("refundTooltip.line1"),
+    t("refundTooltip.line2"),
+    t("refundTooltip.line3"),
+  ];
 
   const labelDetails = detailsLabel ?? t("toggles.details");
 
@@ -333,38 +332,70 @@ export default function PricingGrid({
         })}
       </div>
 
-      {creditRule?.items?.length ? (
-        <div className="mt-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-4">
-          <div className="flex items-center justify-between">
-            <div className="text-sm font-medium text-[var(--color-text)]">
-              {creditRule.label ?? t("creditRule.label")}
-            </div>
-            <button
-              type="button"
-              onClick={() => setOpenDetails((v) => !v)}
-              className="text-xs px-2 py-1 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-muted)] text-[var(--color-foreground)]"
-            >
-              {openDetails ? t("toggles.hide") : labelDetails}
-            </button>
+      <div className="mt-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="text-sm font-medium text-[var(--color-text)]">
+            {tLanding("creditRule.title")}
           </div>
 
-          {openDetails && (
-            <ul className="mt-2 grid gap-1 text-xs text-[color-mix(in_oklab,var(--color-foreground),transparent_20%)] sm:grid-cols-3">
-              {creditRule.items.map((it, idx) => (
-                <li key={idx} className="flex items-center gap-2">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
-                  <span>
-                    <span className="text-[var(--color-foreground)]">
-                      {it.threshold}
-                    </span>{" "}
-                    {t("creditRule.itemSuffix", { credits: it.credits })}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <button
+            type="button"
+            onClick={() => setOpenDetails((v) => !v)}
+            className="text-xs px-2 py-1 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-muted)] text-[var(--color-foreground)]"
+          >
+            {openDetails
+              ? tLanding("toggles.collapse")
+              : tLanding("toggles.details")}
+          </button>
         </div>
-      ) : null}
+
+        <p className="mt-2 text-xs text-[color-mix(in_oklab,var(--color-foreground),transparent_25%)] leading-relaxed">
+          {tLanding("creditRule.desc")}
+        </p>
+
+        {openDetails && (
+          <ul className="mt-3 grid gap-1.5 text-xs text-[color-mix(in_oklab,var(--color-foreground),transparent_20%)] sm:grid-cols-3">
+            <li className="flex items-center gap-2">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
+              <span>
+                <span className="text-[var(--color-foreground)]">
+                  {tLanding("creditRule.details.small")}
+                </span>{" "}
+                →{" "}
+                <b className="text-[var(--color-foreground)]">
+                  {tLanding("creditRule.result.one")}
+                </b>
+              </span>
+            </li>
+
+            <li className="flex items-center gap-2">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
+              <span>
+                <span className="text-[var(--color-foreground)]">
+                  {tLanding("creditRule.details.medium")}
+                </span>{" "}
+                →{" "}
+                <b className="text-[var(--color-foreground)]">
+                  {tLanding("creditRule.result.two")}
+                </b>
+              </span>
+            </li>
+
+            <li className="flex items-center gap-2">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
+              <span>
+                <span className="text-[var(--color-foreground)]">
+                  {tLanding("creditRule.details.large")}
+                </span>{" "}
+                →{" "}
+                <b className="text-[var(--color-foreground)]">
+                  {tLanding("creditRule.result.blocked")}
+                </b>
+              </span>
+            </li>
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

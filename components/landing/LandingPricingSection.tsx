@@ -132,9 +132,6 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
               billingCurrency={paymentMode === "usd" ? "USD" : "KRW"}
               creditRule={{
                 items: [
-                  { threshold: t("creditRule.items.small.threshold"), credits: 1 },
-                  { threshold: t("creditRule.items.medium.threshold"), credits: 2 },
-                  { threshold: t("creditRule.items.large.threshold"), credits: 3 },
                 ],
               }}
               // ✅ 토글을 PricingGrid가 렌더하도록 넘겨줌

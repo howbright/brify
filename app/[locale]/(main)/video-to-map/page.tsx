@@ -7,26 +7,79 @@ import { useRouter } from "next/navigation";
 import { MapDraft } from "./types";
 import ScriptInputCard from "./ScriptInputCard";
 import ScriptHelpSection from "../video-to-map2/ScriptHelpSection";
-import ProcessingStatusCard from "./ProcessingStatusCard";
 import DraftMapCard from "./DraftMapCard";
 import CreditConfirmModal from "./CreditConfirmModal";
 import MetadataDialog from "./MetadataDialog";
 import YoutubeScriptDialog from "./YoutubeScriptDialog";
 import ResultReadyPanel from "./ResultReadyPanel";
 
-import { createClient } from "@/utils/supabase/client"; // ✅ 너 경로에 맞게!
+import { createClient } from "@/utils/supabase/client";
 
-const LONG_SCRIPT_THRESHOLD = 6000;
+// ✅ 크레딧 정책 (1~2단계 + 초과는 거절)
+const CREDIT_POLICY = {
+  ONE_MAX_CHARS: 70_000,
+  TWO_MAX_CHARS: 110_000,
+} as const;
+
 type BalanceResponse = {
   total: number;
   paid: number;
   free: number;
 };
 
-function getRequiredCredits(text: string) {
-  const length = text.trim().length;
+/**
+ * ✅ 크레딧/제한 계산을 위한 정제 함수
+ * - 타임스탬프(0:03, 12:34, 1:02:11) 제거
+ * - [음악] [박수] 같은 태그 제거
+ * - 공백/줄바꿈 정리
+ */
+function normalizeForBilling(raw: string) {
+  let s = raw ?? "";
+
+  // 1) 줄 시작 타임스탬프 제거
+  //   - "0:03" 같은 타임스탬프만 있는 줄
+  s = s.replace(/^\s*\d{1,2}:\d{2}(?::\d{2})?\s*$/gm, "");
+  //   - "0:03 내용..." 형태
+  s = s.replace(/^\s*\d{1,2}:\d{2}(?::\d{2})?\s+/gm, "");
+
+  // 2) [음악], [박수] 등 대괄호 태그 제거 (한국어/영어 기본 패턴)
+  s = s.replace(
+    /\[(?:음악|박수|웃음|기도|찬양|간주|BGM|Music|SFX|Applause|Laugh).*?\]/gi,
+    ""
+  );
+
+  // 3) 공백/줄바꿈 정리
+  s = s.replace(/[ \t]+/g, " ");
+  s = s.replace(/\n{3,}/g, "\n\n");
+
+  return s.trim();
+}
+
+// ✅ throw는 클릭/확정 시점에서만
+function getRequiredCreditsUnsafe(text: string) {
+  const cleaned = normalizeForBilling(text);
+  const length = cleaned.length;
+
   if (!length) return 1;
-  return length > LONG_SCRIPT_THRESHOLD ? 2 : 1;
+
+  if (length > CREDIT_POLICY.TWO_MAX_CHARS) {
+    throw new Error("INPUT_TOO_LARGE");
+  }
+
+  return length > CREDIT_POLICY.ONE_MAX_CHARS ? 2 : 1;
+}
+
+// ✅ 렌더용(절대 throw 안 함)
+function getRequiredCreditsSafe(text: string) {
+  const cleaned = normalizeForBilling(text);
+  const length = cleaned.length;
+
+  if (!length) return { credits: 1, length, tooLarge: false, cleaned };
+
+  const tooLarge = length > CREDIT_POLICY.TWO_MAX_CHARS;
+  const credits = length > CREDIT_POLICY.ONE_MAX_CHARS ? 2 : 1;
+
+  return { credits, length, tooLarge, cleaned };
 }
 
 function genId() {
@@ -48,17 +101,34 @@ export default function VideoToMapPage() {
 
   const [error, setError] = useState<string | null>(null);
 
+  // ✅ 토스트(간단)
+  const [toast, setToast] = useState<{ open: boolean; message: string }>({
+    open: false,
+    message: "",
+  });
+
+  const openToast = (message: string) => {
+    setToast({ open: true, message });
+    window.setTimeout(() => setToast({ open: false, message: "" }), 2600);
+  };
+
   // ✅ “저장 후 카드” 리스트 (DB 대신)
   const [drafts, setDrafts] = useState<MapDraft[]>([]);
 
-  // ✅ 지금 클릭해서 진행 중인 작업을 연결하기 위한 임시 job context
+  // ✅ 진행 중 작업 연결용
   const pendingJobIdRef = useRef<string | null>(null);
   const pendingScriptRef = useRef<string>("");
 
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const [currentCredits, setCurrentCredits] = useState(0);
-  const requiredCredits = getRequiredCredits(scriptText);
+
+  // ✅ 렌더에서는 안전 계산만
+  const creditInfo = useMemo(
+    () => getRequiredCreditsSafe(scriptText),
+    [scriptText]
+  );
+  const requiredCredits = creditInfo.credits;
 
   // ✅ 유튜브 모달 상태
   const [showYoutubeDialog, setShowYoutubeDialog] = useState(false);
@@ -77,7 +147,7 @@ export default function VideoToMapPage() {
     thumbnailUrl?: string | null;
   } | null>(null);
 
-  // ✅ (1) 완료 즉시: 입력 영역을 결과 패널로 교체하기 위한 상태
+  // ✅ 입력 ↔ 결과 패널 교체
   const [viewMode, setViewMode] = useState<"input" | "result">("input");
   const [lastJobId, setLastJobId] = useState<string | null>(null);
 
@@ -101,19 +171,11 @@ export default function VideoToMapPage() {
           cache: "no-store",
         });
 
-        if (res.status === 401) {
-          return;
-        }
-
-        if (!res.ok) {
-          console.error("Failed to load balance");
-          return;
-        }
+        if (res.status === 401) return;
+        if (!res.ok) return;
 
         const data: BalanceResponse = await res.json();
-        if (!cancelled) {
-          setCurrentCredits(data.total ?? 0);
-        }
+        if (!cancelled) setCurrentCredits(data.total ?? 0);
       } catch (err) {
         console.error("Error while loading balance:", err);
       }
@@ -132,18 +194,38 @@ export default function VideoToMapPage() {
       return;
     }
 
-    const interval = setInterval(() => {
+    const interval = window.setInterval(() => {
       setStatusStep((s) => (s + 1) % statusMessages.length);
     }, 2500);
 
-    return () => clearInterval(interval);
+    return () => window.clearInterval(interval);
   }, [isProcessing, statusMessages.length]);
+
+  const showInputTooLargeUI = creditInfo.tooLarge;
 
   const handleClickGenerate = () => {
     setError(null);
 
     if (!scriptText.trim()) {
       setError(t("errors.emptyScript"));
+      return;
+    }
+
+    // ✅ 초과 입력은 여기서 차단 + UI(에러/토스트)
+    try {
+      getRequiredCreditsUnsafe(scriptText);
+    } catch (e: any) {
+      if (e?.message === "INPUT_TOO_LARGE") {
+        const msg =
+          `입력 분량이 너무 커서 현재는 처리할 수 없어요.\n` +
+          `최대: ${CREDIT_POLICY.TWO_MAX_CHARS.toLocaleString()}자 (과금 기준)\n` +
+          `현재: ${creditInfo.length.toLocaleString()}자 (과금 기준)`;
+        setError(msg);
+        openToast(msg);
+        return;
+      }
+      setError("처리 중 오류가 발생했습니다.");
+      openToast("처리 중 오류가 발생했습니다.");
       return;
     }
 
@@ -228,7 +310,7 @@ export default function VideoToMapPage() {
       );
 
       // ✅ 성공하면 0.6초 후 자동 닫기
-      setTimeout(() => {
+      window.setTimeout(() => {
         setShowYoutubeDialog(false);
         setYoutubeSuccess(null);
       }, 600);
@@ -239,9 +321,31 @@ export default function VideoToMapPage() {
     }
   };
 
-  // ✅ (2) 크레딧 확인 후: “작업 시작(모킹)” + “메타데이터 팝업 열기”
+  // ✅ 크레딧 확인 후 처리
   const handleConfirmUseCredits = async () => {
-    if (currentCredits < requiredCredits) {
+    // ✅ 모달 열린 사이 텍스트 변경 가능성 → 다시 계산/검증
+    let creditsNow = 1;
+
+    try {
+      creditsNow = getRequiredCreditsUnsafe(scriptText);
+    } catch (e: any) {
+      if (e?.message === "INPUT_TOO_LARGE") {
+        const msg =
+          `입력 분량이 너무 커서 현재는 처리할 수 없어요.\n` +
+          `최대: ${CREDIT_POLICY.TWO_MAX_CHARS.toLocaleString()}자 (과금 기준)\n` +
+          `현재: ${creditInfo.length.toLocaleString()}자 (과금 기준)`;
+        setShowCreditDialog(false);
+        setError(msg);
+        openToast(msg);
+        return;
+      }
+      setShowCreditDialog(false);
+      setError("처리 중 오류가 발생했습니다.");
+      openToast("처리 중 오류가 발생했습니다.");
+      return;
+    }
+
+    if (currentCredits < creditsNow) {
       setShowCreditDialog(false);
       setError(t("errors.insufficientCredits"));
       return;
@@ -257,10 +361,10 @@ export default function VideoToMapPage() {
     setIsProcessing(true);
     setShowMetadataDialog(true);
 
-    // ✅ (중요) 처리 시작 시점에는 input 모드 유지
     setViewMode("input");
 
-    setTimeout(() => {
+    // ✅ 모킹 완료
+    window.setTimeout(() => {
       setDrafts((prev) => {
         const idx = prev.findIndex((d) => d.id === jobId);
         if (idx >= 0) {
@@ -277,13 +381,12 @@ export default function VideoToMapPage() {
 
       setIsProcessing(false);
 
-      // ✅ (3) 완료 즉시: 결과 패널로 교체
       setLastJobId(jobId);
       setViewMode("result");
     }, 9000);
   };
 
-  // ✅ (3) 메타데이터 저장 → 카드 생성/업데이트
+  // ✅ 메타데이터 저장 → 카드 생성/업데이트
   const handleSaveMetadata = (meta: {
     sourceUrl?: string;
     title: string;
@@ -320,7 +423,6 @@ export default function VideoToMapPage() {
     setShowMetadataDialog(false);
     pendingJobIdRef.current = null;
     pendingScriptRef.current = "";
-
     setYoutubeMeta(null);
   };
 
@@ -350,8 +452,17 @@ export default function VideoToMapPage() {
         "
       />
 
+      {/* ✅ 토스트 */}
+      {toast.open && (
+        <div className="fixed left-1/2 bottom-6 z-[100] -translate-x-1/2">
+          <div className="max-w-[92vw] whitespace-pre-line rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 shadow-lg dark:border-white/10 dark:bg-neutral-900 dark:text-neutral-50">
+            {toast.message}
+          </div>
+        </div>
+      )}
+
       <div className="max-w-6xl mx-auto px-2 md:px-10 flex flex-col gap-3 relative">
-        <header className="mt-7">
+        <header className="mt-7 space-y-2">
           <h1 className="text-2xl sm:text-2xl md:text-2xl font-extrabold leading-tight tracking-tight text-neutral-900 dark:text-white">
             {t("title.prefix")}{" "}
             <span className="text-blue-700 dark:text-[rgb(var(--hero-b))]">
@@ -371,7 +482,7 @@ export default function VideoToMapPage() {
             }
           `}
         >
-          {/* ✅ (1)(2)(3) 입력영역 ↔ 결과패널 교체 */}
+          {/* ✅ 입력영역 ↔ 결과패널 */}
           {viewMode === "input" ? (
             <ScriptInputCard
               scriptText={scriptText}
@@ -388,25 +499,26 @@ export default function VideoToMapPage() {
               }}
               outputLang={outputLang}
               setOutputLang={setOutputLang}
-              disabled={showMetadataDialog} // ✅ 이미 적용한 잠금
+              disabled={showMetadataDialog}
+              // ✅ 핵심: 한도 초과 UI 처리 props 내려주기
+              isTooLarge={showInputTooLargeUI}
+              billingLength={creditInfo.length}
+              maxLength={CREDIT_POLICY.TWO_MAX_CHARS}
             />
           ) : (
             <ResultReadyPanel
               draft={drafts.find((d) => d.id === lastJobId) ?? null}
               onOpen={() => {
                 if (!lastJobId) return;
-                // ✅ 상세 페이지로 이동: /[locale]/maps/[id]
                 router.push(`/${locale}/maps/${lastJobId}`);
               }}
               onCreateNew={() => {
                 setViewMode("input");
                 setLastJobId(null);
-                // (선택) 새로 시작 시 입력 초기화하고 싶으면:
-                // setScriptText("");
-                // setYoutubeMeta(null);
               }}
             />
           )}
+
           <div className="flex flex-col gap-4">
             <ScriptHelpSection
               isHelpOpen={isHelpOpen}
@@ -418,9 +530,7 @@ export default function VideoToMapPage() {
         {drafts.length > 0 && (
           <section className="mt-2 space-y-3">
             <div className="flex items-end justify-between gap-2">
-              <h2 className="text-base md:text-lg font-semibold">
-                만든 구조맵
-              </h2>
+              <h2 className="text-base md:text-lg font-semibold">만든 구조맵</h2>
             </div>
 
             <div className="grid gap-3">

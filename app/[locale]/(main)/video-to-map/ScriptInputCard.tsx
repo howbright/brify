@@ -20,6 +20,11 @@ type Props = {
 
   // ✅ 추가: 입력 잠금 (메타다이얼로그가 열렸을 때 true)
   disabled?: boolean;
+
+  // ✅ 추가: 한도 초과 UI 처리용 (부모에서 계산해서 내려주기)
+  isTooLarge?: boolean;
+  billingLength?: number; // 과금 기준 글자수
+  maxLength?: number; // 최대 허용 과금 기준 글자수 (ex: 110,000)
 };
 
 export default function ScriptInputCard({
@@ -34,24 +39,32 @@ export default function ScriptInputCard({
   outputLang,
   setOutputLang,
   disabled = false,
+
+  // ✅ new
+  isTooLarge = false,
+  billingLength,
+  maxLength,
 }: Props) {
   const locked = disabled || isProcessing;
+
+  // ✅ 생성 버튼 차단 조건: 입력 없음 / 잠금 / 한도초과
+  const canGenerate = Boolean(scriptText.trim()) && !locked && !isTooLarge;
 
   return (
     <section
       className="
-    relative
-    mt-1 rounded-3xl border border-neutral-200 bg-white
-    shadow-[0_22px_45px_-24px_rgba(15,23,42,0.55)]
-    backdrop-blur-sm
-    p-5 md:p-6 flex flex-col gap-4
+        relative
+        mt-1 rounded-3xl border border-neutral-200 bg-white
+        shadow-[0_22px_45px_-24px_rgba(15,23,42,0.55)]
+        backdrop-blur-sm
+        p-5 md:p-6 flex flex-col gap-4
 
-    dark:bg-[#0F172A]
-    dark:border-white/10
-    dark:ring-1 dark:ring-white/5
-    dark:shadow-[0_28px_90px_-55px_rgba(0,0,0,0.85)]
-    dark:bg-[linear-gradient(to_bottom,rgba(255,255,255,0.06),rgba(255,255,255,0.0))]
-  "
+        dark:bg-[#0F172A]
+        dark:border-white/10
+        dark:ring-1 dark:ring-white/5
+        dark:shadow-[0_28px_90px_-55px_rgba(0,0,0,0.85)]
+        dark:bg-[linear-gradient(to_bottom,rgba(255,255,255,0.06),rgba(255,255,255,0.0))]
+      "
     >
       {/* ✅ 잠금 오버레이: 메타다이얼로그 열림/처리중일 때 입력 영역 전체 잠금 */}
       {locked && (
@@ -103,6 +116,32 @@ export default function ScriptInputCard({
         </button>
       </div>
 
+      {/* ✅ 한도 초과 배너 (잠금과 무관하게 표시) */}
+      {isTooLarge && (
+        <div
+          className="
+            rounded-2xl border border-red-200 bg-red-50
+            px-3 py-2 text-sm text-red-800
+            dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200
+            whitespace-pre-line
+          "
+        >
+          입력 분량이 너무 커서 처리할 수 없습니다.
+          {"\n"}
+          {typeof billingLength === "number" ? (
+            <>
+              과금 기준 분량: {billingLength.toLocaleString()}자
+              {"\n"}
+            </>
+          ) : null}
+          {typeof maxLength === "number" ? (
+            <>최대 허용: {maxLength.toLocaleString()}자</>
+          ) : (
+            <>최대 허용치를 초과했어</>
+          )}
+        </div>
+      )}
+
       <textarea
         className="
           w-full min-h-[260px] md:min-h-[300px] resize-y
@@ -120,7 +159,7 @@ export default function ScriptInputCard({
         disabled={locked}
       />
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-red-500 whitespace-pre-line">{error}</p>}
 
       {/* 하단: 좌측(크레딧 + 언어) / 우측(생성 버튼) */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -144,8 +183,12 @@ export default function ScriptInputCard({
         {/* 우측: 생성 버튼 */}
         <button
           type="button"
-          onClick={onGenerate}
-          disabled={!scriptText.trim() || locked}
+          onClick={() => {
+            // ✅ 한도 초과면 클릭해도 안 넘어가게 방어
+            if (isTooLarge) return;
+            onGenerate();
+          }}
+          disabled={!canGenerate}
           className="
             inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-2.5
             text-sm md:text-[15px] font-semibold text-white
