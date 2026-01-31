@@ -663,6 +663,7 @@ export default function VideoToMapPage() {
 
       {showMetadataDialog && (
         <MetadataDialog
+          mapId={editingDraft?.id ?? createdMapId ?? undefined}
           initial={{
             sourceUrl:
               editingDraft?.sourceUrl ?? youtubeMeta?.sourceUrl ?? "",
