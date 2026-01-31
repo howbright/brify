@@ -95,6 +95,16 @@ function genId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
+function withCacheBuster(url: string) {
+  try {
+    const u = new URL(url);
+    u.searchParams.set("t", Date.now().toString());
+    return u.toString();
+  } catch {
+    return url;
+  }
+}
+
 export default function VideoToMapPage() {
   const t = useTranslations("VideoToMapPage");
   const locale = useLocale();
@@ -481,13 +491,17 @@ export default function VideoToMapPage() {
         const id = createdMapId;
         if (!id) return prev;
 
+        const cacheBustedThumb = meta.thumbnailUrl
+          ? withCacheBuster(meta.thumbnailUrl)
+          : meta.thumbnailUrl;
+
         const draft: MapDraft = {
           id,
           createdAt: Date.now(),
           sourceUrl: meta.sourceUrl,
           title: meta.title || "제목없음",
           channelName: meta.channelName,
-          thumbnailUrl: meta.thumbnailUrl,
+          thumbnailUrl: cacheBustedThumb,
           tags: meta.tags ?? [],
           description: meta.description,
           status: "processing",

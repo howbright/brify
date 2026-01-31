@@ -259,7 +259,6 @@ export default function MetadataDialog({
         return;
       }
     }
-
     const meta: Meta = {
       sourceUrl: sourceUrl.trim() || undefined,
       title: title.trim(),
