@@ -152,6 +152,7 @@ export type Database = {
           map_status: Database["public"]["Enums"]["map_status"]
           mind_elixir: Json | null
           mind_elixir_draft: Json | null
+          output_language: string | null
           required_credits: number
           schema_version: number
           source_type: Database["public"]["Enums"]["map_source_type"]
@@ -176,6 +177,7 @@ export type Database = {
           map_status?: Database["public"]["Enums"]["map_status"]
           mind_elixir?: Json | null
           mind_elixir_draft?: Json | null
+          output_language?: string | null
           required_credits?: number
           schema_version?: number
           source_type?: Database["public"]["Enums"]["map_source_type"]
@@ -200,6 +202,7 @@ export type Database = {
           map_status?: Database["public"]["Enums"]["map_status"]
           mind_elixir?: Json | null
           mind_elixir_draft?: Json | null
+          output_language?: string | null
           required_credits?: number
           schema_version?: number
           source_type?: Database["public"]["Enums"]["map_source_type"]
@@ -507,7 +510,7 @@ export type Database = {
         | "error"
         | "not_found"
       map_source_type: "youtube" | "website" | "file" | "manual"
-      map_status: "processing" | "done" | "failed"
+      map_status: "processing" | "done" | "failed" | "idle" | "queued"
       payment_provider: "lemon_squeezy" | "toss"
       payment_status:
         | "pending"
@@ -670,7 +673,7 @@ export const Constants = {
         "not_found",
       ],
       map_source_type: ["youtube", "website", "file", "manual"],
-      map_status: ["processing", "done", "failed"],
+      map_status: ["processing", "done", "failed", "idle", "queued"],
       payment_provider: ["lemon_squeezy", "toss"],
       payment_status: [
         "pending",
