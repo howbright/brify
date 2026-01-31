@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
+import { createClient } from "@/utils/supabase/client";
+import { resizeToWebp, validateImageFile } from "@/utils/image";
 
 type Meta = {
   sourceUrl?: string;
@@ -26,6 +28,8 @@ function splitTags(input: string) {
 }
 
 type Props = {
+  mapId?: string; // ✅ 추가: map 단위 썸네일 저장 경로에 사용
+
   initial: {
     sourceUrl?: string;
     title?: string;
@@ -44,6 +48,7 @@ type Props = {
 };
 
 export default function MetadataDialog({
+  mapId,
   initial,
   onClose,
   onSave,
@@ -60,33 +65,117 @@ export default function MetadataDialog({
   const [description, setDescription] = useState(initial.description ?? "");
 
   const [titleError, setTitleError] = useState<string | null>(null);
+  const [isFetchingYoutubeMeta, setIsFetchingYoutubeMeta] = useState(false);
+  const [youtubeMetaError, setYoutubeMetaError] = useState<string | null>(null);
+
+  // ✅ manual upload states
+  const [thumbFile, setThumbFile] = useState<File | null>(null);
+  const [isUploadingThumb, setIsUploadingThumb] = useState(false);
+  const [thumbUploadError, setThumbUploadError] = useState<string | null>(null);
+
+  // ✅ 선택한 파일 미리보기 URL(Object URL)
+  const [thumbPreviewUrl, setThumbPreviewUrl] = useState<string | null>(null);
 
   const youtube = useMemo(() => isYouTubeUrl(sourceUrl), [sourceUrl]);
 
-  const mockFetchYouTubeMeta = () => {
-    const mock = {
-      title: "【Mock】유튜브 영상 제목이 자동으로 입력됩니다",
-      channelName: "【Mock】Channel Name",
-      thumbnailUrl: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
-    };
-    if (!title) setTitle(mock.title);
-    if (!channelName) setChannelName(mock.channelName);
-    if (!thumbnailUrl) setThumbnailUrl(mock.thumbnailUrl);
+  const clearManualUploadState = () => {
+    setThumbFile(null);
+    setThumbUploadError(null);
+    if (thumbPreviewUrl) URL.revokeObjectURL(thumbPreviewUrl);
+    setThumbPreviewUrl(null);
   };
 
-  useEffect(() => {
-    if (youtube) mockFetchYouTubeMeta();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [youtube]);
+  const fetchYoutubeMeta = async () => {
+    if (!youtube) return;
+    setYoutubeMetaError(null);
+    setIsFetchingYoutubeMeta(true);
+
+    try {
+      const url = sourceUrl.trim();
+      if (!url) throw new Error("유튜브 URL을 입력해 주세요.");
+
+      const supabase = createClient();
+      const { data: sessionData, error: sessionErr } =
+        await supabase.auth.getSession();
+
+      if (sessionErr) {
+        throw new Error("세션을 가져오지 못했습니다: " + sessionErr.message);
+      }
+
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        throw new Error("로그인이 필요합니다.");
+      }
+
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!base) {
+        throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
+      }
+
+      const res = await fetch(`${base}/youtube-scripts/meta`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ youtubeUrl: url }),
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg =
+          json?.message || json?.error || "유튜브 정보를 가져오지 못했습니다.";
+        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+      }
+
+      if (json?.title) setTitle(String(json.title));
+      if (json?.channelName) setChannelName(String(json.channelName));
+      if (json?.thumbnailUrl) setThumbnailUrl(String(json.thumbnailUrl));
+      if (json?.description) setDescription(String(json.description));
+
+      if (Array.isArray(json?.tags) && json.tags.length > 0) {
+        setTagInput(json.tags.slice(0, 12).join(", "));
+      }
+
+      // ✅ 유튜브 자동 채우기를 성공하면 "수동 업로드 상태"는 해제 (충돌 방지)
+      clearManualUploadState();
+    } catch (e: any) {
+      setYoutubeMetaError(e?.message ?? "유튜브 정보를 가져오지 못했습니다.");
+    } finally {
+      setIsFetchingYoutubeMeta(false);
+    }
+  };
 
   useEffect(() => {
     if (titleError && title.trim()) setTitleError(null);
   }, [title, titleError]);
 
+  // ✅ Object URL 정리
+  useEffect(() => {
+    return () => {
+      if (thumbPreviewUrl) URL.revokeObjectURL(thumbPreviewUrl);
+    };
+  }, [thumbPreviewUrl]);
+
   const handlePickThumbFile = (file: File | null) => {
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    setThumbnailUrl(url);
+
+    try {
+      validateImageFile(file, 5);
+      setThumbUploadError(null);
+      setThumbFile(file);
+
+      // preview URL 교체
+      if (thumbPreviewUrl) URL.revokeObjectURL(thumbPreviewUrl);
+      const preview = URL.createObjectURL(file);
+      setThumbPreviewUrl(preview);
+
+      // UI에는 preview 표시
+      setThumbnailUrl(preview);
+    } catch (e: any) {
+      setThumbUploadError(e?.message ?? "이미지 파일이 올바르지 않습니다.");
+      setThumbFile(null);
+    }
   };
 
   const requireTitle = () => {
@@ -103,14 +192,79 @@ export default function MetadataDialog({
     onClose();
   };
 
-  const handleSave = () => {
+  const uploadThumbnailToSupabase = async (file: File) => {
+    setThumbUploadError(null);
+    setIsUploadingThumb(true);
+
+    try {
+      // ✅ 저장 시 업로드인데 mapId가 없으면 업로드 불가
+      if (!mapId) {
+        throw new Error("mapId가 없어 썸네일을 업로드할 수 없습니다.");
+      }
+
+      validateImageFile(file, 5);
+
+      const supabase = createClient();
+      const {
+        data: { user },
+        error: userErr,
+      } = await supabase.auth.getUser();
+
+      if (userErr || !user) {
+        throw new Error("로그인이 필요합니다.");
+      }
+
+      // ✅ 리사이즈 + webp 변환
+      const webp = await resizeToWebp(file, { maxWidth: 1280, quality: 0.82 });
+
+      // ✅ mapId 기준 경로 + 같은 path 덮어쓰기
+      const objectPath = `${user.id}/maps/${mapId}/thumbnail.webp`;
+
+      const { error: uploadErr } = await supabase.storage
+        .from("thumbnails")
+        .upload(objectPath, webp, {
+          upsert: true,
+          contentType: "image/webp",
+          cacheControl: "3600",
+        });
+
+      if (uploadErr) throw uploadErr;
+
+      const { data } = supabase.storage.from("thumbnails").getPublicUrl(objectPath);
+      return data.publicUrl;
+    } catch (e: any) {
+      setThumbUploadError(e?.message ?? "썸네일 업로드에 실패했습니다.");
+      throw e;
+    } finally {
+      setIsUploadingThumb(false);
+    }
+  };
+
+  const handleSave = async () => {
     if (!requireTitle()) return;
+
+    let finalThumbUrl = thumbnailUrl.trim() || undefined;
+
+    // ✅ 핵심 조건: "수동 업로드(파일 선택)"인 경우에만 Storage 업로드 실행
+    if (thumbFile) {
+      try {
+        const publicUrl = await uploadThumbnailToSupabase(thumbFile);
+        finalThumbUrl = publicUrl;
+
+        // preview -> 실제 URL로 교체
+        setThumbnailUrl(publicUrl);
+        clearManualUploadState();
+      } catch {
+        // 업로드 실패 시 저장 중단
+        return;
+      }
+    }
 
     const meta: Meta = {
       sourceUrl: sourceUrl.trim() || undefined,
       title: title.trim(),
       channelName: channelName.trim() || undefined,
-      thumbnailUrl: thumbnailUrl.trim() || undefined,
+      thumbnailUrl: finalThumbUrl,
       tags: splitTags(tagInput),
       description: description.trim() || undefined,
     };
@@ -119,6 +273,7 @@ export default function MetadataDialog({
   };
 
   const titleCounter = `${title.trim().length}/80`;
+  const isBusy = isFetchingYoutubeMeta || isUploadingThumb;
 
   return (
     <div className="fixed inset-0 z-50">
@@ -191,68 +346,11 @@ export default function MetadataDialog({
               onClick={handleTryClose}
               className="rounded-xl p-2 hover:bg-neutral-100 dark:hover:bg-white/10 flex-shrink-0"
               aria-label="close"
+              disabled={isUploadingThumb}
             >
               <Icon icon="mdi:close" className="h-5 w-5" />
             </button>
           </div>
-
-          {/* processing */}
-          {isProcessing && (
-            <div
-              className="
-                relative
-                px-5 md:px-6 py-3
-                border-b border-neutral-200/70 dark:border-white/10
-                bg-blue-50/70 dark:bg-white/[0.06]
-              "
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <div
-                  className="
-                    h-7 w-7 flex items-center justify-center rounded-full
-                    bg-neutral-900 text-white text-[11px] font-semibold
-                    dark:bg-white dark:text-neutral-900
-                    flex-shrink-0
-                  "
-                >
-                  AI
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-semibold text-neutral-900 dark:text-white leading-snug break-words">
-                    {processingTitle ?? "구조맵을 생성하고 있습니다"}
-                  </p>
-                  <p className="text-[12px] text-neutral-600 dark:text-white/70 truncate">
-                    {processingMessage ?? "처리 중입니다"}
-                    <span className="inline-flex gap-0.5 ml-1">
-                      <span className="animate-pulse">.</span>
-                      <span className="animate-pulse delay-150">.</span>
-                      <span className="animate-pulse delay-300">.</span>
-                    </span>
-                  </p>
-
-                  {process.env.NODE_ENV === "development" &&
-                    processingBullets.length > 0 && (
-                      <span className="hidden">
-                        {processingBullets.join(",")}
-                      </span>
-                    )}
-                </div>
-
-                <div className="w-24 sm:w-28 md:w-40 flex-shrink-0">
-                  <div className="h-2 rounded-full bg-blue-200/80 dark:bg-white/10 overflow-hidden">
-                    <div
-                      className="
-                        h-full w-1/2 rounded-full
-                        bg-[linear-gradient(90deg,#3b82f6,#22c55e,#a855f7)]
-                        animate-[pulse_1.2s_ease-in-out_infinite]
-                      "
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* body */}
           <div
@@ -268,7 +366,6 @@ export default function MetadataDialog({
                 URL (선택)
               </label>
 
-              {/* ✅ (2) 모바일: 버튼 아래로 */}
               <div className="flex flex-col sm:flex-row gap-2 min-w-0">
                 <input
                   value={sourceUrl}
@@ -284,26 +381,32 @@ export default function MetadataDialog({
                 />
                 <button
                   type="button"
-                  onClick={mockFetchYouTubeMeta}
-                  disabled={!youtube}
+                  onClick={fetchYoutubeMeta}
+                  disabled={!youtube || isFetchingYoutubeMeta}
                   className="
-    w-full sm:w-auto
-    rounded-2xl px-3 py-2 text-sm font-semibold
-    inline-flex items-center justify-center gap-2
-    text-white
-    bg-neutral-900 hover:bg-neutral-800
-    dark:bg-[rgb(var(--hero-b))] dark:hover:bg-[rgb(var(--hero-a))]
-    shadow-sm hover:shadow-md
-    transition-transform hover:scale-[1.02] active:scale-100
-    focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/40
-    dark:focus-visible:ring-[rgb(var(--hero-b))]/35
-    disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed
-    whitespace-nowrap
-  "
+                    w-full sm:w-auto
+                    rounded-2xl px-3 py-2 text-sm font-semibold
+                    inline-flex items-center justify-center gap-2
+                    text-white
+                    bg-neutral-900 hover:bg-neutral-800
+                    dark:bg-[rgb(var(--hero-b))] dark:hover:bg-[rgb(var(--hero-a))]
+                    shadow-sm hover:shadow-md
+                    transition-transform hover:scale-[1.02] active:scale-100
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/40
+                    dark:focus-visible:ring-[rgb(var(--hero-b))]/35
+                    disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed
+                    whitespace-nowrap
+                  "
                 >
-                  유튜브로 자동 채우기
+                  {isFetchingYoutubeMeta ? "불러오는 중..." : "유튜브로 자동 채우기"}
                 </button>
               </div>
+
+              {youtubeMetaError && (
+                <p className="text-[12px] text-rose-600 dark:text-rose-300 break-words">
+                  {youtubeMetaError}
+                </p>
+              )}
 
               <p className="text-[11px] text-neutral-500 dark:text-white/60 break-words">
                 {youtube
@@ -372,7 +475,6 @@ export default function MetadataDialog({
                 썸네일 (선택)
               </label>
 
-              {/* ✅ 모바일에서 자연스럽게 줄바꿈되게 */}
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 min-w-0">
                 <div
                   className="
@@ -399,7 +501,11 @@ export default function MetadataDialog({
                 <div className="flex-1 grid gap-2 min-w-0">
                   <input
                     value={thumbnailUrl}
-                    onChange={(e) => setThumbnailUrl(e.target.value)}
+                    onChange={(e) => {
+                      setThumbnailUrl(e.target.value);
+                      // URL 직접 수정하면 파일 업로드 상태는 해제(충돌 방지)
+                      clearManualUploadState();
+                    }}
                     placeholder="(선택) 썸네일 URL"
                     className="
                       w-full min-w-0
@@ -409,6 +515,7 @@ export default function MetadataDialog({
                       dark:border-white/12 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
                     "
                   />
+
                   <div className="flex items-center gap-2 min-w-0">
                     <label
                       className="
@@ -430,7 +537,25 @@ export default function MetadataDialog({
                         }
                       />
                     </label>
+
+                    {isUploadingThumb && (
+                      <span className="text-[12px] text-neutral-500 dark:text-white/60">
+                        업로드 중...
+                      </span>
+                    )}
                   </div>
+
+                  {thumbUploadError && (
+                    <p className="text-[12px] text-rose-600 dark:text-rose-300 break-words">
+                      {thumbUploadError}
+                    </p>
+                  )}
+
+                  {thumbFile && !thumbUploadError && (
+                    <p className="text-[11px] text-neutral-500 dark:text-white/60 break-words">
+                      선택한 이미지는 저장 시 자동 업로드됩니다. (5MB 이하, webp 변환)
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -489,7 +614,6 @@ export default function MetadataDialog({
               backdrop-blur-md
             "
           >
-            {/* ✅ (3) 모바일: 설명 위 / 버튼 아래 */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
               <div className="text-[11px] text-neutral-500 dark:text-white/60 break-words">
                 제목 입력 후 저장하시면 구조맵 목록에서 관리하실 수 있습니다.
@@ -497,14 +621,16 @@ export default function MetadataDialog({
 
               <button
                 onClick={handleSave}
+                disabled={isBusy}
                 className="
                   w-full sm:w-auto sm:ml-auto
                   rounded-2xl px-4 py-2 text-sm font-semibold text-white
                   bg-blue-600 hover:bg-blue-700
                   dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+                  disabled:opacity-50 disabled:cursor-not-allowed
                 "
               >
-                저장하고 계속하기
+                {isUploadingThumb ? "업로드 중..." : "저장하고 계속하기"}
               </button>
             </div>
           </div>

@@ -36,15 +36,12 @@ type Props = {
   variant?: "default" | "compact";
   className?: string;
 
-  showPositioning?: boolean;
   positioningText?: string;
-  showRefundBadge?: boolean;
   refundText?: string;
 
   refundPolicyHref?: string;
   refundTooltipLines?: string[];
 
-  creditRule?: CreditRule;
   detailsLabel?: string;
   showCreditRuleByDefault?: boolean;
 
@@ -74,13 +71,10 @@ export default function PricingGrid({
   showFooterNote = true,
   variant = "default",
   className = "",
-  showPositioning = true,
   positioningText,
-  showRefundBadge = true,
   refundText,
   refundPolicyHref = "/refund-policy",
   refundTooltipLines,
-  creditRule,
   detailsLabel,
   showCreditRuleByDefault = false,
   showReassurance = true,

@@ -1,8 +1,6 @@
-// video-to-mapp/page.tsx
-
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 
@@ -84,6 +82,15 @@ function getRequiredCreditsSafe(text: string) {
   return { credits, length, tooLarge, cleaned };
 }
 
+function detectSourceType(sourceUrl?: string) {
+  if (!sourceUrl) return "manual" as const;
+  const lowered = sourceUrl.toLowerCase();
+  if (lowered.includes("youtube.com") || lowered.includes("youtu.be")) {
+    return "youtube" as const;
+  }
+  return "website" as const;
+}
+
 function genId() {
   return Math.random().toString(36).slice(2, 10);
 }
@@ -117,10 +124,6 @@ export default function VideoToMapPage() {
   // ✅ “저장 후 카드” 리스트 (DB 대신)
   const [drafts, setDrafts] = useState<MapDraft[]>([]);
 
-  // ✅ 진행 중 작업 연결용
-  const pendingJobIdRef = useRef<string | null>(null);
-  const pendingScriptRef = useRef<string>("");
-
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const [currentCredits, setCurrentCredits] = useState(0);
@@ -152,6 +155,8 @@ export default function VideoToMapPage() {
   // ✅ 입력 ↔ 결과 패널 교체
   const [viewMode, setViewMode] = useState<"input" | "result">("input");
   const [lastJobId, setLastJobId] = useState<string | null>(null);
+  const [createdMapId, setCreatedMapId] = useState<string | null>(null);
+  const [editingDraft, setEditingDraft] = useState<MapDraft | null>(null);
 
   const statusMessages = useMemo(
     () => [
@@ -355,41 +360,71 @@ export default function VideoToMapPage() {
 
     setShowCreditDialog(false);
     setError(null);
-
-    const jobId = genId();
-    pendingJobIdRef.current = jobId;
-    pendingScriptRef.current = scriptText;
-
     setIsProcessing(true);
-    setShowMetadataDialog(true);
 
-    setViewMode("input");
+    try {
+      const supabase = createClient();
+      const { data: sessionData, error: sessionErr } =
+        await supabase.auth.getSession();
 
-    // ✅ 모킹 완료
-    window.setTimeout(() => {
-      setDrafts((prev) => {
-        const idx = prev.findIndex((d) => d.id === jobId);
-        if (idx >= 0) {
-          const next = [...prev];
-          next[idx] = {
-            ...next[idx],
-            status: "done",
-            result: { ok: true, mock: true, nodes: 12, edges: 14 },
-          };
-          return next;
-        }
-        return prev;
+      if (sessionErr) {
+        throw new Error("세션을 가져오지 못했습니다: " + sessionErr.message);
+      }
+
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        throw new Error("로그인이 필요합니다.");
+      }
+
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!base) {
+        throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
+      }
+
+      const sourceUrl = youtubeMeta?.sourceUrl || youtubeUrl || undefined;
+
+      const res = await fetch(`${base}/maps`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          title: "제목없음",
+          extracted_text: scriptText,
+          source_type: detectSourceType(sourceUrl),
+          source_url: sourceUrl,
+          schema_version: 1,
+        }),
       });
 
-      setIsProcessing(false);
+      const json = await res.json().catch(() => ({}));
 
-      setLastJobId(jobId);
-      setViewMode("result");
-    }, 9000);
+      if (!res.ok) {
+        const msg = json?.message || json?.error || "요청 실패";
+        throw new Error(
+          typeof msg === "string" ? msg : msg?.[0] || "요청 실패"
+        );
+      }
+
+      const mapId = String(json?.id ?? "");
+      if (!mapId) {
+        throw new Error("mapId가 없습니다.");
+      }
+
+      setCreatedMapId(mapId);
+      setShowMetadataDialog(true);
+      setViewMode("input");
+    } catch (e: any) {
+      setIsProcessing(false);
+      const msg = e?.message ?? "구조맵 생성에 실패했습니다.";
+      setError(msg);
+      openToast(msg);
+    }
   };
 
   // ✅ 메타데이터 저장 → 카드 생성/업데이트
-  const handleSaveMetadata = (meta: {
+  const handleSaveMetadata = async (meta: {
     sourceUrl?: string;
     title: string;
     channelName?: string;
@@ -397,35 +432,85 @@ export default function VideoToMapPage() {
     tags: string[];
     description?: string;
   }) => {
-    const jobId = pendingJobIdRef.current ?? genId();
+    setError(null);
 
-    setDrafts((prev) => {
-      const exists = prev.some((d) => d.id === jobId);
-      const status = isProcessing ? "processing" : "done";
+    try {
+      const supabase = createClient();
+      const { data: sessionData, error: sessionErr } =
+        await supabase.auth.getSession();
 
-      const draft: MapDraft = {
-        id: jobId,
-        createdAt: Date.now(),
-        sourceUrl: meta.sourceUrl,
-        title: meta.title || "Untitled",
-        channelName: meta.channelName,
-        thumbnailUrl: meta.thumbnailUrl,
-        tags: meta.tags ?? [],
-        description: meta.description,
-        status,
-        result: status === "done" ? { ok: true, mock: true } : undefined,
-      };
-
-      if (exists) {
-        return prev.map((d) => (d.id === jobId ? { ...d, ...draft } : d));
+      if (sessionErr) {
+        throw new Error("세션을 가져오지 못했습니다: " + sessionErr.message);
       }
-      return [draft, ...prev];
-    });
 
-    setShowMetadataDialog(false);
-    pendingJobIdRef.current = null;
-    pendingScriptRef.current = "";
-    setYoutubeMeta(null);
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        throw new Error("로그인이 필요합니다.");
+      }
+
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!base) {
+        throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
+      }
+
+      const res = await fetch(`${base}/maps/${createdMapId}/metadata`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          title: meta.title,
+          description: meta.description,
+          tags: meta.tags ?? [],
+          thumbnail_url: meta.thumbnailUrl,
+          channel_name: meta.channelName,
+          source_type: detectSourceType(meta.sourceUrl),
+          source_url: meta.sourceUrl,
+        }),
+      });
+
+      const json = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        const msg = json?.message || json?.error || "요청 실패";
+        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+      }
+
+      setDrafts((prev) => {
+        const id = createdMapId;
+        if (!id) return prev;
+
+        const draft: MapDraft = {
+          id,
+          createdAt: Date.now(),
+          sourceUrl: meta.sourceUrl,
+          title: meta.title || "제목없음",
+          channelName: meta.channelName,
+          thumbnailUrl: meta.thumbnailUrl,
+          tags: meta.tags ?? [],
+          description: meta.description,
+          status: "processing",
+        };
+
+        const exists = prev.some((d) => d.id === id);
+        if (exists) {
+          return prev.map((d) => (d.id === id ? { ...d, ...draft } : d));
+        }
+        return [draft, ...prev];
+      });
+
+      setShowMetadataDialog(false);
+      setYoutubeMeta(null);
+      setIsProcessing(false);
+      setCreatedMapId(null);
+      setEditingDraft(null);
+    } catch (e: any) {
+      setIsProcessing(false);
+      const msg = e?.message ?? "구조맵 생성에 실패했습니다.";
+      setError(msg);
+      openToast(msg);
+    }
   };
 
   return (
@@ -537,7 +622,15 @@ export default function VideoToMapPage() {
 
             <div className="grid gap-3">
               {drafts.map((d) => (
-                <DraftMapCard key={d.id} draft={d} />
+                <DraftMapCard
+                  key={d.id}
+                  draft={d}
+                  onEditMetadata={(draft) => {
+                    setCreatedMapId(draft.id);
+                    setEditingDraft(draft);
+                    setShowMetadataDialog(true);
+                  }}
+                />
               ))}
             </div>
           </section>
@@ -571,14 +664,20 @@ export default function VideoToMapPage() {
       {showMetadataDialog && (
         <MetadataDialog
           initial={{
-            sourceUrl: youtubeMeta?.sourceUrl ?? "",
-            title: youtubeMeta?.title ?? "",
-            channelName: youtubeMeta?.channelName ?? "",
-            tags: [],
-            description: "",
-            thumbnailUrl: youtubeMeta?.thumbnailUrl ?? "",
+            sourceUrl:
+              editingDraft?.sourceUrl ?? youtubeMeta?.sourceUrl ?? "",
+            title: editingDraft?.title ?? youtubeMeta?.title ?? "",
+            channelName:
+              editingDraft?.channelName ?? youtubeMeta?.channelName ?? "",
+            tags: editingDraft?.tags ?? [],
+            description: editingDraft?.description ?? "",
+            thumbnailUrl:
+              editingDraft?.thumbnailUrl ?? youtubeMeta?.thumbnailUrl ?? "",
           }}
-          onClose={() => setShowMetadataDialog(false)}
+          onClose={() => {
+            setShowMetadataDialog(false);
+            setEditingDraft(null);
+          }}
           onSave={handleSaveMetadata}
           isProcessing={isProcessing}
           processingTitle={t("processing.title")}

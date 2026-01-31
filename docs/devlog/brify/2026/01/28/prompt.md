@@ -48,6 +48,8 @@ credit_transactions 기록(필수):
 
 이번 작업 범위:
 1) brify-backend (NestJS)
+   먼저 map에 대한 모듈이 없으니 모듈 모두 구현해야함. 
+   모든 데이터베이스 타입은 src/lib/database.types.ts에 있으니 그걸 참고하면 됨. 
   A. POST /maps 구현:
      - Controller: POST /maps
      - DTO(CreateMapDto): validation 포함 (class-validator)

@@ -127,13 +127,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
               signedOutHref={signedOutHref}
               variant="compact"
               showFooterNote={false}
-              showPositioning
-              showRefundBadge
               billingCurrency={paymentMode === "usd" ? "USD" : "KRW"}
-              creditRule={{
-                items: [
-                ],
-              }}
               // ✅ 토글을 PricingGrid가 렌더하도록 넘겨줌
               showCurrencyToggle={isKorean && !packs}
               paymentMode={paymentMode}

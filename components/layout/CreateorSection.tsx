@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 type Props = {
   imageSrc?: string; // 예: "/images/creator-brify.png"
   imageAlt?: string;
-  name?: string; // 예: "Lina Lee"
+  name?: string; // 예: "Lina"
   id?: string;
 };
 

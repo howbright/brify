@@ -1,9 +1,36 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { MapDraft } from "./types";
 
-export default function DraftMapCard({ draft }: { draft: MapDraft }) {
+export default function DraftMapCard({
+  draft,
+  onEditMetadata,
+}: {
+  draft: MapDraft;
+  onEditMetadata?: (draft: MapDraft) => void;
+}) {
+  const processingMessages = useMemo(
+    () => [
+      "구조맵 생성하는 중이에요.",
+      "조금만 더 기다려주세요.",
+      "내용이 길어도 괜찮아요, 차근차근 만들고 있어요.",
+      "중요한 흐름을 정리하는 중이에요",
+      "거의 다 됐어요, 곧 보여드릴게요",
+    ],
+    []
+  );
+  const [processingIndex, setProcessingIndex] = useState(0);
+
+  useEffect(() => {
+    if (draft.status !== "processing") return;
+    const timer = window.setInterval(() => {
+      setProcessingIndex((i) => (i + 1) % processingMessages.length);
+    }, 2500);
+    return () => window.clearInterval(timer);
+  }, [draft.status, processingMessages.length]);
+
   const badge =
     draft.status === "done"
       ? {
@@ -20,15 +47,15 @@ export default function DraftMapCard({ draft }: { draft: MapDraft }) {
             "dark:bg-rose-500/12 dark:text-rose-200 dark:border-rose-400/25",
         }
       : {
-          text: "처리중",
-          cls: "bg-amber-100 text-amber-700 border-amber-200",
-          darkCls:
-            "dark:bg-amber-500/12 dark:text-amber-200 dark:border-amber-400/25",
+          text: processingMessages[processingIndex],
+          cls: "border-transparent text-white",
+          darkCls: "border-transparent text-white",
         };
 
   return (
-    <div
-      className="
+    <>
+      <div
+        className="
         relative overflow-hidden
         rounded-3xl border border-neutral-200 bg-white
         shadow-[0_18px_40px_-28px_rgba(15,23,42,0.45)]
@@ -38,8 +65,8 @@ export default function DraftMapCard({ draft }: { draft: MapDraft }) {
         dark:border-white/10
         dark:ring-1 dark:ring-white/10
         dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.95)]
-      "
-    >
+        "
+      >
       {/* highlight */}
       <div
         className="
@@ -88,10 +115,21 @@ export default function DraftMapCard({ draft }: { draft: MapDraft }) {
             className={`
               shrink-0 whitespace-nowrap
               rounded-full border px-2.5 py-1 text-[11px] font-semibold
+              inline-flex items-center gap-1.5
               ${badge.cls} ${badge.darkCls}
+              ${
+                draft.status === "processing"
+                  ? "bg-[linear-gradient(90deg,#3b82f6,#22c55e,#a855f7)]"
+                  : ""
+              }
             `}
           >
-            {badge.text}
+            {draft.status === "processing" && (
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
+              </span>
+            )}
+            <span>{badge.text}</span>
           </span>
         </div>
 
@@ -127,25 +165,51 @@ export default function DraftMapCard({ draft }: { draft: MapDraft }) {
             {new Date(draft.createdAt).toLocaleString()}
           </div>
 
-          {/* 버튼은 고정폭 + 줄바꿈 금지 + shrink-0 */}
-          <button
-            type="button"
-            className="
-              shrink-0 whitespace-nowrap
-              inline-flex items-center justify-center gap-1.5 rounded-2xl
-              border border-neutral-200 bg-white px-3 py-1.5
-              text-xs font-semibold text-neutral-700 hover:bg-neutral-50
-              dark:border-white/12
-              dark:bg-white/[0.06]
-              dark:text-white/85
-              dark:hover:bg-white/10
-            "
-          >
-            <Icon icon="mdi:open-in-new" className="h-4 w-4" />
-            열기
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            {onEditMetadata && (
+              <button
+                type="button"
+                onClick={() => onEditMetadata(draft)}
+                className="
+                  whitespace-nowrap
+                  inline-flex items-center justify-center gap-1.5 rounded-2xl
+                  border border-neutral-200 bg-white px-3 py-1.5
+                  text-xs font-semibold text-neutral-700 hover:bg-neutral-50
+                  dark:border-white/12
+                  dark:bg-white/[0.06]
+                  dark:text-white/85
+                  dark:hover:bg-white/10
+                "
+              >
+                <Icon icon="mdi:pencil-outline" className="h-4 w-4" />
+                정보 수정
+              </button>
+            )}
+
+            <button
+              type="button"
+              disabled={draft.status === "processing"}
+              className="
+                whitespace-nowrap
+                inline-flex items-center justify-center gap-1.5 rounded-2xl
+                border border-neutral-200 bg-white px-3 py-1.5
+                text-xs font-semibold text-neutral-700 hover:bg-neutral-50
+                disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white
+                dark:border-white/12
+                dark:bg-white/[0.06]
+                dark:text-white/85
+                dark:hover:bg-white/10
+                dark:disabled:hover:bg-white/[0.06]
+              "
+            >
+              <Icon icon="mdi:open-in-new" className="h-4 w-4" />
+              열기
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+      </div>
+      
+    </>
   );
 }
