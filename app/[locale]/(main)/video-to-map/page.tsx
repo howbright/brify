@@ -173,7 +173,7 @@ export default function VideoToMapPage() {
   const [createdMapId, setCreatedMapId] = useState<string | null>(null);
   const [editingDraft, setEditingDraft] = useState<MapDraft | null>(null);
   const [openDraft, setOpenDraft] = useState<MapDraft | null>(null);
-  const [showFullscreen, setShowFullscreen] = useState(false);
+  const [showFullscreen, setShowFullscreen] = useState(true);
 
   const statusMessages = useMemo(
     () => [
@@ -723,9 +723,7 @@ export default function VideoToMapPage() {
           setShowFullscreen(false);
           setOpenDraft(null);
         }}
-      >
-        {/* TODO: 구조맵 콘텐츠 영역 */}
-      </FullscreenDialog>
+      />
     </main>
   );
 }

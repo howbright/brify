@@ -72,11 +72,11 @@ export default function ClientMindElixir({
       const mind = new MindElixir({
         el: elRef.current,
         direction: MindElixir.RIGHT,
-        contextMenu: false,
-        toolBar: false,
-        keypress: false,
-        draggable: false,
-        editable: false,
+        contextMenu: true,
+        toolBar: true,
+        keypress: true,
+        draggable: true,
+        editable: true,
         locale: "ko",
         // ✅ 네가 원한 옵션들
         scaleSensitivity: zoomSensitivity,

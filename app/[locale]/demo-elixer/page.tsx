@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-const ClientMindElixir = dynamic(() => import("./ClientMindElixir"), {
+const ClientMindElixir = dynamic(() => import("@/components/ClientMindElixir"), {
   ssr: false,
   loading: () => (
     <div className="w-full h-[1300px] animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
