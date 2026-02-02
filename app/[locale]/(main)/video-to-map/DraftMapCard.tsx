@@ -7,9 +7,11 @@ import { MapDraft } from "./types";
 export default function DraftMapCard({
   draft,
   onEditMetadata,
+  onOpen,
 }: {
   draft: MapDraft;
   onEditMetadata?: (draft: MapDraft) => void;
+  onOpen?: (draft: MapDraft) => void;
 }) {
   const processingMessages = useMemo(
     () => [
@@ -189,6 +191,7 @@ export default function DraftMapCard({
             <button
               type="button"
               disabled={draft.status === "processing"}
+              onClick={() => onOpen?.(draft)}
               className="
                 whitespace-nowrap
                 inline-flex items-center justify-center gap-1.5 rounded-2xl
@@ -209,7 +212,6 @@ export default function DraftMapCard({
         </div>
       </div>
       </div>
-      
     </>
   );
 }

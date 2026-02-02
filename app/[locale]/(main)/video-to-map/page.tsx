@@ -12,8 +12,10 @@ import CreditConfirmModal from "./CreditConfirmModal";
 import MetadataDialog from "./MetadataDialog";
 import YoutubeScriptDialog from "./YoutubeScriptDialog";
 import ResultReadyPanel from "./ResultReadyPanel";
+import FullscreenDialog from "./FullscreenDialog";
 
 import { createClient } from "@/utils/supabase/client";
+import { useMapDraftStatusPolling } from "@/app/hooks/useMapDraftStatusPolling";
 
 // ✅ 크레딧 정책 (1~2단계 + 초과는 거절)
 const CREDIT_POLICY = {
@@ -134,6 +136,9 @@ export default function VideoToMapPage() {
   // ✅ “저장 후 카드” 리스트 (DB 대신)
   const [drafts, setDrafts] = useState<MapDraft[]>([]);
 
+  // ✅ Draft 상태 폴링/머지 로직은 훅으로 분리
+  useMapDraftStatusPolling(drafts, setDrafts, { refreshMs: 4000 });
+
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const [currentCredits, setCurrentCredits] = useState(0);
@@ -167,6 +172,8 @@ export default function VideoToMapPage() {
   const [lastJobId, setLastJobId] = useState<string | null>(null);
   const [createdMapId, setCreatedMapId] = useState<string | null>(null);
   const [editingDraft, setEditingDraft] = useState<MapDraft | null>(null);
+  const [openDraft, setOpenDraft] = useState<MapDraft | null>(null);
+  const [showFullscreen, setShowFullscreen] = useState(false);
 
   const statusMessages = useMemo(
     () => [
@@ -405,6 +412,7 @@ export default function VideoToMapPage() {
           source_type: detectSourceType(sourceUrl),
           source_url: sourceUrl,
           schema_version: 1,
+          output_language: outputLang || null,
         }),
       });
 
@@ -644,6 +652,10 @@ export default function VideoToMapPage() {
                     setEditingDraft(draft);
                     setShowMetadataDialog(true);
                   }}
+                  onOpen={(draft) => {
+                    setOpenDraft(draft);
+                    setShowFullscreen(true);
+                  }}
                 />
               ))}
             </div>
@@ -679,8 +691,7 @@ export default function VideoToMapPage() {
         <MetadataDialog
           mapId={editingDraft?.id ?? createdMapId ?? undefined}
           initial={{
-            sourceUrl:
-              editingDraft?.sourceUrl ?? youtubeMeta?.sourceUrl ?? "",
+            sourceUrl: editingDraft?.sourceUrl ?? youtubeMeta?.sourceUrl ?? "",
             title: editingDraft?.title ?? youtubeMeta?.title ?? "",
             channelName:
               editingDraft?.channelName ?? youtubeMeta?.channelName ?? "",
@@ -704,6 +715,17 @@ export default function VideoToMapPage() {
           ]}
         />
       )}
+
+      <FullscreenDialog
+        open={showFullscreen}
+        title={openDraft?.title ?? "구조맵 미리보기"}
+        onClose={() => {
+          setShowFullscreen(false);
+          setOpenDraft(null);
+        }}
+      >
+        {/* TODO: 구조맵 콘텐츠 영역 */}
+      </FullscreenDialog>
     </main>
   );
 }
