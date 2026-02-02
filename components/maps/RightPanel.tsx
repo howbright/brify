@@ -4,7 +4,7 @@ import { Icon } from "@iconify/react";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 
 type TermItem = { term: string; meaning: string };
-type NoteItem = { id: string; text: string; createdAt: number };
+type NoteItem = { id: string; text: string; createdAt: number; createdAtLabel: string };
 
 export type RightPanelTab = "notes" | "terms";
 
@@ -60,11 +60,14 @@ export default function RightPanel({
     const trimmed = noteText.trim();
     if (!trimmed) return;
 
+    const now = Date.now();
+    const nowLabel = new Date(now).toLocaleString();
     setNotes((prev) => [
       {
         id: Math.random().toString(36).slice(2, 10),
         text: trimmed,
-        createdAt: Date.now(),
+        createdAt: now,
+        createdAtLabel: nowLabel,
       },
       ...prev,
     ]);
@@ -281,7 +284,7 @@ function NotesBlock({
               </div>
               <div className="mt-2 flex items-center justify-between">
                 <span className="text-[11px] text-neutral-500 dark:text-white/60">
-                  {new Date(n.createdAt).toLocaleString()}
+                  {n.createdAtLabel}
                 </span>
                 <button
                   type="button"

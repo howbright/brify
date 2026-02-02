@@ -12,7 +12,7 @@ import CreditConfirmModal from "./CreditConfirmModal";
 import MetadataDialog from "./MetadataDialog";
 import YoutubeScriptDialog from "./YoutubeScriptDialog";
 import ResultReadyPanel from "./ResultReadyPanel";
-import FullscreenDialog from "./FullscreenDialog";
+import FullscreenDialog from "@/components/ui/FullscreenDialog";
 
 import { createClient } from "@/utils/supabase/client";
 import { useMapDraftStatusPolling } from "@/app/hooks/useMapDraftStatusPolling";

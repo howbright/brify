@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { Icon } from "@iconify/react";
 import { ReactNode, useMemo, useState } from "react";
 
-import RightPanel, { RightPanelTab } from "@/components/RightPanel";
+import RightPanel, { RightPanelTab } from "@/components/maps/RightPanel";
 
 const ClientMindElixir = dynamic(() => import("@/components/ClientMindElixir"), {
   ssr: false,
@@ -29,7 +29,10 @@ type FakeMapMeta = {
 };
 
 type TermItem = { term: string; meaning: string };
-type NoteItem = { id: string; text: string; createdAt: number };
+type NoteItem = { id: string; text: string; createdAt: number; createdAtLabel: string };
+
+// ✅ 헤더 높이(맵이 이 아래에서 시작)
+const HEADER_H = 56;
 
 export default function FullscreenDialog({
   open,
@@ -67,21 +70,6 @@ export default function FullscreenDialog({
     }),
     []
   );
-  // #region agent log
-  fetch("http://127.0.0.1:7242/ingest/f7934683-fa51-45b4-acf6-ebcb17f6899f", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      sessionId: "debug-session",
-      runId: "hydration-2",
-      hypothesisId: "H1",
-      location: "FullscreenDialog.tsx:meta",
-      message: "meta createdAt computed",
-      data: { createdAt: meta.createdAt, open },
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-  // #endregion
 
   const [terms, setTerms] = useState<TermItem[]>(
     useMemo(
@@ -101,11 +89,13 @@ export default function FullscreenDialog({
           id: "n1",
           text: "이 부분은 ‘칭의’ 정의를 더 쉬운 말로 바꾸자.",
           createdAt: 1769999460000 - 1000 * 60 * 8,
+          createdAtLabel: "2026. 2. 2. 오전 11:23:00",
         },
         {
           id: "n2",
           text: "노드 3개는 순서가 바뀌면 더 자연스럽다.",
           createdAt: 1769999460000 - 1000 * 60 * 3,
+          createdAtLabel: "2026. 2. 2. 오전 11:28:00",
         },
       ],
       []
@@ -152,22 +142,6 @@ export default function FullscreenDialog({
 
   const handleGoList = onGoList ?? onClose;
 
-  // #region agent log
-  fetch("http://127.0.0.1:7242/ingest/f7934683-fa51-45b4-acf6-ebcb17f6899f", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      sessionId: "debug-session",
-      runId: "hydration-2",
-      hypothesisId: "H3",
-      location: "FullscreenDialog.tsx:render",
-      message: "render state",
-      data: { open, leftOpen, rightOpen, rightTab, editMode },
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-  // #endregion
-
   return (
     <div
       className="
@@ -178,37 +152,127 @@ export default function FullscreenDialog({
       aria-modal="true"
       aria-label={title ?? "구조맵"}
     >
-      <div
-        className="
-          relative h-full w-full
-          bg-white
-          dark:bg-[#0b1220]
-        "
-      >
-        <div className="absolute left-5 top-4 z-[12] text-sm font-semibold text-neutral-800 dark:text-white/85">
-          {title ?? "구조맵 미리보기"}
-        </div>
-
-        <button
-          type="button"
-          onClick={onClose}
+      <div className="relative h-full w-full bg-white dark:bg-[#0b1220] overflow-hidden">
+        {/* ✅ (1) 상단 헤더 한 줄: 여기만 UI 배치 */}
+        <header
           className="
-            absolute right-4 top-4 z-[12]
-            inline-flex items-center gap-1.5
-            rounded-2xl border border-neutral-200 bg-white px-3 py-1.5
-            text-xs font-semibold text-neutral-700 hover:bg-neutral-50
-            dark:border-white/12 dark:bg-white/[0.06]
-            dark:text-white/85 dark:hover:bg-white/10
+            relative z-[20]
+            w-full
+            border-b border-neutral-200/80 bg-white/92 backdrop-blur
+            dark:border-white/10 dark:bg-[#0b1220]/88
           "
+          style={{ height: HEADER_H }}
         >
-          <Icon icon="mdi:close" className="h-4 w-4" />
-          닫기
-        </button>
+          <div className="h-full px-4 flex items-center justify-between gap-3">
+            {/* left: title */}
+            <div className="min-w-0 flex items-center gap-2">
+              <div className="text-sm font-semibold text-neutral-900 dark:text-white/90 truncate">
+                {title ?? "구조맵 미리보기"}
+              </div>
+              {(leftOpen || rightOpen) && (
+                <span className="hidden sm:inline text-[11px] text-neutral-500 dark:text-white/55">
+                  패널 열림
+                </span>
+              )}
+            </div>
 
-        <div className="relative h-full w-full overflow-hidden">
-          {/* ✅ 캔버스 */}
-          <div className="absolute inset-0">
-            <ClientMindElixir mode="light" dragButton={2} />
+            {/* center: toolbar */}
+            <div className="flex items-center gap-2">
+              <ToolbarToggle
+                pressed={editMode === "edit"}
+                icon={editMode === "edit" ? "mdi:pencil" : "mdi:eye-outline"}
+                label={editMode === "edit" ? "편집중" : "보기"}
+                onClick={() =>
+                  setEditMode((m) => (m === "view" ? "edit" : "view"))
+                }
+              />
+
+              <ToolbarToggle
+                pressed={leftOpen}
+                icon="mdi:information-outline"
+                label="정보"
+                onClick={openMeta}
+              />
+
+              <ToolbarToggle
+                pressed={rightOpen && rightTab === "notes"}
+                icon="mdi:notebook-outline"
+                label="노트"
+                onClick={openNotes}
+              />
+
+              <ToolbarButton
+                icon={termsLoading ? "mdi:loading" : "mdi:book-open-variant"}
+                label="용어"
+                onClick={openTerms}
+                spin={termsLoading}
+              />
+            </div>
+
+            {/* right: close */}
+            <button
+              type="button"
+              onClick={onClose}
+              className="
+                shrink-0
+                inline-flex items-center gap-1.5
+                rounded-2xl border border-neutral-200 bg-white px-3 py-1.5
+                text-xs font-semibold text-neutral-700 hover:bg-neutral-50
+                dark:border-white/12 dark:bg-white/[0.06]
+                dark:text-white/85 dark:hover:bg-white/10
+              "
+            >
+              <Icon icon="mdi:close" className="h-4 w-4" />
+              닫기
+            </button>
+          </div>
+        </header>
+
+        {/* ✅ (2) 헤더 아래: 맵 캔버스 영역 */}
+        <div
+          className="relative w-full"
+          style={{ height: `calc(100% - ${HEADER_H}px)` }}
+        >
+          {/* ✅ 작업영역 배경 (격자 + 은은한 톤) */}
+          <div
+            className="
+              absolute inset-0
+              bg-[#f6f7fb]
+              dark:bg-[#070c16]
+            "
+          />
+
+          {/* ✅ 라이트: 그리드 */}
+          <div
+            className="
+              pointer-events-none absolute inset-0
+              opacity-60
+              [background-image:linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)]
+              [background-size:28px_28px]
+              dark:opacity-30
+              dark:[background-image:linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)]
+            "
+          />
+
+          {/* ✅ 살짝 vignette 느낌(집중감) */}
+          <div
+            className="
+              pointer-events-none absolute inset-0
+              [mask-image:radial-gradient(closest-side,black,transparent)]
+              bg-[radial-gradient(900px_520px_at_50%_30%,rgba(59,130,246,0.10),transparent_62%)]
+              dark:bg-[radial-gradient(900px_520px_at_50%_30%,rgba(56,189,248,0.10),transparent_62%)]
+            "
+          />
+
+          {/* ✅ 실제 Elixir 캔버스 */}
+          <div className="absolute inset-0 p-3">
+            {/* 
+              👇 이 wrapper가 배경을 잡아주니까,
+              Elixir 자체 배경이 하얗더라도 "작업영역" 느낌이 살아남.
+            */}
+            <div className="h-full w-full rounded-2xl border border-neutral-200/70 bg-white/65 backdrop-blur-sm shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
+              <ClientMindElixir mode="light" dragButton={2} />
+            </div>
           </div>
 
           {/* ✅ 구석: 내 맵 (네비게이션이라 툴바 아님) */}
@@ -216,7 +280,7 @@ export default function FullscreenDialog({
             type="button"
             onClick={handleGoList}
             className="
-              absolute left-4 bottom-4 z-[12]
+              absolute left-4 bottom-4 z-[15]
               inline-flex items-center gap-1.5
               rounded-2xl border border-neutral-200 bg-white/90 px-3 py-2
               text-xs font-semibold text-neutral-700 shadow-lg backdrop-blur hover:bg-white
@@ -228,65 +292,20 @@ export default function FullscreenDialog({
             내 맵
           </button>
 
-          {/* ✅ 상단 floating toolbar */}
-          <div className="absolute left-1/2 top-4 z-[10] -translate-x-1/2">
-            <div
+          {/* ✅ 편집모드 힌트 (헤더 아래 우측 상단 근처로 이동) */}
+          <div className="absolute right-4 top-3 z-[15]">
+            <span
               className="
-                flex items-center gap-2
-                rounded-2xl border border-neutral-200 bg-white/90 px-2 py-2 shadow-lg backdrop-blur
-                dark:border-white/10 dark:bg-[#0b1220]/80
+                inline-flex items-center gap-1 rounded-full
+                border border-neutral-200 bg-white/80 px-2.5 py-1 text-[11px] text-neutral-600
+                dark:border-white/10 dark:bg-[#0b1220]/60 dark:text-white/65
               "
             >
-              {/* view/edit */}
-              <ToolbarToggle
-                pressed={editMode === "edit"}
-                icon={editMode === "edit" ? "mdi:pencil" : "mdi:eye-outline"}
-                label={editMode === "edit" ? "편집중" : "보기"}
-                onClick={() =>
-                  setEditMode((m) => (m === "view" ? "edit" : "view"))
-                }
-              />
-
-              {/* metadata */}
-              <ToolbarToggle
-                pressed={leftOpen}
-                icon="mdi:information-outline"
-                label="정보"
-                onClick={openMeta}
-              />
-
-              {/* notes */}
-              <ToolbarToggle
-                pressed={rightOpen && rightTab === "notes"}
-                icon="mdi:notebook-outline"
-                label="노트"
-                onClick={openNotes}
-              />
-
-              {/* terms (가끔 기능) */}
-              <ToolbarButton
-                icon={termsLoading ? "mdi:loading" : "mdi:book-open-variant"}
-                label="용어"
-                onClick={openTerms}
-                spin={termsLoading}
-              />
-            </div>
-
-            {/* ✅ 편집모드 힌트 */}
-            <div className="mt-2 text-center">
-              <span
-                className="
-                  inline-flex items-center gap-1 rounded-full
-                  border border-neutral-200 bg-white/80 px-2.5 py-1 text-[11px] text-neutral-600
-                  dark:border-white/10 dark:bg-[#0b1220]/60 dark:text-white/65
-                "
-              >
-                <Icon icon="mdi:gesture-tap" className="h-3.5 w-3.5" />
-                {editMode === "edit"
-                  ? "편집모드: 노드 수정/추가 가능"
-                  : "보기모드: 흐름을 집중해서 확인"}
-              </span>
-            </div>
+              <Icon icon="mdi:gesture-tap" className="h-3.5 w-3.5" />
+              {editMode === "edit"
+                ? "편집모드: 노드 수정/추가 가능"
+                : "보기모드: 흐름을 집중해서 확인"}
+            </span>
           </div>
 
           {/* ✅ 좌측: 메타데이터 패널 */}
@@ -320,7 +339,7 @@ export default function FullscreenDialog({
                 setRightOpen(false);
               }}
               className="
-                absolute bottom-4 right-4 z-[10]
+                absolute bottom-4 right-4 z-[15]
                 rounded-2xl border border-neutral-200 bg-white/90 px-3 py-2
                 text-xs font-semibold text-neutral-700 shadow-lg backdrop-blur hover:bg-white
                 dark:border-white/10 dark:bg-[#0b1220]/75 dark:text-white/80 dark:hover:bg-[#0b1220]/90
@@ -418,7 +437,7 @@ function SidePanel({
   return (
     <div
       className={`
-        absolute top-0 z-[11] h-full w-[360px] max-w-[92vw]
+        absolute top-0 z-[130] h-full w-[360px] max-w-[92vw]
         transition-transform duration-200 ease-out
         ${side === "left" ? "left-0" : "right-0"}
         ${
@@ -469,22 +488,6 @@ function SidePanel({
 /* ---------------- Blocks ---------------- */
 
 function MetaBlock({ meta }: { meta: FakeMapMeta }) {
-  // #region agent log
-  fetch("http://127.0.0.1:7242/ingest/f7934683-fa51-45b4-acf6-ebcb17f6899f", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      sessionId: "debug-session",
-      runId: "hydration-2",
-      hypothesisId: "H2",
-      location: "FullscreenDialog.tsx:MetaBlock",
-      message: "formatted createdAt",
-      data: { createdAt: meta.createdAt, createdAtLabel: meta.createdAtLabel },
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-  // #endregion
-
   return (
     <div className="space-y-4">
       <div>
@@ -496,10 +499,7 @@ function MetaBlock({ meta }: { meta: FakeMapMeta }) {
 
       <div className="grid grid-cols-2 gap-3">
         <InfoItem label="소스" value={meta.sourceType} />
-        <InfoItem
-          label="생성"
-          value={meta.createdAtLabel}
-        />
+        <InfoItem label="생성" value={meta.createdAtLabel} />
         <InfoItem label="채널" value={meta.channelName ?? "없음"} />
         <InfoItem label="URL" value={meta.sourceUrl ? "있음" : "없음"} />
       </div>
