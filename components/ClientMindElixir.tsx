@@ -325,6 +325,24 @@ export default function ClientMindElixir({
       const apply = () => {
         if (!elRef.current) return;
         applyBranchBorderColors({ mind, host: elRef.current, palette });
+        if (hiddenTextRef.current.size > 0) {
+          const docEditableCount = document.querySelectorAll("[contenteditable]").length;
+          if (docEditableCount === 0) {
+            const restoreCount = hiddenTextRef.current.size;
+            hiddenTextRef.current.forEach((text) => {
+              const prev = hiddenTextStyleRef.current.get(text);
+              if (prev) {
+                text.style.visibility = prev.visibility;
+                text.style.opacity = prev.opacity;
+              } else {
+                text.style.visibility = "";
+                text.style.opacity = "";
+              }
+            });
+            hiddenTextRef.current.clear();
+            hiddenTextStyleRef.current.clear();
+          }
+        }
       };
 
       // ✅ “렌더 타이밍” 커버
@@ -391,6 +409,7 @@ export default function ClientMindElixir({
             text.style.opacity = "0";
           });
         } else if (opName === "finishEdit" || opName === "cancelEdit" || opName === "endEdit") {
+          const restoreCount = hiddenTextRef.current.size;
           hiddenTextRef.current.forEach((text) => {
             const prev = hiddenTextStyleRef.current.get(text);
             if (prev) {

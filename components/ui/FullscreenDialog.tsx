@@ -2,9 +2,10 @@
 
 import dynamic from "next/dynamic";
 import { Icon } from "@iconify/react";
-import { ReactNode, useMemo, useState } from "react";
+import { SetStateAction, useMemo, useState } from "react";
 
-import RightPanel, { RightPanelTab } from "@/components/maps/RightPanel";
+import LeftPanel, { MapRow } from "@/components/maps/LeftPanel";
+import RightPanel from "@/components/maps/RightPanel";
 
 const ClientMindElixir = dynamic(() => import("@/components/ClientMindElixir"), {
   ssr: false,
@@ -16,20 +17,6 @@ const ClientMindElixir = dynamic(() => import("@/components/ClientMindElixir"), 
     </div>
   ),
 });
-
-type FakeMapMeta = {
-  title: string;
-  sourceType: "youtube" | "website" | "manual";
-  sourceUrl?: string;
-  channelName?: string;
-  tags: string[];
-  createdAt: number;
-  createdAtLabel: string;
-  description?: string;
-};
-
-type TermItem = { term: string; meaning: string };
-type NoteItem = { id: string; text: string; createdAt: number; createdAtLabel: string };
 
 // ✅ 헤더 높이(맵이 이 아래에서 시작)
 const HEADER_H = 56;
@@ -49,14 +36,10 @@ export default function FullscreenDialog({
 
   // ✅ UI state
   const [leftOpen, setLeftOpen] = useState(false); // metadata
-  const [rightOpen, setRightOpen] = useState(false); // right panel (notes/terms)
-  const [rightTab, setRightTab] = useState<RightPanelTab>("notes");
-
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
-  const [termsLoading, setTermsLoading] = useState(false);
 
   // ✅ 가데이터
-  const meta: FakeMapMeta = useMemo(
+  const meta: any = useMemo(
     () => ({
       title: "예배 회복을 위한 7가지 흐름",
       sourceType: "youtube",
@@ -71,76 +54,53 @@ export default function FullscreenDialog({
     []
   );
 
-  const [terms, setTerms] = useState<TermItem[]>(
-    useMemo(
-      () => [
-        { term: "칭의", meaning: "하나님이 죄인을 의롭다 하시는 선언." },
-        { term: "성화", meaning: "구원받은 사람이 거룩해져 가는 과정." },
-        { term: "언약", meaning: "하나님과 사람 사이의 약속, 관계의 틀." },
-      ],
-      []
-    )
-  );
+  // ✅ 좌측 패널(메타) 토글
+  const openMeta = () => {
+    setLeftOpen((v) => {
+      const next = !v;
+      if (next) setRightOpen(false);
+      return next;
+    });
+  };
 
-  const [notes, setNotes] = useState<NoteItem[]>(
-    useMemo(
-      () => [
-        {
-          id: "n1",
-          text: "이 부분은 ‘칭의’ 정의를 더 쉬운 말로 바꾸자.",
-          createdAt: 1769999460000 - 1000 * 60 * 8,
-          createdAtLabel: "2026. 2. 2. 오전 11:23:00",
-        },
-        {
-          id: "n2",
-          text: "노드 3개는 순서가 바뀌면 더 자연스럽다.",
-          createdAt: 1769999460000 - 1000 * 60 * 3,
-          createdAtLabel: "2026. 2. 2. 오전 11:28:00",
-        },
-      ],
-      []
-    )
-  );
-
-  const runFetchTerms = async () => {
-    // ✅ 여기 나중에 API 연결
-    setTermsLoading(true);
-    try {
-      await new Promise((r) => setTimeout(r, 650));
-      setTerms((prev) => prev); // placeholder
-    } finally {
-      setTermsLoading(false);
-      // 용어 기능은 실행 시 우측 패널 + 용어탭으로 자연스럽게
-      setRightOpen(true);
-      setRightTab("terms");
+  // ✅ 우측 패널(맵 상세) 토글
+  const [rightOpen, setRightOpen] = useState(false);
+  const openDetails = () => {
+    setRightOpen((v) => !v);
+    if (!rightOpen) {
       setLeftOpen(false);
     }
   };
 
-  // ✅ 좌측 패널(메타) 토글
-  const openMeta = () => {
-    setLeftOpen((v) => !v);
-    if (!leftOpen) {
-      setRightOpen(false);
-    }
-  };
-
-  // ✅ 노트 버튼: 우측 패널 열고 notes 탭
-  const openNotes = () => {
-    setRightTab("notes");
-    setRightOpen(true);
-    setLeftOpen(false);
-  };
-
-  // ✅ 용어 버튼: 우측 패널 열고 terms 탭 + fetch
-  const openTerms = () => {
-    setRightTab("terms");
-    setRightOpen(true);
-    setLeftOpen(false);
-    runFetchTerms();
-  };
-
   const handleGoList = onGoList ?? onClose;
+  const mapRow: MapRow = useMemo(
+    () => ({
+      id: "map_demo_001",
+      user_id: "user_demo_001",
+      title: meta.title,
+      description: meta.description ?? null,
+      tags: meta.tags ?? [],
+      channel_name: meta.channelName ?? null,
+      source_type: meta.sourceType,
+      source_url: meta.sourceUrl ?? null,
+      thumbnail_url: null,
+      created_at: new Date(meta.createdAt).toISOString(),
+      updated_at: new Date(meta.createdAt + 1000 * 60 * 9).toISOString(),
+      extract_error: null,
+      extract_job_id: "job_demo_001",
+      extract_status: "completed",
+      extracted_text: null,
+      map_status: "processing",
+      mind_elixir: null,
+      mind_elixir_draft: null,
+      output_language: null,
+      required_credits: 12,
+      credits_charged: 12,
+      credits_charged_at: new Date(meta.createdAt).toISOString(),
+      schema_version: 1,
+    }),
+    [meta]
+  );
 
   return (
     <div
@@ -169,11 +129,6 @@ export default function FullscreenDialog({
               <div className="text-sm font-semibold text-neutral-900 dark:text-white/90 truncate">
                 {title ?? "구조맵 미리보기"}
               </div>
-              {(leftOpen || rightOpen) && (
-                <span className="hidden sm:inline text-[11px] text-neutral-500 dark:text-white/55">
-                  패널 열림
-                </span>
-              )}
             </div>
 
             {/* center: toolbar */}
@@ -195,17 +150,10 @@ export default function FullscreenDialog({
               />
 
               <ToolbarToggle
-                pressed={rightOpen && rightTab === "notes"}
-                icon="mdi:notebook-outline"
-                label="노트"
-                onClick={openNotes}
-              />
-
-              <ToolbarButton
-                icon={termsLoading ? "mdi:loading" : "mdi:book-open-variant"}
-                label="용어"
-                onClick={openTerms}
-                spin={termsLoading}
+                pressed={rightOpen}
+                icon="mdi:clipboard-text-outline"
+                label="상세"
+                onClick={openDetails}
               />
             </div>
 
@@ -309,26 +257,20 @@ export default function FullscreenDialog({
           </div>
 
           {/* ✅ 좌측: 메타데이터 패널 */}
-          <SidePanel
-            side="left"
+          <LeftPanel
             open={leftOpen}
-            title="메타데이터"
             onClose={() => setLeftOpen(false)}
-          >
-            <MetaBlock meta={meta} />
-          </SidePanel>
+            map={mapRow}
+          />
 
-          {/* ✅ 우측: RightPanel (노트/용어 탭) */}
+          {/* ✅ 우측: 구조맵 상세 패널 */}
           <RightPanel
             open={rightOpen}
-            initialTab={rightTab}
-            onClose={() => setRightOpen(false)}
-            notes={notes}
-            setNotes={setNotes}
-            terms={terms}
-            termsLoading={termsLoading}
-            onFetchTerms={runFetchTerms}
-          />
+            onClose={() => setRightOpen(false)} notes={[]} setNotes={function (value: SetStateAction<{ id: string; text: string; createdAt: number; createdAtLabel: string; }[]>): void {
+              throw new Error("Function not implemented.");
+            } } terms={[]} termsLoading={false} onFetchTerms={function (): Promise<void> {
+              throw new Error("Function not implemented.");
+            } }          />
 
           {/* ✅ 패널 닫기 */}
           {(leftOpen || rightOpen) && (
@@ -355,37 +297,6 @@ export default function FullscreenDialog({
 }
 
 /* ---------------- UI Parts ---------------- */
-
-function ToolbarButton({
-  icon,
-  label,
-  onClick,
-  spin,
-}: {
-  icon: string;
-  label: string;
-  onClick: () => void;
-  spin?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="
-        inline-flex items-center gap-1.5
-        rounded-xl border border-neutral-200 bg-white px-3 py-1.5
-        text-xs font-semibold text-neutral-700 hover:bg-neutral-50
-        dark:border-white/12 dark:bg-white/[0.06]
-        dark:text-white/85 dark:hover:bg-white/10
-      "
-      aria-label={label}
-      title={label}
-    >
-      <Icon icon={icon} className={`h-4 w-4 ${spin ? "animate-spin" : ""}`} />
-      <span className="hidden sm:inline">{label}</span>
-    </button>
-  );
-}
 
 function ToolbarToggle({
   pressed,
@@ -421,168 +332,3 @@ function ToolbarToggle({
   );
 }
 
-function SidePanel({
-  side,
-  open,
-  title,
-  onClose,
-  children,
-}: {
-  side: "left" | "right";
-  open: boolean;
-  title: string;
-  onClose: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <div
-      className={`
-        absolute top-0 z-[130] h-full w-[360px] max-w-[92vw]
-        transition-transform duration-200 ease-out
-        ${side === "left" ? "left-0" : "right-0"}
-        ${
-          open
-            ? "translate-x-0"
-            : side === "left"
-            ? "-translate-x-full"
-            : "translate-x-full"
-        }
-      `}
-      aria-hidden={!open}
-    >
-      <div
-        className="
-          h-full
-          border border-neutral-200 bg-white/95 backdrop-blur
-          dark:border-white/10 dark:bg-[#0b1220]/85
-          shadow-2xl
-          flex flex-col
-        "
-      >
-        <div className="shrink-0 px-4 py-3 border-b border-neutral-200 dark:border-white/10 flex items-center justify-between gap-3">
-          <div className="text-sm font-semibold text-neutral-900 dark:text-white truncate">
-            {title}
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="
-              inline-flex items-center justify-center
-              h-8 w-8 rounded-xl
-              border border-neutral-200 bg-white hover:bg-neutral-50
-              dark:border-white/12 dark:bg-white/[0.06] dark:hover:bg-white/10
-            "
-            aria-label="패널 닫기"
-            title="닫기"
-          >
-            <Icon icon="mdi:close" className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="flex-1 min-h-0 overflow-auto p-4">{children}</div>
-      </div>
-    </div>
-  );
-}
-
-/* ---------------- Blocks ---------------- */
-
-function MetaBlock({ meta }: { meta: FakeMapMeta }) {
-  return (
-    <div className="space-y-4">
-      <div>
-        <div className="text-xs text-neutral-500 dark:text-white/60">제목</div>
-        <div className="mt-1 font-semibold text-neutral-900 dark:text-white">
-          {meta.title}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <InfoItem label="소스" value={meta.sourceType} />
-        <InfoItem label="생성" value={meta.createdAtLabel} />
-        <InfoItem label="채널" value={meta.channelName ?? "없음"} />
-        <InfoItem label="URL" value={meta.sourceUrl ? "있음" : "없음"} />
-      </div>
-
-      {meta.tags?.length > 0 && (
-        <div>
-          <div className="text-xs text-neutral-500 dark:text-white/60">태그</div>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {meta.tags.map((tag) => (
-              <span
-                key={tag}
-                className="
-                  rounded-full border border-neutral-200 bg-neutral-50
-                  px-2 py-0.5 text-[11px] text-neutral-600
-                  dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75
-                "
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {meta.description && (
-        <div>
-          <div className="text-xs text-neutral-500 dark:text-white/60">설명</div>
-          <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-white/80">
-            {meta.description}
-          </p>
-        </div>
-      )}
-
-      {/* ✅ 숨김 옵션: 페이지로 열기 + 원본 열기 */}
-      <div className="pt-1 flex flex-wrap gap-2">
-        <a
-          href="/maps/demo"
-          target="_blank"
-          rel="noreferrer"
-          className="
-            inline-flex items-center gap-1.5
-            rounded-2xl border border-neutral-200 bg-white px-3 py-2
-            text-xs font-semibold text-neutral-700 hover:bg-neutral-50
-            dark:border-white/12 dark:bg-white/[0.06]
-            dark:text-white/85 dark:hover:bg-white/10
-          "
-          title="정식 상세페이지로 열기"
-        >
-          <Icon icon="mdi:open-in-new" className="h-4 w-4" />
-          페이지로 열기
-        </a>
-
-        {meta.sourceUrl && (
-          <a
-            href={meta.sourceUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="
-              inline-flex items-center gap-1.5
-              rounded-2xl border border-neutral-200 bg-white px-3 py-2
-              text-xs font-semibold text-neutral-700 hover:bg-neutral-50
-              dark:border-white/12 dark:bg-white/[0.06]
-              dark:text-white/85 dark:hover:bg-white/10
-            "
-          >
-            <Icon icon="mdi:open-in-new" className="h-4 w-4" />
-            원본 열기
-          </a>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function InfoItem({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-3 dark:border-white/10 dark:bg-white/[0.06]">
-      <div className="text-[11px] text-neutral-500 dark:text-white/60">
-        {label}
-      </div>
-      <div className="mt-1 text-xs font-semibold text-neutral-800 dark:text-white/85 truncate">
-        {value}
-      </div>
-    </div>
-  );
-}
