@@ -29,6 +29,45 @@ function safePaletteFromThemeObj(themeObj: any) {
   return ["#3b82f6", "#22c55e", "#a855f7", "#f97316", "#06b6d4"];
 }
 
+function toRgba(color: string, alpha: number) {
+  const a = Math.max(0, Math.min(1, alpha));
+  if (color.startsWith("#")) {
+    const hex = color.replace("#", "");
+    const full =
+      hex.length === 3
+        ? hex
+            .split("")
+            .map((c) => c + c)
+            .join("")
+        : hex;
+    if (full.length === 6) {
+      const r = parseInt(full.slice(0, 2), 16);
+      const g = parseInt(full.slice(2, 4), 16);
+      const b = parseInt(full.slice(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${a})`;
+    }
+  }
+  if (color.startsWith("rgba(")) {
+    const parts = color.replace("rgba(", "").replace(")", "").split(",");
+    if (parts.length >= 3) {
+      const r = Number(parts[0].trim());
+      const g = Number(parts[1].trim());
+      const b = Number(parts[2].trim());
+      return `rgba(${r}, ${g}, ${b}, ${a})`;
+    }
+  }
+  if (color.startsWith("rgb(")) {
+    const parts = color.replace("rgb(", "").replace(")", "").split(",");
+    if (parts.length >= 3) {
+      const r = Number(parts[0].trim());
+      const g = Number(parts[1].trim());
+      const b = Number(parts[2].trim());
+      return `rgba(${r}, ${g}, ${b}, ${a})`;
+    }
+  }
+  return color;
+}
+
 function getMindData(mind: any): AnyNode | null {
   const raw =
     mind?.getAllData?.() ??
@@ -92,6 +131,7 @@ function applyBranchBorderColors(params: {
   const applyDom = (node: AnyNode, depth: number) => {
     const id = String(node.id);
     const altId = `me${id}`;
+    const isLeaf = !node.children || node.children.length === 0;
 
     const el =
       host.querySelector<HTMLElement>(`me-tpc[data-nodeid="${id}"]`) ||
@@ -102,18 +142,35 @@ function applyBranchBorderColors(params: {
     if (el) {
       const c = node.branchColor || "#94a3b8";
 
-      // ✅ CSS 변수로 색 주입 (CSS가 이걸 border-color로 사용)
-      el.style.setProperty("--me-branch", c, "important");
-
-      // ✅ 혹시 모를 경우 대비: border-color도 important로 찍어줌
-      el.style.setProperty("border-color", c, "important");
-      el.style.setProperty("border-style", "solid", "important");
-      el.style.setProperty("border-width", depth === 0 ? "2px" : "1px", "important");
-
       const inner =
         el.querySelector<HTMLElement>(".node") ||
         el.querySelector<HTMLElement>(".topic") ||
         el.querySelector<HTMLElement>("span");
+
+      // ✅ CSS 변수로 색 주입 (CSS가 이걸 border-color로 사용)
+      el.style.setProperty("--me-branch", c, "important");
+
+      // ✅ 혹시 모를 경우 대비: border-color도 important로 찍어줌
+      const leafBg = toRgba(c, 0.08);
+      const borderColor = isLeaf ? "transparent" : c;
+      el.style.setProperty("border-color", borderColor, "important");
+      el.style.setProperty("border-style", "solid", "important");
+      if (depth === 0) {
+        el.style.setProperty("border-width", "0px", "important");
+        el.style.setProperty("border-color", "transparent", "important");
+      } else if (isLeaf) {
+        el.style.setProperty("border-width", "0px", "important");
+        el.style.setProperty("border-color", "transparent", "important");
+      } else {
+        el.style.setProperty("border-width", "1px", "important");
+      }
+      if (isLeaf) {
+        el.style.setProperty("background-color", leafBg, "important");
+        if (inner) {
+          inner.style.setProperty("padding-left", "14px", "important");
+          inner.style.setProperty("padding-right", "14px", "important");
+        }
+      }
 
       if (depth === 0) {
         // ✅ 루트 노드 강조: 진한 배경 + 흰색 텍스트
@@ -145,7 +202,7 @@ export default function ClientMindElixir({
   zoomSensitivity = 0.3,
   dragButton = 0,
   fitOnInit = true,
-  openMenuOnClick = false,
+  openMenuOnClick = true,
 }: ClientMindElixirProps) {
   const elRef = useRef<HTMLDivElement>(null);
   const mindRef = useRef<any>(null);
@@ -156,6 +213,10 @@ export default function ClientMindElixir({
   const [ready, setReady] = useState(false);
 
   const initTokenRef = useRef(0);
+  const hiddenTextRef = useRef<Set<HTMLElement>>(new Set());
+  const hiddenTextStyleRef = useRef<Map<HTMLElement, { visibility: string; opacity: string }>>(
+    new Map()
+  );
 
   useEffect(() => setMounted(true), []);
 
@@ -165,22 +226,25 @@ export default function ClientMindElixir({
     return resolvedTheme === "dark" ? "dark" : "light";
   }, [mode, resolvedTheme, mounted]);
 
-  // ✅ 격자 배경 (통과한 방식 유지)
+  // ✅ 배경: 아이보리 톤 + 네모 도트
   const gridStyle = useMemo(() => {
     const isDark = effectiveMode === "dark";
-    const line = isDark ? "rgba(255,255,255,0.07)" : "rgba(15,23,42,0.06)";
-    const lineBold = isDark ? "rgba(255,255,255,0.10)" : "rgba(15,23,42,0.085)";
+    const dotColor = isDark ? "#cbd5f5" : "#64748b";
+    const dotOpacity = isDark ? "0.10" : "0.12";
+    const dotSize = isDark ? 22 : 20;
+    const dotSvg = encodeURIComponent(
+      `<svg xmlns='http://www.w3.org/2000/svg' width='${dotSize}' height='${dotSize}' viewBox='0 0 ${dotSize} ${dotSize}'><rect x='1' y='1' width='2' height='2' fill='${dotColor}' fill-opacity='${dotOpacity}'/></svg>`
+    );
+    const glow = isDark ? "rgba(59,130,246,0.08)" : "rgba(30,64,175,0.06)";
 
     return {
-      backgroundColor: isDark ? "rgba(2,6,23,0.45)" : "rgba(241,245,249,0.85)",
+      backgroundColor: isDark ? "rgba(8,10,16,0.92)" : "#f4f4f4",
       backgroundImage: `
-        linear-gradient(to right, ${line} 1px, transparent 1px),
-        linear-gradient(to bottom, ${line} 1px, transparent 1px),
-        linear-gradient(to right, ${lineBold} 1px, transparent 1px),
-        linear-gradient(to bottom, ${lineBold} 1px, transparent 1px)
+        radial-gradient(1200px 800px at 20% -10%, ${glow}, transparent 60%),
+        url("data:image/svg+xml,${dotSvg}")
       `,
-      backgroundSize: "24px 24px, 24px 24px, 120px 120px, 120px 120px",
-      backgroundPosition: "0 0, 0 0, 0 0, 0 0",
+      backgroundSize: `100% 100%, ${dotSize}px ${dotSize}px`,
+      backgroundPosition: "0 0, 0 0",
     } as React.CSSProperties;
   }, [effectiveMode]);
 
@@ -200,6 +264,7 @@ export default function ClientMindElixir({
 
     let ro: ResizeObserver | null = null;
     let cleanupBus: (() => void) | null = null;
+    let mo: MutationObserver | null = null;
     let rafLock = 0;
     let t1: number | null = null;
 
@@ -229,6 +294,28 @@ export default function ClientMindElixir({
 
       // ✅ 배경 투명(격자 레이어 보이게)
       elRef.current.style.background = "transparent";
+      const surface = elRef.current;
+      const meRoot =
+        surface.querySelector<HTMLElement>(".mind-elixir") ??
+        surface.querySelector<HTMLElement>(".mind-elixir-container");
+      const meCanvas = surface.querySelector<HTMLElement>(".minder");
+      const meContent = surface.querySelector<HTMLElement>(".mind-elixir-content");
+      const meSvg = surface.querySelector<HTMLElement>("svg");
+      const mapContainer = surface.querySelector<HTMLElement>(".map-container");
+      const mapCanvas = surface.querySelector<HTMLElement>(".map-canvas");
+      const meMain = surface.querySelector<HTMLElement>("me-main");
+      const meRootEl = surface.querySelector<HTMLElement>("me-root");
+      const meNodes = surface.querySelector<HTMLElement>("me-nodes");
+      meRoot?.style.setProperty("background", "transparent", "important");
+      meCanvas?.style.setProperty("background", "transparent", "important");
+      meContent?.style.setProperty("background", "transparent", "important");
+      meSvg?.style.setProperty("background", "transparent", "important");
+      mapContainer?.style.setProperty("background", "transparent", "important");
+      mapCanvas?.style.setProperty("background", "transparent", "important");
+      meMain?.style.setProperty("background", "transparent", "important");
+      meRootEl?.style.setProperty("background", "transparent", "important");
+      meNodes?.style.setProperty("background", "transparent", "important");
+
 
       mind.init(sampled);
       mindRef.current = mind;
@@ -259,7 +346,65 @@ export default function ClientMindElixir({
       ro.observe(elRef.current);
 
       // ✅ MindElixir 내부 변화(노드 추가/편집/접기 등) 때도 유지
-      const onOp = () => applySoon();
+      const onOp = (op?: any) => {
+        applySoon();
+        const docEditablesAll = Array.from(document.querySelectorAll("[contenteditable]"));
+        const hostEl = elRef.current;
+        const tpcs = hostEl ? Array.from(hostEl.querySelectorAll("me-tpc")) : [];
+        const docEditableRect = docEditablesAll[0]
+          ? (docEditablesAll[0] as HTMLElement).getBoundingClientRect()
+          : null;
+        const tpcRects = tpcs
+          .map((t) => {
+            const rect = t.getBoundingClientRect();
+            return {
+              el: t,
+              tpcClass: t.className?.toString() ?? "",
+              rect,
+            };
+          })
+          .filter((item) => item.rect.width > 0 && item.rect.height > 0);
+        const overlaps = docEditableRect
+          ? tpcRects.filter((item) => {
+              const r = item.rect;
+              return !(
+                r.right < docEditableRect.left ||
+                r.left > docEditableRect.right ||
+                r.bottom < docEditableRect.top ||
+                r.top > docEditableRect.bottom
+              );
+            })
+          : [];
+        const opName = op?.name ?? "";
+        if (opName === "beginEdit" && docEditableRect) {
+          overlaps.forEach((item) => {
+            const text = item.el.querySelector<HTMLElement>("span.text");
+            if (!text) return;
+            if (!hiddenTextRef.current.has(text)) {
+              hiddenTextStyleRef.current.set(text, {
+                visibility: text.style.visibility || "",
+                opacity: text.style.opacity || "",
+              });
+              hiddenTextRef.current.add(text);
+            }
+            text.style.visibility = "hidden";
+            text.style.opacity = "0";
+          });
+        } else if (opName === "finishEdit" || opName === "cancelEdit" || opName === "endEdit") {
+          hiddenTextRef.current.forEach((text) => {
+            const prev = hiddenTextStyleRef.current.get(text);
+            if (prev) {
+              text.style.visibility = prev.visibility;
+              text.style.opacity = prev.opacity;
+            } else {
+              text.style.visibility = "";
+              text.style.opacity = "";
+            }
+          });
+          hiddenTextRef.current.clear();
+          hiddenTextStyleRef.current.clear();
+        }
+      };
       if (mind.bus?.addListener) {
         mind.bus.addListener("operation", onOp);
         cleanupBus = () => {
@@ -268,6 +413,14 @@ export default function ClientMindElixir({
           } catch {}
         };
       }
+
+      // ✅ DOM 변경 감지(접기/펼치기 후 재렌더 대응)
+      mo = new MutationObserver(() => applySoon());
+      mo.observe(elRef.current, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+      });
 
       // ✅ 초기 뷰 세팅
       requestAnimationFrame(() => {
@@ -325,6 +478,7 @@ export default function ClientMindElixir({
       cancelled = true;
       if (t1) window.clearTimeout(t1);
       if (ro) ro.disconnect();
+      if (mo) mo.disconnect();
       if (cleanupBus) cleanupBus();
       try {
         mindRef.current?.destroy?.();
@@ -336,14 +490,14 @@ export default function ClientMindElixir({
   return (
     <div className="relative w-full h-full me-surface">
       {/* ✅ 격자 배경 레이어 */}
-      <div className="absolute inset-0 rounded-2xl" style={gridStyle} aria-hidden="true" />
+      <div className="absolute inset-0" style={gridStyle} aria-hidden="true" />
 
       {/* ✅ 실제 캔버스 */}
       <div ref={elRef} className="relative w-full h-full" />
 
       {/* ✅ 스켈레톤 오버레이 */}
       {!ready && (
-        <div className="absolute inset-0 rounded-2xl overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden">
           <div className="h-full w-full animate-pulse bg-black/5 dark:bg-white/5" />
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute left-6 top-6 h-3 w-40 rounded bg-black/10 dark:bg-white/10" />

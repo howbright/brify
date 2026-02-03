@@ -265,7 +265,7 @@ export default function FullscreenDialog({
           />
 
           {/* ✅ 실제 Elixir 캔버스 */}
-          <div className="absolute inset-0 p-3">
+          <div className="absolute inset-0 p-0">
             {/* 
               👇 이 wrapper가 배경을 잡아주니까,
               Elixir 자체 배경이 하얗더라도 "작업영역" 느낌이 살아남.
