@@ -3,20 +3,23 @@
 import dynamic from "next/dynamic";
 import { Icon } from "@iconify/react";
 import { SetStateAction, useMemo, useState } from "react";
-
+import { useTheme } from "next-themes";
 import LeftPanel, { MapRow } from "@/components/maps/LeftPanel";
 import RightPanel from "@/components/maps/RightPanel";
 
-const ClientMindElixir = dynamic(() => import("@/components/ClientMindElixir"), {
-  ssr: false,
-  loading: () => (
-    <div className="h-full w-full animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-      <span className="text-slate-500 dark:text-slate-400">
-        마인드맵 로딩 중…
-      </span>
-    </div>
-  ),
-});
+const ClientMindElixir = dynamic(
+  () => import("@/components/ClientMindElixir"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-full w-full animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+        <span className="text-slate-500 dark:text-slate-400">
+          마인드맵 로딩 중…
+        </span>
+      </div>
+    ),
+  }
+);
 
 // ✅ 헤더 높이(맵이 이 아래에서 시작)
 const HEADER_H = 56;
@@ -37,6 +40,7 @@ export default function FullscreenDialog({
   // ✅ UI state
   const [leftOpen, setLeftOpen] = useState(false); // metadata
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
+  const { resolvedTheme } = useTheme();
 
   // ✅ 가데이터
   const meta: any = useMemo(
@@ -219,7 +223,10 @@ export default function FullscreenDialog({
               Elixir 자체 배경이 하얗더라도 "작업영역" 느낌이 살아남.
             */}
             <div className="h-full w-full rounded-2xl border border-neutral-200/70 bg-white/65 backdrop-blur-sm shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
-              <ClientMindElixir mode="light" dragButton={2} />
+              <ClientMindElixir
+                mode={resolvedTheme === "dark" ? "dark" : "light"}
+                dragButton={2}
+              />
             </div>
           </div>
 
@@ -236,8 +243,7 @@ export default function FullscreenDialog({
             "
             title="내 맵 리스트로"
           >
-            <Icon icon="mdi:format-list-bulleted" className="h-4 w-4" />
-            내 맵
+            <Icon icon="mdi:format-list-bulleted" className="h-4 w-4" />내 맵
           </button>
 
           {/* ✅ 편집모드 힌트 (헤더 아래 우측 상단 근처로 이동) */}
@@ -266,11 +272,26 @@ export default function FullscreenDialog({
           {/* ✅ 우측: 구조맵 상세 패널 */}
           <RightPanel
             open={rightOpen}
-            onClose={() => setRightOpen(false)} notes={[]} setNotes={function (value: SetStateAction<{ id: string; text: string; createdAt: number; createdAtLabel: string; }[]>): void {
+            onClose={() => setRightOpen(false)}
+            notes={[]}
+            setNotes={function (
+              value: SetStateAction<
+                {
+                  id: string;
+                  text: string;
+                  createdAt: number;
+                  createdAtLabel: string;
+                }[]
+              >
+            ): void {
               throw new Error("Function not implemented.");
-            } } terms={[]} termsLoading={false} onFetchTerms={function (): Promise<void> {
+            }}
+            terms={[]}
+            termsLoading={false}
+            onFetchTerms={function (): Promise<void> {
               throw new Error("Function not implemented.");
-            } }          />
+            }}
+          />
 
           {/* ✅ 패널 닫기 */}
           {(leftOpen || rightOpen) && (
@@ -331,4 +352,3 @@ function ToolbarToggle({
     </button>
   );
 }
-
