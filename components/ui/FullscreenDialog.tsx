@@ -254,24 +254,7 @@ export default function FullscreenDialog({
             }}
           />
 
-          {/* ✅ 패널 닫기 */}
-          {(leftOpen || rightOpen) && (
-            <button
-              type="button"
-              onClick={() => {
-                setLeftOpen(false);
-                setRightOpen(false);
-              }}
-              className="
-                absolute bottom-4 right-4 z-[15]
-                rounded-2xl border border-neutral-200 bg-white/90 px-3 py-2
-                text-xs font-semibold text-neutral-700 shadow-lg backdrop-blur hover:bg-white
-                dark:border-white/10 dark:bg-[#0b1220]/75 dark:text-white/80 dark:hover:bg-[#0b1220]/90
-              "
-            >
-              패널 닫기
-            </button>
-          )}
+          {/* ✅ 패널 닫기 버튼 제거 */}
         </div>
       </div>
     </div>

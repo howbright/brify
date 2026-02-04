@@ -80,14 +80,9 @@ export default function LeftPanel({
             </button>
           </div>
 
-          {/* ✅ 제목만 보여주고 description은 여기서 제거 */}
           <div className="mt-3">
-            <p className="text-sm font-semibold text-neutral-900 dark:text-white line-clamp-2">
-              {map.title}
-            </p>
-
             {/* ✅ 시간 존재감 축소: 한 줄, 작고 흐리게 */}
-            <div className="mt-1 text-[11px] text-neutral-400 dark:text-white/40">
+            <div className="text-[11px] text-neutral-400 dark:text-white/40">
               생성 {createdLabel} · 수정 {updatedLabel}
             </div>
 
@@ -132,18 +127,18 @@ export default function LeftPanel({
               <div className="min-w-0 flex-1">
                 <RowItem
                   icon="mdi:youtube"
-                  label="source_type"
+                  label="출처 유형"
                   value={sourceType}
                 />
                 <RowItem
                   icon="mdi:account-circle-outline"
-                  label="channel"
+                  label="채널/작성자"
                   value={map.channelName ?? "없음"}
                 />
 
                 <div className="mt-1">
                   <div className="text-[11px] text-neutral-500 dark:text-white/60">
-                    source_url
+                    원본 링크
                   </div>
                   {map.sourceUrl ? (
                     <a
