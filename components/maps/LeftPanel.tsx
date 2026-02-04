@@ -1,41 +1,8 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useMemo, useState } from "react";
-
-export type MapRow = {
-  id: string;
-  user_id: string;
-
-  title: string;
-  description: string | null;
-  tags: string[];
-
-  channel_name: string | null;
-  source_type: string; // Database enum string
-  source_url: string | null;
-  thumbnail_url: string | null;
-
-  created_at: string;
-  updated_at: string;
-
-  extract_error: string | null;
-  extract_job_id: string | null;
-  extract_status: string; // Database enum string
-  extracted_text: string | null;
-
-  map_status: string; // Database enum string
-  mind_elixir: any | null;
-  mind_elixir_draft: any | null;
-
-  output_language: string | null;
-
-  required_credits: number;
-  credits_charged: number;
-  credits_charged_at: string | null;
-
-  schema_version: number;
-};
+import { useMemo } from "react";
+import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 
 export default function LeftPanel({
   open,
@@ -44,16 +11,17 @@ export default function LeftPanel({
 }: {
   open: boolean;
   onClose: () => void;
-  map: MapRow;
+  map: MapDraft;
 }) {
   const createdLabel = useMemo(
-    () => safeDateLabel(map.created_at),
-    [map.created_at]
+    () => safeDateLabel(map.createdAt),
+    [map.createdAt]
   );
   const updatedLabel = useMemo(
-    () => safeDateLabel(map.updated_at),
-    [map.updated_at]
+    () => safeDateLabel(map.updatedAt),
+    [map.updatedAt]
   );
+  const sourceType = useMemo(() => map.sourceType ?? "text", [map.sourceType]);
 
   return (
     <aside
@@ -127,7 +95,9 @@ export default function LeftPanel({
             <div className="mt-0.5 text-[11px] text-neutral-400 dark:text-white/40">
               소요 크레딧:{" "}
               <span className="text-neutral-600 dark:text-white/70 font-semibold">
-                {map.credits_charged}
+                {typeof map.creditsCharged === "number"
+                  ? map.creditsCharged
+                  : "-"}
               </span>
             </div>
           </div>
@@ -148,7 +118,7 @@ export default function LeftPanel({
                 {map.thumbnail_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={map.thumbnail_url}
+                    src={map.thumbnailUrl}
                     alt=""
                     className="h-full w-full object-cover"
                   />
@@ -163,21 +133,21 @@ export default function LeftPanel({
                 <RowItem
                   icon="mdi:youtube"
                   label="source_type"
-                  value={map.source_type}
+                  value={sourceType}
                 />
                 <RowItem
                   icon="mdi:account-circle-outline"
                   label="channel"
-                  value={map.channel_name ?? "없음"}
+                  value={map.channelName ?? "없음"}
                 />
 
                 <div className="mt-1">
                   <div className="text-[11px] text-neutral-500 dark:text-white/60">
                     source_url
                   </div>
-                  {map.source_url ? (
+                  {map.sourceUrl ? (
                     <a
-                      href={map.source_url}
+                      href={map.sourceUrl}
                       target="_blank"
                       rel="noreferrer"
                       className="
@@ -185,9 +155,9 @@ export default function LeftPanel({
                         text-blue-700 hover:underline truncate
                         dark:text-sky-200
                       "
-                      title={map.source_url}
+                      title={map.sourceUrl}
                     >
-                      {map.source_url}
+                      {map.sourceUrl}
                     </a>
                   ) : (
                     <div className="mt-0.5 text-xs text-neutral-700 dark:text-white/85">
@@ -304,12 +274,13 @@ function EmptyText({ children }: { children: React.ReactNode }) {
 
 /* ---------------- helpers ---------------- */
 
-function safeDateLabel(iso: string) {
+function safeDateLabel(ts?: number) {
+  if (!ts) return "-";
   try {
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return iso;
+    const d = new Date(ts);
+    if (Number.isNaN(d.getTime())) return "-";
     return d.toLocaleString();
   } catch {
-    return iso;
+    return "-";
   }
 }

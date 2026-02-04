@@ -4,8 +4,9 @@ import dynamic from "next/dynamic";
 import { Icon } from "@iconify/react";
 import { SetStateAction, useMemo, useState } from "react";
 import { useTheme } from "next-themes";
-import LeftPanel, { MapRow } from "@/components/maps/LeftPanel";
+import LeftPanel from "@/components/maps/LeftPanel";
 import RightPanel from "@/components/maps/RightPanel";
+import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 
 const ClientMindElixir = dynamic(
   () => import("@/components/ClientMindElixir"),
@@ -29,34 +30,21 @@ export default function FullscreenDialog({
   title,
   onClose,
   onGoList,
+  draft,
 }: {
   open: boolean;
   title?: string;
   onClose: () => void;
   onGoList?: () => void;
+  draft?: MapDraft | null;
 }) {
-  if (!open) return null;
+  if (!open || !draft) return null;
 
   // ✅ UI state
   const [leftOpen, setLeftOpen] = useState(false); // metadata
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
   const { resolvedTheme } = useTheme();
 
-  // ✅ 가데이터
-  const meta: any = useMemo(
-    () => ({
-      title: "예배 회복을 위한 7가지 흐름",
-      sourceType: "youtube",
-      sourceUrl: "https://youtu.be/xxxxx",
-      channelName: "vision328",
-      tags: ["설교", "예배", "회복", "구조맵"],
-      createdAt: 1769999460000,
-      createdAtLabel: "2026. 2. 2. 오전 11:31:00",
-      description:
-        "가데이터입니다. 이 영역은 접혀있고, 필요할 때만 펼쳐서 보는 정보예요.",
-    }),
-    []
-  );
 
   // ✅ 좌측 패널(메타) 토글
   const openMeta = () => {
@@ -77,34 +65,7 @@ export default function FullscreenDialog({
   };
 
   const handleGoList = onGoList ?? onClose;
-  const mapRow: MapRow = useMemo(
-    () => ({
-      id: "map_demo_001",
-      user_id: "user_demo_001",
-      title: meta.title,
-      description: meta.description ?? null,
-      tags: meta.tags ?? [],
-      channel_name: meta.channelName ?? null,
-      source_type: meta.sourceType,
-      source_url: meta.sourceUrl ?? null,
-      thumbnail_url: null,
-      created_at: new Date(meta.createdAt).toISOString(),
-      updated_at: new Date(meta.createdAt + 1000 * 60 * 9).toISOString(),
-      extract_error: null,
-      extract_job_id: "job_demo_001",
-      extract_status: "completed",
-      extracted_text: null,
-      map_status: "processing",
-      mind_elixir: null,
-      mind_elixir_draft: null,
-      output_language: null,
-      required_credits: 12,
-      credits_charged: 12,
-      credits_charged_at: new Date(meta.createdAt).toISOString(),
-      schema_version: 1,
-    }),
-    [meta]
-  );
+  const mapDraft = useMemo(() => draft, [draft]);
 
   return (
     <div
@@ -266,7 +227,7 @@ export default function FullscreenDialog({
           <LeftPanel
             open={leftOpen}
             onClose={() => setLeftOpen(false)}
-            map={mapRow}
+            map={mapDraft}
           />
 
           {/* ✅ 우측: 구조맵 상세 패널 */}

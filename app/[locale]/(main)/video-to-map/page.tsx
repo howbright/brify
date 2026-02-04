@@ -108,7 +108,7 @@ function withCacheBuster(url: string) {
 }
 
 const DRAFT_SELECT_FIELDS =
-  "id,created_at,updated_at,title,channel_name,source_url,tags,description,thumbnail_url,map_status,credits_charged";
+  "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,thumbnail_url,map_status,credits_charged";
 
 function coerceMapStatus(status?: string | null): MapJobStatus {
   if (status === "done" || status === "failed" || status === "processing") {
@@ -528,6 +528,10 @@ export default function VideoToMapPage() {
               ? new Date(data.updated_at).getTime()
               : undefined,
             sourceUrl: data.source_url ?? undefined,
+            sourceType: (data as { source_type?: string | null }).source_type
+              ? ((data as { source_type?: string | null })
+                  .source_type as MapDraft["sourceType"])
+              : undefined,
             title: data.title ?? "제목없음",
             channelName: data.channel_name ?? undefined,
             thumbnailUrl: data.thumbnail_url
@@ -780,6 +784,7 @@ export default function VideoToMapPage() {
       <FullscreenDialog
         open={showFullscreen}
         title={openDraft?.title ?? "구조맵 미리보기"}
+        draft={openDraft}
         onClose={() => {
           setShowFullscreen(false);
           setOpenDraft(null);

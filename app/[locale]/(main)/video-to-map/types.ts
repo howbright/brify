@@ -7,6 +7,7 @@ export type MapDraft = {
 
   // user 입력/자동추출 메타
   sourceUrl?: string;
+  sourceType?: "youtube" | "website" | "file" | "manual";
   title: string;
   channelName?: string;
   tags: string[];
