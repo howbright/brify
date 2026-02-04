@@ -107,6 +107,17 @@ function withCacheBuster(url: string) {
   }
 }
 
+const DRAFT_SELECT_FIELDS =
+  "id,created_at,updated_at,title,channel_name,source_url,tags,description,thumbnail_url,map_status,credits_charged";
+
+function coerceMapStatus(status?: string | null): MapJobStatus {
+  if (status === "done" || status === "failed" || status === "processing") {
+    return status;
+  }
+  // map_status가 "queued"/"idle" 등인 경우 처리 중으로 간주
+  return "processing";
+}
+
 export default function VideoToMapPage() {
   const t = useTranslations("VideoToMapPage");
   const locale = useLocale();
@@ -453,6 +464,11 @@ export default function VideoToMapPage() {
     setError(null);
 
     try {
+      const targetId = createdMapId ?? editingDraft?.id;
+      if (!targetId) {
+        throw new Error("mapId가 없습니다.");
+      }
+
       const supabase = createClient();
       const { data: sessionData, error: sessionErr } =
         await supabase.auth.getSession();
@@ -471,7 +487,7 @@ export default function VideoToMapPage() {
         throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
       }
 
-      const res = await fetch(`${base}/maps/${createdMapId}/metadata`, {
+      const res = await fetch(`${base}/maps/${targetId}/metadata`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -495,9 +511,54 @@ export default function VideoToMapPage() {
         throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
       }
 
+      let latestDraft: MapDraft | null = null;
+      try {
+        const { data, error } = await supabase
+          .from("maps")
+          .select(DRAFT_SELECT_FIELDS)
+          .eq("id", targetId)
+          .single();
+
+        if (error) throw error;
+        if (data) {
+          latestDraft = {
+            id: data.id,
+            createdAt: new Date(data.created_at).getTime(),
+            updatedAt: data.updated_at
+              ? new Date(data.updated_at).getTime()
+              : undefined,
+            sourceUrl: data.source_url ?? undefined,
+            title: data.title ?? "제목없음",
+            channelName: data.channel_name ?? undefined,
+            thumbnailUrl: data.thumbnail_url
+              ? withCacheBuster(data.thumbnail_url)
+              : undefined,
+            tags: Array.isArray(data.tags) ? data.tags : [],
+            description: data.description ?? undefined,
+            status: coerceMapStatus(data.map_status),
+            creditsCharged:
+              typeof data.credits_charged === "number"
+                ? data.credits_charged
+                : undefined,
+          };
+        }
+      } catch (e) {
+        console.error("Failed to refresh draft from DB:", e);
+      }
+
       setDrafts((prev) => {
-        const id = createdMapId;
+        const id = targetId;
         if (!id) return prev;
+
+        if (latestDraft) {
+          const exists = prev.some((d) => d.id === id);
+          if (exists) {
+            return prev.map((d) =>
+              d.id === id ? { ...d, ...latestDraft } : d
+            );
+          }
+          return [latestDraft, ...prev];
+        }
 
         const cacheBustedThumb = meta.thumbnailUrl
           ? withCacheBuster(meta.thumbnailUrl)

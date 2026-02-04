@@ -3,6 +3,7 @@ export type MapJobStatus = "processing" | "done" | "failed";
 export type MapDraft = {
   id: string;
   createdAt: number;
+  updatedAt?: number;
 
   // user 입력/자동추출 메타
   sourceUrl?: string;
@@ -20,4 +21,9 @@ export type MapDraft = {
   // 결과(가짜)
   result?: any;
   error?: string;
+
+  // 크레딧/정산
+  requiredCredits?: number;
+  creditsCharged?: number;
+  creditsChargedAt?: number;
 };

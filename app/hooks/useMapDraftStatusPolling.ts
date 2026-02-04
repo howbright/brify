@@ -19,14 +19,6 @@ function withCacheBuster(url: string) {
 type ServerDraftRow = {
   id: string;
   map_status: MapJobStatus;
-  title?: string | null;
-  description?: string | null;
-  tags?: string[] | null;
-  thumbnail_url?: string | null;
-  channel_name?: string | null;
-  source_url?: string | null;
-  created_at?: string | null;
-  updated_at?: string | null;
 };
 
 type Options = {
@@ -66,9 +58,7 @@ export function useMapDraftStatusPolling(
       const supabase = createClient();
       const { data, error } = await supabase
         .from("maps")
-        .select(
-          "id,map_status,title,description,tags,thumbnail_url,channel_name,source_url,created_at,updated_at"
-        )
+        .select("id,map_status")
         .in("id", idsParam);
 
       if (error) throw error;
@@ -99,30 +89,7 @@ export function useMapDraftStatusPolling(
         if (!found) return draft;
 
         const nextStatus = (found.map_status ?? draft.status) as MapJobStatus;
-        const nextTitle = found.title ?? draft.title;
-        const nextDesc = found.description ?? draft.description;
-        const nextTags = Array.isArray(found.tags) ? found.tags : draft.tags;
-
-        const nextThumbRaw = found.thumbnail_url ?? draft.thumbnailUrl;
-        const nextThumb =
-          nextThumbRaw && nextThumbRaw !== draft.thumbnailUrl
-            ? withCacheBuster(nextThumbRaw)
-            : nextThumbRaw;
-
-        const nextChannel = found.channel_name ?? draft.channelName;
-        const nextSource = found.source_url ?? draft.sourceUrl;
-
-        const tagsChanged =
-          JSON.stringify(nextTags ?? []) !== JSON.stringify(draft.tags ?? []);
-
-        const changedThis =
-          nextStatus !== draft.status ||
-          nextTitle !== draft.title ||
-          nextDesc !== draft.description ||
-          nextThumb !== draft.thumbnailUrl ||
-          nextChannel !== draft.channelName ||
-          nextSource !== draft.sourceUrl ||
-          tagsChanged;
+        const changedThis = nextStatus !== draft.status;
 
         if (!changedThis) return draft;
 
@@ -130,12 +97,6 @@ export function useMapDraftStatusPolling(
         return {
           ...draft,
           status: nextStatus,
-          title: nextTitle,
-          description: nextDesc,
-          tags: nextTags,
-          thumbnailUrl: nextThumb,
-          channelName: nextChannel,
-          sourceUrl: nextSource,
         };
       });
 
