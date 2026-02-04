@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 
-import { MapDraft } from "./types";
+import { MapDraft, MapJobStatus } from "./types";
 import ScriptInputCard from "./ScriptInputCard";
 import ScriptHelpSection from "../video-to-map2/ScriptHelpSection";
 import DraftMapCard from "./DraftMapCard";
