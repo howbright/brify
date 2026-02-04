@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { Icon } from "@iconify/react";
-import { SetStateAction, useMemo, useState } from "react";
+import { SetStateAction, useState } from "react";
 import { useTheme } from "next-themes";
 import LeftPanel from "@/components/maps/LeftPanel";
 import RightPanel from "@/components/maps/RightPanel";
@@ -38,8 +38,6 @@ export default function FullscreenDialog({
   onGoList?: () => void;
   draft?: MapDraft | null;
 }) {
-  if (!open || !draft) return null;
-
   // ✅ UI state
   const [leftOpen, setLeftOpen] = useState(false); // metadata
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
@@ -64,8 +62,10 @@ export default function FullscreenDialog({
     }
   };
 
+  if (!open || !draft) return null;
+
   const handleGoList = onGoList ?? onClose;
-  const mapDraft = useMemo(() => draft, [draft]);
+  const mapDraft = draft;
 
   return (
     <div
@@ -236,7 +236,7 @@ export default function FullscreenDialog({
             onClose={() => setRightOpen(false)}
             notes={[]}
             setNotes={function (
-              value: SetStateAction<
+              _value: SetStateAction<
                 {
                   id: string;
                   text: string;

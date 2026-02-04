@@ -63,18 +63,6 @@ export default async function PricingPage() {
             signedInHref="/billing"
             signedOutHref="/login"
             showFooterNote
-            showPositioning
-            positioningText="No subscription — pay only what you use."
-            showRefundBadge
-            refundText="Unused credits refundable within 7 days."
-            creditRule={{
-              label: "Long inputs may use extra credits",
-              items: [
-                { threshold: "≤ 15k tokens", credits: 1 },
-                { threshold: "≤ 50k tokens", credits: 2 },
-                { threshold: "≤ 100k tokens", credits: 3 },
-              ],
-            }}
           />
 
           {/* 하단 보조 섹션들은 기존대로 유지 */}

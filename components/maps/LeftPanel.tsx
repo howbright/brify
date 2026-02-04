@@ -115,7 +115,7 @@ export default function LeftPanel({
                   dark:border-white/10 dark:bg-white/[0.06]
                 "
               >
-                {map.thumbnail_url ? (
+                {map.thumbnailUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={map.thumbnailUrl}
