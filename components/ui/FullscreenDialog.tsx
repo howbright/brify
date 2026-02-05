@@ -31,15 +31,21 @@ export default function FullscreenDialog({
   onClose,
   onGoList,
   draft,
+  mapData,
+  mapLoading = false,
+  mapError,
 }: {
   open: boolean;
   title?: string;
   onClose: () => void;
   onGoList?: () => void;
   draft?: MapDraft | null;
+  mapData?: any | null;
+  mapLoading?: boolean;
+  mapError?: string | null;
 }) {
   // ✅ UI state
-  const [leftOpen, setLeftOpen] = useState(false); // metadata
+  const [leftOpen, setLeftOpen] = useState(true); // metadata
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
   const { resolvedTheme } = useTheme();
 
@@ -187,6 +193,8 @@ export default function FullscreenDialog({
               <ClientMindElixir
                 mode={resolvedTheme === "dark" ? "dark" : "light"}
                 dragButton={2}
+                data={mapData ?? undefined}
+                loading={mapLoading}
               />
             </div>
           </div>
@@ -222,6 +230,15 @@ export default function FullscreenDialog({
                 : "보기모드: 흐름을 집중해서 확인"}
             </span>
           </div>
+
+          {mapError && (
+            <div className="absolute left-4 top-3 z-[15]">
+              <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
+                <Icon icon="mdi:alert-circle-outline" className="h-3.5 w-3.5" />
+                구조맵을 불러오지 못했어요
+              </span>
+            </div>
+          )}
 
           {/* ✅ 좌측: 메타데이터 패널 */}
           <LeftPanel

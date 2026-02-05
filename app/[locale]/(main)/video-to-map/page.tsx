@@ -185,6 +185,9 @@ export default function VideoToMapPage() {
   const [editingDraft, setEditingDraft] = useState<MapDraft | null>(null);
   const [openDraft, setOpenDraft] = useState<MapDraft | null>(null);
   const [showFullscreen, setShowFullscreen] = useState(true);
+  const [openMapData, setOpenMapData] = useState<any | null>(null);
+  const [openMapLoading, setOpenMapLoading] = useState(false);
+  const [openMapError, setOpenMapError] = useState<string | null>(null);
 
   const statusMessages = useMemo(
     () => [
@@ -222,6 +225,48 @@ export default function VideoToMapPage() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!showFullscreen || !openDraft?.id) return;
+
+    let cancelled = false;
+    const targetId = openDraft.id;
+
+    setOpenMapData(null);
+    setOpenMapError(null);
+    setOpenMapLoading(true);
+
+    (async () => {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("maps")
+          .select("mind_elixir")
+          .eq("id", targetId)
+          .single();
+
+        if (cancelled) return;
+        if (error) throw error;
+
+        const mindData = (data as { mind_elixir?: any })?.mind_elixir ?? null;
+        if (!mindData) {
+          throw new Error("mind_elixir 데이터가 없습니다.");
+        }
+
+        setOpenMapData(mindData);
+      } catch (e: any) {
+        if (cancelled) return;
+        setOpenMapError(e?.message ?? "구조맵을 불러오지 못했습니다.");
+        setOpenMapData(null);
+      } finally {
+        if (!cancelled) setOpenMapLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [showFullscreen, openDraft?.id]);
 
   useEffect(() => {
     if (!isProcessing) {
@@ -785,6 +830,9 @@ export default function VideoToMapPage() {
         open={showFullscreen}
         title={openDraft?.title ?? "구조맵 미리보기"}
         draft={openDraft}
+        mapData={openMapData}
+        mapLoading={openMapLoading}
+        mapError={openMapError}
         onClose={() => {
           setShowFullscreen(false);
           setOpenDraft(null);

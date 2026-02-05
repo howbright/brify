@@ -8,6 +8,9 @@ import "@mind-elixir/node-menu/dist/style.css";
 type ClientMindElixirProps = {
   mode?: "light" | "dark" | "auto";
   theme?: any;
+  data?: any;
+  placeholderData?: any;
+  loading?: boolean;
 
   zoomSensitivity?: number; // scaleSensitivity
   dragButton?: 0 | 2; // mouseSelectionButton
@@ -199,6 +202,9 @@ function applyBranchBorderColors(params: {
 export default function ClientMindElixir({
   mode = "auto",
   theme,
+  data,
+  placeholderData,
+  loading = false,
   zoomSensitivity = 0.3,
   dragButton = 0,
   fitOnInit = true,
@@ -225,6 +231,10 @@ export default function ClientMindElixir({
     if (!mounted) return "light";
     return resolvedTheme === "dark" ? "dark" : "light";
   }, [mode, resolvedTheme, mounted]);
+
+  const initialData = useMemo(() => {
+    return data ?? placeholderData ?? sampled;
+  }, [data, placeholderData]);
 
   // ✅ 배경: 아이보리 톤 + 네모 도트
   const gridStyle = useMemo(() => {
@@ -317,7 +327,7 @@ export default function ClientMindElixir({
       meNodes?.style.setProperty("background", "transparent", "important");
 
 
-      mind.init(sampled);
+      mind.init(initialData);
       mindRef.current = mind;
 
       const palette = safePaletteFromThemeObj(resolvedThemeObj);
@@ -504,7 +514,16 @@ export default function ClientMindElixir({
       } catch {}
       mindRef.current = null;
     };
-  }, [mounted, effectiveMode, theme, zoomSensitivity, dragButton, fitOnInit, openMenuOnClick]);
+  }, [
+    mounted,
+    effectiveMode,
+    theme,
+    zoomSensitivity,
+    dragButton,
+    fitOnInit,
+    openMenuOnClick,
+    initialData,
+  ]);
 
   return (
     <div className="relative w-full h-full me-surface">
@@ -513,6 +532,14 @@ export default function ClientMindElixir({
 
       {/* ✅ 실제 캔버스 */}
       <div ref={elRef} className="relative w-full h-full" />
+
+      {loading && (
+        <div className="pointer-events-none absolute left-4 top-4 z-10">
+          <span className="rounded-full bg-white/85 px-2.5 py-1 text-[11px] text-neutral-600 shadow-sm dark:bg-[#0b1220]/80 dark:text-white/70">
+            구조맵 불러오는 중…
+          </span>
+        </div>
+      )}
 
       {/* ✅ 스켈레톤 오버레이 */}
       {!ready && (
