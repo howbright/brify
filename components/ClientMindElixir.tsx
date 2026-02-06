@@ -205,7 +205,7 @@ export default function ClientMindElixir({
   data,
   placeholderData,
   loading = false,
-  zoomSensitivity = 0.3,
+  zoomSensitivity = 0.1,
   dragButton = 0,
   fitOnInit = true,
   openMenuOnClick = true,

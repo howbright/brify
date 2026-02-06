@@ -404,7 +404,7 @@ function TermsBlock({
   onRefetch: () => void;
 }) {
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       <div className="text-xs text-neutral-500 dark:text-white/60">
         어려운 용어가 자동으로 추출되어 뜻을 정리해줘요.
       </div>
@@ -414,7 +414,7 @@ function TermsBlock({
           용어를 불러오는 중…
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           {terms.length === 0 ? (
             <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75">
               아직 용어가 없어요. “용어 다시 추출”을 눌러보세요.
