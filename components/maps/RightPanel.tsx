@@ -231,11 +231,7 @@ function NotesBlock({
   onDelete: (id: string) => void;
 }) {
   return (
-    <div className="space-y-3">
-      <div className="text-xs text-neutral-500 dark:text-white/60">
-        구조맵을 보면서 떠오른 생각을 바로 적어둘 수 있어요.
-      </div>
-
+    <div className="flex flex-col gap-3">
       <div className="flex gap-2">
         <input
           value={noteText}

@@ -169,7 +169,7 @@ export default function MapDetailPage() {
             <ToolbarToggle
               pressed={rightOpen}
               icon="mdi:clipboard-text-outline"
-              label="상세"
+              label="노트"
               onClick={openDetails}
             />
           </div>
