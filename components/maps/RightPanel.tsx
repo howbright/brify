@@ -1,10 +1,11 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
+import NoteItem, { type NoteItemData } from "@/components/maps/NoteItem";
 
 type TermItem = { term: string; meaning: string };
-type NoteItem = { id: string; text: string; createdAt: number; createdAtLabel: string };
+type NoteItem = NoteItemData;
 
 export type RightPanelTab = "notes" | "terms";
 
@@ -12,10 +13,7 @@ type Props = {
   open: boolean;
   initialTab?: RightPanelTab; // 열릴 때 기본 탭
   onClose: () => void;
-
-  // 노트
-  notes: NoteItem[];
-  setNotes: React.Dispatch<React.SetStateAction<NoteItem[]>>;
+  mapId: string;
 
   // 용어
   terms: TermItem[];
@@ -27,14 +25,16 @@ export default function RightPanel({
   open,
   initialTab = "notes",
   onClose,
-  notes,
-  setNotes,
+  mapId,
   terms,
   termsLoading,
   onFetchTerms,
 }: Props) {
   const [tab, setTab] = useState<RightPanelTab>(initialTab);
   const [noteText, setNoteText] = useState("");
+  const [notes, setNotes] = useState<NoteItem[]>([]);
+  const [notesLoading, setNotesLoading] = useState(false);
+  const [notesError, setNotesError] = useState<string | null>(null);
 
   // ✅ 열릴 때 initialTab 반영
   useEffect(() => {
@@ -56,26 +56,118 @@ export default function RightPanel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, tab]);
 
-  const addNote = () => {
-    const trimmed = noteText.trim();
-    if (!trimmed) return;
-
-    const now = Date.now();
-    const nowLabel = new Date(now).toLocaleString();
-    setNotes((prev) => [
-      {
-        id: Math.random().toString(36).slice(2, 10),
-        text: trimmed,
-        createdAt: now,
-        createdAtLabel: nowLabel,
-      },
-      ...prev,
-    ]);
-    setNoteText("");
+  const fetchNotes = async () => {
+    if (!mapId) return;
+    setNotesLoading(true);
+    setNotesError(null);
+    try {
+      const res = await fetch(
+        `/api/notes?mapId=${encodeURIComponent(mapId)}&limit=200`,
+        { cache: "no-store" }
+      );
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json?.ok) {
+        throw new Error(json?.error || "FAILED_TO_FETCH_NOTES");
+      }
+      const items: NoteItem[] = Array.isArray(json.items)
+        ? json.items.map((row: any) => {
+            const createdAt = new Date(row.created_at).getTime();
+            return {
+              id: String(row.id),
+              text: String(row.text ?? ""),
+              createdAt,
+              createdAtLabel: new Date(createdAt).toLocaleString(),
+            };
+          })
+        : [];
+      setNotes(items);
+    } catch (e: any) {
+      setNotesError(e?.message ?? "FAILED_TO_FETCH_NOTES");
+    } finally {
+      setNotesLoading(false);
+    }
   };
 
-  const deleteNote = (id: string) => {
-    setNotes((prev) => prev.filter((n) => n.id !== id));
+  useEffect(() => {
+    if (!open) return;
+    if (tab !== "notes") return;
+    fetchNotes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, tab, mapId]);
+
+  const addNote = async () => {
+    const trimmed = noteText.trim();
+    if (!trimmed) return;
+    if (!mapId) return;
+    setNotesError(null);
+
+    try {
+      const res = await fetch("/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mapId, text: trimmed }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json?.ok) {
+        throw new Error(json?.error || "FAILED_TO_ADD_NOTE");
+      }
+      const row = json.item ?? {};
+      const createdAt = new Date(row.created_at).getTime();
+      const item: NoteItem = {
+        id: String(row.id),
+        text: String(row.text ?? ""),
+        createdAt,
+        createdAtLabel: new Date(createdAt).toLocaleString(),
+      };
+      setNotes((prev) => [item, ...prev]);
+      setNoteText("");
+    } catch (e: any) {
+      setNotesError(e?.message ?? "FAILED_TO_ADD_NOTE");
+    }
+  };
+
+  const deleteNote = async (id: string) => {
+    if (!id) return;
+    setNotesError(null);
+    try {
+      const res = await fetch(`/api/notes/${id}`, { method: "DELETE" });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json?.ok) {
+        throw new Error(json?.error || "FAILED_TO_DELETE_NOTE");
+      }
+      setNotes((prev) => prev.filter((n) => n.id !== id));
+    } catch (e: any) {
+      setNotesError(e?.message ?? "FAILED_TO_DELETE_NOTE");
+    }
+  };
+
+  const updateNote = async (id: string, text: string) => {
+    if (!id) return;
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    setNotesError(null);
+    try {
+      const res = await fetch(`/api/notes/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: trimmed }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json?.ok) {
+        throw new Error(json?.error || "FAILED_TO_UPDATE_NOTE");
+      }
+      const row = json.item ?? {};
+      const createdAt = new Date(row.created_at).getTime();
+      const updated: NoteItem = {
+        id: String(row.id),
+        text: String(row.text ?? ""),
+        createdAt,
+        createdAtLabel: new Date(createdAt).toLocaleString(),
+      };
+      setNotes((prev) => prev.map((n) => (n.id === id ? updated : n)));
+    } catch (e: any) {
+      setNotesError(e?.message ?? "FAILED_TO_UPDATE_NOTE");
+    }
   };
 
   return (
@@ -106,7 +198,10 @@ export default function RightPanel({
           setNoteText={setNoteText}
           onAdd={addNote}
           notes={notes}
+          loading={notesLoading}
+          error={notesError}
           onDelete={deleteNote}
+          onUpdate={updateNote}
         />
       ) : (
         <TermsBlock
@@ -222,24 +317,43 @@ function NotesBlock({
   setNoteText,
   onAdd,
   notes,
+  loading,
+  error,
   onDelete,
+  onUpdate,
 }: {
   noteText: string;
   setNoteText: (v: string) => void;
   onAdd: () => void;
   notes: NoteItem[];
+  loading: boolean;
+  error: string | null;
   onDelete: (id: string) => void;
+  onUpdate: (id: string, text: string) => void;
 }) {
   return (
     <div className="flex flex-col gap-3">
+      <div className="text-xs text-neutral-500 dark:text-white/60">
+        구조맵을 보면서 떠오른 생각을 바로 적어둘 수 있어요.
+      </div>
+
+      {error ? (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
+          {error}
+        </div>
+      ) : null}
+
       <div className="flex gap-2">
         <input
           value={noteText}
           onChange={(e) => setNoteText(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) onAdd();
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              onAdd();
+            }
           }}
-          placeholder="노트를 적어주세요… (Ctrl/⌘ + Enter로 추가)"
+          placeholder="노트를 적어주세요… (Enter로 추가)"
           className="
             flex-1 rounded-2xl border border-neutral-200 bg-white px-3 py-2 text-sm
             outline-none focus:ring-2 focus:ring-blue-200
@@ -261,36 +375,18 @@ function NotesBlock({
         </button>
       </div>
 
-      <div className="space-y-2">
-        {notes.length === 0 ? (
+      <div className="flex flex-col gap-2">
+        {loading ? (
+          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75">
+            노트를 불러오는 중…
+          </div>
+        ) : notes.length === 0 ? (
           <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75">
             아직 노트가 없어요.
           </div>
         ) : (
           notes.map((n) => (
-            <div
-              key={n.id}
-              className="
-                rounded-2xl border border-neutral-200 bg-white p-3
-                dark:border-white/10 dark:bg-white/[0.06]
-              "
-            >
-              <div className="text-sm text-neutral-900 dark:text-white whitespace-pre-wrap">
-                {n.text}
-              </div>
-              <div className="mt-2 flex items-center justify-between">
-                <span className="text-[11px] text-neutral-500 dark:text-white/60">
-                  {n.createdAtLabel}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => onDelete(n.id)}
-                  className="text-xs font-semibold text-rose-600 hover:underline"
-                >
-                  삭제
-                </button>
-              </div>
-            </div>
+            <NoteItem key={n.id} note={n} onDelete={onDelete} onUpdate={onUpdate} />
           ))
         )}
       </div>

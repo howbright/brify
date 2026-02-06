@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { Icon } from "@iconify/react";
-import { SetStateAction, useState } from "react";
+import { useState } from "react";
 import { useTheme } from "next-themes";
 import LeftPanel from "@/components/maps/LeftPanel";
 import RightPanel from "@/components/maps/RightPanel";
@@ -253,19 +253,7 @@ export default function FullscreenDialog({
           <RightPanel
             open={rightOpen}
             onClose={() => setRightOpen(false)}
-            notes={[]}
-            setNotes={function (
-              _value: SetStateAction<
-                {
-                  id: string;
-                  text: string;
-                  createdAt: number;
-                  createdAtLabel: string;
-                }[]
-              >
-            ): void {
-              throw new Error("Function not implemented.");
-            }}
+            mapId={mapDraft.id}
             terms={[]}
             termsLoading={false}
             onFetchTerms={function (): Promise<void> {

@@ -225,17 +225,7 @@ export default function MapDetailPage() {
         <RightPanel
           open={rightOpen}
           onClose={() => setRightOpen(false)}
-          notes={[]}
-          setNotes={function (
-            _value: {
-              id: string;
-              text: string;
-              createdAt: number;
-              createdAtLabel: string;
-            }[]
-          ): void {
-            throw new Error("Function not implemented.");
-          }}
+          mapId={mapId}
           terms={[]}
           termsLoading={false}
           onFetchTerms={function (): Promise<void> {
