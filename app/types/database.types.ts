@@ -172,6 +172,189 @@ export type Database = {
           },
         ]
       }
+      map_term_requests: {
+        Row: {
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          input_terms: string | null
+          job_id: string | null
+          kind: Database["public"]["Enums"]["map_term_request_kind"]
+          lang: string
+          map_id: string
+          request_index: number
+          session_id: string
+          source: string | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["map_term_request_status"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          input_terms?: string | null
+          job_id?: string | null
+          kind: Database["public"]["Enums"]["map_term_request_kind"]
+          lang: string
+          map_id: string
+          request_index: number
+          session_id: string
+          source?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["map_term_request_status"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          input_terms?: string | null
+          job_id?: string | null
+          kind?: Database["public"]["Enums"]["map_term_request_kind"]
+          lang?: string
+          map_id?: string
+          request_index?: number
+          session_id?: string
+          source?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["map_term_request_status"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "map_term_requests_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "map_term_requests_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "map_term_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      map_term_sessions: {
+        Row: {
+          created_at: string
+          credits_charged: number
+          credits_charged_at: string | null
+          expires_at: string | null
+          id: string
+          map_id: string
+          quota: number
+          status: Database["public"]["Enums"]["map_term_session_status"]
+          updated_at: string
+          used: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits_charged?: number
+          credits_charged_at?: string | null
+          expires_at?: string | null
+          id?: string
+          map_id: string
+          quota?: number
+          status?: Database["public"]["Enums"]["map_term_session_status"]
+          updated_at?: string
+          used?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits_charged?: number
+          credits_charged_at?: string | null
+          expires_at?: string | null
+          id?: string
+          map_id?: string
+          quota?: number
+          status?: Database["public"]["Enums"]["map_term_session_status"]
+          updated_at?: string
+          used?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "map_term_sessions_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      map_terms: {
+        Row: {
+          created_at: string
+          id: string
+          lang: string
+          last_request_id: string | null
+          map_id: string
+          meaning: string
+          session_id: string | null
+          source: string | null
+          term: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lang: string
+          last_request_id?: string | null
+          map_id: string
+          meaning: string
+          session_id?: string | null
+          source?: string | null
+          term: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lang?: string
+          last_request_id?: string | null
+          map_id?: string
+          meaning?: string
+          session_id?: string | null
+          source?: string | null
+          term?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "map_terms_last_request_id_fkey"
+            columns: ["last_request_id"]
+            isOneToOne: false
+            referencedRelation: "map_term_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "map_terms_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "map_terms_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "map_term_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maps: {
         Row: {
           channel_name: string | null
@@ -546,6 +729,9 @@ export type Database = {
         | "not_found"
       map_source_type: "youtube" | "website" | "file" | "manual"
       map_status: "processing" | "done" | "failed" | "idle" | "queued"
+      map_term_request_kind: "auto" | "custom"
+      map_term_request_status: "queued" | "running" | "succeeded" | "failed"
+      map_term_session_status: "active" | "exhausted" | "cancelled"
       payment_provider: "lemon_squeezy" | "toss"
       payment_status:
         | "pending"
@@ -709,6 +895,9 @@ export const Constants = {
       ],
       map_source_type: ["youtube", "website", "file", "manual"],
       map_status: ["processing", "done", "failed", "idle", "queued"],
+      map_term_request_kind: ["auto", "custom"],
+      map_term_request_status: ["queued", "running", "succeeded", "failed"],
+      map_term_session_status: ["active", "exhausted", "cancelled"],
       payment_provider: ["lemon_squeezy", "toss"],
       payment_status: [
         "pending",
