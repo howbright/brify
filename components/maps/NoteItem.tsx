@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useState } from "react";
+import { Icon } from "@iconify/react";
 
 export type NoteItemData = {
   id: string;
@@ -70,22 +71,26 @@ function NoteItem({
         <span className="text-[11px] text-neutral-500 dark:text-white/60">
           {note.createdAtLabel}
         </span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {editing ? (
             <>
               <button
                 type="button"
                 onClick={saveEdit}
-                className="text-xs font-semibold text-blue-600 hover:underline"
+                className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-neutral-200 text-neutral-500 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 dark:border-white/10 dark:text-white/60 dark:hover:text-blue-300 dark:hover:border-blue-500/25 dark:hover:bg-blue-500/10"
+                title="저장"
+                aria-label="저장"
               >
-                저장
+                <Icon icon="mdi:content-save-outline" className="h-3.5 w-3.5" />
               </button>
               <button
                 type="button"
                 onClick={cancelEdit}
-                className="text-xs font-semibold text-neutral-500 hover:underline"
+                className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-neutral-200 text-neutral-400 hover:text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50 dark:border-white/10 dark:text-white/45 dark:hover:text-white/70 dark:hover:border-white/20 dark:hover:bg-white/10"
+                title="취소"
+                aria-label="취소"
               >
-                취소
+                <Icon icon="mdi:close-circle-outline" className="h-3.5 w-3.5" />
               </button>
             </>
           ) : (
@@ -93,16 +98,20 @@ function NoteItem({
               <button
                 type="button"
                 onClick={() => setEditing(true)}
-                className="text-xs font-semibold text-neutral-700 hover:underline"
+                className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-neutral-200 text-neutral-500 hover:text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50 dark:border-white/10 dark:text-white/60 dark:hover:text-white/85 dark:hover:border-white/20 dark:hover:bg-white/10"
+                title="수정"
+                aria-label="수정"
               >
-                수정
+                <Icon icon="mdi:pencil-outline" className="h-3.5 w-3.5" />
               </button>
               <button
                 type="button"
                 onClick={() => onDelete(note.id)}
-                className="text-xs font-semibold text-rose-600 hover:underline"
+                className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-neutral-200 text-neutral-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50 dark:border-white/10 dark:text-white/45 dark:hover:text-rose-300 dark:hover:border-rose-500/25 dark:hover:bg-rose-500/10"
+                title="삭제"
+                aria-label="삭제"
               >
-                삭제
+                <Icon icon="mdi:close" className="h-3.5 w-3.5" />
               </button>
             </>
           )}
