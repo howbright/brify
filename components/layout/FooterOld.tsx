@@ -44,7 +44,7 @@ export default function FooterOld() {
               </Link>
             </li>
             <li>
-              <Link href="/my-summaries" className="hover:underline hover:text-primary transition-colors">
+              <Link href="/maps" className="hover:underline hover:text-primary transition-colors">
                 나의 스크랩북
               </Link>
             </li>

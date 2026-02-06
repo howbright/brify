@@ -113,7 +113,7 @@ export default function ClientMobileUserMenu({
                     <button
                       onClick={() => {
                         setOpen(false);
-                        router.push("/my-summaries");
+                        router.push("/maps");
                       }}
                       className="w-full text-left py-2"
                     >

@@ -136,7 +136,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
 
                 {/* 나의 맵 – 세컨더리 텍스트 버튼 스타일 */}
                 <Link
-                  href="/my-summaries"
+                  href="/maps"
                   className="
                     text-sm font-medium
                     px-2.5 py-1.5 rounded-lg

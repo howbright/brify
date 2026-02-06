@@ -85,7 +85,7 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
           className="text-sm"
           onSelect={(e) => {
             e.preventDefault();
-            router.push("/my-summaries");
+            router.push("/maps");
           }}
         >
           <span>{t("cta.myMaps")}</span>

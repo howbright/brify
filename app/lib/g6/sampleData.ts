@@ -677,6 +677,23 @@ export const sampled = {
   }
 }
 
+// ✅ 구조맵 로딩용 플레이스홀더 (MindElixir용)
+export const loadingMindElixir = {
+  nodeData: {
+    id: "loading-root",
+    root: true,
+    topic: "구조맵 데이터를 가져오는 중입니다...",
+    children: [
+      { id: "loading-0", topic: "구조맵 생성하는 중 ...", children: [] },
+      { id: "loading-1", topic: "조금만 기다려주세요 ...", children: [] },
+      { id: "loading-2", topic: "내용을 정리하는 중 ...", children: [] },
+      { id: "loading-3", topic: "곧 완성됩니다 ...", children: [] },
+      { id: "loading-4", topic: "마지막 다듬는 중 ...", children: [] },
+    ],
+  },
+  linkData: {},
+};
+
 export const sampled2 = {
   nodeData: {
     id: "0",

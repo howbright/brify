@@ -59,7 +59,7 @@ export default function Footer() {
               {[
                 { href: "/video-to-map", label: "핵심정리하기" },
                 { href: "/pricing", label: "요금제" },
-                { href: "/my-summaries", label: "나의 스크랩북" },
+                { href: "/maps", label: "나의 스크랩북" },
                 { href: "/account", label: "계정 설정" },
               ].map((l) => (
                 <li key={l.href}>

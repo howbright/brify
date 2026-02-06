@@ -7,6 +7,7 @@ import { useTheme } from "next-themes";
 import LeftPanel from "@/components/maps/LeftPanel";
 import RightPanel from "@/components/maps/RightPanel";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
+import { loadingMindElixir } from "@/app/lib/g6/sampleData";
 
 const ClientMindElixir = dynamic(
   () => import("@/components/ClientMindElixir"),
@@ -195,6 +196,7 @@ export default function FullscreenDialog({
                 dragButton={2}
                 data={mapData ?? undefined}
                 loading={mapLoading}
+                placeholderData={loadingMindElixir}
               />
             </div>
           </div>
