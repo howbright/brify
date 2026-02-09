@@ -26,6 +26,7 @@ export default function TermsBlock({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [mode, setMode] = useState<Mode | null>(null);
   const [custom, setCustom] = useState("");
+  const [customSheetOpen, setCustomSheetOpen] = useState(false);
 
   const cleanedCsv = useMemo(() => {
     return custom
@@ -68,85 +69,130 @@ export default function TermsBlock({
         <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75">
           용어 해설 생성 중…
         </div>
-      ) : hasTerms ? (
-        <div className="flex flex-col gap-2">
-          {terms.map((x) => (
-            <div
-              key={x.term}
-              className="rounded-2xl border border-neutral-200 bg-white p-3 dark:border-white/10 dark:bg-white/[0.06]"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="font-semibold text-neutral-900 dark:text-white">
-                  {x.term}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => onDeleteTerm?.(x.term)}
-                  className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-neutral-200 text-neutral-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50 dark:border-white/10 dark:text-white/45 dark:hover:text-rose-300 dark:hover:border-rose-500/25 dark:hover:bg-rose-500/10"
-                  title="삭제"
-                  aria-label="삭제"
-                >
-                  <Icon icon="mdi:close" className="h-3.5 w-3.5" />
-                </button>
-              </div>
-              <div className="mt-1 text-sm text-neutral-700 dark:text-white/80">
-                {x.meaning}
-              </div>
-            </div>
-          ))}
-        </div>
       ) : null}
 
       {hasTerms && (
-        <div className="rounded-3xl border border-blue-200/60 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 shadow-[0_10px_30px_rgba(59,130,246,0.12)] dark:border-blue-500/30 dark:from-blue-500/10 dark:via-white/[0.04] dark:to-indigo-500/10">
-          <div className="flex items-center gap-2 text-xs font-semibold text-blue-900 dark:text-blue-100">
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm">
-              <Icon icon="mdi:lightbulb-outline" className="h-4 w-4" />
-            </span>
-            추가 해설 요청
-          </div>
-          <div className="mt-1 text-xs text-neutral-600 dark:text-white/70">
-            쉼표로 구분해 입력하면 해당 용어만 해설해줘요.
-          </div>
-          <input
-            value={custom}
-            onChange={(e) => setCustom(e.target.value)}
-            placeholder="예: JWT, CORS, OAuth"
-            className="
-              mt-3 w-full rounded-2xl border border-blue-200/70 bg-white px-3 py-2
-              text-sm text-neutral-900 placeholder:text-neutral-400
-              outline-none focus:ring-2 focus:ring-blue-200
-              dark:border-blue-500/30 dark:bg-white/[0.06]
-              dark:text-white dark:placeholder:text-white/35
-              dark:focus:ring-blue-500/25
-            "
-          />
-          <div className="mt-3 flex items-center justify-between">
-            {usedCount > 0 ? (
-              <div className="text-[11px] text-neutral-500 dark:text-white/50">
-                이 세션에서 {usedCount}회 사용했어요.
-              </div>
-            ) : (
-              <div />
-            )}
+        <>
+          <div className="sticky top-0 z-30 -mx-4 px-4 py-2 bg-white dark:bg-[#0b1220] border-b border-neutral-200/80 dark:border-white/10 shadow-[0_6px_16px_rgba(15,23,42,0.08)]">
             <button
               type="button"
-              onClick={handleCustomSubmit}
-              disabled={!canCustomSubmit}
+              onClick={() => setCustomSheetOpen(true)}
               className="
-                inline-flex items-center gap-1.5 rounded-2xl
-                border border-blue-200 bg-blue-600 px-3 py-2
-                text-xs font-semibold text-white
-                hover:bg-blue-700
-                disabled:cursor-not-allowed disabled:opacity-60
-                dark:border-blue-500/30 dark:bg-blue-500
+                group inline-flex w-full items-center justify-between gap-2
+                rounded-2xl border border-blue-200/70
+                bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500
+                px-3 py-2 text-xs font-semibold text-white
+                shadow-[0_10px_30px_rgba(59,130,246,0.25)]
+                hover:shadow-[0_14px_40px_rgba(79,70,229,0.45)]
+                transition-all duration-150
               "
             >
-              <Icon icon="mdi:send" className="h-4 w-4" />
-              용어 해설 받기
+              <span className="inline-flex items-center gap-2">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-white/50 bg-white/15 shadow-sm">
+                  <Icon icon="mdi:form-textbox" className="h-3.5 w-3.5" />
+                </span>
+                추가로 해설 받을 용어 입력
+              </span>
+              <Icon icon="mdi:chevron-up" className="h-4 w-4 opacity-90" />
             </button>
           </div>
-        </div>
+
+          <div className="flex flex-col gap-2">
+            {terms.map((x, idx) => (
+              <div
+                key={idx}
+                className="rounded-2xl border border-neutral-200 bg-white p-3 dark:border-white/10 dark:bg-white/[0.06]"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="font-semibold text-neutral-900 dark:text-white">
+                    {x.term}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onDeleteTerm?.(x.term)}
+                    className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-neutral-200 text-neutral-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50 dark:border-white/10 dark:text-white/45 dark:hover:text-rose-300 dark:hover:border-rose-500/25 dark:hover:bg-rose-500/10"
+                    title="삭제"
+                    aria-label="삭제"
+                  >
+                    <Icon icon="mdi:close" className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <div className="mt-1 text-sm text-neutral-700 dark:text-white/80">
+                  {x.meaning}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {customSheetOpen && (
+            <div className="fixed inset-0 z-[160]">
+              <button
+                type="button"
+                onClick={() => setCustomSheetOpen(false)}
+                className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
+                aria-label="닫기"
+              />
+              <div className="absolute inset-x-0 bottom-0">
+                <div className="mx-auto w-full max-w-[480px] rounded-t-3xl border border-neutral-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#0b1220]">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-semibold text-neutral-900 dark:text-white">
+                      원하는 용어만 해설받기
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCustomSheetOpen(false)}
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-neutral-200 text-neutral-400 hover:text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50 dark:border-white/10 dark:text-white/45 dark:hover:text-white/85 dark:hover:border-white/20 dark:hover:bg-white/10"
+                      aria-label="닫기"
+                    >
+                      <Icon icon="mdi:close" className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="mt-1 text-xs text-neutral-600 dark:text-white/70">
+                    쉼표로 구분해 입력하면 해당 용어만 해설해줘요.
+                  </div>
+                  <input
+                    value={custom}
+                    onChange={(e) => setCustom(e.target.value)}
+                    placeholder="예: JWT, CORS, OAuth"
+                    className="
+                      mt-3 w-full rounded-2xl border border-blue-200/70 bg-white px-3 py-2
+                      text-sm text-neutral-900 placeholder:text-neutral-400
+                      outline-none focus:ring-2 focus:ring-blue-200
+                      dark:border-blue-500/30 dark:bg-white/[0.06]
+                      dark:text-white dark:placeholder:text-white/35
+                      dark:focus:ring-blue-500/25
+                    "
+                  />
+                  <div className="mt-3 flex items-center justify-between">
+                    {usedCount > 0 ? (
+                      <div className="text-[11px] text-neutral-500 dark:text-white/50">
+                        이 세션에서 {usedCount}회 사용했어요.
+                      </div>
+                    ) : (
+                      <div />
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleCustomSubmit}
+                      disabled={!canCustomSubmit}
+                      className="
+                        inline-flex items-center gap-1.5 rounded-2xl
+                        border border-blue-200 bg-blue-600 px-3 py-2
+                        text-xs font-semibold text-white
+                        hover:bg-blue-700
+                        disabled:cursor-not-allowed disabled:opacity-60
+                        dark:border-blue-500/30 dark:bg-blue-500
+                      "
+                    >
+                      <Icon icon="mdi:send" className="h-4 w-4" />
+                      용어 해설 받기
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {!hasTerms && (

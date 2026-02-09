@@ -174,7 +174,7 @@ export default function RightPanel({
   return (
     <SidePanel side="right" open={open} title="노트" onClose={onClose}>
       {/* tabs */}
-      <div className="mb-3 flex items-center gap-2">
+      <div className="pt-3 mb-3 flex items-center gap-2">
         <TabButton
           active={tab === "notes"}
           icon="mdi:notebook-outline"
@@ -279,7 +279,9 @@ function SidePanel({
           </button>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-auto p-4">{children}</div>
+        <div className="flex-1 min-h-0 overflow-auto px-4 pb-4 pt-0">
+          {children}
+        </div>
       </div>
     </div>
   );
