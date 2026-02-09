@@ -13,12 +13,14 @@ export default function TermsBlock({
   usedCount,
   onAutoExtract,
   onExplainCustom,
+  onDeleteTerm,
 }: {
   terms: TermItem[];
   loading: boolean;
   usedCount: number;
   onAutoExtract: () => void;
   onExplainCustom: (termsCsv: string) => void;
+  onDeleteTerm?: (term: string) => void;
 }) {
   const hasTerms = terms.length > 0;
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -73,8 +75,19 @@ export default function TermsBlock({
               key={x.term}
               className="rounded-2xl border border-neutral-200 bg-white p-3 dark:border-white/10 dark:bg-white/[0.06]"
             >
-              <div className="font-semibold text-neutral-900 dark:text-white">
-                {x.term}
+              <div className="flex items-start justify-between gap-2">
+                <div className="font-semibold text-neutral-900 dark:text-white">
+                  {x.term}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onDeleteTerm?.(x.term)}
+                  className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-neutral-200 text-neutral-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50 dark:border-white/10 dark:text-white/45 dark:hover:text-rose-300 dark:hover:border-rose-500/25 dark:hover:bg-rose-500/10"
+                  title="삭제"
+                  aria-label="삭제"
+                >
+                  <Icon icon="mdi:close" className="h-3.5 w-3.5" />
+                </button>
               </div>
               <div className="mt-1 text-sm text-neutral-700 dark:text-white/80">
                 {x.meaning}
@@ -85,11 +98,14 @@ export default function TermsBlock({
       ) : null}
 
       {hasTerms && (
-        <div className="rounded-2xl border border-neutral-200 bg-white p-3 dark:border-white/10 dark:bg-white/[0.06]">
-          <div className="text-xs font-semibold text-neutral-900 dark:text-white">
-            추가로 해설 받고 싶은 용어가 있나요?
+        <div className="rounded-3xl border border-blue-200/60 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 shadow-[0_10px_30px_rgba(59,130,246,0.12)] dark:border-blue-500/30 dark:from-blue-500/10 dark:via-white/[0.04] dark:to-indigo-500/10">
+          <div className="flex items-center gap-2 text-xs font-semibold text-blue-900 dark:text-blue-100">
+            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm">
+              <Icon icon="mdi:lightbulb-outline" className="h-4 w-4" />
+            </span>
+            추가 해설 요청
           </div>
-          <div className="mt-1 text-xs text-neutral-500 dark:text-white/60">
+          <div className="mt-1 text-xs text-neutral-600 dark:text-white/70">
             쉼표로 구분해 입력하면 해당 용어만 해설해줘요.
           </div>
           <input
@@ -97,10 +113,12 @@ export default function TermsBlock({
             onChange={(e) => setCustom(e.target.value)}
             placeholder="예: JWT, CORS, OAuth"
             className="
-              mt-2 w-full rounded-2xl border border-neutral-200 bg-white px-3 py-2
+              mt-3 w-full rounded-2xl border border-blue-200/70 bg-white px-3 py-2
               text-sm text-neutral-900 placeholder:text-neutral-400
-              dark:border-white/10 dark:bg-white/[0.06]
+              outline-none focus:ring-2 focus:ring-blue-200
+              dark:border-blue-500/30 dark:bg-white/[0.06]
               dark:text-white dark:placeholder:text-white/35
+              dark:focus:ring-blue-500/25
             "
           />
           <div className="mt-3 flex items-center justify-between">

@@ -172,6 +172,105 @@ export type Database = {
           },
         ]
       }
+      map_term_requests: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          job_id: string | null
+          map_id: string
+          mode: string
+          status: string
+          terms_csv: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          job_id?: string | null
+          map_id: string
+          mode: string
+          status?: string
+          terms_csv?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          job_id?: string | null
+          map_id?: string
+          mode?: string
+          status?: string
+          terms_csv?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "map_term_requests_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "map_term_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      map_terms: {
+        Row: {
+          created_at: string
+          id: string
+          lang: string | null
+          map_id: string
+          meaning: string
+          request_id: string
+          term: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lang?: string | null
+          map_id: string
+          meaning: string
+          request_id: string
+          term: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lang?: string | null
+          map_id?: string
+          meaning?: string
+          request_id?: string
+          term?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "map_terms_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "map_terms_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "map_term_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maps: {
         Row: {
           channel_name: string | null
