@@ -67,7 +67,13 @@ export default function MapDetailPage() {
   const [rightOpen, setRightOpen] = useState(false);
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
   type TermItem = { term: string; meaning: string };
-  const [terms, setTerms] = useState<TermItem[]>([]);
+  const [terms, setTerms] = useState<TermItem[]>([
+    {
+      term: "분산원장(Distributed Ledger)",
+      meaning:
+        "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
+    },
+  ]);
   const [termsLoading, setTermsLoading] = useState(false);
 
   const fetchTermsMock = async () => {
@@ -75,26 +81,26 @@ export default function MapDetailPage() {
     setTermsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 600));
     setTerms([
-      {
-        term: "분산원장(Distributed Ledger)",
-        meaning:
-          "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
-      },
-      {
-        term: "합의 알고리즘(Consensus)",
-        meaning:
-          "네트워크 참여자들이 거래의 유효성을 동일하게 확정하기 위한 절차입니다. 예: PoW, PoS.",
-      },
-      {
-        term: "스마트 컨트랙트(Smart Contract)",
-        meaning:
-          "조건이 충족되면 자동으로 실행되는 계약 코드로, 중개자 없이 규칙을 강제합니다.",
-      },
-      {
-        term: "디앱(DApp)",
-        meaning:
-          "중앙 서버가 아닌 블록체인 위에서 동작하는 애플리케이션으로 투명성과 검증가능성을 강조합니다.",
-      },
+      // {
+      //   term: "분산원장(Distributed Ledger)",
+      //   meaning:
+      //     "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
+      // },
+      // {
+      //   term: "합의 알고리즘(Consensus)",
+      //   meaning:
+      //     "네트워크 참여자들이 거래의 유효성을 동일하게 확정하기 위한 절차입니다. 예: PoW, PoS.",
+      // },
+      // {
+      //   term: "스마트 컨트랙트(Smart Contract)",
+      //   meaning:
+      //     "조건이 충족되면 자동으로 실행되는 계약 코드로, 중개자 없이 규칙을 강제합니다.",
+      // },
+      // {
+      //   term: "디앱(DApp)",
+      //   meaning:
+      //     "중앙 서버가 아닌 블록체인 위에서 동작하는 애플리케이션으로 투명성과 검증가능성을 강조합니다.",
+      // },
     ]);
     setTermsLoading(false);
   };

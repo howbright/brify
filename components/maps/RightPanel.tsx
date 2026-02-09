@@ -205,7 +205,15 @@ export default function RightPanel({
           onUpdate={updateNote}
         />
       ) : (
-        <TermsBlock terms={terms} loading={termsLoading} onRefetch={onFetchTerms} />
+        <TermsBlock
+          terms={terms}
+          loading={termsLoading}
+          usedCount={0}
+          onAutoExtract={onFetchTerms}
+          onExplainCustom={() => {
+            onFetchTerms();
+          }}
+        />
       )}
     </SidePanel>
   );
