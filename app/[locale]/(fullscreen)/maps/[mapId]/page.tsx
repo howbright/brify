@@ -68,56 +68,56 @@ export default function MapDetailPage() {
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
   type TermItem = { term: string; meaning: string };
   const [terms, setTerms] = useState<TermItem[]>([
-    {
-      term: "분산원장(Distributed Ledger)",
-      meaning:
-        "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
-    },
-    {
-      term: "분산원장(Distributed Ledger)",
-      meaning:
-        "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
-    },
-    {
-      term: "분산원장(Distributed Ledger)",
-      meaning:
-        "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
-    },
-    {
-      term: "분산원장(Distributed Ledger)",
-      meaning:
-        "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
-    },
-    {
-      term: "분산원장(Distributed Ledger)",
-      meaning:
-        "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
-    },
-    {
-      term: "분산원장(Distributed Ledger)",
-      meaning:
-        "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
-    },
-    {
-      term: "분산원장(Distributed Ledger)",
-      meaning:
-        "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
-    },
-    {
-      term: "분산원장(Distributed Ledger)",
-      meaning:
-        "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
-    },
-    {
-      term: "분산원장(Distributed Ledger)",
-      meaning:
-        "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
-    },
-    {
-      term: "분산원장(Distributed Ledger)",
-      meaning:
-        "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
-    },
+    // {
+    //   term: "분산원장(Distributed Ledger)",
+    //   meaning:
+    //     "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
+    // },
+    // {
+    //   term: "분산원장(Distributed Ledger)",
+    //   meaning:
+    //     "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
+    // },
+    // {
+    //   term: "분산원장(Distributed Ledger)",
+    //   meaning:
+    //     "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
+    // },
+    // {
+    //   term: "분산원장(Distributed Ledger)",
+    //   meaning:
+    //     "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
+    // },
+    // {
+    //   term: "분산원장(Distributed Ledger)",
+    //   meaning:
+    //     "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
+    // },
+    // {
+    //   term: "분산원장(Distributed Ledger)",
+    //   meaning:
+    //     "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
+    // },
+    // {
+    //   term: "분산원장(Distributed Ledger)",
+    //   meaning:
+    //     "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
+    // },
+    // {
+    //   term: "분산원장(Distributed Ledger)",
+    //   meaning:
+    //     "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
+    // },
+    // {
+    //   term: "분산원장(Distributed Ledger)",
+    //   meaning:
+    //     "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
+    // },
+    // {
+    //   term: "분산원장(Distributed Ledger)",
+    //   meaning:
+    //     "여러 참여자가 동일한 거래 기록을 공유·검증하는 데이터 구조로, 중앙 서버 없이도 신뢰를 유지하는 방식입니다.",
+    // },
   ]);
   const [termsLoading, setTermsLoading] = useState(false);
 

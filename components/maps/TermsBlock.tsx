@@ -26,7 +26,7 @@ export default function TermsBlock({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [mode, setMode] = useState<Mode | null>(null);
   const [custom, setCustom] = useState("");
-  const [customSheetOpen, setCustomSheetOpen] = useState(false);
+  const [customInlineOpen, setCustomInlineOpen] = useState(false);
 
   const cleanedCsv = useMemo(() => {
     return custom
@@ -76,7 +76,7 @@ export default function TermsBlock({
           <div className="sticky top-0 z-30 -mx-4 px-4 py-2 bg-white dark:bg-[#0b1220] border-b border-neutral-200/80 dark:border-white/10 shadow-[0_6px_16px_rgba(15,23,42,0.08)]">
             <button
               type="button"
-              onClick={() => setCustomSheetOpen(true)}
+              onClick={() => setCustomInlineOpen((v) => !v)}
               className="
                 group inline-flex w-full items-center justify-between gap-2
                 rounded-2xl border border-blue-200/70
@@ -95,6 +95,55 @@ export default function TermsBlock({
               </span>
               <Icon icon="mdi:chevron-up" className="h-4 w-4 opacity-90" />
             </button>
+
+            {customInlineOpen && (
+              <div className="mt-3 rounded-2xl border border-blue-200/60 bg-white p-3 shadow-[0_8px_24px_rgba(59,130,246,0.12)] dark:border-blue-500/30 dark:bg-[#0b1220]">
+                <div className="text-xs font-semibold text-neutral-900 dark:text-white">
+                  원하는 용어만 해설받기
+                </div>
+                <div className="mt-1 text-xs text-neutral-600 dark:text-white/70">
+                  쉼표로 구분해 입력하면 해당 용어만 해설해줘요.
+                </div>
+                <input
+                  value={custom}
+                  onChange={(e) => setCustom(e.target.value)}
+                  placeholder="예: JWT, CORS, OAuth"
+                  className="
+                    mt-3 w-full rounded-2xl border border-blue-200/70 bg-white px-3 py-2
+                    text-sm text-neutral-900 placeholder:text-neutral-400
+                    outline-none focus:ring-2 focus:ring-blue-200
+                    dark:border-blue-500/30 dark:bg-white/[0.06]
+                    dark:text-white dark:placeholder:text-white/35
+                    dark:focus:ring-blue-500/25
+                  "
+                />
+                <div className="mt-3 flex items-center justify-between">
+                  {usedCount > 0 ? (
+                    <div className="text-[11px] text-neutral-500 dark:text-white/50">
+                      이 세션에서 {usedCount}회 사용했어요.
+                    </div>
+                  ) : (
+                    <div />
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleCustomSubmit}
+                    disabled={!canCustomSubmit}
+                    className="
+                      inline-flex items-center gap-1.5 rounded-2xl
+                      border border-blue-200 bg-blue-600 px-3 py-2
+                      text-xs font-semibold text-white
+                      hover:bg-blue-700
+                      disabled:cursor-not-allowed disabled:opacity-60
+                      dark:border-blue-500/30 dark:bg-blue-500
+                    "
+                  >
+                    <Icon icon="mdi:send" className="h-4 w-4" />
+                    용어 해설 받기
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
@@ -124,74 +173,6 @@ export default function TermsBlock({
             ))}
           </div>
 
-          {customSheetOpen && (
-            <div className="fixed inset-0 z-[160]">
-              <button
-                type="button"
-                onClick={() => setCustomSheetOpen(false)}
-                className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
-                aria-label="닫기"
-              />
-              <div className="absolute inset-x-0 bottom-0">
-                <div className="mx-auto w-full max-w-[480px] rounded-t-3xl border border-neutral-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#0b1220]">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-semibold text-neutral-900 dark:text-white">
-                      원하는 용어만 해설받기
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setCustomSheetOpen(false)}
-                      className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-neutral-200 text-neutral-400 hover:text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50 dark:border-white/10 dark:text-white/45 dark:hover:text-white/85 dark:hover:border-white/20 dark:hover:bg-white/10"
-                      aria-label="닫기"
-                    >
-                      <Icon icon="mdi:close" className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <div className="mt-1 text-xs text-neutral-600 dark:text-white/70">
-                    쉼표로 구분해 입력하면 해당 용어만 해설해줘요.
-                  </div>
-                  <input
-                    value={custom}
-                    onChange={(e) => setCustom(e.target.value)}
-                    placeholder="예: JWT, CORS, OAuth"
-                    className="
-                      mt-3 w-full rounded-2xl border border-blue-200/70 bg-white px-3 py-2
-                      text-sm text-neutral-900 placeholder:text-neutral-400
-                      outline-none focus:ring-2 focus:ring-blue-200
-                      dark:border-blue-500/30 dark:bg-white/[0.06]
-                      dark:text-white dark:placeholder:text-white/35
-                      dark:focus:ring-blue-500/25
-                    "
-                  />
-                  <div className="mt-3 flex items-center justify-between">
-                    {usedCount > 0 ? (
-                      <div className="text-[11px] text-neutral-500 dark:text-white/50">
-                        이 세션에서 {usedCount}회 사용했어요.
-                      </div>
-                    ) : (
-                      <div />
-                    )}
-                    <button
-                      type="button"
-                      onClick={handleCustomSubmit}
-                      disabled={!canCustomSubmit}
-                      className="
-                        inline-flex items-center gap-1.5 rounded-2xl
-                        border border-blue-200 bg-blue-600 px-3 py-2
-                        text-xs font-semibold text-white
-                        hover:bg-blue-700
-                        disabled:cursor-not-allowed disabled:opacity-60
-                        dark:border-blue-500/30 dark:bg-blue-500
-                      "
-                    >
-                      <Icon icon="mdi:send" className="h-4 w-4" />
-                      용어 해설 받기
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </>
       )}
 
