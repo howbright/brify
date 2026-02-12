@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { ReactNode, useEffect, useState } from "react";
 import NoteItem, { type NoteItemData } from "@/components/maps/NoteItem";
 import TermsBlock from "@/components/maps/TermsBlock";
+import { createClient } from "@/utils/supabase/client";
 
 type TermItem = { term: string; meaning: string };
 type NoteItem = NoteItemData;
@@ -15,11 +16,6 @@ type Props = {
   initialTab?: RightPanelTab; // 열릴 때 기본 탭
   onClose: () => void;
   mapId: string;
-
-  // 용어
-  terms: TermItem[];
-  termsLoading: boolean;
-  onFetchTerms: () => Promise<void>;
 };
 
 export default function RightPanel({
@@ -27,15 +23,14 @@ export default function RightPanel({
   initialTab = "notes",
   onClose,
   mapId,
-  terms,
-  termsLoading,
-  onFetchTerms,
 }: Props) {
   const [tab, setTab] = useState<RightPanelTab>(initialTab);
   const [noteText, setNoteText] = useState("");
   const [notes, setNotes] = useState<NoteItem[]>([]);
   const [notesLoading, setNotesLoading] = useState(false);
   const [notesError, setNotesError] = useState<string | null>(null);
+  const [terms, setTerms] = useState<TermItem[]>([]);
+  const [termsLoading, setTermsLoading] = useState(false);
 
   // ✅ 열릴 때 initialTab 반영
   useEffect(() => {
@@ -53,7 +48,7 @@ export default function RightPanel({
     if (termsLoading) return;
     if (terms.length > 0) return;
 
-    onFetchTerms();
+    fetchTerms();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, tab]);
 
@@ -171,6 +166,167 @@ export default function RightPanel({
     }
   };
 
+  const getAccessToken = async () => {
+    const supabase = createClient();
+    const { data: sessionData, error: sessionErr } =
+      await supabase.auth.getSession();
+
+    if (sessionErr) {
+      throw new Error("세션을 가져오지 못했습니다: " + sessionErr.message);
+    }
+
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) {
+      throw new Error("로그인이 필요합니다.");
+    }
+
+    return accessToken;
+  };
+
+  const getApiBase = () => {
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!base) {
+      throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
+    }
+    return base;
+  };
+
+  const fetchTerms = async (force = false) => {
+    if (!mapId) return;
+    if (termsLoading && !force) return;
+    setTermsLoading(true);
+
+    try {
+      const accessToken = await getAccessToken();
+      const base = getApiBase();
+
+      const res = await fetch(`${base}/maps/${mapId}/terms`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        cache: "no-store",
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = json?.message || json?.error || "용어를 불러오지 못했습니다.";
+        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+      }
+
+      const rows = Array.isArray(json?.terms)
+        ? json.terms
+        : Array.isArray(json?.items)
+        ? json.items
+        : Array.isArray(json)
+        ? json
+        : [];
+
+      const items: TermItem[] = rows.map((row: any) => ({
+        term: String(row.term ?? ""),
+        meaning: String(row.meaning ?? ""),
+      }));
+
+      setTerms(items);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setTermsLoading(false);
+    }
+  };
+
+  const requestAutoTerms = async () => {
+    if (!mapId || termsLoading) return;
+    setTermsLoading(true);
+    try {
+      const accessToken = await getAccessToken();
+      const base = getApiBase();
+
+      const res = await fetch(`${base}/maps/${mapId}/terms/auto`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({}),
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg =
+          json?.message || json?.error || "용어 추출을 시작하지 못했습니다.";
+        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+      }
+
+      await fetchTerms(true);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setTermsLoading(false);
+    }
+  };
+
+  const requestCustomTerms = async (termsCsv: string) => {
+    if (!mapId || termsLoading) return;
+    setTermsLoading(true);
+    try {
+      const accessToken = await getAccessToken();
+      const base = getApiBase();
+
+      const res = await fetch(`${base}/maps/${mapId}/terms/custom`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ termsCsv }),
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg =
+          json?.message || json?.error || "용어 해설을 시작하지 못했습니다.";
+        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+      }
+
+      await fetchTerms(true);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setTermsLoading(false);
+    }
+  };
+
+  const deleteTerm = async (term: string) => {
+    if (!mapId || !term || termsLoading) return;
+    setTermsLoading(true);
+    try {
+      const accessToken = await getAccessToken();
+      const base = getApiBase();
+
+      const res = await fetch(
+        `${base}/maps/${mapId}/terms/${encodeURIComponent(term)}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = json?.message || json?.error || "용어를 삭제하지 못했습니다.";
+        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+      }
+
+      setTerms((prev) => prev.filter((item) => item.term !== term));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setTermsLoading(false);
+    }
+  };
+
   return (
     <SidePanel side="right" open={open} title="노트" onClose={onClose}>
       {/* tabs */}
@@ -188,7 +344,7 @@ export default function RightPanel({
           onClick={() => {
             setTab("terms");
             // 탭 클릭 시 즉시 fetch 트리거(원하면 여기서만 호출해도 됨)
-            if (!termsLoading && terms.length === 0) onFetchTerms();
+            if (!termsLoading && terms.length === 0) fetchTerms();
           }}
         />
       </div>
@@ -209,10 +365,9 @@ export default function RightPanel({
           terms={terms}
           loading={termsLoading}
           usedCount={0}
-          onAutoExtract={onFetchTerms}
-          onExplainCustom={() => {
-            onFetchTerms();
-          }}
+          onAutoExtract={requestAutoTerms}
+          onExplainCustom={requestCustomTerms}
+          onDeleteTerm={deleteTerm}
         />
       )}
     </SidePanel>
