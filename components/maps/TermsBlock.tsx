@@ -3,13 +3,14 @@
 import { Icon } from "@iconify/react";
 import { useMemo, useState } from "react";
 
-type TermItem = { term: string; meaning: string };
+type TermItem = { term: string; meaning: string; isNew?: boolean };
 
 type Mode = "auto" | "custom";
 
 export default function TermsBlock({
   terms,
   loading,
+  error,
   usedCount,
   onAutoExtract,
   onExplainCustom,
@@ -17,6 +18,7 @@ export default function TermsBlock({
 }: {
   terms: TermItem[];
   loading: boolean;
+  error?: string | null;
   usedCount: number;
   onAutoExtract: () => void;
   onExplainCustom: (termsCsv: string) => void;
@@ -67,7 +69,19 @@ export default function TermsBlock({
 
       {loading ? (
         <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75">
-          용어 해설 생성 중…
+          <div className="flex items-center gap-2">
+            <span className="inline-flex h-2.5 w-2.5 animate-pulse rounded-full bg-blue-400" />
+            용어 해설 생성 중…
+          </div>
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-neutral-200/70 dark:bg-white/10">
+            <div className="h-full w-1/2 animate-pulse rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
+          </div>
+        </div>
+      ) : null}
+
+      {error ? (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
+          {error}
         </div>
       ) : null}
 
@@ -150,7 +164,12 @@ export default function TermsBlock({
             {terms.map((x, idx) => (
               <div
                 key={idx}
-                className="rounded-2xl border border-neutral-200 bg-white p-3 dark:border-white/10 dark:bg-white/[0.06]"
+                className={[
+                  "rounded-2xl border p-3 transition-colors duration-300",
+                  x.isNew
+                    ? "border-blue-200/80 bg-blue-50/70 dark:border-blue-500/30 dark:bg-blue-500/10"
+                    : "border-neutral-200 bg-white dark:border-white/10 dark:bg-white/[0.06]",
+                ].join(" ")}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="font-semibold text-neutral-900 dark:text-white">

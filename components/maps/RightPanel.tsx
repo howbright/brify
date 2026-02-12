@@ -1,12 +1,17 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import NoteItem, { type NoteItemData } from "@/components/maps/NoteItem";
 import TermsBlock from "@/components/maps/TermsBlock";
 import { createClient } from "@/utils/supabase/client";
 
-type TermItem = { term: string; meaning: string };
+type TermItem = {
+  term: string;
+  meaning: string;
+  updatedAt?: number;
+  isNew?: boolean;
+};
 type NoteItem = NoteItemData;
 
 export type RightPanelTab = "notes" | "terms";
@@ -31,6 +36,12 @@ export default function RightPanel({
   const [notesError, setNotesError] = useState<string | null>(null);
   const [terms, setTerms] = useState<TermItem[]>([]);
   const [termsLoading, setTermsLoading] = useState(false);
+  const [termsError, setTermsError] = useState<string | null>(null);
+  const [termsStatus, setTermsStatus] = useState<
+    "idle" | "queued" | "running" | "succeeded" | "failed"
+  >("idle");
+  const termsPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const termsHighlightRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ✅ 열릴 때 initialTab 반영
   useEffect(() => {
@@ -48,7 +59,8 @@ export default function RightPanel({
     if (termsLoading) return;
     if (terms.length > 0) return;
 
-    fetchTerms();
+    fetchTerms(true);
+    fetchTermsStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, tab]);
 
@@ -191,10 +203,37 @@ export default function RightPanel({
     return base;
   };
 
-  const fetchTerms = async (force = false) => {
+  const stopTermsPolling = () => {
+    if (termsPollRef.current) {
+      clearInterval(termsPollRef.current);
+      termsPollRef.current = null;
+    }
+  };
+
+  const scheduleHighlightClear = () => {
+    if (termsHighlightRef.current) {
+      clearTimeout(termsHighlightRef.current);
+    }
+    termsHighlightRef.current = setTimeout(() => {
+      setTerms((prev) => prev.map((item) => ({ ...item, isNew: false })));
+    }, 4500);
+  };
+
+  const startTermsPolling = () => {
+    if (termsStatus === "succeeded" || termsStatus === "failed") return;
+    if (termsPollRef.current) return;
+    termsPollRef.current = setInterval(() => {
+      fetchTermsStatus();
+    }, 1500);
+  };
+
+  const termKey = (item: Pick<TermItem, "term" | "meaning">) =>
+    `${item.term}::${item.meaning}`;
+
+  const fetchTerms = async (silent = false, markNew = false) => {
     if (!mapId) return;
-    if (termsLoading && !force) return;
-    setTermsLoading(true);
+    if (termsLoading && !silent) return;
+    if (!silent) setTermsLoading(true);
 
     try {
       const accessToken = await getAccessToken();
@@ -217,25 +256,98 @@ export default function RightPanel({
         ? json.terms
         : Array.isArray(json?.items)
         ? json.items
+        : Array.isArray(json?.data)
+        ? json.data
         : Array.isArray(json)
         ? json
         : [];
 
-      const items: TermItem[] = rows.map((row: any) => ({
-        term: String(row.term ?? ""),
-        meaning: String(row.meaning ?? ""),
-      }));
+      const items: TermItem[] = rows.map((row: any) => {
+        const rawTs =
+          row.updated_at ?? row.updatedAt ?? row.created_at ?? row.createdAt;
+        const updatedAt = rawTs ? new Date(rawTs).getTime() : 0;
+        return {
+          term: String(row.term ?? ""),
+          meaning: String(row.meaning ?? ""),
+          updatedAt: Number.isFinite(updatedAt) ? updatedAt : 0,
+          isNew: false,
+        };
+      });
 
-      setTerms(items);
+      setTerms((prev) => {
+        if (!markNew) {
+          return items.map((item) => ({ ...item, isNew: false }));
+        }
+        const prevKeys = new Set(prev.map((item) => termKey(item)));
+        const next = items.map((item) => ({
+          ...item,
+          isNew: !prevKeys.has(termKey(item)),
+        }));
+        scheduleHighlightClear();
+        return next;
+      });
+
     } catch (e) {
       console.error(e);
+      setTermsError("용어를 불러오지 못했습니다.");
     } finally {
-      setTermsLoading(false);
+      if (!silent) setTermsLoading(false);
+    }
+  };
+
+  const fetchTermsStatus = async () => {
+    if (!mapId) return;
+    try {
+      const accessToken = await getAccessToken();
+      const base = getApiBase();
+
+      const res = await fetch(`${base}/maps/${mapId}/terms/status`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        cache: "no-store",
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json?.ok) {
+        const msg = json?.message || json?.error || "용어 상태 조회 실패";
+        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+      }
+
+      const status = json?.status ?? null;
+      if (status === "queued" || status === "running") {
+        setTermsStatus(status);
+        startTermsPolling();
+        setTermsError(null);
+        return;
+      }
+
+      if (status === "succeeded") {
+        setTermsStatus("succeeded");
+        stopTermsPolling();
+        await fetchTerms(true, true);
+        setTermsError(null);
+        return;
+      }
+
+      if (status === "failed") {
+        setTermsStatus("failed");
+        stopTermsPolling();
+        setTermsError("용어 해설 생성에 실패했어요.");
+      }
+    } catch (e) {
+      console.error(e);
+      setTermsStatus("failed");
+      stopTermsPolling();
+      setTermsError("용어 상태를 확인하지 못했습니다.");
     }
   };
 
   const requestAutoTerms = async () => {
     if (!mapId || termsLoading) return;
+    setTermsError(null);
+    setTermsStatus("queued");
+    startTermsPolling();
     setTermsLoading(true);
     try {
       const accessToken = await getAccessToken();
@@ -257,9 +369,12 @@ export default function RightPanel({
         throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
       }
 
-      await fetchTerms(true);
+      await fetchTermsStatus();
     } catch (e) {
       console.error(e);
+      setTermsStatus("failed");
+      stopTermsPolling();
+      setTermsError("용어 해설 요청에 실패했어요.");
     } finally {
       setTermsLoading(false);
     }
@@ -267,6 +382,7 @@ export default function RightPanel({
 
   const requestCustomTerms = async (termsCsv: string) => {
     if (!mapId || termsLoading) return;
+    setTermsError(null);
     setTermsLoading(true);
     try {
       const accessToken = await getAccessToken();
@@ -288,9 +404,10 @@ export default function RightPanel({
         throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
       }
 
-      await fetchTerms(true);
+      await fetchTermsStatus();
     } catch (e) {
       console.error(e);
+      setTermsError("용어 해설 요청에 실패했어요.");
     } finally {
       setTermsLoading(false);
     }
@@ -322,10 +439,31 @@ export default function RightPanel({
       setTerms((prev) => prev.filter((item) => item.term !== term));
     } catch (e) {
       console.error(e);
+      setTermsError("용어를 삭제하지 못했습니다.");
     } finally {
       setTermsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!open) {
+      stopTermsPolling();
+      if (termsHighlightRef.current) {
+        clearTimeout(termsHighlightRef.current);
+        termsHighlightRef.current = null;
+      }
+    }
+  }, [open]);
+
+  useEffect(() => {
+    return () => {
+      stopTermsPolling();
+      if (termsHighlightRef.current) {
+        clearTimeout(termsHighlightRef.current);
+        termsHighlightRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <SidePanel side="right" open={open} title="노트" onClose={onClose}>
@@ -363,7 +501,10 @@ export default function RightPanel({
       ) : (
         <TermsBlock
           terms={terms}
-          loading={termsLoading}
+          loading={
+            termsLoading || termsStatus === "queued" || termsStatus === "running"
+          }
+          error={termsError}
           usedCount={0}
           onAutoExtract={requestAutoTerms}
           onExplainCustom={requestCustomTerms}
