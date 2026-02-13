@@ -65,6 +65,7 @@ export default function MapDetailPage() {
 
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(false);
+  const [rightTab, setRightTab] = useState<"notes" | "terms">("notes");
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
 
   useEffect(() => {
@@ -122,10 +123,21 @@ export default function MapDetailPage() {
   };
 
   const openDetails = () => {
+    setRightTab("notes");
     setRightOpen((v) => !v);
     if (!rightOpen) {
       setLeftOpen(false);
     }
+  };
+
+  const openTerms = () => {
+    if (rightOpen && rightTab === "terms") {
+      setRightOpen(false);
+      return;
+    }
+    setRightTab("terms");
+    setRightOpen(true);
+    setLeftOpen(false);
   };
 
   return (
@@ -167,10 +179,17 @@ export default function MapDetailPage() {
             />
 
             <ToolbarToggle
-              pressed={rightOpen}
+              pressed={rightOpen && rightTab === "notes"}
               icon="mdi:clipboard-text-outline"
               label="노트"
               onClick={openDetails}
+            />
+
+            <ToolbarToggle
+              pressed={rightOpen && rightTab === "terms"}
+              icon="mdi:book-open-variant"
+              label="용어"
+              onClick={openTerms}
             />
           </div>
 
@@ -225,6 +244,7 @@ export default function MapDetailPage() {
         <RightPanel
           open={rightOpen}
           onClose={() => setRightOpen(false)}
+          initialTab={rightTab}
           mapId={mapId}
         />
       </div>

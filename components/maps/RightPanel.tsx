@@ -466,7 +466,12 @@ export default function RightPanel({
   }, []);
 
   return (
-    <SidePanel side="right" open={open} title="노트" onClose={onClose}>
+    <SidePanel
+      side="right"
+      open={open}
+      title={tab === "notes" ? "노트" : "용어"}
+      onClose={onClose}
+    >
       {/* tabs */}
       <div className="pt-3 mb-3 flex items-center gap-2">
         <TabButton

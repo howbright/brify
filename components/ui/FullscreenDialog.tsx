@@ -62,11 +62,23 @@ export default function FullscreenDialog({
 
   // ✅ 우측 패널(맵 상세) 토글
   const [rightOpen, setRightOpen] = useState(false);
+  const [rightTab, setRightTab] = useState<"notes" | "terms">("notes");
   const openDetails = () => {
+    setRightTab("notes");
     setRightOpen((v) => !v);
     if (!rightOpen) {
       setLeftOpen(false);
     }
+  };
+
+  const openTerms = () => {
+    if (rightOpen && rightTab === "terms") {
+      setRightOpen(false);
+      return;
+    }
+    setRightTab("terms");
+    setRightOpen(true);
+    setLeftOpen(false);
   };
 
   if (!open || !draft) return null;
@@ -122,10 +134,17 @@ export default function FullscreenDialog({
               />
 
               <ToolbarToggle
-                pressed={rightOpen}
+                pressed={rightOpen && rightTab === "notes"}
                 icon="mdi:clipboard-text-outline"
                 label="노트"
                 onClick={openDetails}
+              />
+
+              <ToolbarToggle
+                pressed={rightOpen && rightTab === "terms"}
+                icon="mdi:book-open-variant"
+                label="용어"
+                onClick={openTerms}
               />
             </div>
 
@@ -255,6 +274,7 @@ export default function FullscreenDialog({
             open={rightOpen}
             onClose={() => setRightOpen(false)}
             mapId={mapDraft.id}
+            initialTab={rightTab}
           />
 
           {/* ✅ 패널 닫기 버튼 제거 */}
