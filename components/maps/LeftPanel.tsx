@@ -81,6 +81,9 @@ export default function LeftPanel({
           </div>
 
           <div className="mt-3">
+            <div className="hidden max-[738px]:block text-sm font-semibold text-neutral-900 dark:text-white/90 whitespace-normal break-words">
+              {map.title ?? "제목없음"}
+            </div>
             {/* ✅ 시간 존재감 축소: 한 줄, 작고 흐리게 */}
             <div className="text-[11px] text-neutral-400 dark:text-white/40">
               생성 {createdLabel} · 수정 {updatedLabel}

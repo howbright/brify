@@ -84,7 +84,7 @@ export default function FullscreenDialog({
       aria-modal="true"
       aria-label={title ?? "구조맵"}
     >
-      <div className="relative h-full w-full bg-white dark:bg-[#0b1220] overflow-hidden">
+      <div className="relative h-full w-full bg-white dark:bg-[#0b1220] overflow-hidden [--header-h:56px] max-[738px]:[--header-h:96px]">
         {/* ✅ (1) 상단 헤더 한 줄: 여기만 UI 배치 */}
         <header
           className="
@@ -93,18 +93,18 @@ export default function FullscreenDialog({
             border-b border-neutral-200/80 bg-white/92 backdrop-blur
             dark:border-white/10 dark:bg-[#0b1220]/88
           "
-          style={{ height: HEADER_H }}
+          style={{ height: "var(--header-h)" }}
         >
-          <div className="h-full px-4 flex items-center justify-between gap-3">
+          <div className="h-full px-4 flex flex-row items-center justify-between gap-3 max-[738px]:flex-col max-[738px]:items-start max-[738px]:gap-2 max-[738px]:py-2">
             {/* left: title */}
-            <div className="min-w-0 flex items-center gap-2">
+            <div className="min-w-0 flex items-center gap-2 w-full flex-1">
               <div className="text-sm font-semibold text-neutral-900 dark:text-white/90 truncate">
                 {title ?? "구조맵 미리보기"}
               </div>
             </div>
 
             {/* center: toolbar */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-nowrap shrink-0 min-w-[240px] max-[738px]:min-w-0 max-[738px]:flex-wrap max-[738px]:w-full max-[738px]:justify-center max-[738px]:pt-2 max-[738px]:pb-1 max-[738px]:border-t max-[738px]:border-neutral-200/70 dark:max-[738px]:border-white/10 sm:flex-nowrap">
               <ToolbarToggle
                 pressed={editMode === "edit"}
                 icon={editMode === "edit" ? "mdi:pencil" : "mdi:eye-outline"}
@@ -140,6 +140,7 @@ export default function FullscreenDialog({
                 text-xs font-semibold text-neutral-700 hover:bg-neutral-50
                 dark:border-white/12 dark:bg-white/[0.06]
                 dark:text-white/85 dark:hover:bg-white/10
+                whitespace-nowrap
               "
             >
               <Icon icon="mdi:close" className="h-4 w-4" />
@@ -151,7 +152,7 @@ export default function FullscreenDialog({
         {/* ✅ (2) 헤더 아래: 맵 캔버스 영역 */}
         <div
           className="relative w-full"
-          style={{ height: `calc(100% - ${HEADER_H}px)` }}
+          style={{ height: "calc(100% - var(--header-h))" }}
         >
           {/* ✅ 작업영역 배경 (격자 + 은은한 톤) */}
           <div
@@ -283,18 +284,18 @@ function ToolbarToggle({
       className={`
         inline-flex items-center gap-1.5
         rounded-xl border px-3 py-1.5
-        text-xs font-semibold
+        text-xs font-semibold shadow-sm transition-colors
         ${
           pressed
-            ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-500/25 dark:bg-blue-500/12 dark:text-blue-200"
-            : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
+            ? "border-blue-500 bg-blue-600 text-white shadow-[0_10px_24px_rgba(37,99,235,0.35)] dark:border-blue-300 dark:bg-blue-500/35 dark:text-blue-50 dark:shadow-[0_10px_24px_rgba(59,130,246,0.35)]"
+            : "border-blue-200/70 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:border-blue-300 dark:border-blue-300/50 dark:bg-blue-500/10 dark:text-blue-50/90 hover:dark:bg-blue-500/20"
         }
       `}
       aria-label={label}
       title={label}
     >
       <Icon icon={icon} className="h-4 w-4" />
-      <span className="hidden sm:inline">{label}</span>
+      <span className="hidden sm:inline max-[738px]:inline">{label}</span>
     </button>
   );
 }
