@@ -222,7 +222,6 @@ export default function RightPanel({
   };
 
   const startTermsPolling = () => {
-    if (termsStatus === "done" || termsStatus === "failed") return;
     if (termsPollRef.current) return;
     termsPollRef.current = setInterval(() => {
       fetchTermsStatus();
@@ -425,7 +424,9 @@ export default function RightPanel({
     if (!mapId || termsLoading) return;
     setTermsError(null);
     setTermsRequestedInSession(true);
+    setTermsStatus("queued");
     setHasTermsRequest(true);
+    startTermsPolling();
     setTermsLoading(true);
     try {
       const accessToken = await getAccessToken();
