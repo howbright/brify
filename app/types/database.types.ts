@@ -179,8 +179,8 @@ export type Database = {
           id: string
           job_id: string | null
           map_id: string
-          mode: string
-          status: string
+          mode: Database["public"]["Enums"]["map_term_request_kind"]
+          status: Database["public"]["Enums"]["map_term_request_status"]
           terms_csv: string | null
           updated_at: string
           user_id: string
@@ -191,8 +191,8 @@ export type Database = {
           id?: string
           job_id?: string | null
           map_id: string
-          mode: string
-          status?: string
+          mode: Database["public"]["Enums"]["map_term_request_kind"]
+          status?: Database["public"]["Enums"]["map_term_request_status"]
           terms_csv?: string | null
           updated_at?: string
           user_id: string
@@ -203,8 +203,8 @@ export type Database = {
           id?: string
           job_id?: string | null
           map_id?: string
-          mode?: string
-          status?: string
+          mode?: Database["public"]["Enums"]["map_term_request_kind"]
+          status?: Database["public"]["Enums"]["map_term_request_status"]
           terms_csv?: string | null
           updated_at?: string
           user_id?: string
@@ -649,7 +649,12 @@ export type Database = {
       map_source_type: "youtube" | "website" | "file" | "manual"
       map_status: "processing" | "done" | "failed" | "idle" | "queued"
       map_term_request_kind: "auto" | "custom"
-      map_term_request_status: "queued" | "running" | "succeeded" | "failed"
+      map_term_request_status:
+        | "processing"
+        | "done"
+        | "failed"
+        | "idle"
+        | "queued"
       map_term_session_status: "active" | "exhausted" | "cancelled"
       payment_provider: "lemon_squeezy" | "toss"
       payment_status:
@@ -815,7 +820,13 @@ export const Constants = {
       map_source_type: ["youtube", "website", "file", "manual"],
       map_status: ["processing", "done", "failed", "idle", "queued"],
       map_term_request_kind: ["auto", "custom"],
-      map_term_request_status: ["queued", "running", "succeeded", "failed"],
+      map_term_request_status: [
+        "processing",
+        "done",
+        "failed",
+        "idle",
+        "queued",
+      ],
       map_term_session_status: ["active", "exhausted", "cancelled"],
       payment_provider: ["lemon_squeezy", "toss"],
       payment_status: [

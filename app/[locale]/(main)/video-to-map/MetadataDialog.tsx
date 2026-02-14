@@ -271,7 +271,7 @@ export default function MetadataDialog({
     onSave(meta);
   };
 
-  const titleCounter = `${title.trim().length}/80`;
+  const titleCounter = `${title.trim().length}/200`;
   const isBusy = isFetchingYoutubeMeta || isUploadingThumb;
 
   return (
@@ -428,7 +428,7 @@ export default function MetadataDialog({
 
                 <input
                   value={title}
-                  onChange={(e) => setTitle(e.target.value.slice(0, 80))}
+                  onChange={(e) => setTitle(e.target.value.slice(0, 200))}
                   placeholder="예: 콘텐츠 제목을 입력해 주세요"
                   className={`
                     w-full min-w-0

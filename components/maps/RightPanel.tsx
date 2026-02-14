@@ -38,8 +38,10 @@ export default function RightPanel({
   const [termsLoading, setTermsLoading] = useState(false);
   const [termsError, setTermsError] = useState<string | null>(null);
   const [termsStatus, setTermsStatus] = useState<
-    "idle" | "queued" | "running" | "succeeded" | "failed"
+    "idle" | "queued" | "processing" | "done" | "failed"
   >("idle");
+  const [termsRequestedInSession, setTermsRequestedInSession] = useState(false);
+  const [hasTermsRequest, setHasTermsRequest] = useState(false);
   const termsPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const termsHighlightRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -220,7 +222,7 @@ export default function RightPanel({
   };
 
   const startTermsPolling = () => {
-    if (termsStatus === "succeeded" || termsStatus === "failed") return;
+    if (termsStatus === "done" || termsStatus === "failed") return;
     if (termsPollRef.current) return;
     termsPollRef.current = setInterval(() => {
       fetchTermsStatus();
@@ -314,16 +316,44 @@ export default function RightPanel({
         throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
       }
 
-      const status = json?.status ?? null;
-      if (status === "queued" || status === "running") {
+      const status = String(json?.status ?? "").toLowerCase();
+      const explicitHasRequest =
+        typeof json?.hasRequest === "boolean"
+          ? json.hasRequest
+          : typeof json?.has_request === "boolean"
+          ? json.has_request
+          : null;
+      const inferredHasRequest =
+        Boolean(json?.requestId || json?.request_id || json?.id) ||
+        (termsRequestedInSession && Boolean(status)) ||
+        (status !== "" && status !== "idle");
+      const hasRequest =
+        explicitHasRequest === null ? inferredHasRequest : explicitHasRequest;
+      setHasTermsRequest(hasRequest);
+
+      if (!termsRequestedInSession && !hasRequest) {
+        stopTermsPolling();
+        setTermsStatus("idle");
+        setTermsError(null);
+        return;
+      }
+
+      if (!hasRequest) {
+        stopTermsPolling();
+        setTermsStatus("idle");
+        setTermsError(null);
+        return;
+      }
+
+      if (status === "idle" || status === "queued" || status === "processing") {
         setTermsStatus(status);
         startTermsPolling();
         setTermsError(null);
         return;
       }
 
-      if (status === "succeeded") {
-        setTermsStatus("succeeded");
+      if (status === "done") {
+        setTermsStatus("done");
         stopTermsPolling();
         await fetchTerms(true, true);
         setTermsError(null);
@@ -333,13 +363,22 @@ export default function RightPanel({
       if (status === "failed") {
         setTermsStatus("failed");
         stopTermsPolling();
-        setTermsError("용어 해설 생성에 실패했어요.");
+        if (termsRequestedInSession) {
+          setTermsError("용어 해설 생성에 실패했어요.");
+        } else {
+          setTermsError(null);
+        }
       }
     } catch (e) {
       console.error(e);
+      setHasTermsRequest(false);
       setTermsStatus("failed");
       stopTermsPolling();
-      setTermsError("용어 상태를 확인하지 못했습니다.");
+      if (termsRequestedInSession) {
+        setTermsError("용어 상태를 확인하지 못했습니다.");
+      } else {
+        setTermsError(null);
+      }
     }
   };
 
@@ -347,6 +386,8 @@ export default function RightPanel({
     if (!mapId || termsLoading) return;
     setTermsError(null);
     setTermsStatus("queued");
+    setTermsRequestedInSession(true);
+    setHasTermsRequest(true);
     startTermsPolling();
     setTermsLoading(true);
     try {
@@ -383,6 +424,8 @@ export default function RightPanel({
   const requestCustomTerms = async (termsCsv: string) => {
     if (!mapId || termsLoading) return;
     setTermsError(null);
+    setTermsRequestedInSession(true);
+    setHasTermsRequest(true);
     setTermsLoading(true);
     try {
       const accessToken = await getAccessToken();
@@ -507,7 +550,11 @@ export default function RightPanel({
         <TermsBlock
           terms={terms}
           loading={
-            termsLoading || termsStatus === "queued" || termsStatus === "running"
+            termsLoading ||
+            (termsRequestedInSession &&
+              (termsStatus === "idle" ||
+                termsStatus === "queued" ||
+                termsStatus === "processing"))
           }
           error={termsError}
           usedCount={0}
