@@ -54,11 +54,14 @@ export default function TermsBlock({
     if (!canSubmit) return;
     if (mode === "auto") onAutoExtract();
     if (mode === "custom") onExplainCustom(cleanedCsv);
+    setPickerOpen(false);
+    setCustomInlineOpen(false);
   };
 
   const handleCustomSubmit = () => {
     if (!canCustomSubmit) return;
     onExplainCustom(cleanedCsv);
+    setCustomInlineOpen(false);
   };
 
   return (
@@ -121,6 +124,12 @@ export default function TermsBlock({
                 <input
                   value={custom}
                   onChange={(e) => setCustom(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleCustomSubmit();
+                    }
+                  }}
                   placeholder="예: JWT, CORS, OAuth"
                   className="
                     mt-3 w-full rounded-2xl border border-blue-200/70 bg-white px-3 py-2
@@ -266,6 +275,12 @@ export default function TermsBlock({
             <input
               value={custom}
               onChange={(e) => setCustom(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSubmit();
+                }
+              }}
               placeholder="예: JWT, CORS, OAuth"
               className="
                 mt-2 w-full rounded-2xl border border-neutral-200 bg-white px-3 py-2
