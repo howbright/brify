@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Link } from "@/i18n/navigation";
 import MapListItem from "@/components/maps/MapListItem";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
@@ -51,6 +52,7 @@ export default function MapsPage() {
   const [drafts, setDrafts] = useState<MapDraft[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -87,6 +89,54 @@ export default function MapsPage() {
 
 
   const hasDrafts = useMemo(() => drafts.length > 0, [drafts.length]);
+
+  const handleDelete = async (draft: MapDraft) => {
+    if (!draft?.id) return;
+
+    const confirmed = window.confirm("이 구조맵을 삭제할까요? 삭제 후 복구할 수 없어요.");
+    if (!confirmed) return;
+
+    try {
+      setDeletingId(draft.id);
+      const supabase = createClient();
+      const { data: sessionData, error: sessionErr } =
+        await supabase.auth.getSession();
+
+      if (sessionErr) {
+        throw new Error("세션을 가져오지 못했습니다: " + sessionErr.message);
+      }
+
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        throw new Error("로그인이 필요합니다.");
+      }
+
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!base) {
+        throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
+      }
+
+      const res = await fetch(`${base}/maps/${draft.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = json?.message || json?.error || "요청 실패";
+        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+      }
+
+      setDrafts((prev) => prev.filter((d) => d.id !== draft.id));
+    } catch (e: any) {
+      const msg = e?.message ?? "삭제에 실패했습니다.";
+      toast.error(msg);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <main className="min-h-[70vh] px-6 py-16">
@@ -129,11 +179,17 @@ export default function MapsPage() {
         {hasDrafts && (
           <section className="mt-6 grid gap-3">
             {drafts.map((draft) => (
-              <MapListItem key={draft.id} draft={draft} />
+              <MapListItem
+                key={draft.id}
+                draft={draft}
+                onDelete={handleDelete}
+                isDeleting={deletingId === draft.id}
+              />
             ))}
           </section>
         )}
       </div>
+
     </main>
   );
 }

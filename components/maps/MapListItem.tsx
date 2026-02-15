@@ -6,8 +6,12 @@ import { Link } from "@/i18n/navigation";
 
 export default function MapListItem({
   draft,
+  onDelete,
+  isDeleting = false,
 }: {
   draft: MapDraft;
+  onDelete?: (draft: MapDraft) => void;
+  isDeleting?: boolean;
 }) {
   const statusBadge =
     draft.status === "done"
@@ -91,13 +95,30 @@ export default function MapListItem({
               {new Date(draft.createdAt).toLocaleString()}
             </div>
 
-            <Link
-              href={`/maps/${draft.id}`}
-              className="whitespace-nowrap inline-flex items-center justify-center gap-1.5 rounded-2xl border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
-            >
-              <Icon icon="mdi:open-in-new" className="h-4 w-4" />
-              열기
-            </Link>
+            <div className="flex items-center gap-2">
+              {onDelete && (
+                <button
+                  type="button"
+                  onClick={() => onDelete(draft)}
+                  disabled={isDeleting}
+                  className="whitespace-nowrap inline-flex items-center justify-center gap-1.5 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-100 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-rose-50 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20 dark:disabled:hover:bg-rose-500/10"
+                >
+                  <Icon
+                    icon={isDeleting ? "mdi:loading" : "mdi:trash-outline"}
+                    className={`h-4 w-4 ${isDeleting ? "animate-spin" : ""}`}
+                  />
+                  {isDeleting ? "삭제 중..." : "삭제"}
+                </button>
+              )}
+
+              <Link
+                href={`/maps/${draft.id}`}
+                className="whitespace-nowrap inline-flex items-center justify-center gap-1.5 rounded-2xl border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
+              >
+                <Icon icon="mdi:open-in-new" className="h-4 w-4" />
+                열기
+              </Link>
+            </div>
           </div>
         </div>
       </div>
