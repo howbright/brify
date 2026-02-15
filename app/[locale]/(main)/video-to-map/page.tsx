@@ -486,6 +486,26 @@ export default function VideoToMapPage() {
         throw new Error("mapId가 없습니다.");
       }
 
+      setDrafts((prev) => {
+        if (prev.some((d) => d.id === mapId)) return prev;
+
+        const sourceUrl = youtubeMeta?.sourceUrl || youtubeUrl || undefined;
+        const optimisticDraft: MapDraft = {
+          id: mapId,
+          createdAt: Date.now(),
+          sourceUrl,
+          sourceType: detectSourceType(sourceUrl),
+          title: "제목없음",
+          channelName: youtubeMeta?.channelName ?? undefined,
+          thumbnailUrl: youtubeMeta?.thumbnailUrl ?? undefined,
+          tags: [],
+          description: "",
+          status: "processing",
+        };
+
+        return [optimisticDraft, ...prev];
+      });
+
       setCreatedMapId(mapId);
       setShowMetadataDialog(true);
       setViewMode("input");
