@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Link } from "@/i18n/navigation";
 import MapListItem from "@/components/maps/MapListItem";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/app/types/database.types";
@@ -53,6 +54,8 @@ export default function MapsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<MapDraft | null>(null);
 
 
   useEffect(() => {
@@ -92,10 +95,6 @@ export default function MapsPage() {
 
   const handleDelete = async (draft: MapDraft) => {
     if (!draft?.id) return;
-
-    const confirmed = window.confirm("이 구조맵을 삭제할까요? 삭제 후 복구할 수 없어요.");
-    if (!confirmed) return;
-
     try {
       setDeletingId(draft.id);
       const supabase = createClient();
@@ -136,6 +135,11 @@ export default function MapsPage() {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const requestDelete = (draft: MapDraft) => {
+    setPendingDelete(draft);
+    setConfirmOpen(true);
   };
 
   return (
@@ -182,7 +186,7 @@ export default function MapsPage() {
               <MapListItem
                 key={draft.id}
                 draft={draft}
-                onDelete={handleDelete}
+                onDelete={requestDelete}
                 isDeleting={deletingId === draft.id}
               />
             ))}
@@ -190,6 +194,19 @@ export default function MapsPage() {
         )}
       </div>
 
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={() => {
+          if (!pendingDelete) return;
+          setConfirmOpen(false);
+          handleDelete(pendingDelete);
+          setPendingDelete(null);
+        }}
+        title="구조맵을 삭제할까요?"
+        description="삭제하면 복구할 수 없어요. 계속 진행할까요?"
+        actionLabel="삭제"
+      />
     </main>
   );
 }

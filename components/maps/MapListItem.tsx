@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 import { Link } from "@/i18n/navigation";
@@ -13,27 +14,23 @@ export default function MapListItem({
   onDelete?: (draft: MapDraft) => void;
   isDeleting?: boolean;
 }) {
+  const [menuOpen, setMenuOpen] = useState(false);
   const statusBadge =
-    draft.status === "done"
-      ? {
-          text: "완료",
-          cls: "bg-emerald-100 text-emerald-700 border-emerald-200",
-          darkCls:
-            "dark:bg-emerald-500/12 dark:text-emerald-200 dark:border-emerald-400/25",
-        }
-      : draft.status === "failed"
+    draft.status === "failed"
       ? {
           text: "실패",
           cls: "bg-rose-100 text-rose-700 border-rose-200",
           darkCls:
             "dark:bg-rose-500/12 dark:text-rose-200 dark:border-rose-400/25",
         }
-      : {
+      : draft.status === "processing"
+      ? {
           text: "처리 중",
           cls: "bg-blue-100 text-blue-700 border-blue-200",
           darkCls:
             "dark:bg-blue-500/12 dark:text-blue-200 dark:border-blue-400/25",
-        };
+        }
+      : null;
 
   return (
     <article
@@ -70,11 +67,55 @@ export default function MapListItem({
               </p>
             </div>
 
-            <span
-              className={`shrink-0 whitespace-nowrap rounded-full border px-2.5 py-1 text-[11px] font-semibold inline-flex items-center gap-1.5 ${statusBadge.cls} ${statusBadge.darkCls}`}
-            >
-              <span>{statusBadge.text}</span>
-            </span>
+            <div className="flex items-center gap-2 shrink-0">
+              {statusBadge && (
+                <span
+                  className={`whitespace-nowrap rounded-full border px-2.5 py-1 text-[11px] font-semibold inline-flex items-center gap-1.5 ${statusBadge.cls} ${statusBadge.darkCls}`}
+                >
+                  <span>{statusBadge.text}</span>
+                </span>
+              )}
+
+              {onDelete && (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setMenuOpen((v) => !v)}
+                    className="inline-flex items-center justify-center rounded-full border border-neutral-200 bg-white p-1.5 text-neutral-600 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/10"
+                    aria-haspopup="menu"
+                    aria-expanded={menuOpen}
+                    aria-label="More actions"
+                  >
+                    <Icon icon="mdi:dots-horizontal" className="h-4 w-4" />
+                  </button>
+
+                  {menuOpen && (
+                    <div
+                      role="menu"
+                      className="absolute right-0 mt-2 min-w-[140px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuOpen(false);
+                          onDelete(draft);
+                        }}
+                        disabled={isDeleting}
+                        className="w-full rounded-xl px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 disabled:opacity-60 disabled:cursor-not-allowed dark:text-rose-300 dark:hover:bg-rose-500/10"
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          <Icon
+                            icon={isDeleting ? "mdi:loading" : "mdi:trash-outline"}
+                            className={`h-4 w-4 ${isDeleting ? "animate-spin" : ""}`}
+                          />
+                          {isDeleting ? "삭제 중..." : "삭제"}
+                        </span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {draft.tags?.length > 0 && (
@@ -96,21 +137,6 @@ export default function MapListItem({
             </div>
 
             <div className="flex items-center gap-2">
-              {onDelete && (
-                <button
-                  type="button"
-                  onClick={() => onDelete(draft)}
-                  disabled={isDeleting}
-                  className="whitespace-nowrap inline-flex items-center justify-center gap-1.5 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-100 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-rose-50 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20 dark:disabled:hover:bg-rose-500/10"
-                >
-                  <Icon
-                    icon={isDeleting ? "mdi:loading" : "mdi:trash-outline"}
-                    className={`h-4 w-4 ${isDeleting ? "animate-spin" : ""}`}
-                  />
-                  {isDeleting ? "삭제 중..." : "삭제"}
-                </button>
-              )}
-
               <Link
                 href={`/maps/${draft.id}`}
                 className="whitespace-nowrap inline-flex items-center justify-center gap-1.5 rounded-2xl border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
