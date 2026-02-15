@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
@@ -8,6 +9,7 @@ import LeftPanel from "@/components/maps/LeftPanel";
 import RightPanel from "@/components/maps/RightPanel";
 import ClientMindElixir from "@/components/ClientMindElixir";
 import MetadataDialog from "@/app/[locale]/(main)/video-to-map/MetadataDialog";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/app/types/database.types";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
@@ -79,6 +81,9 @@ export default function MapDetailPage() {
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
   const [isSavingMeta, setIsSavingMeta] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!mapId) return;
@@ -150,6 +155,54 @@ export default function MapDetailPage() {
     setRightTab("terms");
     setRightOpen(true);
     setLeftOpen(false);
+  };
+
+  const handleDelete = async () => {
+    if (!mapId) return;
+    setIsDeleting(true);
+
+    try {
+      const supabase = createClient();
+      const { data: sessionData, error: sessionErr } =
+        await supabase.auth.getSession();
+
+      if (sessionErr) {
+        throw new Error("세션을 가져오지 못했습니다: " + sessionErr.message);
+      }
+
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        throw new Error("로그인이 필요합니다.");
+      }
+
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!base) {
+        throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
+      }
+
+      const res = await fetch(`${base}/maps/${mapId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = json?.message || json?.error || "요청 실패";
+        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+      }
+
+      toast.success("삭제 완료");
+      window.setTimeout(() => {
+        router.push("/maps");
+      }, 700);
+    } catch (e: any) {
+      const msg = e?.message ?? "삭제에 실패했습니다.";
+      toast.error(msg);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleSaveMetadata = async (meta: {
@@ -279,6 +332,40 @@ export default function MapDetailPage() {
               label="용어"
               onClick={openTerms}
             />
+
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMoreOpen((v) => !v)}
+                className="inline-flex items-center justify-center rounded-xl border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
+                aria-haspopup="menu"
+                aria-expanded={moreOpen}
+                aria-label="More actions"
+              >
+                <Icon icon="mdi:dots-horizontal" className="h-4 w-4" />
+              </button>
+
+              {moreOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 mt-2 min-w-[140px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]"
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMoreOpen(false);
+                      setConfirmDeleteOpen(true);
+                    }}
+                    className="w-full rounded-xl px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/10"
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <Icon icon="mdi:trash-outline" className="h-4 w-4" />
+                      삭제
+                    </span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="hidden sm:flex items-center gap-2 text-[11px] text-neutral-500 dark:text-white/60">
@@ -358,6 +445,18 @@ export default function MapDetailPage() {
           />
         )}
       </div>
+
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        onOpenChange={setConfirmDeleteOpen}
+        onConfirm={() => {
+          setConfirmDeleteOpen(false);
+          handleDelete();
+        }}
+        title="구조맵을 삭제할까요?"
+        description="삭제하면 복구할 수 없어요. 계속 진행할까요?"
+        actionLabel={isDeleting ? "삭제 중..." : "삭제"}
+      />
     </div>
   );
 }

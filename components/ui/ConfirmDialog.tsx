@@ -23,9 +23,9 @@ export default function ConfirmDialog({
   return (
     <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 bg-black/20" />
+        <AlertDialog.Overlay className="fixed inset-0 z-[200] bg-black/20" />
         <AlertDialog.Content
-          className="fixed top-1/2 left-1/2 w-96 max-w-[90%] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-2xl border border-gray-300"
+          className="fixed top-1/2 left-1/2 z-[210] w-96 max-w-[90%] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-2xl border border-gray-300"
         >
           <div className="flex items-center gap-2">
             <AlertCircle className="text-red-500" />
