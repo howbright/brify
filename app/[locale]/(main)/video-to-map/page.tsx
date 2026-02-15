@@ -183,6 +183,7 @@ export default function VideoToMapPage() {
   const [lastJobId, setLastJobId] = useState<string | null>(null);
   const [createdMapId, setCreatedMapId] = useState<string | null>(null);
   const [editingDraft, setEditingDraft] = useState<MapDraft | null>(null);
+  const [savingMetaId, setSavingMetaId] = useState<string | null>(null);
   const [openDraft, setOpenDraft] = useState<MapDraft | null>(null);
   const [showFullscreen, setShowFullscreen] = useState(true);
   const [openMapData, setOpenMapData] = useState<any | null>(null);
@@ -509,6 +510,7 @@ export default function VideoToMapPage() {
       setCreatedMapId(mapId);
       setShowMetadataDialog(true);
       setViewMode("input");
+      setScriptText("");
     } catch (e: any) {
       setIsProcessing(false);
       const msg = e?.message ?? "구조맵 생성에 실패했습니다.";
@@ -533,6 +535,8 @@ export default function VideoToMapPage() {
       if (!targetId) {
         throw new Error("mapId가 없습니다.");
       }
+
+      setSavingMetaId(targetId);
 
       const supabase = createClient();
       const { data: sessionData, error: sessionErr } =
@@ -657,11 +661,13 @@ export default function VideoToMapPage() {
       setIsProcessing(false);
       setCreatedMapId(null);
       setEditingDraft(null);
+      setSavingMetaId(null);
     } catch (e: any) {
       setIsProcessing(false);
       const msg = e?.message ?? "구조맵 생성에 실패했습니다.";
       setError(msg);
       openToast(msg);
+      setSavingMetaId(null);
     }
   };
 
@@ -777,6 +783,7 @@ export default function VideoToMapPage() {
                 <DraftMapCard
                   key={d.id}
                   draft={d}
+                  isSavingMetadata={savingMetaId === d.id}
                   onEditMetadata={(draft) => {
                     setCreatedMapId(draft.id);
                     setEditingDraft(draft);

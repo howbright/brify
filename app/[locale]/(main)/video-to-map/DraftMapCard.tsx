@@ -7,10 +7,12 @@ import { MapDraft } from "./types";
 export default function DraftMapCard({
   draft,
   onEditMetadata,
+  isSavingMetadata = false,
   onOpen,
 }: {
   draft: MapDraft;
   onEditMetadata?: (draft: MapDraft) => void;
+  isSavingMetadata?: boolean;
   onOpen?: (draft: MapDraft) => void;
 }) {
   const processingMessages = useMemo(
@@ -172,19 +174,31 @@ export default function DraftMapCard({
               <button
                 type="button"
                 onClick={() => onEditMetadata(draft)}
+                disabled={isSavingMetadata}
                 className="
                   whitespace-nowrap
                   inline-flex items-center justify-center gap-1.5 rounded-2xl
                   border border-neutral-200 bg-white px-3 py-1.5
                   text-xs font-semibold text-neutral-700 hover:bg-neutral-50
+                  disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-white
                   dark:border-white/12
                   dark:bg-white/[0.06]
                   dark:text-white/85
                   dark:hover:bg-white/10
+                  dark:disabled:hover:bg-white/[0.06]
                 "
               >
-                <Icon icon="mdi:pencil-outline" className="h-4 w-4" />
-                정보 수정
+                {isSavingMetadata ? (
+                  <>
+                    <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" />
+                    저장 중...
+                  </>
+                ) : (
+                  <>
+                    <Icon icon="mdi:pencil-outline" className="h-4 w-4" />
+                    정보 수정
+                  </>
+                )}
               </button>
             )}
 
