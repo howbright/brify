@@ -7,6 +7,7 @@ import { useTheme } from "next-themes";
 import LeftPanel from "@/components/maps/LeftPanel";
 import RightPanel from "@/components/maps/RightPanel";
 import ClientMindElixir from "@/components/ClientMindElixir";
+import MetadataDialog from "@/app/[locale]/(main)/video-to-map/MetadataDialog";
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/app/types/database.types";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
@@ -31,6 +32,15 @@ function withCacheBuster(url: string) {
   } catch {
     return url;
   }
+}
+
+function detectSourceType(sourceUrl?: string) {
+  if (!sourceUrl) return "manual" as const;
+  const lowered = sourceUrl.toLowerCase();
+  if (lowered.includes("youtube.com") || lowered.includes("youtu.be")) {
+    return "youtube" as const;
+  }
+  return "website" as const;
 }
 
 function toDraft(row: MapRow): MapDraft {
@@ -67,6 +77,8 @@ export default function MapDetailPage() {
   const [rightOpen, setRightOpen] = useState(false);
   const [rightTab, setRightTab] = useState<"notes" | "terms">("notes");
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
+  const [showMetadataDialog, setShowMetadataDialog] = useState(false);
+  const [isSavingMeta, setIsSavingMeta] = useState(false);
 
   useEffect(() => {
     if (!mapId) return;
@@ -138,6 +150,82 @@ export default function MapDetailPage() {
     setRightTab("terms");
     setRightOpen(true);
     setLeftOpen(false);
+  };
+
+  const handleSaveMetadata = async (meta: {
+    sourceUrl?: string;
+    title: string;
+    channelName?: string;
+    thumbnailUrl?: string;
+    tags: string[];
+    description?: string;
+  }) => {
+    if (!mapId) return;
+    setIsSavingMeta(true);
+
+    try {
+      const supabase = createClient();
+      const { data: sessionData, error: sessionErr } =
+        await supabase.auth.getSession();
+
+      if (sessionErr) {
+        throw new Error("세션을 가져오지 못했습니다: " + sessionErr.message);
+      }
+
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        throw new Error("로그인이 필요합니다.");
+      }
+
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!base) {
+        throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
+      }
+
+      const res = await fetch(`${base}/maps/${mapId}/metadata`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          title: meta.title,
+          description: meta.description,
+          tags: meta.tags ?? [],
+          thumbnail_url: meta.thumbnailUrl,
+          channel_name: meta.channelName,
+          source_type: detectSourceType(meta.sourceUrl),
+          source_url: meta.sourceUrl,
+        }),
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = json?.message || json?.error || "요청 실패";
+        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+      }
+
+      const { data, error } = await supabase
+        .from("maps")
+        .select(
+          "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,thumbnail_url,map_status,credits_charged"
+        )
+        .eq("id", mapId)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setDraft(toDraft(data as MapRow));
+      }
+
+      setShowMetadataDialog(false);
+    } catch (e: any) {
+      const msg = e?.message ?? "메타데이터 저장에 실패했습니다.";
+      console.error(msg);
+      window.alert(msg);
+    } finally {
+      setIsSavingMeta(false);
+    }
   };
 
   return (
@@ -238,7 +326,12 @@ export default function MapDetailPage() {
         )}
 
         {draft && (
-          <LeftPanel open={leftOpen} onClose={() => setLeftOpen(false)} map={draft} />
+          <LeftPanel
+            open={leftOpen}
+            onClose={() => setLeftOpen(false)}
+            onEdit={() => setShowMetadataDialog(true)}
+            map={draft}
+          />
         )}
 
         <RightPanel
@@ -247,6 +340,23 @@ export default function MapDetailPage() {
           initialTab={rightTab}
           mapId={mapId}
         />
+
+        {showMetadataDialog && draft && (
+          <MetadataDialog
+            mapId={draft.id}
+            initial={{
+              sourceUrl: draft.sourceUrl ?? "",
+              title: draft.title ?? "",
+              channelName: draft.channelName ?? "",
+              tags: draft.tags ?? [],
+              description: draft.description ?? "",
+              thumbnailUrl: draft.thumbnailUrl ?? "",
+            }}
+            onClose={() => setShowMetadataDialog(false)}
+            onSave={handleSaveMetadata}
+            isProcessing={isSavingMeta}
+          />
+        )}
       </div>
     </div>
   );

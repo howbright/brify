@@ -7,10 +7,12 @@ import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 export default function LeftPanel({
   open,
   onClose,
+  onEdit,
   map,
 }: {
   open: boolean;
   onClose: () => void;
+  onEdit?: () => void;
   map: MapDraft;
 }) {
   const createdLabel = useMemo(
@@ -63,21 +65,41 @@ export default function LeftPanel({
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={onClose}
-              className="
-                shrink-0
-                inline-flex items-center gap-1.5
-                rounded-2xl border border-neutral-200 bg-white px-3 py-1.5
-                text-xs font-semibold text-neutral-700 hover:bg-neutral-50
-                dark:border-white/12 dark:bg-white/[0.06]
-                dark:text-white/85 dark:hover:bg-white/10
-              "
-            >
-              <Icon icon="mdi:close" className="h-4 w-4" />
-              닫기
-            </button>
+            <div className="flex items-center gap-2">
+              {onEdit && (
+                <button
+                  type="button"
+                  onClick={onEdit}
+                  className="
+                    shrink-0
+                    inline-flex items-center gap-1.5
+                    rounded-2xl border border-blue-200 bg-blue-50 px-3 py-1.5
+                    text-xs font-semibold text-blue-700 hover:bg-blue-100
+                    dark:border-blue-300/40 dark:bg-blue-500/10
+                    dark:text-blue-50/90 dark:hover:bg-blue-500/20
+                  "
+                >
+                  <Icon icon="mdi:pencil" className="h-4 w-4" />
+                  편집
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="
+                  shrink-0
+                  inline-flex items-center gap-1.5
+                  rounded-2xl border border-neutral-200 bg-white px-3 py-1.5
+                  text-xs font-semibold text-neutral-700 hover:bg-neutral-50
+                  dark:border-white/12 dark:bg-white/[0.06]
+                  dark:text-white/85 dark:hover:bg-white/10
+                "
+              >
+                <Icon icon="mdi:close" className="h-4 w-4" />
+                닫기
+              </button>
+            </div>
           </div>
 
           <div className="mt-3">
