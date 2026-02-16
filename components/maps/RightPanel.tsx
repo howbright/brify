@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { ReactNode, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import NoteItem, { type NoteItemData } from "@/components/maps/NoteItem";
 import TermsBlock from "@/components/maps/TermsBlock";
 import { createClient } from "@/utils/supabase/client";
@@ -29,6 +30,7 @@ export default function RightPanel({
   onClose,
   mapId,
 }: Props) {
+  const t = useTranslations("RightPanel");
   const [tab, setTab] = useState<RightPanelTab>(initialTab);
   const [noteText, setNoteText] = useState("");
   const [notes, setNotes] = useState<NoteItem[]>([]);
@@ -77,7 +79,7 @@ export default function RightPanel({
       );
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json?.ok) {
-        throw new Error(json?.error || "FAILED_TO_FETCH_NOTES");
+        throw new Error(json?.error || t("errors.notes.fetch"));
       }
       const items: NoteItem[] = Array.isArray(json.items)
         ? json.items.map((row: any) => {
@@ -92,7 +94,7 @@ export default function RightPanel({
         : [];
       setNotes(items);
     } catch (e: any) {
-      setNotesError(e?.message ?? "FAILED_TO_FETCH_NOTES");
+      setNotesError(e?.message ?? t("errors.notes.fetch"));
     } finally {
       setNotesLoading(false);
     }
@@ -119,7 +121,7 @@ export default function RightPanel({
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json?.ok) {
-        throw new Error(json?.error || "FAILED_TO_ADD_NOTE");
+        throw new Error(json?.error || t("errors.notes.add"));
       }
       const row = json.item ?? {};
       const createdAt = new Date(row.created_at).getTime();
@@ -132,7 +134,7 @@ export default function RightPanel({
       setNotes((prev) => [item, ...prev]);
       setNoteText("");
     } catch (e: any) {
-      setNotesError(e?.message ?? "FAILED_TO_ADD_NOTE");
+      setNotesError(e?.message ?? t("errors.notes.add"));
     }
   };
 
@@ -143,11 +145,11 @@ export default function RightPanel({
       const res = await fetch(`/api/notes/${id}`, { method: "DELETE" });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json?.ok) {
-        throw new Error(json?.error || "FAILED_TO_DELETE_NOTE");
+        throw new Error(json?.error || t("errors.notes.delete"));
       }
       setNotes((prev) => prev.filter((n) => n.id !== id));
     } catch (e: any) {
-      setNotesError(e?.message ?? "FAILED_TO_DELETE_NOTE");
+      setNotesError(e?.message ?? t("errors.notes.delete"));
     }
   };
 
@@ -164,7 +166,7 @@ export default function RightPanel({
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json?.ok) {
-        throw new Error(json?.error || "FAILED_TO_UPDATE_NOTE");
+        throw new Error(json?.error || t("errors.notes.update"));
       }
       const row = json.item ?? {};
       const createdAt = new Date(row.created_at).getTime();
@@ -176,7 +178,7 @@ export default function RightPanel({
       };
       setNotes((prev) => prev.map((n) => (n.id === id ? updated : n)));
     } catch (e: any) {
-      setNotesError(e?.message ?? "FAILED_TO_UPDATE_NOTE");
+      setNotesError(e?.message ?? t("errors.notes.update"));
     }
   };
 
@@ -186,12 +188,12 @@ export default function RightPanel({
       await supabase.auth.getSession();
 
     if (sessionErr) {
-      throw new Error("세션을 가져오지 못했습니다: " + sessionErr.message);
+      throw new Error(t("errors.auth.session", { message: sessionErr.message }));
     }
 
     const accessToken = sessionData.session?.access_token;
     if (!accessToken) {
-      throw new Error("로그인이 필요합니다.");
+      throw new Error(t("errors.auth.login"));
     }
 
     return accessToken;
@@ -200,7 +202,7 @@ export default function RightPanel({
   const getApiBase = () => {
     const base = process.env.NEXT_PUBLIC_API_BASE_URL;
     if (!base) {
-      throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
+      throw new Error(t("errors.env.missingApiBase"));
     }
     return base;
   };
@@ -249,7 +251,7 @@ export default function RightPanel({
 
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const msg = json?.message || json?.error || "용어를 불러오지 못했습니다.";
+        const msg = json?.message || json?.error || t("errors.terms.fetch");
         throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
       }
 
@@ -290,7 +292,7 @@ export default function RightPanel({
 
     } catch (e) {
       console.error(e);
-      setTermsError("용어를 불러오지 못했습니다.");
+      setTermsError(t("errors.terms.fetch"));
     } finally {
       if (!silent) setTermsLoading(false);
     }
@@ -311,7 +313,7 @@ export default function RightPanel({
 
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json?.ok) {
-        const msg = json?.message || json?.error || "용어 상태 조회 실패";
+        const msg = json?.message || json?.error || t("errors.terms.statusFetch");
         throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
       }
 
@@ -363,7 +365,7 @@ export default function RightPanel({
         setTermsStatus("failed");
         stopTermsPolling();
         if (termsRequestedInSession) {
-          setTermsError("용어 해설 생성에 실패했어요.");
+          setTermsError(t("errors.terms.generateFail"));
         } else {
           setTermsError(null);
         }
@@ -374,7 +376,7 @@ export default function RightPanel({
       setTermsStatus("failed");
       stopTermsPolling();
       if (termsRequestedInSession) {
-        setTermsError("용어 상태를 확인하지 못했습니다.");
+        setTermsError(t("errors.terms.statusFail"));
       } else {
         setTermsError(null);
       }
@@ -405,7 +407,7 @@ export default function RightPanel({
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
         const msg =
-          json?.message || json?.error || "용어 추출을 시작하지 못했습니다.";
+          json?.message || json?.error || t("errors.terms.autoStartFail");
         throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
       }
 
@@ -414,7 +416,7 @@ export default function RightPanel({
       console.error(e);
       setTermsStatus("failed");
       stopTermsPolling();
-      setTermsError("용어 해설 요청에 실패했어요.");
+      setTermsError(t("errors.terms.requestFail"));
     } finally {
       setTermsLoading(false);
     }
@@ -444,14 +446,14 @@ export default function RightPanel({
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
         const msg =
-          json?.message || json?.error || "용어 해설을 시작하지 못했습니다.";
+          json?.message || json?.error || t("errors.terms.customStartFail");
         throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
       }
 
       await fetchTermsStatus();
     } catch (e) {
       console.error(e);
-      setTermsError("용어 해설 요청에 실패했어요.");
+      setTermsError(t("errors.terms.requestFail"));
     } finally {
       setTermsLoading(false);
     }
@@ -476,14 +478,14 @@ export default function RightPanel({
 
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const msg = json?.message || json?.error || "용어를 삭제하지 못했습니다.";
+        const msg = json?.message || json?.error || t("errors.terms.deleteFail");
         throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
       }
 
       setTerms((prev) => prev.filter((item) => item.term !== term));
     } catch (e) {
       console.error(e);
-      setTermsError("용어를 삭제하지 못했습니다.");
+      setTermsError(t("errors.terms.deleteFail"));
     } finally {
       setTermsLoading(false);
     }
@@ -513,21 +515,23 @@ export default function RightPanel({
     <SidePanel
       side="right"
       open={open}
-      title={tab === "notes" ? "노트" : "용어"}
+      title={tab === "notes" ? t("tabs.notes") : t("tabs.terms")}
       onClose={onClose}
+      closeAriaLabel={t("closeAria")}
+      closeTitle={t("closeTitle")}
     >
       {/* tabs */}
       <div className="pt-3 mb-3 flex items-center gap-2">
         <TabButton
           active={tab === "notes"}
           icon="mdi:notebook-outline"
-          label="노트"
+          label={t("tabs.notes")}
           onClick={() => setTab("notes")}
         />
         <TabButton
           active={tab === "terms"}
           icon="mdi:book-open-variant"
-          label="용어"
+          label={t("tabs.terms")}
           onClick={() => {
             setTab("terms");
             // 탭 클릭 시 즉시 fetch 트리거(원하면 여기서만 호출해도 됨)
@@ -546,6 +550,11 @@ export default function RightPanel({
           error={notesError}
           onDelete={deleteNote}
           onUpdate={updateNote}
+          helperText={t("notes.helper")}
+          placeholder={t("notes.placeholder")}
+          addLabel={t("notes.add")}
+          loadingLabel={t("notes.loading")}
+          emptyLabel={t("notes.empty")}
         />
       ) : (
         <TermsBlock
@@ -575,12 +584,16 @@ function SidePanel({
   open,
   title,
   onClose,
+  closeAriaLabel,
+  closeTitle,
   children,
 }: {
   side: "left" | "right";
   open: boolean;
   title: string;
   onClose: () => void;
+  closeAriaLabel: string;
+  closeTitle: string;
   children: ReactNode;
 }) {
   return (
@@ -621,8 +634,8 @@ function SidePanel({
               border border-neutral-200 bg-white hover:bg-neutral-50
               dark:border-white/12 dark:bg-white/[0.06] dark:hover:bg-white/10
             "
-            aria-label="패널 닫기"
-            title="닫기"
+            aria-label={closeAriaLabel}
+            title={closeTitle}
           >
             <Icon icon="mdi:close" className="h-4 w-4" />
           </button>
@@ -677,6 +690,11 @@ function NotesBlock({
   error,
   onDelete,
   onUpdate,
+  helperText,
+  placeholder,
+  addLabel,
+  loadingLabel,
+  emptyLabel,
 }: {
   noteText: string;
   setNoteText: (v: string) => void;
@@ -686,11 +704,16 @@ function NotesBlock({
   error: string | null;
   onDelete: (id: string) => void;
   onUpdate: (id: string, text: string) => void;
+  helperText: string;
+  placeholder: string;
+  addLabel: string;
+  loadingLabel: string;
+  emptyLabel: string;
 }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="text-xs text-neutral-500 dark:text-white/60">
-        구조맵을 보면서 떠오른 생각을 바로 적어둘 수 있어요.
+        {helperText}
       </div>
 
       {error ? (
@@ -709,7 +732,7 @@ function NotesBlock({
               onAdd();
             }
           }}
-          placeholder="노트를 적어주세요… (Enter로 추가)"
+          placeholder={placeholder}
           className="
             flex-1 rounded-2xl border border-neutral-200 bg-white px-3 py-2 text-sm
             outline-none focus:ring-2 focus:ring-blue-200
@@ -727,18 +750,18 @@ function NotesBlock({
             dark:text-white/85 dark:hover:bg-white/10
           "
         >
-          추가
+          {addLabel}
         </button>
       </div>
 
       <div className="flex flex-col gap-2">
         {loading ? (
           <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75">
-            노트를 불러오는 중…
+            {loadingLabel}
           </div>
         ) : notes.length === 0 ? (
           <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75">
-            아직 노트가 없어요.
+            {emptyLabel}
           </div>
         ) : (
           notes.map((n) => (

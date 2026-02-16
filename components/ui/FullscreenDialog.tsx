@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
 import { useTheme } from "next-themes";
+import { useTranslations } from "next-intl";
 import LeftPanel from "@/components/maps/LeftPanel";
 import RightPanel from "@/components/maps/RightPanel";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
@@ -49,6 +50,7 @@ export default function FullscreenDialog({
   const [leftOpen, setLeftOpen] = useState(true); // metadata
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
   const { resolvedTheme } = useTheme();
+  const t = useTranslations("FullscreenDialog");
 
 
   // ✅ 좌측 패널(메타) 토글
@@ -94,7 +96,7 @@ export default function FullscreenDialog({
       "
       role="dialog"
       aria-modal="true"
-      aria-label={title ?? "구조맵"}
+      aria-label={title ?? t("fallbackTitle")}
     >
       <div className="relative h-full w-full bg-white dark:bg-[#0b1220] overflow-hidden [--header-h:56px] max-[738px]:[--header-h:96px]">
         {/* ✅ (1) 상단 헤더 한 줄: 여기만 UI 배치 */}
@@ -111,7 +113,7 @@ export default function FullscreenDialog({
             {/* left: title */}
             <div className="min-w-0 flex items-center gap-2 w-full flex-1">
               <div className="text-sm font-semibold text-neutral-900 dark:text-white/90 truncate">
-                {title ?? "구조맵 미리보기"}
+                {title ?? t("title")}
               </div>
             </div>
 
@@ -120,7 +122,7 @@ export default function FullscreenDialog({
               <ToolbarToggle
                 pressed={editMode === "edit"}
                 icon={editMode === "edit" ? "mdi:pencil" : "mdi:eye-outline"}
-                label={editMode === "edit" ? "편집중" : "보기"}
+                label={editMode === "edit" ? t("mode.editing") : t("mode.view")}
                 onClick={() =>
                   setEditMode((m) => (m === "view" ? "edit" : "view"))
                 }
@@ -129,21 +131,21 @@ export default function FullscreenDialog({
               <ToolbarToggle
                 pressed={leftOpen}
                 icon="mdi:information-outline"
-                label="정보"
+                label={t("tabs.info")}
                 onClick={openMeta}
               />
 
               <ToolbarToggle
                 pressed={rightOpen && rightTab === "notes"}
                 icon="mdi:clipboard-text-outline"
-                label="노트"
+                label={t("tabs.notes")}
                 onClick={openDetails}
               />
 
               <ToolbarToggle
                 pressed={rightOpen && rightTab === "terms"}
                 icon="mdi:book-open-variant"
-                label="용어"
+                label={t("tabs.terms")}
                 onClick={openTerms}
               />
             </div>
@@ -163,7 +165,7 @@ export default function FullscreenDialog({
               "
             >
               <Icon icon="mdi:close" className="h-4 w-4" />
-              닫기
+              {t("close")}
             </button>
           </div>
         </header>
@@ -234,7 +236,8 @@ export default function FullscreenDialog({
             "
             title="내 맵 리스트로"
           >
-            <Icon icon="mdi:format-list-bulleted" className="h-4 w-4" />내 맵
+            <Icon icon="mdi:format-list-bulleted" className="h-4 w-4" />
+            {t("goList")}
           </button>
 
           {/* ✅ 편집모드 힌트 (헤더 아래 우측 상단 근처로 이동) */}
@@ -248,8 +251,8 @@ export default function FullscreenDialog({
             >
               <Icon icon="mdi:gesture-tap" className="h-3.5 w-3.5" />
               {editMode === "edit"
-                ? "편집모드: 노드 수정/추가 가능"
-                : "보기모드: 흐름을 집중해서 확인"}
+                ? t("modeBadge.edit")
+                : t("modeBadge.view")}
             </span>
           </div>
 
@@ -257,7 +260,7 @@ export default function FullscreenDialog({
             <div className="absolute left-4 top-3 z-[15]">
               <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
                 <Icon icon="mdi:alert-circle-outline" className="h-3.5 w-3.5" />
-                구조맵을 불러오지 못했어요
+                {t("status.fetchError")}
               </span>
             </div>
           )}

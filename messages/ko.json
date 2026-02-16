@@ -705,5 +705,145 @@
       "failed": "처리 중 문제가 생겼어요. ({error})",
       "network": "네트워크 오류가 발생했어요. ({message})"
     }
+  },
+  "LeftPanel": {
+    "title": "상세 정보",
+    "edit": "편집",
+    "close": "닫기",
+    "untitled": "제목없음",
+    "created": "생성",
+    "updated": "수정",
+    "credits": "소요 크레딧",
+    "sourceSection": "출처",
+    "thumbnailPlaceholder": "thumbnail",
+    "sourceType": "출처 유형",
+    "channel": "채널/작성자",
+    "none": "없음",
+    "sourceLink": "원본 링크",
+    "tagsSection": "태그",
+    "noTags": "태그 없음",
+    "descriptionSection": "설명",
+    "noDescription": "설명 없음"
+  },
+  "RightPanel": {
+    "tabs": {
+      "notes": "노트",
+      "terms": "용어"
+    },
+    "closeAria": "패널 닫기",
+    "closeTitle": "닫기",
+    "notes": {
+      "helper": "구조맵을 보면서 떠오른 생각을 바로 적어둘 수 있어요.",
+      "placeholder": "노트를 적어주세요… (Enter로 추가)",
+      "add": "추가",
+      "loading": "노트를 불러오는 중…",
+      "empty": "아직 노트가 없어요."
+    },
+    "errors": {
+      "notes": {
+        "fetch": "노트를 불러오지 못했습니다.",
+        "add": "노트를 추가하지 못했습니다.",
+        "delete": "노트를 삭제하지 못했습니다.",
+        "update": "노트를 수정하지 못했습니다."
+      },
+      "terms": {
+        "fetch": "용어를 불러오지 못했습니다.",
+        "statusFetch": "용어 상태 조회에 실패했습니다.",
+        "generateFail": "용어 해설 생성에 실패했어요.",
+        "statusFail": "용어 상태를 확인하지 못했습니다.",
+        "autoStartFail": "용어 추출을 시작하지 못했습니다.",
+        "customStartFail": "용어 해설을 시작하지 못했습니다.",
+        "requestFail": "용어 해설 요청에 실패했어요.",
+        "deleteFail": "용어를 삭제하지 못했습니다."
+      },
+      "auth": {
+        "session": "세션을 가져오지 못했습니다: {message}",
+        "login": "로그인이 필요합니다."
+      },
+      "env": {
+        "missingApiBase": "환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다."
+      }
+    }
+  },
+  "TermsBlock": {
+    "helper": "어려운 용어가 자동으로 정리돼요.",
+    "loading": "용어 해설 생성 중…",
+    "delete": "삭제",
+    "cta": "AI 용어 해설",
+    "usedCount": "이 세션에서 {count}회 사용했어요.",
+    "customInline": {
+      "toggle": "추가로 해설 받을 용어 입력",
+      "title": "원하는 용어만 해설받기",
+      "description": "쉼표로 구분해 입력하면 해당 용어만 해설해줘요.",
+      "placeholder": "예: JWT, CORS, OAuth",
+      "submit": "용어 해설 받기"
+    },
+    "picker": {
+      "title": "어떤 방식으로 해설을 받을까요?",
+      "auto": {
+        "title": "전체 용어 해설",
+        "description": "AI가 용어를 자동으로 추출해서 핵심만 정리해줘요."
+      },
+      "custom": {
+        "title": "내가 원하는 용어만",
+        "description": "원하는 용어를 쉼표로 구분해 입력해요.",
+        "placeholder": "예: JWT, CORS, OAuth"
+      },
+      "cancel": "취소",
+      "submit": "시작하기"
+    }
+  },
+  "FullscreenMapPage": {
+    "fallbackTitle": "구조맵",
+    "backToList": "목록",
+    "mode": {
+      "editing": "편집중",
+      "view": "보기"
+    },
+    "tabs": {
+      "info": "정보",
+      "notes": "노트",
+      "terms": "용어"
+    },
+    "status": {
+      "loading": "불러오는 중",
+      "loadFailed": "불러오기 실패",
+      "fetchError": "구조맵을 불러오지 못했어요"
+    },
+    "modeBadge": {
+      "edit": "편집모드: 노드 수정/추가 가능",
+      "view": "보기모드: 흐름을 집중해서 확인"
+    },
+    "actions": {
+      "delete": "삭제"
+    },
+    "deleteConfirm": {
+      "title": "구조맵을 삭제할까요?",
+      "description": "삭제하면 복구할 수 없어요. 계속 진행할까요?",
+      "action": "삭제",
+      "actionDeleting": "삭제 중..."
+    }
+  },
+  "FullscreenDialog": {
+    "fallbackTitle": "구조맵",
+    "title": "구조맵 미리보기",
+    "close": "닫기",
+    "goList": "내 맵",
+    "mode": {
+      "editing": "편집중",
+      "view": "보기"
+    },
+    "tabs": {
+      "info": "정보",
+      "notes": "노트",
+      "terms": "용어"
+    },
+    "status": {
+      "fetchError": "구조맵을 불러오지 못했어요"
+    },
+    "modeBadge": {
+      "edit": "편집모드: 노드 수정/추가 가능",
+      "view": "보기모드: 흐름을 집중해서 확인"
+    }
   }
 }

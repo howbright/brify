@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
+import { useTranslations } from "next-intl";
 import LeftPanel from "@/components/maps/LeftPanel";
 import RightPanel from "@/components/maps/RightPanel";
 import ClientMindElixir from "@/components/ClientMindElixir";
@@ -64,6 +65,7 @@ function toDraft(row: MapRow): MapDraft {
 }
 
 export default function MapDetailPage() {
+  const t = useTranslations("FullscreenMapPage");
   const params = useParams();
   const router = useRouter();
   const { resolvedTheme } = useTheme();
@@ -129,7 +131,7 @@ export default function MapDetailPage() {
     };
   }, [mapId]);
 
-  const title = useMemo(() => draft?.title ?? "구조맵", [draft?.title]);
+  const title = useMemo(() => draft?.title ?? t("fallbackTitle"), [draft?.title, t]);
 
   const openMeta = () => {
     setLeftOpen((v) => {
@@ -295,7 +297,7 @@ export default function MapDetailPage() {
               className="inline-flex items-center gap-1.5 rounded-2xl border border-transparent bg-neutral-100/70 px-3 py-1.5 text-xs font-semibold text-neutral-600 hover:bg-neutral-200/70 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/[0.12] whitespace-nowrap"
             >
               <Icon icon="mdi:arrow-left" className="h-4 w-4" />
-              목록
+              {t("backToList")}
             </button>
             <div className="text-sm font-semibold text-neutral-900 dark:text-white/90 truncate">
               {title}
@@ -306,7 +308,7 @@ export default function MapDetailPage() {
             <ToolbarToggle
               pressed={editMode === "edit"}
               icon={editMode === "edit" ? "mdi:pencil" : "mdi:eye-outline"}
-              label={editMode === "edit" ? "편집중" : "보기"}
+              label={editMode === "edit" ? t("mode.editing") : t("mode.view")}
               onClick={() =>
                 setEditMode((m) => (m === "view" ? "edit" : "view"))
               }
@@ -315,21 +317,21 @@ export default function MapDetailPage() {
             <ToolbarToggle
               pressed={leftOpen}
               icon="mdi:information-outline"
-              label="정보"
+              label={t("tabs.info")}
               onClick={openMeta}
             />
 
             <ToolbarToggle
               pressed={rightOpen && rightTab === "notes"}
               icon="mdi:clipboard-text-outline"
-              label="노트"
+              label={t("tabs.notes")}
               onClick={openDetails}
             />
 
             <ToolbarToggle
               pressed={rightOpen && rightTab === "terms"}
               icon="mdi:book-open-variant"
-              label="용어"
+              label={t("tabs.terms")}
               onClick={openTerms}
             />
 
@@ -350,7 +352,7 @@ export default function MapDetailPage() {
                   role="menu"
                   className="absolute right-0 mt-2 min-w-[140px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]"
                 >
-                  <button
+                    <button
                     type="button"
                     onClick={() => {
                       setMoreOpen(false);
@@ -360,7 +362,7 @@ export default function MapDetailPage() {
                   >
                     <span className="inline-flex items-center gap-2">
                       <Icon icon="mdi:trash-outline" className="h-4 w-4" />
-                      삭제
+                      {t("actions.delete")}
                     </span>
                   </button>
                 </div>
@@ -369,8 +371,8 @@ export default function MapDetailPage() {
           </div>
 
           <div className="hidden sm:flex items-center gap-2 text-[11px] text-neutral-500 dark:text-white/60">
-            {loading ? "불러오는 중" : ""}
-            {!loading && error ? "불러오기 실패" : ""}
+            {loading ? t("status.loading") : ""}
+            {!loading && error ? t("status.loadFailed") : ""}
           </div>
         </div>
       </header>
@@ -398,8 +400,8 @@ export default function MapDetailPage() {
           <span className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white/80 px-2.5 py-1 text-[11px] text-neutral-600 dark:border-white/10 dark:bg-[#0b1220]/60 dark:text-white/65">
             <Icon icon="mdi:gesture-tap" className="h-3.5 w-3.5" />
             {editMode === "edit"
-              ? "편집모드: 노드 수정/추가 가능"
-              : "보기모드: 흐름을 집중해서 확인"}
+              ? t("modeBadge.edit")
+              : t("modeBadge.view")}
           </span>
         </div>
 
@@ -407,7 +409,7 @@ export default function MapDetailPage() {
           <div className="absolute left-4 top-3 z-[15]">
             <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
               <Icon icon="mdi:alert-circle-outline" className="h-3.5 w-3.5" />
-              구조맵을 불러오지 못했어요
+              {t("status.fetchError")}
             </span>
           </div>
         )}
@@ -453,9 +455,11 @@ export default function MapDetailPage() {
           setConfirmDeleteOpen(false);
           handleDelete();
         }}
-        title="구조맵을 삭제할까요?"
-        description="삭제하면 복구할 수 없어요. 계속 진행할까요?"
-        actionLabel={isDeleting ? "삭제 중..." : "삭제"}
+        title={t("deleteConfirm.title")}
+        description={t("deleteConfirm.description")}
+        actionLabel={
+          isDeleting ? t("deleteConfirm.actionDeleting") : t("deleteConfirm.action")
+        }
       />
     </div>
   );

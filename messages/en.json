@@ -706,5 +706,145 @@
       "failed": "Something went wrong. ({error})",
       "network": "Network error. ({message})"
     }
+  },
+  "LeftPanel": {
+    "title": "Details",
+    "edit": "Edit",
+    "close": "Close",
+    "untitled": "Untitled",
+    "created": "Created",
+    "updated": "Updated",
+    "credits": "Credits used",
+    "sourceSection": "Source",
+    "thumbnailPlaceholder": "thumbnail",
+    "sourceType": "Source type",
+    "channel": "Channel/Author",
+    "none": "None",
+    "sourceLink": "Original link",
+    "tagsSection": "Tags",
+    "noTags": "No tags",
+    "descriptionSection": "Description",
+    "noDescription": "No description"
+  },
+  "RightPanel": {
+    "tabs": {
+      "notes": "Notes",
+      "terms": "Terms"
+    },
+    "closeAria": "Close panel",
+    "closeTitle": "Close",
+    "notes": {
+      "helper": "Write down any thoughts while reviewing the structure map.",
+      "placeholder": "Write a note… (Press Enter to add)",
+      "add": "Add",
+      "loading": "Loading notes…",
+      "empty": "No notes yet."
+    },
+    "errors": {
+      "notes": {
+        "fetch": "Failed to load notes.",
+        "add": "Failed to add note.",
+        "delete": "Failed to delete note.",
+        "update": "Failed to update note."
+      },
+      "terms": {
+        "fetch": "Failed to load terms.",
+        "statusFetch": "Failed to fetch term status.",
+        "generateFail": "Failed to generate term explanations.",
+        "statusFail": "Couldn't check term status.",
+        "autoStartFail": "Failed to start term extraction.",
+        "customStartFail": "Failed to start term explanations.",
+        "requestFail": "Failed to request term explanations.",
+        "deleteFail": "Failed to delete term."
+      },
+      "auth": {
+        "session": "Failed to get session: {message}",
+        "login": "Login required."
+      },
+      "env": {
+        "missingApiBase": "Missing NEXT_PUBLIC_API_BASE_URL."
+      }
+    }
+  },
+  "TermsBlock": {
+    "helper": "Difficult terms will be summarized automatically.",
+    "loading": "Generating term explanations…",
+    "delete": "Delete",
+    "cta": "AI Term Explanations",
+    "usedCount": "Used {count} time(s) in this session.",
+    "customInline": {
+      "toggle": "Add more terms to explain",
+      "title": "Explain only the terms you want",
+      "description": "Separate terms with commas to explain only those terms.",
+      "placeholder": "e.g., JWT, CORS, OAuth",
+      "submit": "Get explanations"
+    },
+    "picker": {
+      "title": "How would you like to get explanations?",
+      "auto": {
+        "title": "Explain all terms",
+        "description": "AI automatically extracts terms and summarizes the essentials."
+      },
+      "custom": {
+        "title": "Only the terms I choose",
+        "description": "Enter terms separated by commas.",
+        "placeholder": "e.g., JWT, CORS, OAuth"
+      },
+      "cancel": "Cancel",
+      "submit": "Start"
+    }
+  },
+  "FullscreenMapPage": {
+    "fallbackTitle": "Structure Map",
+    "backToList": "Back",
+    "mode": {
+      "editing": "Editing",
+      "view": "View"
+    },
+    "tabs": {
+      "info": "Info",
+      "notes": "Notes",
+      "terms": "Terms"
+    },
+    "status": {
+      "loading": "Loading",
+      "loadFailed": "Load failed",
+      "fetchError": "We couldn't load the structure map."
+    },
+    "modeBadge": {
+      "edit": "Edit mode: you can edit/add nodes",
+      "view": "View mode: focus on the flow"
+    },
+    "actions": {
+      "delete": "Delete"
+    },
+    "deleteConfirm": {
+      "title": "Delete this structure map?",
+      "description": "This action can’t be undone. Do you want to continue?",
+      "action": "Delete",
+      "actionDeleting": "Deleting..."
+    }
+  },
+  "FullscreenDialog": {
+    "fallbackTitle": "Structure Map",
+    "title": "Structure Map Preview",
+    "close": "Close",
+    "goList": "My maps",
+    "mode": {
+      "editing": "Editing",
+      "view": "View"
+    },
+    "tabs": {
+      "info": "Info",
+      "notes": "Notes",
+      "terms": "Terms"
+    },
+    "status": {
+      "fetchError": "We couldn't load the structure map."
+    },
+    "modeBadge": {
+      "edit": "Edit mode: you can edit/add nodes",
+      "view": "View mode: focus on the flow"
+    }
   }
 }
