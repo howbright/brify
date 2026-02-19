@@ -58,6 +58,7 @@ function toDraft(row: MapRow): MapDraft {
     thumbnailUrl: row.thumbnail_url ? withCacheBuster(row.thumbnail_url) : undefined,
     tags: Array.isArray(row.tags) ? row.tags : [],
     description: row.description ?? undefined,
+    summary: row.summary ?? undefined,
     status: coerceMapStatus(row.map_status),
     creditsCharged:
       typeof row.credits_charged === "number" ? row.credits_charged : undefined,
@@ -100,7 +101,7 @@ export default function MapDetailPage() {
         const { data, error } = await supabase
           .from("maps")
           .select(
-            "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,thumbnail_url,map_status,credits_charged,mind_elixir"
+            "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,mind_elixir"
           )
           .eq("id", mapId)
           .single();

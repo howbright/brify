@@ -127,6 +127,30 @@ export default function LeftPanel({
 
         {/* body */}
         <div className="relative h-[calc(100%-64px)] overflow-y-auto px-4 py-4">
+          {map.summary ? (
+            <section className="mb-4">
+              <div className="mb-2.5 flex items-center gap-2">
+                <div className="h-5 w-1 rounded-full bg-blue-200 dark:bg-blue-500/40" />
+                <h3 className="text-xs font-semibold text-neutral-900 dark:text-white/85">
+                  한문단요약
+                </h3>
+              </div>
+              <div
+                className="
+                  rounded-3xl border border-blue-200/70 bg-blue-50/60 p-3.5
+                  text-[12px] leading-5 text-neutral-700
+                  shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)]
+                  dark:border-blue-300/20 dark:bg-blue-500/10 dark:text-white/80
+                  dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]
+                "
+              >
+                <p className="whitespace-pre-wrap break-words">
+                  {map.summary}
+                </p>
+              </div>
+            </section>
+          ) : null}
+
           {/* 출처 */}
           <Section title={t("sourceSection")}>
             <div className="flex gap-3">
