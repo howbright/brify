@@ -1,4 +1,6 @@
-export type Json =
+Need to install the following packages:
+supabase@2.76.10
+Ok to proceed? (y) export type Json =
   | string
   | number
   | boolean
@@ -276,6 +278,7 @@ export type Database = {
       }
       maps: {
         Row: {
+          ai_processing_ms: number | null
           channel_name: string | null
           created_at: string
           credits_charged: number
@@ -292,8 +295,10 @@ export type Database = {
           output_language: string | null
           required_credits: number
           schema_version: number
+          source_char_count: number | null
           source_type: Database["public"]["Enums"]["map_source_type"]
           source_url: string | null
+          summary: string | null
           tags: string[]
           thumbnail_url: string | null
           title: string
@@ -301,6 +306,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ai_processing_ms?: number | null
           channel_name?: string | null
           created_at?: string
           credits_charged?: number
@@ -317,8 +323,10 @@ export type Database = {
           output_language?: string | null
           required_credits?: number
           schema_version?: number
+          source_char_count?: number | null
           source_type?: Database["public"]["Enums"]["map_source_type"]
           source_url?: string | null
+          summary?: string | null
           tags?: string[]
           thumbnail_url?: string | null
           title: string
@@ -326,6 +334,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ai_processing_ms?: number | null
           channel_name?: string | null
           created_at?: string
           credits_charged?: number
@@ -342,8 +351,10 @@ export type Database = {
           output_language?: string | null
           required_credits?: number
           schema_version?: number
+          source_char_count?: number | null
           source_type?: Database["public"]["Enums"]["map_source_type"]
           source_url?: string | null
+          summary?: string | null
           tags?: string[]
           thumbnail_url?: string | null
           title?: string

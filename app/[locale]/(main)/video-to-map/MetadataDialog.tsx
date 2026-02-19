@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import { resizeToWebp, validateImageFile } from "@/utils/image";
 
@@ -57,6 +58,7 @@ export default function MetadataDialog({
   processingMessage,
   processingBullets = [],
 }: Props) {
+  const t = useTranslations("MetadataDialog");
   const [sourceUrl, setSourceUrl] = useState(initial.sourceUrl ?? "");
   const [title, setTitle] = useState(initial.title ?? "");
   const [channelName, setChannelName] = useState(initial.channelName ?? "");
@@ -92,24 +94,24 @@ export default function MetadataDialog({
 
     try {
       const url = sourceUrl.trim();
-      if (!url) throw new Error("유튜브 URL을 입력해 주세요.");
+      if (!url) throw new Error(t("errors.youtubeUrlRequired"));
 
       const supabase = createClient();
       const { data: sessionData, error: sessionErr } =
         await supabase.auth.getSession();
 
       if (sessionErr) {
-        throw new Error("세션을 가져오지 못했습니다: " + sessionErr.message);
+        throw new Error(t("errors.sessionFailed", { message: sessionErr.message }));
       }
 
       const accessToken = sessionData.session?.access_token;
       if (!accessToken) {
-        throw new Error("로그인이 필요합니다.");
+        throw new Error(t("errors.loginRequired"));
       }
 
       const base = process.env.NEXT_PUBLIC_API_BASE_URL;
       if (!base) {
-        throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
+        throw new Error(t("errors.missingApiBase"));
       }
 
       const res = await fetch(`${base}/youtube-scripts/meta`, {
@@ -124,7 +126,7 @@ export default function MetadataDialog({
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
         const msg =
-          json?.message || json?.error || "유튜브 정보를 가져오지 못했습니다.";
+          json?.message || json?.error || t("errors.youtubeFetchFailed");
         throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
       }
 
@@ -140,7 +142,7 @@ export default function MetadataDialog({
       // ✅ 유튜브 자동 채우기를 성공하면 "수동 업로드 상태"는 해제 (충돌 방지)
       clearManualUploadState();
     } catch (e: any) {
-      setYoutubeMetaError(e?.message ?? "유튜브 정보를 가져오지 못했습니다.");
+      setYoutubeMetaError(e?.message ?? t("errors.youtubeFetchFailed"));
     } finally {
       setIsFetchingYoutubeMeta(false);
     }
@@ -173,7 +175,7 @@ export default function MetadataDialog({
       // UI에는 preview 표시
       setThumbnailUrl(preview);
     } catch (e: any) {
-      setThumbUploadError(e?.message ?? "이미지 파일이 올바르지 않습니다.");
+      setThumbUploadError(e?.message ?? t("errors.invalidImage"));
       setThumbFile(null);
     }
   };
@@ -181,7 +183,7 @@ export default function MetadataDialog({
   const requireTitle = () => {
     const v = title.trim();
     if (!v) {
-      setTitleError("제목은 필수 항목입니다. 제목을 입력해 주세요.");
+      setTitleError(t("errors.titleRequired"));
       return false;
     }
     return true;
@@ -199,7 +201,7 @@ export default function MetadataDialog({
     try {
       // ✅ 저장 시 업로드인데 mapId가 없으면 업로드 불가
       if (!mapId) {
-        throw new Error("mapId가 없어 썸네일을 업로드할 수 없습니다.");
+        throw new Error(t("errors.missingMapId"));
       }
 
       validateImageFile(file, 5);
@@ -211,7 +213,7 @@ export default function MetadataDialog({
       } = await supabase.auth.getUser();
 
       if (userErr || !user) {
-        throw new Error("로그인이 필요합니다.");
+        throw new Error(t("errors.loginRequired"));
       }
 
       // ✅ 리사이즈 + webp 변환
@@ -233,7 +235,7 @@ export default function MetadataDialog({
       const { data } = supabase.storage.from("thumbnails").getPublicUrl(objectPath);
       return data.publicUrl;
     } catch (e: any) {
-      setThumbUploadError(e?.message ?? "썸네일 업로드에 실패했습니다.");
+      setThumbUploadError(e?.message ?? t("errors.thumbnailUploadFailed"));
       throw e;
     } finally {
       setIsUploadingThumb(false);
@@ -275,7 +277,7 @@ export default function MetadataDialog({
   const isBusy = isFetchingYoutubeMeta || isUploadingThumb;
 
   return (
-    <div className="fixed inset-0 z-50">
+      <div className="fixed inset-0 z-50">
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm dark:bg-black/65"
         onClick={handleTryClose}
@@ -333,10 +335,10 @@ export default function MetadataDialog({
               </div>
               <div className="min-w-0">
                 <p className="font-semibold text-neutral-900 dark:text-white">
-                  콘텐츠 정보 입력
+                  {processingTitle ?? t("title")}
                 </p>
                 <p className="text-xs text-neutral-500 dark:text-white/60 break-words">
-                  제목은 필수이며, 나머지는 선택입니다.
+                  {processingMessage ?? t("subtitle")}
                 </p>
               </div>
             </div>
@@ -362,14 +364,14 @@ export default function MetadataDialog({
             {/* URL */}
             <div className="grid gap-1.5 min-w-0">
               <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">
-                URL (선택)
+                {t("fields.url")}
               </label>
 
               <div className="flex flex-col sm:flex-row gap-2 min-w-0">
                 <input
                   value={sourceUrl}
                   onChange={(e) => setSourceUrl(e.target.value)}
-                  placeholder="https://youtube.com/watch?v=..."
+                  placeholder={t("placeholders.url")}
                   className="
                     w-full min-w-0
                     rounded-2xl border border-neutral-200 bg-neutral-50
@@ -397,7 +399,7 @@ export default function MetadataDialog({
                     whitespace-nowrap
                   "
                 >
-                  {isFetchingYoutubeMeta ? "불러오는 중..." : "유튜브로 자동 채우기"}
+                  {isFetchingYoutubeMeta ? t("buttons.youtubeLoading") : t("buttons.youtubeAutofill")}
                 </button>
               </div>
 
@@ -408,9 +410,7 @@ export default function MetadataDialog({
               )}
 
               <p className="text-[11px] text-neutral-500 dark:text-white/60 break-words">
-                {youtube
-                  ? "유튜브 URL이라면 제목/채널/썸네일을 자동으로 채울 수 있습니다."
-                  : "유튜브 URL이 아니라면 아래 항목을 직접 입력해 주세요."}
+                {youtube ? t("hints.youtubeUrl") : t("hints.nonYoutubeUrl")}
               </p>
             </div>
 
@@ -419,7 +419,7 @@ export default function MetadataDialog({
               <div className="grid gap-1.5 min-w-0">
                 <div className="flex items-center justify-between gap-2 min-w-0">
                   <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-100">
-                    제목 <span className="text-rose-500">*</span>
+                    {t("fields.title")} <span className="text-rose-500">*</span>
                   </label>
                   <span className="text-[11px] text-neutral-500 dark:text-white/60 flex-shrink-0">
                     {titleCounter}
@@ -429,7 +429,7 @@ export default function MetadataDialog({
                 <input
                   value={title}
                   onChange={(e) => setTitle(e.target.value.slice(0, 200))}
-                  placeholder="예: 콘텐츠 제목을 입력해 주세요"
+                  placeholder={t("placeholders.title")}
                   className={`
                     w-full min-w-0
                     rounded-2xl border bg-neutral-50 px-3 py-2 text-sm
@@ -451,12 +451,12 @@ export default function MetadataDialog({
 
               <div className="grid gap-1.5 min-w-0">
                 <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-100">
-                  채널/출처 (선택)
+                  {t("fields.channel")}
                 </label>
                 <input
                   value={channelName}
                   onChange={(e) => setChannelName(e.target.value)}
-                  placeholder="채널명 / 작성자 / 출처"
+                  placeholder={t("placeholders.channel")}
                   className="
                     w-full min-w-0
                     rounded-2xl border border-neutral-200 bg-neutral-50
@@ -471,7 +471,7 @@ export default function MetadataDialog({
             {/* Thumbnail */}
             <div className="grid gap-1.5 min-w-0">
               <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-100">
-                썸네일 (선택)
+                {t("fields.thumbnail")}
               </label>
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 min-w-0">
@@ -492,7 +492,7 @@ export default function MetadataDialog({
                     />
                   ) : (
                     <div className="h-full w-full flex items-center justify-center text-[11px] text-neutral-400 dark:text-white/40">
-                      no image
+                      {t("thumbnail.empty")}
                     </div>
                   )}
                 </div>
@@ -505,7 +505,7 @@ export default function MetadataDialog({
                       // URL 직접 수정하면 파일 업로드 상태는 해제(충돌 방지)
                       clearManualUploadState();
                     }}
-                    placeholder="(선택) 썸네일 URL"
+                    placeholder={t("placeholders.thumbnailUrl")}
                     className="
                       w-full min-w-0
                       rounded-2xl border border-neutral-200 bg-neutral-50
@@ -526,7 +526,7 @@ export default function MetadataDialog({
                       "
                     >
                       <Icon icon="mdi:upload" className="h-4 w-4" />
-                      썸네일 업로드
+                      {t("buttons.uploadThumbnail")}
                       <input
                         type="file"
                         accept="image/*"
@@ -539,7 +539,7 @@ export default function MetadataDialog({
 
                     {isUploadingThumb && (
                       <span className="text-[12px] text-neutral-500 dark:text-white/60">
-                        업로드 중...
+                        {t("status.uploading")}
                       </span>
                     )}
                   </div>
@@ -552,7 +552,7 @@ export default function MetadataDialog({
 
                   {thumbFile && !thumbUploadError && (
                     <p className="text-[11px] text-neutral-500 dark:text-white/60 break-words">
-                      선택한 이미지는 저장 시 자동 업로드됩니다. (5MB 이하, webp 변환)
+                      {t("thumbnail.uploadHint")}
                     </p>
                   )}
                 </div>
@@ -562,12 +562,12 @@ export default function MetadataDialog({
             {/* Tags */}
             <div className="grid gap-1.5 min-w-0">
               <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-100">
-                태그 (선택)
+                {t("fields.tags")}
               </label>
               <input
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                placeholder="회의, 마케팅, 기획, OKR (쉼표로 구분)"
+                placeholder={t("placeholders.tags")}
                 className="
                   w-full min-w-0
                   rounded-2xl border border-neutral-200 bg-neutral-50
@@ -577,19 +577,19 @@ export default function MetadataDialog({
                 "
               />
               <p className="text-[11px] text-neutral-500 dark:text-white/60 break-words">
-                쉼표로 구분해 입력하시면 태그로 저장됩니다.
+                {t("hints.tags")}
               </p>
             </div>
 
             {/* Description */}
             <div className="grid gap-1.5 min-w-0">
               <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-100">
-                설명 (선택)
+                {t("fields.description")}
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="이 구조맵에 대한 메모/요약/설명 등을 입력해 주세요."
+                placeholder={t("placeholders.description")}
                 className="
                   w-full min-w-0
                   min-h-[110px] resize-y rounded-2xl
@@ -613,14 +613,14 @@ export default function MetadataDialog({
               backdrop-blur-md
             "
           >
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-              <div className="text-[11px] text-neutral-500 dark:text-white/60 break-words">
-                제목 입력 후 저장하시면 구조맵 목록에서 관리하실 수 있습니다.
-              </div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+            <div className="text-[11px] text-neutral-500 dark:text-white/60 break-words">
+              {t("footerHint")}
+            </div>
 
-              <button
-                onClick={handleSave}
-                disabled={isBusy}
+            <button
+              onClick={handleSave}
+              disabled={isBusy}
                 className="
                   w-full sm:w-auto sm:ml-auto
                   rounded-2xl px-4 py-2 text-sm font-semibold text-white
@@ -628,10 +628,10 @@ export default function MetadataDialog({
                   dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
                   disabled:opacity-50 disabled:cursor-not-allowed
                 "
-              >
-                {isUploadingThumb ? "업로드 중..." : "저장하고 계속하기"}
-              </button>
-            </div>
+            >
+              {isUploadingThumb ? t("status.uploading") : t("buttons.save")}
+            </button>
+          </div>
           </div>
         </div>
       </div>

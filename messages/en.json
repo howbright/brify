@@ -846,5 +846,55 @@
       "edit": "Edit mode: you can edit/add nodes",
       "view": "View mode: focus on the flow"
     }
+  },
+  "MetadataDialog": {
+    "title": "Content Details",
+    "subtitle": "Title is required; everything else is optional.",
+    "fields": {
+      "url": "URL (optional)",
+      "title": "Title",
+      "channel": "Channel/Source (optional)",
+      "thumbnail": "Thumbnail (optional)",
+      "tags": "Tags (optional)",
+      "description": "Description (optional)"
+    },
+    "placeholders": {
+      "url": "https://youtube.com/watch?v=...",
+      "title": "e.g., Enter a content title",
+      "channel": "Channel / Author / Source",
+      "thumbnailUrl": "(optional) Thumbnail URL",
+      "tags": "meeting, marketing, planning, OKR (comma-separated)",
+      "description": "Add notes, summary, or description for this structure map."
+    },
+    "buttons": {
+      "youtubeAutofill": "Autofill from YouTube",
+      "youtubeLoading": "Loading...",
+      "uploadThumbnail": "Upload thumbnail",
+      "save": "Save and continue"
+    },
+    "hints": {
+      "youtubeUrl": "If this is a YouTube URL, we can autofill title/channel/thumbnail.",
+      "nonYoutubeUrl": "If it's not a YouTube URL, please fill in the fields below.",
+      "tags": "Separate tags with commas to save them."
+    },
+    "thumbnail": {
+      "empty": "no image",
+      "uploadHint": "Selected image will upload on save. (<=5MB, webp conversion)"
+    },
+    "status": {
+      "uploading": "Uploading..."
+    },
+    "footerHint": "After entering a title and saving, you can manage it in your maps list.",
+    "errors": {
+      "youtubeUrlRequired": "Please enter a YouTube URL.",
+      "sessionFailed": "Failed to get session: {message}",
+      "loginRequired": "Login required.",
+      "missingApiBase": "Missing NEXT_PUBLIC_API_BASE_URL.",
+      "youtubeFetchFailed": "Failed to fetch YouTube metadata.",
+      "invalidImage": "The image file is invalid.",
+      "titleRequired": "Title is required. Please enter a title.",
+      "missingMapId": "Missing mapId. Can't upload thumbnail.",
+      "thumbnailUploadFailed": "Failed to upload thumbnail."
+    }
   }
 }
