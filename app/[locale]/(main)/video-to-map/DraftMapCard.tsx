@@ -4,6 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { MapDraft } from "./types";
 
+const MS_PER_CHAR = 112610 / 8460;
+const PROGRESS_CAP = 97;
+
 export default function DraftMapCard({
   draft,
   onEditMetadata,
@@ -26,6 +29,7 @@ export default function DraftMapCard({
     []
   );
   const [processingIndex, setProcessingIndex] = useState(0);
+  const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
     if (draft.status !== "processing") return;
@@ -34,6 +38,25 @@ export default function DraftMapCard({
     }, 2500);
     return () => window.clearInterval(timer);
   }, [draft.status, processingMessages.length]);
+
+  useEffect(() => {
+    if (draft.status !== "processing") return;
+    const tick = window.setInterval(() => setNow(Date.now()), 800);
+    return () => window.clearInterval(tick);
+  }, [draft.status]);
+
+  const expectedMs =
+    draft.sourceCharCount && draft.sourceCharCount > 0
+      ? Math.max(1, Math.round(draft.sourceCharCount * MS_PER_CHAR))
+      : null;
+  const elapsedMs = Math.max(0, now - draft.createdAt);
+  const progressPercent =
+    draft.status === "processing" && expectedMs
+      ? Math.min(
+          PROGRESS_CAP,
+          Math.max(1, Math.floor((elapsedMs / expectedMs) * 100))
+        )
+      : null;
 
   const badge =
     draft.status === "done"
@@ -134,6 +157,17 @@ export default function DraftMapCard({
               </span>
             )}
             <span>{badge.text}</span>
+            {draft.status === "processing" && progressPercent !== null && (
+              <span className="ml-1.5 inline-flex items-center gap-1.5 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums">
+                {progressPercent}%
+                <span className="h-1.5 w-16 overflow-hidden rounded-full bg-white/30">
+                  <span
+                    className="block h-full rounded-full bg-white transition-[width] duration-500 ease-out"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </span>
+              </span>
+            )}
           </span>
         </div>
 
@@ -142,6 +176,8 @@ export default function DraftMapCard({
           {draft.channelName ? draft.channelName : "출처 없음"}
           {draft.sourceUrl ? " · URL 있음" : ""}
         </p>
+
+        
 
         {draft.tags?.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5">

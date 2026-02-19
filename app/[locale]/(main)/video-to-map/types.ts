@@ -12,6 +12,8 @@ export type MapDraft = {
   channelName?: string;
   tags: string[];
   description?: string;
+  summary?: string;
+  sourceCharCount?: number;
 
   // 썸네일: 프로토타입이라 URL or 로컬 미리보기
   thumbnailUrl?: string;

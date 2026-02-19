@@ -491,6 +491,7 @@ export default function VideoToMapPage() {
         if (prev.some((d) => d.id === mapId)) return prev;
 
         const sourceUrl = youtubeMeta?.sourceUrl || youtubeUrl || undefined;
+        const normalized = normalizeForBilling(scriptText);
         const optimisticDraft: MapDraft = {
           id: mapId,
           createdAt: Date.now(),
@@ -501,6 +502,7 @@ export default function VideoToMapPage() {
           thumbnailUrl: youtubeMeta?.thumbnailUrl ?? undefined,
           tags: [],
           description: "",
+          sourceCharCount: normalized.length || undefined,
           status: "processing",
         };
 
@@ -626,9 +628,7 @@ export default function VideoToMapPage() {
         if (latestDraft) {
           const exists = prev.some((d) => d.id === id);
           if (exists) {
-            return prev.map((d) =>
-              d.id === id ? { ...d, ...latestDraft } : d
-            );
+            return prev.map((d) => (d.id === id ? { ...d, ...latestDraft } : d));
           }
           return [latestDraft, ...prev];
         }
