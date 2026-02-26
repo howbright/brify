@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTheme } from "next-themes";
 import { sampled } from "@/app/lib/g6/sampleData";
 import "@mind-elixir/node-menu/dist/style.css";
@@ -18,12 +25,22 @@ type ClientMindElixirProps = {
   openMenuOnClick?: boolean;
 };
 
+export type ClientMindElixirHandle = {
+  expandAll: () => void;
+  collapseAll: () => void;
+  expandOneLevel: () => void;
+  collapseOneLevel: () => void;
+  expandToLevel: (level: number) => void;
+  collapseToLevel: (level: number) => void;
+};
+
 type AnyNode = {
   id: string;
   topic: string;
   root?: boolean;
   branchColor?: string;
   children?: AnyNode[];
+  expanded?: boolean;
 };
 
 function safePaletteFromThemeObj(themeObj: any) {
@@ -86,6 +103,65 @@ function getMindData(mind: any): AnyNode | null {
   if (raw?.nodeData) return raw.nodeData as AnyNode;
 
   return raw as AnyNode;
+}
+
+function normalizeMindData(raw: any): { data: any; node: AnyNode } | null {
+  if (!raw) return null;
+  if (raw?.nodeData) return { data: raw, node: raw.nodeData as AnyNode };
+  return { data: { nodeData: raw }, node: raw as AnyNode };
+}
+
+function cloneMindData<T>(data: T): T {
+  try {
+    if (typeof structuredClone === "function") return structuredClone(data);
+  } catch {}
+  try {
+    return JSON.parse(JSON.stringify(data)) as T;
+  } catch {
+    return data;
+  }
+}
+
+function getMaxDepth(node: AnyNode, depth = 0): number {
+  if (!node.children || node.children.length === 0) return depth;
+  let max = depth;
+  for (const child of node.children) {
+    max = Math.max(max, getMaxDepth(child, depth + 1));
+  }
+  return max;
+}
+
+function getMaxExpandedDepth(node: AnyNode, depth = 0): number {
+  const isExpanded = node.expanded !== false;
+  if (!isExpanded || !node.children || node.children.length === 0) return depth;
+  let max = depth;
+  for (const child of node.children) {
+    max = Math.max(max, getMaxExpandedDepth(child, depth + 1));
+  }
+  return max;
+}
+
+function setAllExpanded(node: AnyNode, expanded: boolean) {
+  node.expanded = expanded;
+  node.children?.forEach((child) => setAllExpanded(child, expanded));
+}
+
+function setExpandedToLevel(node: AnyNode, level: number, depth = 0) {
+  node.expanded = depth < level;
+  node.children?.forEach((child) => setExpandedToLevel(child, level, depth + 1));
+}
+
+function centerMap(mind: any) {
+  if (!mind) return;
+  requestAnimationFrame(() => {
+    if (typeof mind.toCenter === "function") {
+      mind.toCenter();
+      return;
+    }
+    if (typeof mind.scaleFit === "function") {
+      mind.scaleFit();
+    }
+  });
 }
 
 /**
@@ -199,19 +275,24 @@ function applyBranchBorderColors(params: {
   applyDom(data, 0);
 }
 
-export default function ClientMindElixir({
-  mode = "auto",
-  theme,
-  data,
-  placeholderData,
-  loading = false,
-  zoomSensitivity = 0.1,
-  dragButton = 0,
-  fitOnInit = true,
-  openMenuOnClick = true,
-}: ClientMindElixirProps) {
+const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProps>(
+  function ClientMindElixir(
+    {
+      mode = "auto",
+      theme,
+      data,
+      placeholderData,
+      loading = false,
+      zoomSensitivity = 0.1,
+      dragButton = 0,
+      fitOnInit = true,
+      openMenuOnClick = true,
+    },
+    ref
+  ) {
   const elRef = useRef<HTMLDivElement>(null);
   const mindRef = useRef<any>(null);
+  const currentLevelRef = useRef(0);
 
   const { resolvedTheme } = useTheme();
 
@@ -235,6 +316,105 @@ export default function ClientMindElixir({
   const initialData = useMemo(() => {
     return data ?? placeholderData ?? sampled;
   }, [data, placeholderData]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      expandAll: () => {
+        const mind = mindRef.current;
+        if (!mind) return;
+        const raw = mind.getData?.() ?? mind.getAllData?.();
+        const normalized = normalizeMindData(raw);
+        if (!normalized) return;
+        const next = cloneMindData(normalized.data);
+        const nextNode = normalizeMindData(next)?.node;
+        if (!nextNode) return;
+        setAllExpanded(nextNode, true);
+        mind.refresh?.(next);
+        currentLevelRef.current = getMaxDepth(nextNode);
+        centerMap(mind);
+      },
+      collapseAll: () => {
+        const mind = mindRef.current;
+        if (!mind) return;
+        const raw = mind.getData?.() ?? mind.getAllData?.();
+        const normalized = normalizeMindData(raw);
+        if (!normalized) return;
+        const next = cloneMindData(normalized.data);
+        const nextNode = normalizeMindData(next)?.node;
+        if (!nextNode) return;
+        // 루트 + 1단계 자식까지 보이도록
+        setExpandedToLevel(nextNode, 1);
+        mind.refresh?.(next);
+        currentLevelRef.current = 1;
+        centerMap(mind);
+      },
+      expandOneLevel: () => {
+        const mind = mindRef.current;
+        if (!mind) return;
+        const raw = mind.getData?.() ?? mind.getAllData?.();
+        const normalized = normalizeMindData(raw);
+        if (!normalized) return;
+        const next = cloneMindData(normalized.data);
+        const nextNode = normalizeMindData(next)?.node;
+        if (!nextNode) return;
+        const maxDepth = getMaxDepth(nextNode);
+        const current =
+          currentLevelRef.current ?? getMaxExpandedDepth(nextNode);
+        const target = Math.min(maxDepth + 1, current + 1);
+        setExpandedToLevel(nextNode, target);
+        mind.refresh?.(next);
+        currentLevelRef.current = target;
+        centerMap(mind);
+      },
+      collapseOneLevel: () => {
+        const mind = mindRef.current;
+        if (!mind) return;
+        const raw = mind.getData?.() ?? mind.getAllData?.();
+        const normalized = normalizeMindData(raw);
+        if (!normalized) return;
+        const next = cloneMindData(normalized.data);
+        const nextNode = normalizeMindData(next)?.node;
+        if (!nextNode) return;
+        const current =
+          currentLevelRef.current ?? getMaxExpandedDepth(nextNode);
+        const target = Math.max(0, current - 1);
+        setExpandedToLevel(nextNode, target);
+        mind.refresh?.(next);
+        currentLevelRef.current = target;
+        centerMap(mind);
+      },
+      expandToLevel: (level: number) => {
+        const mind = mindRef.current;
+        if (!mind) return;
+        const raw = mind.getData?.() ?? mind.getAllData?.();
+        const normalized = normalizeMindData(raw);
+        if (!normalized) return;
+        const next = cloneMindData(normalized.data);
+        const nextNode = normalizeMindData(next)?.node;
+        if (!nextNode) return;
+        const target = Math.max(0, level);
+        setExpandedToLevel(nextNode, target);
+        mind.refresh?.(next);
+        currentLevelRef.current = target;
+      },
+      collapseToLevel: (level: number) => {
+        const mind = mindRef.current;
+        if (!mind) return;
+        const raw = mind.getData?.() ?? mind.getAllData?.();
+        const normalized = normalizeMindData(raw);
+        if (!normalized) return;
+        const next = cloneMindData(normalized.data);
+        const nextNode = normalizeMindData(next)?.node;
+        if (!nextNode) return;
+        const target = Math.max(0, level);
+        setExpandedToLevel(nextNode, target);
+        mind.refresh?.(next);
+        currentLevelRef.current = target;
+      },
+    }),
+    []
+  );
 
   // ✅ 배경: 아이보리 톤 + 네모 도트
   const gridStyle = useMemo(() => {
@@ -291,7 +471,6 @@ export default function ClientMindElixir({
       const mind = new MindElixir({
         el: elRef.current,
         direction: MindElixir.RIGHT,
-        contextMenu: true,
         toolBar: true,
         keypress: true,
         draggable: true,
@@ -329,6 +508,11 @@ export default function ClientMindElixir({
 
       mind.init(initialData);
       mindRef.current = mind;
+
+      const initialNode = normalizeMindData(initialData)?.node;
+      if (initialNode) {
+        currentLevelRef.current = getMaxExpandedDepth(initialNode);
+      }
 
       const palette = safePaletteFromThemeObj(resolvedThemeObj);
 
@@ -555,4 +739,6 @@ export default function ClientMindElixir({
       )}
     </div>
   );
-}
+});
+
+export default ClientMindElixir;

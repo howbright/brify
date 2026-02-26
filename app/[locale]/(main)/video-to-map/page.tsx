@@ -108,7 +108,7 @@ function withCacheBuster(url: string) {
 }
 
 const DRAFT_SELECT_FIELDS =
-  "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,thumbnail_url,map_status,credits_charged";
+  "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
 
 function coerceMapStatus(status?: string | null): MapJobStatus {
   if (status === "done" || status === "failed" || status === "processing") {
@@ -242,7 +242,7 @@ export default function VideoToMapPage() {
         const supabase = createClient();
         const { data, error } = await supabase
           .from("maps")
-          .select("mind_elixir")
+          .select("mind_elixir,summary")
           .eq("id", targetId)
           .single();
 
@@ -255,6 +255,13 @@ export default function VideoToMapPage() {
         }
 
         setOpenMapData(mindData);
+        const fetchedSummary =
+          (data as { summary?: string | null })?.summary ?? undefined;
+        if (fetchedSummary) {
+          setOpenDraft((prev) =>
+            prev ? { ...prev, summary: fetchedSummary } : prev
+          );
+        }
       } catch (e: any) {
         if (cancelled) return;
         setOpenMapError(e?.message ?? "구조맵을 불러오지 못했습니다.");
@@ -610,6 +617,7 @@ export default function VideoToMapPage() {
               : undefined,
             tags: Array.isArray(data.tags) ? data.tags : [],
             description: data.description ?? undefined,
+            summary: (data as { summary?: string | null }).summary ?? undefined,
             status: coerceMapStatus(data.map_status),
             creditsCharged:
               typeof data.credits_charged === "number"

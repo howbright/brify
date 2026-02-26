@@ -363,53 +363,53 @@ export type Database = {
       }
       notifications: {
         Row: {
-          category: string
+          category: Database["public"]["Enums"]["notification_category"]
           created_at: string
           dedupe_key: string | null
           delta_credits: number
           entity_id: string | null
-          event_type: string
+          event_type: Database["public"]["Enums"]["notification_event_type"]
           id: string
           is_read: boolean
           message_key: string
           params: Json
           read_at: string | null
           source: string | null
-          status: string
+          status: Database["public"]["Enums"]["notification_status"]
           title_key: string
           user_id: string
         }
         Insert: {
-          category: string
+          category: Database["public"]["Enums"]["notification_category"]
           created_at?: string
           dedupe_key?: string | null
           delta_credits?: number
           entity_id?: string | null
-          event_type: string
+          event_type: Database["public"]["Enums"]["notification_event_type"]
           id?: string
           is_read?: boolean
           message_key: string
           params?: Json
           read_at?: string | null
           source?: string | null
-          status: string
+          status: Database["public"]["Enums"]["notification_status"]
           title_key: string
           user_id: string
         }
         Update: {
-          category?: string
+          category?: Database["public"]["Enums"]["notification_category"]
           created_at?: string
           dedupe_key?: string | null
           delta_credits?: number
           entity_id?: string | null
-          event_type?: string
+          event_type?: Database["public"]["Enums"]["notification_event_type"]
           id?: string
           is_read?: boolean
           message_key?: string
           params?: Json
           read_at?: string | null
           source?: string | null
-          status?: string
+          status?: Database["public"]["Enums"]["notification_status"]
           title_key?: string
           user_id?: string
         }
@@ -665,6 +665,24 @@ export type Database = {
         | "idle"
         | "queued"
       map_term_session_status: "active" | "exhausted" | "cancelled"
+      notification_category: "mission" | "billing" | "system"
+      notification_event_type:
+        | "signup_bonus"
+        | "mission_approved"
+        | "mission_rejected"
+        | "payment_completed"
+        | "payment_failed"
+        | "refund_completed"
+        | "credit_insufficient"
+        | "system_info"
+      notification_status:
+        | "approved"
+        | "rejected"
+        | "completed"
+        | "failed"
+        | "refunded"
+        | "insufficient"
+        | "info"
       payment_provider: "lemon_squeezy" | "toss"
       payment_status:
         | "pending"
@@ -837,6 +855,26 @@ export const Constants = {
         "queued",
       ],
       map_term_session_status: ["active", "exhausted", "cancelled"],
+      notification_category: ["mission", "billing", "system"],
+      notification_event_type: [
+        "signup_bonus",
+        "mission_approved",
+        "mission_rejected",
+        "payment_completed",
+        "payment_failed",
+        "refund_completed",
+        "credit_insufficient",
+        "system_info",
+      ],
+      notification_status: [
+        "approved",
+        "rejected",
+        "completed",
+        "failed",
+        "refunded",
+        "insufficient",
+        "info",
+      ],
       payment_provider: ["lemon_squeezy", "toss"],
       payment_status: [
         "pending",

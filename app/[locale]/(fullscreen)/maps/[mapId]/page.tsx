@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
@@ -8,7 +8,10 @@ import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
 import LeftPanel from "@/components/maps/LeftPanel";
 import RightPanel from "@/components/maps/RightPanel";
-import ClientMindElixir from "@/components/ClientMindElixir";
+import MapControls from "@/components/maps/MapControls";
+import ClientMindElixir, {
+  type ClientMindElixirHandle,
+} from "@/components/ClientMindElixir";
 import MetadataDialog from "@/app/[locale]/(main)/video-to-map/MetadataDialog";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { createClient } from "@/utils/supabase/client";
@@ -82,6 +85,7 @@ export default function MapDetailPage() {
   const [rightOpen, setRightOpen] = useState(false);
   const [rightTab, setRightTab] = useState<"notes" | "terms">("notes");
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
+  const mindRef = useRef<ClientMindElixirHandle | null>(null);
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
   const [isSavingMeta, setIsSavingMeta] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -307,15 +311,6 @@ export default function MapDetailPage() {
 
           <div className="flex items-center gap-2 flex-nowrap shrink-0 min-w-[240px] max-[738px]:min-w-0 max-[738px]:flex-wrap max-[738px]:w-full max-[738px]:justify-center max-[738px]:pt-2 max-[738px]:pb-1 max-[738px]:border-t max-[738px]:border-neutral-200/70 dark:max-[738px]:border-white/10 sm:flex-nowrap">
             <ToolbarToggle
-              pressed={editMode === "edit"}
-              icon={editMode === "edit" ? "mdi:pencil" : "mdi:eye-outline"}
-              label={editMode === "edit" ? t("mode.editing") : t("mode.view")}
-              onClick={() =>
-                setEditMode((m) => (m === "view" ? "edit" : "view"))
-              }
-            />
-
-            <ToolbarToggle
               pressed={leftOpen}
               icon="mdi:information-outline"
               label={t("tabs.info")}
@@ -388,6 +383,7 @@ export default function MapDetailPage() {
         <div className="absolute inset-0">
           <div className="h-full w-full rounded-2xl border border-neutral-200/70 bg-white/65 backdrop-blur-sm shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
             <ClientMindElixir
+              ref={mindRef}
               mode={resolvedTheme === "dark" ? "dark" : "light"}
               dragButton={2}
               data={mapData ?? undefined}
@@ -397,14 +393,16 @@ export default function MapDetailPage() {
           </div>
         </div>
 
-        <div className="absolute right-4 top-3 z-[15]">
-          <span className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white/80 px-2.5 py-1 text-[11px] text-neutral-600 dark:border-white/10 dark:bg-[#0b1220]/60 dark:text-white/65">
-            <Icon icon="mdi:gesture-tap" className="h-3.5 w-3.5" />
-            {editMode === "edit"
-              ? t("modeBadge.edit")
-              : t("modeBadge.view")}
-          </span>
-        </div>
+        <MapControls
+          editMode={editMode}
+          onToggleEdit={() =>
+            setEditMode((m) => (m === "view" ? "edit" : "view"))
+          }
+          onCollapseAll={() => mindRef.current?.collapseAll()}
+          onExpandAll={() => mindRef.current?.expandAll()}
+          onExpandLevel={() => mindRef.current?.expandOneLevel()}
+          onCollapseLevel={() => mindRef.current?.collapseOneLevel()}
+        />
 
         {error && (
           <div className="absolute left-4 top-3 z-[15]">
@@ -462,6 +460,7 @@ export default function MapDetailPage() {
           isDeleting ? t("deleteConfirm.actionDeleting") : t("deleteConfirm.action")
         }
       />
+
     </div>
   );
 }
