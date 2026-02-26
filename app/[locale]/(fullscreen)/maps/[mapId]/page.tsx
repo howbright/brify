@@ -385,7 +385,6 @@ export default function MapDetailPage() {
             <ClientMindElixir
               ref={mindRef}
               mode={resolvedTheme === "dark" ? "dark" : "light"}
-              dragButton={2}
               data={mapData ?? undefined}
               loading={loading}
               placeholderData={loadingMindElixir}

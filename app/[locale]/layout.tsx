@@ -6,8 +6,6 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { Toaster } from "sonner";
-import "@mind-elixir/node-menu/dist/style.css";
-// import "mind-elixir/dist/style.css";
 import "mind-elixir/style.css";
 import "../globals.css";
 import { ReactQueryProvider } from "../providers";

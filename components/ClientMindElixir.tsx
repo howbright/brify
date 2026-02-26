@@ -10,7 +10,6 @@ import {
 } from "react";
 import { useTheme } from "next-themes";
 import { sampled } from "@/app/lib/g6/sampleData";
-import "@mind-elixir/node-menu/dist/style.css";
 
 type ClientMindElixirProps = {
   mode?: "light" | "dark" | "auto";

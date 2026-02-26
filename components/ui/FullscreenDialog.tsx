@@ -215,7 +215,6 @@ export default function FullscreenDialog({
             <div className="h-full w-full rounded-2xl border border-neutral-200/70 bg-white/65 backdrop-blur-sm shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
               <ClientMindElixir
                 mode={resolvedTheme === "dark" ? "dark" : "light"}
-                dragButton={2}
                 data={mapData ?? undefined}
                 loading={mapLoading}
                 placeholderData={loadingMindElixir}
