@@ -148,11 +148,11 @@ function MapControlButton({
       className={`
         inline-flex items-center gap-1.5
         rounded-xl border px-2.5 py-1
-        text-[11px] font-semibold transition-colors
+        text-[11px] font-semibold transition-colors duration-150
         ${
           pressed
             ? "border-blue-300 bg-blue-50 text-blue-700 shadow-[0_8px_18px_rgba(37,99,235,0.25)] dark:border-blue-300/60 dark:bg-blue-500/20 dark:text-blue-50"
-            : "border-neutral-200 bg-white/80 text-neutral-700 hover:bg-white dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80 dark:hover:bg-white/[0.12]"
+            : "border-neutral-200 bg-white/80 text-neutral-700 hover:border-neutral-300 hover:bg-white hover:text-neutral-900 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/20 dark:hover:bg-white/[0.12]"
         }
       `}
       aria-label={label}
