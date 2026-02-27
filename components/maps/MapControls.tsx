@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { Icon } from "@iconify/react";
+import ShortcutsDialog from "@/components/maps/ShortcutsDialog";
+import ConfirmShareDialog from "@/components/maps/ConfirmShareDialog";
+import DiscardDraftDialog from "@/components/maps/DiscardDraftDialog";
 
 export default function MapControls({
   editMode,
@@ -10,6 +13,11 @@ export default function MapControls({
   onExpandAll,
   onExpandLevel,
   onCollapseLevel,
+  onPublish,
+  onShare,
+  onDiscardDraft,
+  statusLabel,
+  statusTone = "neutral",
 }: {
   editMode: "view" | "edit";
   onToggleEdit: () => void;
@@ -17,9 +25,16 @@ export default function MapControls({
   onExpandAll: () => void;
   onExpandLevel: () => void;
   onCollapseLevel: () => void;
+  onPublish?: () => void;
+  onShare?: () => void;
+  onDiscardDraft?: () => void;
+  statusLabel?: string;
+  statusTone?: "neutral" | "warning" | "success";
 }) {
   const [open, setOpen] = useState(true);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [confirmShareOpen, setConfirmShareOpen] = useState(false);
+  const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
 
   return (
     <>
@@ -59,6 +74,51 @@ export default function MapControls({
               pressed={editMode === "edit"}
             />
 
+            {statusLabel && (
+              <span
+                className={`
+                  inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold
+                  ${
+                    statusTone === "success"
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-500/15 dark:text-emerald-200"
+                      : statusTone === "warning"
+                      ? "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-400/30 dark:bg-amber-500/15 dark:text-amber-200"
+                      : "border-neutral-200 bg-neutral-50 text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70"
+                  }
+                `}
+              >
+                {statusLabel}
+              </span>
+            )}
+
+            {editMode === "edit" && (
+              <MapControlButton
+                icon="mdi:check-circle-outline"
+                label="완료/발행"
+                onClick={() => onPublish?.()}
+              />
+            )}
+
+            {editMode === "edit" && (
+              <MapControlButton
+                icon="mdi:trash-can-outline"
+                label="임시 변경 버리기"
+                onClick={() => setConfirmDiscardOpen(true)}
+              />
+            )}
+
+            <MapControlButton
+              icon="mdi:share-variant-outline"
+              label="공유"
+              onClick={() => {
+                if (editMode === "edit") {
+                  setConfirmShareOpen(true);
+                } else {
+                  onShare?.();
+                }
+              }}
+            />
+
             <div className="mx-1 h-4 w-px bg-neutral-200/70 dark:bg-white/15" />
 
             <MapControlButton
@@ -93,39 +153,29 @@ export default function MapControls({
         )}
       </div>
 
-      {shortcutsOpen && (
-        <div className="fixed inset-0 z-[220]">
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"
-            onClick={() => setShortcutsOpen(false)}
-            aria-hidden="true"
-          />
-          <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-neutral-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-[#0b1220]">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h3 className="text-base font-semibold text-neutral-900 dark:text-white/90">
-                  단축키 안내
-                </h3>
-                <p className="mt-1 text-xs text-neutral-500 dark:text-white/60">
-                  자주 쓰는 조작을 빠르게 실행할 수 있어요.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShortcutsOpen(false)}
-                className="inline-flex items-center gap-1.5 rounded-2xl border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
-              >
-                <Icon icon="mdi:close" className="h-4 w-4" />
-                닫기
-              </button>
-            </div>
+      <ShortcutsDialog
+        open={shortcutsOpen}
+        onClose={() => setShortcutsOpen(false)}
+      />
 
-            <div className="mt-4 rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 px-4 py-3 text-xs text-neutral-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/70">
-              현재 단축키 목록은 준비 중입니다. 곧 업데이트될 예정이에요.
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmShareDialog
+        open={confirmShareOpen}
+        onClose={() => setConfirmShareOpen(false)}
+        onConfirm={() => {
+          setConfirmShareOpen(false);
+          onPublish?.();
+          onShare?.();
+        }}
+      />
+
+      <DiscardDraftDialog
+        open={confirmDiscardOpen}
+        onClose={() => setConfirmDiscardOpen(false)}
+        onConfirm={() => {
+          setConfirmDiscardOpen(false);
+          onDiscardDraft?.();
+        }}
+      />
     </>
   );
 }

@@ -401,6 +401,17 @@ export default function MapDetailPage() {
           onExpandAll={() => mindRef.current?.expandAll()}
           onExpandLevel={() => mindRef.current?.expandOneLevel()}
           onCollapseLevel={() => mindRef.current?.collapseOneLevel()}
+          onPublish={() => {
+            toast.message("발행 기능은 준비 중입니다.");
+          }}
+          onShare={() => {
+            toast.message("공유 기능은 준비 중입니다.");
+          }}
+          onDiscardDraft={() => {
+            toast.message("임시 변경 버리기 기능은 준비 중입니다.");
+          }}
+          statusLabel={editMode === "edit" ? "임시 변경 있음" : undefined}
+          statusTone="warning"
         />
 
         {error && (
