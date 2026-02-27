@@ -35,6 +35,8 @@ export default function MapControls({
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [confirmShareOpen, setConfirmShareOpen] = useState(false);
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
+  const [mapActionsOpen, setMapActionsOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   return (
     <>
@@ -61,94 +63,135 @@ export default function MapControls({
         {open && (
           <div
             className="
-              flex items-center gap-1.5
+              flex items-center gap-2
               rounded-2xl border border-neutral-200 bg-white/90 px-2 py-1.5
               text-[11px] font-semibold text-neutral-700 shadow-sm backdrop-blur
               dark:border-white/10 dark:bg-[#0b1220]/70 dark:text-white/80
             "
           >
-            <MapControlButton
-              icon={editMode === "edit" ? "mdi:pencil" : "mdi:eye-outline"}
-              label={editMode === "edit" ? "편집 모드" : "보기 모드"}
-              onClick={onToggleEdit}
-              pressed={editMode === "edit"}
-            />
+            {/* Left: Mode + Status */}
+            <div className="flex items-center gap-2">
+              <MapControlButton
+                icon={editMode === "edit" ? "mdi:pencil" : "mdi:eye-outline"}
+                label={editMode === "edit" ? "편집 모드" : "보기 모드"}
+                onClick={onToggleEdit}
+                pressed={editMode === "edit"}
+              />
 
-            {statusLabel && (
-              <span
-                className={`
-                  inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold
-                  ${
-                    statusTone === "success"
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-500/15 dark:text-emerald-200"
-                      : statusTone === "warning"
-                      ? "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-400/30 dark:bg-amber-500/15 dark:text-amber-200"
-                      : "border-neutral-200 bg-neutral-50 text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70"
+              {statusLabel && (
+                <span
+                  className={`
+                    inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold
+                    ${
+                      statusTone === "success"
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-500/15 dark:text-emerald-200"
+                        : statusTone === "warning"
+                        ? "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-400/30 dark:bg-amber-500/15 dark:text-amber-200"
+                        : "border-neutral-200 bg-neutral-50 text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70"
+                    }
+                  `}
+                >
+                  {statusLabel}
+                </span>
+              )}
+            </div>
+
+            {/* Center: Publish + Share */}
+            <div className="flex items-center gap-2">
+              {editMode === "edit" && (
+                <MapControlButton
+                  icon="mdi:check-circle-outline"
+                  label="완료/발행"
+                  onClick={() => onPublish?.()}
+                />
+              )}
+
+              <MapControlButton
+                icon="mdi:share-variant-outline"
+                label="공유"
+                onClick={() => {
+                  if (editMode === "edit") {
+                    setConfirmShareOpen(true);
+                  } else {
+                    onShare?.();
                   }
-                `}
-              >
-                {statusLabel}
-              </span>
-            )}
-
-            {editMode === "edit" && (
-              <MapControlButton
-                icon="mdi:check-circle-outline"
-                label="완료/발행"
-                onClick={() => onPublish?.()}
+                }}
               />
-            )}
+            </div>
 
-            {editMode === "edit" && (
-              <MapControlButton
-                icon="mdi:trash-can-outline"
-                label="임시 변경 버리기"
-                onClick={() => setConfirmDiscardOpen(true)}
-              />
-            )}
+            {/* Right: Map actions + More */}
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <MapControlButton
+                  icon="mdi:vector-polyline"
+                  label="맵 조작"
+                  onClick={() => setMapActionsOpen((v) => !v)}
+                />
 
-            <MapControlButton
-              icon="mdi:share-variant-outline"
-              label="공유"
-              onClick={() => {
-                if (editMode === "edit") {
-                  setConfirmShareOpen(true);
-                } else {
-                  onShare?.();
-                }
-              }}
-            />
+                {mapActionsOpen && (
+                  <div className="absolute right-0 mt-2 w-[180px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
+                    <MenuButton
+                      label="전체 접기"
+                      onClick={() => {
+                        setMapActionsOpen(false);
+                        onCollapseAll();
+                      }}
+                    />
+                    <MenuButton
+                      label="전체 펴기"
+                      onClick={() => {
+                        setMapActionsOpen(false);
+                        onExpandAll();
+                      }}
+                    />
+                    <MenuButton
+                      label="한단계 펴기"
+                      onClick={() => {
+                        setMapActionsOpen(false);
+                        onExpandLevel();
+                      }}
+                    />
+                    <MenuButton
+                      label="한단계 접기"
+                      onClick={() => {
+                        setMapActionsOpen(false);
+                        onCollapseLevel();
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
 
-            <div className="mx-1 h-4 w-px bg-neutral-200/70 dark:bg-white/15" />
+              <div className="relative">
+                <MapControlButton
+                  icon="mdi:dots-horizontal"
+                  label="더보기"
+                  onClick={() => setMoreOpen((v) => !v)}
+                />
 
-            <MapControlButton
-              icon="mdi:arrow-collapse-up"
-              label="전체 접기"
-              onClick={onCollapseAll}
-            />
-            <MapControlButton
-              icon="mdi:arrow-expand-down"
-              label="전체 펴기"
-              onClick={onExpandAll}
-            />
-            <MapControlButton
-              icon="mdi:unfold-more-horizontal"
-              label="한단계 펴기"
-              onClick={onExpandLevel}
-            />
-            <MapControlButton
-              icon="mdi:unfold-less-horizontal"
-              label="한단계 접기"
-              onClick={onCollapseLevel}
-            />
-
-            <div className="mx-1 h-4 w-px bg-neutral-200/70 dark:bg-white/15" />
-
-            <MapControlButton
-              icon="mdi:keyboard-outline"
-              label="단축키"
-              onClick={() => setShortcutsOpen(true)}
-            />
+                {moreOpen && (
+                  <div className="absolute right-0 mt-2 w-[180px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
+                    <MenuButton
+                      label="단축키"
+                      onClick={() => {
+                        setMoreOpen(false);
+                        setShortcutsOpen(true);
+                      }}
+                    />
+                    {editMode === "edit" && (
+                      <MenuButton
+                        label="임시 변경 버리기"
+                        danger
+                        onClick={() => {
+                          setMoreOpen(false);
+                          setConfirmDiscardOpen(true);
+                        }}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -210,6 +253,33 @@ function MapControlButton({
     >
       <Icon icon={icon} className="h-3.5 w-3.5" />
       <span className="hidden sm:inline">{label}</span>
+    </button>
+  );
+}
+
+function MenuButton({
+  label,
+  onClick,
+  danger = false,
+}: {
+  label: string;
+  onClick: () => void;
+  danger?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`
+        w-full rounded-xl px-3 py-2 text-left text-xs font-semibold
+        ${
+          danger
+            ? "text-rose-600 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/10"
+            : "text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+        }
+      `}
+    >
+      {label}
     </button>
   );
 }
