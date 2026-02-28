@@ -1,4 +1,6 @@
-export type Json =
+Need to install the following packages:
+supabase@2.76.15
+Ok to proceed? (y) export type Json =
   | string
   | number
   | boolean
@@ -290,6 +292,7 @@ export type Database = {
           map_status: Database["public"]["Enums"]["map_status"]
           mind_elixir: Json | null
           mind_elixir_draft: Json | null
+          mind_theme_override: string | null
           output_language: string | null
           required_credits: number
           schema_version: number
@@ -318,6 +321,7 @@ export type Database = {
           map_status?: Database["public"]["Enums"]["map_status"]
           mind_elixir?: Json | null
           mind_elixir_draft?: Json | null
+          mind_theme_override?: string | null
           output_language?: string | null
           required_credits?: number
           schema_version?: number
@@ -346,6 +350,7 @@ export type Database = {
           map_status?: Database["public"]["Enums"]["map_status"]
           mind_elixir?: Json | null
           mind_elixir_draft?: Json | null
+          mind_theme_override?: string | null
           output_language?: string | null
           required_credits?: number
           schema_version?: number
@@ -512,6 +517,7 @@ export type Database = {
           email: string | null
           id: string
           locale: string | null
+          mind_theme_preference: string | null
           terms_accepted: boolean
         }
         Insert: {
@@ -521,6 +527,7 @@ export type Database = {
           email?: string | null
           id: string
           locale?: string | null
+          mind_theme_preference?: string | null
           terms_accepted?: boolean
         }
         Update: {
@@ -530,6 +537,7 @@ export type Database = {
           email?: string | null
           id?: string
           locale?: string | null
+          mind_theme_preference?: string | null
           terms_accepted?: boolean
         }
         Relationships: []
