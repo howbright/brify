@@ -85,6 +85,7 @@ export default function MapDetailPage() {
   const [rightOpen, setRightOpen] = useState(false);
   const [rightTab, setRightTab] = useState<"notes" | "terms">("notes");
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
+  const [panMode, setPanMode] = useState(false);
   const mindRef = useRef<ClientMindElixirHandle | null>(null);
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
   const [isSavingMeta, setIsSavingMeta] = useState(false);
@@ -163,6 +164,10 @@ export default function MapDetailPage() {
     setRightOpen(true);
     setLeftOpen(false);
   };
+
+  useEffect(() => {
+    mindRef.current?.setPanMode(panMode);
+  }, [panMode]);
 
   const handleDelete = async () => {
     if (!mapId) return;
@@ -394,9 +399,11 @@ export default function MapDetailPage() {
 
         <MapControls
           editMode={editMode}
+          panMode={panMode}
           onToggleEdit={() =>
             setEditMode((m) => (m === "view" ? "edit" : "view"))
           }
+          onTogglePanMode={() => setPanMode((v) => !v)}
           onCollapseAll={() => mindRef.current?.collapseAll()}
           onExpandAll={() => mindRef.current?.expandAll()}
           onExpandLevel={() => mindRef.current?.expandOneLevel()}

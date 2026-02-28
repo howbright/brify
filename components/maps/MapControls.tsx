@@ -8,7 +8,9 @@ import DiscardDraftDialog from "@/components/maps/DiscardDraftDialog";
 
 export default function MapControls({
   editMode,
+  panMode,
   onToggleEdit,
+  onTogglePanMode,
   onCollapseAll,
   onExpandAll,
   onExpandLevel,
@@ -20,7 +22,9 @@ export default function MapControls({
   statusTone = "neutral",
 }: {
   editMode: "view" | "edit";
+  panMode: boolean;
   onToggleEdit: () => void;
+  onTogglePanMode: () => void;
   onCollapseAll: () => void;
   onExpandAll: () => void;
   onExpandLevel: () => void;
@@ -76,6 +80,13 @@ export default function MapControls({
                 label={editMode === "edit" ? "편집 모드" : "보기 모드"}
                 onClick={onToggleEdit}
                 pressed={editMode === "edit"}
+              />
+
+              <MapControlButton
+                icon={panMode ? "mdi:hand-back-left" : "mdi:cursor-default"}
+                label={panMode ? "이동 모드" : "선택 모드"}
+                onClick={onTogglePanMode}
+                pressed={panMode}
               />
 
               {statusLabel && (

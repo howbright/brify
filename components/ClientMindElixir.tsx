@@ -31,6 +31,7 @@ export type ClientMindElixirHandle = {
   collapseOneLevel: () => void;
   expandToLevel: (level: number) => void;
   collapseToLevel: (level: number) => void;
+  setPanMode: (enabled: boolean) => void;
 };
 
 type AnyNode = {
@@ -233,6 +234,17 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         setExpandedToLevel(nextNode, target);
         mind.refresh?.(next);
         currentLevelRef.current = target;
+      },
+      setPanMode: (enabled: boolean) => {
+        const mind = mindRef.current;
+        if (!mind) return;
+        mind.mouseSelectionButton = enabled ? 2 : 0;
+        if (enabled) {
+          mind.selection?.cancel?.();
+          mind.selection?.disable?.();
+        } else {
+          mind.selection?.enable?.();
+        }
       },
     }),
     []
