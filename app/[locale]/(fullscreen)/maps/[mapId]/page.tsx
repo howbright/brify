@@ -12,6 +12,9 @@ import MapControls from "@/components/maps/MapControls";
 import ClientMindElixir, {
   type ClientMindElixirHandle,
 } from "@/components/ClientMindElixir";
+import { MIND_THEMES, MIND_THEME_BY_NAME } from "@/components/maps/themes";
+
+const DEFAULT_THEME_NAME = "Default";
 import MetadataDialog from "@/app/[locale]/(main)/video-to-map/MetadataDialog";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { createClient } from "@/utils/supabase/client";
@@ -86,6 +89,11 @@ export default function MapDetailPage() {
   const [rightTab, setRightTab] = useState<"notes" | "terms">("notes");
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
   const [panMode, setPanMode] = useState(false);
+  const [themeName, setThemeName] = useState<string>(DEFAULT_THEME_NAME);
+  const themeOptions = useMemo(
+    () => [{ name: DEFAULT_THEME_NAME }, ...MIND_THEMES],
+    []
+  );
   const mindRef = useRef<ClientMindElixirHandle | null>(null);
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
   const [isSavingMeta, setIsSavingMeta] = useState(false);
@@ -390,6 +398,11 @@ export default function MapDetailPage() {
             <ClientMindElixir
               ref={mindRef}
               mode={resolvedTheme === "dark" ? "dark" : "light"}
+              theme={
+                themeName === DEFAULT_THEME_NAME
+                  ? undefined
+                  : MIND_THEME_BY_NAME[themeName]
+              }
               data={mapData ?? undefined}
               loading={loading}
               placeholderData={loadingMindElixir}
@@ -400,10 +413,13 @@ export default function MapDetailPage() {
         <MapControls
           editMode={editMode}
           panMode={panMode}
+          themes={themeOptions}
+          currentThemeName={themeName}
           onToggleEdit={() =>
             setEditMode((m) => (m === "view" ? "edit" : "view"))
           }
           onTogglePanMode={() => setPanMode((v) => !v)}
+          onSelectTheme={(name) => setThemeName(name)}
           onCollapseAll={() => mindRef.current?.collapseAll()}
           onExpandAll={() => mindRef.current?.expandAll()}
           onExpandLevel={() => mindRef.current?.expandOneLevel()}

@@ -184,7 +184,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         const maxDepth = getMaxDepth(nextNode);
         const current =
           currentLevelRef.current ?? getMaxExpandedDepth(nextNode);
-        const target = Math.min(maxDepth + 1, current + 1);
+        const target = Math.min(maxDepth, current + 1);
         setExpandedToLevel(nextNode, target);
         mind.refresh?.(next);
         currentLevelRef.current = target;
@@ -201,7 +201,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         if (!nextNode) return;
         const current =
           currentLevelRef.current ?? getMaxExpandedDepth(nextNode);
-        const target = Math.max(0, current - 1);
+        const target = Math.max(1, current - 1);
         setExpandedToLevel(nextNode, target);
         mind.refresh?.(next);
         currentLevelRef.current = target;

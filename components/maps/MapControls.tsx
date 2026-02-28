@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import ShortcutsDialog from "@/components/maps/ShortcutsDialog";
 import ConfirmShareDialog from "@/components/maps/ConfirmShareDialog";
@@ -9,8 +9,11 @@ import DiscardDraftDialog from "@/components/maps/DiscardDraftDialog";
 export default function MapControls({
   editMode,
   panMode,
+  themes,
+  currentThemeName,
   onToggleEdit,
   onTogglePanMode,
+  onSelectTheme,
   onCollapseAll,
   onExpandAll,
   onExpandLevel,
@@ -23,8 +26,11 @@ export default function MapControls({
 }: {
   editMode: "view" | "edit";
   panMode: boolean;
+  themes: Array<{ name: string }>;
+  currentThemeName?: string;
   onToggleEdit: () => void;
   onTogglePanMode: () => void;
+  onSelectTheme: (name: string) => void;
   onCollapseAll: () => void;
   onExpandAll: () => void;
   onExpandLevel: () => void;
@@ -41,6 +47,36 @@ export default function MapControls({
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
   const [mapActionsOpen, setMapActionsOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [themeOpen, setThemeOpen] = useState(false);
+  const mapActionsRef = useRef<HTMLDivElement>(null);
+  const moreRef = useRef<HTMLDivElement>(null);
+  const themeRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!mapActionsOpen && !moreOpen && !themeOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node | null;
+      if (!target) return;
+
+      if (mapActionsOpen && mapActionsRef.current?.contains(target)) {
+        return;
+      }
+      if (moreOpen && moreRef.current?.contains(target)) {
+        return;
+      }
+      if (themeOpen && themeRef.current?.contains(target)) {
+        return;
+      }
+
+      setMapActionsOpen(false);
+      setMoreOpen(false);
+      setThemeOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [mapActionsOpen, moreOpen, themeOpen]);
 
   return (
     <>
@@ -132,7 +168,7 @@ export default function MapControls({
 
             {/* Right: Map actions + More */}
             <div className="flex items-center gap-2">
-              <div className="relative">
+              <div className="relative" ref={mapActionsRef}>
                 <MapControlButton
                   icon="mdi:vector-polyline"
                   label="맵 조작"
@@ -173,7 +209,31 @@ export default function MapControls({
                 )}
               </div>
 
-              <div className="relative">
+              <div className="relative" ref={themeRef}>
+                <MapControlButton
+                  icon="mdi:palette-outline"
+                  label="테마"
+                  onClick={() => setThemeOpen((v) => !v)}
+                />
+
+                {themeOpen && (
+                  <div className="absolute right-0 mt-2 w-[200px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
+                    {themes.map((theme) => (
+                      <MenuButton
+                        key={theme.name}
+                        label={theme.name}
+                        checked={theme.name === currentThemeName}
+                        onClick={() => {
+                          setThemeOpen(false);
+                          onSelectTheme(theme.name);
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="relative" ref={moreRef}>
                 <MapControlButton
                   icon="mdi:dots-horizontal"
                   label="더보기"
@@ -272,17 +332,19 @@ function MenuButton({
   label,
   onClick,
   danger = false,
+  checked = false,
 }: {
   label: string;
   onClick: () => void;
   danger?: boolean;
+  checked?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={`
-        w-full rounded-xl px-3 py-2 text-left text-xs font-semibold
+        w-full rounded-xl px-3 py-2 text-left text-xs font-semibold inline-flex items-center justify-between
         ${
           danger
             ? "text-rose-600 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/10"
@@ -290,7 +352,10 @@ function MenuButton({
         }
       `}
     >
-      {label}
+      <span>{label}</span>
+      {checked ? (
+        <Icon icon="mdi:check" className="h-3.5 w-3.5" />
+      ) : null}
     </button>
   );
 }
