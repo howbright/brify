@@ -14,13 +14,39 @@ import { useEffect, useState } from "react";
 import LanguageSelector from "@/components/LanguageSelector";
 import { ThemeToggleText } from "@/components/ThemeToggleText";
 import { useTranslations } from "next-intl";
+import { createClient } from "@/utils/supabase/client";
+import { DEFAULT_THEME_NAME } from "@/components/maps/themes";
+import MindThemePreferenceModal from "@/components/maps/MindThemePreferenceModal";
 
 export default function ClientUserMenu({ email }: { email: string | null }) {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const t = useTranslations("Header");
+  const [themeOpen, setThemeOpen] = useState(false);
+  const [themeName, setThemeName] = useState<string>(DEFAULT_THEME_NAME);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    (async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const id = userData.user?.id ?? null;
+      setUserId(id);
+      if (!id) return;
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("mind_theme_preference")
+        .eq("id", id)
+        .single();
+      const pref = (data as { mind_theme_preference?: string | null } | null)
+        ?.mind_theme_preference;
+      setThemeName(pref ?? DEFAULT_THEME_NAME);
+    })();
+  }, []);
 
   async function handleSignOut() {
     try {
@@ -39,7 +65,8 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
     "dark:via-neutral-700/70";
 
   return (
-    <DropdownMenu>
+    <>
+      <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
           className="
@@ -121,6 +148,15 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
           <span>{t("userMenu.items.accountSettings")}</span>
         </DropdownMenuItem>
 
+        <DropdownMenuItem
+          className="text-sm"
+          onSelect={(e) => {
+            setThemeOpen(true);
+          }}
+        >
+          <span>기본 맵 테마</span>
+        </DropdownMenuItem>
+
         <DropdownMenuSeparator className={dividerClass} />
 
         {/* 테마 / 언어 */}
@@ -150,6 +186,26 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
           <span>{t("userMenu.logout")}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
-    </DropdownMenu>
+      </DropdownMenu>
+
+      <MindThemePreferenceModal
+        open={themeOpen}
+        themeName={themeName}
+        onClose={() => setThemeOpen(false)}
+        onSelectTheme={async (name) => {
+          setThemeName(name);
+          if (!userId) return;
+
+          await fetch("/api/profile/theme", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              mind_theme_preference:
+                name === DEFAULT_THEME_NAME ? null : name,
+            }),
+          }).catch(() => {});
+        }}
+      />
+    </>
   );
 }

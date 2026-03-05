@@ -9,6 +9,8 @@ import LeftPanel from "@/components/maps/LeftPanel";
 import RightPanel from "@/components/maps/RightPanel";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 import { loadingMindElixir } from "@/app/lib/g6/sampleData";
+import { DEFAULT_THEME_NAME, MIND_THEME_BY_NAME } from "@/components/maps/themes";
+import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 
 const ClientMindElixir = dynamic(
   () => import("@/components/ClientMindElixir"),
@@ -51,6 +53,7 @@ export default function FullscreenDialog({
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
   const { resolvedTheme } = useTheme();
   const t = useTranslations("FullscreenDialog");
+  const { profileThemeName } = useMindThemePreference();
 
 
   // ✅ 좌측 패널(메타) 토글
@@ -215,6 +218,11 @@ export default function FullscreenDialog({
             <div className="h-full w-full rounded-2xl border border-neutral-200/70 bg-white/65 backdrop-blur-sm shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
               <ClientMindElixir
                 mode={resolvedTheme === "dark" ? "dark" : "light"}
+                theme={
+                  profileThemeName && profileThemeName !== DEFAULT_THEME_NAME
+                    ? MIND_THEME_BY_NAME[profileThemeName]
+                    : undefined
+                }
                 data={mapData ?? undefined}
                 loading={mapLoading}
                 placeholderData={loadingMindElixir}

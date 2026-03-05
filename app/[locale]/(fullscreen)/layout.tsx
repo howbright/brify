@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
+import { MindThemePreferenceProvider } from "@/components/maps/MindThemePreferenceProvider";
 
 function normalizeNext(raw: string | null) {
   const next = (raw ?? "").trim();
@@ -31,7 +32,7 @@ export default async function FullscreenLayout({
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("terms_accepted")
+    .select("terms_accepted, mind_theme_preference")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -44,5 +45,11 @@ export default async function FullscreenLayout({
     );
   }
 
-  return <>{children}</>;
+  return (
+    <MindThemePreferenceProvider
+      profileThemeName={profile?.mind_theme_preference ?? null}
+    >
+      {children}
+    </MindThemePreferenceProvider>
+  );
 }

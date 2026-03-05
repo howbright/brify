@@ -25,6 +25,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+
   // ✅ A 방법: pathname에 따른 분기 제거 (서버/클라 불일치 원천 차단)
   // homeLike 처리 없이 항상 동일한 배경 로직만 사용
   const headerClassName = [

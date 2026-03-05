@@ -10,6 +10,11 @@ import {
 } from "react";
 import { useTheme } from "next-themes";
 import { sampled } from "@/app/lib/g6/sampleData";
+import {
+  DEFAULT_THEME_NAME,
+  MIND_THEME_BY_NAME,
+} from "@/components/maps/themes";
+import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 
 type ClientMindElixirProps = {
   mode?: "light" | "dark" | "auto";
@@ -130,11 +135,19 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
   useEffect(() => setMounted(true), []);
 
+  const { profileThemeName } = useMindThemePreference();
+
   const effectiveMode = useMemo<"light" | "dark">(() => {
     if (mode === "light" || mode === "dark") return mode;
     if (!mounted) return "light";
     return resolvedTheme === "dark" ? "dark" : "light";
   }, [mode, resolvedTheme, mounted]);
+
+  const profileTheme = useMemo(() => {
+    if (!profileThemeName) return null;
+    if (profileThemeName === DEFAULT_THEME_NAME) return null;
+    return MIND_THEME_BY_NAME[profileThemeName] ?? null;
+  }, [profileThemeName]);
 
   const initialData = useMemo(() => {
     return data ?? placeholderData ?? sampled;
@@ -273,7 +286,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       if (!elRef.current) return;
 
       const resolvedThemeObj =
-        theme ?? (effectiveMode === "dark" ? MindElixir.DARK_THEME : MindElixir.THEME);
+        theme ??
+        profileTheme ??
+        (effectiveMode === "dark" ? MindElixir.DARK_THEME : MindElixir.THEME);
 
       const mind = new MindElixir({
         el: elRef.current,
@@ -350,6 +365,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     mounted,
     effectiveMode,
     theme,
+    profileTheme,
     zoomSensitivity,
     dragButton,
     fitOnInit,

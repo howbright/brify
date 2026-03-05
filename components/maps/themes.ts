@@ -2,6 +2,8 @@
 
 import type { Theme } from "mind-elixir";
 
+export const DEFAULT_THEME_NAME = "Default";
+
 export const MIND_THEMES: Theme[] = [
   {
     name: "Inkline",
@@ -170,3 +172,46 @@ export const MIND_THEMES: Theme[] = [
 export const MIND_THEME_BY_NAME = Object.fromEntries(
   MIND_THEMES.map((theme) => [theme.name, theme])
 );
+
+export const MIND_THEME_OPTIONS = [
+  { name: DEFAULT_THEME_NAME },
+  ...MIND_THEMES,
+];
+
+export const MIND_THEME_PRESETS = [
+  {
+    name: DEFAULT_THEME_NAME,
+    description: "기본 테마",
+    theme: undefined as Theme | undefined,
+  },
+  {
+    name: "Inkline",
+    description: "검은 선, 미니멀한 느낌",
+    theme: MIND_THEME_BY_NAME["Inkline"],
+  },
+  {
+    name: "Blueprint",
+    description: "청색 도면 스타일",
+    theme: MIND_THEME_BY_NAME["Blueprint"],
+  },
+  {
+    name: "Paper + Pencil",
+    description: "스케치 감성의 종이 톤",
+    theme: MIND_THEME_BY_NAME["Paper + Pencil"],
+  },
+  {
+    name: "Mono Dark",
+    description: "고대비 다크 모드",
+    theme: MIND_THEME_BY_NAME["Mono Dark"],
+  },
+  {
+    name: "Glass Pastel",
+    description: "부드러운 파스텔 톤",
+    theme: MIND_THEME_BY_NAME["Glass Pastel"],
+  },
+  {
+    name: "Museum",
+    description: "전시 아카이브 느낌",
+    theme: MIND_THEME_BY_NAME["Museum"],
+  },
+];

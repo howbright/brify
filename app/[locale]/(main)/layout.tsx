@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import FooterNew from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import { createClient } from "@/utils/supabase/server";
+import { MindThemePreferenceProvider } from "@/components/maps/MindThemePreferenceProvider";
 
 function normalizeNext(raw: string | null) {
   const next = (raw ?? "").trim();
@@ -34,7 +35,7 @@ export default async function MainLayout({
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("terms_accepted")
+    .select("terms_accepted, mind_theme_preference")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -49,10 +50,12 @@ export default async function MainLayout({
   }
 
   return (
-    <>
+    <MindThemePreferenceProvider
+      profileThemeName={profile?.mind_theme_preference ?? null}
+    >
       <Header />
       <div>{children}</div>
       <FooterNew />
-    </>
+    </MindThemePreferenceProvider>
   );
 }

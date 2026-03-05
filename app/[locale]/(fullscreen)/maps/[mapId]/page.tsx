@@ -21,6 +21,7 @@ import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/app/types/database.types";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 import { loadingMindElixir } from "@/app/lib/g6/sampleData";
+import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 
 const HEADER_H = 56;
 
@@ -76,6 +77,7 @@ export default function MapDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { resolvedTheme } = useTheme();
+  const { profileThemeName } = useMindThemePreference();
 
   const mapId = String(params?.mapId ?? "");
 
@@ -89,7 +91,9 @@ export default function MapDetailPage() {
   const [rightTab, setRightTab] = useState<"notes" | "terms">("notes");
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
   const [panMode, setPanMode] = useState(false);
-  const [themeName, setThemeName] = useState<string>(DEFAULT_THEME_NAME);
+  const [themeName, setThemeName] = useState<string>(
+    profileThemeName ?? DEFAULT_THEME_NAME
+  );
   const themeOptions = useMemo(
     () => [{ name: DEFAULT_THEME_NAME }, ...MIND_THEMES],
     []
@@ -144,6 +148,11 @@ export default function MapDetailPage() {
       cancelled = true;
     };
   }, [mapId]);
+
+  useEffect(() => {
+    if (!profileThemeName) return;
+    setThemeName(profileThemeName);
+  }, [profileThemeName]);
 
   const title = useMemo(() => draft?.title ?? t("fallbackTitle"), [draft?.title, t]);
 
