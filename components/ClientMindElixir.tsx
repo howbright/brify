@@ -115,6 +115,9 @@ function normalizeNodeId(id: string) {
   return id.startsWith("me") ? id.slice(2) : id;
 }
 
+const NOTE_BADGE_SVG =
+  '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1.5V8h4.5L14 3.5zM7 12h10v1.5H7V12zm0 4h10v1.5H7V16zm0-8h6v1.5H7V8z"/></svg>';
+
 function findNodeById(node: AnyNode, id: string): AnyNode | null {
   if (node.id === id) return node;
   if (!node.children) return null;
@@ -195,10 +198,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedRect, setSelectedRect] = useState<DOMRect | null>(null);
   const [isFocusMode, setIsFocusMode] = useState(false);
-  const [notePopover, setNotePopover] = useState<{
-    text: string;
-    rect: DOMRect;
-  } | null>(null);
+  const [selectedNoteText, setSelectedNoteText] = useState<string | null>(null);
   const [noteEditorOpen, setNoteEditorOpen] = useState(false);
   const [noteDraft, setNoteDraft] = useState("");
   const [noteTargetId, setNoteTargetId] = useState<string | null>(null);
@@ -238,6 +238,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         id: normalizeNodeId(selectedId),
         value: null,
       });
+      setSelectedNoteText(null);
       setNoteEditorOpen(false);
       return;
     }
@@ -248,16 +249,16 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       dot = document.createElement("span");
       dot.className = "me-note-dot";
       dot.setAttribute("data-note-dot", "true");
+      dot.innerHTML = NOTE_BADGE_SVG;
       selectedEl.appendChild(dot);
     }
     dot.setAttribute("data-nodeid", selectedEl.dataset.nodeid ?? "");
-    dot.setAttribute("data-note-text", clipped);
-    dot.setAttribute("title", "노트 보기");
     onChangeRef.current?.({
       name: "updateNote",
       id: normalizeNodeId(selectedId),
       value: clipped,
     });
+    setSelectedNoteText(clipped);
     setNoteEditorOpen(false);
   };
   const handleFocusClick = () => {
@@ -379,6 +380,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     const host = elRef.current;
     if (!wrapper || !host || !nodeId) {
       setSelectedRect(null);
+      setSelectedNoteText(null);
       return;
     }
     const nodeEl =
@@ -386,6 +388,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       host.querySelector<HTMLElement>(`[data-nodeid="${nodeId}"]`);
     if (!nodeEl) {
       setSelectedRect(null);
+      setSelectedNoteText(null);
       selectedNodeElRef.current = null;
       return;
     }
@@ -398,6 +401,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       rect.height
     );
     setSelectedRect(relativeRect);
+    const note =
+      (nodeEl as HTMLElement & { nodeObj?: AnyNode }).nodeObj?.note ?? null;
+    setSelectedNoteText(note && note.trim().length > 0 ? note : null);
     selectedNodeElRef.current = nodeEl;
   };
 
@@ -408,27 +414,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     const handleClick = (e: MouseEvent) => {
       const el = e.target as HTMLElement | null;
       if (!el) return;
-      const noteDot = el.closest?.("[data-note-dot='true']");
-      if (noteDot) {
-        e.stopPropagation();
-        const nodeId = noteDot.getAttribute("data-nodeid");
-        const noteText =
-          noteDot.getAttribute("data-note-text") ??
-          noteDot.getAttribute("title") ??
-          "";
-        const wrapper = wrapperRef.current;
-        if (!wrapper || !nodeId) return;
-        const rect = (noteDot as HTMLElement).getBoundingClientRect();
-        const hostRect = wrapper.getBoundingClientRect();
-        const relativeRect = new DOMRect(
-          rect.left - hostRect.left,
-          rect.top - hostRect.top,
-          rect.width,
-          rect.height
-        );
-        setNotePopover({ text: noteText, rect: relativeRect });
-        return;
-      }
       const nodeEl =
         el.closest?.("me-tpc[data-nodeid]") ??
         el.closest?.("me-tpc") ??
@@ -437,7 +422,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         setSelectedNodeId(null);
         setSelectedRect(null);
         selectedNodeElRef.current = null;
-        setNotePopover(null);
+        setSelectedNoteText(null);
         return;
       }
       const nodeId = nodeEl.getAttribute("data-nodeid");
@@ -736,11 +721,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
               dot = document.createElement("span");
               dot.className = "me-note-dot";
               dot.setAttribute("data-note-dot", "true");
+              dot.innerHTML = NOTE_BADGE_SVG;
               el.appendChild(dot);
             }
             dot.setAttribute("data-nodeid", el.dataset.nodeid ?? "");
-            dot.setAttribute("data-note-text", noteText.slice(0, 500));
-            dot.setAttribute("title", "노트 보기");
           } else {
             el.removeAttribute("data-note");
             const dot = el.querySelector<HTMLElement>(".me-note-dot");
@@ -833,6 +817,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         setSelectedNodeId(null);
         setSelectedRect(null);
         selectedNodeElRef.current = null;
+        setSelectedNoteText(null);
       });
 
       syncSelectedRect = () => {
@@ -994,22 +979,33 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-summary {
           display: none;
         }
-        .${VIEW_MODE_CLASS} .mind-elixir-toolbar {
-          display: none;
-        }
         me-tpc {
           position: relative;
+          overflow: visible;
         }
         .me-note-dot {
           position: absolute;
           right: -6px;
           top: -6px;
+          width: 16px;
+          height: 16px;
+          border-radius: 999px;
+          background: #2563eb;
+          color: #ffffff;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow:
+            0 0 0 2px rgba(255, 255, 255, 0.95),
+            0 6px 12px rgba(37, 99, 235, 0.35);
+          cursor: pointer;
+          pointer-events: auto;
+        }
+        .me-note-dot svg,
+        .me-note-dot svg * {
           width: 10px;
           height: 10px;
-          border-radius: 999px;
-          background: #111827;
-          box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
-          cursor: pointer;
+          pointer-events: none;
         }
         .${VIEW_MODE_CLASS} .me-note-dot {
           cursor: pointer;
@@ -1109,17 +1105,16 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         </div>
       )}
 
-      {notePopover && (
+      {selectedRect && selectedNoteText && (
         <div
-          className="pointer-events-auto absolute z-30"
+          className="pointer-events-none absolute z-20"
           style={{
-            left: notePopover.rect.left + notePopover.rect.width + 8,
-            top: notePopover.rect.top + notePopover.rect.height + 6,
+            left: selectedRect.left + selectedRect.width + 10,
+            top: selectedRect.top,
           }}
-          onClick={(e) => e.stopPropagation()}
         >
-          <div className="max-w-[220px] rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-700 shadow-lg dark:border-white/10 dark:bg-[#0b1220] dark:text-white/80">
-            {notePopover.text}
+          <div className="max-w-[260px] rounded-xl border border-blue-200 bg-white/95 px-3 py-2 text-xs text-neutral-700 shadow-lg backdrop-blur dark:border-white/10 dark:bg-[#0b1220]/95 dark:text-white/85">
+            {selectedNoteText}
           </div>
         </div>
       )}
