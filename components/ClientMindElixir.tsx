@@ -176,7 +176,44 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const [ready, setReady] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedRect, setSelectedRect] = useState<DOMRect | null>(null);
+  const [isFocusMode, setIsFocusMode] = useState(false);
   const selectedNodeIdRef = useRef<string | null>(null);
+  const selectedNodeElRef = useRef<HTMLElement | null>(null);
+  const handleFocusClick = () => {
+    const mind = mindRef.current;
+    const nodeId = selectedNodeIdRef.current;
+    if (!mind || !nodeId) return;
+    let el = selectedNodeElRef.current;
+    if (!el) {
+      try {
+        el =
+          mind.findEle?.(nodeId) ||
+          elRef.current?.querySelector<HTMLElement>(
+            `me-tpc[data-nodeid="${nodeId}"]`
+          ) ||
+          elRef.current?.querySelector<HTMLElement>(
+            `[data-nodeid="${nodeId}"]`
+          ) ||
+          null;
+      } catch {
+        el = null;
+      }
+    }
+    if (!el) return;
+    if (mind.isFocusMode) {
+      mind.cancelFocus?.();
+      setIsFocusMode(false);
+      return;
+    }
+    mind.focusNode?.(el);
+    setIsFocusMode(true);
+  };
+  const handleExitFocus = () => {
+    const mind = mindRef.current;
+    if (!mind) return;
+    mind.cancelFocus?.();
+    setIsFocusMode(false);
+  };
 
   const initTokenRef = useRef(0);
   const defaultThemeRef = useRef<{ light: any; dark: any } | null>(null);
@@ -223,6 +260,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       host.querySelector<HTMLElement>(`[data-nodeid="${nodeId}"]`);
     if (!nodeEl) {
       setSelectedRect(null);
+      selectedNodeElRef.current = null;
       return;
     }
     const rect = nodeEl.getBoundingClientRect();
@@ -234,6 +272,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       rect.height
     );
     setSelectedRect(relativeRect);
+    selectedNodeElRef.current = nodeEl;
   };
 
   useEffect(() => {
@@ -250,11 +289,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       if (!nodeEl || !(nodeEl instanceof HTMLElement)) {
         setSelectedNodeId(null);
         setSelectedRect(null);
+        selectedNodeElRef.current = null;
         return;
       }
       const nodeId = nodeEl.getAttribute("data-nodeid");
       if (!nodeId) return;
       setSelectedNodeId(nodeId);
+      selectedNodeElRef.current = nodeEl;
       requestAnimationFrame(() => updateSelectedRect(nodeId));
     };
 
@@ -532,6 +573,28 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       mindRef.current = mind;
       applyEditMode(mind, editMode === "edit");
 
+      // Keep focus UI in sync even when focus is triggered from context menu
+      if (!mind.__originalFocusNode) {
+        mind.__originalFocusNode = mind.focusNode?.bind(mind);
+      }
+      if (!mind.__originalCancelFocus) {
+        mind.__originalCancelFocus = mind.cancelFocus?.bind(mind);
+      }
+      if (typeof mind.__originalFocusNode === "function") {
+        mind.focusNode = (el: HTMLElement) => {
+          const result = mind.__originalFocusNode(el);
+          setIsFocusMode(true);
+          return result;
+        };
+      }
+      if (typeof mind.__originalCancelFocus === "function") {
+        mind.cancelFocus = () => {
+          const result = mind.__originalCancelFocus();
+          setIsFocusMode(false);
+          return result;
+        };
+      }
+
       // Hook undo/redo to trigger autosave listeners
       if (typeof mind.undo === "function") {
         const originalUndo = mind.undo.bind(mind);
@@ -558,12 +621,26 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         const id = last?.id;
         if (!id) return;
         setSelectedNodeId(id);
+        try {
+          selectedNodeElRef.current =
+            mind.findEle?.(id) ||
+            elRef.current?.querySelector<HTMLElement>(
+              `me-tpc[data-nodeid="${id}"]`
+            ) ||
+            elRef.current?.querySelector<HTMLElement>(
+              `[data-nodeid="${id}"]`
+            ) ||
+            null;
+        } catch {
+          selectedNodeElRef.current = null;
+        }
         requestAnimationFrame(() => updateSelectedRect(id));
       });
 
       mind.bus?.addListener?.("unselectNodes", () => {
         setSelectedNodeId(null);
         setSelectedRect(null);
+        selectedNodeElRef.current = null;
       });
 
       syncSelectedRect = () => {
@@ -767,9 +844,27 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             <button
               type="button"
               className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[10px] text-neutral-700 ring-1 ring-black/10 dark:bg-white/10 dark:text-white/70"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleFocusClick();
+              }}
             >
               F
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isFocusMode && (
+        <div className="pointer-events-auto absolute right-4 top-16 z-30">
+          <div className="flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-[11px] text-white shadow-sm">
+            <span className="font-medium">Focus Mode</span>
+            <button
+              type="button"
+              className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] text-white hover:bg-white/25"
+              onClick={handleExitFocus}
+            >
+              Exit
             </button>
           </div>
         </div>
