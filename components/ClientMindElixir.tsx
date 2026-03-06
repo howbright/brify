@@ -286,9 +286,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       if (!elRef.current) return;
 
       const resolvedThemeObj =
-        theme ??
-        profileTheme ??
-        (effectiveMode === "dark" ? MindElixir.DARK_THEME : MindElixir.THEME);
+        theme === null
+          ? effectiveMode === "dark"
+            ? MindElixir.DARK_THEME
+            : MindElixir.THEME
+          : theme ??
+            profileTheme ??
+            (effectiveMode === "dark" ? MindElixir.DARK_THEME : MindElixir.THEME);
 
       const mind = new MindElixir({
         el: elRef.current,

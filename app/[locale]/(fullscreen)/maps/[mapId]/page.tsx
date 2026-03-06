@@ -15,6 +15,7 @@ import ClientMindElixir, {
 import { MIND_THEMES, MIND_THEME_BY_NAME } from "@/components/maps/themes";
 
 const DEFAULT_THEME_NAME = "Default";
+const PROFILE_THEME_NAME = "내설정테마";
 import MetadataDialog from "@/app/[locale]/(main)/video-to-map/MetadataDialog";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { createClient } from "@/utils/supabase/client";
@@ -92,10 +93,11 @@ export default function MapDetailPage() {
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
   const [panMode, setPanMode] = useState(false);
   const [themeName, setThemeName] = useState<string>(
-    profileThemeName ?? DEFAULT_THEME_NAME
+    profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME
   );
+  const themeInitRef = useRef(false);
   const themeOptions = useMemo(
-    () => [{ name: DEFAULT_THEME_NAME }, ...MIND_THEMES],
+    () => [{ name: PROFILE_THEME_NAME }, { name: DEFAULT_THEME_NAME }, ...MIND_THEMES],
     []
   );
   const mindRef = useRef<ClientMindElixirHandle | null>(null);
@@ -150,9 +152,15 @@ export default function MapDetailPage() {
   }, [mapId]);
 
   useEffect(() => {
-    if (!profileThemeName) return;
-    setThemeName(profileThemeName);
-  }, [profileThemeName]);
+    if (!themeInitRef.current) {
+      setThemeName(profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME);
+      themeInitRef.current = true;
+      return;
+    }
+    if (!profileThemeName && themeName === PROFILE_THEME_NAME) {
+      setThemeName(DEFAULT_THEME_NAME);
+    }
+  }, [profileThemeName, themeName]);
 
   const title = useMemo(() => draft?.title ?? t("fallbackTitle"), [draft?.title, t]);
 
@@ -409,6 +417,8 @@ export default function MapDetailPage() {
               mode={resolvedTheme === "dark" ? "dark" : "light"}
               theme={
                 themeName === DEFAULT_THEME_NAME
+                  ? null
+                  : themeName === PROFILE_THEME_NAME
                   ? undefined
                   : MIND_THEME_BY_NAME[themeName]
               }
