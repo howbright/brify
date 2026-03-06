@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
 import { sampled } from "@/app/lib/g6/sampleData";
 import {
@@ -15,6 +16,7 @@ import {
   MIND_THEME_BY_NAME,
 } from "@/components/maps/themes";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 type ClientMindElixirProps = {
   mode?: "light" | "dark" | "auto";
@@ -50,6 +52,7 @@ type AnyNode = {
   root?: boolean;
   branchColor?: string;
   highlight?: { variant?: string } | null;
+  note?: string | null;
   children?: AnyNode[];
   expanded?: boolean;
 };
@@ -192,9 +195,71 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedRect, setSelectedRect] = useState<DOMRect | null>(null);
   const [isFocusMode, setIsFocusMode] = useState(false);
+  const [notePopover, setNotePopover] = useState<{
+    text: string;
+    rect: DOMRect;
+  } | null>(null);
+  const [noteEditorOpen, setNoteEditorOpen] = useState(false);
+  const [noteDraft, setNoteDraft] = useState("");
+  const [noteTargetId, setNoteTargetId] = useState<string | null>(null);
   const selectedNodeIdRef = useRef<string | null>(null);
   const selectedNodeElRef = useRef<HTMLElement | null>(null);
   const highlightVariant = "gold";
+  const handleNoteClick = () => {
+    const mind = mindRef.current;
+    const selectedId = selectedNodeIdRef.current;
+    if (!mind || !selectedId) return;
+    const selectedEl = selectedNodeElRef.current as
+      | (HTMLElement & { nodeObj?: AnyNode })
+      | null;
+    if (!selectedEl?.nodeObj) return;
+    setNoteTargetId(selectedId);
+    setNoteDraft(selectedEl.nodeObj.note ?? "");
+    setNoteEditorOpen(true);
+  };
+
+  const handleNoteSave = () => {
+    const selectedId = noteTargetId ?? selectedNodeIdRef.current;
+    const selectedEl = selectedNodeElRef.current as
+      | (HTMLElement & { nodeObj?: AnyNode })
+      | null;
+    if (!selectedId || !selectedEl?.nodeObj) {
+      setNoteEditorOpen(false);
+      return;
+    }
+    const trimmed = noteDraft.trim();
+    if (trimmed.length === 0) {
+      delete selectedEl.nodeObj.note;
+      selectedEl.removeAttribute("data-note");
+      const dot = selectedEl.querySelector<HTMLElement>(".me-note-dot");
+      if (dot) dot.remove();
+      onChangeRef.current?.({
+        name: "updateNote",
+        id: normalizeNodeId(selectedId),
+        value: null,
+      });
+      setNoteEditorOpen(false);
+      return;
+    }
+    const clipped = trimmed.slice(0, 500);
+    selectedEl.nodeObj.note = clipped;
+    let dot = selectedEl.querySelector<HTMLElement>(".me-note-dot");
+    if (!dot) {
+      dot = document.createElement("span");
+      dot.className = "me-note-dot";
+      dot.setAttribute("data-note-dot", "true");
+      selectedEl.appendChild(dot);
+    }
+    dot.setAttribute("data-nodeid", selectedEl.dataset.nodeid ?? "");
+    dot.setAttribute("data-note-text", clipped);
+    dot.setAttribute("title", "노트 보기");
+    onChangeRef.current?.({
+      name: "updateNote",
+      id: normalizeNodeId(selectedId),
+      value: clipped,
+    });
+    setNoteEditorOpen(false);
+  };
   const handleFocusClick = () => {
     const mind = mindRef.current;
     const nodeId = selectedNodeIdRef.current;
@@ -343,6 +408,27 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     const handleClick = (e: MouseEvent) => {
       const el = e.target as HTMLElement | null;
       if (!el) return;
+      const noteDot = el.closest?.("[data-note-dot='true']");
+      if (noteDot) {
+        e.stopPropagation();
+        const nodeId = noteDot.getAttribute("data-nodeid");
+        const noteText =
+          noteDot.getAttribute("data-note-text") ??
+          noteDot.getAttribute("title") ??
+          "";
+        const wrapper = wrapperRef.current;
+        if (!wrapper || !nodeId) return;
+        const rect = (noteDot as HTMLElement).getBoundingClientRect();
+        const hostRect = wrapper.getBoundingClientRect();
+        const relativeRect = new DOMRect(
+          rect.left - hostRect.left,
+          rect.top - hostRect.top,
+          rect.width,
+          rect.height
+        );
+        setNotePopover({ text: noteText, rect: relativeRect });
+        return;
+      }
       const nodeEl =
         el.closest?.("me-tpc[data-nodeid]") ??
         el.closest?.("me-tpc") ??
@@ -351,6 +437,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         setSelectedNodeId(null);
         setSelectedRect(null);
         selectedNodeElRef.current = null;
+        setNotePopover(null);
         return;
       }
       const nodeId = nodeEl.getAttribute("data-nodeid");
@@ -630,7 +717,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         theme: resolvedThemeObj,
       });
 
-      const syncHighlightClasses = () => {
+      const syncNodeDecorations = () => {
         const host = elRef.current;
         if (!host) return;
         host.querySelectorAll("me-tpc").forEach((node) => {
@@ -641,6 +728,24 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           } else {
             el.removeAttribute("data-highlight");
           }
+          const noteText = el.nodeObj?.note?.trim();
+          if (noteText) {
+            el.setAttribute("data-note", "true");
+            let dot = el.querySelector<HTMLElement>(".me-note-dot");
+            if (!dot) {
+              dot = document.createElement("span");
+              dot.className = "me-note-dot";
+              dot.setAttribute("data-note-dot", "true");
+              el.appendChild(dot);
+            }
+            dot.setAttribute("data-nodeid", el.dataset.nodeid ?? "");
+            dot.setAttribute("data-note-text", noteText.slice(0, 500));
+            dot.setAttribute("title", "노트 보기");
+          } else {
+            el.removeAttribute("data-note");
+            const dot = el.querySelector<HTMLElement>(".me-note-dot");
+            if (dot) dot.remove();
+          }
         });
       };
 
@@ -649,7 +754,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         if (mind.__originalRefresh) {
           mind.refresh = (data?: any) => {
             const res = mind.__originalRefresh(data);
-            syncHighlightClasses();
+            syncNodeDecorations();
             return res;
           };
         }
@@ -658,7 +763,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       mind.init(initialData);
       mindRef.current = mind;
       applyEditMode(mind, editMode === "edit");
-      syncHighlightClasses();
+      syncNodeDecorations();
 
       // Keep focus UI in sync even when focus is triggered from context menu
       if (!mind.__originalFocusNode) {
@@ -892,6 +997,23 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         .${VIEW_MODE_CLASS} .mind-elixir-toolbar {
           display: none;
         }
+        me-tpc {
+          position: relative;
+        }
+        .me-note-dot {
+          position: absolute;
+          right: -6px;
+          top: -6px;
+          width: 10px;
+          height: 10px;
+          border-radius: 999px;
+          background: #111827;
+          box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
+          cursor: pointer;
+        }
+        .${VIEW_MODE_CLASS} .me-note-dot {
+          cursor: pointer;
+        }
         me-tpc[data-highlight="gold"] {
           background-color: #fde68a !important;
           color: #7c2d12 !important;
@@ -928,39 +1050,42 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           <div className="flex items-center gap-1 rounded-full bg-white/90 px-1 py-0.5 shadow-sm ring-1 ring-black/5 dark:bg-[#0b1220]/90 dark:ring-white/10">
             <button
               type="button"
-              className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[10px] text-neutral-700 ring-1 ring-black/10 dark:bg-white/10 dark:text-white/70"
-              onClick={(e) => e.stopPropagation()}
+              className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white shadow-sm ring-1 ring-red-600/60"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNoteClick();
+              }}
               aria-label="노트 추가"
             >
-              N
+              <Icon icon="mdi:note-text-outline" className="h-3 w-3" />
               <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
                 노트 추가
               </span>
             </button>
             <button
               type="button"
-              className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[10px] text-neutral-700 ring-1 ring-black/10 dark:bg-white/10 dark:text-white/70"
+              className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-yellow-400 text-[10px] text-black shadow-sm ring-1 ring-yellow-500/70"
               onClick={(e) => {
                 e.stopPropagation();
                 handleHighlightClick();
               }}
               aria-label="하이라이트"
             >
-              H
+              <Icon icon="mdi:marker" className="h-3 w-3" />
               <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
                 하이라이트
               </span>
             </button>
             <button
               type="button"
-              className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[10px] text-neutral-700 ring-1 ring-black/10 dark:bg-white/10 dark:text-white/70"
+              className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-[10px] text-white shadow-sm ring-1 ring-green-600/70"
               onClick={(e) => {
                 e.stopPropagation();
                 handleFocusClick();
               }}
               aria-label="포커스 모드"
             >
-              F
+              <Icon icon="mdi:target" className="h-3 w-3" />
               <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
                 포커스 모드
               </span>
@@ -983,6 +1108,71 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           </div>
         </div>
       )}
+
+      {notePopover && (
+        <div
+          className="pointer-events-auto absolute z-30"
+          style={{
+            left: notePopover.rect.left + notePopover.rect.width + 8,
+            top: notePopover.rect.top + notePopover.rect.height + 6,
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="max-w-[220px] rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-700 shadow-lg dark:border-white/10 dark:bg-[#0b1220] dark:text-white/80">
+            {notePopover.text}
+          </div>
+        </div>
+      )}
+
+      <Dialog open={noteEditorOpen} onOpenChange={setNoteEditorOpen}>
+        <DialogContent className="max-w-[420px]">
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-200">
+                노트
+              </h3>
+            </div>
+
+            <textarea
+              className="min-h-[120px] w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200/60 dark:border-white/10 dark:bg-[#0b1220] dark:text-white/85 dark:focus:border-blue-300 dark:focus:ring-blue-500/30"
+              placeholder="노트를 입력하세요"
+              value={noteDraft}
+              onChange={(e) => setNoteDraft(e.target.value.slice(0, 500))}
+              maxLength={500}
+            />
+
+            <div className="flex items-center justify-between text-[11px] text-neutral-500 dark:text-white/60">
+              <span>{noteDraft.length}/500</span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-100 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20"
+                  onClick={() => {
+                    setNoteDraft("");
+                    handleNoteSave();
+                  }}
+                >
+                  노트 삭제
+                </button>
+                <button
+                  type="button"
+                  className="rounded-full border border-neutral-200 bg-white px-3 py-1 text-[11px] font-semibold text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/10"
+                  onClick={() => setNoteEditorOpen(false)}
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  className="rounded-full bg-blue-600 px-3 py-1 text-[11px] font-semibold text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
+                  onClick={handleNoteSave}
+                >
+                  저장
+                </button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {loading && (
         <div className="pointer-events-none absolute left-4 top-4 z-10">

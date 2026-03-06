@@ -116,21 +116,81 @@ export default function MapControls({
             >
             {/* Left: Mode + Status */}
             <div className="flex items-center gap-2">
-              <MapControlButton
-                icon={editMode === "edit" ? "mdi:pencil" : "mdi:eye-outline"}
-                label={editMode === "edit" ? "편집 모드" : "보기 모드"}
-                onClick={onToggleEdit}
-                pressed={editMode === "edit"}
-                highlight={highlightEditToggle}
-              />
+              <div className="inline-flex items-center overflow-hidden rounded-xl border border-neutral-200 bg-white/80 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (editMode !== "view") onToggleEdit();
+                  }}
+                  className={`
+                    inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold transition-colors
+                    ${editMode === "view"
+                      ? "bg-blue-600 text-white"
+                      : "text-neutral-700 hover:bg-white dark:text-white/80 dark:hover:bg-white/10"}
+                    ${highlightEditToggle ? "ring-2 ring-amber-300/80 animate-pulse" : ""}
+                  `}
+                  aria-label="보기 모드"
+                  title="보기 모드"
+                >
+                  <Icon icon="mdi:eye-outline" className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">보기</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (editMode !== "edit") onToggleEdit();
+                  }}
+                  className={`
+                    inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold transition-colors
+                    ${editMode === "edit"
+                      ? "bg-blue-600 text-white"
+                      : "text-neutral-700 hover:bg-white dark:text-white/80 dark:hover:bg-white/10"}
+                    ${highlightEditToggle ? "ring-2 ring-amber-300/80 animate-pulse" : ""}
+                  `}
+                  aria-label="편집 모드"
+                  title="편집 모드"
+                >
+                  <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">편집</span>
+                </button>
+              </div>
 
-              <MapControlButton
-                icon={panMode ? "mdi:hand-back-left" : "mdi:cursor-default"}
-                label={panMode ? "이동 모드" : "선택 모드"}
-                onClick={onTogglePanMode}
-                pressed={panMode}
-              />
-
+              <div className="inline-flex items-center overflow-hidden rounded-xl border border-neutral-200 bg-white/80 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (panMode) onTogglePanMode();
+                  }}
+                  className={`
+                    inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold transition-colors
+                    ${!panMode
+                      ? "bg-blue-600 text-white"
+                      : "text-neutral-700 hover:bg-white dark:text-white/80 dark:hover:bg-white/10"}
+                  `}
+                  aria-label="선택 모드"
+                  title="선택 모드"
+                >
+                  <Icon icon="mdi:arrow-top-left" className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">선택</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!panMode) onTogglePanMode();
+                  }}
+                  className={`
+                    inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold transition-colors
+                    ${panMode
+                      ? "bg-blue-600 text-white"
+                      : "text-neutral-700 hover:bg-white dark:text-white/80 dark:hover:bg-white/10"}
+                  `}
+                  aria-label="이동 모드"
+                  title="이동 모드"
+                >
+                  <Icon icon="mdi:hand-back-left" className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">이동</span>
+                </button>
+              </div>
             </div>
 
             {/* Right: Map actions + More */}

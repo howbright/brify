@@ -309,6 +309,11 @@ export default function MapDetailPage() {
           body: JSON.stringify({ mind_elixir: snapshot }),
         });
         lastSavedHighlightRef.current = payload;
+        const now = Date.now();
+        if (now - lastHighlightToastRef.current > 2000) {
+          lastHighlightToastRef.current = now;
+          toast.message("하이라이트 변경 저장했습니다.");
+        }
       } catch {
         const now = Date.now();
         if (now - lastAutoSaveErrorRef.current > 10_000) {
@@ -561,10 +566,18 @@ export default function MapDetailPage() {
               onChange={(op) => {
                 if (!op?.name) return;
                 if (op.name === "toggleHighlight") {
+                  if (editMode === "view") {
+                    scheduleHighlightSave();
+                  } else {
+                    scheduleAutoSave();
+                  }
+                  return;
+                }
+                if (op.name === "updateNote") {
                   const now = Date.now();
                   if (now - lastHighlightToastRef.current > 2000) {
                     lastHighlightToastRef.current = now;
-                    toast.message("하이라이트 변경을 저장 중...");
+                    toast.message("노트 변경을 저장 중...");
                   }
                   if (editMode === "view") {
                     scheduleHighlightSave();
