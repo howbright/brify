@@ -22,6 +22,7 @@ type ClientMindElixirProps = {
   data?: any;
   placeholderData?: any;
   loading?: boolean;
+  editMode?: "view" | "edit";
 
   zoomSensitivity?: number; // scaleSensitivity
   dragButton?: 0 | 2; // mouseSelectionButton
@@ -37,6 +38,7 @@ export type ClientMindElixirHandle = {
   expandToLevel: (level: number) => void;
   collapseToLevel: (level: number) => void;
   setPanMode: (enabled: boolean) => void;
+  setEditMode: (enabled: boolean) => void;
 };
 
 type AnyNode = {
@@ -107,6 +109,25 @@ function centerMap(mind: any) {
   });
 }
 
+const PAN_MODE_CLASS = "me-pan-mode";
+const VIEW_MODE_CLASS = "me-view-mode";
+const BLOCKED_OPS = [
+  "addChild",
+  "insertParent",
+  "insertSibling",
+  "removeNodes",
+  "moveUpNode",
+  "moveDownNode",
+  "createSummary",
+  "createArrow",
+  "editSummary",
+  "editArrowLabel",
+  "beginEdit",
+  "moveNodeBefore",
+  "moveNodeAfter",
+  "moveNodeIn",
+];
+
 const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProps>(
   function ClientMindElixir(
     {
@@ -115,6 +136,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       data,
       placeholderData,
       loading = false,
+      editMode = "edit",
       zoomSensitivity = 0.1,
       dragButton = 0,
       fitOnInit = true,
@@ -152,6 +174,34 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const initialData = useMemo(() => {
     return data ?? placeholderData ?? sampled;
   }, [data, placeholderData]);
+
+  function applyEditMode(mind: any, enabled: boolean) {
+    if (!mind) return;
+
+    if (!mind.__originalBefore) {
+      mind.__originalBefore = { ...(mind.before ?? {}) };
+    }
+
+    const original = mind.__originalBefore as Record<string, any>;
+    const nextBefore: Record<string, any> = { ...original };
+
+    BLOCKED_OPS.forEach((op) => {
+      nextBefore[op] = async (...args: any[]) => {
+        if (!enabled) return false;
+        const fn = original[op];
+        if (typeof fn === "function") {
+          return await fn.apply(mind, args);
+        }
+        return true;
+      };
+    });
+
+    mind.before = nextBefore;
+
+    if (elRef.current) {
+      elRef.current.classList.toggle(VIEW_MODE_CLASS, !enabled);
+    }
+  }
 
   useImperativeHandle(
     ref,
@@ -258,6 +308,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         } else {
           mind.selection?.enable?.();
         }
+
+        if (elRef.current) {
+          elRef.current.classList.toggle(PAN_MODE_CLASS, enabled);
+        }
+      },
+      setEditMode: (enabled: boolean) => {
+        const mind = mindRef.current;
+        applyEditMode(mind, enabled);
       },
     }),
     []
@@ -309,6 +367,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
       mind.init(initialData);
       mindRef.current = mind;
+      applyEditMode(mind, editMode === "edit");
 
       const initialNode = normalizeMindData(initialData)?.node;
       if (initialNode) {
@@ -377,8 +436,31 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     initialData,
   ]);
 
+  useEffect(() => {
+    const mind = mindRef.current;
+    if (!mind) return;
+    applyEditMode(mind, editMode === "edit");
+  }, [editMode]);
+
   return (
     <div className="relative w-full h-full">
+      <style jsx global>{`
+        .${PAN_MODE_CLASS} me-tpc,
+        .${PAN_MODE_CLASS} [data-nodeid] {
+          pointer-events: none;
+        }
+        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-add_child,
+        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-add_parent,
+        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-add_sibling,
+        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-remove_child,
+        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-up,
+        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-down,
+        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-link,
+        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-link-bidirectional,
+        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-summary {
+          display: none;
+        }
+      `}</style>
       <div ref={elRef} className="relative w-full h-full" />
 
       {loading && (

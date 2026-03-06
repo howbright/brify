@@ -143,7 +143,7 @@ export default function MapControls({
               )}
             </div>
 
-            {/* Center: Publish + Share */}
+            {/* Center: Publish */}
             <div className="flex items-center gap-2">
               {editMode === "edit" && (
                 <MapControlButton
@@ -152,18 +152,6 @@ export default function MapControls({
                   onClick={() => onPublish?.()}
                 />
               )}
-
-              <MapControlButton
-                icon="mdi:share-variant-outline"
-                label="공유"
-                onClick={() => {
-                  if (editMode === "edit") {
-                    setConfirmShareOpen(true);
-                  } else {
-                    onShare?.();
-                  }
-                }}
-              />
             </div>
 
             {/* Right: Map actions + More */}
@@ -242,6 +230,17 @@ export default function MapControls({
 
                 {moreOpen && (
                   <div className="absolute right-0 mt-2 w-[180px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
+                    <MenuButton
+                      label="공유"
+                      onClick={() => {
+                        setMoreOpen(false);
+                        if (editMode === "edit") {
+                          setConfirmShareOpen(true);
+                        } else {
+                          onShare?.();
+                        }
+                      }}
+                    />
                     <MenuButton
                       label="단축키"
                       onClick={() => {

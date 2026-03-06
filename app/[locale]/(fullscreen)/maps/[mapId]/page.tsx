@@ -120,7 +120,7 @@ export default function MapDetailPage() {
         const { data, error } = await supabase
           .from("maps")
           .select(
-            "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,mind_elixir"
+            "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,mind_elixir,mind_theme_override"
           )
           .eq("id", mapId)
           .single();
@@ -136,6 +136,14 @@ export default function MapDetailPage() {
           throw new Error("mind_elixir 데이터가 없습니다.");
         }
         setMapData(mind);
+
+        const override = row?.mind_theme_override ?? null;
+        if (override) {
+          setThemeName(override);
+        } else {
+          setThemeName(profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME);
+        }
+        themeInitRef.current = true;
       } catch (e: any) {
         if (cancelled) return;
         setError(e?.message ?? "구조맵을 불러오지 못했습니다.");
@@ -415,6 +423,7 @@ export default function MapDetailPage() {
             <ClientMindElixir
               ref={mindRef}
               mode={resolvedTheme === "dark" ? "dark" : "light"}
+              editMode={editMode}
               theme={
                 themeName === DEFAULT_THEME_NAME
                   ? null
@@ -438,7 +447,23 @@ export default function MapDetailPage() {
             setEditMode((m) => (m === "view" ? "edit" : "view"))
           }
           onTogglePanMode={() => setPanMode((v) => !v)}
-          onSelectTheme={(name) => setThemeName(name)}
+          onSelectTheme={async (name) => {
+            setThemeName(name);
+            if (!mapId) return;
+
+            const override =
+              name === PROFILE_THEME_NAME
+                ? null
+                : name === DEFAULT_THEME_NAME
+                ? DEFAULT_THEME_NAME
+                : name;
+
+            await fetch(`/api/maps/${mapId}/theme`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ mind_theme_override: override }),
+            }).catch(() => {});
+          }}
           onCollapseAll={() => mindRef.current?.collapseAll()}
           onExpandAll={() => mindRef.current?.expandAll()}
           onExpandLevel={() => mindRef.current?.expandOneLevel()}

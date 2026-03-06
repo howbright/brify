@@ -218,6 +218,7 @@ export default function FullscreenDialog({
             <div className="h-full w-full rounded-2xl border border-neutral-200/70 bg-white/65 backdrop-blur-sm shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
               <ClientMindElixir
                 mode={resolvedTheme === "dark" ? "dark" : "light"}
+                editMode={editMode}
                 theme={
                   profileThemeName && profileThemeName !== DEFAULT_THEME_NAME
                     ? MIND_THEME_BY_NAME[profileThemeName]
