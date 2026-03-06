@@ -829,27 +829,39 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           <div className="flex items-center gap-1 rounded-full bg-white/90 px-1 py-0.5 shadow-sm ring-1 ring-black/5 dark:bg-[#0b1220]/90 dark:ring-white/10">
             <button
               type="button"
-              className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[10px] text-neutral-700 ring-1 ring-black/10 dark:bg-white/10 dark:text-white/70"
+              className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[10px] text-neutral-700 ring-1 ring-black/10 dark:bg-white/10 dark:text-white/70"
               onClick={(e) => e.stopPropagation()}
+              aria-label="노트 추가"
             >
               N
+              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                노트 추가
+              </span>
             </button>
             <button
               type="button"
-              className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[10px] text-neutral-700 ring-1 ring-black/10 dark:bg-white/10 dark:text-white/70"
+              className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[10px] text-neutral-700 ring-1 ring-black/10 dark:bg-white/10 dark:text-white/70"
               onClick={(e) => e.stopPropagation()}
+              aria-label="하이라이트"
             >
               H
+              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                하이라이트
+              </span>
             </button>
             <button
               type="button"
-              className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[10px] text-neutral-700 ring-1 ring-black/10 dark:bg-white/10 dark:text-white/70"
+              className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[10px] text-neutral-700 ring-1 ring-black/10 dark:bg-white/10 dark:text-white/70"
               onClick={(e) => {
                 e.stopPropagation();
                 handleFocusClick();
               }}
+              aria-label="포커스 모드"
             >
               F
+              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                포커스 모드
+              </span>
             </button>
           </div>
         </div>
