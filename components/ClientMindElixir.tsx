@@ -49,6 +49,7 @@ type AnyNode = {
   topic: string;
   root?: boolean;
   branchColor?: string;
+  highlight?: { variant?: string } | null;
   children?: AnyNode[];
   expanded?: boolean;
 };
@@ -105,6 +106,20 @@ function clearAutoBranchColors(node: AnyNode, palette: string[] | null) {
     delete node.branchColor;
   }
   node.children?.forEach((child) => clearAutoBranchColors(child, palette));
+}
+
+function normalizeNodeId(id: string) {
+  return id.startsWith("me") ? id.slice(2) : id;
+}
+
+function findNodeById(node: AnyNode, id: string): AnyNode | null {
+  if (node.id === id) return node;
+  if (!node.children) return null;
+  for (const child of node.children) {
+    const found = findNodeById(child, id);
+    if (found) return found;
+  }
+  return null;
 }
 
 function centerMap(mind: any) {
@@ -179,6 +194,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const [isFocusMode, setIsFocusMode] = useState(false);
   const selectedNodeIdRef = useRef<string | null>(null);
   const selectedNodeElRef = useRef<HTMLElement | null>(null);
+  const highlightVariant = "gold";
   const handleFocusClick = () => {
     const mind = mindRef.current;
     const nodeId = selectedNodeIdRef.current;
@@ -213,6 +229,51 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     if (!mind) return;
     mind.cancelFocus?.();
     setIsFocusMode(false);
+  };
+  const handleHighlightClick = () => {
+    const mind = mindRef.current;
+    const selectedId = selectedNodeIdRef.current;
+    if (!mind || !selectedId) return;
+    const selectedEl = selectedNodeElRef.current as
+      | (HTMLElement & { nodeObj?: AnyNode })
+      | null;
+    if (selectedEl?.nodeObj) {
+      const node = selectedEl.nodeObj;
+      if (node.highlight?.variant) {
+        delete node.highlight;
+        selectedEl.removeAttribute("data-highlight");
+      } else {
+        node.highlight = { variant: highlightVariant };
+        selectedEl.setAttribute("data-highlight", highlightVariant);
+      }
+      onChangeRef.current?.({
+        name: "toggleHighlight",
+        id: normalizeNodeId(selectedId),
+        value: node.highlight ?? null,
+      });
+      return;
+    }
+    const raw = mind.getData?.() ?? mind.getAllData?.();
+    const normalized = normalizeMindData(raw);
+    if (!normalized) return;
+    const next = cloneMindData(normalized.data);
+    const nextNode = normalizeMindData(next)?.node;
+    if (!nextNode) return;
+    const targetId = normalizeNodeId(selectedId);
+    const target = findNodeById(nextNode, targetId);
+    if (!target) return;
+    if (target.highlight?.variant) {
+      delete target.highlight;
+    } else {
+      target.highlight = { variant: highlightVariant };
+    }
+    mind.refresh?.(next);
+    onChangeRef.current?.({
+      name: "toggleHighlight",
+      id: targetId,
+      value: target.highlight ?? null,
+    });
+    requestAnimationFrame(() => updateSelectedRect(selectedId));
   };
 
   const initTokenRef = useRef(0);
@@ -569,9 +630,35 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         theme: resolvedThemeObj,
       });
 
+      const syncHighlightClasses = () => {
+        const host = elRef.current;
+        if (!host) return;
+        host.querySelectorAll("me-tpc").forEach((node) => {
+          const el = node as HTMLElement & { nodeObj?: AnyNode };
+          const variant = el.nodeObj?.highlight?.variant;
+          if (variant) {
+            el.setAttribute("data-highlight", variant);
+          } else {
+            el.removeAttribute("data-highlight");
+          }
+        });
+      };
+
+      if (!mind.__originalRefresh) {
+        mind.__originalRefresh = mind.refresh?.bind(mind);
+        if (mind.__originalRefresh) {
+          mind.refresh = (data?: any) => {
+            const res = mind.__originalRefresh(data);
+            syncHighlightClasses();
+            return res;
+          };
+        }
+      }
+
       mind.init(initialData);
       mindRef.current = mind;
       applyEditMode(mind, editMode === "edit");
+      syncHighlightClasses();
 
       // Keep focus UI in sync even when focus is triggered from context menu
       if (!mind.__originalFocusNode) {
@@ -805,6 +892,18 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         .${VIEW_MODE_CLASS} .mind-elixir-toolbar {
           display: none;
         }
+        me-tpc[data-highlight="gold"] {
+          background-color: #fde68a !important;
+          color: #7c2d12 !important;
+          border: 1px solid #f59e0b !important;
+          box-shadow:
+            0 6px 16px rgba(245, 158, 11, 0.35),
+            0 0 0 2px rgba(253, 230, 138, 0.5);
+        }
+        me-tpc[data-highlight="gold"] .text {
+          color: #7c2d12 !important;
+          font-weight: 600;
+        }
       `}</style>
       <div ref={elRef} className="relative w-full h-full" />
       {selectedNodeId && selectedRect && (
@@ -841,7 +940,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             <button
               type="button"
               className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[10px] text-neutral-700 ring-1 ring-black/10 dark:bg-white/10 dark:text-white/70"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleHighlightClick();
+              }}
               aria-label="하이라이트"
             >
               H

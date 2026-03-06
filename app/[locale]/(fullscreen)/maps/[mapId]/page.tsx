@@ -116,6 +116,9 @@ export default function MapDetailPage() {
   const savedPulseTimerRef = useRef<number | null>(null);
   const editHintTimerRef = useRef<number | null>(null);
   const lastEditHintRef = useRef<number>(0);
+  const lastHighlightToastRef = useRef<number>(0);
+  const highlightSaveTimerRef = useRef<number | null>(null);
+  const lastSavedHighlightRef = useRef<string | null>(null);
 
   const MUTATING_OPS = useMemo(
     () =>
@@ -141,6 +144,7 @@ export default function MapDetailPage() {
         "removeSummary",
         "copyNode",
         "copyNodes",
+        "toggleHighlight",
       ]),
     []
   );
@@ -287,10 +291,41 @@ export default function MapDetailPage() {
     }, 1200);
   };
 
+  const scheduleHighlightSave = () => {
+    if (!mapId) return;
+    if (highlightSaveTimerRef.current) {
+      window.clearTimeout(highlightSaveTimerRef.current);
+    }
+    highlightSaveTimerRef.current = window.setTimeout(async () => {
+      const snapshot = mindRef.current?.getSnapshot?.();
+      if (!snapshot) return;
+      const payload = JSON.stringify(snapshot);
+      if (payload === lastSavedHighlightRef.current) return;
+
+      try {
+        await fetch(`/api/maps/${mapId}/mind`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mind_elixir: snapshot }),
+        });
+        lastSavedHighlightRef.current = payload;
+      } catch {
+        const now = Date.now();
+        if (now - lastAutoSaveErrorRef.current > 10_000) {
+          lastAutoSaveErrorRef.current = now;
+          toast.message("하이라이트 저장에 실패했습니다.");
+        }
+      }
+    }, 600);
+  };
+
   useEffect(() => {
     return () => {
       if (autoSaveTimerRef.current) {
         window.clearTimeout(autoSaveTimerRef.current);
+      }
+      if (highlightSaveTimerRef.current) {
+        window.clearTimeout(highlightSaveTimerRef.current);
       }
       if (savedPulseTimerRef.current) {
         window.clearTimeout(savedPulseTimerRef.current);
@@ -524,8 +559,21 @@ export default function MapDetailPage() {
               mode={resolvedTheme === "dark" ? "dark" : "light"}
               editMode={editMode}
               onChange={(op) => {
-                if (editMode !== "edit") return;
                 if (!op?.name) return;
+                if (op.name === "toggleHighlight") {
+                  const now = Date.now();
+                  if (now - lastHighlightToastRef.current > 2000) {
+                    lastHighlightToastRef.current = now;
+                    toast.message("하이라이트 변경을 저장 중...");
+                  }
+                  if (editMode === "view") {
+                    scheduleHighlightSave();
+                  } else {
+                    scheduleAutoSave();
+                  }
+                  return;
+                }
+                if (editMode !== "edit") return;
                 if (!MUTATING_OPS.has(op.name)) return;
                 scheduleAutoSave();
               }}
