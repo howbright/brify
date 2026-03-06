@@ -96,6 +96,14 @@ function setExpandedToLevel(node: AnyNode, level: number, depth = 0) {
   node.children?.forEach((child) => setExpandedToLevel(child, level, depth + 1));
 }
 
+function clearAutoBranchColors(node: AnyNode, palette: string[] | null) {
+  if (!palette || palette.length === 0) return;
+  if (node.branchColor && palette.includes(node.branchColor)) {
+    delete node.branchColor;
+  }
+  node.children?.forEach((child) => clearAutoBranchColors(child, palette));
+}
+
 function centerMap(mind: any) {
   if (!mind) return;
   requestAnimationFrame(() => {
@@ -154,6 +162,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const [ready, setReady] = useState(false);
 
   const initTokenRef = useRef(0);
+  const defaultThemeRef = useRef<{ light: any; dark: any } | null>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -170,6 +179,17 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     if (profileThemeName === DEFAULT_THEME_NAME) return null;
     return MIND_THEME_BY_NAME[profileThemeName] ?? null;
   }, [profileThemeName]);
+
+  const resolveThemeObj = useMemo(() => {
+    return (
+      defaults: { light: any; dark: any } | null,
+      modeValue: "light" | "dark"
+    ) => {
+      const fallback = defaults?.[modeValue];
+      if (theme === null) return fallback;
+      return theme ?? profileTheme ?? fallback;
+    };
+  }, [theme, profileTheme]);
 
   const initialData = useMemo(() => {
     return data ?? placeholderData ?? sampled;
@@ -343,14 +363,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       if (cancelled || myToken !== initTokenRef.current) return;
       if (!elRef.current) return;
 
-      const resolvedThemeObj =
-        theme === null
-          ? effectiveMode === "dark"
-            ? MindElixir.DARK_THEME
-            : MindElixir.THEME
-          : theme ??
-            profileTheme ??
-            (effectiveMode === "dark" ? MindElixir.DARK_THEME : MindElixir.THEME);
+      defaultThemeRef.current = {
+        light: MindElixir.THEME,
+        dark: MindElixir.DARK_THEME,
+      };
+
+      const resolvedThemeObj = resolveThemeObj(
+        defaultThemeRef.current,
+        effectiveMode
+      );
 
       const mind = new MindElixir({
         el: elRef.current,
@@ -426,15 +447,30 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     };
   }, [
     mounted,
-    effectiveMode,
-    theme,
-    profileTheme,
     zoomSensitivity,
     dragButton,
     fitOnInit,
     openMenuOnClick,
     initialData,
   ]);
+
+  useEffect(() => {
+    const mind = mindRef.current;
+    if (!mind) return;
+    const defaults = defaultThemeRef.current;
+    if (!defaults) return;
+    const nextTheme = resolveThemeObj(defaults, effectiveMode);
+    if (nextTheme) {
+      const prevPalette = Array.isArray(mind.theme?.palette)
+        ? mind.theme.palette
+        : null;
+      const root = mind.nodeData as AnyNode | undefined;
+      if (root && prevPalette) {
+        clearAutoBranchColors(root, prevPalette);
+      }
+      mind.changeTheme?.(nextTheme, true);
+    }
+  }, [effectiveMode, resolveThemeObj]);
 
   useEffect(() => {
     const mind = mindRef.current;
