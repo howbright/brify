@@ -84,6 +84,7 @@ export default function MapDetailPage() {
 
   const [draft, setDraft] = useState<MapDraft | null>(null);
   const [mapData, setMapData] = useState<any | null>(null);
+  const [hasDraft, setHasDraft] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -106,6 +107,40 @@ export default function MapDetailPage() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [savedPulse, setSavedPulse] = useState(false);
+  const autoSaveTimerRef = useRef<number | null>(null);
+  const lastSavedDraftRef = useRef<string | null>(null);
+  const lastAutoSaveErrorRef = useRef<number>(0);
+  const savedPulseTimerRef = useRef<number | null>(null);
+
+  const MUTATING_OPS = useMemo(
+    () =>
+      new Set([
+        "addChild",
+        "insertParent",
+        "insertSibling",
+        "removeNodes",
+        "moveUpNode",
+        "moveDownNode",
+        "moveNodeIn",
+        "moveNodeBefore",
+        "moveNodeAfter",
+        "undo",
+        "redo",
+        "finishEdit",
+        "finishEditSummary",
+        "finishEditArrowLabel",
+        "reshapeNode",
+        "createArrow",
+        "removeArrow",
+        "createSummary",
+        "removeSummary",
+        "copyNode",
+        "copyNodes",
+      ]),
+    []
+  );
 
   useEffect(() => {
     if (!mapId) return;
@@ -120,7 +155,7 @@ export default function MapDetailPage() {
         const { data, error } = await supabase
           .from("maps")
           .select(
-            "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,mind_elixir,mind_theme_override"
+            "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,mind_elixir,mind_elixir_draft,mind_theme_override"
           )
           .eq("id", mapId)
           .single();
@@ -128,14 +163,21 @@ export default function MapDetailPage() {
         if (cancelled) return;
         if (error) throw error;
 
-        const row = data as MapRow & { mind_elixir?: any };
+        const row = data as MapRow & {
+          mind_elixir?: any;
+          mind_elixir_draft?: any;
+        };
         setDraft(toDraft(row));
 
+        const draftMind = row?.mind_elixir_draft ?? null;
         const mind = row?.mind_elixir ?? null;
-        if (!mind) {
+        const effectiveMind = draftMind ?? mind ?? null;
+
+        setHasDraft(Boolean(draftMind));
+        if (!effectiveMind) {
           throw new Error("mind_elixir 데이터가 없습니다.");
         }
-        setMapData(mind);
+        setMapData(effectiveMind);
 
         const override = row?.mind_theme_override ?? null;
         if (override) {
@@ -149,6 +191,7 @@ export default function MapDetailPage() {
         setError(e?.message ?? "구조맵을 불러오지 못했습니다.");
         setDraft(null);
         setMapData(null);
+        setHasDraft(false);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -201,6 +244,56 @@ export default function MapDetailPage() {
   useEffect(() => {
     mindRef.current?.setPanMode(panMode);
   }, [panMode]);
+
+  const scheduleAutoSave = () => {
+    if (!mapId) return;
+    if (autoSaveTimerRef.current) {
+      window.clearTimeout(autoSaveTimerRef.current);
+    }
+    autoSaveTimerRef.current = window.setTimeout(async () => {
+      const snapshot = mindRef.current?.getSnapshot?.();
+      if (!snapshot) return;
+      const payload = JSON.stringify(snapshot);
+      if (payload === lastSavedDraftRef.current) return;
+
+      setIsSavingDraft(true);
+      try {
+        await fetch(`/api/maps/${mapId}/draft`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mind_elixir_draft: snapshot }),
+        });
+        lastSavedDraftRef.current = payload;
+        setHasDraft(true);
+        setSavedPulse(true);
+        if (savedPulseTimerRef.current) {
+          window.clearTimeout(savedPulseTimerRef.current);
+        }
+        savedPulseTimerRef.current = window.setTimeout(() => {
+          setSavedPulse(false);
+        }, 1200);
+      } catch {
+        const now = Date.now();
+        if (now - lastAutoSaveErrorRef.current > 10_000) {
+          lastAutoSaveErrorRef.current = now;
+          toast.message("자동 저장에 실패했습니다.");
+        }
+      } finally {
+        setIsSavingDraft(false);
+      }
+    }, 1200);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimerRef.current) {
+        window.clearTimeout(autoSaveTimerRef.current);
+      }
+      if (savedPulseTimerRef.current) {
+        window.clearTimeout(savedPulseTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleDelete = async () => {
     if (!mapId) return;
@@ -424,6 +517,12 @@ export default function MapDetailPage() {
               ref={mindRef}
               mode={resolvedTheme === "dark" ? "dark" : "light"}
               editMode={editMode}
+              onChange={(op) => {
+                if (editMode !== "edit") return;
+                if (!op?.name) return;
+                if (!MUTATING_OPS.has(op.name)) return;
+                scheduleAutoSave();
+              }}
               theme={
                 themeName === DEFAULT_THEME_NAME
                   ? null
@@ -443,6 +542,19 @@ export default function MapDetailPage() {
           panMode={panMode}
           themes={themeOptions}
           currentThemeName={themeName}
+          hasDraft={hasDraft}
+          statusLabel={
+            isSavingDraft
+              ? "자동 저장 중…"
+              : savedPulse
+              ? "저장됨"
+              : hasDraft
+              ? "임시 변경 있음"
+              : undefined
+          }
+          statusTone={
+            isSavingDraft ? "warning" : savedPulse ? "success" : "neutral"
+          }
           onToggleEdit={() =>
             setEditMode((m) => (m === "view" ? "edit" : "view"))
           }
@@ -469,16 +581,68 @@ export default function MapDetailPage() {
           onExpandLevel={() => mindRef.current?.expandOneLevel()}
           onCollapseLevel={() => mindRef.current?.collapseOneLevel()}
           onPublish={() => {
-            toast.message("발행 기능은 준비 중입니다.");
+            (async () => {
+              if (!mapId) return;
+              try {
+                const res = await fetch(`/api/maps/${mapId}/publish`, {
+                  method: "POST",
+                });
+                if (!res.ok) throw new Error("발행 실패");
+                setHasDraft(false);
+                lastSavedDraftRef.current = null;
+                // 발행된 원본을 다시 동기화
+                try {
+                  const supabase = createClient();
+                  const { data, error } = await supabase
+                    .from("maps")
+                    .select("mind_elixir")
+                    .eq("id", mapId)
+                    .single();
+                  if (!error && data?.mind_elixir) {
+                    setMapData(data.mind_elixir);
+                  }
+                } catch {
+                  // ignore
+                }
+                toast.message("발행이 완료되었습니다.");
+              } catch {
+                toast.message("발행에 실패했습니다.");
+              }
+            })();
           }}
           onShare={() => {
             toast.message("공유 기능은 준비 중입니다.");
           }}
           onDiscardDraft={() => {
-            toast.message("임시 변경 버리기 기능은 준비 중입니다.");
+            (async () => {
+              if (!mapId) return;
+              try {
+                const res = await fetch(`/api/maps/${mapId}/draft`, {
+                  method: "DELETE",
+                });
+                if (!res.ok) throw new Error("삭제 실패");
+                setHasDraft(false);
+                lastSavedDraftRef.current = null;
+                // 원본 맵으로 즉시 되돌리기
+                try {
+                  const supabase = createClient();
+                  const { data, error } = await supabase
+                    .from("maps")
+                    .select("mind_elixir")
+                    .eq("id", mapId)
+                    .single();
+                  if (!error && data?.mind_elixir) {
+                    setMapData(data.mind_elixir);
+                  }
+                } catch {
+                  // ignore
+                }
+                toast.message("임시 변경을 버렸습니다.");
+              } catch {
+                toast.message("임시 변경 버리기에 실패했습니다.");
+              }
+            })();
           }}
-          statusLabel={editMode === "edit" ? "임시 변경 있음" : undefined}
-          statusTone="warning"
         />
 
         {error && (

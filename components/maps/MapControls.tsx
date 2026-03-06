@@ -23,6 +23,7 @@ export default function MapControls({
   onDiscardDraft,
   statusLabel,
   statusTone = "neutral",
+  hasDraft = false,
 }: {
   editMode: "view" | "edit";
   panMode: boolean;
@@ -40,6 +41,7 @@ export default function MapControls({
   onDiscardDraft?: () => void;
   statusLabel?: string;
   statusTone?: "neutral" | "warning" | "success";
+  hasDraft?: boolean;
 }) {
   const [open, setOpen] = useState(true);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
@@ -101,14 +103,15 @@ export default function MapControls({
         </button>
 
         {open && (
-          <div
-            className="
-              flex items-center gap-2
-              rounded-2xl border border-neutral-200 bg-white/90 px-2 py-1.5
-              text-[11px] font-semibold text-neutral-700 shadow-sm backdrop-blur
-              dark:border-white/10 dark:bg-[#0b1220]/70 dark:text-white/80
-            "
-          >
+          <div className="flex flex-col gap-2">
+            <div
+              className="
+                flex items-center gap-2
+                rounded-2xl border border-neutral-200 bg-white/90 px-2 py-1.5
+                text-[11px] font-semibold text-neutral-700 shadow-sm backdrop-blur
+                dark:border-white/10 dark:bg-[#0b1220]/70 dark:text-white/80
+              "
+            >
             {/* Left: Mode + Status */}
             <div className="flex items-center gap-2">
               <MapControlButton
@@ -125,33 +128,6 @@ export default function MapControls({
                 pressed={panMode}
               />
 
-              {statusLabel && (
-                <span
-                  className={`
-                    inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold
-                    ${
-                      statusTone === "success"
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-500/15 dark:text-emerald-200"
-                        : statusTone === "warning"
-                        ? "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-400/30 dark:bg-amber-500/15 dark:text-amber-200"
-                        : "border-neutral-200 bg-neutral-50 text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70"
-                    }
-                  `}
-                >
-                  {statusLabel}
-                </span>
-              )}
-            </div>
-
-            {/* Center: Publish */}
-            <div className="flex items-center gap-2">
-              {editMode === "edit" && (
-                <MapControlButton
-                  icon="mdi:check-circle-outline"
-                  label="완료/발행"
-                  onClick={() => onPublish?.()}
-                />
-              )}
             </div>
 
             {/* Right: Map actions + More */}
@@ -248,20 +224,65 @@ export default function MapControls({
                         setShortcutsOpen(true);
                       }}
                     />
-                    {editMode === "edit" && (
-                      <MenuButton
-                        label="임시 변경 버리기"
-                        danger
-                        onClick={() => {
-                          setMoreOpen(false);
-                          setConfirmDiscardOpen(true);
-                        }}
-                      />
-                    )}
                   </div>
                 )}
               </div>
             </div>
+            </div>
+
+            {(statusLabel || hasDraft) && (
+              <div className="flex items-center gap-2 px-1">
+                <div className="flex-1" />
+                {statusLabel && (
+                  <span
+                    className={`
+                      text-[11px] font-semibold
+                      ${
+                        statusTone === "success"
+                          ? "text-emerald-600 dark:text-emerald-300"
+                          : statusTone === "warning"
+                          ? "text-amber-600 dark:text-amber-300"
+                          : "text-neutral-500 dark:text-white/70"
+                      }
+                    `}
+                  >
+                    {statusLabel}
+                  </span>
+                )}
+                {hasDraft && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDiscardOpen(true)}
+                      className="
+                        inline-flex items-center gap-1.5 rounded-xl
+                        border border-neutral-200 bg-white/80 px-2.5 py-1
+                        text-[11px] font-semibold text-neutral-700
+                        hover:bg-white hover:text-neutral-900
+                        dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80 dark:hover:bg-white/[0.12]
+                      "
+                    >
+                      <Icon icon="mdi:undo-variant" className="h-3.5 w-3.5" />
+                      임시 변경 버리기
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onPublish?.()}
+                      className="
+                        inline-flex items-center gap-1.5 rounded-xl
+                        bg-blue-600 px-2.5 py-1
+                        text-[11px] font-semibold text-white
+                        hover:bg-blue-700
+                        dark:bg-blue-500 dark:hover:bg-blue-400
+                      "
+                    >
+                      <Icon icon="mdi:check-circle-outline" className="h-3.5 w-3.5" />
+                      완료/발행
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

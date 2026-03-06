@@ -23,6 +23,7 @@ type ClientMindElixirProps = {
   placeholderData?: any;
   loading?: boolean;
   editMode?: "view" | "edit";
+  onChange?: (op: any) => void;
 
   zoomSensitivity?: number; // scaleSensitivity
   dragButton?: 0 | 2; // mouseSelectionButton
@@ -39,6 +40,7 @@ export type ClientMindElixirHandle = {
   collapseToLevel: (level: number) => void;
   setPanMode: (enabled: boolean) => void;
   setEditMode: (enabled: boolean) => void;
+  getSnapshot: () => any | null;
 };
 
 type AnyNode = {
@@ -117,6 +119,14 @@ function centerMap(mind: any) {
   });
 }
 
+function parseScale(transform: string | null) {
+  if (!transform) return null;
+  const m = transform.match(/scale\(([^)]+)\)/);
+  if (!m) return null;
+  const v = Number(m[1]);
+  return Number.isFinite(v) ? v : null;
+}
+
 const PAN_MODE_CLASS = "me-pan-mode";
 const VIEW_MODE_CLASS = "me-view-mode";
 const BLOCKED_OPS = [
@@ -145,6 +155,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       placeholderData,
       loading = false,
       editMode = "edit",
+      onChange,
       zoomSensitivity = 0.1,
       dragButton = 0,
       fitOnInit = true,
@@ -163,6 +174,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
   const initTokenRef = useRef(0);
   const defaultThemeRef = useRef<{ light: any; dark: any } | null>(null);
+  const onChangeRef = useRef<typeof onChange | null>(null);
+
+  useEffect(() => {
+    onChangeRef.current = onChange ?? null;
+  }, [onChange]);
+  const lastTransformRef = useRef<string | null>(null);
+  const lastScaleRef = useRef<number | null>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -337,6 +355,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         const mind = mindRef.current;
         applyEditMode(mind, enabled);
       },
+      getSnapshot: () => {
+        const mind = mindRef.current;
+        if (!mind) return null;
+        return mind.getData?.() ?? mind.getAllData?.() ?? null;
+      },
     }),
     []
   );
@@ -390,6 +413,22 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       mindRef.current = mind;
       applyEditMode(mind, editMode === "edit");
 
+      // Hook undo/redo to trigger autosave listeners
+      if (typeof mind.undo === "function") {
+        const originalUndo = mind.undo.bind(mind);
+        mind.undo = () => {
+          originalUndo();
+          onChangeRef.current?.({ name: "undo" });
+        };
+      }
+      if (typeof mind.redo === "function") {
+        const originalRedo = mind.redo.bind(mind);
+        mind.redo = () => {
+          originalRedo();
+          onChangeRef.current?.({ name: "redo" });
+        };
+      }
+
       const initialNode = normalizeMindData(initialData)?.node;
       if (initialNode) {
         currentLevelRef.current = getMaxExpandedDepth(initialNode);
@@ -401,7 +440,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           if (cancelled || myToken !== initTokenRef.current) return;
           if (!elRef.current) return;
 
-          if (fitOnInit) {
+          if (lastTransformRef.current) {
+            mind.map.style.transform = lastTransformRef.current;
+            if (lastScaleRef.current) {
+              mind.scaleVal = lastScaleRef.current;
+            } else {
+              const parsed = parseScale(lastTransformRef.current);
+              if (parsed) mind.scaleVal = parsed;
+            }
+          } else if (fitOnInit) {
             mind.scaleFit?.();
             mind.toCenter?.();
           }
@@ -409,9 +456,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         });
       });
 
-      if (openMenuOnClick) {
-        mind.bus?.addListener?.("operation", (op: any) => {
-          if (op?.name !== "selectNode") return;
+      mind.bus?.addListener?.("operation", (op: any) => {
+        if (op?.name !== "selectNode") {
+          onChangeRef.current?.(op);
+          return;
+        }
+
+        if (!openMenuOnClick) return;
 
           const id = op?.data?.id ?? op?.obj?.id;
           if (!id) return;
@@ -432,14 +483,20 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
               clientY: rect.top + rect.height / 2,
             })
           );
-        });
-      }
+      });
     })().catch((e) => {
       console.error("[ME] init failed:", e);
     });
 
     return () => {
       cancelled = true;
+      try {
+        const mind = mindRef.current;
+        const transform = mind?.map?.style?.transform ?? null;
+        lastTransformRef.current = transform || null;
+        lastScaleRef.current =
+          typeof mind?.scaleVal === "number" ? mind.scaleVal : null;
+      } catch {}
       try {
         mindRef.current?.destroy?.();
       } catch {}
@@ -494,6 +551,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-link,
         .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-link-bidirectional,
         .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-summary {
+          display: none;
+        }
+        .${VIEW_MODE_CLASS} .mind-elixir-toolbar {
           display: none;
         }
       `}</style>
