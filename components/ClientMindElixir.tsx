@@ -418,6 +418,37 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         effectiveMode
       );
 
+      const handleWheel = (event: WheelEvent) => {
+        const mind = mindRef.current;
+        if (!mind) return;
+
+        event.stopPropagation();
+        event.preventDefault();
+
+        if (event.ctrlKey || event.metaKey) {
+          const intensity = Math.min(
+            0.03,
+            Math.max(0.001, zoomSensitivity * 0.02)
+          );
+          const zoomFactor = Math.exp(-event.deltaY * intensity);
+          const nextScale = mind.scaleVal * zoomFactor;
+          const clamped = Math.min(
+            mind.scaleMax ?? 1.4,
+            Math.max(mind.scaleMin ?? 0.2, nextScale)
+          );
+          if (clamped !== mind.scaleVal) {
+            mind.scale(clamped, { x: event.clientX, y: event.clientY });
+          }
+          return;
+        }
+
+        if (event.shiftKey) {
+          mind.move(-event.deltaY, 0);
+        } else {
+          mind.move(-event.deltaX, -event.deltaY);
+        }
+      };
+
       const mind = new MindElixir({
         el: elRef.current,
         direction: MindElixir.RIGHT,
@@ -428,6 +459,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         locale: "ko",
         scaleSensitivity: zoomSensitivity,
         mouseSelectionButton: dragButton,
+        handleWheel,
         theme: resolvedThemeObj,
       });
 
