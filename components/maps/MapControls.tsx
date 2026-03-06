@@ -24,6 +24,7 @@ export default function MapControls({
   statusLabel,
   statusTone = "neutral",
   hasDraft = false,
+  highlightEditToggle = false,
 }: {
   editMode: "view" | "edit";
   panMode: boolean;
@@ -42,6 +43,7 @@ export default function MapControls({
   statusLabel?: string;
   statusTone?: "neutral" | "warning" | "success";
   hasDraft?: boolean;
+  highlightEditToggle?: boolean;
 }) {
   const [open, setOpen] = useState(true);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
@@ -119,6 +121,7 @@ export default function MapControls({
                 label={editMode === "edit" ? "편집 모드" : "보기 모드"}
                 onClick={onToggleEdit}
                 pressed={editMode === "edit"}
+                highlight={highlightEditToggle}
               />
 
               <MapControlButton
@@ -319,11 +322,13 @@ function MapControlButton({
   label,
   onClick,
   pressed = false,
+  highlight = false,
 }: {
   icon: string;
   label: string;
   onClick: () => void;
   pressed?: boolean;
+  highlight?: boolean;
 }) {
   return (
     <button
@@ -338,6 +343,7 @@ function MapControlButton({
             ? "border-blue-300 bg-blue-50 text-blue-700 shadow-[0_8px_18px_rgba(37,99,235,0.25)] dark:border-blue-300/60 dark:bg-blue-500/20 dark:text-blue-50"
             : "border-neutral-200 bg-white/80 text-neutral-700 hover:border-neutral-300 hover:bg-white hover:text-neutral-900 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/20 dark:hover:bg-white/[0.12]"
         }
+        ${highlight ? "ring-2 ring-amber-300/80 animate-pulse" : ""}
       `}
       aria-label={label}
       title={label}

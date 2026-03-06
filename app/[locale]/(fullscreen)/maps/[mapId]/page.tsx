@@ -109,10 +109,13 @@ export default function MapDetailPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [savedPulse, setSavedPulse] = useState(false);
+  const [editHintPulse, setEditHintPulse] = useState(false);
   const autoSaveTimerRef = useRef<number | null>(null);
   const lastSavedDraftRef = useRef<string | null>(null);
   const lastAutoSaveErrorRef = useRef<number>(0);
   const savedPulseTimerRef = useRef<number | null>(null);
+  const editHintTimerRef = useRef<number | null>(null);
+  const lastEditHintRef = useRef<number>(0);
 
   const MUTATING_OPS = useMemo(
     () =>
@@ -291,6 +294,9 @@ export default function MapDetailPage() {
       }
       if (savedPulseTimerRef.current) {
         window.clearTimeout(savedPulseTimerRef.current);
+      }
+      if (editHintTimerRef.current) {
+        window.clearTimeout(editHintTimerRef.current);
       }
     };
   }, []);
@@ -523,6 +529,27 @@ export default function MapDetailPage() {
                 if (!MUTATING_OPS.has(op.name)) return;
                 scheduleAutoSave();
               }}
+              onViewModeEditAttempt={() => {
+                if (editMode !== "view") return;
+                const now = Date.now();
+                if (now - lastEditHintRef.current < 5000) return;
+                lastEditHintRef.current = now;
+                toast.custom(
+                  () => (
+                    <div className="rounded-2xl bg-amber-500 px-4 py-2 text-xs font-semibold text-white shadow-lg">
+                      편집하려면 편집 모드로 전환해주세요.
+                    </div>
+                  ),
+                  { duration: 2600 }
+                );
+                setEditHintPulse(true);
+                if (editHintTimerRef.current) {
+                  window.clearTimeout(editHintTimerRef.current);
+                }
+                editHintTimerRef.current = window.setTimeout(() => {
+                  setEditHintPulse(false);
+                }, 1600);
+              }}
               theme={
                 themeName === DEFAULT_THEME_NAME
                   ? null
@@ -543,6 +570,7 @@ export default function MapDetailPage() {
           themes={themeOptions}
           currentThemeName={themeName}
           hasDraft={hasDraft}
+          highlightEditToggle={editHintPulse}
           statusLabel={
             isSavingDraft
               ? "자동 저장 중…"

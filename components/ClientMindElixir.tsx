@@ -24,6 +24,7 @@ type ClientMindElixirProps = {
   loading?: boolean;
   editMode?: "view" | "edit";
   onChange?: (op: any) => void;
+  onViewModeEditAttempt?: () => void;
 
   zoomSensitivity?: number; // scaleSensitivity
   dragButton?: 0 | 2; // mouseSelectionButton
@@ -156,6 +157,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       loading = false,
       editMode = "edit",
       onChange,
+      onViewModeEditAttempt,
       zoomSensitivity = 0.1,
       dragButton = 0,
       fitOnInit = true,
@@ -179,6 +181,26 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   useEffect(() => {
     onChangeRef.current = onChange ?? null;
   }, [onChange]);
+
+  useEffect(() => {
+    const host = elRef.current;
+    if (!host) return;
+
+    const handleDblClick = (e: MouseEvent) => {
+      if (editMode !== "view") return;
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      const isNode =
+        target.closest?.("me-tpc") || target.closest?.("[data-nodeid]");
+      if (!isNode) return;
+      onViewModeEditAttempt?.();
+    };
+
+    host.addEventListener("dblclick", handleDblClick);
+    return () => {
+      host.removeEventListener("dblclick", handleDblClick);
+    };
+  }, [editMode, onViewModeEditAttempt]);
   const lastTransformRef = useRef<string | null>(null);
   const lastScaleRef = useRef<number | null>(null);
 

@@ -78,7 +78,20 @@ export default async function RootLayout({
             <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
             <GlobalNotificationStack />
           </NextIntlClientProvider>
-          <Toaster richColors position="top-center" duration={2000} />
+          <Toaster
+            richColors
+            position="top-center"
+            duration={2400}
+            toastOptions={{
+              className:
+                "shadow-lg rounded-2xl text-xs font-semibold",
+              style: {
+                background: "#f59e0b",
+                color: "#ffffff",
+                borderColor: "#fbbf24",
+              },
+            }}
+          />
         </SessionProvider>
       </ReactQueryProvider>
     </ThemeProvider>
