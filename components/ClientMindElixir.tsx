@@ -165,6 +165,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     },
     ref
   ) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const elRef = useRef<HTMLDivElement>(null);
   const mindRef = useRef<any>(null);
   const currentLevelRef = useRef(0);
@@ -173,6 +174,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
   const [mounted, setMounted] = useState(false);
   const [ready, setReady] = useState(false);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedRect, setSelectedRect] = useState<DOMRect | null>(null);
+  const selectedNodeIdRef = useRef<string | null>(null);
 
   const initTokenRef = useRef(0);
   const defaultThemeRef = useRef<{ light: any; dark: any } | null>(null);
@@ -183,8 +187,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   }, [onChange]);
 
   useEffect(() => {
+    selectedNodeIdRef.current = selectedNodeId;
+  }, [selectedNodeId]);
+
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
     const host = elRef.current;
-    if (!host) return;
+    if (!wrapper || !host) return;
 
     const handleDblClick = (e: MouseEvent) => {
       if (editMode !== "view") return;
@@ -201,6 +210,59 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       host.removeEventListener("dblclick", handleDblClick);
     };
   }, [editMode, onViewModeEditAttempt]);
+
+  const updateSelectedRect = (nodeId: string | null) => {
+    const wrapper = wrapperRef.current;
+    const host = elRef.current;
+    if (!wrapper || !host || !nodeId) {
+      setSelectedRect(null);
+      return;
+    }
+    const nodeEl =
+      host.querySelector<HTMLElement>(`me-tpc[data-nodeid="${nodeId}"]`) ||
+      host.querySelector<HTMLElement>(`[data-nodeid="${nodeId}"]`);
+    if (!nodeEl) {
+      setSelectedRect(null);
+      return;
+    }
+    const rect = nodeEl.getBoundingClientRect();
+    const hostRect = wrapper.getBoundingClientRect();
+    const relativeRect = new DOMRect(
+      rect.left - hostRect.left,
+      rect.top - hostRect.top,
+      rect.width,
+      rect.height
+    );
+    setSelectedRect(relativeRect);
+  };
+
+  useEffect(() => {
+    const host = elRef.current;
+    if (!host) return;
+
+    const handleClick = (e: MouseEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (!el) return;
+      const nodeEl =
+        el.closest?.("me-tpc[data-nodeid]") ??
+        el.closest?.("me-tpc") ??
+        el.closest?.("[data-nodeid]");
+      if (!nodeEl || !(nodeEl instanceof HTMLElement)) {
+        setSelectedNodeId(null);
+        setSelectedRect(null);
+        return;
+      }
+      const nodeId = nodeEl.getAttribute("data-nodeid");
+      if (!nodeId) return;
+      setSelectedNodeId(nodeId);
+      requestAnimationFrame(() => updateSelectedRect(nodeId));
+    };
+
+    host.addEventListener("click", handleClick);
+    return () => {
+      host.removeEventListener("click", handleClick);
+    };
+  }, []);
   const lastTransformRef = useRef<string | null>(null);
   const lastScaleRef = useRef<number | null>(null);
 
@@ -401,6 +463,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
     setReady(false);
 
+    let syncSelectedRect: (() => void) | null = null;
+    let handleResize: (() => void) | null = null;
+
     (async () => {
       const mod = await import("mind-elixir");
       const MindElixir = mod.default;
@@ -488,6 +553,30 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         currentLevelRef.current = getMaxExpandedDepth(initialNode);
       }
 
+      mind.bus?.addListener?.("selectNodes", (nodes: any[]) => {
+        const last = Array.isArray(nodes) ? nodes[nodes.length - 1] : null;
+        const id = last?.id;
+        if (!id) return;
+        setSelectedNodeId(id);
+        requestAnimationFrame(() => updateSelectedRect(id));
+      });
+
+      mind.bus?.addListener?.("unselectNodes", () => {
+        setSelectedNodeId(null);
+        setSelectedRect(null);
+      });
+
+      syncSelectedRect = () => {
+        const id = selectedNodeIdRef.current;
+        if (!id) return;
+        updateSelectedRect(id);
+      };
+
+      mind.bus?.addListener?.("move", syncSelectedRect);
+      mind.bus?.addListener?.("scale", syncSelectedRect);
+      handleResize = () => syncSelectedRect?.();
+      window.addEventListener("resize", handleResize);
+
       // ✅ 초기 뷰 세팅
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -511,6 +600,23 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       });
 
       mind.bus?.addListener?.("operation", (op: any) => {
+      if (op?.name === "selectNode") {
+        const id = op?.data?.id ?? op?.obj?.id ?? op?.id;
+        if (id) {
+          setSelectedNodeId(id);
+          updateSelectedRect(id);
+        }
+      }
+
+        if (
+          op?.name === "unselectNodes" ||
+          op?.name === "clearSelection" ||
+          op?.name === "removeNodes"
+        ) {
+          setSelectedNodeId(null);
+          setSelectedRect(null);
+        }
+
         if (op?.name !== "selectNode") {
           onChangeRef.current?.(op);
           return;
@@ -552,6 +658,18 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           typeof mind?.scaleVal === "number" ? mind.scaleVal : null;
       } catch {}
       try {
+        const mind = mindRef.current;
+        if (mind?.bus?.removeListener && syncSelectedRect) {
+          mind.bus.removeListener("move", syncSelectedRect);
+          mind.bus.removeListener("scale", syncSelectedRect);
+        }
+      } catch {}
+      try {
+        if (handleResize) {
+          window.removeEventListener("resize", handleResize);
+        }
+      } catch {}
+      try {
         mindRef.current?.destroy?.();
       } catch {}
       mindRef.current = null;
@@ -590,7 +708,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   }, [editMode]);
 
   return (
-    <div className="relative w-full h-full">
+    <div ref={wrapperRef} className="relative w-full h-full">
       <style jsx global>{`
         .${PAN_MODE_CLASS} me-tpc,
         .${PAN_MODE_CLASS} [data-nodeid] {
@@ -612,6 +730,50 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         }
       `}</style>
       <div ref={elRef} className="relative w-full h-full" />
+      {selectedNodeId && selectedRect && (
+        <div
+          className="absolute z-20"
+          data-hover-actions="true"
+          onPointerDown={(e) => {
+            e.stopPropagation();
+          }}
+          onPointerUp={(e) => {
+            e.stopPropagation();
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          style={{
+            left: selectedRect.left + selectedRect.width - 8,
+            top: selectedRect.top + selectedRect.height + 8,
+            transform: "translate(-100%, 0)",
+          }}
+        >
+          <div className="flex items-center gap-1 rounded-full bg-white/90 px-1 py-0.5 shadow-sm ring-1 ring-black/5 dark:bg-[#0b1220]/90 dark:ring-white/10">
+            <button
+              type="button"
+              className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[10px] text-neutral-700 ring-1 ring-black/10 dark:bg-white/10 dark:text-white/70"
+              onClick={(e) => e.stopPropagation()}
+            >
+              N
+            </button>
+            <button
+              type="button"
+              className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[10px] text-neutral-700 ring-1 ring-black/10 dark:bg-white/10 dark:text-white/70"
+              onClick={(e) => e.stopPropagation()}
+            >
+              H
+            </button>
+            <button
+              type="button"
+              className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[10px] text-neutral-700 ring-1 ring-black/10 dark:bg-white/10 dark:text-white/70"
+              onClick={(e) => e.stopPropagation()}
+            >
+              F
+            </button>
+          </div>
+        </div>
+      )}
 
       {loading && (
         <div className="pointer-events-none absolute left-4 top-4 z-10">
