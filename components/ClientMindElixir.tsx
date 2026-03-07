@@ -202,6 +202,21 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const [noteEditorOpen, setNoteEditorOpen] = useState(false);
   const [noteDraft, setNoteDraft] = useState("");
   const [noteTargetId, setNoteTargetId] = useState<string | null>(null);
+  const miniMapRef = useRef<HTMLCanvasElement>(null);
+  const miniMapBoundsRef = useRef<{
+    minX: number;
+    minY: number;
+    scale: number;
+    offsetX: number;
+    offsetY: number;
+  } | null>(null);
+  const miniMapDragRef = useRef<{
+    dragging: boolean;
+    lastX: number;
+    lastY: number;
+  }>({ dragging: false, lastX: 0, lastY: 0 });
+  const miniMapRafRef = useRef<number | null>(null);
+  const miniMapDrawRef = useRef<() => void>(() => {});
   const selectedNodeIdRef = useRef<string | null>(null);
   const selectedNodeElRef = useRef<HTMLElement | null>(null);
   const highlightVariant = "gold";
@@ -349,6 +364,161 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   useEffect(() => {
     onChangeRef.current = onChange ?? null;
   }, [onChange]);
+
+  const scheduleMiniMapDraw = () => {
+    if (miniMapRafRef.current) {
+      cancelAnimationFrame(miniMapRafRef.current);
+    }
+    miniMapRafRef.current = requestAnimationFrame(() => {
+      miniMapDrawRef.current();
+    });
+  };
+
+  useEffect(() => {
+    miniMapDrawRef.current = () => {
+      const canvas = miniMapRef.current;
+      const host = elRef.current;
+      if (!canvas || !host) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const width = Math.max(1, Math.floor(rect.width * dpr));
+      const height = Math.max(1, Math.floor(rect.height * dpr));
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, rect.width, rect.height);
+
+      const nodes = Array.from(host.querySelectorAll<HTMLElement>("me-tpc"));
+      if (nodes.length === 0) return;
+
+      type MiniNode = { x: number; y: number; parentId?: string | null };
+      const points = new Map<string, MiniNode>();
+
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
+
+      nodes.forEach((node) => {
+        const r = node.getBoundingClientRect();
+        const x = r.left + r.width / 2;
+        const y = r.top + r.height / 2;
+        const obj = (node as HTMLElement & { nodeObj?: AnyNode }).nodeObj;
+        const rawId =
+          obj?.id ??
+          node.dataset.nodeid?.replace(/^me/, "") ??
+          node.dataset.nodeid ??
+          "";
+        const parentId = obj?.parent?.id ?? null;
+        points.set(String(rawId), { x, y, parentId });
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+      });
+
+      const pad = 12;
+      const boundsW = Math.max(1, maxX - minX);
+      const boundsH = Math.max(1, maxY - minY);
+      const scale = Math.min(
+        (rect.width - pad * 2) / boundsW,
+        (rect.height - pad * 2) / boundsH
+      );
+      const offsetX = (rect.width - boundsW * scale) / 2 - minX * scale;
+      const offsetY = (rect.height - boundsH * scale) / 2 - minY * scale;
+      miniMapBoundsRef.current = {
+        minX,
+        minY,
+        scale,
+        offsetX,
+        offsetY,
+      };
+
+      // background
+      ctx.fillStyle = "rgba(15, 23, 42, 0.06)";
+      ctx.fillRect(0, 0, rect.width, rect.height);
+
+      // edges
+      ctx.strokeStyle = "rgba(51, 65, 85, 0.35)";
+      ctx.lineWidth = 1;
+      points.forEach((p) => {
+        if (!p.parentId) return;
+        const parent = points.get(String(p.parentId));
+        if (!parent) return;
+        ctx.beginPath();
+        ctx.moveTo(p.x * scale + offsetX, p.y * scale + offsetY);
+        ctx.lineTo(parent.x * scale + offsetX, parent.y * scale + offsetY);
+        ctx.stroke();
+      });
+
+      // nodes
+      ctx.fillStyle = "rgba(51, 65, 85, 0.8)";
+      points.forEach((p) => {
+        ctx.beginPath();
+        ctx.arc(p.x * scale + offsetX, p.y * scale + offsetY, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // viewport
+      const view = host.getBoundingClientRect();
+      const vx = view.left * scale + offsetX;
+      const vy = view.top * scale + offsetY;
+      const vw = view.width * scale;
+      const vh = view.height * scale;
+      ctx.strokeStyle = "rgba(37, 99, 235, 0.75)";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(vx, vy, vw, vh);
+    };
+  });
+
+  useEffect(() => {
+    const canvas = miniMapRef.current;
+    if (!canvas) return;
+
+    const handlePointerDown = (e: PointerEvent) => {
+      miniMapDragRef.current.dragging = true;
+      miniMapDragRef.current.lastX = e.clientX;
+      miniMapDragRef.current.lastY = e.clientY;
+      canvas.setPointerCapture(e.pointerId);
+    };
+
+    const handlePointerMove = (e: PointerEvent) => {
+      if (!miniMapDragRef.current.dragging) return;
+      const mind = mindRef.current;
+      const bounds = miniMapBoundsRef.current;
+      if (!mind || !bounds) return;
+      const dx = e.clientX - miniMapDragRef.current.lastX;
+      const dy = e.clientY - miniMapDragRef.current.lastY;
+      miniMapDragRef.current.lastX = e.clientX;
+      miniMapDragRef.current.lastY = e.clientY;
+      // Dragging inside minimap should move the main map proportionally
+      const moveX = -(dx / bounds.scale);
+      const moveY = -(dy / bounds.scale);
+      mind.move(moveX, moveY);
+    };
+
+    const handlePointerUp = (e: PointerEvent) => {
+      miniMapDragRef.current.dragging = false;
+      canvas.releasePointerCapture(e.pointerId);
+    };
+
+    canvas.addEventListener("pointerdown", handlePointerDown);
+    canvas.addEventListener("pointermove", handlePointerMove);
+    canvas.addEventListener("pointerup", handlePointerUp);
+    canvas.addEventListener("pointercancel", handlePointerUp);
+
+    return () => {
+      canvas.removeEventListener("pointerdown", handlePointerDown);
+      canvas.removeEventListener("pointermove", handlePointerMove);
+      canvas.removeEventListener("pointerup", handlePointerUp);
+      canvas.removeEventListener("pointercancel", handlePointerUp);
+    };
+  }, []);
 
   useEffect(() => {
     selectedNodeIdRef.current = selectedNodeId;
@@ -639,6 +809,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
     let syncSelectedRect: (() => void) | null = null;
     let handleResize: (() => void) | null = null;
+    let handleMiniResize: (() => void) | null = null;
+    let syncMiniMap: (() => void) | null = null;
 
     (async () => {
       const mod = await import("mind-elixir");
@@ -828,8 +1000,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
       mind.bus?.addListener?.("move", syncSelectedRect);
       mind.bus?.addListener?.("scale", syncSelectedRect);
+      syncMiniMap = () => scheduleMiniMapDraw();
+      mind.bus?.addListener?.("move", syncMiniMap);
+      mind.bus?.addListener?.("scale", syncMiniMap);
+      mind.bus?.addListener?.("refresh", syncMiniMap);
       handleResize = () => syncSelectedRect?.();
+      handleMiniResize = () => scheduleMiniMapDraw();
       window.addEventListener("resize", handleResize);
+      window.addEventListener("resize", handleMiniResize);
 
       // ✅ 초기 뷰 세팅
       requestAnimationFrame(() => {
@@ -849,6 +1027,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             mind.scaleFit?.();
             mind.toCenter?.();
           }
+          scheduleMiniMapDraw();
           setReady(true);
         });
       });
@@ -917,10 +1096,18 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           mind.bus.removeListener("move", syncSelectedRect);
           mind.bus.removeListener("scale", syncSelectedRect);
         }
+        if (mind?.bus?.removeListener && syncMiniMap) {
+          mind.bus.removeListener("move", syncMiniMap);
+          mind.bus.removeListener("scale", syncMiniMap);
+          mind.bus.removeListener("refresh", syncMiniMap);
+        }
       } catch {}
       try {
         if (handleResize) {
           window.removeEventListener("resize", handleResize);
+        }
+        if (handleMiniResize) {
+          window.removeEventListener("resize", handleMiniResize);
         }
       } catch {}
       try {
@@ -1024,6 +1211,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         }
       `}</style>
       <div ref={elRef} className="relative w-full h-full" />
+
+      <div className="pointer-events-auto absolute bottom-24 right-4 z-20 rounded-xl border border-neutral-200 bg-white/90 p-2 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#0b1220]/75">
+        <div className="text-[10px] font-semibold text-neutral-500 dark:text-white/60">
+          미니맵
+        </div>
+        <canvas ref={miniMapRef} className="mt-1 h-[120px] w-[160px]" />
+      </div>
       {selectedNodeId && selectedRect && (
         <div
           className="absolute z-20"

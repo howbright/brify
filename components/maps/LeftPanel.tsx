@@ -40,10 +40,10 @@ export default function LeftPanel({
       <div
         className="
           relative h-full
-          border-l border-neutral-200/80 bg-white/92 backdrop-blur
-          dark:border-white/10 dark:bg-[#0b1220]/88
-          shadow-[-20px_0_60px_-40px_rgba(15,23,42,0.55)]
-          dark:shadow-[-30px_0_120px_-70px_rgba(0,0,0,0.95)]
+          border-r border-neutral-300 bg-white
+          dark:border-white/15 dark:bg-[#0b1220]
+          shadow-[18px_0_45px_-30px_rgba(15,23,42,0.55)]
+          dark:shadow-[18px_0_70px_-45px_rgba(0,0,0,0.9)]
         "
       >
         {/* highlight */}
