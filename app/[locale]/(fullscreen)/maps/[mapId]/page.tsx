@@ -91,6 +91,8 @@ export default function MapDetailPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Array<{ id: string; text: string }>>([]);
   const [searchIndex, setSearchIndex] = useState(0);
+  const searchIndexRef = useRef(0);
+  const lastStepAtRef = useRef(0);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
   const [panMode, setPanMode] = useState(false);
@@ -238,8 +240,13 @@ export default function MapDetailPage() {
 
   const stepSearch = (dir: 1 | -1) => {
     if (!searchResults.length) return;
+    const now = Date.now();
+    if (now - lastStepAtRef.current < 120) return;
+    lastStepAtRef.current = now;
+    const current = searchIndexRef.current;
     const next =
-      (searchIndex + dir + searchResults.length) % searchResults.length;
+      (current + dir + searchResults.length) % searchResults.length;
+    searchIndexRef.current = next;
     setSearchIndex(next);
     const id = searchResults[next]?.id;
     if (id) {
@@ -259,6 +266,7 @@ export default function MapDetailPage() {
     if (!q) {
       setSearchResults([]);
       setSearchIndex(0);
+      searchIndexRef.current = 0;
       mindRef.current?.clearSearchHighlights?.();
       mindRef.current?.setSearchActive?.(null);
       return;
@@ -267,6 +275,7 @@ export default function MapDetailPage() {
       mindRef.current?.findNodesByQuery?.(q, { includeNotes: true }) ?? [];
     setSearchResults(results);
     setSearchIndex(0);
+    searchIndexRef.current = 0;
     mindRef.current?.setSearchHighlights?.(results.map((r) => r.id), q);
     if (results.length > 0) {
       const firstId = results[0].id;
@@ -532,18 +541,29 @@ export default function MapDetailPage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => {
+                      if (e.repeat) {
+                        e.preventDefault();
+                        return;
+                      }
                       e.stopPropagation();
                       if (e.key === "Escape") {
                         e.preventDefault();
                         closeSearch();
                         return;
                       }
-                      if (
-                        e.key === "Enter" ||
-                        e.key === "ArrowDown" ||
-                        e.key === "ArrowUp"
-                      ) {
+                      if (e.key === "Enter") {
                         e.preventDefault();
+                        stepSearch(e.shiftKey ? -1 : 1);
+                        return;
+                      }
+                      if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        stepSearch(1);
+                        return;
+                      }
+                      if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        stepSearch(-1);
                         return;
                       }
                     }}
