@@ -66,11 +66,15 @@ export default function TermsBlock({
     setCustomInlineOpen(false);
   };
 
+  const helperText = t("helper");
+
   return (
     <div className="flex flex-col gap-3">
-      <div className="text-xs text-neutral-500 dark:text-white/60">
-        {t("helper")}
-      </div>
+      {helperText?.trim() ? (
+        <div className="text-xs text-neutral-500 dark:text-white/60">
+          {helperText}
+        </div>
+      ) : null}
 
       {loading ? (
         <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75">
@@ -92,7 +96,7 @@ export default function TermsBlock({
 
       {hasTerms && (
         <>
-          <div className="sticky top-0 z-30 -mx-4 px-4 py-2 bg-white dark:bg-[#0b1220] border-b border-neutral-200/80 dark:border-white/10 shadow-[0_6px_16px_rgba(15,23,42,0.08)]">
+          <div className="sticky top-[-16px] z-30 -mx-4 px-4 py-2 bg-white dark:bg-[#0b1220] border-b border-neutral-200/80 dark:border-white/10 shadow-[0_6px_16px_rgba(15,23,42,0.08)]">
             <button
               type="button"
               onClick={() => setCustomInlineOpen((v) => !v)}

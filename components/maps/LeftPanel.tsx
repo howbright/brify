@@ -559,7 +559,7 @@ export default function LeftPanel({
         <div className="pointer-events-none absolute inset-0 dark:bg-white/[0.03]" />
 
         {/* header */}
-        <div className="relative px-4 pt-4 pb-3 border-b border-neutral-200/70 dark:border-white/10">
+        <div className="relative px-4 pt-2 border-b border-neutral-200/70 dark:border-white/10">
           <div className="flex items-center justify-between gap-3">
             {mapId ? (
               <div className="flex items-center gap-4">
@@ -579,6 +579,8 @@ export default function LeftPanel({
                   active={activeTab === "terms"}
                   icon="mdi:book-open-variant"
                   label={tRight("tabs.terms")}
+                  badge="AI"
+                  tone="mystic"
                   onClick={() => {
                     setActiveTab("terms");
                     if (!termsLoading && terms.length === 0) fetchTerms();
@@ -612,20 +614,6 @@ export default function LeftPanel({
             <div className="hidden max-[738px]:block text-sm font-semibold text-neutral-900 dark:text-white/90 whitespace-normal break-words">
               {map.title ?? t("untitled")}
             </div>
-            {/* ✅ 시간 존재감 축소: 한 줄, 작고 흐리게 */}
-            <div className="text-[11px] text-neutral-400 dark:text-white/40">
-              {t("created")} {createdLabel} · {t("updated")} {updatedLabel}
-            </div>
-
-            {/* ✅ 크레딧도 존재감 축소: 한 줄만 */}
-            <div className="mt-0.5 text-[11px] text-neutral-400 dark:text-white/40">
-              {t("credits")}:{" "}
-              <span className="text-neutral-600 dark:text-white/70 font-semibold">
-                {typeof map.creditsCharged === "number"
-                  ? map.creditsCharged
-                  : "-"}
-              </span>
-            </div>
           </div>
         </div>
 
@@ -633,6 +621,19 @@ export default function LeftPanel({
         <div className="relative flex-1 min-h-0 overflow-y-auto px-4 py-4">
           {activeTab === "info" ? (
             <>
+              <div className="mb-3 text-[11px] text-neutral-400 dark:text-white/40">
+                <div>
+                  {t("created")} {createdLabel} · {t("updated")} {updatedLabel}
+                </div>
+                <div className="mt-0.5">
+                  {t("credits")}:{" "}
+                  <span className="text-neutral-600 dark:text-white/70 font-semibold">
+                    {typeof map.creditsCharged === "number"
+                      ? map.creditsCharged
+                      : "-"}
+                  </span>
+                </div>
+              </div>
               {onEdit && (
                 <div className="mb-3 flex items-center justify-end">
                   <button
@@ -805,21 +806,32 @@ export default function LeftPanel({
               emptyLabel={tRight("notes.empty")}
             />
           ) : (
-            <TermsBlock
-              terms={terms}
-              loading={
-                termsLoading ||
-                (termsRequestedInSession &&
-                  (termsStatus === "idle" ||
-                    termsStatus === "queued" ||
-                    termsStatus === "processing"))
-              }
-              error={termsError}
-              usedCount={0}
-              onAutoExtract={requestAutoTerms}
-              onExplainCustom={requestCustomTerms}
-              onDeleteTerm={deleteTerm}
-            />
+            <>
+              <div className="mb-3 rounded-2xl border border-sky-200/70 bg-sky-50/70 px-3 py-2 text-[11px] text-slate-700 shadow-[0_16px_30px_-24px_rgba(14,116,144,0.45)] dark:border-sky-300/20 dark:bg-sky-500/10 dark:text-white/75">
+                <div className="flex items-center gap-2">
+                  <Icon icon="mdi:sparkles" className="h-4 w-4 text-sky-500 dark:text-sky-300" />
+                  <span className="font-semibold">
+                    AI가 핵심 용어를 자동으로 추출해 이해를 돕습니다.
+                  </span>
+                </div>
+              </div>
+
+              <TermsBlock
+                terms={terms}
+                loading={
+                  termsLoading ||
+                  (termsRequestedInSession &&
+                    (termsStatus === "idle" ||
+                      termsStatus === "queued" ||
+                      termsStatus === "processing"))
+                }
+                error={termsError}
+                usedCount={0}
+                onAutoExtract={requestAutoTerms}
+                onExplainCustom={requestCustomTerms}
+                onDeleteTerm={deleteTerm}
+              />
+            </>
           )}
         </div>
       </div>
@@ -898,29 +910,62 @@ function TabButton({
   active,
   icon,
   label,
+  badge,
+  tone = "default",
   onClick,
 }: {
   active: boolean;
   icon: string;
   label: string;
+  badge?: string;
+  tone?: "default" | "mystic";
   onClick: () => void;
 }) {
+  const isMystic = tone === "mystic";
   return (
     <button
       type="button"
       onClick={onClick}
       className={`
         relative inline-flex items-center gap-2
-        border-b-2 px-1 pb-2 text-xs font-semibold transition-colors
+        border-b-2 px-1 pb-1 text-xs font-semibold transition-colors
         ${
           active
-            ? "border-blue-500 text-blue-700 dark:text-blue-200"
+            ? isMystic
+              ? "border-sky-400 text-sky-700 dark:border-sky-300 dark:text-sky-200"
+              : "border-blue-500 text-blue-700 dark:text-blue-200"
+            : isMystic
+            ? "border-transparent text-slate-600 hover:text-sky-700 dark:text-sky-200/70 dark:hover:text-sky-200"
             : "border-transparent text-neutral-500 hover:text-neutral-700 dark:text-white/60 dark:hover:text-white/85"
         }
       `}
     >
-      <Icon icon={icon} className="h-4 w-4" />
-      {label}
+      <span
+        className={
+          isMystic && !active
+            ? "absolute -inset-x-1 -inset-y-1 rounded-xl bg-[radial-gradient(70%_70%_at_50%_50%,rgba(56,189,248,0.22),transparent_70%)] opacity-60"
+            : isMystic
+            ? "absolute -inset-x-1 -inset-y-1 rounded-xl bg-[radial-gradient(80%_80%_at_50%_50%,rgba(56,189,248,0.28),transparent_70%)] opacity-70"
+            : "absolute inset-0 pointer-events-none"
+        }
+        aria-hidden="true"
+      />
+      <Icon icon={icon} className="relative h-4 w-4" />
+      <span className="relative">{label}</span>
+      {badge ? (
+        <span
+          className="
+            relative inline-flex items-center gap-1
+            rounded-full px-1.5 py-0.5 text-[9px] font-semibold tracking-tight
+            text-white
+            bg-[linear-gradient(135deg,#7c3aed,#22c55e,#3b82f6)]
+            shadow-[0_8px_18px_-10px_rgba(124,58,237,0.65)]
+          "
+        >
+          <Icon icon="mdi:sparkles" className="h-3 w-3" />
+          {badge}
+        </span>
+      ) : null}
     </button>
   );
 }
@@ -978,7 +1023,7 @@ function NotesBlock({
           }}
           placeholder={placeholder}
           className="
-            flex-1 rounded-2xl border border-neutral-200 bg-white px-3 py-2 text-sm
+            flex-1 rounded-2xl border border-blue-200/60 bg-blue-50/40 px-3 py-2 text-sm
             outline-none focus:ring-2 focus:ring-blue-200
             dark:border-white/10 dark:bg-white/[0.06] dark:text-white
             dark:focus:ring-blue-500/20
@@ -988,10 +1033,10 @@ function NotesBlock({
           type="button"
           onClick={onAdd}
           className="
-            rounded-2xl border border-neutral-200 bg-white px-3 py-2
-            text-sm font-semibold text-neutral-700 hover:bg-neutral-50
-            dark:border-white/12 dark:bg-white/[0.06]
-            dark:text-white/85 dark:hover:bg-white/10
+            rounded-2xl border border-blue-200 bg-blue-50 px-3 py-2
+            text-sm font-semibold text-blue-700 hover:bg-blue-100
+            dark:border-blue-300/40 dark:bg-blue-500/10
+            dark:text-blue-50/90 dark:hover:bg-blue-500/20
           "
         >
           {addLabel}
@@ -1000,11 +1045,11 @@ function NotesBlock({
 
       <div className="flex flex-col gap-2">
         {loading ? (
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75">
+          <div className="rounded-2xl border border-blue-200/60 bg-blue-50/50 p-4 text-sm text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75">
             {loadingLabel}
           </div>
         ) : notes.length === 0 ? (
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75">
+          <div className="rounded-2xl border border-blue-200/60 bg-blue-50/50 p-4 text-sm text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75">
             {emptyLabel}
           </div>
         ) : (

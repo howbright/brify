@@ -767,7 +767,7 @@
     }
   },
   "TermsBlock": {
-    "helper": "어려운 용어가 자동으로 정리돼요.",
+    "helper": "",
     "loading": "용어 해설 생성 중…",
     "delete": "삭제",
     "cta": "AI 용어 해설",

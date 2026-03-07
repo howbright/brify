@@ -87,6 +87,11 @@ export default function MapDetailPage() {
 
   const [leftOpen, setLeftOpen] = useState(true);
   const [leftTab, setLeftTab] = useState<"info" | "notes" | "terms">("info");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Array<{ id: string; text: string }>>([]);
+  const [searchIndex, setSearchIndex] = useState(0);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
   const [panMode, setPanMode] = useState(false);
   const [themeName, setThemeName] = useState<string>(
@@ -221,6 +226,55 @@ export default function MapDetailPage() {
     setLeftTab(next);
     setLeftOpen(true);
   };
+
+  const closeSearch = () => {
+    setSearchOpen(false);
+    setSearchQuery("");
+    setSearchResults([]);
+    setSearchIndex(0);
+    mindRef.current?.clearSearchHighlights?.();
+    mindRef.current?.setSearchActive?.(null);
+  };
+
+  const stepSearch = (dir: 1 | -1) => {
+    if (!searchResults.length) return;
+    const next =
+      (searchIndex + dir + searchResults.length) % searchResults.length;
+    setSearchIndex(next);
+    const id = searchResults[next]?.id;
+    if (id) {
+      mindRef.current?.setSearchActive?.(id);
+      mindRef.current?.focusNodeById?.(id);
+    }
+  };
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    searchInputRef.current?.focus();
+  }, [searchOpen]);
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    const q = searchQuery.trim();
+    if (!q) {
+      setSearchResults([]);
+      setSearchIndex(0);
+      mindRef.current?.clearSearchHighlights?.();
+      mindRef.current?.setSearchActive?.(null);
+      return;
+    }
+    const results =
+      mindRef.current?.findNodesByQuery?.(q, { includeNotes: true }) ?? [];
+    setSearchResults(results);
+    setSearchIndex(0);
+    mindRef.current?.setSearchHighlights?.(results.map((r) => r.id), q);
+    if (results.length > 0) {
+      const firstId = results[0].id;
+      mindRef.current?.setSearchActive?.(firstId);
+    } else {
+      mindRef.current?.setSearchActive?.(null);
+    }
+  }, [searchQuery, searchOpen]);
 
   useEffect(() => {
     mindRef.current?.setPanMode(panMode);
@@ -467,6 +521,83 @@ export default function MapDetailPage() {
                 >
                   <Icon icon="mdi:chevron-right" className="h-3.5 w-3.5" />
                   {t("tabs.info")}
+                </button>
+              )}
+
+              {searchOpen ? (
+                <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white/90 px-2 py-1 text-[11px] text-neutral-600 shadow-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80">
+                  <Icon icon="mdi:magnify" className="h-3.5 w-3.5" />
+                  <input
+                    ref={searchInputRef}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      e.stopPropagation();
+                      if (e.key === "Escape") {
+                        e.preventDefault();
+                        closeSearch();
+                        return;
+                      }
+                      if (
+                        e.key === "Enter" ||
+                        e.key === "ArrowDown" ||
+                        e.key === "ArrowUp"
+                      ) {
+                        e.preventDefault();
+                        return;
+                      }
+                    }}
+                    placeholder="검색"
+                    className="w-[140px] bg-transparent text-[11px] text-neutral-800 outline-none placeholder:text-neutral-400 dark:text-white dark:placeholder:text-white/45"
+                  />
+                  <span className="text-[10px] text-neutral-400 dark:text-white/50">
+                    {searchResults.length ? `${searchIndex + 1}/${searchResults.length}` : "0"}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => stepSearch(-1)}
+                      className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-neutral-100 dark:hover:bg-white/10"
+                      aria-label="이전 결과"
+                      title="이전 결과"
+                    >
+                      <Icon icon="mdi:chevron-up" className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => stepSearch(1)}
+                      className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-neutral-100 dark:hover:bg-white/10"
+                      aria-label="다음 결과"
+                      title="다음 결과"
+                    >
+                      <Icon icon="mdi:chevron-down" className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={closeSearch}
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-neutral-100 dark:hover:bg-white/10"
+                    aria-label="검색 닫기"
+                    title="검색 닫기"
+                  >
+                    <Icon icon="mdi:close" className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setSearchOpen(true)}
+                  className="
+                    inline-flex items-center justify-center
+                    h-7 w-7 rounded-lg
+                    border border-neutral-200 bg-white/90 text-neutral-600 shadow-sm
+                    hover:bg-white
+                    dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80 dark:hover:bg-white/10
+                  "
+                  aria-label="검색"
+                  title="검색"
+                >
+                  <Icon icon="mdi:magnify" className="h-4 w-4" />
                 </button>
               )}
             </div>

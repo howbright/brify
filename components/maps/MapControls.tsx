@@ -111,7 +111,7 @@ export default function MapControls({
                   className={`
                     inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[11px] font-semibold transition-colors
                     ${editMode === "view"
-                      ? "text-blue-600 dark:text-blue-300"
+                      ? "text-blue-800 dark:text-blue-100 bg-blue-100/70 dark:bg-blue-500/20 rounded-md shadow-[inset_0_1px_2px_rgba(15,23,42,0.25),inset_0_0_0_1px_rgba(59,130,246,0.35)]"
                       : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
                     ${highlightEditToggle ? "text-amber-600 dark:text-amber-300 animate-pulse" : ""}
                   `}
@@ -130,7 +130,7 @@ export default function MapControls({
                   className={`
                     inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[11px] font-semibold transition-colors
                     ${editMode === "edit"
-                      ? "text-blue-600 dark:text-blue-300"
+                      ? "text-blue-800 dark:text-blue-100 bg-blue-100/70 dark:bg-blue-500/20 rounded-md shadow-[inset_0_1px_2px_rgba(15,23,42,0.25),inset_0_0_0_1px_rgba(59,130,246,0.35)]"
                       : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
                     ${highlightEditToggle ? "text-amber-600 dark:text-amber-300 animate-pulse" : ""}
                   `}
@@ -151,7 +151,7 @@ export default function MapControls({
                   className={`
                     inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[11px] font-semibold transition-colors
                     ${!panMode
-                      ? "text-blue-600 dark:text-blue-300"
+                      ? "text-blue-800 dark:text-blue-100 bg-blue-100/70 dark:bg-blue-500/20 rounded-md shadow-[inset_0_1px_2px_rgba(15,23,42,0.25),inset_0_0_0_1px_rgba(59,130,246,0.35)]"
                       : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
                   `}
                   aria-label="선택 모드"
@@ -169,7 +169,7 @@ export default function MapControls({
                   className={`
                     inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[11px] font-semibold transition-colors
                     ${panMode
-                      ? "text-blue-600 dark:text-blue-300"
+                      ? "text-blue-800 dark:text-blue-100 bg-blue-100/70 dark:bg-blue-500/20 rounded-md shadow-[inset_0_1px_2px_rgba(15,23,42,0.25),inset_0_0_0_1px_rgba(59,130,246,0.35)]"
                       : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
                   `}
                   aria-label="이동 모드"
@@ -390,7 +390,7 @@ function MapControlButton({
         transition-colors duration-150
         ${
           pressed
-            ? "text-blue-600 dark:text-blue-300"
+            ? "text-blue-800 dark:text-blue-100 bg-blue-100/70 dark:bg-blue-500/20 rounded-md shadow-[inset_0_1px_2px_rgba(15,23,42,0.25),inset_0_0_0_1px_rgba(59,130,246,0.35)]"
             : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"
         }
         ${highlight ? "text-amber-600 dark:text-amber-300 animate-pulse" : ""}

@@ -44,6 +44,14 @@ export type ClientMindElixirHandle = {
   setPanMode: (enabled: boolean) => void;
   setEditMode: (enabled: boolean) => void;
   getSnapshot: () => any | null;
+  findNodesByQuery: (
+    query: string,
+    options?: { includeNotes?: boolean }
+  ) => Array<{ id: string; text: string }>;
+  setSearchHighlights: (ids: string[], query?: string) => void;
+  setSearchActive: (id?: string | null) => void;
+  clearSearchHighlights: () => void;
+  focusNodeById: (id: string) => void;
 };
 
 type AnyNode = {
@@ -113,6 +121,34 @@ function clearAutoBranchColors(node: AnyNode, palette: string[] | null) {
 
 function normalizeNodeId(id: string) {
   return id.startsWith("me") ? id.slice(2) : id;
+}
+
+function escapeAttr(value: string) {
+  if (typeof CSS !== "undefined" && typeof CSS.escape === "function") {
+    return CSS.escape(value);
+  }
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+function collectMatches(
+  node: AnyNode,
+  query: string,
+  includeNotes: boolean,
+  out: Array<{ id: string; text: string }>
+) {
+  const topic = node.topic ?? "";
+  const note = includeNotes ? node.note ?? "" : "";
+  const hay = `${topic}\n${note}`.toLowerCase();
+  if (hay.includes(query)) {
+    out.push({ id: node.id, text: topic });
+  }
+  node.children?.forEach((child) =>
+    collectMatches(child, query, includeNotes, out)
+  );
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 const NOTE_BADGE_SVG =
@@ -220,6 +256,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const selectedNodeIdRef = useRef<string | null>(null);
   const selectedNodeElRef = useRef<HTMLElement | null>(null);
   const highlightVariant = "gold";
+  const searchHighlightIdsRef = useRef<Set<string>>(new Set());
+  const searchActiveIdRef = useRef<string | null>(null);
   const handleNoteClick = () => {
     const mind = mindRef.current;
     const selectedId = selectedNodeIdRef.current;
@@ -641,6 +679,123 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     return data ?? placeholderData ?? sampled;
   }, [data, placeholderData]);
 
+  const getNodeElById = (id: string) => {
+    const host = elRef.current;
+    if (!host) return null;
+    const mind = mindRef.current;
+    if (typeof mind?.findEle === "function") {
+      const direct = mind.findEle(id);
+      if (direct) return direct as HTMLElement;
+      if (id.startsWith("me")) {
+        const stripped = mind.findEle(id.slice(2));
+        if (stripped) return stripped as HTMLElement;
+      } else {
+        const withPrefix = mind.findEle(`me${id}`);
+        if (withPrefix) return withPrefix as HTMLElement;
+      }
+    }
+    const tryIds = [id];
+    if (id.startsWith("me")) {
+      tryIds.push(id.slice(2));
+    } else {
+      tryIds.push(`me${id}`);
+    }
+    for (const candidate of tryIds) {
+      const el = host.querySelector(
+        `me-tpc[data-nodeid="${escapeAttr(candidate)}"]`
+      ) as HTMLElement | null;
+      if (el) return el;
+    }
+    return null;
+  };
+
+  const getNodeTextEl = (el: HTMLElement | null) => {
+    if (!el) return null;
+    return el.querySelector<HTMLElement>(".text");
+  };
+
+  const restoreSearchMark = (el: HTMLElement | null) => {
+    const textEl = getNodeTextEl(el);
+    if (!textEl) return;
+    const original = textEl.getAttribute("data-search-original");
+    if (original !== null) {
+      textEl.innerText = original;
+      textEl.removeAttribute("data-search-original");
+    }
+  };
+
+  const applySearchMark = (el: HTMLElement | null, query: string) => {
+    const textEl = getNodeTextEl(el);
+    if (!textEl) return;
+    const original = textEl.getAttribute("data-search-original");
+    if (original === null) {
+      textEl.setAttribute("data-search-original", textEl.innerText ?? "");
+    }
+    const base = textEl.getAttribute("data-search-original") ?? "";
+    if (!query.trim()) {
+      textEl.innerText = base;
+      return;
+    }
+    const re = new RegExp(escapeRegExp(query), "ig");
+    const html = base.replace(
+      re,
+      (match) => `<mark class="me-search-mark">${match}</mark>`
+    );
+    textEl.innerHTML = html;
+  };
+
+  const clearSearchHighlights = () => {
+    const prev = Array.from(searchHighlightIdsRef.current);
+    prev.forEach((id) => {
+      const el = getNodeElById(id);
+      if (el) el.removeAttribute("data-search");
+      restoreSearchMark(el);
+    });
+    searchHighlightIdsRef.current.clear();
+    if (searchActiveIdRef.current) {
+      const activeEl = getNodeElById(searchActiveIdRef.current);
+      if (activeEl) activeEl.removeAttribute("data-search-active");
+      searchActiveIdRef.current = null;
+    }
+  };
+
+  const setSearchHighlights = (ids: string[], query = "") => {
+    clearSearchHighlights();
+    ids.forEach((id) => {
+      const el = getNodeElById(id);
+      if (el) {
+        el.setAttribute("data-search", "true");
+        searchHighlightIdsRef.current.add(id);
+        applySearchMark(el, query);
+      }
+    });
+  };
+
+  const setSearchActive = (id?: string | null) => {
+    if (searchActiveIdRef.current) {
+      const prev = getNodeElById(searchActiveIdRef.current);
+      if (prev) prev.removeAttribute("data-search-active");
+    }
+    if (!id) {
+      searchActiveIdRef.current = null;
+      return;
+    }
+    const el = getNodeElById(id);
+    if (el) {
+      el.setAttribute("data-search-active", "true");
+      searchActiveIdRef.current = id;
+    }
+  };
+
+  const focusNodeById = (id: string) => {
+    const el = getNodeElById(id);
+    if (!el) return;
+    setSelectedNodeId(id);
+    selectedNodeElRef.current = el;
+    requestAnimationFrame(() => updateSelectedRect(id));
+    el.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
+  };
+
   function applyEditMode(mind: any, enabled: boolean) {
     if (!mind) return;
 
@@ -788,6 +943,21 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         if (!mind) return null;
         return mind.getData?.() ?? mind.getAllData?.() ?? null;
       },
+      findNodesByQuery: (query, options) => {
+        const raw =
+          mindRef.current?.getData?.() ?? mindRef.current?.getAllData?.();
+        const normalized = normalizeMindData(raw);
+        if (!normalized) return [];
+        const q = query.trim().toLowerCase();
+        if (!q) return [];
+        const out: Array<{ id: string; text: string }> = [];
+        collectMatches(normalized.node, q, Boolean(options?.includeNotes), out);
+        return out;
+      },
+      setSearchHighlights,
+      setSearchActive,
+      clearSearchHighlights,
+      focusNodeById,
     }),
     []
   );
@@ -1208,6 +1378,22 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         me-tpc[data-highlight="gold"] .text {
           color: #7c2d12 !important;
           font-weight: 600;
+        }
+        me-tpc[data-search="true"] {
+          outline: 2px solid rgba(59, 130, 246, 0.35);
+          outline-offset: 2px;
+          box-shadow: 0 6px 16px rgba(59, 130, 246, 0.18);
+        }
+        me-tpc[data-search-active="true"] {
+          outline: 2px solid rgba(59, 130, 246, 0.75);
+          outline-offset: 2px;
+          box-shadow: 0 8px 20px rgba(59, 130, 246, 0.28);
+        }
+        me-tpc .text .me-search-mark {
+          background: rgba(250, 204, 21, 0.45);
+          color: inherit;
+          padding: 0 2px;
+          border-radius: 4px;
         }
       `}</style>
       <div ref={elRef} className="relative w-full h-full" />
