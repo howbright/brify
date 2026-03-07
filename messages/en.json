@@ -709,6 +709,7 @@
   },
   "LeftPanel": {
     "title": "Details",
+    "infoTab": "Info",
     "edit": "Edit",
     "close": "Close",
     "untitled": "Untitled",

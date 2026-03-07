@@ -7,7 +7,6 @@ import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
 import LeftPanel from "@/components/maps/LeftPanel";
-import RightPanel from "@/components/maps/RightPanel";
 import MapControls from "@/components/maps/MapControls";
 import ClientMindElixir, {
   type ClientMindElixirHandle,
@@ -23,8 +22,6 @@ import type { Database } from "@/app/types/database.types";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 import { loadingMindElixir } from "@/app/lib/g6/sampleData";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
-
-const HEADER_H = 56;
 
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
 
@@ -89,8 +86,7 @@ export default function MapDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [leftOpen, setLeftOpen] = useState(true);
-  const [rightOpen, setRightOpen] = useState(false);
-  const [rightTab, setRightTab] = useState<"notes" | "terms">("notes");
+  const [leftTab, setLeftTab] = useState<"info" | "notes" | "terms">("info");
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
   const [panMode, setPanMode] = useState(false);
   const [themeName, setThemeName] = useState<string>(
@@ -104,7 +100,6 @@ export default function MapDetailPage() {
   const mindRef = useRef<ClientMindElixirHandle | null>(null);
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
   const [isSavingMeta, setIsSavingMeta] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
@@ -222,30 +217,9 @@ export default function MapDetailPage() {
 
   const title = useMemo(() => draft?.title ?? t("fallbackTitle"), [draft?.title, t]);
 
-  const openMeta = () => {
-    setLeftOpen((v) => {
-      const next = !v;
-      if (next) setRightOpen(false);
-      return next;
-    });
-  };
-
-  const openDetails = () => {
-    setRightTab("notes");
-    setRightOpen((v) => !v);
-    if (!rightOpen) {
-      setLeftOpen(false);
-    }
-  };
-
-  const openTerms = () => {
-    if (rightOpen && rightTab === "terms") {
-      setRightOpen(false);
-      return;
-    }
-    setRightTab("terms");
-    setRightOpen(true);
-    setLeftOpen(false);
+  const openTab = (next: "info" | "notes" | "terms") => {
+    setLeftTab(next);
+    setLeftOpen(true);
   };
 
   useEffect(() => {
@@ -466,86 +440,162 @@ export default function MapDetailPage() {
   };
 
   return (
-    <div className="fixed inset-0 z-[120] bg-white dark:bg-[#0b1220] [--header-h:56px] max-[738px]:[--header-h:96px]">
+    <div className="fixed inset-0 z-[120] bg-white dark:bg-[#0b1220] [--header-h:68px]">
       <header
-        className="relative z-[20] w-full border-b border-neutral-200/80 bg-white/92 backdrop-blur dark:border-white/10 dark:bg-[#0b1220]/88"
+        className="relative z-[20] w-full border-b border-neutral-200/80 dark:border-white/10"
         style={{ height: "var(--header-h)" }}
       >
-        <div className="h-full px-4 flex flex-row items-center justify-between gap-3 max-[738px]:flex-col max-[738px]:items-start max-[738px]:gap-2 max-[738px]:py-2">
-          <div className="min-w-0 flex items-center gap-2 w-full flex-1">
-            <button
-              type="button"
-              onClick={() => router.push("/maps")}
-              className="inline-flex items-center gap-1.5 rounded-2xl border border-transparent bg-neutral-100/70 px-3 py-1.5 text-xs font-semibold text-neutral-600 hover:bg-neutral-200/70 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/[0.12] whitespace-nowrap"
-            >
-              <Icon icon="mdi:arrow-left" className="h-4 w-4" />
-              {t("backToList")}
-            </button>
-            <div className="text-sm font-semibold text-neutral-900 dark:text-white/90 truncate">
-              {title}
-            </div>
+        <div className="h-full flex flex-col">
+          <div className="h-[28px] px-3 flex items-center justify-center bg-[#1f2937] text-white text-[11px] font-semibold tracking-tight dark:bg-[#0b1220]">
+            <div className="truncate">{title}</div>
           </div>
-
-          <div className="flex items-center gap-2 flex-nowrap shrink-0 min-w-[240px] max-[738px]:min-w-0 max-[738px]:flex-wrap max-[738px]:w-full max-[738px]:justify-center max-[738px]:pt-2 max-[738px]:pb-1 max-[738px]:border-t max-[738px]:border-neutral-200/70 dark:max-[738px]:border-white/10 sm:flex-nowrap">
-            <ToolbarToggle
-              pressed={leftOpen}
-              icon="mdi:information-outline"
-              label={t("tabs.info")}
-              onClick={openMeta}
-            />
-
-            <ToolbarToggle
-              pressed={rightOpen && rightTab === "notes"}
-              icon="mdi:clipboard-text-outline"
-              label={t("tabs.notes")}
-              onClick={openDetails}
-            />
-
-            <ToolbarToggle
-              pressed={rightOpen && rightTab === "terms"}
-              icon="mdi:book-open-variant"
-              label={t("tabs.terms")}
-              onClick={openTerms}
-            />
-
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setMoreOpen((v) => !v)}
-                className="inline-flex items-center justify-center rounded-xl border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
-                aria-haspopup="menu"
-                aria-expanded={moreOpen}
-                aria-label="More actions"
-              >
-                <Icon icon="mdi:dots-horizontal" className="h-4 w-4" />
-              </button>
-
-              {moreOpen && (
-                <div
-                  role="menu"
-                  className="absolute right-0 mt-2 min-w-[140px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]"
+          <div className="h-[40px] px-3 flex items-center justify-between gap-2 bg-white/92 backdrop-blur dark:bg-[#0b1220]/88">
+            <div className="min-w-0 flex items-center gap-2">
+              {!leftOpen && (
+                <button
+                  type="button"
+                  onClick={() => openTab(leftTab)}
+                  className="
+                    inline-flex items-center gap-1.5
+                    rounded-full border border-neutral-200 bg-white/90 px-2 py-0.5
+                    text-[10px] font-semibold text-neutral-700 shadow-sm backdrop-blur
+                    hover:bg-white
+                    dark:border-white/10 dark:bg-[#0b1220]/70 dark:text-white/80 dark:hover:bg-[#0b1220]/90
+                  "
+                  aria-label={t("tabs.info")}
+                  title={t("tabs.info")}
                 >
-                    <button
-                    type="button"
-                    onClick={() => {
-                      setMoreOpen(false);
-                      setConfirmDeleteOpen(true);
-                    }}
-                    className="w-full rounded-xl px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/10"
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      <Icon icon="mdi:trash-outline" className="h-4 w-4" />
-                      {t("actions.delete")}
-                    </span>
-                  </button>
-                </div>
+                  <Icon icon="mdi:chevron-right" className="h-3.5 w-3.5" />
+                  {t("tabs.info")}
+                </button>
               )}
             </div>
-          </div>
 
-          <div className="hidden sm:flex items-center gap-2 text-[11px] text-neutral-500 dark:text-white/60">
-            {loading ? t("status.loading") : ""}
-            {!loading && error ? t("status.loadFailed") : ""}
+            <div className="flex items-center gap-2">
+              <MapControls
+                editMode={editMode}
+                panMode={panMode}
+                themes={themeOptions}
+                currentThemeName={themeName}
+                hasDraft={hasDraft}
+                highlightEditToggle={editHintPulse}
+                statusLabel={
+                  isSavingDraft
+                    ? "자동 저장 중…"
+                    : savedPulse
+                    ? "저장됨"
+                    : hasDraft
+                    ? "임시 변경 있음"
+                    : undefined
+                }
+                statusTone={
+                  isSavingDraft ? "warning" : savedPulse ? "success" : "neutral"
+                }
+                onToggleEdit={() =>
+                  setEditMode((m) => (m === "view" ? "edit" : "view"))
+                }
+                onTogglePanMode={() => setPanMode((v) => !v)}
+                onSelectTheme={async (name) => {
+                  setThemeName(name);
+                  if (!mapId) return;
+
+                  const override =
+                    name === PROFILE_THEME_NAME
+                      ? null
+                      : name === DEFAULT_THEME_NAME
+                      ? DEFAULT_THEME_NAME
+                      : name;
+
+                  await fetch(`/api/maps/${mapId}/theme`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ mind_theme_override: override }),
+                  }).catch(() => {});
+                }}
+                onCollapseAll={() => mindRef.current?.collapseAll()}
+                onExpandAll={() => mindRef.current?.expandAll()}
+                onExpandLevel={() => mindRef.current?.expandOneLevel()}
+                onCollapseLevel={() => mindRef.current?.collapseOneLevel()}
+                onPublish={() => {
+                  (async () => {
+                    if (!mapId) return;
+                    try {
+                      const res = await fetch(`/api/maps/${mapId}/publish`, {
+                        method: "POST",
+                      });
+                      if (!res.ok) throw new Error("발행 실패");
+                      setHasDraft(false);
+                      lastSavedDraftRef.current = null;
+                      // 발행된 원본을 다시 동기화
+                      try {
+                        const supabase = createClient();
+                        const { data, error } = await supabase
+                          .from("maps")
+                          .select("mind_elixir")
+                          .eq("id", mapId)
+                          .single();
+                        if (!error && data?.mind_elixir) {
+                          setMapData(data.mind_elixir);
+                        }
+                      } catch {
+                        // ignore
+                      }
+                      toast.message("발행이 완료되었습니다.");
+                    } catch {
+                      toast.message("발행에 실패했습니다.");
+                    }
+                  })();
+                }}
+                onShare={() => {
+                  toast.message("공유 기능은 준비 중입니다.");
+                }}
+                onDiscardDraft={() => {
+                  (async () => {
+                    if (!mapId) return;
+                    try {
+                      const res = await fetch(`/api/maps/${mapId}/draft`, {
+                        method: "DELETE",
+                      });
+                      if (!res.ok) throw new Error("삭제 실패");
+                      setHasDraft(false);
+                      lastSavedDraftRef.current = null;
+                      // 원본 맵으로 즉시 되돌리기
+                      try {
+                        const supabase = createClient();
+                        const { data, error } = await supabase
+                          .from("maps")
+                          .select("mind_elixir")
+                          .eq("id", mapId)
+                          .single();
+                        if (!error && data?.mind_elixir) {
+                          setMapData(data.mind_elixir);
+                        }
+                      } catch {
+                        // ignore
+                      }
+                      toast.message("임시 변경을 버렸습니다.");
+                    } catch {
+                      toast.message("임시 변경 버리기에 실패했습니다.");
+                    }
+                  })();
+                }}
+                placement="inline"
+              />
+              <button
+                type="button"
+                onClick={() => router.push("/maps")}
+                className="
+                  inline-flex items-center justify-center
+                  h-7 w-7 rounded-lg
+                  border border-neutral-200 bg-white hover:bg-neutral-50
+                  dark:border-white/12 dark:bg-white/[0.06] dark:hover:bg-white/10
+                "
+                aria-label={t("backToList")}
+                title={t("backToList")}
+              >
+                <Icon icon="mdi:close" className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -625,115 +675,6 @@ export default function MapDetailPage() {
           </div>
         </div>
 
-        <MapControls
-          editMode={editMode}
-          panMode={panMode}
-          themes={themeOptions}
-          currentThemeName={themeName}
-          hasDraft={hasDraft}
-          highlightEditToggle={editHintPulse}
-          statusLabel={
-            isSavingDraft
-              ? "자동 저장 중…"
-              : savedPulse
-              ? "저장됨"
-              : hasDraft
-              ? "임시 변경 있음"
-              : undefined
-          }
-          statusTone={
-            isSavingDraft ? "warning" : savedPulse ? "success" : "neutral"
-          }
-          onToggleEdit={() =>
-            setEditMode((m) => (m === "view" ? "edit" : "view"))
-          }
-          onTogglePanMode={() => setPanMode((v) => !v)}
-          onSelectTheme={async (name) => {
-            setThemeName(name);
-            if (!mapId) return;
-
-            const override =
-              name === PROFILE_THEME_NAME
-                ? null
-                : name === DEFAULT_THEME_NAME
-                ? DEFAULT_THEME_NAME
-                : name;
-
-            await fetch(`/api/maps/${mapId}/theme`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ mind_theme_override: override }),
-            }).catch(() => {});
-          }}
-          onCollapseAll={() => mindRef.current?.collapseAll()}
-          onExpandAll={() => mindRef.current?.expandAll()}
-          onExpandLevel={() => mindRef.current?.expandOneLevel()}
-          onCollapseLevel={() => mindRef.current?.collapseOneLevel()}
-          onPublish={() => {
-            (async () => {
-              if (!mapId) return;
-              try {
-                const res = await fetch(`/api/maps/${mapId}/publish`, {
-                  method: "POST",
-                });
-                if (!res.ok) throw new Error("발행 실패");
-                setHasDraft(false);
-                lastSavedDraftRef.current = null;
-                // 발행된 원본을 다시 동기화
-                try {
-                  const supabase = createClient();
-                  const { data, error } = await supabase
-                    .from("maps")
-                    .select("mind_elixir")
-                    .eq("id", mapId)
-                    .single();
-                  if (!error && data?.mind_elixir) {
-                    setMapData(data.mind_elixir);
-                  }
-                } catch {
-                  // ignore
-                }
-                toast.message("발행이 완료되었습니다.");
-              } catch {
-                toast.message("발행에 실패했습니다.");
-              }
-            })();
-          }}
-          onShare={() => {
-            toast.message("공유 기능은 준비 중입니다.");
-          }}
-          onDiscardDraft={() => {
-            (async () => {
-              if (!mapId) return;
-              try {
-                const res = await fetch(`/api/maps/${mapId}/draft`, {
-                  method: "DELETE",
-                });
-                if (!res.ok) throw new Error("삭제 실패");
-                setHasDraft(false);
-                lastSavedDraftRef.current = null;
-                // 원본 맵으로 즉시 되돌리기
-                try {
-                  const supabase = createClient();
-                  const { data, error } = await supabase
-                    .from("maps")
-                    .select("mind_elixir")
-                    .eq("id", mapId)
-                    .single();
-                  if (!error && data?.mind_elixir) {
-                    setMapData(data.mind_elixir);
-                  }
-                } catch {
-                  // ignore
-                }
-                toast.message("임시 변경을 버렸습니다.");
-              } catch {
-                toast.message("임시 변경 버리기에 실패했습니다.");
-              }
-            })();
-          }}
-        />
-
         {error && (
           <div className="absolute left-4 top-3 z-[15]">
             <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
@@ -748,16 +689,14 @@ export default function MapDetailPage() {
             open={leftOpen}
             onClose={() => setLeftOpen(false)}
             onEdit={() => setShowMetadataDialog(true)}
+            onDelete={() => setConfirmDeleteOpen(true)}
+            deleteLabel={t("actions.delete")}
             map={draft}
+            mapId={mapId}
+            tab={leftTab}
+            onTabChange={setLeftTab}
           />
         )}
-
-        <RightPanel
-          open={rightOpen}
-          onClose={() => setRightOpen(false)}
-          initialTab={rightTab}
-          mapId={mapId}
-        />
 
         {showMetadataDialog && draft && (
           <MetadataDialog
@@ -792,34 +731,5 @@ export default function MapDetailPage() {
       />
 
     </div>
-  );
-}
-
-function ToolbarToggle({
-  pressed,
-  icon,
-  label,
-  onClick,
-}: {
-  pressed: boolean;
-  icon: string;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold shadow-sm transition-colors ${
-        pressed
-          ? "border-blue-500 bg-blue-600 text-white shadow-[0_10px_24px_rgba(37,99,235,0.35)] dark:border-blue-300 dark:bg-blue-500/35 dark:text-blue-50 dark:shadow-[0_10px_24px_rgba(59,130,246,0.35)]"
-          : "border-blue-200/70 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:border-blue-300 dark:border-blue-300/50 dark:bg-blue-500/10 dark:text-blue-50/90 hover:dark:bg-blue-500/20"
-      }`}
-      aria-label={label}
-      title={label}
-    >
-      <Icon icon={icon} className="h-4 w-4" />
-      <span className="hidden sm:inline max-[738px]:inline">{label}</span>
-    </button>
   );
 }

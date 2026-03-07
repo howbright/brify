@@ -708,6 +708,7 @@
   },
   "LeftPanel": {
     "title": "상세 정보",
+    "infoTab": "정보",
     "edit": "편집",
     "close": "닫기",
     "untitled": "제목없음",

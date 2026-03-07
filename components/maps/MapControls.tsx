@@ -25,6 +25,7 @@ export default function MapControls({
   statusTone = "neutral",
   hasDraft = false,
   highlightEditToggle = false,
+  placement = "floating",
 }: {
   editMode: "view" | "edit";
   panMode: boolean;
@@ -44,8 +45,8 @@ export default function MapControls({
   statusTone?: "neutral" | "warning" | "success";
   hasDraft?: boolean;
   highlightEditToggle?: boolean;
+  placement?: "floating" | "inline";
 }) {
-  const [open, setOpen] = useState(true);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [confirmShareOpen, setConfirmShareOpen] = useState(false);
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
@@ -84,34 +85,19 @@ export default function MapControls({
 
   return (
     <>
-      <div className="absolute right-4 top-3 z-[16] flex items-center gap-2 max-[738px]:top-2">
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className="
-            inline-flex items-center justify-center
-            rounded-full border border-neutral-200 bg-white/90 px-2.5 py-1.5
-            text-[11px] font-semibold text-neutral-600 shadow-sm backdrop-blur
-            hover:bg-white
-            dark:border-white/10 dark:bg-[#0b1220]/70 dark:text-white/70 dark:hover:bg-[#0b1220]/90
-          "
-          aria-label={open ? "맵 도구 접기" : "맵 도구 펼치기"}
-          title={open ? "맵 도구 접기" : "맵 도구 펼치기"}
-        >
-          <Icon
-            icon={open ? "mdi:chevron-up" : "mdi:chevron-down"}
-            className="h-4 w-4"
-          />
-        </button>
-
-        {open && (
-          <div className="flex flex-col gap-2">
+      <div
+        className={
+          placement === "inline"
+            ? "flex items-center gap-2"
+            : "absolute right-4 top-3 z-[16] flex items-center gap-2 max-[738px]:top-2"
+        }
+      >
+        <div className="flex flex-col gap-2">
             <div
               className="
                 flex items-center gap-2
-                rounded-2xl border border-neutral-200 bg-white/90 px-2 py-1.5
-                text-[11px] font-semibold text-neutral-700 shadow-sm backdrop-blur
-                dark:border-white/10 dark:bg-[#0b1220]/70 dark:text-white/80
+                text-[11px] font-semibold text-neutral-700
+                dark:text-white/80
               "
             >
             {/* Left: Mode + Status */}
@@ -347,7 +333,6 @@ export default function MapControls({
               </div>
             )}
           </div>
-        )}
       </div>
 
       <ShortcutsDialog
