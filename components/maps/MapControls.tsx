@@ -102,179 +102,184 @@ export default function MapControls({
             >
             {/* Left: Mode + Status */}
             <div className="flex items-center gap-2">
-              <div className="inline-flex items-center overflow-hidden rounded-xl border border-neutral-200 bg-white/80 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+              <div className="inline-flex items-center gap-1 rounded-md border border-neutral-200/70 px-1 py-0.5 dark:border-white/10">
                 <button
                   type="button"
                   onClick={() => {
                     if (editMode !== "view") onToggleEdit();
                   }}
                   className={`
-                    inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold transition-colors
+                    inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[11px] font-semibold transition-colors
                     ${editMode === "view"
-                      ? "bg-blue-600 text-white"
-                      : "text-neutral-700 hover:bg-white dark:text-white/80 dark:hover:bg-white/10"}
-                    ${highlightEditToggle ? "ring-2 ring-amber-300/80 animate-pulse" : ""}
+                      ? "text-blue-600 dark:text-blue-300"
+                      : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
+                    ${highlightEditToggle ? "text-amber-600 dark:text-amber-300 animate-pulse" : ""}
                   `}
                   aria-label="보기 모드"
                   title="보기 모드"
                 >
                   <Icon icon="mdi:eye-outline" className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">보기</span>
+                  <span className="hidden min-[680px]:inline">보기</span>
                 </button>
+                <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
                 <button
                   type="button"
                   onClick={() => {
                     if (editMode !== "edit") onToggleEdit();
                   }}
                   className={`
-                    inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold transition-colors
+                    inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[11px] font-semibold transition-colors
                     ${editMode === "edit"
-                      ? "bg-blue-600 text-white"
-                      : "text-neutral-700 hover:bg-white dark:text-white/80 dark:hover:bg-white/10"}
-                    ${highlightEditToggle ? "ring-2 ring-amber-300/80 animate-pulse" : ""}
+                      ? "text-blue-600 dark:text-blue-300"
+                      : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
+                    ${highlightEditToggle ? "text-amber-600 dark:text-amber-300 animate-pulse" : ""}
                   `}
                   aria-label="편집 모드"
                   title="편집 모드"
                 >
                   <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">편집</span>
+                  <span className="hidden min-[680px]:inline">편집</span>
                 </button>
               </div>
 
-              <div className="inline-flex items-center overflow-hidden rounded-xl border border-neutral-200 bg-white/80 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+              <div className="inline-flex items-center gap-1 rounded-md border border-neutral-200/70 px-1 py-0.5 dark:border-white/10">
                 <button
                   type="button"
                   onClick={() => {
                     if (panMode) onTogglePanMode();
                   }}
                   className={`
-                    inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold transition-colors
+                    inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[11px] font-semibold transition-colors
                     ${!panMode
-                      ? "bg-blue-600 text-white"
-                      : "text-neutral-700 hover:bg-white dark:text-white/80 dark:hover:bg-white/10"}
+                      ? "text-blue-600 dark:text-blue-300"
+                      : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
                   `}
                   aria-label="선택 모드"
                   title="선택 모드"
                 >
                   <Icon icon="mdi:arrow-top-left" className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">선택</span>
+                  <span className="hidden min-[680px]:inline">선택</span>
                 </button>
+                <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
                 <button
                   type="button"
                   onClick={() => {
                     if (!panMode) onTogglePanMode();
                   }}
                   className={`
-                    inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold transition-colors
+                    inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[11px] font-semibold transition-colors
                     ${panMode
-                      ? "bg-blue-600 text-white"
-                      : "text-neutral-700 hover:bg-white dark:text-white/80 dark:hover:bg-white/10"}
+                      ? "text-blue-600 dark:text-blue-300"
+                      : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
                   `}
                   aria-label="이동 모드"
                   title="이동 모드"
                 >
                   <Icon icon="mdi:hand-back-left" className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">이동</span>
+                  <span className="hidden min-[680px]:inline">이동</span>
                 </button>
               </div>
             </div>
 
             {/* Right: Map actions + More */}
             <div className="flex items-center gap-2">
-              <div className="relative" ref={mapActionsRef}>
+              <div className="inline-flex items-center gap-1 rounded-md border border-neutral-200/70 px-1 py-0.5 dark:border-white/10">
                 <MapControlButton
-                  icon="mdi:vector-polyline"
-                  label="맵 조작"
-                  onClick={() => setMapActionsOpen((v) => !v)}
+                  icon="mdi:collapse-all-outline"
+                  label="전체 접기"
+                  onClick={onCollapseAll}
                 />
+                <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
+                <div className="relative" ref={mapActionsRef}>
+                  <MapControlButton
+                    icon="mdi:vector-polyline"
+                    label="맵 조작"
+                    onClick={() => setMapActionsOpen((v) => !v)}
+                  />
 
-                {mapActionsOpen && (
-                  <div className="absolute right-0 mt-2 w-[180px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
-                    <MenuButton
-                      label="전체 접기"
-                      onClick={() => {
-                        setMapActionsOpen(false);
-                        onCollapseAll();
-                      }}
-                    />
-                    <MenuButton
-                      label="전체 펴기"
-                      onClick={() => {
-                        setMapActionsOpen(false);
-                        onExpandAll();
-                      }}
-                    />
-                    <MenuButton
-                      label="한단계 펴기"
-                      onClick={() => {
-                        setMapActionsOpen(false);
-                        onExpandLevel();
-                      }}
-                    />
-                    <MenuButton
-                      label="한단계 접기"
-                      onClick={() => {
-                        setMapActionsOpen(false);
-                        onCollapseLevel();
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className="relative" ref={themeRef}>
-                <MapControlButton
-                  icon="mdi:palette-outline"
-                  label="테마"
-                  onClick={() => setThemeOpen((v) => !v)}
-                />
-
-                {themeOpen && (
-                  <div className="absolute right-0 mt-2 w-[200px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
-                    {themes.map((theme) => (
+                  {mapActionsOpen && (
+                    <div className="absolute right-0 mt-2 w-[180px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
                       <MenuButton
-                        key={theme.name}
-                        label={theme.name}
-                        checked={theme.name === currentThemeName}
+                        label="전체 펴기"
                         onClick={() => {
-                          setThemeOpen(false);
-                          onSelectTheme(theme.name);
+                          setMapActionsOpen(false);
+                          onExpandAll();
                         }}
                       />
-                    ))}
-                  </div>
-                )}
+                      <MenuButton
+                        label="한단계 펴기"
+                        onClick={() => {
+                          setMapActionsOpen(false);
+                          onExpandLevel();
+                        }}
+                      />
+                      <MenuButton
+                        label="한단계 접기"
+                        onClick={() => {
+                          setMapActionsOpen(false);
+                          onCollapseLevel();
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <div className="relative" ref={moreRef}>
-                <MapControlButton
-                  icon="mdi:dots-horizontal"
-                  label="더보기"
-                  onClick={() => setMoreOpen((v) => !v)}
-                />
+              <div className="inline-flex items-center gap-1 rounded-md border border-neutral-200/70 px-1 py-0.5 dark:border-white/10">
+                <div className="relative" ref={themeRef}>
+                  <MapControlButton
+                    icon="mdi:palette-outline"
+                    label="테마"
+                    onClick={() => setThemeOpen((v) => !v)}
+                  />
 
-                {moreOpen && (
-                  <div className="absolute right-0 mt-2 w-[180px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
-                    <MenuButton
-                      label="공유"
-                      onClick={() => {
-                        setMoreOpen(false);
-                        if (editMode === "edit") {
-                          setConfirmShareOpen(true);
-                        } else {
-                          onShare?.();
-                        }
-                      }}
-                    />
-                    <MenuButton
-                      label="단축키"
-                      onClick={() => {
-                        setMoreOpen(false);
-                        setShortcutsOpen(true);
-                      }}
-                    />
-                  </div>
-                )}
+                  {themeOpen && (
+                    <div className="absolute right-0 mt-2 w-[200px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
+                      {themes.map((theme) => (
+                        <MenuButton
+                          key={theme.name}
+                          label={theme.name}
+                          checked={theme.name === currentThemeName}
+                          onClick={() => {
+                            setThemeOpen(false);
+                            onSelectTheme(theme.name);
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
+                <div className="relative" ref={moreRef}>
+                  <MapControlButton
+                    icon="mdi:dots-horizontal"
+                    label="더보기"
+                    onClick={() => setMoreOpen((v) => !v)}
+                  />
+
+                  {moreOpen && (
+                    <div className="absolute right-0 mt-2 w-[180px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
+                      <MenuButton
+                        label="공유"
+                        onClick={() => {
+                          setMoreOpen(false);
+                          if (editMode === "edit") {
+                            setConfirmShareOpen(true);
+                          } else {
+                            onShare?.();
+                          }
+                        }}
+                      />
+                      <MenuButton
+                        label="단축키"
+                        onClick={() => {
+                          setMoreOpen(false);
+                          setShortcutsOpen(true);
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             </div>
@@ -300,29 +305,29 @@ export default function MapControls({
                 )}
                 {hasDraft && (
                   <>
+                    <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
                     <button
                       type="button"
                       onClick={() => setConfirmDiscardOpen(true)}
                       className="
-                        inline-flex items-center gap-1.5 rounded-xl
-                        border border-neutral-200 bg-white/80 px-2.5 py-1
-                        text-[11px] font-semibold text-neutral-700
-                        hover:bg-white hover:text-neutral-900
-                        dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80 dark:hover:bg-white/[0.12]
+                        inline-flex items-center gap-1.5 px-1.5 py-0.5
+                        text-[11px] font-semibold text-neutral-600
+                        hover:text-neutral-900
+                        dark:text-white/70 dark:hover:text-white
                       "
                     >
                       <Icon icon="mdi:undo-variant" className="h-3.5 w-3.5" />
                       임시 변경 버리기
                     </button>
+                    <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
                     <button
                       type="button"
                       onClick={() => onPublish?.()}
                       className="
-                        inline-flex items-center gap-1.5 rounded-xl
-                        bg-blue-600 px-2.5 py-1
-                        text-[11px] font-semibold text-white
-                        hover:bg-blue-700
-                        dark:bg-blue-500 dark:hover:bg-blue-400
+                        inline-flex items-center gap-1.5 px-1.5 py-0.5
+                        text-[11px] font-semibold text-blue-600
+                        hover:text-blue-700
+                        dark:text-blue-300 dark:hover:text-blue-200
                       "
                     >
                       <Icon icon="mdi:check-circle-outline" className="h-3.5 w-3.5" />
@@ -381,20 +386,20 @@ function MapControlButton({
       onClick={onClick}
       className={`
         inline-flex items-center gap-1.5
-        rounded-xl border px-2.5 py-1
-        text-[11px] font-semibold transition-colors duration-150
+        px-1.5 py-0.5 text-[11px] font-semibold
+        transition-colors duration-150
         ${
           pressed
-            ? "border-blue-300 bg-blue-50 text-blue-700 shadow-[0_8px_18px_rgba(37,99,235,0.25)] dark:border-blue-300/60 dark:bg-blue-500/20 dark:text-blue-50"
-            : "border-neutral-200 bg-white/80 text-neutral-700 hover:border-neutral-300 hover:bg-white hover:text-neutral-900 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/20 dark:hover:bg-white/[0.12]"
+            ? "text-blue-600 dark:text-blue-300"
+            : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"
         }
-        ${highlight ? "ring-2 ring-amber-300/80 animate-pulse" : ""}
+        ${highlight ? "text-amber-600 dark:text-amber-300 animate-pulse" : ""}
       `}
       aria-label={label}
       title={label}
     >
       <Icon icon={icon} className="h-3.5 w-3.5" />
-      <span className="hidden sm:inline">{label}</span>
+      <span className="hidden min-[680px]:inline">{label}</span>
     </button>
   );
 }
