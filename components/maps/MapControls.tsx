@@ -20,6 +20,9 @@ export default function MapControls({
   onPublish,
   onShare,
   onExportPng,
+  onCenterMap,
+  onZoomIn,
+  onZoomOut,
   highlightEditToggle = false,
   placement = "floating",
 }: {
@@ -37,6 +40,9 @@ export default function MapControls({
   onPublish?: () => void;
   onShare?: () => void;
   onExportPng?: () => void;
+  onCenterMap?: () => void;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
   highlightEditToggle?: boolean;
   placement?: "floating" | "inline";
 }) {
@@ -111,7 +117,7 @@ export default function MapControls({
                   title="보기 모드"
                 >
                   <Icon icon="mdi:eye-outline" className="h-3.5 w-3.5" />
-                  <span className="hidden min-[680px]:inline">보기</span>
+                  <span className="hidden min-[760px]:inline">보기</span>
                 </button>
                 <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
                 <button
@@ -130,7 +136,7 @@ export default function MapControls({
                   title="편집 모드"
                 >
                   <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
-                  <span className="hidden min-[680px]:inline">편집</span>
+                  <span className="hidden min-[760px]:inline">편집</span>
                 </button>
               </div>
 
@@ -150,7 +156,7 @@ export default function MapControls({
                   title="선택 모드"
                 >
                   <Icon icon="mdi:arrow-top-left" className="h-3.5 w-3.5" />
-                  <span className="hidden min-[680px]:inline">선택</span>
+                  <span className="hidden min-[760px]:inline">선택</span>
                 </button>
                 <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
                 <button
@@ -168,7 +174,7 @@ export default function MapControls({
                   title="이동 모드"
                 >
                   <Icon icon="mdi:hand-back-left" className="h-3.5 w-3.5" />
-                  <span className="hidden min-[680px]:inline">이동</span>
+                  <span className="hidden min-[760px]:inline">이동</span>
                 </button>
               </div>
             </div>
@@ -176,6 +182,33 @@ export default function MapControls({
             {/* Right: Map actions + More */}
             <div className="flex items-center gap-2">
               <div className="inline-flex items-center gap-1 rounded-md border border-neutral-200/70 px-1 py-0.5 dark:border-white/10">
+                {onCenterMap && (
+                  <MapControlButton
+                    icon="mdi:crosshairs-gps"
+                    label="가운데로"
+                    onClick={onCenterMap}
+                    hideLabel
+                  />
+                )}
+                {onZoomOut && (
+                  <MapControlButton
+                    icon="mdi:minus"
+                    label="축소"
+                    onClick={onZoomOut}
+                    hideLabel
+                  />
+                )}
+                {onZoomIn && (
+                  <MapControlButton
+                    icon="mdi:plus"
+                    label="확대"
+                    onClick={onZoomIn}
+                    hideLabel
+                  />
+                )}
+                {(onCenterMap || onZoomIn || onZoomOut) && (
+                  <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
+                )}
                 <MapControlButton
                   icon="mdi:collapse-all-outline"
                   label="전체 접기"
@@ -313,12 +346,14 @@ function MapControlButton({
   onClick,
   pressed = false,
   highlight = false,
+  hideLabel = false,
 }: {
   icon: string;
   label: string;
   onClick: () => void;
   pressed?: boolean;
   highlight?: boolean;
+  hideLabel?: boolean;
 }) {
   return (
     <button
@@ -339,7 +374,9 @@ function MapControlButton({
       title={label}
     >
       <Icon icon={icon} className="h-3.5 w-3.5" />
-      <span className="hidden min-[680px]:inline">{label}</span>
+      {!hideLabel && (
+      <span className="hidden min-[760px]:inline">{label}</span>
+      )}
     </button>
   );
 }

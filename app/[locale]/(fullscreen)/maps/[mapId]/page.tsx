@@ -133,6 +133,10 @@ export default function MapDetailPage() {
   const [shareLoading, setShareLoading] = useState(false);
   const [shareEnabled, setShareEnabled] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
+  const [mobileMapActionsOpen, setMobileMapActionsOpen] = useState(false);
+  const [mobileThemeOpen, setMobileThemeOpen] = useState(false);
+  const mobileMapActionsRef = useRef<HTMLDivElement | null>(null);
+  const mobileThemeRef = useRef<HTMLDivElement | null>(null);
 
   const MUTATING_OPS = useMemo(
     () =>
@@ -272,6 +276,23 @@ export default function MapDetailPage() {
     searchInputRef.current?.focus();
   }, [searchOpen]);
 
+  useEffect(() => {
+    if (!mobileMapActionsOpen && !mobileThemeOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node | null;
+      if (!target) return;
+      if (mobileMapActionsOpen && mobileMapActionsRef.current?.contains(target)) {
+        return;
+      }
+      if (mobileThemeOpen && mobileThemeRef.current?.contains(target)) {
+        return;
+      }
+      setMobileMapActionsOpen(false);
+      setMobileThemeOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [mobileMapActionsOpen, mobileThemeOpen]);
   useEffect(() => {
     const handleFind = (event: KeyboardEvent) => {
       const isCmdOrCtrl = event.metaKey || event.ctrlKey;
@@ -596,6 +617,24 @@ export default function MapDetailPage() {
     })();
   };
 
+  const handleSelectTheme = async (name: string) => {
+    setThemeName(name);
+    if (!mapId) return;
+
+    const override =
+      name === PROFILE_THEME_NAME
+        ? null
+        : name === DEFAULT_THEME_NAME
+        ? DEFAULT_THEME_NAME
+        : name;
+
+    await fetch(`/api/maps/${mapId}/theme`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mind_theme_override: override }),
+    }).catch(() => {});
+  };
+
   const handleExportPng = async () => {
     const blob = await mindRef.current?.exportPng?.();
     if (!blob) {
@@ -709,33 +748,43 @@ export default function MapDetailPage() {
         className="relative z-[20] w-full border-b border-neutral-200/80 dark:border-white/10"
         style={{ height: "var(--header-h)" }}
       >
-        <div className="h-full flex flex-col">
-          <div className="h-[28px] px-3 flex items-center justify-center bg-[#1f2937] text-white text-[11px] font-semibold tracking-tight dark:bg-[#0b1220]">
-            <div className="truncate">{title}</div>
+        <div className="flex flex-col">
+          <div className="h-[28px] px-3 flex items-center justify-between bg-[#1f2937] text-white text-[11px] font-semibold tracking-tight dark:bg-[#0b1220] sm:justify-center">
+            <div className="truncate text-left sm:text-center sm:flex-1">{title}</div>
+            <button
+              type="button"
+              onClick={() => router.push("/maps")}
+              className="inline-flex items-center justify-center text-white/90 hover:text-white"
+              aria-label={t("backToList")}
+              title={t("backToList")}
+            >
+              <Icon icon="mdi:close" className="h-4 w-4" />
+            </button>
           </div>
-          <div className="h-[40px] px-3 flex items-center justify-between gap-2 bg-white/92 backdrop-blur dark:bg-[#0b1220]/88">
+          <div className="h-[40px] px-3 flex items-center justify-between gap-2 bg-white/92 backdrop-blur dark:bg-[#0b1220]/88 sm:h-[40px]">
             <div className="min-w-0 flex items-center gap-2">
-              {!leftOpen && (
-                <button
-                  type="button"
-                  onClick={() => openTab(leftTab)}
-                  className="
-                    inline-flex items-center gap-1.5
-                    rounded-full border border-neutral-200 bg-white/90 px-2 py-0.5
-                    text-[10px] font-semibold text-neutral-700 shadow-sm backdrop-blur
-                    hover:bg-white
-                    dark:border-white/10 dark:bg-[#0b1220]/70 dark:text-white/80 dark:hover:bg-[#0b1220]/90
-                  "
-                  aria-label={t("tabs.info")}
-                  title={t("tabs.info")}
-                >
-                  <Icon icon="mdi:chevron-right" className="h-3.5 w-3.5" />
-                  {t("tabs.info")}
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => (leftOpen ? setLeftOpen(false) : openTab(leftTab))}
+                className="
+                  inline-flex items-center
+                  p-1
+                  text-neutral-800 hover:text-neutral-900
+                  dark:text-white/85 dark:hover:text-white
+                "
+                aria-label={t("tabs.info")}
+                title={t("tabs.info")}
+              >
+                <span className="sr-only">{t("tabs.info")}</span>
+                <span className="inline-flex h-4 w-5 flex-col justify-between">
+                  <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />
+                  <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />
+                  <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />
+                </span>
+              </button>
 
               {searchOpen ? (
-                <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-slate-700 px-2 py-1 text-[11px] text-white shadow-sm dark:border-white/10 dark:bg-slate-800 dark:text-white">
+                <div className="relative z-[40] flex items-center gap-2 w-full sm:w-auto rounded-xl border border-neutral-900 bg-black px-2 py-1 text-[11px] text-white shadow-sm dark:border-white/20 dark:bg-black dark:text-white">
                   <Icon icon="mdi:magnify" className="h-3.5 w-3.5" />
                   <input
                     ref={searchInputRef}
@@ -769,7 +818,7 @@ export default function MapDetailPage() {
                       }
                     }}
                     placeholder="검색"
-                    className="w-[140px] bg-transparent text-[11px] text-white outline-none placeholder:text-white/60"
+                    className="w-full sm:w-[140px] bg-transparent text-[11px] text-white outline-none placeholder:text-white/60"
                   />
                   <span className="text-[10px] text-white/70">
                     {searchResults.length ? `${searchIndex + 1}/${searchResults.length}` : "0"}
@@ -810,10 +859,10 @@ export default function MapDetailPage() {
                   onClick={() => setSearchOpen(true)}
                   className="
                     inline-flex items-center justify-center
-                    h-7 w-7 rounded-lg
-                    border border-neutral-200 bg-white/90 text-neutral-600 shadow-sm
-                    hover:bg-white
-                    dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80 dark:hover:bg-white/10
+                    h-8 w-8 rounded-lg
+                    border border-neutral-900/30 bg-neutral-900 text-white shadow-md
+                    hover:bg-neutral-800
+                    dark:border-white/15 dark:bg-white/15 dark:text-white dark:hover:bg-white/20
                   "
                   aria-label="검색"
                   title="검색"
@@ -823,66 +872,262 @@ export default function MapDetailPage() {
               )}
             </div>
 
-            <div className="flex items-center gap-2">
-              <MapControls
-                editMode={editMode}
-                panMode={panMode}
-                themes={themeOptions}
-                currentThemeName={themeName}
-                highlightEditToggle={editHintPulse}
-                onToggleEdit={() =>
-                  setEditMode((m) => (m === "view" ? "edit" : "view"))
-                }
-                onTogglePanMode={() => setPanMode((v) => !v)}
-                onSelectTheme={async (name) => {
-                  setThemeName(name);
-                  if (!mapId) return;
-
-                  const override =
-                    name === PROFILE_THEME_NAME
-                      ? null
-                      : name === DEFAULT_THEME_NAME
-                      ? DEFAULT_THEME_NAME
-                      : name;
-
-                  await fetch(`/api/maps/${mapId}/theme`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ mind_theme_override: override }),
-                  }).catch(() => {});
-                }}
-                onCollapseAll={() => mindRef.current?.collapseAll()}
-                onExpandAll={() => mindRef.current?.expandAll()}
-                onExpandLevel={() => mindRef.current?.expandOneLevel()}
-                onCollapseLevel={() => mindRef.current?.collapseOneLevel()}
-                onPublish={handlePublish}
-                onShare={() => {
-                  setShareOpen(true);
-                  void fetchShareStatus();
-                }}
-                onExportPng={handleExportPng}
-                placement="inline"
-              />
-              <button
-                type="button"
-                onClick={() => router.push("/maps")}
-                className="
-                  inline-flex items-center justify-center
-                  h-7 w-7 rounded-lg
-                  border border-neutral-200 bg-white hover:bg-neutral-50
-                  dark:border-white/12 dark:bg-white/[0.06] dark:hover:bg-white/10
-                "
-                aria-label={t("backToList")}
-                title={t("backToList")}
-              >
-                <Icon icon="mdi:close" className="h-3.5 w-3.5" />
-              </button>
+            <div className="flex items-center justify-end gap-2">
+              <div className="hidden sm:flex items-center gap-2">
+                <MapControls
+                  editMode={editMode}
+                  panMode={panMode}
+                  themes={themeOptions}
+                  currentThemeName={themeName}
+                  highlightEditToggle={editHintPulse}
+                  onToggleEdit={() =>
+                    setEditMode((m) => (m === "view" ? "edit" : "view"))
+                  }
+                  onTogglePanMode={() => setPanMode((v) => !v)}
+                  onSelectTheme={handleSelectTheme}
+                  onCollapseAll={() => mindRef.current?.collapseAll()}
+                  onExpandAll={() => mindRef.current?.expandAll()}
+                  onExpandLevel={() => mindRef.current?.expandOneLevel()}
+                  onCollapseLevel={() => mindRef.current?.collapseOneLevel()}
+                  onPublish={handlePublish}
+                  onCenterMap={() => mindRef.current?.centerMap?.()}
+                  onZoomIn={() => mindRef.current?.zoomIn?.()}
+                  onZoomOut={() => mindRef.current?.zoomOut?.()}
+                  onShare={() => {
+                    setShareOpen(true);
+                    void fetchShareStatus();
+                  }}
+                  onExportPng={handleExportPng}
+                  placement="inline"
+                />
+              </div>
             </div>
           </div>
         </div>
       </header>
 
       <div className="relative w-full" style={{ height: "calc(100% - var(--header-h))" }}>
+        <div className="pointer-events-auto absolute right-3 top-3 z-[25] flex flex-col gap-2 sm:hidden">
+          <button
+            type="button"
+            onClick={() => setEditMode((m) => (m === "view" ? "edit" : "view"))}
+            className="
+              inline-flex h-9 w-9 items-center justify-center rounded-2xl
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+            "
+            aria-label={editMode === "view" ? "편집 모드" : "보기 모드"}
+            title={editMode === "view" ? "편집 모드" : "보기 모드"}
+          >
+            <Icon icon={editMode === "view" ? "mdi:pencil" : "mdi:eye-outline"} className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setPanMode((v) => !v)}
+            className="
+              inline-flex h-9 w-9 items-center justify-center rounded-2xl
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+            "
+            aria-label={panMode ? "선택 모드" : "이동 모드"}
+            title={panMode ? "선택 모드" : "이동 모드"}
+          >
+            <Icon icon={panMode ? "mdi:arrow-top-left" : "mdi:hand-back-left"} className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => mindRef.current?.centerMap?.()}
+            className="
+              inline-flex h-9 w-9 items-center justify-center rounded-2xl
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+            "
+            aria-label="가운데로"
+            title="가운데로"
+          >
+            <Icon icon="mdi:crosshairs-gps" className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => mindRef.current?.zoomIn?.()}
+            className="
+              inline-flex h-9 w-9 items-center justify-center rounded-2xl
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+            "
+            aria-label="확대"
+            title="확대"
+          >
+            <Icon icon="mdi:plus" className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => mindRef.current?.zoomOut?.()}
+            className="
+              inline-flex h-9 w-9 items-center justify-center rounded-2xl
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+            "
+            aria-label="축소"
+            title="축소"
+          >
+            <Icon icon="mdi:minus" className="h-4 w-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => mindRef.current?.collapseAll?.()}
+            className="
+              inline-flex h-9 w-9 items-center justify-center rounded-2xl
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+            "
+            aria-label="전체 접기"
+            title="전체 접기"
+          >
+            <Icon icon="mdi:collapse-all-outline" className="h-4 w-4" />
+          </button>
+
+          <div className="relative" ref={mobileMapActionsRef}>
+            <button
+              type="button"
+              onClick={() => setMobileMapActionsOpen((v) => !v)}
+              className="
+                inline-flex h-9 w-9 items-center justify-center rounded-2xl
+                border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+                dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+              "
+              aria-label="맵 조작"
+              title="맵 조작"
+            >
+              <Icon icon="mdi:vector-polyline" className="h-4 w-4" />
+            </button>
+
+            {mobileMapActionsOpen && (
+              <div className="absolute right-full mr-2 top-0 w-[160px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMapActionsOpen(false);
+                    mindRef.current?.expandAll?.();
+                  }}
+                  className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                >
+                  전체 펴기
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMapActionsOpen(false);
+                    mindRef.current?.expandOneLevel?.();
+                  }}
+                  className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                >
+                  한단계 펴기
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMapActionsOpen(false);
+                    mindRef.current?.collapseOneLevel?.();
+                  }}
+                  className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                >
+                  한단계 접기
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="relative" ref={mobileThemeRef}>
+            <button
+              type="button"
+              onClick={() => setMobileThemeOpen((v) => !v)}
+              className="
+                inline-flex h-9 w-9 items-center justify-center rounded-2xl
+                border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+                dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+              "
+              aria-label="테마"
+              title="테마"
+            >
+              <Icon icon="mdi:palette-outline" className="h-4 w-4" />
+            </button>
+            {mobileThemeOpen && (
+              <div className="absolute right-full mr-2 top-0 w-[180px] rounded-2xl border border-neutral-200 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
+                <div className="text-[11px] font-semibold text-neutral-500 dark:text-white/60">
+                  테마
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {themeOptions.map((theme) => (
+                    <button
+                      key={theme.name}
+                      type="button"
+                      onClick={() => {
+                        handleSelectTheme(theme.name);
+                        setMobileThemeOpen(false);
+                      }}
+                      className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold ${
+                        theme.name === themeName
+                          ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-300/40 dark:bg-blue-500/10 dark:text-blue-50/90"
+                          : "border-neutral-200 bg-white text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70"
+                      }`}
+                    >
+                      {theme.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={handleExportPng}
+            className="
+              inline-flex h-9 w-9 items-center justify-center rounded-2xl
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+            "
+            aria-label="PNG 저장"
+            title="PNG 저장"
+          >
+            <Icon icon="mdi:download" className="h-4 w-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setShareOpen(true);
+              void fetchShareStatus();
+            }}
+            className="
+              inline-flex h-9 w-9 items-center justify-center rounded-2xl
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+            "
+            aria-label="공유"
+            title="공유"
+          >
+            <Icon icon="mdi:share-variant" className="h-4 w-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              toast.message("단축키는 데스크톱에서 확인할 수 있어요.");
+            }}
+            className="
+              inline-flex h-9 w-9 items-center justify-center rounded-2xl
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+            "
+            aria-label="단축키"
+            title="단축키"
+          >
+            <Icon icon="mdi:keyboard-outline" className="h-4 w-4" />
+          </button>
+        </div>
         <div className="absolute inset-0 bg-[#f6f7fb] dark:bg-[#070c16]" />
         <div
           className="pointer-events-none absolute inset-0 opacity-60 [background-image:linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)] [background-size:28px_28px] dark:opacity-30 dark:[background-image:linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)]"

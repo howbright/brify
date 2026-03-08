@@ -593,21 +593,7 @@ export default function LeftPanel({
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={onClose}
-              className="
-                shrink-0
-                inline-flex items-center gap-1.5
-                rounded-2xl border border-neutral-200 bg-white px-3 py-1.5
-                text-xs font-semibold text-neutral-700 hover:bg-neutral-50
-                dark:border-white/12 dark:bg-white/[0.06]
-                dark:text-white/85 dark:hover:bg-white/10
-              "
-            >
-              <Icon icon="mdi:close" className="h-4 w-4" />
-              {t("close")}
-            </button>
+            <div />
           </div>
 
           <div className="mt-3">

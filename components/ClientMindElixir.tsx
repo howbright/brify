@@ -46,6 +46,9 @@ export type ClientMindElixirHandle = {
   setEditMode: (enabled: boolean) => void;
   getSnapshot: () => any | null;
   exportPng: () => Promise<Blob | null>;
+  centerMap: () => void;
+  zoomIn: () => void;
+  zoomOut: () => void;
   findNodesByQuery: (
     query: string,
     options?: { includeNotes?: boolean }
@@ -1006,6 +1009,21 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           return null;
         }
       },
+      centerMap: () => {
+        centerMap(mindRef.current);
+      },
+      zoomIn: () => {
+        const mind = mindRef.current;
+        if (!mind || typeof mind.scale !== "function") return;
+        const next = Math.min(mind.scaleMax ?? 1.4, (mind.scaleVal ?? 1) + 0.1);
+        mind.scale(next);
+      },
+      zoomOut: () => {
+        const mind = mindRef.current;
+        if (!mind || typeof mind.scale !== "function") return;
+        const next = Math.max(mind.scaleMin ?? 0.2, (mind.scaleVal ?? 1) - 0.1);
+        mind.scale(next);
+      },
       findNodesByQuery: (query, options) => {
         const raw =
           mindRef.current?.getData?.() ?? mindRef.current?.getAllData?.();
@@ -1096,7 +1114,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       const mind = new MindElixir({
         el: elRef.current,
         direction: MindElixir.RIGHT,
-        toolBar: true,
+        toolBar: false,
         keypress: true,
         draggable: true,
         editable: true,
@@ -1494,10 +1512,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           padding: 0 2px;
           border-radius: 4px;
         }
+        .mind-elixir-toolbar.rb span:first-child {
+          display: none;
+        }
       `}</style>
       <div ref={elRef} className="relative w-full h-full" />
 
-      <div className="pointer-events-auto absolute bottom-24 right-4 z-20 rounded-xl border border-neutral-200 bg-white/90 p-2 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#0b1220]/75">
+      <div className="pointer-events-auto absolute bottom-6 right-4 z-20 rounded-xl border border-neutral-200 bg-white/90 p-2 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#0b1220]/75">
         <div className="text-[10px] font-semibold text-neutral-500 dark:text-white/60">
           미니맵
         </div>
