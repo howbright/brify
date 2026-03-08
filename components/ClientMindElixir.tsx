@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { Icon } from "@iconify/react";
+import { toast } from "sonner";
 import { useTheme } from "next-themes";
 import { sampled } from "@/app/lib/g6/sampleData";
 import {
@@ -150,6 +151,58 @@ function collectMatches(
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function nodeToMarkdown(
+  node: AnyNode,
+  depth = 0,
+  onlyExpanded = false
+): string {
+  const lines: string[] = [];
+  const indent = "  ".repeat(depth);
+  const topic = (node.topic ?? "").trim();
+  lines.push(`${indent}- ${topic}`);
+
+  const note = typeof node.note === "string" ? node.note.trim() : "";
+  if (note) {
+    for (const line of note.split(/\r?\n/)) {
+      lines.push(`${indent}  > ${line}`);
+    }
+  }
+
+  if (Array.isArray(node.children) && (!onlyExpanded || node.expanded !== false)) {
+    for (const child of node.children) {
+      lines.push(nodeToMarkdown(child, depth + 1, onlyExpanded));
+    }
+  }
+
+  return lines.join("\n");
+}
+
+async function copyToClipboard(text: string) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    // fallback below
+  }
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "true");
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    textarea.style.top = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    textarea.remove();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 const NOTE_BADGE_SVG =
@@ -1047,6 +1100,42 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         keypress: true,
         draggable: true,
         editable: true,
+        contextMenu: {
+          focus: true,
+          link: true,
+          extend: [
+            {
+              name: "마크다운 복사",
+              onclick: async () => {
+                const current = mind.currentNode?.nodeObj as AnyNode | undefined;
+                if (!current) return;
+                const markdown = nodeToMarkdown(current);
+                if (!markdown.trim()) return;
+                const ok = await copyToClipboard(markdown);
+                if (ok) {
+                  toast.message("마크다운을 복사했어요.");
+                } else {
+                  toast.message("복사에 실패했습니다.");
+                }
+              },
+            },
+            {
+              name: "펼쳐진 노드만 마크다운 복사",
+              onclick: async () => {
+                const current = mind.currentNode?.nodeObj as AnyNode | undefined;
+                if (!current) return;
+                const markdown = nodeToMarkdown(current, 0, true);
+                if (!markdown.trim()) return;
+                const ok = await copyToClipboard(markdown);
+                if (ok) {
+                  toast.message("마크다운을 복사했어요.");
+                } else {
+                  toast.message("복사에 실패했습니다.");
+                }
+              },
+            },
+          ],
+        },
         locale: "ko",
         scaleSensitivity: zoomSensitivity,
         mouseSelectionButton: dragButton,
