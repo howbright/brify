@@ -596,11 +596,11 @@ export default function LeftPanel({
             <div />
           </div>
 
-          <div className="mt-3">
-            <div className="hidden max-[738px]:block text-sm font-semibold text-neutral-900 dark:text-white/90 whitespace-normal break-words">
+          {activeTab === "info" && (
+            <div className="mt-3 text-sm font-semibold text-neutral-900 dark:text-white/90 whitespace-normal break-words">
               {map.title ?? t("untitled")}
             </div>
-          </div>
+          )}
         </div>
 
         {/* body */}
@@ -820,6 +820,7 @@ export default function LeftPanel({
             </>
           )}
         </div>
+
       </div>
     </aside>
   );
