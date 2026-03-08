@@ -251,13 +251,15 @@ export default function MapControls({
 
                   {moreOpen && (
                     <div className="absolute right-0 mt-2 w-[180px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
-                      <MenuButton
-                        label="이미지로 저장 (PNG)"
-                        onClick={() => {
-                          setMoreOpen(false);
-                          onExportPng?.();
-                        }}
-                      />
+                      {onExportPng && (
+                        <MenuButton
+                          label="이미지로 저장 (PNG)"
+                          onClick={() => {
+                            setMoreOpen(false);
+                            onExportPng?.();
+                          }}
+                        />
+                      )}
                       <MenuButton
                         label="공유"
                         onClick={() => {

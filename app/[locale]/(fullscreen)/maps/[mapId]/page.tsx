@@ -18,6 +18,7 @@ const PROFILE_THEME_NAME = "내설정테마";
 import MetadataDialog from "@/app/[locale]/(main)/video-to-map/MetadataDialog";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import DiscardDraftDialog from "@/components/maps/DiscardDraftDialog";
+import ShareDialog from "@/components/maps/ShareDialog";
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/app/types/database.types";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
@@ -83,6 +84,7 @@ export default function MapDetailPage() {
   const { profileThemeName } = useMindThemePreference();
 
   const mapId = String(params?.mapId ?? "");
+  const locale = String(params?.locale ?? "ko");
 
   const [draft, setDraft] = useState<MapDraft | null>(null);
   const [mapData, setMapData] = useState<any | null>(null);
@@ -127,6 +129,10 @@ export default function MapDetailPage() {
   const highlightSaveTimerRef = useRef<number | null>(null);
   const lastSavedHighlightRef = useRef<string | null>(null);
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareEnabled, setShareEnabled] = useState(false);
+  const [shareToken, setShareToken] = useState<string | null>(null);
 
   const MUTATING_OPS = useMemo(
     () =>
@@ -614,6 +620,80 @@ export default function MapDetailPage() {
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
+  const fetchShareStatus = async () => {
+    if (!mapId) return;
+    try {
+      setShareLoading(true);
+      const res = await fetch(`/api/maps/${mapId}/share`);
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(json?.error || "공유 상태를 불러오지 못했습니다.");
+      }
+      setShareEnabled(Boolean(json?.share_enabled));
+      setShareToken(json?.share_token ?? null);
+    } catch (e: any) {
+      toast.message(e?.message ?? "공유 상태를 불러오지 못했습니다.");
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const handleEnableShare = async () => {
+    if (!mapId) return;
+    try {
+      setShareLoading(true);
+      const res = await fetch(`/api/maps/${mapId}/share`, { method: "POST" });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(json?.error || "공유 링크 생성에 실패했습니다.");
+      }
+      setShareEnabled(Boolean(json?.share_enabled));
+      setShareToken(json?.share_token ?? null);
+      toast.message("공유 링크를 만들었어요.");
+    } catch (e: any) {
+      toast.message(e?.message ?? "공유 링크 생성에 실패했습니다.");
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const handleDisableShare = async () => {
+    if (!mapId) return;
+    try {
+      setShareLoading(true);
+      const res = await fetch(`/api/maps/${mapId}/share`, { method: "DELETE" });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(json?.error || "공유 링크 끄기에 실패했습니다.");
+      }
+      setShareEnabled(false);
+      setShareToken(null);
+      toast.message("공유 링크를 끄었습니다.");
+    } catch (e: any) {
+      toast.message(e?.message ?? "공유 링크 끄기에 실패했습니다.");
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const handleCopyShare = async () => {
+    const url = shareUrl;
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.message("링크를 복사했어요.");
+    } catch {
+      toast.message("복사에 실패했습니다.");
+    }
+  };
+
+  const shareUrl = useMemo(() => {
+    if (!shareToken) return null;
+    if (typeof window === "undefined") return null;
+    const origin = window.location.origin;
+    return `${origin}/${locale}/share/${encodeURIComponent(shareToken)}`;
+  }, [shareToken, locale]);
+
   const statusLabel = isSavingDraft
     ? "자동 저장 중…"
     : savedPulse
@@ -777,7 +857,8 @@ export default function MapDetailPage() {
                 onCollapseLevel={() => mindRef.current?.collapseOneLevel()}
                 onPublish={handlePublish}
                 onShare={() => {
-                  toast.message("공유 기능은 준비 중입니다.");
+                  setShareOpen(true);
+                  void fetchShareStatus();
                 }}
                 onExportPng={handleExportPng}
                 placement="inline"
@@ -990,6 +1071,17 @@ export default function MapDetailPage() {
           setConfirmDiscardOpen(false);
           handleDiscardDraft();
         }}
+      />
+
+      <ShareDialog
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        loading={shareLoading}
+        shareEnabled={shareEnabled}
+        shareUrl={shareUrl}
+        onEnable={handleEnableShare}
+        onDisable={handleDisableShare}
+        onCopy={handleCopyShare}
       />
 
     </div>

@@ -294,6 +294,8 @@ export type Database = {
           output_language: string | null
           required_credits: number
           schema_version: number
+          share_enabled: boolean
+          share_token: string | null
           source_char_count: number | null
           source_type: Database["public"]["Enums"]["map_source_type"]
           source_url: string | null
@@ -323,6 +325,8 @@ export type Database = {
           output_language?: string | null
           required_credits?: number
           schema_version?: number
+          share_enabled?: boolean
+          share_token?: string | null
           source_char_count?: number | null
           source_type?: Database["public"]["Enums"]["map_source_type"]
           source_url?: string | null
@@ -352,6 +356,8 @@ export type Database = {
           output_language?: string | null
           required_credits?: number
           schema_version?: number
+          share_enabled?: boolean
+          share_token?: string | null
           source_char_count?: number | null
           source_type?: Database["public"]["Enums"]["map_source_type"]
           source_url?: string | null
