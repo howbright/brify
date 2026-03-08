@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import ShortcutsDialog from "@/components/maps/ShortcutsDialog";
 import ConfirmShareDialog from "@/components/maps/ConfirmShareDialog";
-import DiscardDraftDialog from "@/components/maps/DiscardDraftDialog";
 
 export default function MapControls({
   editMode,
@@ -20,10 +19,7 @@ export default function MapControls({
   onCollapseLevel,
   onPublish,
   onShare,
-  onDiscardDraft,
-  statusLabel,
-  statusTone = "neutral",
-  hasDraft = false,
+  onExportPng,
   highlightEditToggle = false,
   placement = "floating",
 }: {
@@ -40,16 +36,12 @@ export default function MapControls({
   onCollapseLevel: () => void;
   onPublish?: () => void;
   onShare?: () => void;
-  onDiscardDraft?: () => void;
-  statusLabel?: string;
-  statusTone?: "neutral" | "warning" | "success";
-  hasDraft?: boolean;
+  onExportPng?: () => void;
   highlightEditToggle?: boolean;
   placement?: "floating" | "inline";
 }) {
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [confirmShareOpen, setConfirmShareOpen] = useState(false);
-  const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
   const [mapActionsOpen, setMapActionsOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
@@ -260,6 +252,13 @@ export default function MapControls({
                   {moreOpen && (
                     <div className="absolute right-0 mt-2 w-[180px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
                       <MenuButton
+                        label="이미지로 저장 (PNG)"
+                        onClick={() => {
+                          setMoreOpen(false);
+                          onExportPng?.();
+                        }}
+                      />
+                      <MenuButton
                         label="공유"
                         onClick={() => {
                           setMoreOpen(false);
@@ -284,59 +283,6 @@ export default function MapControls({
             </div>
             </div>
 
-            {(statusLabel || hasDraft) && (
-              <div className="flex items-center gap-2 px-1">
-                <div className="flex-1" />
-                {statusLabel && (
-                  <span
-                    className={`
-                      text-[11px] font-semibold
-                      ${
-                        statusTone === "success"
-                          ? "text-emerald-600 dark:text-emerald-300"
-                          : statusTone === "warning"
-                          ? "text-amber-600 dark:text-amber-300"
-                          : "text-neutral-500 dark:text-white/70"
-                      }
-                    `}
-                  >
-                    {statusLabel}
-                  </span>
-                )}
-                {hasDraft && (
-                  <>
-                    <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
-                    <button
-                      type="button"
-                      onClick={() => setConfirmDiscardOpen(true)}
-                      className="
-                        inline-flex items-center gap-1.5 px-1.5 py-0.5
-                        text-[11px] font-semibold text-neutral-600
-                        hover:text-neutral-900
-                        dark:text-white/70 dark:hover:text-white
-                      "
-                    >
-                      <Icon icon="mdi:undo-variant" className="h-3.5 w-3.5" />
-                      임시 변경 버리기
-                    </button>
-                    <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
-                    <button
-                      type="button"
-                      onClick={() => onPublish?.()}
-                      className="
-                        inline-flex items-center gap-1.5 px-1.5 py-0.5
-                        text-[11px] font-semibold text-blue-600
-                        hover:text-blue-700
-                        dark:text-blue-300 dark:hover:text-blue-200
-                      "
-                    >
-                      <Icon icon="mdi:check-circle-outline" className="h-3.5 w-3.5" />
-                      완료/발행
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
           </div>
       </div>
 
@@ -355,14 +301,6 @@ export default function MapControls({
         }}
       />
 
-      <DiscardDraftDialog
-        open={confirmDiscardOpen}
-        onClose={() => setConfirmDiscardOpen(false)}
-        onConfirm={() => {
-          setConfirmDiscardOpen(false);
-          onDiscardDraft?.();
-        }}
-      />
     </>
   );
 }

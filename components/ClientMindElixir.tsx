@@ -44,6 +44,7 @@ export type ClientMindElixirHandle = {
   setPanMode: (enabled: boolean) => void;
   setEditMode: (enabled: boolean) => void;
   getSnapshot: () => any | null;
+  exportPng: () => Promise<Blob | null>;
   findNodesByQuery: (
     query: string,
     options?: { includeNotes?: boolean }
@@ -942,6 +943,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         const mind = mindRef.current;
         if (!mind) return null;
         return mind.getData?.() ?? mind.getAllData?.() ?? null;
+      },
+      exportPng: async () => {
+        const mind = mindRef.current;
+        if (!mind || typeof mind.exportPng !== "function") return null;
+        try {
+          return await mind.exportPng(false);
+        } catch {
+          return null;
+        }
       },
       findNodesByQuery: (query, options) => {
         const raw =

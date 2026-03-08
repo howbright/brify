@@ -17,6 +17,7 @@ const DEFAULT_THEME_NAME = "Default";
 const PROFILE_THEME_NAME = "내설정테마";
 import MetadataDialog from "@/app/[locale]/(main)/video-to-map/MetadataDialog";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import DiscardDraftDialog from "@/components/maps/DiscardDraftDialog";
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/app/types/database.types";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
@@ -49,6 +50,10 @@ function detectSourceType(sourceUrl?: string) {
     return "youtube" as const;
   }
   return "website" as const;
+}
+
+function toFileSafeName(value: string) {
+  return value.replace(/[\\/:*?"<>|]+/g, "-").trim();
 }
 
 function toDraft(row: MapRow): MapDraft {
@@ -121,6 +126,7 @@ export default function MapDetailPage() {
   const lastHighlightToastRef = useRef<number>(0);
   const highlightSaveTimerRef = useRef<number | null>(null);
   const lastSavedHighlightRef = useRef<string | null>(null);
+  const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
 
   const MUTATING_OPS = useMemo(
     () =>
@@ -259,6 +265,26 @@ export default function MapDetailPage() {
     if (!searchOpen) return;
     searchInputRef.current?.focus();
   }, [searchOpen]);
+
+  useEffect(() => {
+    const handleFind = (event: KeyboardEvent) => {
+      const isCmdOrCtrl = event.metaKey || event.ctrlKey;
+      if (!isCmdOrCtrl || event.key.toLowerCase() !== "f") return;
+      const target = event.target as HTMLElement | null;
+      const tagName = target?.tagName?.toLowerCase();
+      const isEditable =
+        target?.isContentEditable ||
+        tagName === "input" ||
+        tagName === "textarea" ||
+        tagName === "select";
+      if (isEditable) return;
+      event.preventDefault();
+      setSearchOpen(true);
+    };
+
+    window.addEventListener("keydown", handleFind);
+    return () => window.removeEventListener("keydown", handleFind);
+  }, []);
 
   useEffect(() => {
     if (!searchOpen) return;
@@ -502,6 +528,101 @@ export default function MapDetailPage() {
     }
   };
 
+  const handlePublish = () => {
+    (async () => {
+      if (!mapId) return;
+      try {
+        const res = await fetch(`/api/maps/${mapId}/publish`, {
+          method: "POST",
+        });
+        if (!res.ok) throw new Error("발행 실패");
+        setHasDraft(false);
+        lastSavedDraftRef.current = null;
+        // 발행된 원본을 다시 동기화
+        try {
+          const supabase = createClient();
+          const { data, error } = await supabase
+            .from("maps")
+            .select("mind_elixir")
+            .eq("id", mapId)
+            .single();
+          if (!error && data?.mind_elixir) {
+            setMapData(data.mind_elixir);
+          }
+        } catch {
+          // ignore
+        }
+        toast.message("발행이 완료되었습니다.");
+      } catch {
+        toast.message("발행에 실패했습니다.");
+      }
+    })();
+  };
+
+  const handleDiscardDraft = () => {
+    (async () => {
+      if (!mapId) return;
+      try {
+        const res = await fetch(`/api/maps/${mapId}/draft`, {
+          method: "DELETE",
+        });
+        if (!res.ok) throw new Error("삭제 실패");
+        setHasDraft(false);
+        lastSavedDraftRef.current = null;
+        // 원본 맵으로 즉시 되돌리기
+        try {
+          const supabase = createClient();
+          const { data, error } = await supabase
+            .from("maps")
+            .select("mind_elixir")
+            .eq("id", mapId)
+            .single();
+          if (!error && data?.mind_elixir) {
+            setMapData(data.mind_elixir);
+          }
+        } catch {
+          // ignore
+        }
+        toast.message("임시 변경을 버렸습니다.");
+      } catch {
+        toast.message("임시 변경 버리기에 실패했습니다.");
+      }
+    })();
+  };
+
+  const handleExportPng = async () => {
+    const blob = await mindRef.current?.exportPng?.();
+    if (!blob) {
+      toast.message("이미지 저장에 실패했습니다.");
+      return;
+    }
+    const safeTitle = toFileSafeName(title || "map") || "map";
+    const date = new Date();
+    const stamp = [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, "0"),
+      String(date.getDate()).padStart(2, "0"),
+    ].join("");
+    const fileName = `${safeTitle}-${stamp}.png`;
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const statusLabel = isSavingDraft
+    ? "자동 저장 중…"
+    : savedPulse
+    ? "저장됨"
+    : hasDraft
+    ? "임시 변경 있음"
+    : undefined;
+  const statusTone = isSavingDraft ? "warning" : savedPulse ? "success" : "neutral";
+
   return (
     <div className="fixed inset-0 z-[120] bg-white dark:bg-[#0b1220] [--header-h:68px]">
       <header
@@ -534,7 +655,7 @@ export default function MapDetailPage() {
               )}
 
               {searchOpen ? (
-                <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white/90 px-2 py-1 text-[11px] text-neutral-600 shadow-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80">
+                <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-slate-700 px-2 py-1 text-[11px] text-white shadow-sm dark:border-white/10 dark:bg-slate-800 dark:text-white">
                   <Icon icon="mdi:magnify" className="h-3.5 w-3.5" />
                   <input
                     ref={searchInputRef}
@@ -568,16 +689,16 @@ export default function MapDetailPage() {
                       }
                     }}
                     placeholder="검색"
-                    className="w-[140px] bg-transparent text-[11px] text-neutral-800 outline-none placeholder:text-neutral-400 dark:text-white dark:placeholder:text-white/45"
+                    className="w-[140px] bg-transparent text-[11px] text-white outline-none placeholder:text-white/60"
                   />
-                  <span className="text-[10px] text-neutral-400 dark:text-white/50">
+                  <span className="text-[10px] text-white/70">
                     {searchResults.length ? `${searchIndex + 1}/${searchResults.length}` : "0"}
                   </span>
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
                       onClick={() => stepSearch(-1)}
-                      className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-neutral-100 dark:hover:bg-white/10"
+                      className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-white/10"
                       aria-label="이전 결과"
                       title="이전 결과"
                     >
@@ -586,7 +707,7 @@ export default function MapDetailPage() {
                     <button
                       type="button"
                       onClick={() => stepSearch(1)}
-                      className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-neutral-100 dark:hover:bg-white/10"
+                      className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-white/10"
                       aria-label="다음 결과"
                       title="다음 결과"
                     >
@@ -596,7 +717,7 @@ export default function MapDetailPage() {
                   <button
                     type="button"
                     onClick={closeSearch}
-                    className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-neutral-100 dark:hover:bg-white/10"
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-white/10"
                     aria-label="검색 닫기"
                     title="검색 닫기"
                   >
@@ -628,20 +749,7 @@ export default function MapDetailPage() {
                 panMode={panMode}
                 themes={themeOptions}
                 currentThemeName={themeName}
-                hasDraft={hasDraft}
                 highlightEditToggle={editHintPulse}
-                statusLabel={
-                  isSavingDraft
-                    ? "자동 저장 중…"
-                    : savedPulse
-                    ? "저장됨"
-                    : hasDraft
-                    ? "임시 변경 있음"
-                    : undefined
-                }
-                statusTone={
-                  isSavingDraft ? "warning" : savedPulse ? "success" : "neutral"
-                }
                 onToggleEdit={() =>
                   setEditMode((m) => (m === "view" ? "edit" : "view"))
                 }
@@ -667,69 +775,11 @@ export default function MapDetailPage() {
                 onExpandAll={() => mindRef.current?.expandAll()}
                 onExpandLevel={() => mindRef.current?.expandOneLevel()}
                 onCollapseLevel={() => mindRef.current?.collapseOneLevel()}
-                onPublish={() => {
-                  (async () => {
-                    if (!mapId) return;
-                    try {
-                      const res = await fetch(`/api/maps/${mapId}/publish`, {
-                        method: "POST",
-                      });
-                      if (!res.ok) throw new Error("발행 실패");
-                      setHasDraft(false);
-                      lastSavedDraftRef.current = null;
-                      // 발행된 원본을 다시 동기화
-                      try {
-                        const supabase = createClient();
-                        const { data, error } = await supabase
-                          .from("maps")
-                          .select("mind_elixir")
-                          .eq("id", mapId)
-                          .single();
-                        if (!error && data?.mind_elixir) {
-                          setMapData(data.mind_elixir);
-                        }
-                      } catch {
-                        // ignore
-                      }
-                      toast.message("발행이 완료되었습니다.");
-                    } catch {
-                      toast.message("발행에 실패했습니다.");
-                    }
-                  })();
-                }}
+                onPublish={handlePublish}
                 onShare={() => {
                   toast.message("공유 기능은 준비 중입니다.");
                 }}
-                onDiscardDraft={() => {
-                  (async () => {
-                    if (!mapId) return;
-                    try {
-                      const res = await fetch(`/api/maps/${mapId}/draft`, {
-                        method: "DELETE",
-                      });
-                      if (!res.ok) throw new Error("삭제 실패");
-                      setHasDraft(false);
-                      lastSavedDraftRef.current = null;
-                      // 원본 맵으로 즉시 되돌리기
-                      try {
-                        const supabase = createClient();
-                        const { data, error } = await supabase
-                          .from("maps")
-                          .select("mind_elixir")
-                          .eq("id", mapId)
-                          .single();
-                        if (!error && data?.mind_elixir) {
-                          setMapData(data.mind_elixir);
-                        }
-                      } catch {
-                        // ignore
-                      }
-                      toast.message("임시 변경을 버렸습니다.");
-                    } catch {
-                      toast.message("임시 변경 버리기에 실패했습니다.");
-                    }
-                  })();
-                }}
+                onExportPng={handleExportPng}
                 placement="inline"
               />
               <button
@@ -826,6 +876,58 @@ export default function MapDetailPage() {
           </div>
         </div>
 
+        {(statusLabel || hasDraft) && (
+          <div className="pointer-events-auto absolute right-4 top-3 z-[15] flex items-center gap-2">
+            {statusLabel && (
+              <span
+                className={`
+                  inline-flex items-center px-1 text-[11px] font-semibold
+                  ${
+                    statusTone === "success"
+                      ? "text-emerald-600 dark:text-emerald-300"
+                      : statusTone === "warning"
+                      ? "text-amber-600 dark:text-amber-300"
+                      : "text-neutral-500 dark:text-white/70"
+                  }
+                `}
+              >
+                {statusLabel}
+              </span>
+            )}
+            {hasDraft && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setConfirmDiscardOpen(true)}
+                  className="
+                    inline-flex items-center gap-1.5 rounded-full border border-neutral-200/70
+                    bg-white/90 px-2 py-0.5 text-[11px] font-semibold text-neutral-600
+                    shadow-sm backdrop-blur hover:text-neutral-900
+                    dark:border-white/10 dark:bg-[#0b1220]/80 dark:text-white/70 dark:hover:text-white
+                  "
+                >
+                  <Icon icon="mdi:undo-variant" className="h-3.5 w-3.5" />
+                  임시 변경 버리기
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePublish}
+                  className="
+                    inline-flex items-center gap-1.5
+                    rounded-full
+                    bg-blue-600 px-4 py-1.5 text-[13px] font-semibold text-white shadow-md
+                    hover:bg-blue-700
+                    dark:bg-blue-500 dark:hover:bg-blue-400
+                  "
+                >
+                  <Icon icon="mdi:check-circle-outline" className="h-4.5 w-4.5" />
+                  완료/발행
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
         {error && (
           <div className="absolute left-4 top-3 z-[15]">
             <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
@@ -879,6 +981,15 @@ export default function MapDetailPage() {
         actionLabel={
           isDeleting ? t("deleteConfirm.actionDeleting") : t("deleteConfirm.action")
         }
+      />
+
+      <DiscardDraftDialog
+        open={confirmDiscardOpen}
+        onClose={() => setConfirmDiscardOpen(false)}
+        onConfirm={() => {
+          setConfirmDiscardOpen(false);
+          handleDiscardDraft();
+        }}
       />
 
     </div>
