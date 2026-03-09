@@ -33,6 +33,9 @@ type ClientMindElixirProps = {
   dragButton?: 0 | 2; // mouseSelectionButton
   fitOnInit?: boolean;
   openMenuOnClick?: boolean;
+  showMiniMap?: boolean;
+  panMode?: boolean;
+  panModeButton?: 0 | 2;
 };
 
 export type ClientMindElixirHandle = {
@@ -277,6 +280,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       dragButton = 0,
       fitOnInit = true,
       openMenuOnClick = true,
+      showMiniMap = true,
+      panMode = false,
+      panModeButton = 2,
     },
     ref
   ) {
@@ -1448,11 +1454,34 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     applyEditMode(mind, editMode === "edit");
   }, [editMode]);
 
+  useEffect(() => {
+    const enabled = Boolean(panMode);
+    if (wrapperRef.current) {
+      wrapperRef.current.classList.toggle(PAN_MODE_CLASS, enabled);
+    }
+    if (elRef.current) {
+      elRef.current.classList.toggle(PAN_MODE_CLASS, enabled);
+    }
+
+    const mind = mindRef.current;
+    if (!mind) return;
+    mind.mouseSelectionButton = enabled ? panModeButton : 0;
+    if (enabled) {
+      mind.selection?.cancel?.();
+      mind.selection?.disable?.();
+    } else {
+      mind.selection?.enable?.();
+    }
+  }, [panMode, panModeButton, ready]);
+
   return (
     <div ref={wrapperRef} className="relative w-full h-full">
       <style jsx global>{`
         .${PAN_MODE_CLASS} me-tpc,
-        .${PAN_MODE_CLASS} [data-nodeid] {
+        .${PAN_MODE_CLASS} [data-nodeid],
+        .${PAN_MODE_CLASS} .node,
+        .${PAN_MODE_CLASS} .node-box,
+        .${PAN_MODE_CLASS} .topic {
           pointer-events: none;
         }
         .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-add_child,
@@ -1531,12 +1560,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       `}</style>
       <div ref={elRef} className="relative w-full h-full" />
 
-      <div className="pointer-events-auto absolute bottom-6 right-4 z-20 rounded-xl border border-neutral-200 bg-white/90 p-2 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#0b1220]/75">
-        <div className="text-[10px] font-semibold text-neutral-500 dark:text-white/60">
-          미니맵
+      {showMiniMap && (
+        <div className="pointer-events-auto absolute bottom-6 right-4 z-20 rounded-xl border border-neutral-200 bg-white/90 p-2 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#0b1220]/75">
+          <div className="text-[10px] font-semibold text-neutral-500 dark:text-white/60">
+            미니맵
+          </div>
+          <canvas ref={miniMapRef} className="mt-1 h-[120px] w-[160px]" />
         </div>
-        <canvas ref={miniMapRef} className="mt-1 h-[120px] w-[160px]" />
-      </div>
+      )}
       {selectedNodeId && selectedRect && (
         <div
           className="absolute z-20"
