@@ -44,6 +44,7 @@ export type ClientMindElixirHandle = {
   collapseToLevel: (level: number) => void;
   setPanMode: (enabled: boolean) => void;
   setEditMode: (enabled: boolean) => void;
+  setLayout: (mode: "left" | "right" | "side") => void;
   getSnapshot: () => any | null;
   exportPng: () => Promise<Blob | null>;
   centerMap: () => void;
@@ -994,6 +995,18 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       setEditMode: (enabled: boolean) => {
         const mind = mindRef.current;
         applyEditMode(mind, enabled);
+      },
+      setLayout: (mode) => {
+        const mind = mindRef.current;
+        if (!mind) return;
+        if (mode === "left") {
+          mind.initLeft?.();
+        } else if (mode === "right") {
+          mind.initRight?.();
+        } else {
+          mind.initSide?.();
+        }
+        centerMap(mind);
       },
       getSnapshot: () => {
         const mind = mindRef.current;

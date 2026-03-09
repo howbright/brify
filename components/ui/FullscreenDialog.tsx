@@ -361,6 +361,9 @@ export default function FullscreenDialog({
                 onExpandAll={() => mindRef.current?.expandAll?.()}
                 onExpandLevel={() => mindRef.current?.expandOneLevel?.()}
                 onCollapseLevel={() => mindRef.current?.collapseOneLevel?.()}
+                onAlignLeft={() => mindRef.current?.setLayout?.("left")}
+                onAlignRight={() => mindRef.current?.setLayout?.("right")}
+                onAlignSide={() => mindRef.current?.setLayout?.("side")}
                 onCenterMap={() => mindRef.current?.centerMap?.()}
                 onZoomIn={() => mindRef.current?.zoomIn?.()}
                 onZoomOut={() => mindRef.current?.zoomOut?.()}
@@ -594,6 +597,37 @@ export default function FullscreenDialog({
                     className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
                   >
                     한단계 접기
+                  </button>
+                  <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMapActionsOpen(false);
+                      mindRef.current?.setLayout?.("left");
+                    }}
+                    className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                  >
+                    왼쪽 정렬
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMapActionsOpen(false);
+                      mindRef.current?.setLayout?.("right");
+                    }}
+                    className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                  >
+                    오른쪽 정렬
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMapActionsOpen(false);
+                      mindRef.current?.setLayout?.("side");
+                    }}
+                    className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                  >
+                    가운데 정렬
                   </button>
                 </div>
               )}

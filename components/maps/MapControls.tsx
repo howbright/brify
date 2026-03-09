@@ -17,6 +17,9 @@ export default function MapControls({
   onExpandAll,
   onExpandLevel,
   onCollapseLevel,
+  onAlignLeft,
+  onAlignRight,
+  onAlignSide,
   onPublish,
   onShare,
   onExportPng,
@@ -37,6 +40,9 @@ export default function MapControls({
   onExpandAll: () => void;
   onExpandLevel: () => void;
   onCollapseLevel: () => void;
+  onAlignLeft?: () => void;
+  onAlignRight?: () => void;
+  onAlignSide?: () => void;
   onPublish?: () => void;
   onShare?: () => void;
   onExportPng?: () => void;
@@ -225,6 +231,7 @@ export default function MapControls({
                   {mapActionsOpen && (
                     <div className="absolute right-0 mt-2 w-[180px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
                       <MenuButton
+                        icon="mdi:unfold-more-horizontal"
                         label="전체 펴기"
                         onClick={() => {
                           setMapActionsOpen(false);
@@ -232,6 +239,7 @@ export default function MapControls({
                         }}
                       />
                       <MenuButton
+                        icon="mdi:arrow-expand-vertical"
                         label="한단계 펴기"
                         onClick={() => {
                           setMapActionsOpen(false);
@@ -239,12 +247,46 @@ export default function MapControls({
                         }}
                       />
                       <MenuButton
+                        icon="mdi:arrow-collapse-vertical"
                         label="한단계 접기"
                         onClick={() => {
                           setMapActionsOpen(false);
                           onCollapseLevel();
                         }}
                       />
+                      {(onAlignLeft || onAlignRight || onAlignSide) && (
+                        <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
+                      )}
+                      {onAlignLeft && (
+                        <MenuButton
+                          icon="mdi:format-horizontal-align-left"
+                          label="왼쪽 정렬"
+                          onClick={() => {
+                            setMapActionsOpen(false);
+                            onAlignLeft();
+                          }}
+                        />
+                      )}
+                      {onAlignRight && (
+                        <MenuButton
+                          icon="mdi:format-horizontal-align-right"
+                          label="오른쪽 정렬"
+                          onClick={() => {
+                            setMapActionsOpen(false);
+                            onAlignRight();
+                          }}
+                        />
+                      )}
+                      {onAlignSide && (
+                        <MenuButton
+                          icon="mdi:format-horizontal-align-center"
+                          label="가운데 정렬"
+                          onClick={() => {
+                            setMapActionsOpen(false);
+                            onAlignSide();
+                          }}
+                        />
+                      )}
                     </div>
                   )}
                 </div>
@@ -383,11 +425,13 @@ function MapControlButton({
 
 function MenuButton({
   label,
+  icon,
   onClick,
   danger = false,
   checked = false,
 }: {
   label: string;
+  icon?: string;
   onClick: () => void;
   danger?: boolean;
   checked?: boolean;
@@ -397,7 +441,7 @@ function MenuButton({
       type="button"
       onClick={onClick}
       className={`
-        w-full rounded-xl px-3 py-2 text-left text-xs font-semibold inline-flex items-center justify-between
+        w-full rounded-xl px-3 py-2 text-left text-xs font-semibold inline-flex items-center gap-2
         ${
           danger
             ? "text-rose-600 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/10"
@@ -405,9 +449,10 @@ function MenuButton({
         }
       `}
     >
+      {icon ? <Icon icon={icon} className="h-3.5 w-3.5" /> : null}
       <span>{label}</span>
       {checked ? (
-        <Icon icon="mdi:check" className="h-3.5 w-3.5" />
+        <Icon icon="mdi:check" className="h-3.5 w-3.5 ml-auto" />
       ) : null}
     </button>
   );

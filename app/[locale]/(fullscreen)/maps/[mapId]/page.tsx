@@ -113,6 +113,7 @@ export default function MapDetailPage() {
     []
   );
   const mindRef = useRef<ClientMindElixirHandle | null>(null);
+  const centeredOnceRef = useRef(false);
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
   const [isSavingMeta, setIsSavingMeta] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -342,6 +343,22 @@ export default function MapDetailPage() {
   useEffect(() => {
     mindRef.current?.setPanMode(panMode);
   }, [panMode]);
+
+  useEffect(() => {
+    if (!mapData || loading) return;
+    if (centeredOnceRef.current) return;
+    centeredOnceRef.current = true;
+    const raf = requestAnimationFrame(() => {
+      mindRef.current?.centerMap?.();
+    });
+    const timeout = window.setTimeout(() => {
+      mindRef.current?.centerMap?.();
+    }, 120);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(timeout);
+    };
+  }, [mapData, loading]);
 
   const scheduleAutoSave = () => {
     if (!mapId) return;
@@ -877,14 +894,17 @@ export default function MapDetailPage() {
               }
               onTogglePanMode={() => setPanMode((v) => !v)}
               onSelectTheme={handleSelectTheme}
-              onCollapseAll={() => mindRef.current?.collapseAll()}
-              onExpandAll={() => mindRef.current?.expandAll()}
-              onExpandLevel={() => mindRef.current?.expandOneLevel()}
-              onCollapseLevel={() => mindRef.current?.collapseOneLevel()}
-              onPublish={handlePublish}
-              onCenterMap={() => mindRef.current?.centerMap?.()}
-              onZoomIn={() => mindRef.current?.zoomIn?.()}
-              onZoomOut={() => mindRef.current?.zoomOut?.()}
+                  onCollapseAll={() => mindRef.current?.collapseAll()}
+                  onExpandAll={() => mindRef.current?.expandAll()}
+                  onExpandLevel={() => mindRef.current?.expandOneLevel()}
+                  onCollapseLevel={() => mindRef.current?.collapseOneLevel()}
+                  onAlignLeft={() => mindRef.current?.setLayout?.("left")}
+                  onAlignRight={() => mindRef.current?.setLayout?.("right")}
+                  onAlignSide={() => mindRef.current?.setLayout?.("side")}
+                  onPublish={handlePublish}
+                  onCenterMap={() => mindRef.current?.centerMap?.()}
+                  onZoomIn={() => mindRef.current?.zoomIn?.()}
+                  onZoomOut={() => mindRef.current?.zoomOut?.()}
               onShare={() => {
                 setShareOpen(true);
                 void fetchShareStatus();
@@ -1015,19 +1035,50 @@ export default function MapDetailPage() {
                 >
                   한단계 펴기
                 </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMapActionsOpen(false);
-                    mindRef.current?.collapseOneLevel?.();
-                  }}
-                  className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
-                >
-                  한단계 접기
-                </button>
-              </div>
-            )}
-          </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMapActionsOpen(false);
+                      mindRef.current?.collapseOneLevel?.();
+                    }}
+                    className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                  >
+                    한단계 접기
+                  </button>
+                  <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMapActionsOpen(false);
+                      mindRef.current?.setLayout?.("left");
+                    }}
+                    className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                  >
+                    왼쪽 정렬
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMapActionsOpen(false);
+                      mindRef.current?.setLayout?.("right");
+                    }}
+                    className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                  >
+                    오른쪽 정렬
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMapActionsOpen(false);
+                      mindRef.current?.setLayout?.("side");
+                    }}
+                    className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                  >
+                    가운데 정렬
+                  </button>
+                </div>
+              )}
+            </div>
 
           <div className="relative" ref={mobileThemeRef}>
             <button
