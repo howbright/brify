@@ -24,6 +24,7 @@ import type { Database } from "@/app/types/database.types";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 import { loadingMindElixir } from "@/app/lib/g6/sampleData";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
+import FullscreenHeader from "@/components/maps/FullscreenHeader";
 
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
 
@@ -744,25 +745,12 @@ export default function MapDetailPage() {
 
   return (
     <div className="fixed inset-0 z-[120] bg-white dark:bg-[#0b1220] [--header-h:68px]">
-      <header
-        className="relative z-[20] w-full border-b border-neutral-200/80 dark:border-white/10"
-        style={{ height: "var(--header-h)" }}
-      >
-        <div className="flex flex-col">
-          <div className="h-[28px] px-3 flex items-center justify-between bg-[#1f2937] text-white text-[11px] font-semibold tracking-tight dark:bg-[#0b1220] sm:justify-center">
-            <div className="truncate text-left sm:text-center sm:flex-1">{title}</div>
-            <button
-              type="button"
-              onClick={() => router.push("/maps")}
-              className="inline-flex items-center justify-center text-white/90 hover:text-white"
-              aria-label={t("backToList")}
-              title={t("backToList")}
-            >
-              <Icon icon="mdi:close" className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="h-[40px] px-3 flex items-center justify-between gap-2 bg-white/92 backdrop-blur dark:bg-[#0b1220]/88 sm:h-[40px]">
-            <div className="min-w-0 flex items-center gap-2">
+      <FullscreenHeader
+        title={title}
+        onClose={() => router.push("/maps")}
+        closeLabel="맵 닫기"
+        left={
+          <>
               <button
                 type="button"
                 onClick={() => (leftOpen ? setLeftOpen(false) : openTab(leftTab))}
@@ -776,135 +764,137 @@ export default function MapDetailPage() {
                 title={t("tabs.info")}
               >
                 <span className="sr-only">{t("tabs.info")}</span>
-                <span className="inline-flex h-4 w-5 flex-col justify-between">
-                  <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />
-                  <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />
-                  <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />
-                </span>
+                {leftOpen ? (
+                  <Icon icon="mdi:close" className="h-6 w-6" />
+                ) : (
+                  <span className="inline-flex h-4 w-5 flex-col justify-between">
+                    <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />
+                    <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />
+                    <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />
+                  </span>
+                )}
               </button>
 
-              {searchOpen ? (
-                <div className="relative z-[40] flex items-center gap-2 w-full sm:w-auto rounded-xl border border-neutral-900 bg-black px-2 py-1 text-[11px] text-white shadow-sm dark:border-white/20 dark:bg-black dark:text-white">
-                  <Icon icon="mdi:magnify" className="h-3.5 w-3.5" />
-                  <input
-                    ref={searchInputRef}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.repeat) {
-                        e.preventDefault();
-                        return;
-                      }
-                      e.stopPropagation();
-                      if (e.key === "Escape") {
-                        e.preventDefault();
-                        closeSearch();
-                        return;
-                      }
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        stepSearch(e.shiftKey ? -1 : 1);
-                        return;
-                      }
-                      if (e.key === "ArrowDown") {
-                        e.preventDefault();
-                        stepSearch(1);
-                        return;
-                      }
-                      if (e.key === "ArrowUp") {
-                        e.preventDefault();
-                        stepSearch(-1);
-                        return;
-                      }
-                    }}
-                    placeholder="검색"
-                    className="w-full sm:w-[140px] bg-transparent text-[11px] text-white outline-none placeholder:text-white/60"
-                  />
-                  <span className="text-[10px] text-white/70">
-                    {searchResults.length ? `${searchIndex + 1}/${searchResults.length}` : "0"}
-                  </span>
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => stepSearch(-1)}
-                      className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-white/10"
-                      aria-label="이전 결과"
-                      title="이전 결과"
-                    >
-                      <Icon icon="mdi:chevron-up" className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => stepSearch(1)}
-                      className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-white/10"
-                      aria-label="다음 결과"
-                      title="다음 결과"
-                    >
-                      <Icon icon="mdi:chevron-down" className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
+            {searchOpen ? (
+              <div className="relative z-[40] flex items-center gap-2 w-full sm:w-auto rounded-xl border border-neutral-900 bg-black px-2 py-1 text-[11px] text-white shadow-sm dark:border-white/20 dark:bg-black dark:text-white">
+                <Icon icon="mdi:magnify" className="h-3.5 w-3.5" />
+                <input
+                  ref={searchInputRef}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.repeat) {
+                      e.preventDefault();
+                      return;
+                    }
+                    e.stopPropagation();
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      closeSearch();
+                      return;
+                    }
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      stepSearch(e.shiftKey ? -1 : 1);
+                      return;
+                    }
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      stepSearch(1);
+                      return;
+                    }
+                    if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      stepSearch(-1);
+                      return;
+                    }
+                  }}
+                  placeholder="검색"
+                  className="w-full sm:w-[140px] bg-transparent text-[11px] text-white outline-none placeholder:text-white/60"
+                />
+                <span className="text-[10px] text-white/70">
+                  {searchResults.length ? `${searchIndex + 1}/${searchResults.length}` : "0"}
+                </span>
+                <div className="flex items-center gap-1">
                   <button
                     type="button"
-                    onClick={closeSearch}
+                    onClick={() => stepSearch(-1)}
                     className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-white/10"
-                    aria-label="검색 닫기"
-                    title="검색 닫기"
+                    aria-label="이전 결과"
+                    title="이전 결과"
                   >
-                    <Icon icon="mdi:close" className="h-3.5 w-3.5" />
+                    <Icon icon="mdi:chevron-up" className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => stepSearch(1)}
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-white/10"
+                    aria-label="다음 결과"
+                    title="다음 결과"
+                  >
+                    <Icon icon="mdi:chevron-down" className="h-3.5 w-3.5" />
                   </button>
                 </div>
-              ) : (
                 <button
                   type="button"
-                  onClick={() => setSearchOpen(true)}
-                  className="
-                    inline-flex items-center justify-center
-                    h-8 w-8 rounded-lg
-                    border border-neutral-900/30 bg-neutral-900 text-white shadow-md
-                    hover:bg-neutral-800
-                    dark:border-white/15 dark:bg-white/15 dark:text-white dark:hover:bg-white/20
-                  "
-                  aria-label="검색"
-                  title="검색"
+                  onClick={closeSearch}
+                  className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-white/10"
+                  aria-label="검색 닫기"
+                  title="검색 닫기"
                 >
-                  <Icon icon="mdi:magnify" className="h-4 w-4" />
+                  <Icon icon="mdi:close" className="h-3.5 w-3.5" />
                 </button>
-              )}
-            </div>
-
-            <div className="flex items-center justify-end gap-2">
-              <div className="hidden sm:flex items-center gap-2">
-                <MapControls
-                  editMode={editMode}
-                  panMode={panMode}
-                  themes={themeOptions}
-                  currentThemeName={themeName}
-                  highlightEditToggle={editHintPulse}
-                  onToggleEdit={() =>
-                    setEditMode((m) => (m === "view" ? "edit" : "view"))
-                  }
-                  onTogglePanMode={() => setPanMode((v) => !v)}
-                  onSelectTheme={handleSelectTheme}
-                  onCollapseAll={() => mindRef.current?.collapseAll()}
-                  onExpandAll={() => mindRef.current?.expandAll()}
-                  onExpandLevel={() => mindRef.current?.expandOneLevel()}
-                  onCollapseLevel={() => mindRef.current?.collapseOneLevel()}
-                  onPublish={handlePublish}
-                  onCenterMap={() => mindRef.current?.centerMap?.()}
-                  onZoomIn={() => mindRef.current?.zoomIn?.()}
-                  onZoomOut={() => mindRef.current?.zoomOut?.()}
-                  onShare={() => {
-                    setShareOpen(true);
-                    void fetchShareStatus();
-                  }}
-                  onExportPng={handleExportPng}
-                  placement="inline"
-                />
               </div>
-            </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                className="
+                  inline-flex items-center justify-center
+                  h-8 w-8 rounded-lg
+                  border border-neutral-900/30 bg-neutral-900 text-white shadow-md
+                  hover:bg-neutral-800
+                  dark:border-white/15 dark:bg-white/15 dark:text-white dark:hover:bg-white/20
+                "
+                aria-label="검색"
+                title="검색"
+              >
+                <Icon icon="mdi:magnify" className="h-4 w-4" />
+              </button>
+            )}
+          </>
+        }
+        right={
+          <div className="hidden sm:flex items-center gap-2">
+            <MapControls
+              editMode={editMode}
+              panMode={panMode}
+              themes={themeOptions}
+              currentThemeName={themeName}
+              highlightEditToggle={editHintPulse}
+              onToggleEdit={() =>
+                setEditMode((m) => (m === "view" ? "edit" : "view"))
+              }
+              onTogglePanMode={() => setPanMode((v) => !v)}
+              onSelectTheme={handleSelectTheme}
+              onCollapseAll={() => mindRef.current?.collapseAll()}
+              onExpandAll={() => mindRef.current?.expandAll()}
+              onExpandLevel={() => mindRef.current?.expandOneLevel()}
+              onCollapseLevel={() => mindRef.current?.collapseOneLevel()}
+              onPublish={handlePublish}
+              onCenterMap={() => mindRef.current?.centerMap?.()}
+              onZoomIn={() => mindRef.current?.zoomIn?.()}
+              onZoomOut={() => mindRef.current?.zoomOut?.()}
+              onShare={() => {
+                setShareOpen(true);
+                void fetchShareStatus();
+              }}
+              onExportPng={handleExportPng}
+              placement="inline"
+            />
           </div>
-        </div>
-      </header>
+        }
+      />
 
       <div className="relative w-full" style={{ height: "calc(100% - var(--header-h))" }}>
         <div className="pointer-events-auto absolute right-3 top-3 z-[25] flex flex-col gap-2 sm:hidden">

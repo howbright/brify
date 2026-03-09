@@ -1,0 +1,48 @@
+import { type ReactNode } from "react";
+type Props = {
+  title: string;
+  onClose: () => void;
+  closeLabel: string;
+  left?: ReactNode;
+  right?: ReactNode;
+};
+
+export default function FullscreenHeader({
+  title,
+  onClose,
+  closeLabel,
+  left,
+  right,
+}: Props) {
+  return (
+    <header
+      className="relative z-[20] w-full border-b border-neutral-200/80 dark:border-white/10"
+      style={{ height: "var(--header-h)" }}
+    >
+      <div className="flex flex-col">
+        <div className="h-[28px] px-3 flex items-center justify-between bg-[#1f2937] text-white text-[11px] font-semibold tracking-tight dark:bg-[#0b1220] sm:justify-center">
+          <div className="truncate text-left sm:text-center sm:flex-1">{title}</div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="
+              inline-flex items-center justify-center
+              rounded-md border border-white/70 px-2 py-0.5
+              text-white/90 hover:text-white hover:border-white
+            "
+            aria-label={closeLabel}
+            title={closeLabel}
+          >
+            <span className="text-[11px] font-semibold tracking-tight">
+              {closeLabel}
+            </span>
+          </button>
+        </div>
+        <div className="h-[40px] px-3 flex items-center justify-between gap-2 bg-white/92 backdrop-blur dark:bg-[#0b1220]/88 sm:h-[40px]">
+          <div className="min-w-0 flex items-center gap-2 flex-1">{left}</div>
+          <div className="flex items-center justify-end gap-2 shrink-0">{right}</div>
+        </div>
+      </div>
+    </header>
+  );
+}

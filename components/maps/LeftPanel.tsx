@@ -593,7 +593,22 @@ export default function LeftPanel({
               </div>
             )}
 
-            <div />
+            <button
+              type="button"
+              onClick={onClose}
+              className="
+                ml-auto -mr-4 inline-flex items-center justify-center
+                h-8 w-10
+                rounded-l-full rounded-r-md
+                bg-blue-600 text-white
+                shadow-sm hover:bg-blue-700
+                dark:bg-blue-500/70 dark:text-white dark:hover:bg-blue-500
+              "
+              aria-label={t("close")}
+              title={t("close")}
+            >
+              <Icon icon="mdi:chevron-left" className="h-5 w-5" />
+            </button>
           </div>
 
           {activeTab === "info" && (
