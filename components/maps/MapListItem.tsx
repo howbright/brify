@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 
@@ -64,17 +64,24 @@ function formatDate(draft: MapDraft) {
 export default function MapListItem({
   draft,
   selected = false,
+  selectionMode = false,
+  checked = false,
   onSelect,
+  onToggleSelect,
   onDelete,
   isDeleting = false,
 }: {
   draft: MapDraft;
   selected?: boolean;
+  selectionMode?: boolean;
+  checked?: boolean;
   onSelect?: (draft: MapDraft) => void;
+  onToggleSelect?: (draft: MapDraft) => void;
   onDelete?: (draft: MapDraft) => void;
   isDeleting?: boolean;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const sourceBadge = useMemo(() => getSourceBadge(draft), [draft]);
   const statusBadge =
     draft.status === "failed"
@@ -96,21 +103,50 @@ export default function MapListItem({
   const summary =
     draft.summary ?? draft.description ?? "요약이 아직 없어요.";
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node | null;
+      if (!menuRef.current || !target) return;
+      if (!menuRef.current.contains(target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
+    };
+  }, [menuOpen]);
+
+  const isActive = selectionMode ? checked : selected;
+
   return (
     <article
       role="button"
       tabIndex={0}
-      aria-selected={selected}
-      onClick={() => onSelect?.(draft)}
+      aria-selected={isActive}
+      onClick={() => {
+        if (selectionMode) {
+          onToggleSelect?.(draft);
+          return;
+        }
+        onSelect?.(draft);
+      }}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
+          if (selectionMode) {
+            onToggleSelect?.(draft);
+            return;
+          }
           onSelect?.(draft);
         }
       }}
       className={`w-full max-w-full min-w-0 box-border rounded-2xl border px-4 py-3 transition
         ${
-          selected
+          isActive
             ? "border-blue-300 bg-blue-50/70 shadow-sm dark:border-blue-400/40 dark:bg-blue-500/10"
             : "border-neutral-200 bg-white hover:bg-neutral-50 dark:border-white/10 dark:bg-[#0f172a]/40 dark:hover:bg-white/[0.05]"
         }`}
@@ -118,6 +154,16 @@ export default function MapListItem({
       <div className="flex items-start justify-between gap-4 min-w-0">
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap min-w-0">
+            {selectionMode && (
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={() => onToggleSelect?.(draft)}
+                onClick={(event) => event.stopPropagation()}
+                className="h-4 w-4 rounded border-neutral-300 text-neutral-900"
+                aria-label={`${draft.title} 선택`}
+              />
+            )}
             <h3 className="text-sm font-semibold text-neutral-900 dark:text-white line-clamp-1">
               {draft.title}
             </h3>
@@ -144,7 +190,7 @@ export default function MapListItem({
           )}
 
           {onDelete && (
-            <div className="relative">
+            <div ref={menuRef} className="relative">
               <button
                 type="button"
                 onClick={(event) => {

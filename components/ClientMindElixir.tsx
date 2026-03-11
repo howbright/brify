@@ -24,6 +24,7 @@ type ClientMindElixirProps = {
   theme?: any;
   data?: any;
   placeholderData?: any;
+  allowSampled?: boolean;
   loading?: boolean;
   editMode?: "view" | "edit";
   onChange?: (op: any) => void;
@@ -225,6 +226,26 @@ function findNodeById(node: AnyNode, id: string): AnyNode | null {
   return null;
 }
 
+function expandPathToId(node: AnyNode, targetId: string): boolean {
+  const nodeId = node.id ? normalizeNodeId(node.id) : "";
+  const target = normalizeNodeId(targetId);
+  if (nodeId === target) {
+    node.expanded = true;
+    return true;
+  }
+  if (!node.children || node.children.length === 0) return false;
+  let found = false;
+  for (const child of node.children) {
+    if (expandPathToId(child, targetId)) {
+      found = true;
+    }
+  }
+  if (found) {
+    node.expanded = true;
+  }
+  return found;
+}
+
 function centerMap(mind: any) {
   if (!mind) return;
   requestAnimationFrame(() => {
@@ -272,6 +293,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       theme,
       data,
       placeholderData,
+      allowSampled = true,
       loading = false,
       editMode = "edit",
       onChange,
@@ -740,24 +762,60 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   }, [theme, profileTheme]);
 
   const initialData = useMemo(() => {
-    return data ?? placeholderData ?? sampled;
-  }, [data, placeholderData]);
+    if (data !== undefined && data !== null) return data;
+    if (placeholderData !== undefined && placeholderData !== null) {
+      return placeholderData;
+    }
+    return allowSampled ? sampled : null;
+  }, [data, placeholderData, allowSampled]);
 
   const getNodeElById = (id: string) => {
     const host = elRef.current;
     if (!host) return null;
     const mind = mindRef.current;
     if (typeof mind?.findEle === "function") {
-      const direct = mind.findEle(id);
-      if (direct) return direct as HTMLElement;
-      if (id.startsWith("me")) {
-        const stripped = mind.findEle(id.slice(2));
-        if (stripped) return stripped as HTMLElement;
-      } else {
-        const withPrefix = mind.findEle(`me${id}`);
-        if (withPrefix) return withPrefix as HTMLElement;
+      try {
+        const direct = mind.findEle(id);
+        if (direct) return direct as HTMLElement;
+        if (id.startsWith("me")) {
+          const stripped = mind.findEle(id.slice(2));
+          if (stripped) return stripped as HTMLElement;
+        } else {
+          const withPrefix = mind.findEle(`me${id}`);
+          if (withPrefix) return withPrefix as HTMLElement;
+        }
+      } catch {
+        // findEle can throw when node is collapsed or missing
       }
     }
+
+    const expandToNode = (nodeId: string) => {
+      const raw = mind?.getData?.() ?? mind?.getAllData?.();
+      const normalized = normalizeMindData(raw);
+      if (!normalized) return false;
+      const next = cloneMindData(normalized.data);
+      const nextNode = normalizeMindData(next)?.node;
+      if (!nextNode) return false;
+      const found = expandPathToId(nextNode, nodeId);
+      if (!found) return false;
+      mind?.refresh?.(next);
+      return true;
+    };
+
+    if (expandToNode(id)) {
+      try {
+        if (typeof mind?.findEle === "function") {
+          const direct = mind.findEle(id);
+          if (direct) return direct as HTMLElement;
+        }
+      } catch {}
+      const el =
+        host.querySelector<HTMLElement>(
+          `me-tpc[data-nodeid="${escapeAttr(id)}"]`
+        ) ?? null;
+      if (el) return el;
+    }
+
     const tryIds = [id];
     if (id.startsWith("me")) {
       tryIds.push(id.slice(2));
@@ -1066,6 +1124,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   useEffect(() => {
     if (!mounted) return;
     if (!elRef.current) return;
+
+    if (!initialData) {
+      try {
+        mindRef.current?.destroy?.();
+      } catch {}
+      mindRef.current = null;
+      setReady(false);
+      return;
+    }
 
     let cancelled = false;
     const myToken = ++initTokenRef.current;

@@ -80,18 +80,11 @@ export default function MapPreviewPanel({
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-            className="inline-flex items-center justify-center rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
-          >
-            미리보기 닫기
-          </button>
           <Link
             href={`/maps/${draft.id}`}
             className="inline-flex items-center justify-center rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
           >
-            Open Map
+            열기
           </Link>
         </div>
       </div>
@@ -138,6 +131,15 @@ export default function MapPreviewPanel({
 
         {previewStatus === "loaded" && (
           <div className="absolute bottom-3 right-3 flex items-center rounded-full border border-neutral-200 bg-white/90 text-xs font-semibold text-neutral-600 shadow-sm backdrop-blur dark:border-white/12 dark:bg-[#0b1220]/75 dark:text-white/80">
+            <button
+              type="button"
+              onClick={() => miniRef.current?.center()}
+              className="px-2.5 py-1.5 hover:bg-neutral-50 dark:hover:bg-white/10"
+              aria-label="Center map"
+            >
+              ⌖
+            </button>
+            <div className="h-4 w-px bg-neutral-200 dark:bg-white/10" />
             <button
               type="button"
               onClick={() => miniRef.current?.zoomOut()}

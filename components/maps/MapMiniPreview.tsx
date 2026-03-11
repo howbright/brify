@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useImperativeHandle, useRef } from "react";
+import { forwardRef, useImperativeHandle, useMemo, useRef } from "react";
 import ClientMindElixir, {
   type ClientMindElixirHandle,
 } from "@/components/ClientMindElixir";
@@ -49,13 +49,14 @@ function collapseToLevel(data: any, level = 1) {
 export type MapMiniPreviewHandle = {
   zoomIn: () => void;
   zoomOut: () => void;
+  center: () => void;
 };
 
 const MapMiniPreview = forwardRef<MapMiniPreviewHandle, {
   data?: any | null;
   emptyText?: string;
 }>(({ data, emptyText = "Preview unavailable" }, ref) => {
-  const root = getRootNode(data);
+  const root = useMemo(() => getRootNode(data), [data]);
   if (!root) {
     return (
       <div className="flex min-h-[180px] items-center justify-center rounded-2xl border border-neutral-200 bg-neutral-50 px-4 text-xs text-neutral-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/60">
@@ -64,12 +65,13 @@ const MapMiniPreview = forwardRef<MapMiniPreviewHandle, {
     );
   }
 
-  const collapsed = collapseToLevel(data, 1);
+  const collapsed = useMemo(() => collapseToLevel(data, 1), [data]);
   const mindRef = useRef<ClientMindElixirHandle | null>(null);
 
   useImperativeHandle(ref, () => ({
     zoomIn: () => mindRef.current?.zoomIn(),
     zoomOut: () => mindRef.current?.zoomOut(),
+    center: () => mindRef.current?.centerMap(),
   }));
 
   return (
@@ -78,6 +80,7 @@ const MapMiniPreview = forwardRef<MapMiniPreviewHandle, {
         <ClientMindElixir
           ref={mindRef}
           data={collapsed}
+          allowSampled={false}
           editMode="view"
           openMenuOnClick={false}
           fitOnInit
