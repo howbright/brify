@@ -23,8 +23,14 @@ export async function GET(request: Request) {
     const sources = searchParams.getAll("source");
 
     const supabase = await createClient();
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData?.user) {
+      return NextResponse.json({ tags: [], error: "unauthorized" }, { status: 401 });
+    }
 
     const counts = new Map<string, { name: string; count: number }>();
+    const recent: string[] = [];
+    const recentSet = new Set<string>();
     let offset = 0;
     let totalFetched = 0;
 
@@ -32,6 +38,7 @@ export async function GET(request: Request) {
       let query = supabase
         .from("maps")
         .select("tags,created_at")
+        .eq("user_id", userData.user.id)
         .order("created_at", { ascending: false })
         .range(offset, offset + PAGE_SIZE - 1);
 
@@ -67,6 +74,12 @@ export async function GET(request: Request) {
           } else {
             counts.set(key, { name: tag, count: 1 });
           }
+          if (!recentSet.has(key)) {
+            recentSet.add(key);
+            if (recent.length < limit) {
+              recent.push(tag);
+            }
+          }
         }
       }
 
@@ -74,12 +87,16 @@ export async function GET(request: Request) {
       offset += PAGE_SIZE;
     }
 
-    const tags: TagCount[] = Array.from(counts.values())
-      .sort((a, b) => b.count - a.count)
-      .slice(0, limit);
+    const tags: TagCount[] = Array.from(counts.values()).sort(
+      (a, b) => b.count - a.count
+    );
+    const recentTags: TagCount[] = recent
+      .map((name) => counts.get(name.toLowerCase()))
+      .filter((v): v is TagCount => Boolean(v));
 
     return NextResponse.json({
       tags,
+      recent: recentTags,
       truncated: totalFetched >= MAX_ROWS,
     });
   } catch (error) {

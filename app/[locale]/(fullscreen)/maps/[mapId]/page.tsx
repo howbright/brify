@@ -782,7 +782,7 @@ export default function MapDetailPage() {
               >
                 <span className="sr-only">{t("tabs.info")}</span>
                 {leftOpen ? (
-                  <Icon icon="mdi:close" className="h-6 w-6" />
+                  <Icon icon="mdi:chevron-left" className="h-7 w-7" />
                 ) : (
                   <span className="inline-flex h-4 w-5 flex-col justify-between">
                     <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />

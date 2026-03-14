@@ -26,16 +26,15 @@ export default function FullscreenHeader({
             type="button"
             onClick={onClose}
             className="
-              inline-flex items-center justify-center
-              rounded-md border border-white/70 px-2 py-0.5
+              inline-flex h-7 w-7 items-center justify-center
+              rounded-md border border-white/70
               text-white/90 hover:text-white hover:border-white
             "
             aria-label={closeLabel}
             title={closeLabel}
           >
-            <span className="text-[11px] font-semibold tracking-tight">
-              {closeLabel}
-            </span>
+            <span className="sr-only">{closeLabel}</span>
+            <span className="text-[16px] leading-none">×</span>
           </button>
         </div>
         <div className="h-[40px] px-3 flex items-center justify-between gap-2 bg-white/92 backdrop-blur dark:bg-[#0b1220]/88 sm:h-[40px]">

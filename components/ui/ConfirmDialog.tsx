@@ -2,13 +2,14 @@
 
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { AlertCircle } from "lucide-react";
+import type { ReactNode } from "react";
 
 interface ConfirmDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   title?: string;
-  description?: string;
+  description?: ReactNode;
   actionLabel?: string;
 }
 
