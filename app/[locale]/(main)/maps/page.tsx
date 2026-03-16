@@ -198,9 +198,7 @@ export default function MapsPage() {
     Array<{ name: string; count: number }>
   >([]);
   const [tagsLoading, setTagsLoading] = useState(false);
-  const [manualTags, setManualTags] = useState<string[]>([]);
-  const [manualTagInput, setManualTagInput] = useState("");
-  const [tagOrganizeFilter, setTagOrganizeFilter] = useState<string | null>(null);
+  const [tagListQuery, setTagListQuery] = useState("");
   const [tagDeleteTarget, setTagDeleteTarget] = useState<string | null>(null);
   const [tagDeleteOpen, setTagDeleteOpen] = useState(false);
   const [tagDeleteSubmitting, setTagDeleteSubmitting] = useState(false);
@@ -304,26 +302,24 @@ export default function MapsPage() {
         .filter((draft): draft is MapDraft => Boolean(draft)),
     [mergeOrderIds, selectedDrafts]
   );
-  const manualTagSet = useMemo(() => new Set(manualTags), [manualTags]);
-  const manualTagOptions = useMemo(() => {
-    const map = new Map<string, { name: string; count: number }>();
-    tagOptions.forEach((tag) => {
-      map.set(tag.name, tag);
-    });
-    return manualTags.map((name) => map.get(name) ?? { name, count: 0 });
-  }, [tagOptions, manualTags]);
-  const recentTagOptionsFiltered = useMemo(
-    () => recentTagOptions.filter((tag) => !manualTagSet.has(tag.name)),
-    [recentTagOptions, manualTagSet]
+  const tagQuery = tagListQuery.trim().toLowerCase();
+  const recentTagOptionsFiltered = useMemo(() => {
+    if (!tagQuery) return recentTagOptions;
+    return recentTagOptions.filter((tag) =>
+      tag.name.toLowerCase().includes(tagQuery)
+    );
+  }, [recentTagOptions, tagQuery]);
+  const allTagOptionsFiltered = useMemo(() => {
+    if (!tagQuery) return tagOptions;
+    return tagOptions.filter((tag) =>
+      tag.name.toLowerCase().includes(tagQuery)
+    );
+  }, [tagOptions, tagQuery]);
+  const filteredDrafts = useMemo(() => drafts, [drafts]);
+  const effectiveTagFilters = useMemo(
+    () => (tagOrganizeMode ? selectedTagNames : tagFilters),
+    [selectedTagNames, tagOrganizeMode, tagFilters]
   );
-  const allTagOptionsFiltered = useMemo(
-    () => tagOptions.filter((tag) => !manualTagSet.has(tag.name)),
-    [tagOptions, manualTagSet]
-  );
-  const filteredDrafts = useMemo(() => {
-    if (!tagOrganizeMode || !tagOrganizeFilter) return drafts;
-    return drafts.filter((draft) => draft.tags?.includes(tagOrganizeFilter));
-  }, [drafts, tagOrganizeMode, tagOrganizeFilter]);
   const mergeReady =
     mergeRootTitle.trim().length > 0 && mergeOrderDrafts.length >= 2;
   const handleMergeSubmit = async () => {
@@ -368,12 +364,16 @@ export default function MapsPage() {
       return;
     }
     if (!previewOpen) {
-      const nextUrl = locale ? `/${locale}/maps/${item.id}` : `/maps/${item.id}`;
-      router.push(nextUrl);
+      setSelectedId(item.id);
       return;
     }
     setSelectedId(item.id);
     setMobilePreviewOpen(true);
+  };
+
+  const handleOpenDetail = (item: MapDraft) => {
+    const nextUrl = locale ? `/${locale}/maps/${item.id}` : `/maps/${item.id}`;
+    router.push(nextUrl);
   };
 
 
@@ -432,12 +432,6 @@ export default function MapsPage() {
   }, [tagOrganizeMode]);
 
   useEffect(() => {
-    if (!tagOrganizeMode) {
-      setTagOrganizeFilter(null);
-    }
-  }, [tagOrganizeMode]);
-
-  useEffect(() => {
     let cancelled = false;
 
     (async () => {
@@ -447,24 +441,22 @@ export default function MapsPage() {
         const supabase = createClient();
         const from = (page - 1) * PAGE_SIZE;
         const to = from + PAGE_SIZE - 1;
-        const q = query.trim();
+        const q = tagOrganizeMode ? "" : query.trim();
 
-        let request = supabase
-          .from("maps")
-          .select(LIST_FIELDS, { count: "exact" })
-          .range(from, to);
+        let request = supabase.from("maps").select(LIST_FIELDS, { count: "exact" });
 
         if (sort === "created_desc") {
+          request = request.range(from, to);
           request = request.order("created_at", { ascending: false });
         } else if (sort === "created_asc") {
+          request = request.range(from, to);
           request = request.order("created_at", { ascending: true });
         } else if (sort === "updated_desc") {
+          request = request.range(from, to);
           request = request.order("updated_at", {
             ascending: false,
             nullsFirst: false,
           });
-        } else if (sort === "title_asc") {
-          request = request.order("title", { ascending: true });
         }
 
         if (q) {
@@ -488,8 +480,8 @@ export default function MapsPage() {
         if (sourceFilters.length > 0) {
           request = request.in("source_type", sourceFilters);
         }
-        if (tagFilters.length > 0) {
-          request = request.overlaps("tags", tagFilters);
+        if (effectiveTagFilters.length > 0) {
+          request = request.overlaps("tags", effectiveTagFilters);
         }
 
         const { data, error, count } = await request;
@@ -498,8 +490,24 @@ export default function MapsPage() {
         if (error) throw error;
 
         const rows = (data ?? []) as MapRow[];
-        setDrafts(rows.map(toDraft));
-        setTotalCount(count ?? 0);
+
+        if (sort === "title_asc") {
+          const collator = new Intl.Collator(locale ?? "en", {
+            numeric: true,
+            sensitivity: "base",
+          });
+          const sortedRows = [...rows].sort((a, b) => {
+            const compared = collator.compare(a.title ?? "", b.title ?? "");
+            if (compared !== 0) return compared;
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          });
+          const pagedRows = sortedRows.slice(from, to + 1);
+          setDrafts(pagedRows.map(toDraft));
+          setTotalCount(sortedRows.length);
+        } else {
+          setDrafts(rows.map(toDraft));
+          setTotalCount(count ?? 0);
+        }
       } catch (e: any) {
         if (cancelled) return;
         setError(e?.message ?? "목록을 불러오지 못했습니다.");
@@ -521,10 +529,12 @@ export default function MapsPage() {
     dateRange.to,
     statusFilters,
     sourceFilters,
-    tagFilters,
+    effectiveTagFilters,
+    tagOrganizeMode,
+    locale,
   ]);
 
-  const isSearching = query.trim().length > 0;
+  const isSearching = !tagOrganizeMode && query.trim().length > 0;
   const hasActiveFilters =
     statusFilters.length > 0 ||
     sourceFilters.length > 0 ||
@@ -545,7 +555,8 @@ export default function MapsPage() {
     sourceFilters.length > 0
       ? sourceFilters.map((value) => SOURCE_LABELS[value]).join(", ")
       : null;
-  const tagSummary = tagFilters.length > 0 ? tagFilters.join(", ") : null;
+  const tagSummary =
+    effectiveTagFilters.length > 0 ? effectiveTagFilters.join(", ") : null;
 
   useEffect(() => {
     if (drafts.length === 0) {
@@ -723,9 +734,7 @@ export default function MapsPage() {
       setTagOptions((prev) => prev.filter((tag) => tag.name !== tagName));
       setRecentTagOptions((prev) => prev.filter((tag) => tag.name !== tagName));
       setManualTags((prev) => prev.filter((name) => name !== tagName));
-      if (tagOrganizeFilter === tagName) {
-        setTagOrganizeFilter(null);
-      }
+      setSelectedTagNames((prev) => prev.filter((name) => name !== tagName));
       toast.success(`#${tagName} 태그를 삭제했어요.`);
     } catch (e: any) {
       const msg = e?.message ?? "태그 삭제에 실패했습니다.";
@@ -765,10 +774,7 @@ export default function MapsPage() {
           return { ...draft, tags: deduped };
         })
       );
-      if (tagOrganizeFilter && sources.includes(tagOrganizeFilter)) {
-        setTagOrganizeFilter(targetTag);
-      }
-      setSelectedTagNames([]);
+      setSelectedTagNames([targetTag]);
       setTagMergeOpen(false);
       setTagRefreshKey((prev) => prev + 1);
       toast.success("태그를 합쳤어요.");
@@ -804,6 +810,7 @@ export default function MapsPage() {
           draft.id === tagEditDraft.id ? { ...draft, tags: nextTags } : draft
         )
       );
+      setTagRefreshKey((prev) => prev + 1);
       setTagEditOpen(false);
       setTagEditDraft(null);
       toast.success("태그를 업데이트했어요.");
@@ -859,21 +866,9 @@ export default function MapsPage() {
         >
           {tagOrganizeMode && (
             <TagPanel
-              tagOrganizeFilter={tagOrganizeFilter}
-              onFilterSelect={setTagOrganizeFilter}
-              onFilterClear={() => setTagOrganizeFilter(null)}
-              manualTagInput={manualTagInput}
-              onManualTagInputChange={setManualTagInput}
-              onManualTagAdd={() => {
-                const next = manualTagInput.trim();
-                if (!next) return;
-                setManualTags((prev) =>
-                  prev.includes(next) ? prev : [...prev, next]
-                );
-                setManualTagInput("");
-              }}
+              tagListQuery={tagListQuery}
+              onTagListQueryChange={setTagListQuery}
               tagsLoading={tagsLoading}
-              manualTagOptions={manualTagOptions}
               recentTagOptions={recentTagOptionsFiltered}
               allTagOptions={allTagOptionsFiltered}
               onDeleteTag={(tag) => {
@@ -881,14 +876,14 @@ export default function MapsPage() {
                 setTagDeleteOpen(true);
               }}
               selectedTags={selectedTagNames}
-              onToggleSelect={(tag) =>
+              onToggleSelect={(tag) => {
                 setSelectedTagNames((prev) =>
                   prev.includes(tag)
                     ? prev.filter((name) => name !== tag)
                     : [...prev, tag]
-                )
-              }
-              onClearSelection={() => setSelectedTagNames([])}
+                );
+                setPage(1);
+              }}
               onOpenMerge={() => setTagMergeOpen(true)}
             />
           )}
@@ -929,11 +924,23 @@ export default function MapsPage() {
                   setSelectedMapIds([]);
                   toast.message("프리뷰 모드로 전환되어 선택 모드가 꺼졌어요.");
                 }
+                if (next && tagOrganizeMode) {
+                  setTagOrganizeMode(false);
+                  toast.message("프리뷰를 위해 태그 정리 모드를 껐어요.");
+                }
                 setPreviewOpen(next);
                 setMobilePreviewOpen(false);
               }}
               tagOrganizeMode={tagOrganizeMode}
-              onToggleTagOrganize={() => setTagOrganizeMode((prev) => !prev)}
+              onToggleTagOrganize={() => {
+                const next = !tagOrganizeMode;
+                if (next && previewOpen) {
+                  setPreviewOpen(false);
+                  setMobilePreviewOpen(false);
+                  toast.message("태그 정리 모드로 전환되어 프리뷰가 꺼졌어요.");
+                }
+                setTagOrganizeMode(next);
+              }}
               onToggleSelection={() => {
                 const next = !selectionMode;
                 if (!next) {
@@ -1015,6 +1022,7 @@ export default function MapsPage() {
                     toggleArrayValue(value, setTagFilters);
                     setPage(1);
                   }}
+                  showTagFilters={!tagOrganizeMode}
                   onClose={() => setFiltersOpen(false)}
                 />
               }
@@ -1049,10 +1057,10 @@ export default function MapsPage() {
             {!loading &&
               !error &&
               tagOrganizeMode &&
-              tagOrganizeFilter &&
+              selectedTagNames.length > 0 &&
               !hasFilteredDrafts && (
                 <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-6 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/5 dark:text-white/60">
-                  #{tagOrganizeFilter} 태그가 붙은 맵이 없어요.
+                  선택한 태그가 붙은 맵이 없어요.
                 </div>
               )}
 
@@ -1069,6 +1077,8 @@ export default function MapsPage() {
                     onSelect={handleItemSelect}
                     onToggleSelect={toggleSelectedMap}
                     onEditTags={openTagEditor}
+                    onOpenDetail={handleOpenDetail}
+                    showOpenDetail
                   />
                 ) : (
                   <MapTableList
@@ -1082,6 +1092,8 @@ export default function MapsPage() {
                     onToggleSelect={toggleSelectedMap}
                     onEditTags={openTagEditor}
                     showEditTags={tagOrganizeMode}
+                    onOpenDetail={handleOpenDetail}
+                    showOpenDetail
                     statusLabels={STATUS_LABELS}
                     sourceLabels={SOURCE_LABELS}
                   />

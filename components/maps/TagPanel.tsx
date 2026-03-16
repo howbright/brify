@@ -3,38 +3,26 @@
 type TagCount = { name: string; count: number };
 
 type TagPanelProps = {
-  tagOrganizeFilter: string | null;
-  onFilterSelect: (tag: string) => void;
-  onFilterClear: () => void;
-  manualTagInput: string;
-  onManualTagInputChange: (value: string) => void;
-  onManualTagAdd: () => void;
+  tagListQuery: string;
+  onTagListQueryChange: (value: string) => void;
   tagsLoading: boolean;
-  manualTagOptions: TagCount[];
   recentTagOptions: TagCount[];
   allTagOptions: TagCount[];
   onDeleteTag: (tag: string) => void;
   selectedTags: string[];
   onToggleSelect: (tag: string) => void;
-  onClearSelection: () => void;
   onOpenMerge: () => void;
 };
 
 export default function TagPanel({
-  tagOrganizeFilter,
-  onFilterSelect,
-  onFilterClear,
-  manualTagInput,
-  onManualTagInputChange,
-  onManualTagAdd,
+  tagListQuery,
+  onTagListQueryChange,
   tagsLoading,
-  manualTagOptions,
   recentTagOptions,
   allTagOptions,
   onDeleteTag,
   selectedTags,
   onToggleSelect,
-  onClearSelection,
   onOpenMerge,
 }: TagPanelProps) {
   return (
@@ -46,54 +34,60 @@ export default function TagPanel({
           </h3>
         </div>
         {selectedTags.length > 0 && (
-          <div className="mt-2 flex items-center justify-between gap-2 rounded-xl border border-blue-200 bg-blue-50 px-2.5 py-2 text-xs text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200">
-            <span>{selectedTags.length}개 선택됨</span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={onOpenMerge}
-                className="rounded-full border border-blue-500/70 bg-blue-600 px-2 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-blue-700"
-              >
-                태그합치기
-              </button>
-              <button
-                type="button"
-                onClick={onClearSelection}
-                className="rounded-full border border-blue-200 bg-white px-2 py-1 text-[11px] font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-500/30 dark:bg-white/10 dark:text-blue-200 dark:hover:bg-blue-500/20"
-              >
-                선택 해제
-              </button>
+          <div className="mt-2 flex flex-col gap-2 rounded-xl border border-blue-200 bg-blue-50 px-2.5 py-2 text-xs text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200">
+            <span className="text-[11px] font-semibold text-neutral-600 dark:text-white/70">
+              필터링 중
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {selectedTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1 rounded-full border border-neutral-700 bg-neutral-800 px-2 py-1 text-[11px] font-semibold text-white shadow-sm dark:border-white/20 dark:bg-white/15 dark:text-white"
+                >
+                  #{tag}
+                  <button
+                    type="button"
+                    onClick={() => onToggleSelect(tag)}
+                    className="inline-flex h-4 w-4 items-center justify-center rounded-full text-white/70 hover:bg-white/15 hover:text-white"
+                    aria-label={`${tag} 선택 해제`}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span>{selectedTags.length}개 선택됨</span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={onOpenMerge}
+                  disabled={selectedTags.length < 2}
+                  className="rounded-full border border-blue-500/70 bg-blue-600 px-2 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:border-blue-200 disabled:bg-blue-100 disabled:text-blue-300 dark:disabled:border-blue-500/20 dark:disabled:bg-blue-500/10 dark:disabled:text-blue-200/40"
+                >
+                  태그합치기
+                </button>
+              </div>
             </div>
           </div>
         )}
-        {tagOrganizeFilter && (
-          <div className="mt-2 flex items-center gap-2 text-[11px] text-neutral-600 dark:text-white/70">
-            <span className="rounded-full border border-neutral-700 bg-neutral-800 px-2 py-0.5 font-semibold text-white shadow-sm dark:border-white/20 dark:bg-white/15 dark:text-white">
-              필터: #{tagOrganizeFilter}
-            </span>
+        <div className="mt-3 relative flex items-center">
+          <input
+            value={tagListQuery}
+            onChange={(event) => onTagListQueryChange(event.target.value)}
+            placeholder="태그 검색"
+            className="w-full rounded-full border border-blue-200 bg-white px-3 py-1.5 pr-8 text-xs text-neutral-700 placeholder:text-neutral-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200/70 dark:border-blue-500/30 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/40 dark:focus:border-blue-300 dark:focus:ring-blue-500/20"
+          />
+          {tagListQuery.trim().length > 0 && (
             <button
               type="button"
-              onClick={onFilterClear}
-              className="font-semibold text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"
+              onClick={() => onTagListQueryChange("")}
+              className="absolute right-2 inline-flex h-5 w-5 items-center justify-center rounded-full text-blue-400 hover:bg-blue-100 hover:text-blue-700 dark:text-blue-200/70 dark:hover:bg-blue-500/20"
+              aria-label="검색어 지우기"
             >
-              필터 해제
+              ×
             </button>
-          </div>
-        )}
-        <div className="mt-3 flex items-center gap-2">
-          <input
-            value={manualTagInput}
-            onChange={(event) => onManualTagInputChange(event.target.value)}
-            placeholder="새 태그 추가"
-            className="w-full rounded-full border border-blue-200 bg-white px-3 py-1.5 text-xs text-neutral-700 placeholder:text-neutral-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200/70 dark:border-blue-500/30 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/40 dark:focus:border-blue-300 dark:focus:ring-blue-500/20"
-          />
-          <button
-            type="button"
-            onClick={onManualTagAdd}
-            className="rounded-full border border-blue-600 bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 whitespace-nowrap"
-          >
-            추가
-          </button>
+          )}
         </div>
         <div className="mt-3 max-h-[60vh] overflow-y-auto overflow-x-hidden pr-1">
           <div className="flex flex-col gap-3">
@@ -103,90 +97,22 @@ export default function TagPanel({
               </div>
             )}
             {!tagsLoading &&
-              manualTagOptions.length === 0 &&
               recentTagOptions.length === 0 &&
               allTagOptions.length === 0 && (
                 <div className="rounded-xl border border-dashed border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/60">
                   태그가 없습니다.
                 </div>
               )}
-            {!tagsLoading && manualTagOptions.length > 0 && (
-              <div className="flex flex-col gap-2">
-                <div className="text-[11px] font-semibold text-neutral-500 dark:text-white/60">
-                  수동 태그
-                </div>
-                {manualTagOptions.map((tag) => (
-                  <div
-                    key={tag.name}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => onFilterSelect(tag.name)}
-                  >
-                    <div
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          onFilterSelect(tag.name);
-                        }
-                      }}
-                      className={`flex items-center justify-between rounded-xl border px-3 py-2 text-xs shadow-sm transition ${
-                        tagOrganizeFilter === tag.name
-                          ? "border-blue-500 bg-blue-100 text-blue-800"
-                          : "border-blue-200 bg-blue-50 text-blue-700"
-                      } dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={selectedTags.includes(tag.name)}
-                          onChange={() => onToggleSelect(tag.name)}
-                          onClick={(event) => event.stopPropagation()}
-                          className="h-3.5 w-3.5 rounded border-blue-200 text-blue-600"
-                        />
-                        <span className="font-semibold">#{tag.name}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-blue-700/70 dark:text-blue-200/70">
-                          {tag.count}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            onDeleteTag(tag.name);
-                          }}
-                          className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-blue-200 text-blue-400 hover:bg-blue-100 hover:text-blue-700 dark:border-blue-500/30 dark:text-blue-200/70 dark:hover:bg-blue-500/20"
-                          aria-label="태그 삭제"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
             {!tagsLoading && recentTagOptions.length > 0 && (
               <div className="flex flex-col gap-2">
                 <div className="text-[11px] font-semibold text-neutral-500 dark:text-white/60">
                   최근 태그
                 </div>
                 {recentTagOptions.map((tag) => (
-                  <div
-                    key={tag.name}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => onFilterSelect(tag.name)}
-                  >
+                  <div key={tag.name}>
                     <div
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          onFilterSelect(tag.name);
-                        }
-                      }}
                       className={`flex items-center justify-between rounded-xl border px-3 py-2 text-xs shadow-sm transition ${
-                        tagOrganizeFilter === tag.name
+                        selectedTags.includes(tag.name)
                           ? "border-blue-500 bg-blue-100 text-blue-800"
                           : "border-blue-200 bg-blue-50 text-blue-700"
                       } dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200`}
@@ -196,7 +122,6 @@ export default function TagPanel({
                           type="checkbox"
                           checked={selectedTags.includes(tag.name)}
                           onChange={() => onToggleSelect(tag.name)}
-                          onClick={(event) => event.stopPropagation()}
                           className="h-3.5 w-3.5 rounded border-blue-200 text-blue-600"
                         />
                         <span className="font-semibold">#{tag.name}</span>
@@ -228,21 +153,10 @@ export default function TagPanel({
                   전체 태그
                 </div>
                 {allTagOptions.map((tag) => (
-                  <div
-                    key={tag.name}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => onFilterSelect(tag.name)}
-                  >
+                  <div key={tag.name}>
                     <div
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          onFilterSelect(tag.name);
-                        }
-                      }}
                       className={`flex items-center justify-between rounded-xl border px-3 py-2 text-xs shadow-sm transition ${
-                        tagOrganizeFilter === tag.name
+                        selectedTags.includes(tag.name)
                           ? "border-blue-500 bg-blue-100 text-blue-800"
                           : "border-blue-200 bg-blue-50 text-blue-700"
                       } dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200`}
@@ -252,7 +166,6 @@ export default function TagPanel({
                           type="checkbox"
                           checked={selectedTags.includes(tag.name)}
                           onChange={() => onToggleSelect(tag.name)}
-                          onClick={(event) => event.stopPropagation()}
                           className="h-3.5 w-3.5 rounded border-blue-200 text-blue-600"
                         />
                         <span className="font-semibold">#{tag.name}</span>

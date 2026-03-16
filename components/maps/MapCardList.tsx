@@ -13,6 +13,8 @@ type MapCardListProps = {
   onSelect: (draft: MapDraft) => void;
   onToggleSelect: (draft: MapDraft) => void;
   onEditTags: (draft: MapDraft) => void;
+  onOpenDetail?: (draft: MapDraft) => void;
+  showOpenDetail?: boolean;
 };
 
 export default function MapCardList({
@@ -25,6 +27,8 @@ export default function MapCardList({
   onSelect,
   onToggleSelect,
   onEditTags,
+  onOpenDetail,
+  showOpenDetail = false,
 }: MapCardListProps) {
   return (
     <section className="mt-4 grid gap-2 w-full min-w-0">
@@ -39,6 +43,8 @@ export default function MapCardList({
           onToggleSelect={tagOrganizeMode ? undefined : onToggleSelect}
           onEditTags={onEditTags}
           showEditTags={tagOrganizeMode}
+          onOpenDetail={onOpenDetail}
+          showOpenDetail={showOpenDetail}
         />
       ))}
     </section>

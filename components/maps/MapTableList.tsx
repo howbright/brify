@@ -15,7 +15,9 @@ type MapTableListProps = {
   onSelect: (draft: MapDraft) => void;
   onToggleSelect: (draft: MapDraft) => void;
   onEditTags: (draft: MapDraft) => void;
+  onOpenDetail?: (draft: MapDraft) => void;
   showEditTags: boolean;
+  showOpenDetail?: boolean;
   statusLabels: Record<MapJobStatus, string>;
   sourceLabels: Record<SourceType, string>;
 };
@@ -30,7 +32,9 @@ export default function MapTableList({
   onSelect,
   onToggleSelect,
   onEditTags,
+  onOpenDetail,
   showEditTags,
+  showOpenDetail = false,
   statusLabels,
   sourceLabels,
 }: MapTableListProps) {
@@ -74,6 +78,9 @@ export default function MapTableList({
         <tbody>
           {drafts.map((draft) => {
             const isSelected = previewOpen && draft.id === selectedId;
+            const tags = draft.tags ?? [];
+            const visibleTags = tags.slice(0, 2);
+            const remainingTags = tags.length - visibleTags.length;
             return (
               <tr
                 key={draft.id}
@@ -109,8 +116,23 @@ export default function MapTableList({
                   </td>
                 )}
                 <td className="px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
-                  <div className="font-medium text-neutral-700 dark:text-white/80 line-clamp-1">
-                    {draft.title}
+                  <div className="flex items-center gap-2">
+                    <div className="min-w-0 flex-1 font-medium text-neutral-700 dark:text-white/80 truncate">
+                      {draft.title}
+                    </div>
+                    {showOpenDetail && onOpenDetail && (
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onOpenDetail(draft);
+                          }}
+                          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-neutral-300 bg-white px-2 py-0.5 text-[10px] font-semibold text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/15 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
+                        >
+                          <Icon icon="mdi:open-in-new" className="h-3 w-3" />
+                          열기
+                        </button>
+                    )}
                   </div>
                 </td>
                 <td className="w-[64px] px-2 py-1.5 text-neutral-600 dark:text-white/70 border-r border-neutral-200 dark:border-white/10">
@@ -120,25 +142,26 @@ export default function MapTableList({
                   {draft.sourceType ? sourceLabels[draft.sourceType] : "-"}
                 </td>
                 <td className="w-[120px] px-2 py-1.5 text-neutral-500 dark:text-white/60 border-r border-neutral-200 dark:border-white/10">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="truncate">
-                      {(draft.tags ?? [])
-                        .slice(0, 3)
-                        .map((tag) => `#${tag}`)
-                        .join(" ") || "-"}
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="min-h-[32px] flex-1 text-[11px] leading-4 text-neutral-600 dark:text-white/65 line-clamp-2">
+                      {visibleTags.length > 0
+                        ? `${visibleTags.map((tag) => `#${tag}`).join(" ")}${
+                            remainingTags > 0 ? ` +${remainingTags}` : ""
+                          }`
+                        : "-"}
                     </span>
-                    {showEditTags && (
-                      <button
-                        type="button"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          onEditTags(draft);
-                        }}
-                        className="inline-flex items-center gap-1 rounded-full border border-blue-500/70 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25"
-                      >
-                        <Icon icon="mdi:pencil" className="h-3 w-3" />
-                        편집
-                      </button>
+                      {showEditTags && (
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onEditTags(draft);
+                          }}
+                          className="inline-flex items-center gap-1 self-center rounded-full border border-blue-500/70 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 hover:bg-blue-100 cursor-pointer dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25"
+                        >
+                          <Icon icon="mdi:pencil" className="h-3 w-3" />
+                          편집
+                        </button>
                     )}
                   </div>
                 </td>

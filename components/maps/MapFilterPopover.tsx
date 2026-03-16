@@ -27,6 +27,7 @@ type MapFilterPopoverProps = {
   tagOptions: Array<{ name: string; count: number }>;
   tagsLoading: boolean;
   onToggleTag: (value: string) => void;
+  showTagFilters?: boolean;
   onClose: () => void;
 };
 
@@ -45,11 +46,15 @@ export default function MapFilterPopover({
   tagOptions,
   tagsLoading,
   onToggleTag,
+  showTagFilters = true,
   onClose,
 }: MapFilterPopoverProps) {
   return (
     <>
-      <div className="fixed inset-0 z-30" onClick={onClose} />
+      <div
+        className="fixed inset-0 z-30 md:top-[140px]"
+        onClick={onClose}
+      />
       <div className="fixed inset-x-4 top-[140px] z-40 mt-2 w-auto max-h-[70vh] overflow-y-auto rounded-2xl border border-neutral-200 bg-white p-4 text-xs text-neutral-700 shadow-lg dark:border-white/12 dark:bg-[#0b1220]/95 dark:text-white/80 md:absolute md:inset-auto md:right-0 md:top-full md:w-[min(560px,90vw)] md:max-h-[60vh]">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
@@ -155,39 +160,41 @@ export default function MapFilterPopover({
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <div className="font-semibold text-neutral-800 dark:text-white">
-              태그
+          {showTagFilters && (
+            <div className="flex flex-col gap-2">
+              <div className="font-semibold text-neutral-800 dark:text-white">
+                태그
+              </div>
+              {tagsLoading ? (
+                <div className="text-neutral-500 dark:text-white/60">
+                  태그 불러오는 중…
+                </div>
+              ) : tagOptions.length === 0 ? (
+                <div className="text-neutral-500 dark:text-white/60">
+                  사용할 수 있는 태그가 없어요.
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {tagOptions.map((tag) => (
+                    <label
+                      key={tag.name}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs text-neutral-600 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={tagFilters.includes(tag.name)}
+                        onChange={() => onToggleTag(tag.name)}
+                      />
+                      #{tag.name}
+                      <span className="text-[10px] text-neutral-400">
+                        {tag.count}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
-            {tagsLoading ? (
-              <div className="text-neutral-500 dark:text-white/60">
-                태그 불러오는 중…
-              </div>
-            ) : tagOptions.length === 0 ? (
-              <div className="text-neutral-500 dark:text-white/60">
-                사용할 수 있는 태그가 없어요.
-              </div>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {tagOptions.map((tag) => (
-                  <label
-                    key={tag.name}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs text-neutral-600 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={tagFilters.includes(tag.name)}
-                      onChange={() => onToggleTag(tag.name)}
-                    />
-                    #{tag.name}
-                    <span className="text-[10px] text-neutral-400">
-                      {tag.count}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </>
