@@ -1,0 +1,168 @@
+"use client";
+
+import { Icon } from "@iconify/react";
+import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
+
+type SourceType = "youtube" | "website" | "file" | "manual";
+
+type MapTableListProps = {
+  drafts: MapDraft[];
+  selectedId: string | null;
+  previewOpen: boolean;
+  selectionMode: boolean;
+  tagOrganizeMode: boolean;
+  selectedMapIds: string[];
+  onSelect: (draft: MapDraft) => void;
+  onToggleSelect: (draft: MapDraft) => void;
+  onEditTags: (draft: MapDraft) => void;
+  showEditTags: boolean;
+  statusLabels: Record<MapJobStatus, string>;
+  sourceLabels: Record<SourceType, string>;
+};
+
+export default function MapTableList({
+  drafts,
+  selectedId,
+  previewOpen,
+  selectionMode,
+  tagOrganizeMode,
+  selectedMapIds,
+  onSelect,
+  onToggleSelect,
+  onEditTags,
+  showEditTags,
+  statusLabels,
+  sourceLabels,
+}: MapTableListProps) {
+  return (
+    <div className="mt-4 w-full min-w-0 overflow-x-auto rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#0b1220]/70">
+      <table className="w-full table-fixed text-left text-[12px] [table-layout:fixed]">
+        <colgroup>
+          {selectionMode && !tagOrganizeMode && <col style={{ width: "24px" }} />}
+          <col />
+          <col style={{ width: "64px" }} />
+          <col style={{ width: "64px" }} />
+          <col style={{ width: "120px" }} />
+          <col style={{ width: "110px" }} />
+          <col style={{ width: "110px" }} />
+        </colgroup>
+        <thead className="text-[11px] font-semibold text-neutral-600 dark:text-white/70">
+          <tr className="border-b border-neutral-300 bg-neutral-50/80 dark:border-white/15 dark:bg-white/[0.04]">
+            {selectionMode && !tagOrganizeMode && (
+              <th className="w-6 min-w-[24px] max-w-[24px] px-[3px] py-1.5 border-r border-neutral-200 dark:border-white/10 text-center">
+                <span className="sr-only">선택</span>
+              </th>
+            )}
+            <th className="px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
+              제목
+            </th>
+            <th className="w-[64px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
+              상태
+            </th>
+            <th className="w-[64px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
+              소스
+            </th>
+            <th className="w-[120px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
+              태그
+            </th>
+            <th className="w-[110px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
+              생성일
+            </th>
+            <th className="w-[110px] px-2 py-1.5">수정일</th>
+          </tr>
+        </thead>
+        <tbody>
+          {drafts.map((draft) => {
+            const isSelected = previewOpen && draft.id === selectedId;
+            return (
+              <tr
+                key={draft.id}
+                className={`border-b border-neutral-200 hover:bg-neutral-50 dark:border-white/10 dark:hover:bg-white/[0.05] ${
+                  isSelected ? "bg-blue-50/60 dark:bg-blue-500/10" : ""
+                }`}
+                onClick={() => {
+                  if (tagOrganizeMode) return;
+                  onSelect(draft);
+                }}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    if (tagOrganizeMode) return;
+                    onSelect(draft);
+                  }
+                }}
+              >
+                {selectionMode && !tagOrganizeMode && (
+                  <td className="w-6 min-w-[24px] max-w-[24px] px-[3px] py-1.5 border-r border-neutral-200 dark:border-white/10 text-center">
+                    <div className="flex items-center justify-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedMapIds.includes(draft.id)}
+                        onChange={() => onToggleSelect(draft)}
+                        onClick={(event) => event.stopPropagation()}
+                        className="h-4 w-4 rounded border-neutral-300 text-neutral-900"
+                        aria-label={`${draft.title} 선택`}
+                      />
+                    </div>
+                  </td>
+                )}
+                <td className="px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
+                  <div className="font-medium text-neutral-700 dark:text-white/80 line-clamp-1">
+                    {draft.title}
+                  </div>
+                </td>
+                <td className="w-[64px] px-2 py-1.5 text-neutral-600 dark:text-white/70 border-r border-neutral-200 dark:border-white/10">
+                  {statusLabels[draft.status] ?? "-"}
+                </td>
+                <td className="w-[64px] px-2 py-1.5 text-neutral-600 dark:text-white/70 border-r border-neutral-200 dark:border-white/10">
+                  {draft.sourceType ? sourceLabels[draft.sourceType] : "-"}
+                </td>
+                <td className="w-[120px] px-2 py-1.5 text-neutral-500 dark:text-white/60 border-r border-neutral-200 dark:border-white/10">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate">
+                      {(draft.tags ?? [])
+                        .slice(0, 3)
+                        .map((tag) => `#${tag}`)
+                        .join(" ") || "-"}
+                    </span>
+                    {showEditTags && (
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onEditTags(draft);
+                        }}
+                        className="inline-flex items-center gap-1 rounded-full border border-blue-500/70 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25"
+                      >
+                        <Icon icon="mdi:pencil" className="h-3 w-3" />
+                        편집
+                      </button>
+                    )}
+                  </div>
+                </td>
+                <td className="w-[110px] px-2 py-1.5 text-neutral-500 dark:text-white/60 border-r border-neutral-200 dark:border-white/10 whitespace-nowrap">
+                  {new Date(draft.createdAt).toLocaleDateString("ko-KR", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                  })}
+                </td>
+                <td className="w-[110px] px-2 py-1.5 text-neutral-500 dark:text-white/60 whitespace-nowrap">
+                  {draft.updatedAt
+                    ? new Date(draft.updatedAt).toLocaleDateString("ko-KR", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                      })
+                    : "-"}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}

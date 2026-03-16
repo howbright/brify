@@ -71,6 +71,7 @@ export default function MapListItem({
   onDelete,
   isDeleting = false,
   onEditTags,
+  showEditTags = false,
 }: {
   draft: MapDraft;
   selected?: boolean;
@@ -81,6 +82,7 @@ export default function MapListItem({
   onDelete?: (draft: MapDraft) => void;
   isDeleting?: boolean;
   onEditTags?: (draft: MapDraft) => void;
+  showEditTags?: boolean;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -277,14 +279,14 @@ export default function MapListItem({
             </span>
           )}
         </div>
-        {onEditTags && (
+        {onEditTags && showEditTags && (
           <button
             type="button"
             onClick={(event) => {
               event.stopPropagation();
               onEditTags(draft);
             }}
-            className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/10"
+            className="inline-flex items-center gap-1 rounded-full border border-blue-500/70 bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25"
           >
             <Icon icon="mdi:pencil" className="h-3 w-3" />
             편집

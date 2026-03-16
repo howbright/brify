@@ -4,9 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Icon } from "@iconify/react";
 import {
+  closestCenter,
   DndContext,
   KeyboardSensor,
   PointerSensor,
+  type DragEndEvent,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -22,6 +24,13 @@ import MapListItem from "@/components/maps/MapListItem";
 import MapPreviewPanel from "@/components/maps/MapPreviewPanel";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import TagEditDialog from "@/components/maps/TagEditDialog";
+import TagPanel from "@/components/maps/TagPanel";
+import MapListToolbar from "@/components/maps/MapListToolbar";
+import MapCardList from "@/components/maps/MapCardList";
+import MapTableList from "@/components/maps/MapTableList";
+import MapFilterPopover from "@/components/maps/MapFilterPopover";
+import TagMergeDialog from "@/components/maps/TagMergeDialog";
 import { useParams, useRouter } from "next/navigation";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 import { createClient } from "@/utils/supabase/client";
@@ -197,8 +206,10 @@ export default function MapsPage() {
   const [tagDeleteSubmitting, setTagDeleteSubmitting] = useState(false);
   const [tagEditOpen, setTagEditOpen] = useState(false);
   const [tagEditDraft, setTagEditDraft] = useState<MapDraft | null>(null);
-  const [tagEditInput, setTagEditInput] = useState("");
   const [tagEditSubmitting, setTagEditSubmitting] = useState(false);
+  const [tagMergeOpen, setTagMergeOpen] = useState(false);
+  const [selectedTagNames, setSelectedTagNames] = useState<string[]>([]);
+  const [tagRefreshKey, setTagRefreshKey] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
@@ -262,12 +273,12 @@ export default function MapsPage() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  const handleMergeDragEnd = (event: { active: { id: string }; over: { id: string } | null }) => {
+  const handleMergeDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
     setMergeOrderIds((prev) => {
-      const oldIndex = prev.indexOf(active.id);
-      const newIndex = prev.indexOf(over.id);
+      const oldIndex = prev.indexOf(String(active.id));
+      const newIndex = prev.indexOf(String(over.id));
       if (oldIndex === -1 || newIndex === -1) return prev;
       return arrayMove(prev, oldIndex, newIndex);
     });
@@ -411,7 +422,14 @@ export default function MapsPage() {
     dateRange.to,
     statusFilters,
     sourceFilters,
+    tagRefreshKey,
   ]);
+
+  useEffect(() => {
+    if (!tagOrganizeMode) {
+      setSelectedTagNames([]);
+    }
+  }, [tagOrganizeMode]);
 
   useEffect(() => {
     if (!tagOrganizeMode) {
@@ -511,8 +529,7 @@ export default function MapsPage() {
     statusFilters.length > 0 ||
     sourceFilters.length > 0 ||
     tagFilters.length > 0 ||
-    datePreset !== "30d" ||
-    datePreset === "custom";
+    datePreset !== "30d";
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(totalCount / PAGE_SIZE)),
     [totalCount]
@@ -520,6 +537,15 @@ export default function MapsPage() {
   const hasDrafts = totalCount > 0;
   const hasFilteredDrafts = filteredDrafts.length > 0;
   const hasResults = totalCount > 0;
+  const statusSummary =
+    statusFilters.length > 0
+      ? statusFilters.map((value) => STATUS_LABELS[value]).join(", ")
+      : null;
+  const sourceSummary =
+    sourceFilters.length > 0
+      ? sourceFilters.map((value) => SOURCE_LABELS[value]).join(", ")
+      : null;
+  const tagSummary = tagFilters.length > 0 ? tagFilters.join(", ") : null;
 
   useEffect(() => {
     if (drafts.length === 0) {
@@ -709,19 +735,57 @@ export default function MapsPage() {
     }
   };
 
+  const handleTagMerge = async (targetTag: string) => {
+    const sources = selectedTagNames.filter(Boolean);
+    if (!targetTag || sources.length < 2) return;
+    try {
+      const res = await fetch("/api/maps/tags/merge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ targetTag, sourceTags: sources }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(json?.error || "요청 실패");
+      }
+      setDrafts((prev) =>
+        prev.map((draft) => {
+          const tags = Array.isArray(draft.tags) ? draft.tags : [];
+          const next = tags.map((tag) =>
+            sources.includes(tag) ? targetTag : tag
+          );
+          const seen = new Set<string>();
+          const deduped = next.filter((tag) => {
+            const key = tag.toLowerCase();
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+          return { ...draft, tags: deduped };
+        })
+      );
+      if (tagOrganizeFilter && sources.includes(tagOrganizeFilter)) {
+        setTagOrganizeFilter(targetTag);
+      }
+      setSelectedTagNames([]);
+      setTagMergeOpen(false);
+      setTagRefreshKey((prev) => prev + 1);
+      toast.success("태그를 합쳤어요.");
+    } catch (e: any) {
+      const msg = e?.message ?? "태그 합치기에 실패했습니다.";
+      toast.error(msg);
+    }
+  };
   const openTagEditor = (draft: MapDraft) => {
     setTagEditDraft(draft);
-    setTagEditInput((draft.tags ?? []).join(", "));
     setTagEditOpen(true);
   };
 
-  const handleTagEditSave = async () => {
+  const handleTagEditSave = async (tags: string[]) => {
     if (!tagEditDraft || tagEditSubmitting) return;
-    const raw = tagEditInput
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter(Boolean);
-    const unique = Array.from(new Set(raw));
+    const normalized = tags.map((tag) => tag.trim()).filter(Boolean);
+    const unique = Array.from(new Set(normalized));
     try {
       setTagEditSubmitting(true);
       const res = await fetch("/api/maps/tags/update", {
@@ -794,614 +858,167 @@ export default function MapsPage() {
           } lg:h-[calc(100vh-160px)]`}
         >
           {tagOrganizeMode && (
-            <section className="hidden lg:block lg:sticky lg:top-24 lg:h-[calc(100vh-160px)]">
-              <div className="rounded-2xl border border-blue-200 bg-white p-4 shadow-sm dark:border-blue-500/20 dark:bg-white/[0.04]">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
-                    태그
-                  </h3>
-                  <span className="text-[11px] text-neutral-500 dark:text-white/60">
-                    드래그로 추가
-                  </span>
-                </div>
-                {tagOrganizeFilter && (
-                  <div className="mt-2 flex items-center gap-2 text-[11px] text-neutral-600 dark:text-white/70">
-                    <span className="rounded-full border border-neutral-700 bg-neutral-800 px-2 py-0.5 font-semibold text-white shadow-sm dark:border-white/20 dark:bg-white/15 dark:text-white">
-                      필터: #{tagOrganizeFilter}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setTagOrganizeFilter(null)}
-                      className="font-semibold text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"
-                    >
-                      필터 해제
-                    </button>
-                  </div>
-                )}
-                <div className="mt-3 flex items-center gap-2">
-                  <input
-                    value={manualTagInput}
-                    onChange={(event) => setManualTagInput(event.target.value)}
-                    placeholder="새 태그 추가"
-                    className="w-full rounded-full border border-blue-200 bg-white px-3 py-1.5 text-xs text-neutral-700 placeholder:text-neutral-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200/70 dark:border-blue-500/30 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/40 dark:focus:border-blue-300 dark:focus:ring-blue-500/20"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const next = manualTagInput.trim();
-                      if (!next) return;
-                      setManualTags((prev) =>
-                        prev.includes(next) ? prev : [...prev, next]
-                      );
-                      setManualTagInput("");
-                    }}
-                    className="rounded-full border border-blue-600 bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 whitespace-nowrap"
-                  >
-                    추가
-                  </button>
-                </div>
-                <div className="mt-3 max-h-[60vh] overflow-y-auto overflow-x-hidden pr-1">
-                  <div className="flex flex-col gap-3">
-                    {tagsLoading && (
-                      <div className="rounded-xl border border-dashed border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/60">
-                        태그 불러오는 중…
-                      </div>
-                    )}
-                    {!tagsLoading &&
-                      manualTagOptions.length === 0 &&
-                      recentTagOptionsFiltered.length === 0 &&
-                      allTagOptionsFiltered.length === 0 && (
-                        <div className="rounded-xl border border-dashed border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/60">
-                          태그가 없습니다.
-                        </div>
-                      )}
-                    {!tagsLoading && manualTagOptions.length > 0 && (
-                      <div className="flex flex-col gap-2">
-                        <div className="text-[11px] font-semibold text-neutral-500 dark:text-white/60">
-                          수동 태그
-                        </div>
-                        {manualTagOptions.map((tag) => (
-                          <div
-                            key={tag.name}
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => setTagOrganizeFilter(tag.name)}
-                          >
-                            <div
-                              onKeyDown={(event) => {
-                                if (event.key === "Enter" || event.key === " ") {
-                                  event.preventDefault();
-                                  setTagOrganizeFilter(tag.name);
-                                }
-                              }}
-                              className={`flex items-center justify-between rounded-xl border px-3 py-2 text-xs shadow-sm transition ${
-                                tagOrganizeFilter === tag.name
-                                  ? "border-blue-500 bg-blue-100 text-blue-800"
-                                  : "border-blue-200 bg-blue-50 text-blue-700"
-                              } dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200`}
-                            >
-                              <span className="font-semibold">#{tag.name}</span>
-                              <div className="flex items-center gap-2">
-                                <span className="text-[10px] text-blue-700/70 dark:text-blue-200/70">
-                                  {tag.count}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    setTagDeleteTarget(tag.name);
-                                    setTagDeleteOpen(true);
-                                  }}
-                                  className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-blue-200 text-blue-400 hover:bg-blue-100 hover:text-blue-700 dark:border-blue-500/30 dark:text-blue-200/70 dark:hover:bg-blue-500/20"
-                                  aria-label="태그 삭제"
-                                >
-                                  ×
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {!tagsLoading && recentTagOptionsFiltered.length > 0 && (
-                      <div className="flex flex-col gap-2">
-                        <div className="text-[11px] font-semibold text-neutral-500 dark:text-white/60">
-                          최근 태그
-                        </div>
-                        {recentTagOptionsFiltered.map((tag) => (
-                          <div
-                            key={tag.name}
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => setTagOrganizeFilter(tag.name)}
-                          >
-                            <div
-                              onKeyDown={(event) => {
-                                if (event.key === "Enter" || event.key === " ") {
-                                  event.preventDefault();
-                                  setTagOrganizeFilter(tag.name);
-                                }
-                              }}
-                              className={`flex items-center justify-between rounded-xl border px-3 py-2 text-xs shadow-sm transition ${
-                                tagOrganizeFilter === tag.name
-                                  ? "border-blue-500 bg-blue-100 text-blue-800"
-                                  : "border-blue-200 bg-blue-50 text-blue-700"
-                              } dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200`}
-                            >
-                              <span className="font-semibold">#{tag.name}</span>
-                              <div className="flex items-center gap-2">
-                                <span className="text-[10px] text-blue-700/70 dark:text-blue-200/70">
-                                  {tag.count}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    setTagDeleteTarget(tag.name);
-                                    setTagDeleteOpen(true);
-                                  }}
-                                  className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-blue-200 text-blue-400 hover:bg-blue-100 hover:text-blue-700 dark:border-blue-500/30 dark:text-blue-200/70 dark:hover:bg-blue-500/20"
-                                  aria-label="태그 삭제"
-                                >
-                                  ×
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {!tagsLoading && allTagOptionsFiltered.length > 0 && (
-                      <div className="flex flex-col gap-2">
-                        <div className="text-[11px] font-semibold text-neutral-500 dark:text-white/60">
-                          전체 태그
-                        </div>
-                        {allTagOptionsFiltered.map((tag) => (
-                          <div
-                            key={tag.name}
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => setTagOrganizeFilter(tag.name)}
-                          >
-                            <div
-                              onKeyDown={(event) => {
-                                if (event.key === "Enter" || event.key === " ") {
-                                  event.preventDefault();
-                                  setTagOrganizeFilter(tag.name);
-                                }
-                              }}
-                              className={`flex items-center justify-between rounded-xl border px-3 py-2 text-xs shadow-sm transition ${
-                                tagOrganizeFilter === tag.name
-                                  ? "border-blue-500 bg-blue-100 text-blue-800"
-                                  : "border-blue-200 bg-blue-50 text-blue-700"
-                              } dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200`}
-                            >
-                              <span className="font-semibold">#{tag.name}</span>
-                              <div className="flex items-center gap-2">
-                                <span className="text-[10px] text-blue-700/70 dark:text-blue-200/70">
-                                  {tag.count}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    setTagDeleteTarget(tag.name);
-                                    setTagDeleteOpen(true);
-                                  }}
-                                  className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-blue-200 text-blue-400 hover:bg-blue-100 hover:text-blue-700 dark:border-blue-500/30 dark:text-blue-200/70 dark:hover:bg-blue-500/20"
-                                  aria-label="태그 삭제"
-                                >
-                                  ×
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </section>
+            <TagPanel
+              tagOrganizeFilter={tagOrganizeFilter}
+              onFilterSelect={setTagOrganizeFilter}
+              onFilterClear={() => setTagOrganizeFilter(null)}
+              manualTagInput={manualTagInput}
+              onManualTagInputChange={setManualTagInput}
+              onManualTagAdd={() => {
+                const next = manualTagInput.trim();
+                if (!next) return;
+                setManualTags((prev) =>
+                  prev.includes(next) ? prev : [...prev, next]
+                );
+                setManualTagInput("");
+              }}
+              tagsLoading={tagsLoading}
+              manualTagOptions={manualTagOptions}
+              recentTagOptions={recentTagOptionsFiltered}
+              allTagOptions={allTagOptionsFiltered}
+              onDeleteTag={(tag) => {
+                setTagDeleteTarget(tag);
+                setTagDeleteOpen(true);
+              }}
+              selectedTags={selectedTagNames}
+              onToggleSelect={(tag) =>
+                setSelectedTagNames((prev) =>
+                  prev.includes(tag)
+                    ? prev.filter((name) => name !== tag)
+                    : [...prev, tag]
+                )
+              }
+              onClearSelection={() => setSelectedTagNames([])}
+              onOpenMerge={() => setTagMergeOpen(true)}
+            />
           )}
           <section
             className={`min-w-0 lg:overflow-y-auto lg:overflow-x-hidden ${
               previewOpen ? "lg:pr-4 lg:[scrollbar-gutter:stable]" : ""
             }`}
           >
-            <div className="relative">
-              <Icon
-                icon="mdi:magnify"
-                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 dark:text-white/40"
-              />
-              <input
-                value={query}
-                onChange={(event) => {
-                  setQuery(event.target.value);
-                  setPage(1);
-                }}
-                placeholder="맵 제목이나 태그로 검색해 보세요"
-                className="
-                  w-full rounded-2xl border border-neutral-400 bg-white shadow-sm
-                  pl-9 pr-10 py-2 text-sm text-neutral-900
-                  placeholder:text-neutral-400
-                  focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-200/70
-                  dark:border-white/12 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/45
-                  dark:focus:border-white dark:focus:ring-white/20
-                "
-              />
-              {query.trim().length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setQuery("");
+            <MapListToolbar
+              query={query}
+              onQueryChange={(value) => {
+                setQuery(value);
+                setPage(1);
+              }}
+              onClearQuery={() => {
+                setQuery("");
+                setPage(1);
+              }}
+              selectionMode={selectionMode}
+              selectedCount={selectedMapIds.length}
+              onOpenMerge={() => setMergeDialogOpen(true)}
+              onOpenBulkDelete={() => setConfirmBulkOpen(true)}
+              onCancelSelection={() => {
+                setSelectionMode(false);
+                setSelectedMapIds([]);
+              }}
+              bulkDeleting={bulkDeleting}
+              statusSummary={statusSummary}
+              sourceSummary={sourceSummary}
+              tagSummary={tagSummary}
+              dateLabel={dateLabel}
+              datePreset={datePreset}
+              previewOpen={previewOpen}
+              onTogglePreview={() => {
+                const next = !previewOpen;
+                if (next && selectionMode) {
+                  setSelectionMode(false);
+                  setSelectedMapIds([]);
+                  toast.message("프리뷰 모드로 전환되어 선택 모드가 꺼졌어요.");
+                }
+                setPreviewOpen(next);
+                setMobilePreviewOpen(false);
+              }}
+              tagOrganizeMode={tagOrganizeMode}
+              onToggleTagOrganize={() => setTagOrganizeMode((prev) => !prev)}
+              onToggleSelection={() => {
+                const next = !selectionMode;
+                if (!next) {
+                  setSelectionMode(false);
+                  setSelectedMapIds([]);
+                  return;
+                }
+                if (previewOpen) {
+                  setPreviewOpen(false);
+                  setMobilePreviewOpen(false);
+                  toast.message("선택 모드로 전환되어 프리뷰가 꺼졌어요.");
+                }
+                setSelectionMode(true);
+              }}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              sort={sort}
+              onSortChange={(value) => {
+                setSort(value);
+                setPage(1);
+              }}
+              filtersOpen={filtersOpen}
+              onToggleFilters={() => setFiltersOpen((prev) => !prev)}
+              showResetFilters={
+                statusFilters.length > 0 ||
+                sourceFilters.length > 0 ||
+                tagFilters.length > 0 ||
+                datePreset !== "30d"
+              }
+              onResetFilters={() => {
+                setDatePreset("30d");
+                setCustomFrom("");
+                setCustomTo("");
+                setStatusFilters([]);
+                setSourceFilters([]);
+                setTagFilters([]);
+                setPage(1);
+              }}
+              filterPopover={
+                <MapFilterPopover
+                  datePreset={datePreset}
+                  onDatePresetChange={(value) => {
+                    if (value === "custom") {
+                      setDatePreset("custom");
+                      setPage(1);
+                      return;
+                    }
+                    setDatePreset(value as typeof datePreset);
+                    setCustomFrom("");
+                    setCustomTo("");
                     setPage(1);
                   }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex h-6 w-6 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
-                  aria-label="검색어 지우기"
-                >
-                  <Icon icon="mdi:close-circle" className="h-5 w-5" />
-                </button>
-              )}
-            </div>
-            {selectionMode && (
-              <div className="sticky top-0 z-10 mt-1 w-full rounded-2xl border border-neutral-600 bg-neutral-700 px-3 py-2 text-xs font-semibold text-white shadow-md">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span>{selectedMapIds.length}개 선택됨</span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setMergeDialogOpen(true)}
-                      disabled={selectedMapIds.length < 2}
-                      className="rounded-full border border-white/20 bg-white/10 px-3 py-1 hover:bg-white/15 disabled:opacity-40"
-                    >
-                      맵 합치기
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setConfirmBulkOpen(true)}
-                      disabled={selectedMapIds.length === 0 || bulkDeleting}
-                      className="rounded-full border border-white/20 bg-white/10 px-3 py-1 hover:bg-white/15 disabled:opacity-40"
-                    >
-                      {bulkDeleting ? "삭제 중..." : "선택 삭제"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectionMode(false);
-                        setSelectedMapIds([]);
-                      }}
-                      className="rounded-full border border-white/20 bg-white/10 px-3 py-1 hover:bg-white/15"
-                    >
-                      취소
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-            <div className="mt-1 flex flex-col gap-[2px] rounded-2xl border border-neutral-200 bg-neutral-50/70 px-3 pt-0.5 pb-1 md:mt-2 md:flex-row md:items-center md:justify-between dark:border-white/10 dark:bg-white/[0.04] md:py-2 md:gap-2">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500 dark:text-white/60">
-                {statusFilters.length > 0 && (
-                  <span className="text-neutral-500 dark:text-white/60">
-                    상태{" "}
-                    {statusFilters.map((value) => STATUS_LABELS[value]).join(", ")}
-                  </span>
-                )}
-                {sourceFilters.length > 0 && (
-                  <span className="text-neutral-500 dark:text-white/60">
-                    소스{" "}
-                    {sourceFilters.map((value) => SOURCE_LABELS[value]).join(", ")}
-                  </span>
-                )}
-                {tagFilters.length > 0 && (
-                  <span className="text-neutral-500 dark:text-white/60">
-                    태그 {tagFilters.join(", ")}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-end">
-                <div className="relative flex w-full flex-wrap items-center gap-2 justify-end md:w-auto">
-                  <span className="text-[11px] font-semibold text-neutral-700 dark:text-white/80">
-                    {datePreset === "custom" ? dateLabel : dateLabel.replace("지난", "최근")}
-                  </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const next = !previewOpen;
-                    if (next && selectionMode) {
-                      setSelectionMode(false);
-                      setSelectedMapIds([]);
-                      toast.message("프리뷰 모드로 전환되어 선택 모드가 꺼졌어요.");
-                    }
-                    setPreviewOpen(next);
-                    setMobilePreviewOpen(false);
+                  customFrom={customFrom}
+                  customTo={customTo}
+                  onCustomFromChange={(value) => {
+                    setCustomFrom(value);
+                    setDatePreset("custom");
+                    setPage(1);
                   }}
-                  className="rounded-full border border-neutral-600 bg-neutral-700 px-2 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:px-3 md:py-1.5 md:text-xs"
-                >
-                  {previewOpen ? "프리뷰 끄기" : "프리뷰 켜기"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTagOrganizeMode((prev) => !prev)}
-                  className="rounded-full border border-neutral-600 bg-neutral-700 px-2 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:px-3 md:py-1.5 md:text-xs"
-                >
-                  {tagOrganizeMode ? "정리 모드 종료" : "태그 정리 모드"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const next = !selectionMode;
-                    if (!next) {
-                      setSelectionMode(false);
-                        setSelectedMapIds([]);
-                        return;
-                      }
-                      if (previewOpen) {
-                        setPreviewOpen(false);
-                        setMobilePreviewOpen(false);
-                        toast.message("선택 모드로 전환되어 프리뷰가 꺼졌어요.");
-                      }
-                      setSelectionMode(true);
-                    }}
-                    className="rounded-full border border-neutral-600 bg-neutral-700 px-2 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:px-3 md:py-1.5 md:text-xs"
-                  >
-                    {selectionMode ? "선택 종료" : "선택"}
-                  </button>
-                </div>
-
-                <div className="relative flex w-full flex-wrap items-center gap-2 justify-end md:w-auto">
-                  <div className="inline-flex rounded-full border border-neutral-400 bg-white text-[11px] font-semibold text-neutral-700 shadow-sm overflow-hidden dark:border-white/20 dark:bg-white/[0.06] dark:text-white/85 md:text-xs">
-                    <button
-                      type="button"
-                      onClick={() => setViewMode("card")}
-                      className={`px-2 py-1 md:px-3 md:py-1.5 ${
-                        viewMode === "card"
-                        ? "bg-neutral-700 text-white"
-                          : "hover:bg-neutral-50 dark:hover:bg-white/10"
-                      }`}
-                    >
-                      카드
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setViewMode("table")}
-                      className={`px-2 py-1 md:px-3 md:py-1.5 ${
-                        viewMode === "table"
-                        ? "bg-neutral-700 text-white"
-                          : "hover:bg-neutral-50 dark:hover:bg-white/10"
-                      }`}
-                    >
-                      테이블
-                    </button>
-                  </div>
-                  <label className="sr-only" htmlFor="maps-sort">
-                    정렬
-                  </label>
-                  <select
-                    id="maps-sort"
-                    value={sort}
-                    onChange={(event) => {
-                      setSort(
-                        event.target.value as
-                          | "created_desc"
-                          | "created_asc"
-                          | "updated_desc"
-                          | "title_asc"
-                      );
-                      setPage(1);
-                    }}
-                    className="rounded-full border border-neutral-400 bg-white px-2 py-1 text-[11px] font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10 md:px-3 md:py-1.5 md:text-xs"
-                  >
-                    <option value="created_desc">최신 생성순</option>
-                    <option value="created_asc">오래된 생성순</option>
-                    <option value="updated_desc">최근 수정순</option>
-                    <option value="title_asc">제목순</option>
-                  </select>
-                  <button
-                    type="button"
-                    onClick={() => setFiltersOpen((prev) => !prev)}
-                  className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-neutral-600 bg-neutral-700 text-white shadow-sm hover:bg-neutral-600 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:h-8 md:w-8"
-                    aria-label={filtersOpen ? "필터 닫기" : "필터 열기"}
-                  >
-                    <Icon icon="mdi:filter-variant" className="h-4 w-4" />
-                  </button>
-                  {(statusFilters.length > 0 ||
-                    sourceFilters.length > 0 ||
-                    tagFilters.length > 0 ||
-                    datePreset !== "30d" ||
-                    datePreset === "custom") && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setDatePreset("30d");
-                        setCustomFrom("");
-                        setCustomTo("");
-                        setStatusFilters([]);
-                        setSourceFilters([]);
-                        setTagFilters([]);
-                        setPage(1);
-                      }}
-                      className="rounded-full border border-rose-300 bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-700 shadow-sm hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20 md:px-3 md:py-1.5 md:text-xs"
-                    >
-                      필터 초기화
-                    </button>
-                  )}
-                  {filtersOpen && (
-                    <>
-                      <div
-                        className="fixed inset-0 z-30"
-                        onClick={() => setFiltersOpen(false)}
-                      />
-                      <div className="fixed inset-x-4 top-[140px] z-40 mt-2 w-auto max-h-[70vh] overflow-y-auto rounded-2xl border border-neutral-200 bg-white p-4 text-xs text-neutral-700 shadow-lg dark:border-white/12 dark:bg-[#0b1220]/95 dark:text-white/80 md:absolute md:inset-auto md:right-0 md:top-full md:w-[min(560px,90vw)] md:max-h-[60vh]">
-                        <div className="flex flex-col gap-4">
-                          <div className="flex flex-col gap-2">
-                            <div className="font-semibold text-neutral-800 dark:text-white">
-                              기간
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                            {DATE_PRESETS.map((preset) => (
-                              <button
-                                key={preset.id}
-                                type="button"
-                                onClick={() => {
-                                  setDatePreset(preset.id);
-                                  setCustomFrom("");
-                                  setCustomTo("");
-                                  setPage(1);
-                                }}
-                                className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                                  datePreset === preset.id
-                                    ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black"
-                                    : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.04] dark:text-white/70 dark:hover:bg-white/10"
-                                }`}
-                              >
-                                {preset.label}
-                              </button>
-                            ))}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setDatePreset("custom");
-                                setPage(1);
-                              }}
-                              className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                                datePreset === "custom"
-                                  ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black"
-                                  : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.04] dark:text-white/70 dark:hover:bg-white/10"
-                              }`}
-                            >
-                              직접 선택
-                            </button>
-                          </div>
-                <div className="flex flex-wrap items-center gap-2 justify-end">
-                            <input
-                              type="date"
-                              value={customFrom}
-                              onChange={(event) => {
-                                setCustomFrom(event.target.value);
-                                setDatePreset("custom");
-                                setPage(1);
-                              }}
-                              className="rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs text-neutral-700 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80"
-                            />
-                            <span className="text-neutral-400">~</span>
-                            <input
-                              type="date"
-                              value={customTo}
-                              onChange={(event) => {
-                                setCustomTo(event.target.value);
-                                setDatePreset("custom");
-                                setPage(1);
-                              }}
-                              className="rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs text-neutral-700 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80"
-                            />
-                            </div>
-                          </div>
-                          <div className="flex flex-col gap-2">
-                            <div className="font-semibold text-neutral-800 dark:text-white">
-                              상태
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                              {(
-                                [
-                                  { id: "processing", label: "진행중" },
-                                  { id: "done", label: "완료" },
-                                  { id: "failed", label: "실패" },
-                                ] as const
-                              ).map((item) => (
-                                <label
-                                  key={item.id}
-                                  className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs text-neutral-600 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80"
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={statusFilters.includes(item.id)}
-                                    onChange={() => {
-                                      toggleArrayValue(item.id, setStatusFilters);
-                                      setPage(1);
-                                    }}
-                                  />
-                                  {item.label}
-                                </label>
-                              ))}
-                            </div>
-                          </div>
-
-                        <div className="flex flex-col gap-2">
-                          <div className="font-semibold text-neutral-800 dark:text-white">
-                            소스 타입
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {(
-                              [
-                                { id: "youtube", label: "유튜브" },
-                                { id: "website", label: "웹" },
-                                { id: "file", label: "파일" },
-                                { id: "manual", label: "수동" },
-                              ] as const
-                            ).map((item) => (
-                              <label
-                                key={item.id}
-                                className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs text-neutral-600 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80"
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={sourceFilters.includes(item.id)}
-                                  onChange={() => {
-                                    toggleArrayValue(item.id, setSourceFilters);
-                                    setPage(1);
-                                  }}
-                                />
-                                {item.label}
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col gap-2">
-                          <div className="font-semibold text-neutral-800 dark:text-white">
-                            태그
-                          </div>
-                          {tagsLoading ? (
-                            <div className="text-neutral-500 dark:text-white/60">
-                              태그 불러오는 중…
-                            </div>
-                          ) : tagOptions.length === 0 ? (
-                            <div className="text-neutral-500 dark:text-white/60">
-                              사용할 수 있는 태그가 없어요.
-                            </div>
-                          ) : (
-                            <div className="flex flex-wrap gap-2">
-                              {tagOptions.map((tag) => (
-                                <label
-                                  key={tag.name}
-                                  className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs text-neutral-600 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80"
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={tagFilters.includes(tag.name)}
-                                    onChange={() => {
-                                      toggleArrayValue(tag.name, setTagFilters);
-                                      setPage(1);
-                                    }}
-                                  />
-                                  #{tag.name}
-                                  <span className="text-[10px] text-neutral-400">
-                                    {tag.count}
-                                  </span>
-                                </label>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
+                  onCustomToChange={(value) => {
+                    setCustomTo(value);
+                    setDatePreset("custom");
+                    setPage(1);
+                  }}
+                  statusFilters={statusFilters}
+                  onToggleStatus={(value) => {
+                    toggleArrayValue(value, setStatusFilters);
+                    setPage(1);
+                  }}
+                  sourceFilters={sourceFilters}
+                  onToggleSource={(value) => {
+                    toggleArrayValue(value, setSourceFilters);
+                    setPage(1);
+                  }}
+                  tagFilters={tagFilters}
+                  tagOptions={tagOptions}
+                  tagsLoading={tagsLoading}
+                  onToggleTag={(value) => {
+                    toggleArrayValue(value, setTagFilters);
+                    setPage(1);
+                  }}
+                  onClose={() => setFiltersOpen(false)}
+                />
+              }
+            />
 
             {loading && (
               <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-6 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/5 dark:text-white/60">
@@ -1442,154 +1059,32 @@ export default function MapsPage() {
             {!loading && !error && hasResults && (
               <>
                 {viewMode === "card" ? (
-                  <section className="mt-4 grid gap-2 w-full min-w-0">
-                    {filteredDrafts.map((draft) => (
-                      <MapListItem
-                        key={draft.id}
-                        draft={draft}
-                        selected={previewOpen && draft.id === selectedId}
-                        selectionMode={selectionMode && !tagOrganizeMode}
-                        checked={selectedMapIds.includes(draft.id)}
-                        onSelect={tagOrganizeMode ? undefined : handleItemSelect}
-                        onToggleSelect={
-                          tagOrganizeMode ? undefined : toggleSelectedMap
-                        }
-                        onEditTags={openTagEditor}
-                      />
-                    ))}
-                  </section>
+                  <MapCardList
+                    drafts={filteredDrafts}
+                    selectedId={selectedId}
+                    previewOpen={previewOpen}
+                    selectionMode={selectionMode}
+                    tagOrganizeMode={tagOrganizeMode}
+                    selectedMapIds={selectedMapIds}
+                    onSelect={handleItemSelect}
+                    onToggleSelect={toggleSelectedMap}
+                    onEditTags={openTagEditor}
+                  />
                 ) : (
-                  <div className="mt-4 w-full min-w-0 overflow-x-auto rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#0b1220]/70">
-                    <table className="w-full table-fixed text-left text-[12px] [table-layout:fixed]">
-                      <colgroup>
-                        {selectionMode && !tagOrganizeMode && (
-                          <col style={{ width: "24px" }} />
-                        )}
-                        <col />
-                        <col style={{ width: "64px" }} />
-                        <col style={{ width: "64px" }} />
-                        <col style={{ width: "120px" }} />
-                        <col style={{ width: "110px" }} />
-                        <col style={{ width: "110px" }} />
-                      </colgroup>
-                      <thead className="text-[11px] font-semibold text-neutral-600 dark:text-white/70">
-                        <tr className="border-b border-neutral-300 bg-neutral-50/80 dark:border-white/15 dark:bg-white/[0.04]">
-                          {selectionMode && !tagOrganizeMode && (
-                            <th className="w-6 min-w-[24px] max-w-[24px] px-[3px] py-1.5 border-r border-neutral-200 dark:border-white/10 text-center">
-                              <span className="sr-only">선택</span>
-                            </th>
-                          )}
-                          <th className="px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
-                            제목
-                          </th>
-                          <th className="w-[64px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
-                            상태
-                          </th>
-                          <th className="w-[64px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
-                            소스
-                          </th>
-                          <th className="w-[120px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
-                            태그
-                          </th>
-                          <th className="w-[110px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
-                            생성일
-                          </th>
-                          <th className="w-[110px] px-2 py-1.5">수정일</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredDrafts.map((draft) => {
-                          const isSelected =
-                            previewOpen && draft.id === selectedId;
-                          return (
-                            <tr
-                              key={draft.id}
-                              className={`border-b border-neutral-200 hover:bg-neutral-50 dark:border-white/10 dark:hover:bg-white/[0.05] ${
-                                isSelected
-                                  ? "bg-blue-50/60 dark:bg-blue-500/10"
-                                  : ""
-                              }`}
-                              onClick={() => {
-                                if (tagOrganizeMode) return;
-                                handleItemSelect(draft);
-                              }}
-                              role="button"
-                              tabIndex={0}
-                              onKeyDown={(event) => {
-                                if (event.key === "Enter" || event.key === " ") {
-                                  event.preventDefault();
-                                  if (tagOrganizeMode) return;
-                                  handleItemSelect(draft);
-                                }
-                              }}
-                            >
-                              {selectionMode && !tagOrganizeMode && (
-                                <td className="w-6 min-w-[24px] max-w-[24px] px-[3px] py-1.5 border-r border-neutral-200 dark:border-white/10 text-center">
-                                  <div className="flex items-center justify-center">
-                                    <input
-                                      type="checkbox"
-                                      checked={selectedMapIds.includes(draft.id)}
-                                      onChange={() => toggleSelectedMap(draft)}
-                                      onClick={(event) => event.stopPropagation()}
-                                      className="h-4 w-4 rounded border-neutral-300 text-neutral-900"
-                                      aria-label={`${draft.title} 선택`}
-                                    />
-                                  </div>
-                                </td>
-                              )}
-                              <td className="px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
-                                <div className="font-medium text-neutral-700 dark:text-white/80 line-clamp-1">
-                                  {draft.title}
-                                </div>
-                              </td>
-                              <td className="w-[64px] px-2 py-1.5 text-neutral-600 dark:text-white/70 border-r border-neutral-200 dark:border-white/10">
-                                {STATUS_LABELS[draft.status] ?? "-"}
-                              </td>
-                              <td className="w-[64px] px-2 py-1.5 text-neutral-600 dark:text-white/70 border-r border-neutral-200 dark:border-white/10">
-                                {draft.sourceType
-                                  ? SOURCE_LABELS[draft.sourceType]
-                                  : "-"}
-                              </td>
-                              <td className="w-[120px] px-2 py-1.5 text-neutral-500 dark:text-white/60 border-r border-neutral-200 dark:border-white/10">
-                                <div className="flex items-center justify-between gap-2">
-                                  <span className="truncate">
-                                    {(draft.tags ?? []).slice(0, 3).map((tag) => `#${tag}`).join(" ") || "-"}
-                                  </span>
-                                  <button
-                                    type="button"
-                                    onClick={(event) => {
-                                      event.stopPropagation();
-                                      openTagEditor(draft);
-                                    }}
-                                    className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/10"
-                                  >
-                                    <Icon icon="mdi:pencil" className="h-3 w-3" />
-                                    편집
-                                  </button>
-                                </div>
-                              </td>
-                              <td className="w-[110px] px-2 py-1.5 text-neutral-500 dark:text-white/60 border-r border-neutral-200 dark:border-white/10 whitespace-nowrap">
-                                {new Date(draft.createdAt).toLocaleDateString("ko-KR", {
-                                  year: "numeric",
-                                  month: "2-digit",
-                                  day: "2-digit",
-                                })}
-                              </td>
-                              <td className="w-[110px] px-2 py-1.5 text-neutral-500 dark:text-white/60 whitespace-nowrap">
-                                {draft.updatedAt
-                                  ? new Date(draft.updatedAt).toLocaleDateString("ko-KR", {
-                                      year: "numeric",
-                                      month: "2-digit",
-                                      day: "2-digit",
-                                    })
-                                  : "-"}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+                  <MapTableList
+                    drafts={filteredDrafts}
+                    selectedId={selectedId}
+                    previewOpen={previewOpen}
+                    selectionMode={selectionMode}
+                    tagOrganizeMode={tagOrganizeMode}
+                    selectedMapIds={selectedMapIds}
+                    onSelect={handleItemSelect}
+                    onToggleSelect={toggleSelectedMap}
+                    onEditTags={openTagEditor}
+                    showEditTags={tagOrganizeMode}
+                    statusLabels={STATUS_LABELS}
+                    sourceLabels={SOURCE_LABELS}
+                  />
                 )}
               </>
             )}
@@ -1724,48 +1219,22 @@ export default function MapsPage() {
         actionLabel={tagDeleteSubmitting ? "삭제 중..." : "삭제"}
       />
 
-      <Dialog open={tagEditOpen} onOpenChange={setTagEditOpen}>
-        <DialogContent className="max-w-[420px]">
-          <div className="flex flex-col gap-4">
-            <div>
-              <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
-                태그 편집
-              </h3>
-              <p className="mt-1 text-sm text-neutral-500 dark:text-white/60">
-                쉼표로 구분해 입력하세요.
-              </p>
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-neutral-800 dark:text-white">
-                {tagEditDraft?.title ?? "선택한 맵"}
-              </label>
-              <input
-                value={tagEditInput}
-                onChange={(event) => setTagEditInput(event.target.value)}
-                placeholder="예: 기획, UI, 인사이트"
-                className="w-full rounded-2xl border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-200/70 dark:border-white/15 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/40 dark:focus:border-white dark:focus:ring-white/20"
-              />
-            </div>
-            <div className="flex items-center justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setTagEditOpen(false)}
-                className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
-              >
-                닫기
-              </button>
-              <button
-                type="button"
-                onClick={handleTagEditSave}
-                disabled={tagEditSubmitting}
-                className="rounded-full border border-neutral-800 bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/15 dark:bg-white dark:text-neutral-900 dark:hover:bg-white/90"
-              >
-                {tagEditSubmitting ? "저장 중..." : "저장"}
-              </button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <TagEditDialog
+        open={tagEditOpen}
+        onOpenChange={setTagEditOpen}
+        draftTitle={tagEditDraft?.title ?? "선택한 맵"}
+        initialTags={tagEditDraft?.tags ?? []}
+        allTags={tagOptions.map((tag) => tag.name)}
+        saving={tagEditSubmitting}
+        onSave={handleTagEditSave}
+      />
+
+      <TagMergeDialog
+        open={tagMergeOpen}
+        onOpenChange={setTagMergeOpen}
+        selectedTags={selectedTagNames}
+        onConfirm={handleTagMerge}
+      />
 
       <Dialog open={mergeDialogOpen} onOpenChange={setMergeDialogOpen}>
         <DialogContent className="max-w-[520px] max-h-[80vh] overflow-hidden">
