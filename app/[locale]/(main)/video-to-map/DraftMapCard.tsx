@@ -12,11 +12,13 @@ export default function DraftMapCard({
   onEditMetadata,
   isSavingMetadata = false,
   onOpen,
+  highlighted = false,
 }: {
   draft: MapDraft;
   onEditMetadata?: (draft: MapDraft) => void;
   isSavingMetadata?: boolean;
   onOpen?: (draft: MapDraft) => void;
+  highlighted?: boolean;
 }) {
   const processingMessages = useMemo(
     () => [
@@ -87,12 +89,23 @@ export default function DraftMapCard({
         rounded-3xl border border-neutral-200 bg-white
         shadow-[0_18px_40px_-28px_rgba(15,23,42,0.45)]
         p-4 flex gap-4
+        transition-all duration-500
 
         dark:bg-[#111C2E]
         dark:border-white/10
         dark:ring-1 dark:ring-white/10
         dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.95)]
         "
+        data-highlighted={highlighted ? "true" : "false"}
+        style={
+          highlighted
+            ? {
+                borderColor: "#38bdf8",
+                boxShadow:
+                  "0 0 0 4px rgba(56,189,248,0.16), 0 24px 60px -30px rgba(14,165,233,0.45)",
+              }
+            : undefined
+        }
       >
       {/* highlight */}
       <div

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 
@@ -189,6 +189,9 @@ export default function VideoToMapPage() {
   const [openMapData, setOpenMapData] = useState<any | null>(null);
   const [openMapLoading, setOpenMapLoading] = useState(false);
   const [openMapError, setOpenMapError] = useState<string | null>(null);
+  const [pendingFocusDraftId, setPendingFocusDraftId] = useState<string | null>(null);
+  const [highlightedDraftId, setHighlightedDraftId] = useState<string | null>(null);
+  const draftsSectionRef = useRef<HTMLElement | null>(null);
 
   const statusMessages = useMemo(
     () => [
@@ -288,6 +291,26 @@ export default function VideoToMapPage() {
 
     return () => window.clearInterval(interval);
   }, [isProcessing, statusMessages.length]);
+
+  useEffect(() => {
+    if (!pendingFocusDraftId || showMetadataDialog) return;
+    if (!drafts.some((draft) => draft.id === pendingFocusDraftId)) return;
+
+    draftsSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+    setHighlightedDraftId(pendingFocusDraftId);
+    setPendingFocusDraftId(null);
+
+    const timer = window.setTimeout(() => {
+      setHighlightedDraftId((current) =>
+        current === pendingFocusDraftId ? null : current
+      );
+    }, 2600);
+
+    return () => window.clearTimeout(timer);
+  }, [drafts, pendingFocusDraftId, showMetadataDialog]);
 
   const showInputTooLargeUI = creditInfo.tooLarge;
 
@@ -667,6 +690,7 @@ export default function VideoToMapPage() {
       setShowMetadataDialog(false);
       setYoutubeMeta(null);
       setIsProcessing(false);
+      setPendingFocusDraftId(targetId);
       setCreatedMapId(null);
       setEditingDraft(null);
       setSavingMetaId(null);
@@ -777,7 +801,7 @@ export default function VideoToMapPage() {
         </div>
 
         {drafts.length > 0 && (
-          <section className="mt-2 space-y-3">
+          <section ref={draftsSectionRef} className="mt-2 space-y-3">
             <div className="flex items-end justify-between gap-2">
               <h2 className="text-base md:text-lg font-semibold">만든 구조맵</h2>
             </div>
@@ -787,6 +811,7 @@ export default function VideoToMapPage() {
                 <DraftMapCard
                   key={d.id}
                   draft={d}
+                  highlighted={highlightedDraftId === d.id}
                   isSavingMetadata={savingMetaId === d.id}
                   onEditMetadata={(draft) => {
                     setCreatedMapId(draft.id);

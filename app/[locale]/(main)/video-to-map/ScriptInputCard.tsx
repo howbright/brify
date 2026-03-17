@@ -178,7 +178,7 @@ export default function ScriptInputCard({
             dark:focus:border-[rgb(var(--hero-b))] dark:focus:ring-[rgb(var(--hero-b))]/25
             disabled:opacity-60 disabled:cursor-not-allowed
           "
-          placeholder="여기에 텍스트를 그대로 붙여 넣어 주세요."
+          placeholder="여기에 텍스트를 그대로 붙여 넣어 주세요. (예: 0:03, 12:45 같은 시간 표시가 함께 있어도 괜찮아요.)"
           value={scriptText}
           onChange={(e) => setScriptText(e.target.value)}
           disabled={locked}
