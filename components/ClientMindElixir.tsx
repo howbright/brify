@@ -36,6 +36,7 @@ type ClientMindElixirProps = {
   preserveViewState?: boolean;
   openMenuOnClick?: boolean;
   showMiniMap?: boolean;
+  showToolbar?: boolean;
   panMode?: boolean;
   panModeButton?: 0 | 2;
 };
@@ -305,6 +306,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       preserveViewState = true,
       openMenuOnClick = true,
       showMiniMap = true,
+      showToolbar = false,
       panMode = false,
       panModeButton = 2,
     },
@@ -429,12 +431,20 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       return;
     }
     mind.focusNode?.(el);
+    setSelectedNodeId(null);
+    setSelectedRect(null);
+    setSelectedNoteText(null);
+    selectedNodeElRef.current = null;
     setIsFocusMode(true);
   };
   const handleExitFocus = () => {
     const mind = mindRef.current;
     if (!mind) return;
     mind.cancelFocus?.();
+    setSelectedNodeId(null);
+    setSelectedRect(null);
+    setSelectedNoteText(null);
+    selectedNodeElRef.current = null;
     setIsFocusMode(false);
   };
   const handleHighlightClick = () => {
@@ -1202,7 +1212,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       const mind = new MindElixir({
         el: elRef.current,
         direction: MindElixir.RIGHT,
-        toolBar: false,
+        toolBar: showToolbar,
         keypress: true,
         draggable: true,
         editable: true,
@@ -1313,6 +1323,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       if (typeof mind.__originalCancelFocus === "function") {
         mind.cancelFocus = () => {
           const result = mind.__originalCancelFocus();
+          setSelectedNodeId(null);
+          setSelectedRect(null);
+          setSelectedNoteText(null);
+          selectedNodeElRef.current = null;
           setIsFocusMode(false);
           return result;
         };
@@ -1502,6 +1516,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     fitOnInit,
     preserveViewState,
     openMenuOnClick,
+    showToolbar,
     initialData,
   ]);
 
@@ -1629,9 +1644,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           padding: 0 2px;
           border-radius: 4px;
         }
-        .mind-elixir-toolbar.rb span:first-child {
-          display: none;
-        }
       `}</style>
       <div ref={elRef} className="relative w-full h-full" />
 
@@ -1643,70 +1655,81 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           <canvas ref={miniMapRef} className="mt-1 h-[120px] w-[160px]" />
         </div>
       )}
-      {selectedNodeId && selectedRect && (
-        <div
-          className="absolute z-20"
-          data-hover-actions="true"
-          onPointerDown={(e) => {
-            e.stopPropagation();
-          }}
-          onPointerUp={(e) => {
-            e.stopPropagation();
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-          style={{
-            left: selectedRect.left + selectedRect.width - 8,
-            top: selectedRect.top + selectedRect.height + 8,
-            transform: "translate(-100%, 0)",
-          }}
-        >
-          <div className="flex items-center gap-1 rounded-full bg-white/90 px-1 py-0.5 shadow-sm ring-1 ring-black/5 dark:bg-[#0b1220]/90 dark:ring-white/10">
-            <button
-              type="button"
-              className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white shadow-sm ring-1 ring-red-600/60"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleNoteClick();
-              }}
-              aria-label="노트 추가"
-            >
-              <Icon icon="mdi:note-text-outline" className="h-3 w-3" />
-              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-                노트 추가
-              </span>
-            </button>
-            <button
-              type="button"
-              className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-yellow-400 text-[10px] text-black shadow-sm ring-1 ring-yellow-500/70"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleHighlightClick();
-              }}
-              aria-label="하이라이트"
-            >
-              <Icon icon="mdi:marker" className="h-3 w-3" />
-              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-                하이라이트
-              </span>
-            </button>
-            <button
-              type="button"
-              className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-[10px] text-white shadow-sm ring-1 ring-green-600/70"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleFocusClick();
-              }}
-              aria-label="포커스 모드"
-            >
-              <Icon icon="mdi:target" className="h-3 w-3" />
-              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-                포커스 모드
-              </span>
-            </button>
+      {!isFocusMode && selectedNodeId && selectedRect && (
+        <>
+          <div
+            className="pointer-events-none absolute z-[19] rounded-md ring-2 ring-blue-500/80 shadow-[0_0_0_3px_rgba(255,255,255,0.92),0_10px_24px_rgba(37,99,235,0.22)] dark:shadow-[0_0_0_3px_rgba(11,18,32,0.9),0_10px_24px_rgba(59,130,246,0.28)]"
+            style={{
+              left: selectedRect.left - 4,
+              top: selectedRect.top - 4,
+              width: selectedRect.width + 8,
+              height: selectedRect.height + 8,
+            }}
+          />
+          <div
+            className="absolute z-20"
+            data-hover-actions="true"
+            onPointerDown={(e) => {
+              e.stopPropagation();
+            }}
+            onPointerUp={(e) => {
+              e.stopPropagation();
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            style={{
+              left: selectedRect.left + selectedRect.width - 8,
+              top: selectedRect.top + selectedRect.height + 8,
+              transform: "translate(-100%, 0)",
+            }}
+          >
+            <div className="flex items-center gap-1 rounded-full bg-white/90 px-1 py-0.5 shadow-sm ring-1 ring-black/5 dark:bg-[#0b1220]/90 dark:ring-white/10">
+              <button
+                type="button"
+                className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white shadow-sm ring-1 ring-red-600/60"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNoteClick();
+                }}
+                aria-label="노트 추가"
+              >
+                <Icon icon="mdi:note-text-outline" className="h-3 w-3" />
+                <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                  노트 추가
+                </span>
+              </button>
+              <button
+                type="button"
+                className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-yellow-400 text-[10px] text-black shadow-sm ring-1 ring-yellow-500/70"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleHighlightClick();
+                }}
+                aria-label="하이라이트"
+              >
+                <Icon icon="mdi:marker" className="h-3 w-3" />
+                <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                  하이라이트
+                </span>
+              </button>
+              <button
+                type="button"
+                className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-[10px] text-white shadow-sm ring-1 ring-green-600/70"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleFocusClick();
+                }}
+                aria-label="포커스 모드"
+              >
+                <Icon icon="mdi:target" className="h-3 w-3" />
+                <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                  포커스 모드
+                </span>
+              </button>
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       {isFocusMode && (
@@ -1724,7 +1747,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         </div>
       )}
 
-      {selectedRect && selectedNoteText && (
+      {!isFocusMode && selectedRect && selectedNoteText && (
         <div
           className="pointer-events-none absolute z-20"
           style={{

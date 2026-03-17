@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 type TermItem = { term: string; meaning: string; isNew?: boolean };
@@ -44,6 +44,12 @@ export default function TermsBlock({
   const canSubmit =
     !loading && (mode === "auto" || (mode === "custom" && cleanedCsv.length > 0));
   const canCustomSubmit = !loading && cleanedCsv.length > 0;
+
+  useEffect(() => {
+    if (!loading) return;
+    setPickerOpen(false);
+    setCustomInlineOpen(false);
+  }, [loading]);
 
   const handleOpen = () => {
     if (loading) return;
@@ -94,7 +100,7 @@ export default function TermsBlock({
         </div>
       ) : null}
 
-      {hasTerms && (
+      {hasTerms && !loading && (
         <>
           <div className="sticky top-[-16px] z-30 -mx-4 px-4 py-2 bg-white dark:bg-[#0b1220] border-b border-neutral-200/80 dark:border-white/10 shadow-[0_6px_16px_rgba(15,23,42,0.08)]">
             <button
@@ -210,7 +216,7 @@ export default function TermsBlock({
         </>
       )}
 
-      {!hasTerms && (
+      {!hasTerms && !loading && (
         <button
           type="button"
           onClick={handleOpen}
@@ -232,7 +238,7 @@ export default function TermsBlock({
         </button>
       )}
 
-      {!hasTerms && pickerOpen && (
+      {!hasTerms && !loading && pickerOpen && (
         <div className="rounded-2xl border border-neutral-200 bg-white p-3 dark:border-white/10 dark:bg-white/[0.06]">
           <div className="text-xs font-semibold text-neutral-900 dark:text-white">
             {t("picker.title")}
