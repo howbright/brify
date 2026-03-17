@@ -40,10 +40,10 @@ export default function MapTableList({
 }: MapTableListProps) {
   return (
     <div className="mt-4 w-full min-w-0 overflow-x-auto rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#0b1220]/70">
-      <table className="w-full table-fixed text-left text-[12px] [table-layout:fixed]">
+      <table className="min-w-[760px] w-full table-fixed text-left text-[12px] [table-layout:fixed]">
         <colgroup>
           {selectionMode && !tagOrganizeMode && <col style={{ width: "24px" }} />}
-          <col />
+          <col style={{ width: "240px" }} />
           <col style={{ width: "64px" }} />
           <col style={{ width: "64px" }} />
           <col style={{ width: "120px" }} />

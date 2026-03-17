@@ -43,6 +43,8 @@ const LIST_FIELDS =
   "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
 const PAGE_SIZE = 20;
 const TAG_LIMIT = 24;
+const NO_TAG_FILTER = "__NO_TAG__";
+type TagSort = "recent" | "name" | "count_desc" | "count_asc";
 
 const DATE_PRESETS = [
   { id: "7d", label: "지난 7일", days: 7 },
@@ -118,6 +120,114 @@ function parseDateInput(value: string, endOfDay = false) {
   const parsed = new Date(`${value}T00:00:00`);
   if (Number.isNaN(parsed.getTime())) return null;
   return endOfDay ? endOfDayIso(parsed) : startOfDayIso(parsed);
+}
+
+function MapCardListSkeleton() {
+  return (
+    <section className="mt-4 grid gap-2 w-full min-w-0">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div
+          key={index}
+          className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-[#0f172a]/40"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex min-w-0 items-start gap-3 flex-1">
+              <div className="h-[60px] w-20 shrink-0 animate-pulse rounded-xl bg-neutral-200 dark:bg-white/10" />
+              <div className="min-w-0 flex-1">
+                <div className="h-4 w-2/3 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
+                <div className="mt-2 h-3 w-5/6 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
+              </div>
+            </div>
+            <div className="h-7 w-14 shrink-0 animate-pulse rounded-full bg-neutral-100 dark:bg-white/5" />
+          </div>
+          <div className="mt-3 flex gap-2">
+            <div className="h-5 w-16 animate-pulse rounded-full bg-neutral-100 dark:bg-white/5" />
+            <div className="h-5 w-20 animate-pulse rounded-full bg-neutral-100 dark:bg-white/5" />
+            <div className="h-5 w-12 animate-pulse rounded-full bg-neutral-100 dark:bg-white/5" />
+          </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function MapTableListSkeleton() {
+  return (
+    <div className="mt-4 w-full min-w-0 overflow-x-auto rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#0b1220]/70">
+      <table className="w-full table-fixed text-left text-[12px] [table-layout:fixed]">
+        <thead className="text-[11px] font-semibold text-neutral-600 dark:text-white/70">
+          <tr className="border-b border-neutral-300 bg-neutral-50/80 dark:border-white/15 dark:bg-white/[0.04]">
+            <th className="px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">제목</th>
+            <th className="w-[64px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">상태</th>
+            <th className="w-[64px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">소스</th>
+            <th className="w-[120px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">태그</th>
+            <th className="w-[110px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">생성일</th>
+            <th className="w-[110px] px-2 py-1.5">수정일</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: 7 }).map((_, index) => (
+            <tr key={index} className="border-b border-neutral-200 dark:border-white/10">
+              <td className="px-2 py-2 border-r border-neutral-200 dark:border-white/10">
+                <div className="h-4 w-3/4 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
+              </td>
+              <td className="px-2 py-2 border-r border-neutral-200 dark:border-white/10">
+                <div className="h-4 w-10 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
+              </td>
+              <td className="px-2 py-2 border-r border-neutral-200 dark:border-white/10">
+                <div className="h-4 w-10 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
+              </td>
+              <td className="px-2 py-2 border-r border-neutral-200 dark:border-white/10">
+                <div className="h-4 w-4/5 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
+              </td>
+              <td className="px-2 py-2 border-r border-neutral-200 dark:border-white/10">
+                <div className="h-4 w-16 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
+              </td>
+              <td className="px-2 py-2">
+                <div className="h-4 w-16 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function TagPanelSkeleton() {
+  return (
+    <section className="hidden lg:block lg:sticky lg:top-24 lg:h-[calc(100vh-160px)]">
+      <div className="rounded-2xl border border-blue-200 bg-white p-4 shadow-sm dark:border-blue-500/20 dark:bg-white/[0.04]">
+        <div className="flex items-center justify-between">
+          <div className="h-4 w-12 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
+          <div className="h-7 w-24 animate-pulse rounded-full bg-neutral-100 dark:bg-white/5" />
+        </div>
+        <div className="mt-3 h-9 w-full animate-pulse rounded-full bg-neutral-100 dark:bg-white/5" />
+        <div className="mt-2 h-10 w-full animate-pulse rounded-xl bg-neutral-100 dark:bg-white/5" />
+        <div className="mt-3 flex flex-col gap-2">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <div
+              key={index}
+              className="h-10 w-full animate-pulse rounded-xl bg-blue-50 dark:bg-blue-500/10"
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MapPreviewSkeleton() {
+  return (
+    <section className="hidden lg:block lg:sticky lg:top-24 lg:h-[calc(100vh-160px)]">
+      <aside className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.04]">
+        <div className="h-5 w-2/3 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
+        <div className="mt-2 h-3 w-24 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
+        <div className="mt-4 h-[360px] animate-pulse rounded-2xl bg-neutral-100 dark:bg-white/5" />
+        <div className="mt-3 h-3 w-5/6 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
+      </aside>
+    </section>
+  );
 }
 
 function SortableMergeItem({
@@ -199,6 +309,7 @@ export default function MapsPage() {
   >([]);
   const [tagsLoading, setTagsLoading] = useState(false);
   const [tagListQuery, setTagListQuery] = useState("");
+  const [tagSort, setTagSort] = useState<TagSort>("recent");
   const [tagDeleteTarget, setTagDeleteTarget] = useState<string | null>(null);
   const [tagDeleteOpen, setTagDeleteOpen] = useState(false);
   const [tagDeleteSubmitting, setTagDeleteSubmitting] = useState(false);
@@ -211,6 +322,7 @@ export default function MapsPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  const [mobileTagSheetOpen, setMobileTagSheetOpen] = useState(false);
   const [previewById, setPreviewById] = useState<
     Record<string, { status: "idle" | "loading" | "loaded" | "missing" | "error"; data: any | null }>
   >({});
@@ -309,17 +421,69 @@ export default function MapsPage() {
       tag.name.toLowerCase().includes(tagQuery)
     );
   }, [recentTagOptions, tagQuery]);
-  const allTagOptionsFiltered = useMemo(() => {
-    if (!tagQuery) return tagOptions;
-    return tagOptions.filter((tag) =>
-      tag.name.toLowerCase().includes(tagQuery)
+  const mergedTagOptions = useMemo(() => {
+    const byName = new Map<string, { name: string; count: number; recentIndex: number | null }>();
+
+    recentTagOptions.forEach((tag, index) => {
+      byName.set(tag.name, {
+        name: tag.name,
+        count: tag.count,
+        recentIndex: index,
+      });
+    });
+
+    tagOptions.forEach((tag) => {
+      const existing = byName.get(tag.name);
+      byName.set(tag.name, {
+        name: tag.name,
+        count: tag.count,
+        recentIndex: existing?.recentIndex ?? null,
+      });
+    });
+
+    const items = Array.from(byName.values()).filter((tag) =>
+      tagQuery ? tag.name.toLowerCase().includes(tagQuery) : true
     );
-  }, [tagOptions, tagQuery]);
+
+    if (tagSort === "name") {
+      const collator = new Intl.Collator(locale ?? "en", {
+        numeric: true,
+        sensitivity: "base",
+      });
+      return items.sort((a, b) => collator.compare(a.name, b.name));
+    }
+
+    if (tagSort === "count_desc") {
+      return items.sort((a, b) => {
+        if (b.count !== a.count) return b.count - a.count;
+        return a.name.localeCompare(b.name, locale ?? "en");
+      });
+    }
+
+    if (tagSort === "count_asc") {
+      return items.sort((a, b) => {
+        if (a.count !== b.count) return a.count - b.count;
+        return a.name.localeCompare(b.name, locale ?? "en");
+      });
+    }
+
+    return items.sort((a, b) => {
+      const aIndex = a.recentIndex ?? Number.MAX_SAFE_INTEGER;
+      const bIndex = b.recentIndex ?? Number.MAX_SAFE_INTEGER;
+      if (aIndex !== bIndex) return aIndex - bIndex;
+      return a.name.localeCompare(b.name, locale ?? "en");
+    });
+  }, [recentTagOptions, tagOptions, tagQuery, tagSort, locale]);
   const filteredDrafts = useMemo(() => drafts, [drafts]);
   const effectiveTagFilters = useMemo(
-    () => (tagOrganizeMode ? selectedTagNames : tagFilters),
+    () =>
+      tagOrganizeMode
+        ? selectedTagNames.filter((tag) => tag !== NO_TAG_FILTER)
+        : tagFilters,
     [selectedTagNames, tagOrganizeMode, tagFilters]
   );
+  const includesNoTagFilter =
+    tagOrganizeMode && selectedTagNames.includes(NO_TAG_FILTER);
   const mergeReady =
     mergeRootTitle.trim().length > 0 && mergeOrderDrafts.length >= 2;
   const handleMergeSubmit = async () => {
@@ -428,6 +592,7 @@ export default function MapsPage() {
   useEffect(() => {
     if (!tagOrganizeMode) {
       setSelectedTagNames([]);
+      setMobileTagSheetOpen(false);
     }
   }, [tagOrganizeMode]);
 
@@ -446,17 +611,21 @@ export default function MapsPage() {
         let request = supabase.from("maps").select(LIST_FIELDS, { count: "exact" });
 
         if (sort === "created_desc") {
-          request = request.range(from, to);
+          if (!includesNoTagFilter) request = request.range(from, to);
           request = request.order("created_at", { ascending: false });
         } else if (sort === "created_asc") {
-          request = request.range(from, to);
+          if (!includesNoTagFilter) request = request.range(from, to);
           request = request.order("created_at", { ascending: true });
         } else if (sort === "updated_desc") {
-          request = request.range(from, to);
+          if (!includesNoTagFilter) request = request.range(from, to);
           request = request.order("updated_at", {
             ascending: false,
             nullsFirst: false,
           });
+        } else if (sort === "title_asc" && !includesNoTagFilter) {
+          // title sort is handled on the client below
+        } else if (includesNoTagFilter) {
+          // keep full result set for client-side OR filtering with the empty-tag pseudo filter
         }
 
         if (q) {
@@ -480,7 +649,7 @@ export default function MapsPage() {
         if (sourceFilters.length > 0) {
           request = request.in("source_type", sourceFilters);
         }
-        if (effectiveTagFilters.length > 0) {
+        if (!includesNoTagFilter && effectiveTagFilters.length > 0) {
           request = request.overlaps("tags", effectiveTagFilters);
         }
 
@@ -491,12 +660,24 @@ export default function MapsPage() {
 
         const rows = (data ?? []) as MapRow[];
 
+        const filteredRows = includesNoTagFilter
+          ? rows.filter((row) => {
+              const tags = Array.isArray(row.tags) ? row.tags : [];
+              const hasNoTags = tags.length === 0;
+              const matchesNamedTag =
+                effectiveTagFilters.length > 0
+                  ? tags.some((tag) => effectiveTagFilters.includes(tag))
+                  : false;
+              return hasNoTags || matchesNamedTag;
+            })
+          : rows;
+
         if (sort === "title_asc") {
           const collator = new Intl.Collator(locale ?? "en", {
             numeric: true,
             sensitivity: "base",
           });
-          const sortedRows = [...rows].sort((a, b) => {
+          const sortedRows = [...filteredRows].sort((a, b) => {
             const compared = collator.compare(a.title ?? "", b.title ?? "");
             if (compared !== 0) return compared;
             return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -504,6 +685,10 @@ export default function MapsPage() {
           const pagedRows = sortedRows.slice(from, to + 1);
           setDrafts(pagedRows.map(toDraft));
           setTotalCount(sortedRows.length);
+        } else if (includesNoTagFilter) {
+          const pagedRows = filteredRows.slice(from, to + 1);
+          setDrafts(pagedRows.map(toDraft));
+          setTotalCount(filteredRows.length);
         } else {
           setDrafts(rows.map(toDraft));
           setTotalCount(count ?? 0);
@@ -532,6 +717,7 @@ export default function MapsPage() {
     effectiveTagFilters,
     tagOrganizeMode,
     locale,
+    includesNoTagFilter,
   ]);
 
   const isSearching = !tagOrganizeMode && query.trim().length > 0;
@@ -556,7 +742,9 @@ export default function MapsPage() {
       ? sourceFilters.map((value) => SOURCE_LABELS[value]).join(", ")
       : null;
   const tagSummary =
-    effectiveTagFilters.length > 0 ? effectiveTagFilters.join(", ") : null;
+    !tagOrganizeMode && effectiveTagFilters.length > 0
+      ? effectiveTagFilters.join(", ")
+      : null;
 
   useEffect(() => {
     if (drafts.length === 0) {
@@ -745,7 +933,9 @@ export default function MapsPage() {
   };
 
   const handleTagMerge = async (targetTag: string) => {
-    const sources = selectedTagNames.filter(Boolean);
+    const sources = selectedTagNames.filter(
+      (tag) => Boolean(tag) && tag !== NO_TAG_FILTER
+    );
     if (!targetTag || sources.length < 2) return;
     try {
       const res = await fetch("/api/maps/tags/merge", {
@@ -845,7 +1035,7 @@ export default function MapsPage() {
     : "좌측에서 맵을 선택해 주세요.";
 
   return (
-    <main className="min-h-[70vh] px-6 pt-20 pb-12">
+    <main className="min-h-[70vh] bg-neutral-50 px-6 pt-20 pb-12 dark:bg-[#07111f]">
       <div className="mx-auto max-w-6xl">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -869,8 +1059,9 @@ export default function MapsPage() {
               tagListQuery={tagListQuery}
               onTagListQueryChange={setTagListQuery}
               tagsLoading={tagsLoading}
-              recentTagOptions={recentTagOptionsFiltered}
-              allTagOptions={allTagOptionsFiltered}
+              tagOptions={mergedTagOptions}
+              tagSort={tagSort}
+              onTagSortChange={setTagSort}
               onDeleteTag={(tag) => {
                 setTagDeleteTarget(tag);
                 setTagDeleteOpen(true);
@@ -939,6 +1130,7 @@ export default function MapsPage() {
                   setMobilePreviewOpen(false);
                   toast.message("태그 정리 모드로 전환되어 프리뷰가 꺼졌어요.");
                 }
+                setMobileTagSheetOpen(next);
                 setTagOrganizeMode(next);
               }}
               onToggleSelection={() => {
@@ -1028,12 +1220,6 @@ export default function MapsPage() {
               }
             />
 
-            {loading && (
-              <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-6 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/5 dark:text-white/60">
-                목록 불러오는 중…
-              </div>
-            )}
-
             {!loading && error && (
               <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
                 {error}
@@ -1063,6 +1249,16 @@ export default function MapsPage() {
                   선택한 태그가 붙은 맵이 없어요.
                 </div>
               )}
+
+            {loading && (
+              <>
+                {viewMode === "card" ? (
+                  <MapCardListSkeleton />
+                ) : (
+                  <MapTableListSkeleton />
+                )}
+              </>
+            )}
 
             {!loading && !error && hasResults && (
               <>
@@ -1133,21 +1329,93 @@ export default function MapsPage() {
             )}
           </section>
 
-          {previewOpen && !tagOrganizeMode && (
-            <section className="hidden lg:block lg:sticky lg:top-24 lg:h-[calc(100vh-160px)]">
-              <MapPreviewPanel
-                draft={selectedDraft}
-                previewData={previewData}
-                previewStatus={loading ? "loading" : previewStatus}
-                emptyMessage={previewEmptyMessage}
-                isOpen={previewOpen}
-                onOpen={() => setPreviewOpen(true)}
-                onClose={() => setPreviewOpen(false)}
-              />
-            </section>
-          )}
+          {previewOpen && !tagOrganizeMode &&
+            (loading ? (
+              <MapPreviewSkeleton />
+            ) : (
+              <section className="hidden lg:block lg:sticky lg:top-24 lg:h-[calc(100vh-160px)]">
+                <MapPreviewPanel
+                  draft={selectedDraft}
+                  previewData={previewData}
+                  previewStatus={loading ? "loading" : previewStatus}
+                  emptyMessage={previewEmptyMessage}
+                  isOpen={previewOpen}
+                  onOpen={() => setPreviewOpen(true)}
+                  onClose={() => setPreviewOpen(false)}
+                />
+              </section>
+            ))}
         </div>
       </div>
+
+      {tagOrganizeMode && (
+        <div className="lg:hidden">
+          <div
+            className={`fixed inset-0 z-40 bg-black/25 transition-opacity ${
+              mobileTagSheetOpen ? "opacity-100" : "pointer-events-none opacity-0"
+            }`}
+            onClick={() => setMobileTagSheetOpen(false)}
+          />
+          <div
+            className={`fixed inset-x-0 bottom-0 z-50 max-h-[82vh] transform transition-transform ${
+              mobileTagSheetOpen ? "translate-y-0" : "translate-y-full"
+            }`}
+          >
+            <div className="mx-auto w-full max-w-2xl px-4 pb-4 pt-3">
+              <div className="rounded-[28px] bg-white shadow-2xl dark:bg-[#0b1220]">
+                <div className="mx-auto mb-3 mt-2 h-1.5 w-10 rounded-full bg-neutral-300/70 dark:bg-white/20" />
+                <TagPanel
+                  tagListQuery={tagListQuery}
+                  onTagListQueryChange={setTagListQuery}
+                  tagsLoading={tagsLoading}
+                  tagOptions={mergedTagOptions}
+                  tagSort={tagSort}
+                  onTagSortChange={setTagSort}
+                  onDeleteTag={(tag) => {
+                    setTagDeleteTarget(tag);
+                    setTagDeleteOpen(true);
+                  }}
+                  selectedTags={selectedTagNames}
+                  onToggleSelect={(tag) => {
+                    setSelectedTagNames((prev) =>
+                      prev.includes(tag)
+                        ? prev.filter((name) => name !== tag)
+                        : [...prev, tag]
+                    );
+                    setPage(1);
+                  }}
+                  onOpenMerge={() => setTagMergeOpen(true)}
+                  containerClassName="block"
+                  panelClassName="rounded-[28px] border-0 bg-transparent px-4 pb-4 pt-0 shadow-none"
+                  listClassName="mt-3 max-h-[56vh] overflow-y-auto overflow-x-hidden pr-1"
+                  headerAccessory={
+                    <button
+                      type="button"
+                      onClick={() => setMobileTagSheetOpen(false)}
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-600 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80"
+                      aria-label="태그 정리 닫기"
+                    >
+                      ×
+                    </button>
+                  }
+                />
+              </div>
+            </div>
+          </div>
+          {!mobileTagSheetOpen && (
+            <div className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
+              <button
+                type="button"
+                onClick={() => setMobileTagSheetOpen(true)}
+                className="inline-flex items-center gap-2 rounded-full border border-neutral-300 bg-white/95 px-4 py-2 text-xs font-semibold text-neutral-700 shadow-lg backdrop-blur dark:border-white/15 dark:bg-[#0b1220]/90 dark:text-white/85"
+              >
+                <Icon icon="mdi:chevron-up" className="h-4 w-4" />
+                태그 정리 다시 열기
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Mobile bottom sheet preview */}
       <div className={`lg:hidden ${previewOpen ? "" : "hidden"}`}>
@@ -1244,7 +1512,7 @@ export default function MapsPage() {
       <TagMergeDialog
         open={tagMergeOpen}
         onOpenChange={setTagMergeOpen}
-        selectedTags={selectedTagNames}
+        selectedTags={selectedTagNames.filter((tag) => tag !== NO_TAG_FILTER)}
         onConfirm={handleTagMerge}
       />
 

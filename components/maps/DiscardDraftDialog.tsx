@@ -33,10 +33,10 @@ export default function DiscardDraftDialog({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center gap-1.5 rounded-2xl border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
+            className="inline-flex h-6 w-6 items-center justify-center text-neutral-500 hover:text-neutral-800 dark:text-white/65 dark:hover:text-white"
+            aria-label="닫기"
           >
             <Icon icon="mdi:close" className="h-4 w-4" />
-            닫기
           </button>
         </div>
 

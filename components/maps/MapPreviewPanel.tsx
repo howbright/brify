@@ -33,6 +33,9 @@ export default function MapPreviewPanel({
   onOpen: () => void;
   onClose: () => void;
 }) {
+  const miniRef = useRef<MapMiniPreviewHandle | null>(null);
+  const summary = draft?.summary ?? draft?.description ?? "요약이 아직 없어요.";
+
   if (!draft) {
     return (
       <aside className="rounded-2xl border border-neutral-200 bg-white p-5 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/60">
@@ -40,9 +43,6 @@ export default function MapPreviewPanel({
       </aside>
     );
   }
-
-  const summary = draft.summary ?? draft.description ?? "요약이 아직 없어요.";
-  const miniRef = useRef<MapMiniPreviewHandle | null>(null);
 
   if (!isOpen) {
     return (
@@ -80,6 +80,13 @@ export default function MapPreviewPanel({
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex items-center justify-center rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:border-white/40 dark:hover:bg-white/10"
+          >
+            닫기
+          </button>
           <Link
             href={`/maps/${draft.id}`}
             className="inline-flex items-center justify-center rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:border-white/40 dark:hover:bg-white/10"

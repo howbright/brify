@@ -69,7 +69,7 @@ export default function MapListToolbar({
   filterPopover,
 }: MapListToolbarProps) {
   return (
-    <>
+    <div className="md:sticky md:top-0 md:z-20 md:-mx-2 md:px-2 md:pb-3 md:pt-0 md:backdrop-blur md:supports-[backdrop-filter]:bg-white/75 dark:md:supports-[backdrop-filter]:bg-[#0b1220]/75">
       {!tagOrganizeMode && (
         <div className="relative">
           <Icon
@@ -114,7 +114,7 @@ export default function MapListToolbar({
 
       <div
         className={`mt-1 flex flex-col gap-[2px] rounded-2xl border border-neutral-200 bg-neutral-50/70 px-3 pt-0.5 pb-1 md:mt-2 md:flex-row md:items-center md:justify-between dark:border-white/10 dark:bg-white/[0.04] md:py-2 md:gap-2 ${
-          filtersOpen ? "relative z-[60]" : ""
+          filtersOpen ? "md:relative md:z-[60]" : ""
         }`}
       >
         <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500 dark:text-white/60">
@@ -124,16 +124,17 @@ export default function MapListToolbar({
         </div>
 
         <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-end md:gap-2">
-          <div className="relative z-[60] flex w-full flex-wrap items-center justify-end gap-2 md:w-auto md:flex-nowrap">
-            <span className="text-[11px] font-semibold text-neutral-700 dark:text-white/80">
+          <div className="flex w-full flex-col items-stretch gap-1.5 md:relative md:z-[60] md:w-auto md:flex-row md:flex-nowrap md:items-center md:justify-end md:gap-2">
+            <span className="text-[11px] font-semibold text-neutral-700 dark:text-white/80 md:shrink-0">
               {datePreset === "custom"
                 ? dateLabel
                 : dateLabel.replace("지난", "최근")}
             </span>
+            <div className="flex flex-wrap items-center gap-2 md:flex-nowrap">
             <button
               type="button"
               onClick={onTogglePreview}
-              className="inline-flex items-center gap-1.5 rounded-full border border-neutral-600 bg-neutral-700 px-2 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:px-3 md:py-1.5 md:text-xs"
+              className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-neutral-600 bg-neutral-700 px-2 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:px-3 md:py-1.5 md:text-xs"
             >
               <Icon icon="mdi:eye-outline" className="h-3.5 w-3.5" />
               {previewOpen ? "프리뷰 끄기" : "프리뷰 켜기"}
@@ -141,7 +142,7 @@ export default function MapListToolbar({
             <button
               type="button"
               onClick={onToggleTagOrganize}
-              className="inline-flex items-center gap-1.5 rounded-full border border-neutral-600 bg-neutral-700 px-2 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:px-3 md:py-1.5 md:text-xs"
+              className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-neutral-600 bg-neutral-700 px-2 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:px-3 md:py-1.5 md:text-xs"
             >
               <Icon icon="mdi:tag-outline" className="h-3.5 w-3.5" />
               {tagOrganizeMode ? "정리 모드 종료" : "태그 정리 모드"}
@@ -149,7 +150,7 @@ export default function MapListToolbar({
             <button
               type="button"
               onClick={onToggleSelection}
-              className="inline-flex items-center gap-1.5 rounded-full border border-neutral-600 bg-neutral-700 px-2 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:px-3 md:py-1.5 md:text-xs"
+              className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-neutral-600 bg-neutral-700 px-2 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:px-3 md:py-1.5 md:text-xs"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -178,10 +179,11 @@ export default function MapListToolbar({
               </svg>
               {selectionMode ? "선택 종료" : "선택"}
             </button>
+            </div>
           </div>
 
-          <div className="relative flex w-full flex-wrap items-center justify-end gap-2 md:w-auto md:flex-nowrap">
-            <div className="inline-flex rounded-full border border-neutral-400 bg-white text-[11px] font-semibold text-neutral-700 shadow-sm overflow-hidden dark:border-white/20 dark:bg-white/[0.06] dark:text-white/85 md:text-xs">
+          <div className="relative flex w-full items-center gap-2 md:w-auto md:flex-nowrap">
+            <div className="inline-flex min-w-0 shrink-0 rounded-full border border-neutral-400 bg-white text-[11px] font-semibold text-neutral-700 shadow-sm overflow-hidden dark:border-white/20 dark:bg-white/[0.06] dark:text-white/85 md:text-xs">
               <button
                 type="button"
                 onClick={() => onViewModeChange("card")}
@@ -212,7 +214,7 @@ export default function MapListToolbar({
               id="maps-sort"
               value={sort}
               onChange={(event) => onSortChange(event.target.value as SortValue)}
-              className="rounded-full border border-neutral-400 bg-white px-2 py-1 text-[11px] font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10 md:px-3 md:py-1.5 md:text-xs"
+              className="min-w-0 flex-1 rounded-full border border-neutral-400 bg-white px-2 py-1 text-[11px] font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10 md:flex-none md:px-3 md:py-1.5 md:text-xs"
             >
               <option value="created_desc">최신 생성순</option>
               <option value="created_asc">오래된 생성순</option>
@@ -222,7 +224,7 @@ export default function MapListToolbar({
             <button
               type="button"
               onClick={onToggleFilters}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-neutral-600 bg-neutral-700 text-white shadow-sm hover:bg-neutral-600 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:h-8 md:w-8"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neutral-600 bg-neutral-700 text-white shadow-sm hover:bg-neutral-600 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:h-8 md:w-8"
               aria-label={filtersOpen ? "필터 닫기" : "필터 열기"}
             >
               <Icon icon="mdi:filter-variant" className="h-4 w-4" />
@@ -240,6 +242,6 @@ export default function MapListToolbar({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -59,6 +59,7 @@ export default function LeftPanel({
   const [noteText, setNoteText] = useState("");
   const [notes, setNotes] = useState<NoteItem[]>([]);
   const [notesLoading, setNotesLoading] = useState(false);
+  const [noteSubmitting, setNoteSubmitting] = useState(false);
   const [notesError, setNotesError] = useState<string | null>(null);
   const [terms, setTerms] = useState<TermItem[]>([]);
   const [termsLoading, setTermsLoading] = useState(false);
@@ -84,6 +85,13 @@ export default function LeftPanel({
 
   useEffect(() => {
     if (!open || !mapId) return;
+    if (notesLoading || notes.length > 0) return;
+    fetchNotes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, mapId]);
+
+  useEffect(() => {
+    if (!open || !mapId) return;
     if (activeTab !== "terms") return;
     if (termsLoading) return;
     if (terms.length > 0) return;
@@ -91,6 +99,14 @@ export default function LeftPanel({
     fetchTermsStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, activeTab, mapId]);
+
+  useEffect(() => {
+    if (!open || !mapId) return;
+    if (termsLoading || terms.length > 0) return;
+    fetchTerms(true);
+    fetchTermsStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, mapId]);
 
   const fetchNotes = async () => {
     if (!mapId) return;
@@ -126,9 +142,10 @@ export default function LeftPanel({
 
   const addNote = async () => {
     const trimmed = noteText.trim();
-    if (!trimmed || !mapId) return;
+    if (!trimmed || !mapId || noteSubmitting) return;
     setNotesError(null);
     try {
+      setNoteSubmitting(true);
       const res = await fetch("/api/notes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -150,6 +167,8 @@ export default function LeftPanel({
       setNoteText("");
     } catch (e: any) {
       setNotesError(e?.message ?? tRight("errors.notes.add"));
+    } finally {
+      setNoteSubmitting(false);
     }
   };
 
@@ -573,12 +592,14 @@ export default function LeftPanel({
                   active={activeTab === "notes"}
                   icon="mdi:notebook-outline"
                   label={tRight("tabs.notes")}
+                  count={notes.length}
                   onClick={() => setActiveTab("notes")}
                 />
                 <TabButton
                   active={activeTab === "terms"}
                   icon="mdi:book-open-variant"
                   label={tRight("tabs.terms")}
+                  count={terms.length}
                   badge="AI"
                   tone="mystic"
                   onClick={() => {
@@ -797,6 +818,7 @@ export default function LeftPanel({
               onAdd={addNote}
               notes={notes}
               loading={notesLoading}
+              submitting={noteSubmitting}
               error={notesError}
               onDelete={deleteNote}
               onUpdate={updateNote}
@@ -912,6 +934,7 @@ function TabButton({
   active,
   icon,
   label,
+  count,
   badge,
   tone = "default",
   onClick,
@@ -919,6 +942,7 @@ function TabButton({
   active: boolean;
   icon: string;
   label: string;
+  count?: number;
   badge?: string;
   tone?: "default" | "mystic";
   onClick: () => void;
@@ -954,6 +978,21 @@ function TabButton({
       />
       <Icon icon={icon} className="relative h-4 w-4" />
       <span className="relative">{label}</span>
+      {typeof count === "number" && count > 0 ? (
+        <span
+          className={`
+            relative inline-flex min-w-5 items-center justify-center
+            rounded-full px-1.5 py-0.5 text-[9px] font-semibold tracking-tight
+            ${
+              active
+                ? "bg-blue-100 text-blue-700 dark:bg-blue-400/20 dark:text-blue-200"
+                : "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-200"
+            }
+          `}
+        >
+          {count}
+        </span>
+      ) : null}
       {badge ? (
         <span
           className="
@@ -978,6 +1017,7 @@ function NotesBlock({
   onAdd,
   notes,
   loading,
+  submitting,
   error,
   onDelete,
   onUpdate,
@@ -992,6 +1032,7 @@ function NotesBlock({
   onAdd: () => void;
   notes: NoteItem[];
   loading: boolean;
+  submitting: boolean;
   error: string | null;
   onDelete: (id: string) => void;
   onUpdate: (id: string, text: string) => void;
@@ -1018,7 +1059,7 @@ function NotesBlock({
           value={noteText}
           onChange={(e) => setNoteText(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
+            if (e.key === "Enter" && !e.shiftKey && !submitting) {
               e.preventDefault();
               onAdd();
             }
@@ -1034,9 +1075,11 @@ function NotesBlock({
         <button
           type="button"
           onClick={onAdd}
+          disabled={submitting}
           className="
             rounded-2xl border border-blue-200 bg-blue-50 px-3 py-2
             text-sm font-semibold text-blue-700 hover:bg-blue-100
+            disabled:cursor-not-allowed disabled:opacity-60
             dark:border-blue-300/40 dark:bg-blue-500/10
             dark:text-blue-50/90 dark:hover:bg-blue-500/20
           "

@@ -84,6 +84,7 @@ const MapMiniPreview = forwardRef<MapMiniPreviewHandle, {
           editMode="view"
           openMenuOnClick={false}
           fitOnInit
+          preserveViewState={false}
           zoomSensitivity={0.08}
           dragButton={2}
           panMode

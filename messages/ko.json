@@ -770,7 +770,7 @@
     "helper": "",
     "loading": "용어 해설 생성 중…",
     "delete": "삭제",
-    "cta": "AI 용어 해설",
+    "cta": "AI 용어 해설하기",
     "usedCount": "이 세션에서 {count}회 사용했어요.",
     "customInline": {
       "toggle": "추가로 해설 받을 용어 입력",

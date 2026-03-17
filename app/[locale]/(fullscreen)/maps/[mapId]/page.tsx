@@ -764,7 +764,7 @@ export default function MapDetailPage() {
     <div className="fixed inset-0 z-[120] bg-white dark:bg-[#0b1220] [--header-h:68px]">
       <FullscreenHeader
         title={title}
-        onClose={() => router.push("/maps")}
+        onClose={() => router.push(`/${locale}/maps`)}
         closeLabel="맵 닫기"
         left={
           <>

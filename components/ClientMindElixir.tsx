@@ -33,6 +33,7 @@ type ClientMindElixirProps = {
   zoomSensitivity?: number; // scaleSensitivity
   dragButton?: 0 | 2; // mouseSelectionButton
   fitOnInit?: boolean;
+  preserveViewState?: boolean;
   openMenuOnClick?: boolean;
   showMiniMap?: boolean;
   panMode?: boolean;
@@ -301,6 +302,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       zoomSensitivity = 0.1,
       dragButton = 0,
       fitOnInit = true,
+      preserveViewState = true,
       openMenuOnClick = true,
       showMiniMap = true,
       panMode = false,
@@ -1388,7 +1390,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           if (cancelled || myToken !== initTokenRef.current) return;
           if (!elRef.current) return;
 
-          if (lastTransformRef.current) {
+          if (preserveViewState && lastTransformRef.current) {
             mind.map.style.transform = lastTransformRef.current;
             if (lastScaleRef.current) {
               mind.scaleVal = lastScaleRef.current;
@@ -1457,11 +1459,16 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     return () => {
       cancelled = true;
       try {
-        const mind = mindRef.current;
-        const transform = mind?.map?.style?.transform ?? null;
-        lastTransformRef.current = transform || null;
-        lastScaleRef.current =
-          typeof mind?.scaleVal === "number" ? mind.scaleVal : null;
+        if (preserveViewState) {
+          const mind = mindRef.current;
+          const transform = mind?.map?.style?.transform ?? null;
+          lastTransformRef.current = transform || null;
+          lastScaleRef.current =
+            typeof mind?.scaleVal === "number" ? mind.scaleVal : null;
+        } else {
+          lastTransformRef.current = null;
+          lastScaleRef.current = null;
+        }
       } catch {}
       try {
         const mind = mindRef.current;
@@ -1493,6 +1500,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     zoomSensitivity,
     dragButton,
     fitOnInit,
+    preserveViewState,
     openMenuOnClick,
     initialData,
   ]);

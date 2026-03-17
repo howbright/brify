@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@iconify/react";
 import OutputLanguageSelect from "./OutputLanguageSelect";
 
 type Props = {
@@ -47,6 +48,21 @@ export default function ScriptInputCard({
 }: Props) {
   const locked = disabled || isProcessing;
 
+  const outputLanguageLabel =
+    outputLang === "auto"
+      ? "자동 감지"
+      : outputLang === "ko"
+        ? "한국어"
+        : outputLang === "en"
+          ? "English"
+          : outputLang === "ja"
+            ? "日本語"
+            : outputLang === "zh-Hans"
+              ? "简体中文"
+              : outputLang === "zh-Hant"
+                ? "繁體中文"
+                : outputLang;
+
   // ✅ 생성 버튼 차단 조건: 입력 없음 / 잠금 / 한도초과
   const canGenerate = Boolean(scriptText.trim()) && !locked && !isTooLarge;
 
@@ -54,14 +70,15 @@ export default function ScriptInputCard({
     <section
       className="
         relative
-        mt-1 rounded-3xl border border-neutral-200 bg-white
-        shadow-[0_22px_45px_-24px_rgba(15,23,42,0.55)]
+        mt-1 rounded-3xl border border-neutral-300 bg-white
+        shadow-[0_26px_60px_-28px_rgba(15,23,42,0.22)]
         backdrop-blur-sm
         p-5 md:p-6 flex flex-col gap-4
+        ring-1 ring-neutral-200/90
 
         dark:bg-[#0F172A]
-        dark:border-white/10
-        dark:ring-1 dark:ring-white/5
+        dark:border-white/12
+        dark:ring-1 dark:ring-white/10
         dark:shadow-[0_28px_90px_-55px_rgba(0,0,0,0.85)]
         dark:bg-[linear-gradient(to_bottom,rgba(255,255,255,0.06),rgba(255,255,255,0.0))]
       "
@@ -109,10 +126,8 @@ export default function ScriptInputCard({
             disabled:opacity-60 disabled:cursor-not-allowed
           "
         >
-          유튜브 링크로 가져오기{" "}
-          <span className="font-normal text-neutral-500 dark:text-neutral-400">
-            (옵션)
-          </span>
+          <Icon icon="mdi:youtube" className="h-4 w-4 text-red-500" />
+          유투브 스크립트 가져오는 방법
         </button>
       </div>
 
@@ -142,27 +157,38 @@ export default function ScriptInputCard({
         </div>
       )}
 
-      <textarea
-        className="
-          w-full min-h-[260px] md:min-h-[300px] resize-y
-          rounded-2xl border border-neutral-200 bg-neutral-50
-          px-3 py-2 text-sm md:text-[15px] text-neutral-900
-          placeholder:text-neutral-400
-          focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-          dark:border-white/10 dark:bg-white/5 dark:text-neutral-50 dark:placeholder:text-neutral-500
-          dark:focus:border-[rgb(var(--hero-b))] dark:focus:ring-[rgb(var(--hero-b))]/25
-          disabled:opacity-60 disabled:cursor-not-allowed
-        "
-        placeholder="여기에 텍스트를 그대로 붙여 넣어 주세요."
-        value={scriptText}
-        onChange={(e) => setScriptText(e.target.value)}
-        disabled={locked}
-      />
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 px-1">
+          <span className="h-2.5 w-2.5 rounded-full bg-blue-500 dark:bg-[rgb(var(--hero-b))]" />
+          <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+            스크립트 입력
+          </p>
+        </div>
+
+        <textarea
+          className="
+            w-full min-h-[260px] md:min-h-[300px] resize-y
+            rounded-2xl border-2 border-indigo-600 bg-white
+            px-4 py-3 text-sm md:text-[15px] text-neutral-900
+            shadow-[0_18px_40px_-30px_rgba(15,23,42,0.2)]
+            placeholder:text-neutral-500
+            focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200/80
+            dark:border-indigo-400 dark:bg-slate-950/72 dark:text-neutral-50 dark:placeholder:text-neutral-400
+            dark:shadow-[0_18px_36px_-24px_rgba(0,0,0,0.45)]
+            dark:focus:border-[rgb(var(--hero-b))] dark:focus:ring-[rgb(var(--hero-b))]/25
+            disabled:opacity-60 disabled:cursor-not-allowed
+          "
+          placeholder="여기에 텍스트를 그대로 붙여 넣어 주세요."
+          value={scriptText}
+          onChange={(e) => setScriptText(e.target.value)}
+          disabled={locked}
+        />
+      </div>
 
       {error && <p className="text-sm text-red-500 whitespace-pre-line">{error}</p>}
 
       {/* 하단: 좌측(크레딧 + 언어) / 우측(생성 버튼) */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col gap-3">
         {/* 좌측: 크레딧 + 출력 언어 */}
         <div className="flex flex-col gap-2">
           <p className="text-xs text-neutral-600 dark:text-neutral-300">
@@ -173,35 +199,86 @@ export default function ScriptInputCard({
             보유: <b>{currentCredits.toLocaleString()}</b> 크레딧
           </p>
 
-          <OutputLanguageSelect
-            value={outputLang}
-            onChange={setOutputLang}
-            disabled={locked}
-          />
+          <div
+            className="
+              rounded-2xl border border-blue-200 bg-blue-50/80
+              p-3
+              dark:border-[rgb(var(--hero-b))]/25 dark:bg-[rgb(var(--hero-b))]/10
+            "
+          >
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-white dark:bg-[rgb(var(--hero-b))] dark:text-neutral-950">
+                    <Icon icon="mdi:translate" className="h-4 w-4" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                      출력 언어 확인
+                    </p>
+                    <p className="text-xs text-neutral-600 dark:text-neutral-300">
+                      구조맵이 어떤 언어로 생성될지 먼저 확인해 주세요.
+                    </p>
+                  </div>
+                </div>
+
+                <span
+                  className="
+                    rounded-full border border-blue-200 bg-white px-2.5 py-1
+                    text-xs font-semibold text-blue-700
+                    dark:border-[rgb(var(--hero-b))]/30 dark:bg-slate-950/60 dark:text-[rgb(var(--hero-b))]
+                  "
+                >
+                  {outputLanguageLabel}
+                </span>
+              </div>
+
+              <div
+                className={[
+                  "rounded-xl border px-3 py-2 text-xs",
+                  outputLang === "auto"
+                    ? "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-300/25 dark:bg-amber-400/10 dark:text-amber-100"
+                    : "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-300/25 dark:bg-emerald-400/10 dark:text-emerald-100",
+                ].join(" ")}
+              >
+                {outputLang === "auto"
+                  ? "자동 감지로 생성됩니다. 영어 영상이면 영어로, 일본어 영상이면 일본어로 생성될 수 있어요."
+                  : `이번 구조맵은 ${outputLanguageLabel}로 생성됩니다.`}
+              </div>
+
+              <OutputLanguageSelect
+                value={outputLang}
+                onChange={setOutputLang}
+                disabled={locked}
+              />
+            </div>
+          </div>
         </div>
 
         {/* 우측: 생성 버튼 */}
-        <button
-          type="button"
-          onClick={() => {
-            // ✅ 한도 초과면 클릭해도 안 넘어가게 방어
-            if (isTooLarge) return;
-            onGenerate();
-          }}
-          disabled={!canGenerate}
-          className="
-            inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-2.5
-            text-sm md:text-[15px] font-semibold text-white
-            bg-blue-600 hover:bg-blue-700
-            dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
-            shadow-sm hover:shadow-md
-            transition-transform hover:scale-[1.03] active:scale-100
-            disabled:bg-neutral-400 disabled:hover:scale-100 disabled:cursor-not-allowed
-            focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60
-          "
-        >
-          구조맵 생성하기
-        </button>
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={() => {
+              // ✅ 한도 초과면 클릭해도 안 넘어가게 방어
+              if (isTooLarge) return;
+              onGenerate();
+            }}
+            disabled={!canGenerate}
+            className="
+              inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-2.5
+              text-sm md:text-[15px] font-semibold text-white
+              bg-blue-600 hover:bg-blue-700
+              dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+              shadow-sm hover:shadow-md
+              transition-transform hover:scale-[1.03] active:scale-100
+              disabled:bg-neutral-400 disabled:hover:scale-100 disabled:cursor-not-allowed
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60
+            "
+          >
+            구조맵 생성하기
+          </button>
+        </div>
       </div>
     </section>
   );

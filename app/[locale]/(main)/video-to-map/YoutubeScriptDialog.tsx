@@ -1,32 +1,78 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
   open: boolean;
   onClose: () => void;
-
-  youtubeUrl: string;
-  setYoutubeUrl: (v: string) => void;
-
-  onFetch: () => void;
-  isFetching: boolean;
-
-  error: string | null;
-  success: string | null;
 };
 
-export default function YoutubeScriptDialog({
-  open,
-  onClose,
-  youtubeUrl,
-  setYoutubeUrl,
-  onFetch,
-  isFetching,
-  error,
-  success,
-}: Props) {
+const GUIDE_STEPS = [
+  {
+    number: 1,
+    title: "영상 밑의 '더보기' 열기",
+    imageLabel: "1단계 이미지",
+    accent: "neutral",
+    imageSrc: "/images/help/youtube-step1-watch-page.png",
+  },
+  {
+    number: 2,
+    title: "스크립트열기 클릭!",
+    imageLabel: "2단계 이미지",
+    accent: "neutral",
+    imageSrc: "/images/help/youtube-step2-menu.png",
+  },
+  {
+    number: 3,
+    title: "처음부분 드래그 선택",
+    imageLabel: "3단계 이미지",
+    accent: "neutral",
+    imageSrc: "/images/help/firstwordselected.png",
+  },
+  {
+    number: 4,
+    title: "아래로 끝까지 스크롤",
+    imageLabel: "4단계 이미지",
+    accent: "neutral",
+    imageSrc: "/images/help/scroll.png",
+  },
+  {
+    number: 5,
+    title: "Shift 누른 채 유지",
+    description: "떼지 말고 바로 마지막 단어를 클릭하세요.",
+    imageLabel: "5단계 이미지",
+    accent: "indigo",
+    imageSrc: "/images/help/shiftkey.jpg",
+  },
+  {
+    number: 6,
+    title: "마지막 단어 클릭",
+    imageLabel: "6단계 이미지",
+    accent: "neutral",
+    imageSrc: "/images/help/allselected.png",
+  },
+  {
+    number: 7,
+    title: "Ctrl + C",
+    imageLabel: "7단계 이미지",
+    accent: "neutral",
+    keycap: true,
+    imageSrc: "/images/help/copy.png",
+  },
+  {
+    number: 8,
+    title: "입력창에 Ctrl + V",
+    imageLabel: "8단계 이미지",
+    accent: "neutral",
+    keycap: true,
+    imageSrc: "/images/help/paste.png",
+  },
+] as const;
+
+export default function YoutubeScriptDialog({ open, onClose }: Props) {
+  const [openStep, setOpenStep] = useState<number>(5);
+
   // ✅ ESC 닫기
   useEffect(() => {
     if (!open) return;
@@ -36,6 +82,12 @@ export default function YoutubeScriptDialog({
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open, onClose]);
+
+  useEffect(() => {
+    if (open) {
+      setOpenStep(5);
+    }
+  }, [open]);
 
   if (!open) return null;
 
@@ -55,7 +107,7 @@ export default function YoutubeScriptDialog({
     >
       <div
         className="
-          w-full max-w-lg rounded-3xl
+          w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-3xl
           bg-white/98 border border-neutral-200
           shadow-[0_24px_70px_-30px_rgba(15,23,42,0.85)]
           p-5 md:p-6
@@ -71,10 +123,10 @@ export default function YoutubeScriptDialog({
           <div className="space-y-1">
             <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white flex items-center gap-2">
               <Icon icon="mdi:youtube" className="h-5 w-5 text-red-500" />
-              유튜브 링크로 스크립트 가져오기
+              유투브 스크립트 가져오는 방법
             </h2>
             <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-300">
-              성공하면 입력칸에 자동으로 채워 드립니다.
+              유튜브 스크립트 전체를 한 번에 복사해오세요.
             </p>
           </div>
 
@@ -93,59 +145,139 @@ export default function YoutubeScriptDialog({
         </div>
 
         <div className="mt-4 space-y-2">
-          <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">
-            유튜브 URL
-          </label>
-          <input
-            value={youtubeUrl}
-            onChange={(e) => setYoutubeUrl(e.target.value)}
-            placeholder="https://www.youtube.com/watch?v=..."
-            className="
-              w-full rounded-2xl border border-neutral-200 bg-white
-              px-3 py-2 text-sm text-neutral-900
-              placeholder:text-neutral-400
-              focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
+          {GUIDE_STEPS.map((step) => {
+            const expanded = openStep === step.number;
+            const isAccent = step.accent === "indigo";
 
-              dark:border-white/10
-              dark:bg-white/6
-              dark:text-neutral-50
-              dark:placeholder:text-neutral-400
-              dark:focus:border-[rgb(var(--hero-b))]/60
-              dark:focus:ring-[rgb(var(--hero-b))]/25
-            "
-          />
+            return (
+              <div
+                key={step.number}
+                className={[
+                  "overflow-hidden rounded-2xl border transition-colors",
+                  isAccent
+                    ? "border-indigo-200 bg-indigo-50 dark:border-indigo-400/30 dark:bg-indigo-500/10"
+                    : "border-neutral-200 bg-neutral-50 dark:border-white/10 dark:bg-white/[0.04]",
+                ].join(" ")}
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenStep(expanded ? 0 : step.number)}
+                  className="flex w-full items-center gap-3 px-3 py-3 text-left"
+                >
+                  <div
+                    className={[
+                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                      isAccent
+                        ? "bg-indigo-600 text-white"
+                        : "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900",
+                    ].join(" ")}
+                  >
+                    {step.number}
+                  </div>
 
-          {error && (
-            <div
-              role="alert"
-              className="
-                rounded-2xl border border-red-200 bg-red-50
-                px-3 py-2 text-xs text-red-700
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className={[
+                        "text-sm font-medium",
+                        isAccent
+                          ? "text-indigo-950 dark:text-indigo-100"
+                          : "text-neutral-800 dark:text-neutral-100",
+                      ].join(" ")}
+                    >
+                      {step.keycap ? (
+                        step.number === 7 ? (
+                          <span className="rounded-md bg-white px-2 py-1 text-xs font-bold text-neutral-800 shadow-sm dark:bg-slate-900 dark:text-neutral-100">
+                            {step.title}
+                          </span>
+                        ) : (
+                          <>
+                            입력창에{" "}
+                            <span className="rounded-md bg-white px-2 py-1 text-xs font-bold text-neutral-800 shadow-sm dark:bg-slate-900 dark:text-neutral-100">
+                              Ctrl + V
+                            </span>
+                          </>
+                        )
+                      ) : step.number === 5 ? (
+                        <>
+                          <span className="rounded-md bg-white px-2 py-1 text-xs font-bold text-indigo-700 shadow-sm dark:bg-indigo-950 dark:text-indigo-200">
+                            Shift
+                          </span>{" "}
+                          누른 채 유지
+                        </>
+                      ) : (
+                        step.title
+                      )}
+                    </p>
 
-                dark:border-red-400/30
-                dark:bg-red-500/10
-                dark:text-red-200
-              "
-            >
-              {error}
-            </div>
-          )}
+                    {step.description ? (
+                      <p
+                        className={[
+                          "mt-1 text-xs",
+                          isAccent
+                            ? "text-indigo-700 dark:text-indigo-200"
+                            : "text-neutral-500 dark:text-neutral-400",
+                        ].join(" ")}
+                      >
+                        {step.description}
+                      </p>
+                    ) : null}
+                  </div>
 
-          {success && (
-            <div
-              role="status"
-              className="
-                rounded-2xl border border-emerald-200 bg-emerald-50
-                px-3 py-2 text-xs text-emerald-800
+                  <Icon
+                    icon="mdi:chevron-down"
+                    className={[
+                      "h-5 w-5 shrink-0 transition-transform",
+                      expanded ? "rotate-180" : "",
+                      isAccent
+                        ? "text-indigo-500 dark:text-indigo-200"
+                        : "text-neutral-400 dark:text-neutral-500",
+                    ].join(" ")}
+                  />
+                </button>
 
-                dark:border-emerald-400/30
-                dark:bg-emerald-500/10
-                dark:text-emerald-200
-              "
-            >
-              {success}
-            </div>
-          )}
+                {expanded ? (
+                  <div className="px-3 pb-3">
+                    <div
+                      className={[
+                        "flex min-h-[220px] items-center justify-center rounded-2xl border border-dashed",
+                        isAccent
+                          ? "border-indigo-300 bg-white/70 dark:border-indigo-400/30 dark:bg-black/10"
+                          : "border-neutral-300 bg-white/90 dark:border-white/12 dark:bg-black/10",
+                      ].join(" ")}
+                    >
+                      <div className="flex flex-col items-center gap-2 text-center">
+                        {"imageSrc" in step ? (
+                          <img
+                            src={step.imageSrc}
+                            alt={step.title}
+                            className="max-h-[320px] w-full rounded-xl object-contain"
+                          />
+                        ) : (
+                          <>
+                            <Icon
+                              icon="mdi:image-outline"
+                              className={[
+                                "h-8 w-8",
+                                isAccent
+                                  ? "text-indigo-400 dark:text-indigo-300"
+                                  : "text-neutral-300 dark:text-neutral-500",
+                              ].join(" ")}
+                            />
+                            <p className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                              {step.imageLabel}
+                            </p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                              여기에 관련 이미지를 넣으면 됩니다.
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
         </div>
 
         <div className="mt-5 flex items-center justify-end gap-2">
@@ -163,38 +295,7 @@ export default function YoutubeScriptDialog({
               dark:hover:bg-white/10
             "
           >
-            취소
-          </button>
-
-          <button
-            type="button"
-            onClick={onFetch}
-            disabled={isFetching}
-            className="
-              inline-flex items-center gap-2 rounded-2xl px-3.5 py-2
-              text-xs md:text-sm font-semibold text-white
-              bg-neutral-900 hover:bg-neutral-800
-
-              dark:bg-[rgb(var(--hero-b))]
-              dark:text-neutral-950
-              dark:hover:bg-[rgb(var(--hero-a))]
-
-              transition-transform hover:scale-[1.02] active:scale-100
-              disabled:opacity-60 disabled:hover:scale-100 disabled:cursor-not-allowed
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-b))]/35
-            "
-          >
-            {isFetching ? (
-              <>
-                <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" />
-                가져오는 중...
-              </>
-            ) : (
-              <>
-                <Icon icon="mdi:download-outline" className="h-4 w-4" />
-                스크립트 가져오기
-              </>
-            )}
+            닫기
           </button>
         </div>
       </div>

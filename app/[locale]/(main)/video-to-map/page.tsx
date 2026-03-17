@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { MapDraft, MapJobStatus } from "./types";
 import ScriptInputCard from "./ScriptInputCard";
-import ScriptHelpSection from "../video-to-map2/ScriptHelpSection";
+// import ScriptHelpSection from "../video-to-map2/ScriptHelpSection";
 import DraftMapCard from "./DraftMapCard";
 import CreditConfirmModal from "./CreditConfirmModal";
 import MetadataDialog from "./MetadataDialog";
@@ -150,7 +150,7 @@ export default function VideoToMapPage() {
   // ✅ Draft 상태 폴링/머지 로직은 훅으로 분리
   useMapDraftStatusPolling(drafts, setDrafts, { refreshMs: 4000 });
 
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  // const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const [currentCredits, setCurrentCredits] = useState(0);
 
@@ -725,15 +725,11 @@ export default function VideoToMapPage() {
         </header>
 
         <div
-          className={`
+          className="
             grid gap-8 items-start
             transition-[grid-template-columns] duration-300 ease-out
-            ${
-              isHelpOpen
-                ? "lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]"
-                : "lg:grid-cols-[minmax(0,1.8fr)_minmax(0,0.4fr)]"
-            }
-          `}
+            lg:grid-cols-[minmax(0,1fr)]
+          "
         >
           {/* ✅ 입력영역 ↔ 결과패널 */}
           {viewMode === "input" ? (
@@ -772,12 +768,12 @@ export default function VideoToMapPage() {
             />
           )}
 
-          <div className="flex flex-col gap-4">
+          {/* <div className="flex flex-col gap-4">
             <ScriptHelpSection
               isHelpOpen={isHelpOpen}
               onToggle={() => setIsHelpOpen((prev) => !prev)}
             />
-          </div>
+          </div> */}
         </div>
 
         {drafts.length > 0 && (
@@ -816,12 +812,6 @@ export default function VideoToMapPage() {
           setYoutubeError(null);
           setYoutubeSuccess(null);
         }}
-        youtubeUrl={youtubeUrl}
-        setYoutubeUrl={setYoutubeUrl}
-        onFetch={handleFetchYoutube}
-        isFetching={isFetchingYoutube}
-        error={youtubeError}
-        success={youtubeSuccess}
       />
 
       {showCreditDialog && (
