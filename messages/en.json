@@ -7,7 +7,7 @@
     "description": {
       "beforeBold": "Paste the full script from your video",
       "bold": "just as it is,",
-      "afterBold": "and we'll turn it into a diagram that makes the flow and hierarchy easy to see at a glance."
+      "afterBold": "and we'll turn it into a Structure Map that makes the flow and hierarchy easy to see at a glance."
     },
     "inputSection": {
       "title": "Paste your video script",
@@ -36,7 +36,7 @@
     },
     "result": {
       "title": "Generated structure map result",
-      "hint": "Later, you can plug your actual diagram component into this area.",
+      "hint": "Later, you can plug your actual Structure Map component into this area.",
       "description": "For now, we’re showing the raw API response as JSON. In the future, this will render a React Flow / mindmap view."
     },
     "modal": {
@@ -330,7 +330,7 @@
       "logout": "Sign out"
     },
     "nav": {
-      "samples": "Samples",
+      "samples": "Demo",
       "about": "About",
       "pricing": "Pricing",
       "contactFeedback": "Contact / Feedback"
@@ -367,7 +367,7 @@
     "balance": {
       "label": "Available balance",
       "unit": "credits",
-      "hintPrefix": "Most diagrams use",
+      "hintPrefix": "Most Structure Maps use",
       "hintStrong": "around 1 credit.",
       "mainButton": "Back to home",
       "chargeButton": "Add credits",
@@ -410,7 +410,7 @@
       "q1": "Why do you use a credit system?",
       "a1": "Some days you use it a lot and some days not at all. A pay-as-you-go credit system is more flexible than a fixed subscription.",
       "q2": "How many credits does a video use?",
-      "a2": "By default, 1 diagram = 1 credit. Longer videos (2–3 hours) use 2 credits, and very long videos (3+ hours) use 3 credits.",
+      "a2": "By default, 1 Structure Map = 1 credit. Longer videos (2–3 hours) use 2 credits, and very long videos (3+ hours) use 3 credits.",
       "q3": "Do credits expire?",
       "a3": "For now, credits don’t expire. If we ever change this, we’ll give you plenty of notice.",
       "q4": "Can I get an invoice or receipt?",
@@ -426,7 +426,7 @@
       "creditsUnit": "credits",
       "unitPricePrefix": "≈",
       "unitPriceMiddle": "/ credit · about",
-      "unitPriceSuffix": "diagrams",
+      "unitPriceSuffix": "Structure Maps",
       "cta": "Buy now"
     },
     "bullets": {
@@ -514,10 +514,10 @@
     },
     "creditInfo": {
       "chargedCredits": "Credits added",
-      "estimatedMaps": "Estimated number of diagrams",
-      "estimatedMapsValue": "Approx. {count} diagrams",
+      "estimatedMaps": "Estimated number of Structure Maps",
+      "estimatedMapsValue": "Approx. {count} Structure Maps",
       "ruleLabel": "Usage rule",
-      "ruleText": "By default, 1 credit is deducted per generated diagram."
+      "ruleText": "By default, 1 credit is deducted per generated Structure Map."
     },
     "status": {
       "success": "Paid",
@@ -535,7 +535,7 @@
   "LandingBlueHero": {
     "eyebrow": "What is Brify?",
     "titles": ["Turn YouTube transcripts", "Turn any long text"],
-    "titleHighlight": "into a diagram",
+    "titleHighlight": "into a Structure Map",
     "titleSuffix": "!",
     "switchTitleAria": "Switch title",
     "ctaPrimary": "Start for free",
@@ -546,7 +546,7 @@
       "Translate foreign-language text into your language",
       "Earn free credits repeatedly through missions"
     ],
-    "visualAlt": "Summary diagram preview"
+    "visualAlt": "Structure Map preview"
   },
   "WelcomePage": {
     "subtitle": "welcome to brify",

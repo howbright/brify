@@ -137,8 +137,8 @@ export default function LandingBlueHero() {
           </div>
 
           {/* title + slide handle */}
-          <div className="mt-3 relative flex items-start">
-            <div className="min-w-0 flex-1 pr-8">
+          <div className="mt-3 flex items-start gap-3">
+            <div className="min-w-0 flex-1">
               <AnimatePresence mode="wait">
                 <motion.h1
                   key={safeIdx}
@@ -159,77 +159,39 @@ export default function LandingBlueHero() {
               </AnimatePresence>
             </div>
 
-            {/* 🔥 new slide handle */}
             <motion.button
               type="button"
               aria-label={t("switchTitleAria")}
               onClick={() => setIdx((v) => (v + 1) % titles.length)}
-              whileHover={{ x: 5 }}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="
-    absolute right-0 top-1/2 -translate-y-1/2
-    h-32 md:h-36
-    w-[30px]
-    overflow-hidden
-    transition-all
-    group
-    focus:outline-none
-  "
+                group mt-1 inline-flex h-12 w-12 shrink-0 items-center justify-center
+                rounded-full border border-blue-100 bg-white/90 text-blue-700 shadow-sm
+                transition-colors hover:border-blue-200 hover:bg-blue-50
+                dark:border-blue-400/20 dark:bg-white/8 dark:text-blue-300
+                dark:hover:border-blue-300/30 dark:hover:bg-white/12
+              "
             >
-              {/* 배경 그라데이션 바 */}
-              <span
-                aria-hidden
-                className="
-      absolute inset-0
-      bg-gradient-to-r
-        from-transparent
-        via-blue-500/15
-        to-indigo-600/70
-      dark:from-transparent
-      dark:via-sky-400/20
-      dark:to-cyan-400/80
-      opacity-90
-    "
-              />
-
-              {/* 오른쪽 엣지 라이트 */}
-              <span
-                aria-hidden
-                className="
-      absolute top-0 right-0 h-full w-[3px]
-      bg-gradient-to-b
-        from-transparent
-        via-indigo-500/90
-        to-transparent
-      dark:via-cyan-300/90
-      opacity-80
-    "
-              />
-
-              {/* 🎯 컬러 화살표 */}
-              <span
-                className="
-      absolute inset-0 flex items-center justify-center
-      pointer-events-none
-    "
-              >
-                <span
-                  className="
-        block w-3.5 h-3.5
-        translate-x-[2px]
-        [clip-path:polygon(28%_15%,88%_50%,28%_85%)]
-        bg-gradient-to-br
-          from-blue-600
-          via-indigo-600
-          to-sky-500
-        dark:from-sky-400
-        dark:via-cyan-400
-        dark:to-indigo-400
-        drop-shadow-[0_4px_12px_rgba(59,130,246,0.55)]
-        transition-transform
-        group-hover:translate-x-[5px]
-      "
-                />
+              <span className="pointer-events-none flex items-center justify-center">
+                <span className="h-5 w-5 transition-transform group-hover:translate-x-0.5">
+                  <svg viewBox="0 0 24 24" fill="none" className="h-full w-full">
+                    <path
+                      d="M5 12h12"
+                      stroke="currentColor"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M13 6l6 6-6 6"
+                      stroke="currentColor"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
               </span>
             </motion.button>
           </div>

@@ -57,7 +57,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
           {/* 가운데 내비 — md 이상에서만 표시 */}
           <nav className="hidden md:flex items-center gap-2">
             <Link
-              href="/samples"
+              href="/demo"
               className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
             >
               {t("nav.samples")}

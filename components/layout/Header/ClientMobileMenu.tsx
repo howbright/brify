@@ -79,11 +79,11 @@ export default function ClientMobileUserMenu({
               <button
                 onClick={() => {
                   setOpen(false);
-                  router.push("/samples");
+                  router.push("/demo");
                 }}
                 className="w-full text-left py-2 text-sm"
               >
-                샘플
+                데모
               </button>
 
               <button

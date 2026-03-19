@@ -105,12 +105,6 @@ export default function DemoPage() {
               </button>
             </div>
 
-            <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-300">
-              이 페이지는 입력부터 구조맵 생성, 그리고 생성 후 활용까지 한
-              번에 보이도록 만든 데모입니다. 이미 채워진 샘플 원문으로 실제
-              흐름을 그대로 따라가볼 수 있어요.
-            </p>
-
           </div>
         </div>
 
@@ -225,35 +219,50 @@ export default function DemoPage() {
                 구조맵 생성
               </h2>
               <div className="mt-4 rounded-[24px] border border-blue-100 bg-white/80 p-4 dark:border-blue-400/15 dark:bg-white/6">
-                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-700 dark:text-blue-300">
-                  출력 언어 설정
-                </div>
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                  원본 스크립트 언어와 관계없이, 원하는 언어로 결과를 받아볼 수 있습니다.
-                </p>
-                <div className="mt-3 inline-flex rounded-full border border-slate-200 bg-slate-100 p-1 dark:border-white/10 dark:bg-white/8">
-                  <LanguageToggleButton
-                    active={outputLanguage === "ko"}
-                    onClick={() => setOutputLanguage("ko")}
-                    label="한국어"
-                  />
-                  <LanguageToggleButton
-                    active={outputLanguage === "en"}
-                    onClick={() => setOutputLanguage("en")}
-                    label="영어"
-                  />
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-700 dark:text-blue-300">
+                      출력 언어 설정
+                    </div>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-slate-900 dark:text-slate-100">
+                      원하는 언어로 결과를 만들 수 있어요!
+                    </p>
+                    <div className="mt-3 inline-flex rounded-full border border-slate-200 bg-slate-100 p-1 dark:border-white/10 dark:bg-white/8">
+                      <LanguageToggleButton
+                        active={outputLanguage === "ko"}
+                        onClick={() => setOutputLanguage("ko")}
+                        label="한국어"
+                      />
+                      <LanguageToggleButton
+                        active={outputLanguage === "en"}
+                        onClick={() => setOutputLanguage("en")}
+                        label="영어"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="relative flex items-center">
+                    <button
+                      type="button"
+                      onClick={() => setHasGeneratedMap(true)}
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold text-white shadow-[0_18px_40px_-20px_rgba(37,99,235,0.6)] transition-transform hover:scale-[1.02] dark:bg-blue-500 dark:shadow-[0_18px_40px_-20px_rgba(59,130,246,0.5)]"
+                    >
+                      <Icon icon="mdi:sitemap-outline" className="h-5 w-5" />
+                      구조맵 생성 버튼
+                    </button>
+
+                    <div className="ml-6 hidden sm:block">
+                      <div className="relative -translate-y-1 rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold leading-5 text-white shadow-[0_18px_40px_rgba(15,23,42,0.32)] dark:bg-black">
+                        버튼을 눌러
+                        <br />
+                        결과를 확인해보세요!
+                        <span className="absolute left-[-8px] top-1/2 -translate-y-1/2 border-y-[7px] border-r-[8px] border-y-transparent border-r-slate-950 drop-shadow-[-2px_4px_8px_rgba(15,23,42,0.18)] dark:border-r-black" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-
-            <button
-              type="button"
-              onClick={() => setHasGeneratedMap(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold text-white shadow-[0_18px_40px_-20px_rgba(37,99,235,0.6)] transition-transform hover:scale-[1.02] dark:bg-blue-500 dark:shadow-[0_18px_40px_-20px_rgba(59,130,246,0.5)]"
-            >
-              <Icon icon="mdi:sitemap-outline" className="h-5 w-5" />
-              구조맵 생성 버튼
-            </button>
           </div>
         </section>
 
@@ -266,10 +275,6 @@ export default function DemoPage() {
               <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">
                 구조맵이 펼쳐집니다
               </h2>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-                생성 전에는 흐름만 안내하고, 버튼을 누르면 실제 결과와 활용
-                포인트가 이어서 보이도록 구성했습니다.
-              </p>
             </div>
 
           </div>
@@ -281,9 +286,6 @@ export default function DemoPage() {
                   <div>
                     <div className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-700 dark:text-blue-300">
                       Demo Map Controls
-                    </div>
-                    <div className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                      데모 구조맵은 여기서 바로 이동하고 확대할 수 있습니다.
                     </div>
                   </div>
 
@@ -386,9 +388,6 @@ export default function DemoPage() {
                   <div className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
                     Tags
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                    자동으로 정리된 태그로 비슷한 주제의 맵을 다시 찾고 분류할 수 있어요.
-                  </p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {DEMO.tags.map((tag) => (
                       <span
