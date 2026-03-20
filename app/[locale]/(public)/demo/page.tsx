@@ -257,13 +257,23 @@ export default function DemoPage() {
                     </button>
 
                     <div className="ml-6 hidden sm:block">
-                      <div className="relative -translate-y-1 rounded-xl border border-slate-400/70 bg-slate-950 px-4 py-2 text-sm font-semibold leading-5 text-white shadow-[0_18px_40px_rgba(15,23,42,0.32)] dark:border-slate-500/60 dark:bg-black">
+                      <motion.div
+                        animate={{
+                          scale: [1, 1.035, 1],
+                        }}
+                        transition={{
+                          duration: 1.8,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                        className="relative -translate-y-1 rounded-xl border border-slate-400/70 bg-slate-950 px-4 py-2 text-sm font-semibold leading-5 text-white shadow-[0_18px_40px_rgba(15,23,42,0.32)] dark:border-slate-500/60 dark:bg-black"
+                      >
                         버튼을 눌러
                         <br />
                         결과를 확인해보세요!
                         <span className="absolute left-[-10px] top-1/2 -translate-y-1/2 border-y-[8px] border-r-[10px] border-y-transparent border-r-slate-400/70 dark:border-r-slate-500/60" />
                         <span className="absolute left-[-8px] top-1/2 -translate-y-1/2 border-y-[7px] border-r-[9px] border-y-transparent border-r-slate-950 drop-shadow-[-2px_4px_8px_rgba(15,23,42,0.18)] dark:border-r-black" />
-                      </div>
+                      </motion.div>
                     </div>
                   </div>
                 </div>

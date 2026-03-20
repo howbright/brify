@@ -240,15 +240,15 @@
     "featuredLabel": "Featured Review",
     "items": {
       "one": {
-        "quote": "Organizing stock-related YouTube information into a Structure Map helped me grasp the key points much faster.",
+        "quote": "Organizing stock-related YouTube information into a Structure Map helped me grasp the key points quickly and make decisions.",
         "role": "Stock enthusiast"
       },
       "two": {
-        "quote": "Turning English web documents into Structure Maps in my native language made even complex content much easier to understand.",
+        "quote": "Organizing English web documents into Structure Maps in my native language and combining them made even complex content much easier to understand.",
         "role": "Learner"
       },
       "three": {
-        "quote": "It is really useful to be able to organize health-related YouTube information in a structured way during a busy daily life.",
+        "quote": "It is really useful to be able to organize large amounts of health-related YouTube information in a structured way during a busy daily life.",
         "role": "Health enthusiast"
       }
     }
@@ -602,7 +602,7 @@
     "titles": ["Turn YouTube transcripts", "Turn any long text"],
     "titleHighlight": "into a Structure Map",
     "titleSuffix": "!",
-    "helper": "Reorganize long content so the flow and key points are easy to see.",
+    "helper": "Turn large amounts of information into structure and understand it faster.",
     "switchTitleAria": "Switch title",
     "ctaPrimary": "Start for free",
     "ctaSecondary": "View demo",

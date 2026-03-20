@@ -217,13 +217,12 @@ export default function PricingGrid({
               key={p.id}
               className={cx(
                 "group relative flex h-full flex-col rounded-2xl border shadow-sm transition-all duration-300 ease-out will-change-transform",
-                "bg-white text-neutral-900",
-                "dark:bg-[var(--color-card,#0b1224)] dark:text-[var(--color-card-foreground,#e5e7eb)]",
+                "text-neutral-900",
                 isCompact ? "p-4" : "p-5",
                 "hover:-translate-y-1 hover:shadow-[0_24px_44px_-24px_rgba(15,23,42,0.34)] hover:rotate-[-0.4deg] dark:hover:shadow-[0_28px_52px_-28px_rgba(37,99,235,0.42)]",
                 p.popular
-                  ? "border-[var(--color-primary-500)] hover:border-[var(--color-primary-400)]"
-                  : "border-[var(--color-border)] hover:border-slate-300 dark:hover:border-white/20"
+                  ? "border-[var(--color-primary-500)] bg-[linear-gradient(180deg,#ffffff_0%,#f5f9ff_100%)] shadow-[0_26px_60px_-34px_rgba(37,99,235,0.34)] hover:border-[var(--color-primary-400)] dark:border-blue-400/35 dark:bg-[linear-gradient(180deg,rgba(37,99,235,0.16),rgba(15,23,42,0.94))] dark:text-[var(--color-card-foreground,#e5e7eb)]"
+                  : "border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] shadow-[0_22px_48px_-34px_rgba(15,23,42,0.22)] hover:border-slate-300 dark:border-white/12 dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(15,23,42,0.94))] dark:text-[var(--color-card-foreground,#e5e7eb)] dark:hover:border-white/20"
               )}
             >
               <div
@@ -233,6 +232,15 @@ export default function PricingGrid({
                   p.popular
                     ? "bg-gradient-to-r from-transparent via-blue-400 to-transparent"
                     : "bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-500"
+                )}
+              />
+              <div
+                aria-hidden
+                className={cx(
+                  "pointer-events-none absolute inset-x-4 top-0 h-20 rounded-t-[18px] opacity-90",
+                  p.popular
+                    ? "bg-[radial-gradient(60%_100%_at_50%_0%,rgba(59,130,246,0.16),transparent_74%)] dark:bg-[radial-gradient(60%_100%_at_50%_0%,rgba(96,165,250,0.18),transparent_76%)]"
+                    : "bg-[radial-gradient(60%_100%_at_50%_0%,rgba(148,163,184,0.10),transparent_74%)] dark:bg-[radial-gradient(60%_100%_at_50%_0%,rgba(255,255,255,0.08),transparent_76%)]"
                 )}
               />
               <div className={cx(isCompact ? "mb-1 h-6" : "mb-2 h-6")}>
@@ -266,7 +274,7 @@ export default function PricingGrid({
               <div
                 className={cx(
                   isCompact ? "text-[32px] md:text-[40px]" : "text-2xl",
-                  "font-bold text-neutral-900 dark:text-[var(--color-foreground,#e5e7eb)]"
+                  "relative font-bold text-neutral-900 dark:text-[var(--color-foreground,#e5e7eb)]"
                 )}
               >
                 {p.credits.toLocaleString()}{" "}

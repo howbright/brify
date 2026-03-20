@@ -55,13 +55,41 @@ function HeroDiagramImage({ alt }: { alt: string }) {
   return (
     <div
       className="
-        relative overflow-hidden
+        group relative overflow-hidden
         rounded-3xl
-        bg-white/40 dark:bg-black/40
-        shadow-[0_20px_60px_-25px_rgba(15,23,42,0.35)]
-        dark:shadow-[0_20px_60px_-25px_rgba(56,189,248,0.35)]
+        border border-white/70 bg-white/55
+        shadow-[0_26px_70px_-30px_rgba(15,23,42,0.34)]
+        dark:border-white/10 dark:bg-black/35
+        dark:shadow-[0_24px_70px_-28px_rgba(56,189,248,0.26)]
       "
     >
+      <div
+        aria-hidden
+        className="
+          pointer-events-none absolute inset-0 z-10
+          rounded-3xl ring-1 ring-inset ring-white/50
+          dark:ring-white/8
+        "
+      />
+      <div
+        aria-hidden
+        className="
+          pointer-events-none absolute inset-x-10 top-0 z-10 h-20
+          bg-[radial-gradient(50%_100%_at_50%_0%,rgba(255,255,255,0.70),transparent_78%)]
+          opacity-80
+          dark:bg-[radial-gradient(50%_100%_at_50%_0%,rgba(255,255,255,0.10),transparent_78%)]
+          dark:opacity-100
+        "
+      />
+      <div
+        aria-hidden
+        className="
+          pointer-events-none absolute -inset-6 -z-10 rounded-[36px]
+          bg-[radial-gradient(60%_60%_at_50%_50%,rgba(59,130,246,0.16),transparent_72%)]
+          blur-2xl
+          dark:bg-[radial-gradient(60%_60%_at_50%_50%,rgba(99,102,241,0.16),transparent_72%)]
+        "
+      />
       <div className="relative w-full aspect-[16/10]">
         <Image
           src="/images/hero.png"
@@ -69,7 +97,7 @@ function HeroDiagramImage({ alt }: { alt: string }) {
           fill
           priority
           sizes="(max-width: 768px) 100vw, 520px"
-          className="object-cover"
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.012]"
         />
       </div>
     </div>
@@ -288,13 +316,13 @@ export default function LandingBlueHero() {
               href="/demo"
               className="
                 group inline-flex items-center gap-2
-                rounded-2xl border border-slate-300/90 px-5 py-3 font-semibold
+                rounded-2xl border border-slate-500 px-5 py-3 font-semibold
                 text-slate-800 transition-all duration-200
                 shadow-[0_10px_24px_-20px_rgba(15,23,42,0.18)]
-                hover:-translate-y-0.5 hover:border-blue-400 hover:bg-blue-100/90
+                hover:-translate-y-0.5 hover:border-blue-500 hover:bg-blue-100/90
                 hover:text-blue-800 hover:shadow-[0_18px_38px_-22px_rgba(37,99,235,0.32)]
-                dark:border-white/15 dark:bg-transparent dark:text-sky-100
-                dark:hover:border-blue-300/40 dark:hover:bg-blue-400/10
+                dark:border-white/30 dark:bg-transparent dark:text-sky-100
+                dark:hover:border-blue-300/55 dark:hover:bg-blue-400/10
                 dark:hover:text-white dark:hover:shadow-[0_18px_38px_-22px_rgba(59,130,246,0.38)]
               "
             >

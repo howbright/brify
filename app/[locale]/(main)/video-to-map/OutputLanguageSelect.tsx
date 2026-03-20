@@ -17,7 +17,7 @@ type Props = {
 };
 
 const DEFAULT_QUICK: LangOption[] = [
-  { code: "auto", label: "자동(입력 언어)" },
+  { code: "auto", label: "스크립트 언어와 같은 언어" },
   { code: "ko", label: "한국어" },
   { code: "en", label: "English" },
   { code: "ja", label: "日本語" },
@@ -31,7 +31,7 @@ const DEFAULT_QUICK: LangOption[] = [
 ];
 
 const DEFAULT_ALL: LangOption[] = [
-  { code: "auto", label: "자동(입력 언어)" },
+  { code: "auto", label: "스크립트 언어와 같은 언어" },
 
   { code: "ko", label: "한국어" },
   { code: "en", label: "English" },
@@ -134,8 +134,6 @@ export default function OutputLanguageSelect({
   return (
     <>
       <div className="flex items-center gap-2">
-        <span className="text-xs text-neutral-600 dark:text-neutral-300">출력 언어</span>
-
         <div className="relative">
           <select
             value={value}
@@ -143,11 +141,11 @@ export default function OutputLanguageSelect({
             disabled={disabled}
             className="
               appearance-none
-              rounded-2xl border border-neutral-200 bg-white
-              pl-3 pr-8 py-1.5 text-xs md:text-sm text-neutral-900
+              rounded-2xl border border-slate-400 bg-white
+              pl-3 pr-8 py-1.5 text-sm font-semibold text-neutral-900
               hover:bg-neutral-50
-              focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-              dark:border-white/12 dark:bg-black/35 dark:text-neutral-50 dark:hover:bg-black/45
+              focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300/60
+              dark:border-white/30 dark:bg-black/35 dark:text-neutral-50 dark:hover:bg-black/45
               disabled:opacity-60 disabled:cursor-not-allowed
             "
           >
@@ -172,19 +170,15 @@ export default function OutputLanguageSelect({
           onClick={() => setIsOpen(true)}
           disabled={disabled}
           className="
-            rounded-2xl border border-neutral-200 bg-neutral-50
-            px-2.5 py-1.5 text-xs font-semibold text-neutral-700
+            rounded-2xl border border-slate-400 bg-neutral-50
+            px-2.5 py-1.5 text-sm font-semibold text-neutral-800
             hover:bg-neutral-100
-            dark:border-white/12 dark:bg-white/5 dark:text-neutral-200 dark:hover:bg-white/10
+            dark:border-white/30 dark:bg-white/5 dark:text-neutral-100 dark:hover:bg-white/10
             disabled:opacity-60 disabled:cursor-not-allowed
           "
         >
           더보기…
         </button>
-
-        <span className="hidden md:inline text-[11px] text-neutral-500 dark:text-neutral-400">
-          구조맵에 표시될 언어를 선택해 주세요.
-        </span>
       </div>
 
       {isOpen && (

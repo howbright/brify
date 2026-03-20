@@ -34,7 +34,7 @@ export default function FinalCTA({
     // ✅ 섹션 자체는 full-bleed (w-full) + no max-width + no rounding
     <section
       className={[
-        "relative w-full overflow-hidden isolate dark:border-t dark:border-white/10", // isolate: 배경 레이어가 부모 영향 안받도록
+        "relative w-full overflow-hidden isolate", // isolate: 배경 레이어가 부모 영향 안받도록
         className,
       ].join(" ")}
     >

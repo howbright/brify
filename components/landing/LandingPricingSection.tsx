@@ -26,6 +26,30 @@ const USD_PACKS: Pack[] = [
   { id: "300_us", credits: 300, priceUSD: 12 },
 ];
 
+function RibbonText({ text }: { text: string }) {
+  return (
+    <svg
+      viewBox="0 0 1000 120"
+      className="h-[54px] w-full overflow-visible"
+      aria-hidden="true"
+    >
+      <defs>
+        <path id="ribbon-arc" d="M 90 88 Q 500 18 910 88" />
+      </defs>
+      <text
+        fill="currentColor"
+        fontSize="46"
+        fontWeight="800"
+        letterSpacing="-0.02em"
+      >
+        <textPath href="#ribbon-arc" startOffset="50%" textAnchor="middle">
+          {text}
+        </textPath>
+      </text>
+    </svg>
+  );
+}
+
 export default function LandingPricingSection({ isAuthed, packs }: Props) {
   const t = useTranslations("LandingPricingSection");
   const locale = useLocale();
@@ -50,7 +74,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
   return (
     <section
       id="pricing"
-      className="relative overflow-hidden border-b border-transparent bg-[#f6f9ff] dark:border-b dark:border-white/12 dark:bg-[#071124]"
+      className="relative overflow-hidden border-b border-transparent bg-[#f6f9ff] dark:bg-[#071124]"
     >
       <div
         aria-hidden
@@ -97,14 +121,21 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
           className="mt-8 rounded-[32px] border border-blue-200 bg-white/88 px-6 py-7 text-center shadow-[0_22px_60px_-34px_rgba(37,99,235,0.26)] backdrop-blur-sm dark:border-blue-400/20 dark:bg-white/6"
         >
           <div className="flex justify-center">
-            <Image
-              src="/images/reborn.png"
-              alt={t("freeCreditsBadge")}
-              width={1000}
-              height={200}
-              className="h-auto w-full max-w-[420px] md:max-w-[480px]"
-              priority={false}
-            />
+            <div className="relative w-full max-w-[420px] md:max-w-[480px]">
+              <Image
+                src="/images/reborn.png?v=20260319-2318"
+                alt=""
+                width={1000}
+                height={200}
+                className="h-auto w-full"
+                priority={false}
+              />
+              <div className="absolute inset-0 flex -translate-y-[10px] items-center justify-center px-8 text-center">
+                <span className="block w-full max-w-[88%] text-slate-900">
+                  <RibbonText text={t("freeCreditsBadge")} />
+                </span>
+              </div>
+            </div>
           </div>
           <div className="mt-5 text-[28px] font-extrabold leading-tight text-slate-900 dark:text-white md:text-[36px]">
             {t("cards.main.title")}
@@ -176,10 +207,6 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
           right-[-6%] bottom-[10%] h-[300px] w-[300px]
           bg-[radial-gradient(150px_150px_at_center,rgba(99,102,241,0.28),transparent)]
         "
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-px bg-white/16 dark:block"
       />
       <div
         aria-hidden

@@ -70,17 +70,17 @@ export default function ScriptInputCard({
     <section
       className="
         relative
-        mt-1 rounded-3xl border border-neutral-300 bg-white
+        mt-1 rounded-3xl border border-blue-300
+        bg-[linear-gradient(180deg,#eef5ff_0%,#f7fbff_100%)]
         shadow-[0_26px_60px_-28px_rgba(15,23,42,0.22)]
         backdrop-blur-sm
         p-5 md:p-6 flex flex-col gap-4
-        ring-1 ring-neutral-200/90
+        ring-1 ring-blue-200/90
 
-        dark:bg-[#0F172A]
-        dark:border-white/12
-        dark:ring-1 dark:ring-white/10
+        dark:border-[rgb(var(--hero-b))]/35
+        dark:ring-1 dark:ring-[rgb(var(--hero-b))]/20
         dark:shadow-[0_28px_90px_-55px_rgba(0,0,0,0.85)]
-        dark:bg-[linear-gradient(to_bottom,rgba(255,255,255,0.06),rgba(255,255,255,0.0))]
+        dark:bg-[linear-gradient(180deg,rgba(59,130,246,0.12),rgba(15,23,42,0.9))]
       "
     >
       {/* ✅ 잠금 오버레이: 메타다이얼로그 열림/처리중일 때 입력 영역 전체 잠금 */}
@@ -108,10 +108,15 @@ export default function ScriptInputCard({
       )}
 
       {/* 상단: 제목 (좌) + 유튜브 옵션 버튼 (우) */}
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
-          콘텐츠 붙여넣기
-        </h2>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white dark:bg-[rgb(var(--hero-b))] dark:text-neutral-950">
+            1
+          </span>
+          <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
+            콘텐츠를 붙여넣으세요
+          </h2>
+        </div>
 
         <button
           type="button"
@@ -119,14 +124,14 @@ export default function ScriptInputCard({
           disabled={locked}
           className="
             inline-flex items-center gap-1.5
-            rounded-full border border-neutral-200 bg-neutral-50
-            px-2.5 py-1 text-[11px] md:text-xs font-semibold text-neutral-700
+            rounded-full border border-slate-400 bg-neutral-50
+            px-3 py-1.5 text-sm font-semibold text-neutral-800
             hover:bg-neutral-100
-            dark:border-white/12 dark:bg-white/6 dark:text-neutral-200 dark:hover:bg-white/10
+            dark:border-white/30 dark:bg-white/6 dark:text-neutral-100 dark:hover:bg-white/10
             disabled:opacity-60 disabled:cursor-not-allowed
           "
         >
-          <Icon icon="mdi:youtube" className="h-4 w-4 text-red-500" />
+          <Icon icon="mdi:youtube" className="h-4.5 w-4.5 text-red-500" />
           유투브 스크립트 가져오는 방법
         </button>
       </div>
@@ -158,13 +163,6 @@ export default function ScriptInputCard({
       )}
 
       <div className="space-y-2">
-        <div className="flex items-center gap-2 px-1">
-          <span className="h-2.5 w-2.5 rounded-full bg-blue-500 dark:bg-[rgb(var(--hero-b))]" />
-          <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-100">
-            스크립트 입력
-          </p>
-        </div>
-
         <textarea
           className="
             w-full min-h-[260px] md:min-h-[300px] resize-y
@@ -187,97 +185,69 @@ export default function ScriptInputCard({
 
       {error && <p className="text-sm text-red-500 whitespace-pre-line">{error}</p>}
 
-      {/* 하단: 좌측(크레딧 + 언어) / 우측(생성 버튼) */}
-      <div className="flex flex-col gap-3">
-        {/* 좌측: 크레딧 + 출력 언어 */}
+      {/* 하단: 언어 선택 -> 생성 */}
+      <div className="grid gap-3">
         <div className="flex flex-col gap-2">
-          <p className="text-xs text-neutral-600 dark:text-neutral-300">
-            예상 사용: <b>{requiredCredits}</b> 크레딧{" "}
-            <span className="mx-1.5 text-neutral-300 dark:text-white/20">
-              ·
-            </span>
-            보유: <b>{currentCredits.toLocaleString()}</b> 크레딧
-          </p>
-
           <div
             className="
-              rounded-2xl border border-blue-200 bg-blue-50/80
-              p-3
-              dark:border-[rgb(var(--hero-b))]/25 dark:bg-[rgb(var(--hero-b))]/10
+              p-0
             "
           >
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-white dark:bg-[rgb(var(--hero-b))] dark:text-neutral-950">
-                    <Icon icon="mdi:translate" className="h-4 w-4" />
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold text-neutral-900 dark:text-white">
-                      출력 언어 확인
-                    </p>
-                    <p className="text-xs text-neutral-600 dark:text-neutral-300">
-                      구조맵이 어떤 언어로 생성될지 먼저 확인해 주세요.
+            <div className="grid gap-4 md:grid-cols-[minmax(0,420px)_320px] md:items-start">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white dark:bg-[rgb(var(--hero-b))] dark:text-neutral-950">
+                      2
+                    </span>
+                    <p className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
+                      어떤 언어로 맵을 만들까요?
                     </p>
                   </div>
                 </div>
 
-                <span
+                <OutputLanguageSelect
+                  value={outputLang}
+                  onChange={setOutputLang}
+                  disabled={locked}
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white dark:bg-[rgb(var(--hero-b))] dark:text-neutral-950">
+                    3
+                  </span>
+                  <p className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
+                    맵을 생성해요
+                  </p>
+                </div>
+                <div className="text-sm font-medium text-neutral-600 dark:text-neutral-300">
+                  보유 {currentCredits.toLocaleString()}크레딧 · 이번 생성 {requiredCredits}크레딧
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isTooLarge) return;
+                    onGenerate();
+                  }}
+                  disabled={!canGenerate}
                   className="
-                    rounded-full border border-blue-200 bg-white px-2.5 py-1
-                    text-xs font-semibold text-blue-700
-                    dark:border-[rgb(var(--hero-b))]/30 dark:bg-slate-950/60 dark:text-[rgb(var(--hero-b))]
+                    inline-flex w-full items-center justify-center gap-2 rounded-[22px] px-6 py-4
+                    text-base md:text-lg font-bold text-white
+                    bg-[linear-gradient(135deg,#1d4ed8_0%,#2563eb_45%,#3b82f6_100%)] hover:brightness-[1.03]
+                    dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+                    shadow-[0_22px_48px_-18px_rgba(37,99,235,0.72)] hover:shadow-[0_26px_52px_-18px_rgba(37,99,235,0.82)]
+                    transition-transform hover:scale-[1.03] active:scale-100
+                    disabled:bg-neutral-400 disabled:hover:scale-100 disabled:cursor-not-allowed
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60
                   "
                 >
-                  {outputLanguageLabel}
-                </span>
+                  구조맵 생성하기
+                </button>
               </div>
-
-              <div
-                className={[
-                  "rounded-xl border px-3 py-2 text-xs",
-                  outputLang === "auto"
-                    ? "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-300/25 dark:bg-amber-400/10 dark:text-amber-100"
-                    : "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-300/25 dark:bg-emerald-400/10 dark:text-emerald-100",
-                ].join(" ")}
-              >
-                {outputLang === "auto"
-                  ? "자동 감지로 생성됩니다. 영어 영상이면 영어로, 일본어 영상이면 일본어로 생성될 수 있어요."
-                  : `이번 구조맵은 ${outputLanguageLabel}로 생성됩니다.`}
-              </div>
-
-              <OutputLanguageSelect
-                value={outputLang}
-                onChange={setOutputLang}
-                disabled={locked}
-              />
             </div>
           </div>
-        </div>
-
-        {/* 우측: 생성 버튼 */}
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={() => {
-              // ✅ 한도 초과면 클릭해도 안 넘어가게 방어
-              if (isTooLarge) return;
-              onGenerate();
-            }}
-            disabled={!canGenerate}
-            className="
-              inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-2.5
-              text-sm md:text-[15px] font-semibold text-white
-              bg-blue-600 hover:bg-blue-700
-              dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
-              shadow-sm hover:shadow-md
-              transition-transform hover:scale-[1.03] active:scale-100
-              disabled:bg-neutral-400 disabled:hover:scale-100 disabled:cursor-not-allowed
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60
-            "
-          >
-            구조맵 생성하기
-          </button>
         </div>
       </div>
     </section>

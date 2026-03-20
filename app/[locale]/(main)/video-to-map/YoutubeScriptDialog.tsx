@@ -121,11 +121,11 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
       >
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">
-            <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white flex items-center gap-2">
-              <Icon icon="mdi:youtube" className="h-5 w-5 text-red-500" />
+            <h2 className="text-lg md:text-xl font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+              <Icon icon="mdi:youtube" className="h-6 w-6 text-red-500" />
               유투브 스크립트 가져오는 방법
             </h2>
-            <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-300">
+            <p className="text-sm md:text-base font-medium text-neutral-700 dark:text-neutral-200">
               유튜브 스크립트 전체를 한 번에 복사해오세요.
             </p>
           </div>
@@ -156,7 +156,7 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
                   "overflow-hidden rounded-2xl border transition-colors",
                   isAccent
                     ? "border-indigo-200 bg-indigo-50 dark:border-indigo-400/30 dark:bg-indigo-500/10"
-                    : "border-neutral-200 bg-neutral-50 dark:border-white/10 dark:bg-white/[0.04]",
+                    : "border-slate-400 bg-neutral-50 dark:border-white/20 dark:bg-white/[0.04]",
                 ].join(" ")}
               >
                 <button

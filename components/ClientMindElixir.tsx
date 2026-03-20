@@ -70,11 +70,22 @@ type AnyNode = {
   id: string;
   topic: string;
   root?: boolean;
+  parent?: { id?: string } | null;
   branchColor?: string;
   highlight?: { variant?: string } | null;
   note?: string | null;
   children?: AnyNode[];
   expanded?: boolean;
+};
+
+type PatchedMindInstance = {
+  refresh?: (data?: any) => any;
+  focusNode?: (...args: any[]) => any;
+  cancelFocus?: () => any;
+  __originalRefresh?: ((data?: any) => any) | undefined;
+  __originalFocusNode?: ((...args: any[]) => any) | undefined;
+  __originalCancelFocus?: (() => any) | undefined;
+  [key: string]: any;
 };
 
 function normalizeMindData(raw: any): { data: any; node: AnyNode } | null {
@@ -1257,7 +1268,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         mouseSelectionButton: dragButton,
         handleWheel,
         theme: resolvedThemeObj,
-      });
+      }) as PatchedMindInstance;
 
       const syncNodeDecorations = () => {
         const host = elRef.current;
@@ -1294,7 +1305,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         mind.__originalRefresh = mind.refresh?.bind(mind);
         if (mind.__originalRefresh) {
           mind.refresh = (data?: any) => {
-            const res = mind.__originalRefresh(data);
+            const originalRefresh =
+              mind.__originalRefresh ?? ((_: any) => undefined);
+            const res = originalRefresh(data);
             syncNodeDecorations();
             return res;
           };
@@ -1314,15 +1327,19 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         mind.__originalCancelFocus = mind.cancelFocus?.bind(mind);
       }
       if (typeof mind.__originalFocusNode === "function") {
-        mind.focusNode = (el: HTMLElement) => {
-          const result = mind.__originalFocusNode(el);
+        mind.focusNode = (...args: any[]) => {
+          const originalFocusNode =
+            mind.__originalFocusNode ?? ((..._args: any[]) => undefined);
+          const result = originalFocusNode(...args);
           setIsFocusMode(true);
           return result;
         };
       }
       if (typeof mind.__originalCancelFocus === "function") {
         mind.cancelFocus = () => {
-          const result = mind.__originalCancelFocus();
+          const originalCancelFocus =
+            mind.__originalCancelFocus ?? (() => undefined);
+          const result = originalCancelFocus();
           setSelectedNodeId(null);
           setSelectedRect(null);
           setSelectedNoteText(null);

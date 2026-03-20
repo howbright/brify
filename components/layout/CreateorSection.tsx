@@ -114,14 +114,16 @@ export default function CreatorSection({
                 w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44
               "
             >
+              <div className="absolute inset-[5%] rounded-full overflow-hidden">
               <Image
                 src={imageSrc}
                 alt={altText}
                 fill
                 sizes="(min-width: 768px) 176px, 160px"
-                className="object-cover"
+                className="object-cover object-[50%_12%]"
                 priority={false}
               />
+              </div>
             </div>
 
             {/* 캡션 */}

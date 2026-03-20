@@ -1,7 +1,6 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
@@ -43,13 +42,31 @@ export default function LandingTestimonialsSection() {
 
   return (
     <section className="relative overflow-hidden border-y border-[#dbe4ef] bg-[#0c1525] px-6 py-14 dark:border-[#1f2b3d] md:px-10 md:py-18">
-      <Image
-        src="/images/testimonialbackground.png"
-        alt=""
-        fill
-        priority={false}
-        sizes="100vw"
-        className="object-cover dark:hidden"
+      <div
+        aria-hidden
+        className="absolute inset-0 dark:hidden"
+        style={{
+          backgroundImage: "url('/images/testimonialbackground.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment: "scroll",
+        }}
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 hidden dark:hidden md:block"
+        style={{
+          backgroundImage: "url('/images/testimonialbackground.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment: "fixed",
+        }}
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-white/48 dark:hidden"
       />
       <div className="relative mx-auto max-w-7xl">
         <div className="max-w-2xl">
