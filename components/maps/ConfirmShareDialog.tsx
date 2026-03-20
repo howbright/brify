@@ -20,7 +20,7 @@ export default function ConfirmShareDialog({
         onClick={onClose}
         aria-hidden="true"
       />
-      <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-neutral-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-[#0b1220]">
+      <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-slate-400 bg-white p-5 shadow-2xl dark:border-white/20 dark:bg-[#0b1220]">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h3 className="text-base font-semibold text-neutral-900 dark:text-white/90">
@@ -33,7 +33,7 @@ export default function ConfirmShareDialog({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center gap-1.5 rounded-2xl border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
+            className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-400 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.08] dark:text-white/85 dark:hover:bg-white/[0.12]"
           >
             <Icon icon="mdi:close" className="h-4 w-4" />
             닫기
@@ -44,7 +44,7 @@ export default function ConfirmShareDialog({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center gap-1.5 rounded-2xl border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
+            className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-400 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.08] dark:text-white/85 dark:hover:bg-white/[0.12]"
           >
             취소
           </button>

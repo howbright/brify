@@ -48,21 +48,6 @@ export default function ScriptInputCard({
 }: Props) {
   const locked = disabled || isProcessing;
 
-  const outputLanguageLabel =
-    outputLang === "auto"
-      ? "자동 감지"
-      : outputLang === "ko"
-        ? "한국어"
-        : outputLang === "en"
-          ? "English"
-          : outputLang === "ja"
-            ? "日本語"
-            : outputLang === "zh-Hans"
-              ? "简体中文"
-              : outputLang === "zh-Hant"
-                ? "繁體中文"
-                : outputLang;
-
   // ✅ 생성 버튼 차단 조건: 입력 없음 / 잠금 / 한도초과
   const canGenerate = Boolean(scriptText.trim()) && !locked && !isTooLarge;
 
@@ -88,17 +73,17 @@ export default function ScriptInputCard({
         <div
           className="
             absolute inset-0 z-20 rounded-3xl
-            bg-white/55 backdrop-blur-sm
-            dark:bg-black/25
+            bg-white/65 backdrop-blur-sm
+            dark:bg-black/35
           "
         >
           <div className="absolute inset-0 flex items-center justify-center p-4">
             <div
               className="
-                rounded-2xl border border-neutral-200 bg-white/92
+                rounded-2xl border border-slate-400 bg-white
                 px-4 py-3 text-sm font-semibold text-neutral-800
                 shadow-[0_18px_60px_-40px_rgba(15,23,42,0.6)]
-                dark:border-white/12 dark:bg-[#0F172A]/80 dark:text-white
+                dark:border-white/20 dark:bg-[#0F172A]/92 dark:text-white
               "
             >
               작업이 진행 중입니다. 잠시만 기다려 주세요.
@@ -113,7 +98,7 @@ export default function ScriptInputCard({
           <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white dark:bg-[rgb(var(--hero-b))] dark:text-neutral-950">
             1
           </span>
-          <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
+          <h2 className="text-lg md:text-xl font-bold text-neutral-900 dark:text-white">
             콘텐츠를 붙여넣으세요
           </h2>
         </div>
@@ -124,10 +109,10 @@ export default function ScriptInputCard({
           disabled={locked}
           className="
             inline-flex items-center gap-1.5
-            rounded-full border border-slate-400 bg-neutral-50
+            rounded-full border border-slate-400 bg-white
             px-3 py-1.5 text-sm font-semibold text-neutral-800
-            hover:bg-neutral-100
-            dark:border-white/30 dark:bg-white/6 dark:text-neutral-100 dark:hover:bg-white/10
+            hover:bg-slate-100
+            dark:border-white/30 dark:bg-white/[0.08] dark:text-neutral-100 dark:hover:bg-white/[0.12]
             disabled:opacity-60 disabled:cursor-not-allowed
           "
         >
@@ -168,10 +153,10 @@ export default function ScriptInputCard({
             w-full min-h-[260px] md:min-h-[300px] resize-y
             rounded-2xl border-2 border-indigo-600 bg-white
             px-4 py-3 text-sm md:text-[15px] text-neutral-900
-            shadow-[0_18px_40px_-30px_rgba(15,23,42,0.2)]
+            shadow-[0_20px_48px_-26px_rgba(15,23,42,0.28)]
             placeholder:text-neutral-500
             focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-200/80
-            dark:border-indigo-400 dark:bg-slate-950/72 dark:text-neutral-50 dark:placeholder:text-neutral-400
+            dark:border-indigo-400 dark:bg-slate-950/88 dark:text-neutral-50 dark:placeholder:text-neutral-400
             dark:shadow-[0_18px_36px_-24px_rgba(0,0,0,0.45)]
             dark:focus:border-[rgb(var(--hero-b))] dark:focus:ring-[rgb(var(--hero-b))]/25
             disabled:opacity-60 disabled:cursor-not-allowed
@@ -200,7 +185,7 @@ export default function ScriptInputCard({
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white dark:bg-[rgb(var(--hero-b))] dark:text-neutral-950">
                       2
                     </span>
-                    <p className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
+                    <p className="text-lg md:text-xl font-bold text-neutral-900 dark:text-white">
                       어떤 언어로 맵을 만들까요?
                     </p>
                   </div>
@@ -218,11 +203,11 @@ export default function ScriptInputCard({
                   <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white dark:bg-[rgb(var(--hero-b))] dark:text-neutral-950">
                     3
                   </span>
-                  <p className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
+                  <p className="text-lg md:text-xl font-bold text-neutral-900 dark:text-white">
                     맵을 생성해요
                   </p>
                 </div>
-                <div className="text-sm font-medium text-neutral-600 dark:text-neutral-300">
+                <div className="text-[15px] font-semibold text-neutral-700 dark:text-neutral-200">
                   보유 {currentCredits.toLocaleString()}크레딧 · 이번 생성 {requiredCredits}크레딧
                 </div>
                 <button
@@ -237,7 +222,7 @@ export default function ScriptInputCard({
                     text-base md:text-lg font-bold text-white
                     bg-[linear-gradient(135deg,#1d4ed8_0%,#2563eb_45%,#3b82f6_100%)] hover:brightness-[1.03]
                     dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
-                    shadow-[0_22px_48px_-18px_rgba(37,99,235,0.72)] hover:shadow-[0_26px_52px_-18px_rgba(37,99,235,0.82)]
+                    shadow-[0_24px_54px_-18px_rgba(37,99,235,0.8)] hover:shadow-[0_28px_58px_-18px_rgba(37,99,235,0.88)]
                     transition-transform hover:scale-[1.03] active:scale-100
                     disabled:bg-neutral-400 disabled:hover:scale-100 disabled:cursor-not-allowed
                     focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60

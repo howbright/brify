@@ -86,7 +86,7 @@ export default function FinalCTA({
               <span className="block mt-1 text-white/90">
                 {t.rich("subtitle", {
                   brand: (chunks) => (
-                    <span className="text-[rgb(var(--hero-b))]">
+                    <span className="font-extrabold text-[rgb(var(--hero-b))]">
                       {chunks}
                     </span>
                   ),
@@ -94,10 +94,10 @@ export default function FinalCTA({
               </span>
             </h2>
 
-            <p className="mt-4 text-sm md:text-base text-white/85">
+            <p className="mt-4 text-base font-medium text-white/90">
               {t.rich("body", {
                 highlight: (chunks) => (
-                  <span className="font-semibold text-[rgb(var(--hero-a))]">
+                  <span className="font-bold text-[rgb(var(--hero-a))]">
                     {chunks}
                   </span>
                 ),
@@ -110,8 +110,8 @@ export default function FinalCTA({
                 href={primaryHref}
                 className="
                   px-6 py-3 rounded-2xl
-                  bg-white text-[#0b1224] font-semibold
-                  shadow-sm hover:shadow-lg
+                  bg-white text-[#0b1224] font-bold
+                  shadow-[0_18px_42px_-24px_rgba(255,255,255,0.55)] hover:shadow-[0_22px_48px_-24px_rgba(255,255,255,0.65)]
                   transition-transform hover:scale-[1.03] active:scale-100
                   focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60
                 "
@@ -125,8 +125,8 @@ export default function FinalCTA({
                   href={secondaryHref}
                   className="
                     px-5 py-3 rounded-2xl
-                    bg-white/10 border border-white/20 text-white
-                    backdrop-blur hover:-translate-y-0.5 hover:shadow-md transition-all
+                    bg-white/[0.12] border border-white/30 text-white font-semibold
+                    backdrop-blur hover:-translate-y-0.5 hover:bg-white/[0.16] hover:shadow-md transition-all
                     focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30
                   "
                 >

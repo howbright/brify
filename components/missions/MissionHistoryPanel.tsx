@@ -50,7 +50,7 @@ function StatusPill({ status }: { status: MissionSubmissionStatus }) {
   const map = {
     pending: {
       label: "검토 중",
-      pill: "border-neutral-200/70 bg-white/70 text-neutral-700 dark:border-white/12 dark:bg-white/5 dark:text-neutral-200",
+      pill: "border-slate-400 bg-white text-neutral-700 dark:border-white/20 dark:bg-white/[0.08] dark:text-neutral-200",
     },
     approved: {
       label: "승인",
@@ -152,7 +152,6 @@ export default function MissionHistoryPanel() {
 
   useEffect(() => {
     fetchHistory();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const empty = !loading && items.length === 0;
@@ -185,8 +184,8 @@ export default function MissionHistoryPanel() {
       <section className="mt-6">
         <div
           className="
-            rounded-3xl border border-neutral-200/80 dark:border-white/15
-            bg-white/90 dark:bg-black/45
+            rounded-3xl border border-slate-400 dark:border-white/20
+            bg-white dark:bg-black/45
             backdrop-blur
             px-5 py-5 sm:px-6 sm:py-6
             shadow-[0_18px_45px_-26px_rgba(15,23,42,0.20)]
@@ -202,11 +201,11 @@ export default function MissionHistoryPanel() {
               onClick={fetchHistory}
               className="
                 inline-flex items-center justify-center rounded-2xl
-                border border-neutral-200/80 bg-white/90 px-3 py-2
+                border border-slate-400 bg-white px-3 py-2
                 text-[12px] font-semibold text-neutral-900
                 hover:-translate-y-0.5 hover:shadow-md
                 transition-all
-                dark:border-white/15 dark:bg-black/40 dark:text-neutral-50
+                dark:border-white/20 dark:bg-black/40 dark:text-neutral-50
               "
             >
               새로고침
@@ -220,12 +219,12 @@ export default function MissionHistoryPanel() {
                   key={i}
                   className="
                     relative overflow-hidden
-                    rounded-2xl border border-neutral-200/70 dark:border-white/12
-                    bg-white/70 dark:bg-white/5
+                    rounded-2xl border border-slate-400 dark:border-white/20
+                    bg-white dark:bg-white/[0.08]
                     p-4
                   "
                 >
-                  <span className="absolute left-0 top-0 h-full w-1.5 bg-neutral-200/80 dark:bg-white/10" />
+                  <span className="absolute left-0 top-0 h-full w-1.5 bg-slate-400 dark:bg-white/20" />
                   <div className="flex items-center gap-2">
                     <div className="h-6 w-14 rounded-full bg-neutral-200/70 dark:bg-white/10" />
                     <div className="h-4 w-64 rounded bg-neutral-200/70 dark:bg-white/10" />
@@ -250,8 +249,8 @@ export default function MissionHistoryPanel() {
                     key={it.id}
                     className="
                       relative overflow-hidden
-                      rounded-2xl border border-neutral-200/70 dark:border-white/12
-                      bg-white/70 dark:bg-white/5
+                      rounded-2xl border border-slate-400 dark:border-white/20
+                      bg-white dark:bg-white/[0.08]
                       p-4
                     "
                   >

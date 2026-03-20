@@ -37,7 +37,7 @@ export default function LanguageSelector() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-1.5 rounded-md flex items-center gap-1 text-sm text-gray-800 dark:text-gray-200">
+        <button className="flex items-center gap-1 rounded-md border border-slate-400 px-3 py-1.5 text-sm text-gray-800 hover:bg-gray-100 dark:border-white/20 dark:text-gray-200 dark:hover:bg-gray-800">
           <Icon icon="ic:baseline-language" className="text-lg" />
           {current?.label || currentLocale}
         </button>
@@ -45,9 +45,9 @@ export default function LanguageSelector() {
       <DropdownMenuContent
         align="end"
         className="
-  w-40 rounded-xl border border-neutral-200/70
+  w-40 rounded-xl border border-slate-400
   bg-white/95 shadow-lg backdrop-blur-md
-  dark:border-white/10 dark:bg-slate-900/95
+  dark:border-white/20 dark:bg-slate-900/95
 "
       >
         {locales.map((locale) => (

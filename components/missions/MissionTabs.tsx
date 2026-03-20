@@ -31,7 +31,7 @@ export default function MissionTabs({
         aria-label="미션 탭"
         className={cn(
           "relative flex items-center gap-6",
-          "border-b border-neutral-200/80 dark:border-white/12"
+          "border-b border-slate-400 dark:border-white/20"
         )}
       >
         <TabTrigger value="participate">미션 참여</TabTrigger>

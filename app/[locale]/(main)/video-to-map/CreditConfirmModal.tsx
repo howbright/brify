@@ -29,14 +29,14 @@ export default function CreditConfirmModal({
         className="
           relative overflow-hidden
           w-full max-w-md rounded-3xl
-          bg-white/98 border border-neutral-200
+          bg-white border border-slate-400
           shadow-[0_28px_90px_-40px_rgba(15,23,42,0.85)]
           p-5 md:p-6
 
           /* ✅ dark: 배경보다 한 톤 밝게 + ring으로 경계 확실히 */
           dark:bg-[#0F172A]
-          dark:border-white/10
-          dark:ring-1 dark:ring-white/10
+          dark:border-white/20
+          dark:ring-1 dark:ring-white/16
           dark:shadow-[0_34px_120px_-60px_rgba(0,0,0,0.95)]
         "
       >
@@ -51,7 +51,7 @@ export default function CreditConfirmModal({
         <div className="pointer-events-none absolute inset-0 dark:bg-white/[0.03]" />
 
         {/* ✅ 아주 얇은 하단 경계(카드가 떠 보이게) */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-neutral-200/70 dark:bg-white/10" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-slate-400 dark:bg-white/20" />
 
         <h2 className="relative text-base md:text-lg font-semibold text-neutral-900 dark:text-white mb-2.5">
           크레딧 사용
@@ -66,7 +66,7 @@ export default function CreditConfirmModal({
         <div
           className="
             relative mb-4
-            rounded-2xl border border-amber-200/70 bg-amber-50/70
+            rounded-2xl border border-amber-300 bg-amber-50
             px-3 py-2.5 text-[12px] md:text-[13px] text-amber-900/90
             dark:border-amber-300/25 dark:bg-amber-500/10 dark:text-amber-100/90
           "
@@ -82,13 +82,13 @@ export default function CreditConfirmModal({
             onClick={onCancel}
             className="
               rounded-2xl px-3 py-1.5 text-xs md:text-sm text-neutral-700
-              border border-neutral-300 bg-white
+              border border-slate-400 bg-white
               hover:bg-neutral-100
 
               dark:text-white/90
-              dark:border-white/15
-              dark:bg-white/6
-              dark:hover:bg-white/10
+              dark:border-white/20
+              dark:bg-white/[0.08]
+              dark:hover:bg-white/[0.12]
               focus:outline-none focus-visible:ring-2 focus-visible:ring-white/25
             "
           >

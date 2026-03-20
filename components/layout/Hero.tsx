@@ -225,7 +225,7 @@ export default function LandingBlueHero() {
       <section className="mx-auto grid max-w-7xl items-start gap-10 px-6 py-10 md:grid-cols-2 md:items-center md:gap-14 md:px-10 md:py-14 lg:py-16">
         {/* LEFT */}
         <div>
-          <div className="text-sm md:text-base font-semibold text-neutral-600 dark:text-neutral-300">
+          <div className="text-sm md:text-base font-semibold text-neutral-700 dark:text-neutral-200">
             {t("eyebrow")}
           </div>
 
@@ -260,10 +260,10 @@ export default function LandingBlueHero() {
               whileTap={{ scale: 0.98 }}
               className="
                 group mt-1 inline-flex h-12 w-12 shrink-0 items-center justify-center
-                rounded-full border border-blue-100 bg-white/90 text-blue-700 shadow-sm
-                transition-colors hover:border-blue-200 hover:bg-blue-50
-                dark:border-blue-400/20 dark:bg-white/8 dark:text-blue-300
-                dark:hover:border-blue-300/30 dark:hover:bg-white/12
+                rounded-full border border-slate-400 bg-white text-blue-700 shadow-sm
+                transition-colors hover:border-blue-300 hover:bg-blue-50
+                dark:border-white/20 dark:bg-white/[0.08] dark:text-blue-300
+                dark:hover:border-white/30 dark:hover:bg-white/[0.12]
               "
             >
               <span className="pointer-events-none flex items-center justify-center">
@@ -289,7 +289,7 @@ export default function LandingBlueHero() {
             </motion.button>
           </div>
 
-          <p className="mt-4 max-w-2xl text-sm font-semibold leading-6 text-slate-600 dark:text-slate-300">
+          <p className="mt-4 max-w-2xl text-[15px] font-semibold leading-6 text-slate-700 dark:text-slate-200">
             {t("helper")}
           </p>
 
@@ -316,12 +316,12 @@ export default function LandingBlueHero() {
               href="/demo"
               className="
                 group inline-flex items-center gap-2
-                rounded-2xl border border-slate-500 px-5 py-3 font-semibold
+                rounded-2xl border border-slate-600 bg-white px-5 py-3 font-semibold
                 text-slate-800 transition-all duration-200
                 shadow-[0_10px_24px_-20px_rgba(15,23,42,0.18)]
                 hover:-translate-y-0.5 hover:border-blue-500 hover:bg-blue-100/90
                 hover:text-blue-800 hover:shadow-[0_18px_38px_-22px_rgba(37,99,235,0.32)]
-                dark:border-white/30 dark:bg-transparent dark:text-sky-100
+                dark:border-white/25 dark:bg-white/[0.08] dark:text-sky-100
                 dark:hover:border-blue-300/55 dark:hover:bg-blue-400/10
                 dark:hover:text-white dark:hover:shadow-[0_18px_38px_-22px_rgba(59,130,246,0.38)]
               "

@@ -36,10 +36,10 @@ export default function Footer() {
   return (
     <footer
       className="
-        relative overflow-hidden border-t border-slate-200/80
+        relative overflow-hidden border-t border-slate-400
         bg-[linear-gradient(180deg,#eef5ff_0%,#e3eeff_34%,#f7fbff_100%)]
         px-6 py-12
-        dark:border-white/10
+        dark:border-white/20
         dark:bg-[linear-gradient(180deg,#0d1526_0%,#0a1220_42%,#08101b_100%)]
         md:px-10 md:py-14
       "
@@ -112,7 +112,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col gap-3 border-t border-slate-200/80 pt-5 text-sm font-medium text-slate-500 dark:border-white/10 dark:text-slate-400 md:flex-row md:items-center md:justify-between">
+        <div className="mt-8 flex flex-col gap-3 border-t border-slate-400 pt-5 text-sm font-medium text-slate-500 dark:border-white/20 dark:text-slate-400 md:flex-row md:items-center md:justify-between">
           <div>© {new Date().getFullYear()} vision328. {t("copyright")}</div>
           <div className="text-sm">{t("operatedBy")}</div>
         </div>

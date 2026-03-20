@@ -561,8 +561,8 @@ export default function LeftPanel({
       <div
         className="
           relative h-full flex flex-col
-          border-r border-neutral-300 bg-white
-          dark:border-white/15 dark:bg-[#0b1220]
+          border-r border-slate-400 bg-white
+          dark:border-white/20 dark:bg-[#0b1220]
           shadow-[18px_0_45px_-30px_rgba(15,23,42,0.55)]
           dark:shadow-[18px_0_70px_-45px_rgba(0,0,0,0.9)]
         "
@@ -578,7 +578,7 @@ export default function LeftPanel({
         <div className="pointer-events-none absolute inset-0 dark:bg-white/[0.03]" />
 
         {/* header */}
-        <div className="relative px-4 pt-2 border-b border-neutral-200/70 dark:border-white/10">
+        <div className="relative px-4 pt-2 border-b border-slate-400 dark:border-white/20">
           <div className="flex items-center justify-between gap-3">
             {mapId ? (
               <div className="flex items-center gap-4">
@@ -664,9 +664,9 @@ export default function LeftPanel({
                     className="
                       shrink-0
                       inline-flex items-center gap-1.5
-                      rounded-2xl border border-blue-200 bg-blue-50 px-3 py-1.5
+                      rounded-2xl border border-slate-400 bg-blue-50 px-3 py-1.5
                       text-xs font-semibold text-blue-700 hover:bg-blue-100
-                      dark:border-blue-300/40 dark:bg-blue-500/10
+                      dark:border-white/20 dark:bg-blue-500/10
                       dark:text-blue-50/90 dark:hover:bg-blue-500/20
                     "
                   >
@@ -685,10 +685,10 @@ export default function LeftPanel({
                   </div>
                   <div
                     className="
-                      rounded-3xl border border-blue-200/70 bg-blue-50/60 p-3.5
+                      rounded-3xl border border-slate-400 bg-blue-50/60 p-3.5
                       text-[12px] leading-5 text-neutral-700
                       shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)]
-                      dark:border-blue-300/20 dark:bg-blue-500/10 dark:text-white/80
+                      dark:border-white/20 dark:bg-blue-500/10 dark:text-white/80
                       dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]
                     "
                   >
@@ -705,8 +705,8 @@ export default function LeftPanel({
                   <div
                     className="
                       relative h-16 w-28 rounded-2xl overflow-hidden
-                      border border-neutral-200 bg-neutral-50 flex-shrink-0
-                      dark:border-white/10 dark:bg-white/[0.06]
+                      border border-slate-400 bg-neutral-50 flex-shrink-0
+                      dark:border-white/20 dark:bg-white/[0.06]
                     "
                   >
                     {map.thumbnailUrl ? (
@@ -771,9 +771,9 @@ export default function LeftPanel({
                       <span
                         key={t}
                         className="
-                          rounded-full border border-neutral-200 bg-neutral-50
+                          rounded-full border border-slate-400 bg-neutral-50
                           px-2 py-0.5 text-[11px] text-neutral-600
-                          dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75
+                          dark:border-white/20 dark:bg-white/[0.06] dark:text-white/75
                         "
                       >
                         #{t}
@@ -793,7 +793,7 @@ export default function LeftPanel({
               </Section>
 
               {onDelete && (
-                <div className="mt-6 pt-4 border-t border-neutral-200/70 dark:border-white/10">
+                <div className="mt-6 pt-4 border-t border-slate-400 dark:border-white/20">
                   <button
                     type="button"
                     onClick={onDelete}
@@ -830,7 +830,7 @@ export default function LeftPanel({
             />
           ) : (
             <>
-              <div className="mb-3 rounded-2xl border border-sky-200/70 bg-sky-50/70 px-3 py-2 text-[11px] text-slate-700 shadow-[0_16px_30px_-24px_rgba(14,116,144,0.45)] dark:border-sky-300/20 dark:bg-sky-500/10 dark:text-white/75">
+              <div className="mb-3 rounded-2xl border border-slate-400 bg-sky-50/70 px-3 py-2 text-[11px] text-slate-700 shadow-[0_16px_30px_-24px_rgba(14,116,144,0.45)] dark:border-white/20 dark:bg-sky-500/10 dark:text-white/75">
                 <div className="flex items-center gap-2">
                   <Icon icon="mdi:sparkles" className="h-4 w-4 text-sky-500 dark:text-sky-300" />
                   <span className="font-semibold">
@@ -883,9 +883,9 @@ function Section({
 
       <div
         className="
-          rounded-3xl border border-neutral-200 bg-white p-3
+          rounded-3xl border border-slate-400 bg-white p-3
           shadow-[0_18px_40px_-28px_rgba(15,23,42,0.25)]
-          dark:border-white/10 dark:bg-white/[0.04]
+          dark:border-white/20 dark:bg-white/[0.04]
           dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]
         "
       >
@@ -1066,9 +1066,9 @@ function NotesBlock({
           }}
           placeholder={placeholder}
           className="
-            flex-1 rounded-2xl border border-blue-200/60 bg-blue-50/40 px-3 py-2 text-sm
+            flex-1 rounded-2xl border border-slate-400 bg-blue-50/40 px-3 py-2 text-sm
             outline-none focus:ring-2 focus:ring-blue-200
-            dark:border-white/10 dark:bg-white/[0.06] dark:text-white
+            dark:border-white/20 dark:bg-white/[0.06] dark:text-white
             dark:focus:ring-blue-500/20
           "
         />
@@ -1077,10 +1077,10 @@ function NotesBlock({
           onClick={onAdd}
           disabled={submitting}
           className="
-            rounded-2xl border border-blue-200 bg-blue-50 px-3 py-2
+            rounded-2xl border border-slate-400 bg-blue-50 px-3 py-2
             text-sm font-semibold text-blue-700 hover:bg-blue-100
             disabled:cursor-not-allowed disabled:opacity-60
-            dark:border-blue-300/40 dark:bg-blue-500/10
+            dark:border-white/20 dark:bg-blue-500/10
             dark:text-blue-50/90 dark:hover:bg-blue-500/20
           "
         >
@@ -1090,11 +1090,11 @@ function NotesBlock({
 
       <div className="flex flex-col gap-2">
         {loading ? (
-          <div className="rounded-2xl border border-blue-200/60 bg-blue-50/50 p-4 text-sm text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75">
+          <div className="rounded-2xl border border-slate-400 bg-blue-50/50 p-4 text-sm text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/75">
             {loadingLabel}
           </div>
         ) : notes.length === 0 ? (
-          <div className="rounded-2xl border border-blue-200/60 bg-blue-50/50 p-4 text-sm text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75">
+          <div className="rounded-2xl border border-slate-400 bg-blue-50/50 p-4 text-sm text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/75">
             {emptyLabel}
           </div>
         ) : (

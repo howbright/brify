@@ -85,7 +85,7 @@ export default function MapListToolbar({
               pl-9 pr-10 py-2 text-sm text-neutral-900
               placeholder:text-neutral-400
               focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-200/70
-              dark:border-white/12 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/45
+              dark:border-white/20 dark:bg-white/[0.08] dark:text-white dark:placeholder:text-white/45
               dark:focus:border-white dark:focus:ring-white/20
             "
           />
@@ -113,7 +113,7 @@ export default function MapListToolbar({
       )}
 
       <div
-        className={`mt-1 flex flex-col gap-[2px] rounded-2xl border border-neutral-200 bg-neutral-50/70 px-3 pt-0.5 pb-1 md:mt-2 md:flex-row md:items-center md:justify-between dark:border-white/10 dark:bg-white/[0.04] md:py-2 md:gap-2 ${
+        className={`mt-1 flex flex-col gap-[2px] rounded-2xl border border-slate-400 bg-white px-3 pt-0.5 pb-1 md:mt-2 md:flex-row md:items-center md:justify-between dark:border-white/20 dark:bg-white/[0.08] md:py-2 md:gap-2 ${
           filtersOpen ? "md:relative md:z-[60]" : ""
         }`}
       >

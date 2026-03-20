@@ -107,7 +107,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
           <h2 className="text-2xl md:text-3xl font-semibold text-[var(--color-text)]">
             {t("title")}
           </h2>
-          <p className="mt-3 text-[color-mix(in_oklab,var(--color-foreground),transparent_35%)]">
+          <p className="mt-3 text-sm font-medium text-slate-700 dark:text-slate-300">
             {t("subtitle")}
           </p>
         </div>
@@ -118,7 +118,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.45, ease: "easeOut" }}
           whileHover={{ y: -4, scale: 1.01 }}
-          className="mt-8 rounded-[32px] border border-blue-200 bg-white/88 px-6 py-7 text-center shadow-[0_22px_60px_-34px_rgba(37,99,235,0.26)] backdrop-blur-sm dark:border-blue-400/20 dark:bg-white/6"
+          className="mt-8 rounded-[32px] border border-slate-400 bg-white px-6 py-7 text-center shadow-[0_22px_60px_-34px_rgba(37,99,235,0.26)] backdrop-blur-sm dark:border-white/20 dark:bg-white/[0.08]"
         >
           <div className="flex justify-center">
             <div className="relative w-full max-w-[420px] md:max-w-[480px]">
@@ -140,15 +140,15 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
           <div className="mt-5 text-[28px] font-extrabold leading-tight text-slate-900 dark:text-white md:text-[36px]">
             {t("cards.main.title")}
           </div>
-          <p className="mt-3 text-sm font-semibold text-slate-600 dark:text-slate-300 md:text-base">
+          <p className="mt-3 text-base font-semibold text-slate-700 dark:text-slate-200">
             {t("cards.main.description")}
           </p>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
-            <div className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700 dark:border-white/10 dark:bg-white/8 dark:text-slate-200">
+            <div className="rounded-full border border-slate-400 bg-white px-4 py-2 text-sm font-semibold text-slate-800 dark:border-white/20 dark:bg-white/[0.08] dark:text-slate-200">
               {t("cards.pay.title")}
             </div>
-            <div className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700 dark:border-white/10 dark:bg-white/8 dark:text-slate-200">
+            <div className="rounded-full border border-slate-400 bg-white px-4 py-2 text-sm font-semibold text-slate-800 dark:border-white/20 dark:bg-white/[0.08] dark:text-slate-200">
               {t("cards.noSubscription.title")}
             </div>
           </div>

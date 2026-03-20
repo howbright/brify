@@ -12,7 +12,13 @@ type MindNode = {
   children?: MindNode[];
 };
 
-function getRootNode(data: any): MindNode | null {
+type MindData =
+  | { nodeData?: MindNode; data?: { nodeData?: MindNode }; root?: { nodeData?: MindNode } }
+  | MindNode
+  | null
+  | undefined;
+
+function getRootNode(data: MindData): MindNode | null {
   if (!data) return null;
   if (data.nodeData) return data.nodeData as MindNode;
   if (data.data?.nodeData) return data.data.nodeData as MindNode;
@@ -32,7 +38,7 @@ function cloneData<T>(value: T): T {
   }
 }
 
-function collapseToLevel(data: any, level = 1) {
+function collapseToLevel(data: MindData, level = 1) {
   const cloned = cloneData(data);
   const root = getRootNode(cloned);
   if (!root) return cloned;
@@ -53,19 +59,14 @@ export type MapMiniPreviewHandle = {
 };
 
 const MapMiniPreview = forwardRef<MapMiniPreviewHandle, {
-  data?: any | null;
+  data?: MindData;
   emptyText?: string;
 }>(({ data, emptyText = "Preview unavailable" }, ref) => {
   const root = useMemo(() => getRootNode(data), [data]);
-  if (!root) {
-    return (
-      <div className="flex min-h-[180px] items-center justify-center rounded-2xl border border-neutral-200 bg-neutral-50 px-4 text-xs text-neutral-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/60">
-        {emptyText}
-      </div>
-    );
-  }
-
-  const collapsed = useMemo(() => collapseToLevel(data, 1), [data]);
+  const collapsed = useMemo(() => {
+    if (!root) return null;
+    return collapseToLevel(data, 1);
+  }, [data, root]);
   const mindRef = useRef<ClientMindElixirHandle | null>(null);
 
   useImperativeHandle(ref, () => ({
@@ -74,8 +75,16 @@ const MapMiniPreview = forwardRef<MapMiniPreviewHandle, {
     center: () => mindRef.current?.centerMap(),
   }));
 
+  if (!root) {
+    return (
+      <div className="flex min-h-[180px] items-center justify-center rounded-2xl border border-slate-400 bg-white px-4 text-xs text-neutral-500 dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/60">
+        {emptyText}
+      </div>
+    );
+  }
+
   return (
-    <div className="relative min-h-[360px] overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-[#0b1220]/70">
+    <div className="relative min-h-[360px] overflow-hidden rounded-2xl border border-slate-400 bg-white dark:border-white/20 dark:bg-[#0b1220]/88">
       <div className="absolute inset-0">
         <ClientMindElixir
           ref={mindRef}

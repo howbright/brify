@@ -289,14 +289,14 @@ export default function MetadataDialog({
             relative overflow-hidden
             w-full max-w-2xl
             rounded-3xl
-            bg-white/98 border border-neutral-200
+            bg-white/98 border border-slate-400
             shadow-[0_26px_90px_-40px_rgba(15,23,42,0.9)]
             max-h-[85vh]
             flex flex-col
 
             dark:bg-[#111C2E]
-            dark:border-white/10
-            dark:ring-1 dark:ring-white/10
+            dark:border-white/20
+            dark:ring-1 dark:ring-white/16
             dark:shadow-[0_38px_140px_-70px_rgba(0,0,0,0.95)]
           "
         >
@@ -314,7 +314,7 @@ export default function MetadataDialog({
             className="
               relative
               px-5 md:px-6 py-4
-              border-b border-neutral-200/80 dark:border-white/10
+              border-b border-slate-400 dark:border-white/20
               flex items-center justify-between
               sticky top-0 z-10
               bg-white/90 dark:bg-[#111C2E]/92
@@ -374,10 +374,10 @@ export default function MetadataDialog({
                   placeholder={t("placeholders.url")}
                   className="
                     w-full min-w-0
-                    rounded-2xl border border-neutral-200 bg-neutral-50
+                    rounded-2xl border border-slate-400 bg-neutral-50
                     px-3 py-2 text-sm
                     focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-                    dark:border-white/12 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
+                    dark:border-white/20 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
                   "
                 />
                 <button
@@ -438,7 +438,7 @@ export default function MetadataDialog({
                     ${
                       titleError
                         ? "border-rose-300 focus:border-rose-400 focus:ring-rose-300/50 dark:border-rose-500/50"
-                        : "border-neutral-200 focus:border-blue-400 focus:ring-blue-300/60 dark:border-white/12"
+                        : "border-slate-400 focus:border-blue-400 focus:ring-blue-300/60 dark:border-white/20"
                     }
                   `}
                 />
@@ -459,10 +459,10 @@ export default function MetadataDialog({
                   placeholder={t("placeholders.channel")}
                   className="
                     w-full min-w-0
-                    rounded-2xl border border-neutral-200 bg-neutral-50
+                    rounded-2xl border border-slate-400 bg-neutral-50
                     px-3 py-2 text-sm
                     focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-                    dark:border-white/12 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
+                    dark:border-white/20 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
                   "
                 />
               </div>
@@ -478,8 +478,8 @@ export default function MetadataDialog({
                 <div
                   className="
                     h-16 w-28 rounded-2xl overflow-hidden
-                    border border-neutral-200 bg-neutral-50
-                    dark:border-white/12 dark:bg-white/5
+                    border border-slate-400 bg-neutral-50
+                    dark:border-white/20 dark:bg-white/5
                     flex-shrink-0
                   "
                 >
@@ -508,10 +508,10 @@ export default function MetadataDialog({
                     placeholder={t("placeholders.thumbnailUrl")}
                     className="
                       w-full min-w-0
-                      rounded-2xl border border-neutral-200 bg-neutral-50
+                      rounded-2xl border border-slate-400 bg-neutral-50
                       px-3 py-2 text-sm
                       focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-                      dark:border-white/12 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
+                      dark:border-white/20 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
                     "
                   />
 
@@ -520,8 +520,8 @@ export default function MetadataDialog({
                       className="
                         inline-flex items-center gap-2 cursor-pointer
                         rounded-2xl px-3 py-2 text-sm font-semibold
-                        border border-neutral-200 bg-white hover:bg-neutral-50
-                        dark:border-white/12 dark:bg-white/6 dark:text-white dark:hover:bg-white/10
+                        border border-slate-400 bg-white hover:bg-neutral-50
+                        dark:border-white/20 dark:bg-white/6 dark:text-white dark:hover:bg-white/10
                         whitespace-nowrap
                       "
                     >
@@ -570,10 +570,10 @@ export default function MetadataDialog({
                 placeholder={t("placeholders.tags")}
                 className="
                   w-full min-w-0
-                  rounded-2xl border border-neutral-200 bg-neutral-50
+                  rounded-2xl border border-slate-400 bg-neutral-50
                   px-3 py-2 text-sm
                   focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-                  dark:border-white/12 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
+                  dark:border-white/20 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
                 "
               />
               <p className="text-[11px] text-neutral-500 dark:text-white/60 break-words">
@@ -593,10 +593,10 @@ export default function MetadataDialog({
                 className="
                   w-full min-w-0
                   min-h-[110px] resize-y rounded-2xl
-                  border border-neutral-200 bg-neutral-50
+                  border border-slate-400 bg-neutral-50
                   px-3 py-2 text-sm
                   focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-                  dark:border-white/12 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
+                  dark:border-white/20 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
                 "
               />
             </div>
@@ -607,7 +607,7 @@ export default function MetadataDialog({
             className="
               relative
               px-5 md:px-6 py-4
-              border-t border-neutral-200 dark:border-white/10
+              border-t border-slate-400 dark:border-white/20
               sticky bottom-0 z-10
               bg-white/90 dark:bg-[#111C2E]/92
               backdrop-blur-md

@@ -32,9 +32,9 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
   const headerClassName = [
     "fixed top-0 inset-x-0 z-40 transition-all",
     scrolled
-      ? "bg-white/90 dark:bg-neutral-900/80 backdrop-blur-md border-b border-black/10 dark:border-white/10 shadow-sm"
+      ? "bg-white/90 dark:bg-neutral-900/80 backdrop-blur-md border-b border-slate-400 dark:border-white/20 shadow-sm"
       : [
-          "backdrop-blur-md border-b border-black/5 dark:border-white/10",
+          "backdrop-blur-md border-b border-slate-300 dark:border-white/20",
           "bg-[radial-gradient(circle_at_0%_0%,rgba(59,130,246,0.16),transparent_56%),radial-gradient(circle_at_100%_0%,rgba(129,140,248,0.18),transparent_56%),linear-gradient(90deg,rgba(255,255,255,0.98),rgba(239,246,255,0.98),rgba(255,255,255,0.98))]",
           "dark:bg-[#020617]",
           "dark:bg-[radial-gradient(circle_at_0%_0%,rgba(59,130,246,0.45),transparent_60%),radial-gradient(circle_at_100%_0%,rgba(129,140,248,0.5),transparent_60%)]",
@@ -64,25 +64,25 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
           <nav className="hidden md:flex items-center gap-2">
             <Link
               href="/demo"
-              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-slate-400 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
             >
               {t("nav.samples")}
             </Link>
             <Link
               href={{ pathname: "/", hash: "about" }}
-              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-slate-400 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
             >
               {t("nav.about")}
             </Link>
             <Link
               href={{ pathname: "/", hash: "pricing" }}
-              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-slate-400 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
             >
               {t("nav.pricing")}
             </Link>
             <Link
               href="/support"
-              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-white/50 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur border border-slate-400 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
             >
               {t("nav.contactFeedback")}
             </Link>
@@ -150,7 +150,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                     text-neutral-700 dark:text-neutral-200
                     hover:text-neutral-900 dark:hover:text-white
                     hover:bg-white/70 dark:hover:bg-white/5
-                    border border-transparent hover:border-black/5 dark:hover:border-white/10
+                    border border-transparent hover:border-slate-400 dark:hover:border-white/20
                     transition-colors
                   "
                 >

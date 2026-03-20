@@ -38,7 +38,7 @@ function getStatusBadgeClassName(status: NotificationStatus) {
       return "border-amber-200/70 bg-amber-50/80 text-amber-900 dark:border-amber-300/20 dark:bg-amber-400/5 dark:text-amber-200";
     case "info":
     default:
-      return "border-neutral-200/70 bg-neutral-50/80 text-neutral-800 dark:border-white/12 dark:bg-white/5 dark:text-neutral-200";
+      return "border-slate-400 bg-white text-neutral-800 dark:border-white/20 dark:bg-white/[0.08] dark:text-neutral-200";
   }
 }
 
@@ -77,9 +77,9 @@ function NotificationCard({
       className={cn(
         "pointer-events-auto",
         "relative overflow-hidden rounded-2xl",
-        "border border-neutral-200/80 dark:border-white/14",
+        "border border-slate-400 dark:border-white/20",
         // ✅ 다크에서 카드가 배경에 묻히지 않게: 조금 더 밝은 카드 + 더 강한 그림자
-        "bg-white/80 dark:bg-[#0b1220]/92 backdrop-blur",
+        "bg-white dark:bg-[#0b1220] backdrop-blur",
         "shadow-[0_18px_45px_-26px_rgba(15,23,42,0.28)]",
         "dark:shadow-[0_26px_70px_-36px_rgba(0,0,0,0.85)]"
       )}
@@ -149,9 +149,9 @@ function NotificationCard({
               inline-flex h-8 w-8 items-center justify-center
               rounded-full
               text-neutral-500 hover:text-neutral-900
-              hover:bg-white/70
+              hover:bg-slate-100
               dark:text-neutral-400 dark:hover:text-neutral-50
-              dark:hover:bg-white/8
+              dark:hover:bg-white/[0.12]
               transition
             "
             aria-label={t("notifications.ui.dismiss_one")}

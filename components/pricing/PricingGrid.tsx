@@ -118,7 +118,7 @@ export default function PricingGrid({
   const reassurance = reassuranceLines ?? [t("reassurance.line1")];
 
   const ctaBtn =
-    "block w-full rounded-[var(--radius-lg)] px-4 py-2.5 text-center text-sm font-medium shadow-sm " +
+    "block w-full rounded-[var(--radius-lg)] px-4 py-3 text-center text-sm font-semibold shadow-sm " +
     "bg-[var(--color-primary-500,#2563eb)] text-[var(--color-primary-foreground,#ffffff)] " +
     "hover:bg-[var(--color-primary-hover,#1d4ed8)] hover:text-[var(--color-primary-foreground,#ffffff)] " +
     "dark:bg-[var(--color-primary-500,#3758f9)] dark:hover:bg-[var(--color-primary-hover,#2f49d1)] dark:text-white " +
@@ -137,7 +137,7 @@ export default function PricingGrid({
                 "text-[var(--color-foreground)]",
                 "bg-[linear-gradient(90deg,rgba(59,130,246,0.14),rgba(99,102,241,0.12))] border border-[color:var(--color-border)]",
                 "supports-[backdrop-filter]:backdrop-blur-[2px]",
-                "dark:bg-[linear-gradient(90deg,rgba(59,130,246,0.20),rgba(99,102,241,0.18))] dark:border-white/10"
+                "dark:bg-[linear-gradient(90deg,rgba(59,130,246,0.20),rgba(99,102,241,0.18))] dark:border-white/20"
               )}
             >
               <strong className="font-extrabold">{reassurance[0]}</strong>
@@ -169,7 +169,7 @@ export default function PricingGrid({
                 "px-3 py-1.5 rounded-full transition-all",
                 paymentMode === "krw"
                   ? "bg-[var(--color-primary-500)] text-white shadow"
-                  : "text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)]",
+                  : "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/[0.12]",
               ].join(" ")}
             >
               {currencyLabels.krw}
@@ -181,7 +181,7 @@ export default function PricingGrid({
                 "px-3 py-1.5 rounded-full transition-all",
                 paymentMode === "usd"
                   ? "bg-[var(--color-primary-500)] text-white shadow"
-                  : "text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)]",
+                  : "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/[0.12]",
               ].join(" ")}
             >
               {currencyLabels.usd}
@@ -278,7 +278,7 @@ export default function PricingGrid({
                 )}
               >
                 {p.credits.toLocaleString()}{" "}
-                <span className="text-xl font-medium text-neutral-500 dark:text-[var(--color-muted-foreground,#cbd5e1)]">
+                <span className="text-xl font-semibold text-neutral-600 dark:text-[var(--color-muted-foreground,#cbd5e1)]">
                   {t("units.credits")}
                 </span>
                 {(p.bonusPercent || p.bonusCredits) && (
@@ -288,7 +288,7 @@ export default function PricingGrid({
                 )}
               </div>
 
-              <div className="mt-2 text-xl font-semibold text-neutral-800 dark:text-[var(--color-card-foreground,#e5e7eb)] md:text-2xl">
+              <div className="mt-2 text-2xl font-bold text-neutral-900 dark:text-[var(--color-card-foreground,#e5e7eb)] md:text-[28px]">
                 {formatCurrency(p.priceUSD)}
               </div>
 
@@ -332,7 +332,7 @@ export default function PricingGrid({
       </div>
 
       {isCompact ? (
-        <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#0f172a]">
+        <div className="mt-5 rounded-2xl border border-slate-400 bg-white p-4 shadow-sm dark:border-white/20 dark:bg-[#0f172a]">
           <div className="text-sm font-semibold text-slate-900 dark:text-white">
             {tLanding("creditRule.title")}
           </div>

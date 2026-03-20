@@ -35,7 +35,7 @@ layer(base);
   --glass-border: rgba(255, 255, 255, 0.6);
 
   /* border/ring */
-  --color-border: #e5e7eb;
+  --color-border: #94a3b8;
   --color-ring: var(--color-primary);
 
   /* radii */
@@ -228,7 +228,7 @@ layer(base);
     --accent-foreground: 0 0% 9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
+    --border: 215 20% 65%;
     --input: 0 0% 89.8%;
     --ring: 220 90% 56%;
     --radius: 0.5rem;
@@ -250,7 +250,7 @@ layer(base);
     --accent-foreground: 0 0% 9%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 15% 44%;
+    --border: 220 16% 34%;
     --input: 0 0% 14.9%;
     --ring: 220 75% 70%;
   }

@@ -55,7 +55,7 @@ export default function MapFilterPopover({
         className="fixed inset-0 z-30 md:top-[140px]"
         onClick={onClose}
       />
-      <div className="fixed inset-x-4 top-[140px] z-40 mt-2 w-auto max-h-[70vh] overflow-y-auto rounded-2xl border border-neutral-200 bg-white p-4 text-xs text-neutral-700 shadow-lg dark:border-white/12 dark:bg-[#0b1220]/95 dark:text-white/80 md:absolute md:inset-auto md:right-0 md:top-full md:w-[min(560px,90vw)] md:max-h-[60vh]">
+      <div className="fixed inset-x-4 top-[140px] z-40 mt-2 w-auto max-h-[70vh] overflow-y-auto rounded-2xl border border-slate-400 bg-white p-4 text-xs text-neutral-700 shadow-lg dark:border-white/20 dark:bg-[#0b1220]/95 dark:text-white/80 md:absolute md:inset-auto md:right-0 md:top-full md:w-[min(560px,90vw)] md:max-h-[60vh]">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <div className="font-semibold text-neutral-800 dark:text-white">
@@ -70,7 +70,7 @@ export default function MapFilterPopover({
                   className={`rounded-full border px-3 py-1 text-xs font-semibold ${
                     datePreset === preset.id
                       ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black"
-                      : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.04] dark:text-white/70 dark:hover:bg-white/10"
+                      : "border-slate-400 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.04] dark:text-white/70 dark:hover:bg-white/10"
                   }`}
                 >
                   {preset.label}
@@ -82,7 +82,7 @@ export default function MapFilterPopover({
                 className={`rounded-full border px-3 py-1 text-xs font-semibold ${
                   datePreset === "custom"
                     ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black"
-                    : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.04] dark:text-white/70 dark:hover:bg-white/10"
+                    : "border-slate-400 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.04] dark:text-white/70 dark:hover:bg-white/10"
                 }`}
               >
                 직접 선택
@@ -93,14 +93,14 @@ export default function MapFilterPopover({
                 type="date"
                 value={customFrom}
                 onChange={(event) => onCustomFromChange(event.target.value)}
-                className="rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs text-neutral-700 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80"
+                className="rounded-full border border-slate-400 bg-white px-3 py-1 text-xs text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
               />
               <span className="text-neutral-400">~</span>
               <input
                 type="date"
                 value={customTo}
                 onChange={(event) => onCustomToChange(event.target.value)}
-                className="rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs text-neutral-700 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80"
+                className="rounded-full border border-slate-400 bg-white px-3 py-1 text-xs text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
               />
             </div>
           </div>
@@ -119,7 +119,7 @@ export default function MapFilterPopover({
               ).map((item) => (
                 <label
                   key={item.id}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs text-neutral-600 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-400 bg-white px-3 py-1 text-xs text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
                 >
                   <input
                     type="checkbox"
@@ -147,7 +147,7 @@ export default function MapFilterPopover({
               ).map((item) => (
                 <label
                   key={item.id}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs text-neutral-600 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-400 bg-white px-3 py-1 text-xs text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
                 >
                   <input
                     type="checkbox"
@@ -178,7 +178,7 @@ export default function MapFilterPopover({
                   {tagOptions.map((tag) => (
                     <label
                       key={tag.name}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs text-neutral-600 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-slate-400 bg-white px-3 py-1 text-xs text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
                     >
                       <input
                         type="checkbox"

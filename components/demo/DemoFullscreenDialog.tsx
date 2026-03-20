@@ -237,10 +237,10 @@ function DemoLeftPanel({
         ${open ? "translate-x-0" : "-translate-x-[calc(100%+28px)]"}
       `}
     >
-      <div className="relative flex h-full w-[340px] flex-col border-r border-neutral-200/80 bg-white/96 shadow-[0_20px_50px_-36px_rgba(15,23,42,0.55)] backdrop-blur dark:border-white/10 dark:bg-[#0b1220]/96 dark:shadow-[0_32px_100px_-70px_rgba(0,0,0,0.95)]">
-        <div className="border-b border-neutral-200/80 px-4 pb-3 pt-4 dark:border-white/10">
+      <div className="relative flex h-full w-[340px] flex-col border-r border-slate-400 bg-white/96 shadow-[0_20px_50px_-36px_rgba(15,23,42,0.55)] backdrop-blur dark:border-white/20 dark:bg-[#0b1220]/96 dark:shadow-[0_32px_100px_-70px_rgba(0,0,0,0.95)]">
+        <div className="border-b border-slate-400 px-4 pb-3 pt-4 dark:border-white/20">
           <div className="flex items-start gap-2">
-            <div className="inline-flex rounded-full border border-neutral-200 bg-neutral-50 p-1 dark:border-white/10 dark:bg-white/[0.04]">
+            <div className="inline-flex rounded-full border border-slate-400 bg-neutral-50 p-1 dark:border-white/20 dark:bg-white/[0.04]">
               {[
                 ["info", "정보"],
                 ["notes", "노트"],
@@ -306,7 +306,7 @@ function DemoLeftPanel({
                       한문단요약
                     </h3>
                   </div>
-                  <div className="rounded-3xl border border-blue-200/70 bg-blue-50/60 p-3.5 text-[12px] leading-5 text-neutral-700 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] dark:border-blue-300/20 dark:bg-blue-500/10 dark:text-white/80 dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]">
+                  <div className="rounded-3xl border border-slate-400 bg-blue-50/60 p-3.5 text-[12px] leading-5 text-neutral-700 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] dark:border-white/20 dark:bg-blue-500/10 dark:text-white/80 dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]">
                     <p className="whitespace-pre-wrap break-words">{map.summary}</p>
                   </div>
                 </section>
@@ -314,7 +314,7 @@ function DemoLeftPanel({
 
               <DemoSection title="출처">
                 <div className="flex gap-3">
-                  <div className="relative h-16 w-28 flex-shrink-0 overflow-hidden rounded-2xl border border-neutral-300 bg-neutral-50 dark:border-white/20 dark:bg-white/[0.06]">
+                  <div className="relative h-16 w-28 flex-shrink-0 overflow-hidden rounded-2xl border border-slate-400 bg-neutral-50 dark:border-white/20 dark:bg-white/[0.06]">
                     {map.thumbnailUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={map.thumbnailUrl} alt="" className="h-full w-full object-cover" />
@@ -367,7 +367,7 @@ function DemoLeftPanel({
                     {map.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="rounded-full border border-neutral-300 bg-neutral-50 px-2 py-0.5 text-[11px] font-semibold text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
+                        className="rounded-full border border-slate-400 bg-neutral-50 px-2 py-0.5 text-[11px] font-semibold text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
                       >
                         #{tag}
                       </span>
@@ -387,19 +387,19 @@ function DemoLeftPanel({
               <div className="text-xs text-neutral-500 dark:text-white/60">
                 중요한 노드를 읽으면서 떠오른 생각을 바로 남길 수 있어요.
               </div>
-              <div className="rounded-2xl border border-neutral-200 bg-white p-3 dark:border-white/10 dark:bg-white/[0.04]">
+              <div className="rounded-2xl border border-slate-400 bg-white p-3 dark:border-white/20 dark:bg-white/[0.04]">
                 <textarea
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
                   placeholder="이 노드에서 떠오른 생각을 적어보세요."
-                  className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-200 dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:focus:ring-blue-500/20"
+                  className="w-full rounded-xl border border-slate-400 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-200 dark:border-white/20 dark:bg-white/[0.06] dark:text-white dark:focus:ring-blue-500/20"
                   rows={3}
                 />
                 <div className="mt-3 flex justify-end">
                   <button
                     type="button"
                     onClick={addNote}
-                    className="inline-flex items-center gap-1.5 rounded-2xl border border-blue-200 bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700 dark:border-blue-500/30 dark:bg-blue-500"
+                    className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-400 bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700 dark:border-white/20 dark:bg-blue-500"
                   >
                     <Icon icon="mdi:plus" className="h-4 w-4" />
                     노트 추가
@@ -408,7 +408,7 @@ function DemoLeftPanel({
               </div>
 
               {notes.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 p-4 text-sm text-neutral-500 dark:border-white/15 dark:bg-white/[0.04] dark:text-white/60">
+                <div className="rounded-2xl border border-dashed border-slate-400 bg-neutral-50 p-4 text-sm text-neutral-500 dark:border-white/20 dark:bg-white/[0.04] dark:text-white/60">
                   아직 노트가 없습니다.
                 </div>
               ) : (
@@ -424,7 +424,7 @@ function DemoLeftPanel({
             </div>
           ) : (
             <>
-              <div className="mb-3 rounded-2xl border border-sky-200/70 bg-sky-50/70 px-3 py-2 text-[11px] text-slate-700 shadow-[0_16px_30px_-24px_rgba(14,116,144,0.45)] dark:border-sky-300/20 dark:bg-sky-500/10 dark:text-white/75">
+              <div className="mb-3 rounded-2xl border border-slate-400 bg-sky-50/70 px-3 py-2 text-[11px] text-slate-700 shadow-[0_16px_30px_-24px_rgba(14,116,144,0.45)] dark:border-white/20 dark:bg-sky-500/10 dark:text-white/75">
                 <div className="flex items-center gap-2">
                   <Icon icon="mdi:sparkles" className="h-4 w-4 text-sky-500 dark:text-sky-300" />
                   <span className="font-semibold">
@@ -465,7 +465,7 @@ function DemoSection({
           {title}
         </h3>
       </div>
-      <div className="rounded-3xl border border-neutral-200 bg-white p-3 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.25)] dark:border-white/10 dark:bg-white/[0.04] dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]">
+      <div className="rounded-3xl border border-slate-400 bg-white p-3 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.25)] dark:border-white/20 dark:bg-white/[0.04] dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]">
         {children}
       </div>
     </section>
@@ -625,7 +625,7 @@ export default function DemoFullscreenDialog({
           <div className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(closest-side,black,transparent)] bg-[radial-gradient(900px_520px_at_50%_30%,rgba(59,130,246,0.10),transparent_62%)] dark:bg-[radial-gradient(900px_520px_at_50%_30%,rgba(56,189,248,0.10),transparent_62%)]" />
 
           <div className="absolute inset-0 p-0">
-            <div className="h-full w-full rounded-2xl border border-neutral-200/70 bg-white/65 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.03]">
+            <div className="h-full w-full rounded-2xl border border-slate-400 bg-white/65 shadow-sm backdrop-blur-sm dark:border-white/20 dark:bg-white/[0.03]">
               <ClientMindElixir
                 ref={mindRef}
                 mode={resolvedTheme === "dark" ? "dark" : "light"}
@@ -641,7 +641,7 @@ export default function DemoFullscreenDialog({
           <button
             type="button"
             onClick={onClose}
-            className="absolute bottom-4 left-4 z-[15] inline-flex items-center gap-1.5 rounded-2xl border border-neutral-200 bg-white/90 px-3 py-2 text-xs font-semibold text-neutral-700 shadow-lg backdrop-blur hover:bg-white dark:border-white/10 dark:bg-[#0b1220]/75 dark:text-white/80 dark:hover:bg-[#0b1220]/90"
+            className="absolute bottom-4 left-4 z-[15] inline-flex items-center gap-1.5 rounded-2xl border border-slate-400 bg-white/90 px-3 py-2 text-xs font-semibold text-neutral-700 shadow-lg backdrop-blur hover:bg-white dark:border-white/20 dark:bg-[#0b1220]/75 dark:text-white/80 dark:hover:bg-[#0b1220]/90"
             title="데모로 돌아가기"
           >
             <Icon icon="mdi:arrow-left" className="h-4 w-4" />
@@ -649,7 +649,7 @@ export default function DemoFullscreenDialog({
           </button>
 
           <div className="absolute right-4 top-3 z-[15] hidden sm:block">
-            <span className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white/80 px-2.5 py-1 text-[11px] text-neutral-600 dark:border-white/10 dark:bg-[#0b1220]/60 dark:text-white/65">
+            <span className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white/80 px-2.5 py-1 text-[11px] text-neutral-600 dark:border-white/20 dark:bg-[#0b1220]/60 dark:text-white/65">
               <Icon icon="mdi:gesture-tap" className="h-3.5 w-3.5" />
               {editMode === "edit" ? "편집 모드" : "보기 모드"}
             </span>
@@ -688,7 +688,7 @@ export default function DemoFullscreenDialog({
                 key={action.label}
                 type="button"
                 onClick={action.onClick}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-400 bg-white/95 text-neutral-700 shadow-md backdrop-blur dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80"
                 aria-label={action.label}
                 title={action.label}
               >

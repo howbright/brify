@@ -172,7 +172,7 @@ export default function SignupForm() {
   
 
   return (
-    <div className="w-full col-span-6 mx-auto sm:max-w-lg rounded-3xl border border-neutral-200 bg-white/95 dark:bg-[#020617] dark:border-white/12 shadow-[0_22px_45px_-28px_rgba(15,23,42,0.85)]">
+    <div className="w-full col-span-6 mx-auto sm:max-w-lg rounded-3xl border border-slate-400 bg-white dark:bg-[#020617] dark:border-white/20 shadow-[0_22px_45px_-28px_rgba(15,23,42,0.85)]">
       <div className="p-6 sm:p-8 flex flex-col gap-6">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-black tracking-tight text-neutral-900 dark:text-white">
@@ -247,10 +247,10 @@ export default function SignupForm() {
             disabled={isGoogleLoading || isSubmitting}
             className="
               flex items-center justify-center w-full
-              rounded-2xl border border-neutral-300 bg-white
+              rounded-2xl border border-slate-400 bg-white
               py-2.5 px-5 text-sm font-medium text-neutral-900
               hover:-translate-y-0.5 hover:shadow-md
-              dark:bg-white/5 dark:border-white/20 dark:text-neutral-50
+              dark:bg-white/[0.08] dark:border-white/20 dark:text-neutral-50
               transition-all disabled:opacity-60 disabled:hover:shadow-none disabled:hover:translate-y-0
             "
           >
@@ -269,9 +269,9 @@ export default function SignupForm() {
         </div>
 
         <div className="flex items-center text-[11px] font-semibold uppercase text-neutral-400 tracking-wider">
-          <div className="grow border-t border-neutral-200 dark:border-white/10" />
+          <div className="grow border-t border-slate-400 dark:border-white/20" />
           <span className="px-3">{t("or")}</span>
-          <div className="grow border-t border-neutral-200 dark:border-white/10" />
+          <div className="grow border-t border-slate-400 dark:border-white/20" />
         </div>
 
         {step === "email" ? (
@@ -290,11 +290,11 @@ export default function SignupForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="
-                  w-full rounded-2xl border border-neutral-300 bg-neutral-50
+                  w-full rounded-2xl border border-slate-400 bg-white
                   px-3 py-2.5 text-sm text-neutral-900
                   placeholder:text-neutral-400
                   focus:outline-none focus:ring-2 focus:ring-blue-500/70 focus:border-blue-500
-                  dark:bg-black/40 dark:border-white/15 dark:text-neutral-50 dark:placeholder:text-neutral-500
+                  dark:bg-white/[0.08] dark:border-white/20 dark:text-neutral-50 dark:placeholder:text-neutral-500
                 "
                 required
               />
@@ -309,7 +309,7 @@ export default function SignupForm() {
                 text-white bg-neutral-900 border border-neutral-900
                 hover:bg-neutral-950 hover:-translate-y-0.5 hover:shadow-lg
                 active:translate-y-0
-                dark:bg-white dark:text-neutral-900 dark:border-white
+                dark:bg-white dark:text-neutral-900 dark:border-white/20
                 transition-transform transition-shadow
                 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0
               "
@@ -341,11 +341,11 @@ export default function SignupForm() {
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
                 className="
-                  w-full rounded-2xl border border-neutral-300 bg-neutral-50
+                  w-full rounded-2xl border border-slate-400 bg-white
                   px-3 py-2.5 text-sm text-neutral-900
                   placeholder:text-neutral-400
                   focus:outline-none focus:ring-2 focus:ring-blue-500/70 focus:border-blue-500
-                  dark:bg-black/40 dark:border-white/15 dark:text-neutral-50 dark:placeholder:text-neutral-500
+                  dark:bg-white/[0.08] dark:border-white/20 dark:text-neutral-50 dark:placeholder:text-neutral-500
                 "
                 required
               />
@@ -360,7 +360,7 @@ export default function SignupForm() {
                 text-white bg-neutral-900 border border-neutral-900
                 hover:bg-neutral-950 hover:-translate-y-0.5 hover:shadow-lg
                 active:translate-y-0
-                dark:bg-white dark:text-neutral-900 dark:border-white
+                dark:bg-white dark:text-neutral-900 dark:border-white/20
                 transition-transform transition-shadow
                 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0
               "

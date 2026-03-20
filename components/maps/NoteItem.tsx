@@ -40,8 +40,8 @@ function NoteItem({
   return (
     <div
       className="
-        rounded-2xl border border-neutral-200 bg-white p-3
-        dark:border-white/10 dark:bg-white/[0.06]
+        rounded-2xl border border-slate-400 bg-white p-3
+        dark:border-white/20 dark:bg-white/[0.08]
       "
     >
       {editing ? (
@@ -55,9 +55,9 @@ function NoteItem({
             }
           }}
           className="
-            w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm
+            w-full rounded-xl border border-slate-400 bg-white px-3 py-2 text-sm
             outline-none focus:ring-2 focus:ring-blue-200
-            dark:border-white/10 dark:bg-white/[0.06] dark:text-white
+            dark:border-white/20 dark:bg-white/[0.08] dark:text-white
             dark:focus:ring-blue-500/20
           "
           rows={3}
@@ -77,7 +77,7 @@ function NoteItem({
               <button
                 type="button"
                 onClick={saveEdit}
-                className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-neutral-200 text-neutral-500 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 dark:border-white/10 dark:text-white/60 dark:hover:text-blue-300 dark:hover:border-blue-500/25 dark:hover:bg-blue-500/10"
+                className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-400 text-neutral-500 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 dark:border-white/20 dark:text-white/60 dark:hover:text-blue-300 dark:hover:border-blue-500/25 dark:hover:bg-blue-500/10"
                 title="저장"
                 aria-label="저장"
               >
@@ -86,7 +86,7 @@ function NoteItem({
               <button
                 type="button"
                 onClick={cancelEdit}
-                className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-neutral-200 text-neutral-400 hover:text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50 dark:border-white/10 dark:text-white/45 dark:hover:text-white/70 dark:hover:border-white/20 dark:hover:bg-white/10"
+                className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-400 text-neutral-400 hover:text-neutral-600 hover:border-slate-500 hover:bg-neutral-50 dark:border-white/20 dark:text-white/45 dark:hover:text-white/70 dark:hover:border-white/28 dark:hover:bg-white/10"
                 title="취소"
                 aria-label="취소"
               >
@@ -98,7 +98,7 @@ function NoteItem({
               <button
                 type="button"
                 onClick={() => setEditing(true)}
-                className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-neutral-200 text-neutral-500 hover:text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50 dark:border-white/10 dark:text-white/60 dark:hover:text-white/85 dark:hover:border-white/20 dark:hover:bg-white/10"
+                className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-400 text-neutral-500 hover:text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 dark:border-white/20 dark:text-white/60 dark:hover:text-white/85 dark:hover:border-white/28 dark:hover:bg-white/10"
                 title="수정"
                 aria-label="수정"
               >
@@ -107,7 +107,7 @@ function NoteItem({
               <button
                 type="button"
                 onClick={() => onDelete(note.id)}
-                className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-neutral-200 text-neutral-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50 dark:border-white/10 dark:text-white/45 dark:hover:text-rose-300 dark:hover:border-rose-500/25 dark:hover:bg-rose-500/10"
+                className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-400 text-neutral-400 hover:text-rose-500 hover:border-rose-300 hover:bg-rose-50 dark:border-white/20 dark:text-white/45 dark:hover:text-rose-300 dark:hover:border-rose-500/25 dark:hover:bg-rose-500/10"
                 title="삭제"
                 aria-label="삭제"
               >

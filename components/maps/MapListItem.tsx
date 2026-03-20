@@ -134,7 +134,6 @@ export default function MapListItem({
     <article
       role="button"
       tabIndex={0}
-      aria-selected={isActive}
       onClick={() => {
         if (selectionMode) {
           onToggleSelect?.(draft);
@@ -156,19 +155,22 @@ export default function MapListItem({
         ${
           isActive
             ? "border-blue-300 bg-blue-50/70 shadow-sm dark:border-blue-400/40 dark:bg-blue-500/10"
-            : "border-neutral-200 bg-white hover:bg-neutral-50 dark:border-white/10 dark:bg-[#0f172a]/40 dark:hover:bg-white/[0.05]"
+            : "border-slate-400 bg-white hover:bg-neutral-50 dark:border-white/20 dark:bg-[#0f172a]/40 dark:hover:bg-white/[0.05]"
         }`}
     >
       <div className="flex items-start justify-between gap-4 min-w-0">
         <div className="flex min-w-0 items-start gap-3">
-          <div className="w-20 shrink-0 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 aspect-video dark:border-white/10 dark:bg-white/[0.04]">
+          <div className="w-20 shrink-0 overflow-hidden rounded-xl border border-slate-400 bg-neutral-50 aspect-video dark:border-white/20 dark:bg-white/[0.04]">
             {draft.thumbnailUrl ? (
-              <img
-                src={draft.thumbnailUrl}
-                alt={draft.title}
-                className="h-full w-full object-cover"
-                loading="lazy"
-              />
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={draft.thumbnailUrl}
+                  alt={draft.title}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              </>
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-50 via-slate-50 to-fuchsia-50 text-indigo-600 dark:from-indigo-500/10 dark:via-white/5 dark:to-fuchsia-500/10 dark:text-indigo-200">
                 <Icon icon="mdi:map-outline" className="h-5 w-5" />
@@ -212,7 +214,7 @@ export default function MapListItem({
                 event.stopPropagation();
                 onOpenDetail(draft);
               }}
-              className="inline-flex items-center gap-1 rounded-full border border-neutral-300 bg-white px-2 py-0.5 text-[11px] font-semibold text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/15 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
+              className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-2 py-0.5 text-[11px] font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
             >
               <Icon icon="mdi:open-in-new" className="h-3 w-3" />
               열기
@@ -234,7 +236,7 @@ export default function MapListItem({
                   event.stopPropagation();
                   setMenuOpen((v) => !v);
                 }}
-                className="inline-flex items-center justify-center rounded-full border border-neutral-200 bg-white p-1 text-neutral-500 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-full border border-slate-400 bg-white p-1 text-neutral-500 hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/10"
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
                 aria-label="More actions"
@@ -245,7 +247,7 @@ export default function MapListItem({
               {menuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 mt-2 min-w-[140px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]"
+                  className="absolute right-0 mt-2 min-w-[140px] rounded-2xl border border-slate-400 bg-white p-1 shadow-lg dark:border-white/20 dark:bg-[#0f172a]"
                   onClick={(event) => event.stopPropagation()}
                 >
                   <button
@@ -279,13 +281,13 @@ export default function MapListItem({
               {draft.tags.slice(0, 4).map((tag) => (
                 <span
                   key={tag}
-                  className="max-w-[120px] truncate rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-[11px] text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75"
+                  className="max-w-[120px] truncate rounded-full border border-slate-400 bg-neutral-50 px-2 py-0.5 text-[11px] text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/75"
                 >
                   #{tag}
                 </span>
               ))}
               {draft.tags.length > 4 && (
-                <span className="rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-[11px] text-neutral-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/60">
+                <span className="rounded-full border border-slate-400 bg-neutral-50 px-2 py-0.5 text-[11px] text-neutral-500 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/60">
                   +{draft.tags.length - 4}
                 </span>
               )}

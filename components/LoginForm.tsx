@@ -129,11 +129,11 @@ export default function LoginForm() {
     <div
       className="
         w-full col-span-6 mx-auto sm:max-w-lg
-        rounded-3xl border border-neutral-200
-        bg-white/95
+        rounded-3xl border border-slate-400
+        bg-white
         shadow-[0_22px_45px_-28px_rgba(15,23,42,0.85)]
-        dark:border-white/10
-        dark:bg-[#0b1220]/95
+        dark:border-white/20
+        dark:bg-[#0b1220]
         dark:shadow-[0_28px_70px_-34px_rgba(0,0,0,0.85)]
         backdrop-blur
       "
@@ -153,17 +153,17 @@ export default function LoginForm() {
             disabled={isGoogleLoading || isSubmitting}
             className="
               flex items-center justify-center w-full
-              rounded-2xl border border-neutral-300 bg-white
+              rounded-2xl border border-slate-400 bg-white
               py-2.5 px-5 text-sm font-medium text-neutral-900
               hover:-translate-y-0.5 hover:shadow-md
               transition-all
               disabled:opacity-60 disabled:hover:shadow-none disabled:hover:translate-y-0
 
-              dark:bg-white/6
-              dark:border-white/14
+              dark:bg-white/[0.08]
+              dark:border-white/20
               dark:text-neutral-50
-              dark:hover:bg-white/10
-              dark:hover:border-white/20
+              dark:hover:bg-white/[0.12]
+              dark:hover:border-white/28
               dark:hover:shadow-[0_16px_40px_-26px_rgba(0,0,0,0.85)]
             "
           >
@@ -183,9 +183,9 @@ export default function LoginForm() {
 
         {/* 👉 Divider */}
         <div className="flex items-center text-[11px] font-semibold uppercase text-neutral-400 tracking-wider">
-          <div className="grow border-t border-neutral-200 dark:border-white/10" />
+          <div className="grow border-t border-slate-400 dark:border-white/20" />
           <span className="px-3">{t("or")}</span>
-          <div className="grow border-t border-neutral-200 dark:border-white/10" />
+          <div className="grow border-t border-slate-400 dark:border-white/20" />
         </div>
 
         {/* 👉 Email OTP */}
@@ -210,13 +210,13 @@ export default function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="
-                  w-full rounded-2xl border border-neutral-300 bg-neutral-50
+                  w-full rounded-2xl border border-slate-400 bg-white
                   px-3 py-2.5 text-sm text-neutral-900
                   placeholder:text-neutral-400
                   focus:outline-none focus:ring-2 focus:ring-blue-500/70 focus:border-blue-500
 
-                  dark:bg-white/5
-                  dark:border-white/14
+                  dark:bg-white/[0.08]
+                  dark:border-white/20
                   dark:text-neutral-50
                   dark:placeholder:text-neutral-500
                   dark:focus:border-blue-400/60
@@ -251,7 +251,7 @@ export default function LoginForm() {
                 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0
 
                 dark:bg-gradient-to-r dark:from-blue-600 dark:via-indigo-500 dark:to-purple-500
-                dark:border-white/10
+                dark:border-white/20
                 dark:text-white
                 dark:hover:shadow-[0_18px_50px_-28px_rgba(79,70,229,0.75)]
               "
@@ -288,13 +288,13 @@ export default function LoginForm() {
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
                 className="
-                  w-full rounded-2xl border border-neutral-300 bg-neutral-50
+                  w-full rounded-2xl border border-slate-400 bg-white
                   px-3 py-2.5 text-sm text-neutral-900
                   placeholder:text-neutral-400
                   focus:outline-none focus:ring-2 focus:ring-blue-500/70 focus:border-blue-500
 
-                  dark:bg-white/5
-                  dark:border-white/14
+                  dark:bg-white/[0.08]
+                  dark:border-white/20
                   dark:text-neutral-50
                   dark:placeholder:text-neutral-500
                   dark:focus:border-blue-400/60
@@ -329,7 +329,7 @@ export default function LoginForm() {
                 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0
 
                 dark:bg-gradient-to-r dark:from-blue-600 dark:via-indigo-500 dark:to-purple-500
-                dark:border-white/10
+                dark:border-white/20
                 dark:text-white
                 dark:hover:shadow-[0_18px_50px_-28px_rgba(79,70,229,0.75)]
               "

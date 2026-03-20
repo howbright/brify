@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 type Props = {
   open: boolean;
@@ -108,12 +109,12 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
       <div
         className="
           w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-3xl
-          bg-white/98 border border-neutral-200
+          bg-white border border-slate-400
           shadow-[0_24px_70px_-30px_rgba(15,23,42,0.85)]
           p-5 md:p-6
 
           dark:bg-[#0F172A]
-          dark:border-white/10
+          dark:border-white/20
           dark:ring-1 dark:ring-white/5
           dark:shadow-[0_28px_90px_-55px_rgba(0,0,0,0.85)]
           dark:bg-[linear-gradient(to_bottom,rgba(255,255,255,0.06),rgba(255,255,255,0.0))]
@@ -135,8 +136,9 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
             onClick={onClose}
             className="
               rounded-xl p-2
-              text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100
+              border border-slate-600 bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100
               dark:text-neutral-300 dark:hover:text-white dark:hover:bg-white/10
+              dark:border-white/30 dark:bg-white/[0.06]
             "
             aria-label="닫기"
           >
@@ -242,14 +244,16 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
                         "flex min-h-[220px] items-center justify-center rounded-2xl border border-dashed",
                         isAccent
                           ? "border-indigo-300 bg-white/70 dark:border-indigo-400/30 dark:bg-black/10"
-                          : "border-neutral-300 bg-white/90 dark:border-white/12 dark:bg-black/10",
+                          : "border-slate-400 bg-white dark:border-white/20 dark:bg-slate-950/70",
                       ].join(" ")}
                     >
                       <div className="flex flex-col items-center gap-2 text-center">
                         {"imageSrc" in step ? (
-                          <img
+                          <Image
                             src={step.imageSrc}
                             alt={step.title}
+                            width={1200}
+                            height={800}
                             className="max-h-[320px] w-full rounded-xl object-contain"
                           />
                         ) : (

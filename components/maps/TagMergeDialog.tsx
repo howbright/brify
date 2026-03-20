@@ -45,7 +45,7 @@ export default function TagMergeDialog({
                 className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${
                   target === tag
                     ? "border-blue-500 bg-blue-600 text-white"
-                    : "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                    : "border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100"
                 } dark:border-blue-400/30 dark:bg-blue-500/10 dark:text-blue-200 dark:hover:bg-blue-500/20`}
               >
                 #{tag}
@@ -61,7 +61,7 @@ export default function TagMergeDialog({
               value={target}
               onChange={(event) => setTarget(event.target.value)}
               placeholder="합칠 태그 이름"
-              className="w-full rounded-2xl border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-200/70 dark:border-white/15 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/40 dark:focus:border-white dark:focus:ring-white/20"
+              className="w-full rounded-2xl border border-slate-400 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-200/70 dark:border-white/20 dark:bg-white/[0.08] dark:text-white dark:placeholder:text-white/40 dark:focus:border-white dark:focus:ring-white/20"
             />
           </div>
 
@@ -69,7 +69,7 @@ export default function TagMergeDialog({
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
+              className="rounded-full border border-slate-400 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.08] dark:text-white/85 dark:hover:bg-white/[0.12]"
             >
               닫기
             </button>
@@ -77,7 +77,7 @@ export default function TagMergeDialog({
               type="button"
               disabled={target.trim().length === 0}
               onClick={() => onConfirm(target.trim())}
-              className="rounded-full border border-neutral-800 bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/15 dark:bg-white dark:text-neutral-900 dark:hover:bg-white/90"
+              className="rounded-full border border-neutral-800 bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/20 dark:bg-white dark:text-neutral-900 dark:hover:bg-white/90"
             >
               합치기
             </button>

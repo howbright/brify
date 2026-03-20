@@ -15,6 +15,11 @@ type Props = {
   onSelectTheme: (name: string) => void;
 };
 
+type MindThemeLike = {
+  cssVar?: Record<string, string>;
+  palette?: string[];
+};
+
 export default function MindThemePreferenceModal({
   open,
   themeName,
@@ -22,7 +27,7 @@ export default function MindThemePreferenceModal({
   onSelectTheme,
 }: Props) {
   const [mounted, setMounted] = useState(false);
-  const [defaultTheme, setDefaultTheme] = useState<any | null>(null);
+  const [defaultTheme, setDefaultTheme] = useState<MindThemeLike | null>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -55,7 +60,7 @@ export default function MindThemePreferenceModal({
         aria-hidden="true"
       />
       <div className="absolute inset-0 flex items-center justify-center p-6">
-        <div className="w-[92vw] max-w-[760px] rounded-3xl border border-neutral-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-[#0b1220] max-h-[85vh] flex flex-col overflow-hidden">
+        <div className="w-[92vw] max-w-[760px] rounded-3xl border border-slate-400 bg-white p-5 shadow-2xl dark:border-white/20 dark:bg-[#0b1220] max-h-[85vh] flex flex-col overflow-hidden">
           <div className="flex items-start justify-between gap-3">
             <div>
               <h3 className="text-base font-semibold text-neutral-900 dark:text-white/90">
@@ -68,7 +73,7 @@ export default function MindThemePreferenceModal({
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex items-center gap-1.5 rounded-2xl border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
+              className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-400 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.08] dark:text-white/85 dark:hover:bg-white/[0.12]"
             >
               <Icon icon="mdi:close" className="h-4 w-4" />
               닫기
@@ -100,13 +105,13 @@ export default function MindThemePreferenceModal({
                     ${
                       preset.name === themeName
                         ? "border-blue-400 outline outline-2 outline-blue-300/70 shadow-[0_12px_30px_-18px_rgba(59,130,246,0.6)]"
-                        : "border-neutral-200 hover:border-neutral-300 hover:shadow-sm"
+                        : "border-slate-400 hover:border-slate-500 hover:shadow-sm"
                     }
-                    dark:border-white/10
+                    dark:border-white/20
                   `}
                 >
                   <div
-                    className="h-20 rounded-xl border border-neutral-200/60 p-2"
+                    className="h-20 rounded-xl border border-slate-400 p-2"
                     style={{ backgroundColor: bg }}
                   >
                     <div

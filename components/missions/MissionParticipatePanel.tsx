@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 
@@ -84,8 +83,8 @@ function StatPill({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-neutral-200/80 dark:border-white/15",
-        "bg-white/80 dark:bg-black/35 backdrop-blur",
+        "rounded-2xl border border-slate-400 dark:border-white/20",
+        "bg-white dark:bg-black/45 backdrop-blur",
         "px-3 py-2"
       )}
     >
@@ -133,8 +132,8 @@ function WeeklyQuotaBadge({
     <div
       className="
         w-full
-        rounded-3xl border border-neutral-200/80 dark:border-white/15
-        bg-white/85 dark:bg-black/35 backdrop-blur
+        rounded-3xl border border-slate-400 dark:border-white/20
+        bg-white dark:bg-black/45 backdrop-blur
         px-4 py-3 sm:px-5 sm:py-4
       "
       aria-label="주간 제출 한도"
@@ -224,7 +223,7 @@ function MiniNotice({
       ? "border-amber-200/80 dark:border-amber-300/20 bg-amber-50/70 dark:bg-amber-400/5"
       : tone === "info"
       ? "border-blue-200/70 dark:border-blue-300/20 bg-blue-50/60 dark:bg-blue-400/5"
-      : "border-neutral-200/70 dark:border-white/12 bg-neutral-50/70 dark:bg-black/30";
+      : "border-slate-400 dark:border-white/20 bg-white dark:bg-black/40";
 
   return (
     <div className={cn("rounded-2xl border p-3", toneCls)}>
@@ -239,8 +238,6 @@ function MiniNotice({
 }
 
 export default function MissionParticipatePanel() {
-  const router = useRouter();
-
   // stats
   const [stats, setStats] = useState<MissionStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
@@ -264,16 +261,10 @@ export default function MissionParticipatePanel() {
 
   useEffect(() => {
     refreshStats();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const submittedWeek = stats?.submitted_week ?? 0;
   const submitCapReached = submittedWeek >= POLICY.submissions.perWeek;
-  const remainingSubmitWeek = Math.max(
-    0,
-    POLICY.submissions.perWeek - submittedWeek
-  );
-
   // reset countdown label only
   const [remainText, setRemainText] = useState(() => {
     const now = getNowKstShifted();

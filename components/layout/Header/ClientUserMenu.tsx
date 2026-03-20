@@ -61,8 +61,8 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
 
   const dividerClass =
     "my-2 mx-1.5 h-px bg-gradient-to-r " +
-    "from-transparent via-neutral-200 to-transparent " +
-    "dark:via-neutral-700/70";
+    "from-transparent via-slate-400 to-transparent " +
+    "dark:via-white/20";
 
   return (
     <>
@@ -74,7 +74,7 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
             rounded-full border border-transparent
             px-3 py-1.5 text-sm font-medium
             text-neutral-700 dark:text-neutral-200
-            hover:border-blue-500/70 hover:bg-blue-50/80 hover:text-blue-700
+            hover:border-slate-400 hover:bg-blue-50/80 hover:text-blue-700
             dark:hover:bg-white/5 dark:hover:text-blue-300
             transition-colors
           "
@@ -88,7 +88,7 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
         sideOffset={8}
         className="
           w-[17rem] rounded-2xl
-          border border-white/70 dark:border-white/20
+          border border-slate-400 dark:border-white/20
           bg-white/95 dark:bg-[rgba(15,23,42,0.98)]
           shadow-[0_18px_40px_-18px_rgba(15,23,42,0.9)]
           backdrop-blur-xl
@@ -150,7 +150,7 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
 
         <DropdownMenuItem
           className="text-sm"
-          onSelect={(e) => {
+          onSelect={() => {
             setThemeOpen(true);
           }}
         >

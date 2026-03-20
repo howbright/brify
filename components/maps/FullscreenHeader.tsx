@@ -16,7 +16,7 @@ export default function FullscreenHeader({
 }: Props) {
   return (
     <header
-      className="relative z-[20] w-full border-b border-neutral-200/80 dark:border-white/10"
+      className="relative z-[20] w-full border-b border-slate-400 dark:border-white/20"
       style={{ height: "var(--header-h)" }}
     >
       <div className="flex flex-col">
@@ -37,7 +37,7 @@ export default function FullscreenHeader({
             <span className="text-[16px] leading-none">×</span>
           </button>
         </div>
-        <div className="h-[40px] px-3 flex items-center justify-between gap-2 bg-white/92 backdrop-blur dark:bg-[#0b1220]/88 sm:h-[40px]">
+        <div className="h-[40px] px-3 flex items-center justify-between gap-2 bg-white backdrop-blur dark:bg-[#0b1220] sm:h-[40px]">
           <div className="min-w-0 flex items-center gap-2 flex-1">{left}</div>
           <div className="flex items-center justify-end gap-2 shrink-0">{right}</div>
         </div>

@@ -9,8 +9,6 @@ import { Link } from "@/i18n/navigation";
 import LanguageSelector from "@/components/LanguageSelector";
 import { ThemeToggleText } from "@/components/ThemeToggleText";
 
-type NavItem = { href: string; label: string; icon?: string };
-
 export default function ClientMobileUserMenu({
   isAuthed,
   email,
@@ -23,14 +21,14 @@ export default function ClientMobileUserMenu({
 
   const dividerClass =
     "my-2 mx-1.5 h-px bg-gradient-to-r " +
-    "from-transparent via-neutral-200 to-transparent " +
-    "dark:via-neutral-700/70";
+    "from-transparent via-slate-400 to-transparent " +
+    "dark:via-white/20";
 
   return (
     <div className="flex items-center gap-2 md:flex lg:hidden">
       {/* 햄버거 버튼 */}
       <button
-        className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+        className="inline-flex items-center rounded-lg border border-slate-400 p-2 text-sm text-gray-500 hover:bg-gray-100 dark:border-white/20 dark:text-gray-300 dark:hover:bg-gray-800"
         onClick={() => setOpen((v) => !v)}
         aria-label="Open menu"
         aria-expanded={open}
@@ -66,7 +64,7 @@ export default function ClientMobileUserMenu({
               transition={{ duration: 0.25, ease: "easeOut" }}
               className="
                 fixed top-[64px] left-0 right-0 mx-2 rounded-2xl
-                border border-white/70 dark:border-white/18
+                border border-slate-400 dark:border-white/20
                 bg-white/95 dark:bg-[rgba(15,23,42,0.96)]
                 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.55)]
                 dark:shadow-[0_22px_60px_-26px_rgba(15,23,42,0.95)]
@@ -175,7 +173,7 @@ export default function ClientMobileUserMenu({
                   <>
                     <Link
                       href="/login"
-                      className="w-full text-primary border border-primary hover:bg-primary/10 font-medium 
+                      className="w-full text-primary border border-slate-400 hover:bg-primary/10 font-medium 
                         rounded-lg text-sm px-4 py-2 text-center"
                       onClick={() => setOpen(false)}
                     >

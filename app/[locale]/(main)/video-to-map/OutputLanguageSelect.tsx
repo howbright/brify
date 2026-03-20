@@ -144,9 +144,9 @@ export default function OutputLanguageSelect({
               appearance-none
               rounded-2xl border border-slate-600 bg-white
               pl-3 pr-8 py-1.5 text-sm font-semibold text-neutral-900
-              hover:bg-neutral-50
+              hover:bg-slate-100
               focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-              dark:border-white/50 dark:bg-black/35 dark:text-neutral-50 dark:hover:bg-black/45
+              dark:border-white/50 dark:bg-slate-950/82 dark:text-neutral-50 dark:hover:bg-slate-950
               disabled:opacity-60 disabled:cursor-not-allowed
             "
           >
@@ -173,8 +173,8 @@ export default function OutputLanguageSelect({
           className="
             rounded-2xl border border-slate-600 bg-neutral-50
             px-2.5 py-1.5 text-sm font-semibold text-neutral-800
-            hover:bg-neutral-100
-            dark:border-white/50 dark:bg-white/5 dark:text-neutral-100 dark:hover:bg-white/10
+            hover:bg-slate-100
+            dark:border-white/50 dark:bg-white/[0.08] dark:text-neutral-100 dark:hover:bg-white/[0.12]
             disabled:opacity-60 disabled:cursor-not-allowed
           "
         >
@@ -201,6 +201,7 @@ export default function OutputLanguageSelect({
             className="
               relative w-full max-w-xl rounded-3xl
               bg-white border border-slate-600
+              bg-white
               shadow-[0_24px_70px_-30px_rgba(15,23,42,0.85)]
               p-5 md:p-6
 
@@ -236,8 +237,8 @@ export default function OutputLanguageSelect({
                   onClick={() => setIsOpen(false)}
                   className="
                     rounded-2xl px-2.5 py-1.5 text-xs md:text-sm
-                    border border-slate-500 bg-white hover:bg-neutral-50
-                    dark:border-white/35 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10
+                    border border-slate-500 bg-white hover:bg-slate-100
+                    dark:border-white/35 dark:bg-white/[0.08] dark:text-white/85 dark:hover:bg-white/[0.12]
                   "
                 >
                   닫기
@@ -262,7 +263,7 @@ export default function OutputLanguageSelect({
 
                       /* ✅ dark: 입력도 표면이 살짝 밝게 */
                       dark:border-white/35
-                      dark:bg-white/[0.06]
+                      dark:bg-white/[0.08]
                       dark:text-white
                       dark:placeholder:text-white/40
                       dark:focus:ring-[rgb(var(--hero-b))]/30
@@ -274,9 +275,9 @@ export default function OutputLanguageSelect({
                 <div
                   className="
                     mt-3 max-h-[360px] overflow-auto rounded-2xl border border-slate-500
-                    bg-neutral-50 p-2
+                    bg-white p-2
                     dark:border-white/35
-                    dark:bg-white/[0.04]
+                    dark:bg-white/[0.08]
                     dark:ring-1 dark:ring-white/16
                   "
                 >
@@ -295,7 +296,7 @@ export default function OutputLanguageSelect({
                             ${
                               active
                                 ? "border border-blue-700 bg-white shadow-sm dark:border-[rgb(var(--hero-b))] dark:bg-white/[0.08] dark:shadow-[0_14px_50px_-30px_rgba(0,0,0,0.9)]"
-                                : "border border-slate-400 bg-white hover:bg-neutral-100 dark:border-white/28 dark:bg-white/[0.05] dark:hover:bg-white/[0.08]"
+                                : "border border-slate-400 bg-white hover:bg-slate-100 dark:border-white/28 dark:bg-white/[0.08] dark:hover:bg-white/[0.12]"
                             }
                           `}
                         >
