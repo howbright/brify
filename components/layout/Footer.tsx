@@ -1,14 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+
+import { Link } from "@/i18n/navigation";
 
 const supportLinks = [
-  { href: "/terms", label: "이용약관" },
-  { href: "/privacy", label: "개인정보처리방침" },
-  { href: "/refund-policy", label: "환불정책" },
-  { href: "/support", label: "고객지원" },
-  { href: "/pricing", label: "요금제" },
+  { href: "/terms", labelKey: "terms" },
+  { href: "/privacy", labelKey: "privacy" },
+  { href: "/refund-policy", labelKey: "refundPolicy" },
+  { href: "/support", labelKey: "support" },
+  { href: "/pricing", labelKey: "pricing" },
 ];
 
 function FooterLink({ href, label }: { href: string; label: string }) {
@@ -29,6 +31,8 @@ function FooterLink({ href, label }: { href: string; label: string }) {
 }
 
 export default function Footer() {
+  const t = useTranslations("Footer");
+
   return (
     <footer
       className="
@@ -71,42 +75,46 @@ export default function Footer() {
             </div>
 
             <p className="mt-5 max-w-md text-[15px] font-semibold leading-7 text-slate-700 dark:text-slate-200">
-              수많은 정보를 구조로 만들어 빠르게 이해하는 서비스.
+              {t("description")}
             </p>
 
             <div className="mt-6 space-y-1.5 text-[14px] font-medium text-slate-700 dark:text-slate-300">
-              <p>대표: 이나현</p>
-              <p>사업자등록번호: 726-22-01928</p>
-              <p>통신판매업신고: 2025-서울강남-0123</p>
+              <p>{t("company.representative")}</p>
+              <p>{t("company.businessNumber")}</p>
+              <p>{t("company.mailOrderNumber")}</p>
             </div>
           </div>
 
           <div>
             <div className="text-xs font-extrabold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">
-              Contact
+              {t("contact.title")}
             </div>
             <div className="mt-4 space-y-2 text-[14px] font-medium text-slate-500 dark:text-slate-400">
               <p>contact@brify.ai</p>
               <p>000-0000-0000</p>
-              <p>경기도 성남시 분당구 야탑로 28,비1동 556호 (야탑동, 우당프라자)</p>
+              <p>{t("contact.address")}</p>
             </div>
           </div>
 
           <div>
             <div className="text-xs font-extrabold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">
-              Support
+              {t("support.title")}
             </div>
             <ul className="mt-4 space-y-3">
               {supportLinks.map((link) => (
-                <FooterLink key={link.href} {...link} />
+                <FooterLink
+                  key={link.href}
+                  href={link.href}
+                  label={t(`support.links.${link.labelKey}`)}
+                />
               ))}
             </ul>
           </div>
         </div>
 
         <div className="mt-8 flex flex-col gap-3 border-t border-slate-200/80 pt-5 text-sm font-medium text-slate-500 dark:border-white/10 dark:text-slate-400 md:flex-row md:items-center md:justify-between">
-          <div>© {new Date().getFullYear()} vision328. All rights reserved.</div>
-          <div className="text-sm">Brify는 vision328이 운영하는 서비스입니다.</div>
+          <div>© {new Date().getFullYear()} vision328. {t("copyright")}</div>
+          <div className="text-sm">{t("operatedBy")}</div>
         </div>
       </div>
     </footer>

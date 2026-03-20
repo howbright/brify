@@ -964,5 +964,29 @@
       "missingMapId": "Missing mapId. Can't upload thumbnail.",
       "thumbnailUploadFailed": "Failed to upload thumbnail."
     }
+  },
+  "Footer": {
+    "description": "A service that turns large amounts of information into structure for faster understanding.",
+    "company": {
+      "representative": "Representative: Nahyun Lee",
+      "businessNumber": "Business Registration Number: 726-22-01928",
+      "mailOrderNumber": "Mail-Order Sales Report: 2025-Seoul-Gangnam-0123"
+    },
+    "contact": {
+      "title": "Contact",
+      "address": "556, Building B1, 28 Yatap-ro, Bundang-gu, Seongnam-si, Gyeonggi-do, Republic of Korea (Yatap-dong, Woodang Plaza)"
+    },
+    "support": {
+      "title": "Support",
+      "links": {
+        "terms": "Terms of Service",
+        "privacy": "Privacy Policy",
+        "refundPolicy": "Refund Policy",
+        "support": "Customer Support",
+        "pricing": "Pricing"
+      }
+    },
+    "copyright": "All rights reserved.",
+    "operatedBy": "Brify is a service operated by vision328."
   }
 }

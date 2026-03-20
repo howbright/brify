@@ -86,13 +86,13 @@ export default function DraftMapCard({
       <div
         className="
         relative overflow-hidden
-        rounded-3xl border border-neutral-200 bg-white
+        rounded-3xl border border-neutral-400 bg-white
         shadow-[0_18px_40px_-28px_rgba(15,23,42,0.45)]
         p-4 flex gap-4
         transition-all duration-500
 
         dark:bg-[#111C2E]
-        dark:border-white/10
+        dark:border-white/30
         dark:ring-1 dark:ring-white/10
         dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.95)]
         "
@@ -122,9 +122,9 @@ export default function DraftMapCard({
         className="
           relative
           h-16 w-28 rounded-2xl overflow-hidden
-          border border-neutral-200 bg-neutral-50
+          border border-neutral-400 bg-neutral-50
           flex-shrink-0
-          dark:border-white/10
+          dark:border-white/30
           dark:bg-white/[0.06]
         "
       >
@@ -198,11 +198,11 @@ export default function DraftMapCard({
               <span
                 key={tag}
                 className="
-                  rounded-full border border-neutral-200 bg-neutral-50
-                  px-2 py-0.5 text-[11px] text-neutral-600
-                  dark:border-white/10
-                  dark:bg-white/[0.06]
-                  dark:text-white/75
+                  rounded-full border border-neutral-400 bg-neutral-100
+                  px-2 py-0.5 text-[11px] font-semibold text-neutral-700
+                  dark:border-white/30
+                  dark:bg-white/[0.08]
+                  dark:text-white/85
                 "
               >
                 #{tag}
@@ -258,10 +258,10 @@ export default function DraftMapCard({
               className="
                 whitespace-nowrap
                 inline-flex items-center justify-center gap-1.5 rounded-2xl
-                border border-neutral-200 bg-white px-3 py-1.5
+                border border-neutral-400 bg-white px-3 py-1.5
                 text-xs font-semibold text-neutral-700 hover:bg-neutral-50
                 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white
-                dark:border-white/12
+                dark:border-white/30
                 dark:bg-white/[0.06]
                 dark:text-white/85
                 dark:hover:bg-white/10

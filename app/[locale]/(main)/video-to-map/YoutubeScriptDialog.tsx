@@ -286,11 +286,11 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
             onClick={onClose}
             className="
               rounded-2xl px-3.5 py-2 text-xs md:text-sm text-neutral-700
-              border border-neutral-300 bg-white
+              border border-slate-600 bg-white
               hover:bg-neutral-100
 
               dark:text-neutral-100
-              dark:border-white/15
+              dark:border-white/30
               dark:bg-white/6
               dark:hover:bg-white/10
             "

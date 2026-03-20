@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
+import { createPortal } from "react-dom";
 
 export type LangOption = {
   code: string;
@@ -141,11 +142,11 @@ export default function OutputLanguageSelect({
             disabled={disabled}
             className="
               appearance-none
-              rounded-2xl border border-slate-400 bg-white
+              rounded-2xl border border-slate-600 bg-white
               pl-3 pr-8 py-1.5 text-sm font-semibold text-neutral-900
               hover:bg-neutral-50
-              focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-              dark:border-white/30 dark:bg-black/35 dark:text-neutral-50 dark:hover:bg-black/45
+              focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300/60
+              dark:border-white/50 dark:bg-black/35 dark:text-neutral-50 dark:hover:bg-black/45
               disabled:opacity-60 disabled:cursor-not-allowed
             "
           >
@@ -170,10 +171,10 @@ export default function OutputLanguageSelect({
           onClick={() => setIsOpen(true)}
           disabled={disabled}
           className="
-            rounded-2xl border border-slate-400 bg-neutral-50
+            rounded-2xl border border-slate-600 bg-neutral-50
             px-2.5 py-1.5 text-sm font-semibold text-neutral-800
             hover:bg-neutral-100
-            dark:border-white/30 dark:bg-white/5 dark:text-neutral-100 dark:hover:bg-white/10
+            dark:border-white/50 dark:bg-white/5 dark:text-neutral-100 dark:hover:bg-white/10
             disabled:opacity-60 disabled:cursor-not-allowed
           "
         >
@@ -181,44 +182,45 @@ export default function OutputLanguageSelect({
         </button>
       </div>
 
-      {isOpen && (
-        <div
+      {isOpen &&
+        createPortal(
+          <div
           className="
             fixed inset-0 z-50 flex items-center justify-center px-4
-            bg-black/55 backdrop-blur-sm
-            dark:bg-black/65
+            bg-black/22
+            dark:bg-black/35
           "
           role="dialog"
           aria-modal="true"
           aria-label="출력 언어 선택"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setIsOpen(false);
-          }}
-        >
-          <div
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget) setIsOpen(false);
+            }}
+          >
+            <div
             className="
               relative w-full max-w-xl rounded-3xl
-              bg-white/98 border border-neutral-200
+              bg-white border border-slate-600
               shadow-[0_24px_70px_-30px_rgba(15,23,42,0.85)]
               p-5 md:p-6
 
               /* ✅ dark: 페이지보다 밝은 surface + 링 + 강한 그림자 */
               dark:bg-[#0b1220]
-              dark:border-white/12
-              dark:ring-1 dark:ring-white/12
+              dark:border-white/40
+              dark:ring-1 dark:ring-white/20
               dark:shadow-[0_40px_140px_-80px_rgba(0,0,0,0.95)]
             "
           >
             {/* ✅ subtle highlight: 다크에서 “카드 표면” 느낌 */}
-            <div className="pointer-events-none absolute inset-0 rounded-3xl dark:bg-white/[0.03]" />
-            <div
+              <div className="pointer-events-none absolute inset-0 rounded-3xl dark:bg-white/[0.02]" />
+              <div
               className="
                 pointer-events-none absolute -top-24 -left-24 h-64 w-64 rounded-full blur-3xl
                 bg-blue-500/0
                 dark:bg-[rgb(var(--hero-b))]/18
               "
-            />
-            <div className="relative">
+              />
+              <div className="relative">
               <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1">
                   <h3 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
@@ -234,8 +236,8 @@ export default function OutputLanguageSelect({
                   onClick={() => setIsOpen(false)}
                   className="
                     rounded-2xl px-2.5 py-1.5 text-xs md:text-sm
-                    border border-neutral-200 bg-white hover:bg-neutral-50
-                    dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10
+                    border border-slate-500 bg-white hover:bg-neutral-50
+                    dark:border-white/35 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10
                   "
                 >
                   닫기
@@ -253,13 +255,13 @@ export default function OutputLanguageSelect({
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="언어를 검색해 주세요 (예: English, 한국어, ja, zh...)"
                     className="
-                      w-full rounded-2xl border border-neutral-200 bg-white
+                      w-full rounded-2xl border border-slate-500 bg-white
                       pl-9 pr-3 py-2 text-sm text-neutral-900
                       placeholder:text-neutral-400
-                      focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
+                      focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300/60
 
                       /* ✅ dark: 입력도 표면이 살짝 밝게 */
-                      dark:border-white/12
+                      dark:border-white/35
                       dark:bg-white/[0.06]
                       dark:text-white
                       dark:placeholder:text-white/40
@@ -271,11 +273,11 @@ export default function OutputLanguageSelect({
 
                 <div
                   className="
-                    mt-3 max-h-[360px] overflow-auto rounded-2xl border border-neutral-200
+                    mt-3 max-h-[360px] overflow-auto rounded-2xl border border-slate-500
                     bg-neutral-50 p-2
-                    dark:border-white/12
+                    dark:border-white/35
                     dark:bg-white/[0.04]
-                    dark:ring-1 dark:ring-white/10
+                    dark:ring-1 dark:ring-white/16
                   "
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -292,8 +294,8 @@ export default function OutputLanguageSelect({
                             border transition
                             ${
                               active
-                                ? "border-blue-300 bg-white shadow-sm dark:border-[rgb(var(--hero-b))]/60 dark:bg-white/[0.08] dark:shadow-[0_14px_50px_-30px_rgba(0,0,0,0.9)]"
-                                : "border-neutral-200 bg-white hover:bg-neutral-100 dark:border-white/10 dark:bg-white/[0.05] dark:hover:bg-white/[0.08]"
+                                ? "border border-blue-700 bg-white shadow-sm dark:border-[rgb(var(--hero-b))] dark:bg-white/[0.08] dark:shadow-[0_14px_50px_-30px_rgba(0,0,0,0.9)]"
+                                : "border border-slate-400 bg-white hover:bg-neutral-100 dark:border-white/28 dark:bg-white/[0.05] dark:hover:bg-white/[0.08]"
                             }
                           `}
                         >
@@ -322,10 +324,11 @@ export default function OutputLanguageSelect({
                   코드: <b className="text-neutral-900 dark:text-white">{value}</b>
                 </div>
               </div>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </>
   );
 }
