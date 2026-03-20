@@ -191,6 +191,22 @@ layer(base);
   .animate-floating-reverse {
     animation: floating-reverse 5s ease-in-out infinite;
   }
+
+  [data-sonner-toast][data-styled="true"] {
+    font-size: 1.125rem !important;
+    line-height: 1.75rem !important;
+  }
+
+  [data-sonner-toast][data-styled="true"] [data-title] {
+    font-size: 1.125rem !important;
+    line-height: 1.75rem !important;
+    font-weight: 600 !important;
+  }
+
+  [data-sonner-toast][data-styled="true"] [data-description] {
+    font-size: 1rem !important;
+    line-height: 1.625rem !important;
+  }
 }
 
 /* 1) 코어 HSL 토큰: Tailwind v4 기본 세트 (반드시 유지) */

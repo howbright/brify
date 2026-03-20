@@ -1,5 +1,8 @@
 import FinalCTA from "@/components/landing/FinalCTA";
+import HeroFlowStrip from "@/components/landing/HeroFlowStrip";
+import MapLibrarySection from "@/components/landing/MapLibrarySection";
 import LandingPricingSection from "@/components/landing/LandingPricingSection";
+import LandingTestimonialsSection from "@/components/landing/LandingTestimonialsSection";
 import CreatorSection from "@/components/layout/CreateorSection";
 import Footer from "@/components/layout/Footer";
 import Hero from "@/components/layout/Hero";
@@ -15,9 +18,12 @@ export default async function Home() {
   return (
     <div>
       <Hero />
-      <CreatorSection />
+      <HeroFlowStrip />
+      <MapLibrarySection />
+      <LandingTestimonialsSection />
       <LandingPricingSection isAuthed={isAuthed} />
-      <FinalCTA isAuthed={isAuthed}/>
+      <FinalCTA isAuthed={isAuthed} />
+      <CreatorSection />
       <Footer />
     </div>
   );

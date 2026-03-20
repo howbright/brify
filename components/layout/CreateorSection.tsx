@@ -133,7 +133,12 @@ export default function CreatorSection({
 
           {/* 말풍선 — 아바타와 밀착 */}
           <div className="-mt-1 sm:-mt-2 relative">
-            <div
+            <motion.div
+              initial={{ opacity: 0, y: 18, scale: 0.985 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, amount: 0.35 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              whileHover={{ y: -4, scale: 1.01 }}
               className="
                 relative mt-4 rounded-3xl px-6 py-5 sm:px-8 sm:py-7
                 bg-white/80 backdrop-blur
@@ -177,7 +182,7 @@ export default function CreatorSection({
                   ),
                 })}
               </p>
-            </div>
+            </motion.div>
           </div>
 
           {/* 소프트 글로우 (중앙 집중) */}

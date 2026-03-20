@@ -63,14 +63,15 @@ export default function LoginPromptModal({ show, onClose }: { show: boolean; onC
         <div className="max-w-(--breakpoint-xl) w-full mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center py-20">
           {/* 좌측 설명 */}
           <div className="px-6 md:px-12">
-            <Link href="/" className="inline-flex items-center mb-10 text-3xl font-black uppercase tracking-tight">
+            <Link href="/" className="inline-flex items-center gap-3 mb-10 text-3xl font-black tracking-tight">
               <Image
-                src="/images/logo.png"
-                className="mr-3 h-12"
+                src="/images/newlogo.png"
+                className="h-12 w-12"
                 alt="Brify Logo"
-                width={300}
-                height={300}
+                width={512}
+                height={512}
               />
+              <span className="text-[34px] text-slate-900 dark:text-slate-100">Brify</span>
             </Link>
 
             <h2 className="text-3xl font-extrabold mb-6 leading-tight">

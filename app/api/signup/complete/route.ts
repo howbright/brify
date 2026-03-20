@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
       const rewardResult = await grantSignupReward({
         userId: uid,
         locale,
-        reward: 10,
+        reward: 15,
       });
 
       // 보상 실패여도 "동의 완료"는 성공 처리

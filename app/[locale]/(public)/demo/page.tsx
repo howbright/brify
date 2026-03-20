@@ -31,9 +31,10 @@ type OutputLanguage = "ko" | "en";
 export default function DemoPage() {
   const mindRef = useRef<ClientMindElixirHandle | null>(null);
   const [hasGeneratedMap, setHasGeneratedMap] = useState(false);
-  const [panMode, setPanMode] = useState(true);
   const [outputLanguage, setOutputLanguage] = useState<OutputLanguage>("ko");
   const [titleIndex, setTitleIndex] = useState(0);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [showMoveHint, setShowMoveHint] = useState(true);
 
   const theme = useMemo(() => {
     const namedTheme = MIND_THEME_BY_NAME[DEMO.mindThemeName];
@@ -58,9 +59,13 @@ export default function DemoPage() {
     return () => window.clearTimeout(timer);
   }, [hasGeneratedMap]);
 
-  const handleSelectMode = () => {
-    setPanMode(false);
-    toast.message("선택 모드에서는 오른쪽 버튼 드래그로 맵을 이동할 수 있어요.");
+  const handleEditMode = () => {
+    setIsEditMode(true);
+    toast.message("노드를 우클릭하면 편집 메뉴가 나타나요.");
+  };
+
+  const handleViewModeEditAttempt = () => {
+    toast.message("노드를 수정하려면 먼저 편집 모드로 전환해주세요.");
   };
 
   return (
@@ -252,11 +257,12 @@ export default function DemoPage() {
                     </button>
 
                     <div className="ml-6 hidden sm:block">
-                      <div className="relative -translate-y-1 rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold leading-5 text-white shadow-[0_18px_40px_rgba(15,23,42,0.32)] dark:bg-black">
+                      <div className="relative -translate-y-1 rounded-xl border border-slate-400/70 bg-slate-950 px-4 py-2 text-sm font-semibold leading-5 text-white shadow-[0_18px_40px_rgba(15,23,42,0.32)] dark:border-slate-500/60 dark:bg-black">
                         버튼을 눌러
                         <br />
                         결과를 확인해보세요!
-                        <span className="absolute left-[-8px] top-1/2 -translate-y-1/2 border-y-[7px] border-r-[8px] border-y-transparent border-r-slate-950 drop-shadow-[-2px_4px_8px_rgba(15,23,42,0.18)] dark:border-r-black" />
+                        <span className="absolute left-[-10px] top-1/2 -translate-y-1/2 border-y-[8px] border-r-[10px] border-y-transparent border-r-slate-400/70 dark:border-r-slate-500/60" />
+                        <span className="absolute left-[-8px] top-1/2 -translate-y-1/2 border-y-[7px] border-r-[9px] border-y-transparent border-r-slate-950 drop-shadow-[-2px_4px_8px_rgba(15,23,42,0.18)] dark:border-r-black" />
                       </div>
                     </div>
                   </div>
@@ -283,25 +289,40 @@ export default function DemoPage() {
             <div className="pt-6">
               <div className="overflow-hidden rounded-[28px] border border-blue-100 bg-white shadow-sm dark:border-blue-400/15 dark:bg-[#0b1220]">
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blue-100 bg-[linear-gradient(180deg,rgba(239,246,255,0.92)_0%,rgba(255,255,255,0.98)_100%)] px-4 py-3 dark:border-blue-400/15 dark:bg-[linear-gradient(180deg,rgba(30,41,59,0.82)_0%,rgba(11,18,32,0.98)_100%)]">
-                  <div>
-                    <div className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-700 dark:text-blue-300">
-                      Demo Map Controls
+                  {showMoveHint && (
+                    <div className="flex items-start gap-3 rounded-2xl border border-slate-500/70 bg-slate-800 px-4 py-3 text-white shadow-[0_16px_32px_rgba(15,23,42,0.28)] dark:border-slate-500/60 dark:bg-slate-900">
+                      <div className="min-w-0">
+                        <div className="text-base font-semibold leading-5">
+                          맵 이동은 우클릭 드래그!
+                        </div>
+                        <div className="mt-1 text-xs font-medium text-white/75">
+                          트랙패드는 두손가락
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowMoveHint(false)}
+                        className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/10 text-white/80 transition hover:bg-white/15 hover:text-white"
+                        aria-label="이동 안내 닫기"
+                      >
+                        <Icon icon="mdi:close" className="h-4 w-4" />
+                      </button>
                     </div>
-                  </div>
+                  )}
 
                   <div className="flex flex-wrap gap-2">
                     <div className="inline-flex rounded-full border border-slate-200 bg-slate-100 p-1 dark:border-white/10 dark:bg-white/8">
                       <ModeToggleButton
-                        active={panMode}
-                        onClick={() => setPanMode(true)}
-                        icon="mdi:hand-back-left"
-                        label="이동 모드"
+                        active={!isEditMode}
+                        onClick={() => setIsEditMode(false)}
+                        icon="mdi:eye-outline"
+                        label="보기 모드"
                       />
                       <ModeToggleButton
-                        active={!panMode}
-                        onClick={handleSelectMode}
-                        icon="mdi:cursor-default-outline"
-                        label="선택 모드"
+                        active={isEditMode}
+                        onClick={handleEditMode}
+                        icon="mdi:pencil-outline"
+                        label="편집 모드"
                       />
                     </div>
                     <MapActionButton
@@ -339,12 +360,12 @@ export default function DemoPage() {
                   theme={theme}
                   data={selectedMindData}
                   placeholderData={loadingMindElixir}
-                  editMode="view"
+                  editMode={isEditMode ? "edit" : "view"}
+                  onViewModeEditAttempt={handleViewModeEditAttempt}
                   fitOnInit={false}
                   preserveViewState
                   openMenuOnClick={false}
                   showMiniMap
-                  panMode={panMode}
                   dragButton={2}
                   panModeButton={2}
                 />
@@ -433,6 +454,23 @@ export default function DemoPage() {
             icon="mdi:creation-outline"
             accentClassName="bg-indigo-50 text-indigo-700"
             description="핵심 용어를 자동으로 정리해줘서 처음 보는 주제도 더 빨리 이해할 수 있어요."
+          />
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-2">
+          <FeatureCard
+            step="Step 7"
+            title="편집 모드"
+            icon="mdi:pencil-outline"
+            accentClassName="bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+            description="편집 모드에서는 구조맵을 자유롭게 수정하며 내 방식대로 다듬을 수 있어요."
+          />
+          <FeatureCard
+            step="Step 8"
+            title="공유와 다운로드"
+            icon="mdi:share-variant-outline"
+            accentClassName="bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"
+            description="공유 링크로 전달하고, 이미지로 다운로드해서 바로 활용할 수 있어요."
           />
         </section>
 

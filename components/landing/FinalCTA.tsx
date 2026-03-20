@@ -1,6 +1,7 @@
 // components/landing/FinalCTA.tsx
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
@@ -33,61 +34,40 @@ export default function FinalCTA({
     // ✅ 섹션 자체는 full-bleed (w-full) + no max-width + no rounding
     <section
       className={[
-        "relative w-full overflow-hidden isolate", // isolate: 배경 레이어가 부모 영향 안받도록
+        "relative w-full overflow-hidden isolate dark:border-t dark:border-white/10", // isolate: 배경 레이어가 부모 영향 안받도록
         className,
       ].join(" ")}
     >
-      {/* ===== BG (LIGHT) ===== */}
-      <div
+      <Image
+        src="/images/ctabg.png"
+        alt=""
+        fill
+        priority
         aria-hidden
-        className="
-          absolute inset-0 -z-10 dark:hidden
-          bg-[linear-gradient(180deg,#0b1224_0%,#0a1426_55%,#091223_100%)]
-        "
+        className="absolute inset-0 -z-20 object-cover"
       />
-      {/* Light: grid + vignette */}
       <div
         aria-hidden
         className="
-          absolute inset-0 -z-10 dark:hidden
-          [mask-image:radial-gradient(1200px_520px_at_50%_10%,black,transparent)]
-          bg-[linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)]
-          bg-[size:28px_28px]
-          opacity-[0.18]
+          absolute inset-0 -z-10
+          bg-[linear-gradient(180deg,rgba(8,14,28,0.78)_0%,rgba(8,14,28,0.72)_48%,rgba(6,10,20,0.82)_100%)]
         "
       />
       <div
         aria-hidden
         className="
-          absolute inset-0 -z-10 dark:hidden
-          bg-[radial-gradient(520px_260px_at_22%_0%,rgba(59,130,246,0.22),transparent_60%),radial-gradient(520px_260px_at_78%_100%,rgba(99,102,241,0.22),transparent_60%)]
-          opacity-60
-        "
-      />
-
-      {/* ===== BG (DARK) ===== */}
-      <div
-        aria-hidden
-        className="
-          absolute inset-0 -z-10 hidden dark:block
-          bg-[linear-gradient(180deg,#070c18_0%,#050a14_60%,#04080f_100%)]
-        "
-      />
-      <div
-        aria-hidden
-        className="
-          absolute inset-0 -z-10 hidden dark:block
+          absolute inset-0 -z-10
           [mask-image:radial-gradient(1200px_520px_at_50%_10%,black,transparent)]
           bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)]
           bg-[size:28px_28px]
-          opacity-[0.18]
+          opacity-[0.16]
         "
       />
       <div
         aria-hidden
         className="
-          absolute inset-0 -z-10 hidden dark:block
-          bg-[radial-gradient(520px_260px_at_20%_0%,rgba(59,130,246,0.22),transparent_60%),radial-gradient(480px_260px_at_80%_100%,rgba(99,102,241,0.22),transparent_60%)]
+          absolute inset-0 -z-10
+          bg-[radial-gradient(520px_260px_at_20%_0%,rgba(59,130,246,0.18),transparent_60%),radial-gradient(480px_260px_at_80%_100%,rgba(99,102,241,0.18),transparent_60%)]
           opacity-60
         "
       />
@@ -155,15 +135,6 @@ export default function FinalCTA({
               )}
             </div>
 
-            {/* 보조 배지 */}
-            <div className="mt-4 flex flex-wrap justify-center gap-2 text-[11px]">
-              <span className="px-2.5 py-1 rounded-full border border-white/25 bg-white/10 text-white/80 backdrop-blur">
-                {t("badges.noSubscription")}
-              </span>
-              <span className="px-2.5 py-1 rounded-full border border-white/25 bg-white/10 text-white/80 backdrop-blur">
-                {t("badges.refund")}
-              </span>
-            </div>
           </div>
         </div>
       </div>

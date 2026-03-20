@@ -167,7 +167,7 @@ export async function GET(req: NextRequest) {
     const rewardResult = await grantSignupReward({
       userId: user.id,
       locale,
-      reward: 10,
+      reward: 15,
     });
 
     if (!rewardResult.ok) {

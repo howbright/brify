@@ -24,7 +24,7 @@ export async function POST() {
     // (원하면 profiles.locale 읽어오는 걸로 바꿔도 됨)
     const locale = "ko"; // 필요하면 req cookies 기반으로 변경(현재 POST()는 req가 없어서 고정/또는 createClient에서 읽기)
 
-    const result = await grantSignupReward({ userId, locale, reward: 10 });
+    const result = await grantSignupReward({ userId, locale, reward: 15 });
 
     if (!result.ok) {
       return NextResponse.json({ ok: false, error: result.error, detail: result.detail }, { status: 500 });

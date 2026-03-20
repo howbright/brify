@@ -207,9 +207,74 @@
     "name": "Lina",
     "quote": "“There’s always more to watch than there is time.\nI’d finish a video thinking it was incredibly helpful, but by the evening <strong>I could barely remember half of it</strong>.\nI kept telling myself I’d <highlight>come back to it later</highlight>, and of course many of those videos just disappeared into the backlog.\nWith <strong>health</strong>, <strong>kids’ education</strong>, and <strong>personal finance</strong> all competing for attention, it became even easier to lose track.\nSo I <heavy>built a tool myself</heavy>. When you save what you just watched as a <strong>“structure map”</strong>, you can reopen it later and still see the <strong>flow and the key points</strong> at a glance.”"
   },
+  "MapLibrarySection": {
+    "eyebrow": "After Creation",
+    "title": "Structure Maps get stronger after creation",
+    "subtitle": "Read, organize, connect, and find them again easily.",
+    "cards": {
+      "tags": {
+        "title": "Tag Organization",
+        "description": "It is easy to organize and manage maps with tags."
+      },
+      "merge": {
+        "title": "Merge Maps",
+        "description": "You can connect multiple Structure Maps into one."
+      },
+      "edit": {
+        "title": "Edit Freely",
+        "description": "You can quickly refine and edit nodes your way."
+      },
+      "read": {
+        "title": "Highlight and Notes",
+        "description": "You can highlight key parts and read more comfortably."
+      },
+      "share": {
+        "title": "Share and Download",
+        "description": "You can share by link and save as an image."
+      }
+    }
+  },
+  "LandingTestimonialsSection": {
+    "eyebrow": "Reviews",
+    "title": "What people found especially useful",
+    "featuredLabel": "Featured Review",
+    "items": {
+      "one": {
+        "quote": "Organizing stock-related YouTube information into a Structure Map helped me grasp the key points much faster.",
+        "role": "Stock enthusiast"
+      },
+      "two": {
+        "quote": "Turning English web documents into Structure Maps in my native language made even complex content much easier to understand.",
+        "role": "Learner"
+      },
+      "three": {
+        "quote": "It is really useful to be able to organize health-related YouTube information in a structured way during a busy daily life.",
+        "role": "Health enthusiast"
+      }
+    }
+  },
   "LandingPricingSection": {
-    "title": "Simple, fair credit pricing",
-    "subtitle": "In most cases, 1 credit is enough for one structure map.",
+    "title": "Simple credits, easy to understand",
+    "subtitle": "Start free, then pay only when you need more.",
+    "freeCreditsBadge": "Get 15 free credits just for signing up",
+    "cards": {
+      "free": {
+        "eyebrow": "Free Start",
+        "title": "15 free credits just for signing up"
+      },
+      "main": {
+        "eyebrow": "Most Important",
+        "title": "1 credit per Structure Map!",
+        "description": "In most cases, one Structure Map costs just 1 credit."
+      },
+      "pay": {
+        "eyebrow": "No Subscription",
+        "title": "Pay only when you need more"
+      },
+      "noSubscription": {
+        "title": "No subscription · No auto-renewal"
+      }
+    },
     "positioningText": "No subscription — pay only for what you use.",
     "refundText": "Unused credits are refundable within 7 days.",
     "seeDetails": "View pricing details",
@@ -301,9 +366,9 @@
     "positioningText": "No subscription — pay only what you use."
   },
   "FinalCTA": {
-    "title": "Information is your edge.",
-    "subtitle": "Turn important content into your own knowledge faster with <brand>Brify</brand>.",
-    "body": "Sign up and get <highlight>5 free credits</highlight> — start extracting the essentials right away.",
+    "title": "So much information,",
+    "subtitle": "understand and organize it surprisingly fast.",
+    "body": "Make better decisions.",
     "primary": {
       "signedOut": "Get started for free",
       "signedIn": "Get started"
@@ -537,15 +602,17 @@
     "titles": ["Turn YouTube transcripts", "Turn any long text"],
     "titleHighlight": "into a Structure Map",
     "titleSuffix": "!",
+    "helper": "Reorganize long content so the flow and key points are easy to see.",
     "switchTitleAria": "Switch title",
     "ctaPrimary": "Start for free",
     "ctaSecondary": "View demo",
     "featureItems": [
-      "Capture details without missing a beat",
-      "Auto-define unfamiliar terms",
-      "Translate foreign-language text into your language",
-      "Earn free credits repeatedly through missions"
+      "Keep the important details",
+      "Auto-organize unfamiliar terms",
+      "Generate results in your language",
+      "See the flow as a Structure Map"
     ],
+    "flowItems": ["Paste a script", "Create a Structure Map", "Read · Edit · Share"],
     "visualAlt": "Structure Map preview"
   },
   "WelcomePage": {

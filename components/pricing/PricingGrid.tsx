@@ -18,11 +18,6 @@ export type Pack = {
   starter?: boolean;
 };
 
-type CreditRule = {
-  label?: string;
-  items: { threshold: string; credits: number }[];
-};
-
 type PaymentMode = "krw" | "usd";
 
 type Props = {
@@ -73,7 +68,7 @@ export default function PricingGrid({
   className = "",
   positioningText,
   refundText,
-  refundPolicyHref = "/refund-policy",
+  refundPolicyHref: _refundPolicyHref = "/refund-policy",
   refundTooltipLines,
   detailsLabel,
   showCreditRuleByDefault = false,
@@ -109,16 +104,16 @@ export default function PricingGrid({
 
   const labelSignedIn = signedInLabel ?? t("cta.signedIn");
   const labelSignedOut = signedOutLabel ?? t("cta.signedOut");
-  const labelPositioning = positioningText ?? t("positioningText");
-  const textRefund = refundText ?? t("refund.text");
+  const _labelPositioning = positioningText ?? t("positioningText");
+  const _textRefund = refundText ?? t("refund.text");
 
-  const tooltipLines = refundTooltipLines ?? [
+  const _tooltipLines = refundTooltipLines ?? [
     t("refundTooltip.line1"),
     t("refundTooltip.line2"),
     t("refundTooltip.line3"),
   ];
 
-  const labelDetails = detailsLabel ?? t("toggles.details");
+  const _labelDetails = detailsLabel ?? t("toggles.details");
 
   const reassurance = reassuranceLines ?? [t("reassurance.line1")];
 
@@ -217,40 +212,49 @@ export default function PricingGrid({
             else badge = "";
           }
 
-          let tagline = p.tagline;
-          if (!tagline) {
-            if (p.credits === 50) tagline = tLanding("packs.50.tagline");
-            else if (p.credits === 150) tagline = tLanding("packs.150.tagline");
-            else if (p.credits === 300) tagline = tLanding("packs.300.tagline");
-          }
-
           return (
             <div
               key={p.id}
               className={cx(
-                "flex h-full flex-col rounded-2xl border shadow-sm",
+                "group relative flex h-full flex-col rounded-2xl border shadow-sm transition-all duration-300 ease-out will-change-transform",
                 "bg-white text-neutral-900",
                 "dark:bg-[var(--color-card,#0b1224)] dark:text-[var(--color-card-foreground,#e5e7eb)]",
                 isCompact ? "p-4" : "p-5",
+                "hover:-translate-y-1 hover:shadow-[0_24px_44px_-24px_rgba(15,23,42,0.34)] hover:rotate-[-0.4deg] dark:hover:shadow-[0_28px_52px_-28px_rgba(37,99,235,0.42)]",
                 p.popular
-                  ? "border-[var(--color-primary-500)]"
-                  : "border-[var(--color-border)]"
+                  ? "border-[var(--color-primary-500)] hover:border-[var(--color-primary-400)]"
+                  : "border-[var(--color-border)] hover:border-slate-300 dark:hover:border-white/20"
               )}
             >
+              <div
+                aria-hidden
+                className={cx(
+                  "pointer-events-none absolute inset-x-6 top-0 h-px opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+                  p.popular
+                    ? "bg-gradient-to-r from-transparent via-blue-400 to-transparent"
+                    : "bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-500"
+                )}
+              />
               <div className={cx(isCompact ? "mb-1 h-6" : "mb-2 h-6")}>
                 {badge ? (
                   <div
                     className={cx(
-                      "inline-flex h-6 items-center gap-1 self-start rounded-full border px-2.5 text-xs",
-                      p.starter && !p.popular && "opacity-80"
+                      "inline-flex items-center gap-1 self-start rounded-full border px-3 py-1 text-xs font-bold transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-[1.03]",
+                      p.starter && !p.popular && "opacity-85",
+                      p.popular &&
+                        "border-blue-500 bg-blue-600 text-white shadow-[0_12px_24px_-12px_rgba(37,99,235,0.6)] dark:border-blue-300 dark:bg-blue-500"
                     )}
-                    style={{
-                      borderColor:
-                        "color-mix(in_srgb,var(--color-primary-500),transparent 70%)",
-                      background:
-                        "color-mix(in_srgb,var(--color-primary-500),white 85%)",
-                      color: "var(--color-primary-700)",
-                    }}
+                    style={
+                      p.popular
+                        ? undefined
+                        : {
+                            borderColor:
+                              "color-mix(in_srgb,var(--color-primary-500),transparent 70%)",
+                            background:
+                              "color-mix(in_srgb,var(--color-primary-500),white 85%)",
+                            color: "var(--color-primary-700)",
+                          }
+                    }
                   >
                     {badge}
                   </div>
@@ -259,20 +263,14 @@ export default function PricingGrid({
                 )}
               </div>
 
-              {tagline && (
-                <div className="mb-1 text-xs text-neutral-600 dark:text-[var(--color-muted-foreground,#cbd5e1)]">
-                  {tagline}
-                </div>
-              )}
-
               <div
                 className={cx(
-                  isCompact ? "text-xl" : "text-2xl",
+                  isCompact ? "text-[32px] md:text-[40px]" : "text-2xl",
                   "font-bold text-neutral-900 dark:text-[var(--color-foreground,#e5e7eb)]"
                 )}
               >
                 {p.credits.toLocaleString()}{" "}
-                <span className="text-base font-medium text-neutral-500 dark:text-[var(--color-muted-foreground,#cbd5e1)]">
+                <span className="text-xl font-medium text-neutral-500 dark:text-[var(--color-muted-foreground,#cbd5e1)]">
                   {t("units.credits")}
                 </span>
                 {(p.bonusPercent || p.bonusCredits) && (
@@ -282,20 +280,19 @@ export default function PricingGrid({
                 )}
               </div>
 
-              <div className="mt-1 text-neutral-800 dark:text-[var(--color-card-foreground,#e5e7eb)]">
+              <div className="mt-2 text-xl font-semibold text-neutral-800 dark:text-[var(--color-card-foreground,#e5e7eb)] md:text-2xl">
                 {formatCurrency(p.priceUSD)}
               </div>
 
-              <div className="mt-1 text-xs text-neutral-600 dark:text-[var(--color-muted-foreground,#cbd5e1)]">
-                ≈ {formatCurrency(unit)} {t("units.perCredit")}
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <div className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700 transition-transform duration-300 group-hover:-translate-y-0.5 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200">
+                  ≈ {formatCurrency(unit)} {t("units.perCredit")}
+                </div>
                 {(p.bonusPercent || p.bonusCredits) && (
-                  <span className="ml-1">
-                    <span className="opacity-70">·</span>{" "}
-                    <span className="opacity-90">
-                      {t("unit.effective")} {formatCurrency(effectiveUnit)}{" "}
-                      {t("units.perCredit")}
-                    </span>
-                  </span>
+                  <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 transition-transform duration-300 group-hover:translate-x-0.5 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200">
+                    {t("unit.effective")} {formatCurrency(effectiveUnit)}{" "}
+                    {t("units.perCredit")}
+                  </div>
                 )}
               </div>
 
@@ -326,70 +323,89 @@ export default function PricingGrid({
         })}
       </div>
 
-      <div className="mt-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="text-sm font-medium text-[var(--color-text)]">
+      {isCompact ? (
+        <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#0f172a]">
+          <div className="text-sm font-semibold text-slate-900 dark:text-white">
             {tLanding("creditRule.title")}
           </div>
-
-          <button
-            type="button"
-            onClick={() => setOpenDetails((v) => !v)}
-            className="text-xs px-2 py-1 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-muted)] text-[var(--color-foreground)]"
-          >
-            {openDetails
-              ? tLanding("toggles.collapse")
-              : tLanding("toggles.details")}
-          </button>
+          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+            <div className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-800 dark:bg-white/8 dark:text-slate-100">
+              {tLanding("creditRule.details.small")} · {tLanding("creditRule.result.one")}
+            </div>
+            <div className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-800 dark:bg-white/8 dark:text-slate-100">
+              {tLanding("creditRule.details.medium")} · {tLanding("creditRule.result.two")}
+            </div>
+            <div className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-800 dark:bg-white/8 dark:text-slate-100">
+              {tLanding("creditRule.details.large")} · {tLanding("creditRule.result.blocked")}
+            </div>
+          </div>
         </div>
+      ) : (
+        <div className="mt-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="text-sm font-medium text-[var(--color-text)]">
+              {tLanding("creditRule.title")}
+            </div>
 
-        <p className="mt-2 text-xs text-[color-mix(in_oklab,var(--color-foreground),transparent_25%)] leading-relaxed">
-          {tLanding("creditRule.desc")}
-        </p>
+            <button
+              type="button"
+              onClick={() => setOpenDetails((v) => !v)}
+              className="text-xs px-2 py-1 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-muted)] text-[var(--color-foreground)]"
+            >
+              {openDetails
+                ? tLanding("toggles.collapse")
+                : tLanding("toggles.details")}
+            </button>
+          </div>
 
-        {openDetails && (
-          <ul className="mt-3 grid gap-1.5 text-xs text-[color-mix(in_oklab,var(--color-foreground),transparent_20%)] sm:grid-cols-3">
-            <li className="flex items-center gap-2">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
-              <span>
-                <span className="text-[var(--color-foreground)]">
-                  {tLanding("creditRule.details.small")}
-                </span>{" "}
-                →{" "}
-                <b className="text-[var(--color-foreground)]">
-                  {tLanding("creditRule.result.one")}
-                </b>
-              </span>
-            </li>
+          <p className="mt-2 text-xs text-[color-mix(in_oklab,var(--color-foreground),transparent_25%)] leading-relaxed">
+            {tLanding("creditRule.desc")}
+          </p>
 
-            <li className="flex items-center gap-2">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
-              <span>
-                <span className="text-[var(--color-foreground)]">
-                  {tLanding("creditRule.details.medium")}
-                </span>{" "}
-                →{" "}
-                <b className="text-[var(--color-foreground)]">
-                  {tLanding("creditRule.result.two")}
-                </b>
-              </span>
-            </li>
+          {openDetails && (
+            <ul className="mt-3 grid gap-1.5 text-xs text-[color-mix(in_oklab,var(--color-foreground),transparent_20%)] sm:grid-cols-3">
+              <li className="flex items-center gap-2">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
+                <span>
+                  <span className="text-[var(--color-foreground)]">
+                    {tLanding("creditRule.details.small")}
+                  </span>{" "}
+                  →{" "}
+                  <b className="text-[var(--color-foreground)]">
+                    {tLanding("creditRule.result.one")}
+                  </b>
+                </span>
+              </li>
 
-            <li className="flex items-center gap-2">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
-              <span>
-                <span className="text-[var(--color-foreground)]">
-                  {tLanding("creditRule.details.large")}
-                </span>{" "}
-                →{" "}
-                <b className="text-[var(--color-foreground)]">
-                  {tLanding("creditRule.result.blocked")}
-                </b>
-              </span>
-            </li>
-          </ul>
-        )}
-      </div>
+              <li className="flex items-center gap-2">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
+                <span>
+                  <span className="text-[var(--color-foreground)]">
+                    {tLanding("creditRule.details.medium")}
+                  </span>{" "}
+                  →{" "}
+                  <b className="text-[var(--color-foreground)]">
+                    {tLanding("creditRule.result.two")}
+                  </b>
+                </span>
+              </li>
+
+              <li className="flex items-center gap-2">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
+                <span>
+                  <span className="text-[var(--color-foreground)]">
+                    {tLanding("creditRule.details.large")}
+                  </span>{" "}
+                  →{" "}
+                  <b className="text-[var(--color-foreground)]">
+                    {tLanding("creditRule.result.blocked")}
+                  </b>
+                </span>
+              </li>
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }

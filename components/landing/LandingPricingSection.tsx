@@ -2,6 +2,8 @@
 "use client";
 
 import PricingGrid, { Pack } from "@/components/pricing/PricingGrid";
+import { motion } from "framer-motion";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { useMemo, useState } from "react";
 
@@ -46,58 +48,34 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
   const signedOutHref = `/login?currency=${currency}`;
 
   return (
-    <section id="pricing" className="relative overflow-hidden">
-      {/* ==== BG (Light) ==== */}
+    <section
+      id="pricing"
+      className="relative overflow-hidden border-b border-transparent bg-[#f6f9ff] dark:border-b dark:border-white/12 dark:bg-[#071124]"
+    >
       <div
         aria-hidden
-        className="
-          pointer-events-none absolute inset-0 -z-10
-          bg-[radial-gradient(1200px_700px_at_85%_-10%,rgb(var(--hero-a)_/_0.28),transparent_60%),radial-gradient(900px_600px_at_10%_30%,rgb(var(--hero-b)_/_0.22),transparent_60%)]
-          bg-blend-normal
-          dark:hidden
-        "
+        className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,#edf4ff_0%,#dbeafe_42%,#eff6ff_100%)] dark:hidden"
       />
       <div
         aria-hidden
-        className="
-          pointer-events-none absolute inset-0 -z-10
-          [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]
-          bg-[linear-gradient(to_right,rgb(var(--hero-grid)_/_0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgb(var(--hero-grid)_/_0.05)_1px,transparent_1px)]
-          bg-[size:24px_24px]
-          dark:hidden
-        "
+        className="absolute inset-0 -z-10 bg-[radial-gradient(620px_320px_at_12%_16%,rgba(59,130,246,0.32),transparent_62%),radial-gradient(560px_280px_at_84%_18%,rgba(99,102,241,0.26),transparent_60%),radial-gradient(700px_340px_at_50%_100%,rgba(147,197,253,0.28),transparent_68%)] dark:hidden"
       />
       <div
         aria-hidden
-        className="
-          pointer-events-none absolute inset-0 -z-10
-          bg-gradient-to-b from-white/10 via-white/30 to-white/10
-          dark:hidden
-        "
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.08)_1px,transparent_1px)] bg-[size:26px_26px] opacity-70 dark:hidden"
       />
 
-      {/* ==== BG (Dark) ==== */}
       <div
         aria-hidden
-        className="
-          pointer-events-none absolute inset-0 -z-10 hidden dark:block
-          bg-[linear-gradient(180deg,#071124_0%,#050a17_55%,#04070f_100%)]
-        "
+        className="absolute inset-0 -z-10 hidden dark:block bg-[linear-gradient(180deg,#091223_0%,#071124_40%,#050d1c_100%)]"
       />
       <div
         aria-hidden
-        className="
-          pointer-events-none absolute inset-0 -z-10 hidden dark:block
-          bg-[radial-gradient(900px_420px_at_70%_-10%,rgba(0,0,0,0.55),transparent_65%)]
-        "
+        className="absolute inset-0 -z-10 hidden dark:block bg-[radial-gradient(520px_260px_at_16%_18%,rgba(59,130,246,0.18),transparent_62%),radial-gradient(560px_280px_at_82%_20%,rgba(99,102,241,0.18),transparent_62%),radial-gradient(620px_320px_at_50%_100%,rgba(14,165,233,0.10),transparent_70%)]"
       />
       <div
         aria-hidden
-        className="
-          pointer-events-none absolute inset-0 -z-10 hidden dark:block
-          bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)]
-          bg-[size:28px_28px] opacity-60
-        "
+        className="absolute inset-0 -z-10 hidden dark:block bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:26px_26px] opacity-45"
       />
 
       <div className="mx-auto w-full max-w-6xl px-4 py-14 md:py-18">
@@ -105,14 +83,54 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
           <h2 className="text-2xl md:text-3xl font-semibold text-[var(--color-text)]">
             {t("title")}
           </h2>
-          <p className="mt-2 text-[color-mix(in_oklab,var(--color-foreground),transparent_35%)]">
+          <p className="mt-3 text-[color-mix(in_oklab,var(--color-foreground),transparent_35%)]">
             {t("subtitle")}
           </p>
         </div>
 
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.985 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.45, ease: "easeOut" }}
+          whileHover={{ y: -4, scale: 1.01 }}
+          className="mt-8 rounded-[32px] border border-blue-200 bg-white/88 px-6 py-7 text-center shadow-[0_22px_60px_-34px_rgba(37,99,235,0.26)] backdrop-blur-sm dark:border-blue-400/20 dark:bg-white/6"
+        >
+          <div className="flex justify-center">
+            <Image
+              src="/images/reborn.png"
+              alt={t("freeCreditsBadge")}
+              width={1000}
+              height={200}
+              className="h-auto w-full max-w-[420px] md:max-w-[480px]"
+              priority={false}
+            />
+          </div>
+          <div className="mt-5 text-[28px] font-extrabold leading-tight text-slate-900 dark:text-white md:text-[36px]">
+            {t("cards.main.title")}
+          </div>
+          <p className="mt-3 text-sm font-semibold text-slate-600 dark:text-slate-300 md:text-base">
+            {t("cards.main.description")}
+          </p>
+
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+            <div className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700 dark:border-white/10 dark:bg-white/8 dark:text-slate-200">
+              {t("cards.pay.title")}
+            </div>
+            <div className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700 dark:border-white/10 dark:bg-white/8 dark:text-slate-200">
+              {t("cards.noSubscription.title")}
+            </div>
+          </div>
+        </motion.div>
+
         {/* ✅ Wrapper */}
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.08, ease: "easeOut" }}
           className="
+            mt-6
             rounded-3xl
             bg-transparent
             backdrop-blur-[2px]
@@ -127,6 +145,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
               signedOutHref={signedOutHref}
               variant="compact"
               showFooterNote={false}
+              showReassurance={false}
               billingCurrency={paymentMode === "usd" ? "USD" : "KRW"}
               // ✅ 토글을 PricingGrid가 렌더하도록 넘겨줌
               showCurrencyToggle={isKorean && !packs}
@@ -138,7 +157,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
               }}
             />
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* soft glow accents */}
@@ -157,6 +176,14 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
           right-[-6%] bottom-[10%] h-[300px] w-[300px]
           bg-[radial-gradient(150px_150px_at_center,rgba(99,102,241,0.28),transparent)]
         "
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-px bg-white/16 dark:block"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-[-60px] hidden h-[120px] bg-[radial-gradient(60%_100%_at_50%_0%,rgba(96,165,250,0.16),transparent_72%)] dark:block"
       />
     </section>
   );

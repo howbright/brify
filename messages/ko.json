@@ -207,9 +207,74 @@
     "name": "Lina",
     "quote": "“볼 것은 많은데 <strong>시간은 늘 모자라더군요</strong>.\n영상 보며 ‘정말 유익하다’고 느꼈는데, 저녁이면 <strong>절반도 기억이 나지 않았습니다</strong>.\n‘<highlight>나중에 봐야지</highlight>’ 하고 미뤘다가 결국 못 본 영상도 적지 않았습니다.\n<strong>건강</strong>과 <strong>아이들 교육</strong>, <strong>재테크</strong>까지 챙겨야 할 것들이 겹치니 더더욱 놓치기 쉬웠습니다.\n그래서 <heavy>도구를 직접 만들었습니다</heavy>. 방금 본 내용을 <strong>'구조맵'으로 정리</strong>해 두면, 다시 열어도 <strong>흐름과 요지</strong>가 남습니다.”"
   },
+  "MapLibrarySection": {
+    "eyebrow": "After Creation",
+    "title": "구조맵은 만든 뒤부터 더 강해집니다",
+    "subtitle": "읽고, 정리하고, 연결하고, 다시 찾기 쉽게.",
+    "cards": {
+      "tags": {
+        "title": "태그로 분류",
+        "description": "태그 분류와 태그 관리가 쉽습니다."
+      },
+      "merge": {
+        "title": "맵 합치기",
+        "description": "여러 구조맵을 하나로 연결할 수 있어요."
+      },
+      "edit": {
+        "title": "자유롭게 편집",
+        "description": "노드를 쉽게 고치고 다듬을 수 있어요."
+      },
+      "read": {
+        "title": "하이라이트와 노트",
+        "description": "중요한 부분을 강조하며 편하게 읽을 수 있어요."
+      },
+      "share": {
+        "title": "공유와 다운로드",
+        "description": "링크로 공유하고 이미지로 저장할 수 있어요."
+      }
+    }
+  },
+  "LandingTestimonialsSection": {
+    "eyebrow": "Reviews",
+    "title": "이런 점이 특히 좋았습니다",
+    "featuredLabel": "대표 후기",
+    "items": {
+      "one": {
+        "quote": "주식 관련 유튜브 정보를 구조맵으로 정리하니 핵심을 빠르게 파악할 수 있었습니다.",
+        "role": "주식 관심자"
+      },
+      "two": {
+        "quote": "영어로 된 웹 문서를 내 모국어로 된 구조맵으로 정리하니 복잡한 내용도 훨씬 이해하기 쉬웠습니다.",
+        "role": "공부하는 사람"
+      },
+      "three": {
+        "quote": "바쁜 일상중에 건강 관련 유튜브 정보를 구조적으로 정리할 수 있어서 정말 유용합니다.",
+        "role": "건강 관심자"
+      }
+    }
+  },
   "LandingPricingSection": {
-    "title": "단순하고 공정한 크레딧 요금제",
-    "subtitle": "대부분의 경우 구조 맵 하나에 1크레딧이면 충분합니다.",
+    "title": "단순하고 바로 이해되는 크레딧",
+    "subtitle": "무료로 시작하고, 필요할 때만 결제하세요.",
+    "freeCreditsBadge": "회원가입만 해도 15 크레딧 무료 지급",
+    "cards": {
+      "free": {
+        "eyebrow": "Free Start",
+        "title": "회원가입만 해도 15 크레딧 무료"
+      },
+      "main": {
+        "eyebrow": "Most Important",
+        "title": "구조맵 1개당 1크레딧!",
+        "description": "대부분의 콘텐츠는 1크레딧이면 충분합니다."
+      },
+      "pay": {
+        "eyebrow": "No Subscription",
+        "title": "필요할 때만 결제"
+      },
+      "noSubscription": {
+        "title": "정기구독 없음 · 자동결제 없음"
+      }
+    },
     "positioningText": "구독 없이, 사용한 만큼만 결제하세요.",
     "refundText": "사용하지 않은 크레딧은 7일 이내 환불 가능합니다.",
     "seeDetails": "요금 자세히 보기",
@@ -257,7 +322,7 @@
 
   "PricingGrid": {
     "cta": {
-      "signedIn": "지금 크레딧 구매하기",
+      "signedIn": "지금 구매하기",
       "signedOut": "로그인 후 구매"
     },
     "badge": {
@@ -302,9 +367,9 @@
     "positioningText": "구독 없이, 사용한 만큼만 결제하세요."
   },
   "FinalCTA": {
-    "title": "정보는 곧 경쟁력!",
-    "subtitle": "이제 <brand>Brify</brand>로 중요한 정보를 빠르게 내 것으로 만드세요.",
-    "body": "회원가입만 해도 <highlight>5 크레딧</highlight> 무료 제공 — 지금 바로 핵심을 뽑아보세요.",
+    "title": "수많은 정보를,",
+    "subtitle": "놀랍도록 빠르게 이해하고 정리하세요.",
+    "body": "더 좋은 의사결정을 내리세요.",
     "primary": {
       "signedOut": "무료로 시작하기",
       "signedIn": "지금 시작"
@@ -534,17 +599,19 @@
   "LandingBlueHero": {
     "eyebrow": "What is Brify?",
     "titles": ["유튜브 스크립트를", "어떤 긴 글도"],
-    "titleHighlight": "다이어그램(구조맵)",
+    "titleHighlight": "구조맵",
     "titleSuffix": "으로!",
+    "helper": "긴 내용을 흐름과 핵심이 보이게 다시 정리합니다.",
     "switchTitleAria": "타이틀 전환",
     "ctaPrimary": "무료로 시작하기",
     "ctaSecondary": "데모 보기",
     "featureItems": [
       "세부내용도 놓치지 않고 정리",
-      "모르는 용어는 자동 정리",
-      "외국어는 내 언어로 변환",
-      "미션 수행으로 무료 크레딧 반복 지급"
+      "모르는 용어도 자동으로 정리",
+      "원하는 언어로 결과 생성",
+      "구조맵으로 흐름까지 한눈에"
     ],
+    "flowItems": ["스크립트 입력", "구조맵 생성", "읽기 · 편집 · 공유"],
     "visualAlt": "요약 다이어그램 미리보기"
   },
   "WelcomePage": {

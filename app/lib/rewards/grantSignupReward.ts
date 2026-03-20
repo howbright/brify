@@ -15,11 +15,11 @@ type GrantSignupRewardResult =
 export async function grantSignupReward(params: {
   userId: string;
   locale?: string;
-  reward?: number; // 기본 10
+  reward?: number; // 기본 15
 }): Promise<GrantSignupRewardResult> {
   const userId = params.userId;
   const locale = params.locale ?? "en";
-  const reward = Number(params.reward ?? 10);
+  const reward = Number(params.reward ?? 15);
 
   if (!userId) return { ok: false, error: "MISSING_USER_ID" };
   if (!Number.isFinite(reward) || reward <= 0)
