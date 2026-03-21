@@ -15,6 +15,11 @@ type Meta = {
   description?: string;
 };
 
+function getErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Error && error.message) return error.message;
+  return fallback;
+}
+
 function isYouTubeUrl(url: string) {
   const u = url.toLowerCase();
   return u.includes("youtube.com") || u.includes("youtu.be");
@@ -53,10 +58,10 @@ export default function MetadataDialog({
   initial,
   onClose,
   onSave,
-  isProcessing = false,
+  isProcessing: _isProcessing = false,
   processingTitle,
   processingMessage,
-  processingBullets = [],
+  processingBullets: _processingBullets = [],
 }: Props) {
   const t = useTranslations("MetadataDialog");
   const [sourceUrl, setSourceUrl] = useState(initial.sourceUrl ?? "");
@@ -127,7 +132,9 @@ export default function MetadataDialog({
       if (!res.ok) {
         const msg =
           json?.message || json?.error || t("errors.youtubeFetchFailed");
-        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+        throw new Error(
+          typeof msg === "string" ? msg : msg?.[0] || t("errors.requestFailed")
+        );
       }
 
       if (json?.title) setTitle(String(json.title));
@@ -141,8 +148,10 @@ export default function MetadataDialog({
 
       // ✅ 유튜브 자동 채우기를 성공하면 "수동 업로드 상태"는 해제 (충돌 방지)
       clearManualUploadState();
-    } catch (e: any) {
-      setYoutubeMetaError(e?.message ?? t("errors.youtubeFetchFailed"));
+    } catch (error: unknown) {
+      setYoutubeMetaError(
+        getErrorMessage(error, t("errors.youtubeFetchFailed"))
+      );
     } finally {
       setIsFetchingYoutubeMeta(false);
     }
@@ -174,8 +183,8 @@ export default function MetadataDialog({
 
       // UI에는 preview 표시
       setThumbnailUrl(preview);
-    } catch (e: any) {
-      setThumbUploadError(e?.message ?? t("errors.invalidImage"));
+    } catch (error: unknown) {
+      setThumbUploadError(getErrorMessage(error, t("errors.invalidImage")));
       setThumbFile(null);
     }
   };
@@ -234,9 +243,11 @@ export default function MetadataDialog({
 
       const { data } = supabase.storage.from("thumbnails").getPublicUrl(objectPath);
       return data.publicUrl;
-    } catch (e: any) {
-      setThumbUploadError(e?.message ?? t("errors.thumbnailUploadFailed"));
-      throw e;
+    } catch (error: unknown) {
+      setThumbUploadError(
+        getErrorMessage(error, t("errors.thumbnailUploadFailed"))
+      );
+      throw error;
     } finally {
       setIsUploadingThumb(false);
     }
@@ -295,8 +306,8 @@ export default function MetadataDialog({
             flex flex-col
 
             dark:bg-[#111C2E]
-            dark:border-white/20
-            dark:ring-1 dark:ring-white/16
+            dark:border-white/30
+            dark:ring-1 dark:ring-white/20
             dark:shadow-[0_38px_140px_-70px_rgba(0,0,0,0.95)]
           "
         >
@@ -314,7 +325,7 @@ export default function MetadataDialog({
             className="
               relative
               px-5 md:px-6 py-4
-              border-b border-slate-400 dark:border-white/20
+              border-b border-slate-400 dark:border-white/30
               flex items-center justify-between
               sticky top-0 z-10
               bg-white/90 dark:bg-[#111C2E]/92
@@ -334,10 +345,10 @@ export default function MetadataDialog({
                 <Icon icon="mdi:information-outline" className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <p className="font-semibold text-neutral-900 dark:text-white">
+                <p className="text-xl font-bold text-blue-700 dark:text-[rgb(var(--hero-b))]">
                   {processingTitle ?? t("title")}
                 </p>
-                <p className="text-xs text-neutral-500 dark:text-white/60 break-words">
+                <p className="text-sm font-medium text-neutral-700 dark:text-neutral-200 break-words">
                   {processingMessage ?? t("subtitle")}
                 </p>
               </div>
@@ -345,7 +356,7 @@ export default function MetadataDialog({
 
             <button
               onClick={handleTryClose}
-              className="rounded-xl p-2 hover:bg-neutral-100 dark:hover:bg-white/10 flex-shrink-0"
+              className="rounded-full p-1.5 text-neutral-500 transition hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white flex-shrink-0"
               aria-label="close"
               disabled={isUploadingThumb}
             >
@@ -377,7 +388,7 @@ export default function MetadataDialog({
                     rounded-2xl border border-slate-400 bg-neutral-50
                     px-3 py-2 text-sm
                     focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-                    dark:border-white/20 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
+                    dark:border-white/30 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
                   "
                 />
                 <button
@@ -438,7 +449,7 @@ export default function MetadataDialog({
                     ${
                       titleError
                         ? "border-rose-300 focus:border-rose-400 focus:ring-rose-300/50 dark:border-rose-500/50"
-                        : "border-slate-400 focus:border-blue-400 focus:ring-blue-300/60 dark:border-white/20"
+                        : "border-slate-400 focus:border-blue-400 focus:ring-blue-300/60 dark:border-white/30"
                     }
                   `}
                 />
@@ -462,7 +473,7 @@ export default function MetadataDialog({
                     rounded-2xl border border-slate-400 bg-neutral-50
                     px-3 py-2 text-sm
                     focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-                    dark:border-white/20 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
+                    dark:border-white/30 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
                   "
                 />
               </div>
@@ -479,7 +490,7 @@ export default function MetadataDialog({
                   className="
                     h-16 w-28 rounded-2xl overflow-hidden
                     border border-slate-400 bg-neutral-50
-                    dark:border-white/20 dark:bg-white/5
+                    dark:border-white/30 dark:bg-white/5
                     flex-shrink-0
                   "
                 >
@@ -511,7 +522,7 @@ export default function MetadataDialog({
                       rounded-2xl border border-slate-400 bg-neutral-50
                       px-3 py-2 text-sm
                       focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-                      dark:border-white/20 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
+                      dark:border-white/30 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
                     "
                   />
 
@@ -521,7 +532,7 @@ export default function MetadataDialog({
                         inline-flex items-center gap-2 cursor-pointer
                         rounded-2xl px-3 py-2 text-sm font-semibold
                         border border-slate-400 bg-white hover:bg-neutral-50
-                        dark:border-white/20 dark:bg-white/6 dark:text-white dark:hover:bg-white/10
+                        dark:border-white/30 dark:bg-white/6 dark:text-white dark:hover:bg-white/10
                         whitespace-nowrap
                       "
                     >
@@ -573,7 +584,7 @@ export default function MetadataDialog({
                   rounded-2xl border border-slate-400 bg-neutral-50
                   px-3 py-2 text-sm
                   focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-                  dark:border-white/20 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
+                  dark:border-white/30 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
                 "
               />
               <p className="text-[11px] text-neutral-500 dark:text-white/60 break-words">
@@ -596,7 +607,7 @@ export default function MetadataDialog({
                   border border-slate-400 bg-neutral-50
                   px-3 py-2 text-sm
                   focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-                  dark:border-white/20 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
+                  dark:border-white/30 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
                 "
               />
             </div>
@@ -607,25 +618,40 @@ export default function MetadataDialog({
             className="
               relative
               px-5 md:px-6 py-4
-              border-t border-slate-400 dark:border-white/20
+              border-t border-slate-400 dark:border-white/30
               sticky bottom-0 z-10
               bg-white/90 dark:bg-[#111C2E]/92
               backdrop-blur-md
             "
           >
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-            <div className="text-[11px] text-neutral-500 dark:text-white/60 break-words">
+            <div className="text-xs font-medium text-neutral-600 dark:text-white/70 break-words">
               {t("footerHint")}
             </div>
+
+            <button
+              onClick={handleTryClose}
+              disabled={isBusy}
+              className="
+                w-full sm:w-auto sm:ml-auto
+                rounded-2xl border border-slate-400 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-800
+                hover:bg-neutral-100
+                dark:border-white/20 dark:bg-white/[0.04] dark:text-white dark:hover:bg-white/10
+                disabled:opacity-50 disabled:cursor-not-allowed
+              "
+            >
+              {t("buttons.close")}
+            </button>
 
             <button
               onClick={handleSave}
               disabled={isBusy}
                 className="
-                  w-full sm:w-auto sm:ml-auto
-                  rounded-2xl px-4 py-2 text-sm font-semibold text-white
+                  w-full sm:w-auto
+                  rounded-2xl px-4 py-2.5 text-sm font-semibold text-white
                   bg-blue-600 hover:bg-blue-700
-                  dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+                  shadow-[0_12px_30px_-18px_rgba(37,99,235,0.9)]
+                  dark:bg-[rgb(var(--hero-b))] dark:text-[#081120] dark:hover:bg-[rgb(var(--hero-a))]
                   disabled:opacity-50 disabled:cursor-not-allowed
                 "
             >

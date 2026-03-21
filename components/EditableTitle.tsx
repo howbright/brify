@@ -14,7 +14,7 @@ interface Props {
 export default function EditableTitle({
   id,
   initialTitle,
-  onTitleSaved,
+  onTitleSaved: _onTitleSaved,
 }: Props) {
   const supabase = createClient();
   const [isEditing, setIsEditing] = useState(false);
@@ -45,7 +45,7 @@ export default function EditableTitle({
 
     setLoading(true);
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("summaries")
       .update({ summary_text: newTitle })
       .eq("id", id)

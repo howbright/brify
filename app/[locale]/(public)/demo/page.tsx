@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import ScriptInputCard from "@/app/[locale]/(main)/video-to-map/ScriptInputCard";
 import DraftMapCard from "@/app/[locale]/(main)/video-to-map/DraftMapCard";
 import YoutubeScriptDialog from "@/app/[locale]/(main)/video-to-map/YoutubeScriptDialog";
@@ -47,6 +48,7 @@ export default function DemoPage() {
   const [showFullscreen, setShowFullscreen] = useState(false);
   const processingTimerRef = useRef<number | null>(null);
   const draftsSectionRef = useRef<HTMLElement | null>(null);
+  const lastReadonlyToastRef = useRef(0);
 
   const resolvedLanguage = useMemo(
     () => resolveDemoLanguage(outputLang),
@@ -54,6 +56,15 @@ export default function DemoPage() {
   );
   const selectedMindData = DEMO.mindDataByLanguage[resolvedLanguage];
   const requiredCredits = 1;
+
+  const handleDemoLanguageChange = (nextLang: string) => {
+    if (nextLang === "ko" || nextLang === "en" || nextLang === "auto") {
+      setOutputLang(nextLang);
+      return;
+    }
+
+    toast.message("데모에서는 한국어와 영어만 선택할 수 있어요.");
+  };
 
   useEffect(() => {
     return () => {
@@ -76,7 +87,8 @@ export default function DemoPage() {
     setError(null);
     setIsProcessing(true);
 
-    const nextDraft = buildDemoDraft(resolvedLanguage, scriptText);
+    const language = resolvedLanguage;
+    const nextDraft = buildDemoDraft(language, scriptText);
     setDrafts([nextDraft]);
     window.setTimeout(() => {
       draftsSectionRef.current?.scrollIntoView({
@@ -91,12 +103,21 @@ export default function DemoPage() {
           ...nextDraft,
           updatedAt: Date.now(),
           status: "done",
-          result: DEMO.mindDataByLanguage[resolvedLanguage],
+          result: DEMO.mindDataByLanguage[language],
         },
       ]);
+      setScriptText("");
       setIsProcessing(false);
+      toast.success("샘플 구조맵 생성이 완료됐어요.");
       processingTimerRef.current = null;
     }, DEMO_PROCESSING_MS);
+  };
+
+  const handleAttemptEditDemoText = () => {
+    const now = Date.now();
+    if (now - lastReadonlyToastRef.current < 1600) return;
+    lastReadonlyToastRef.current = now;
+    toast.message("데모 페이지에서는 샘플 원문을 수정할 수 없어요.");
   };
 
   return (
@@ -150,9 +171,11 @@ export default function DemoPage() {
             onGenerate={handleGenerate}
             onOpenYoutubeDialog={() => setShowYoutubeDialog(true)}
             outputLang={outputLang}
-            setOutputLang={setOutputLang}
+            setOutputLang={handleDemoLanguageChange}
             isTooLarge={false}
             disabled={false}
+            textareaReadOnly
+            onAttemptEditReadOnly={handleAttemptEditDemoText}
           />
         </div>
 

@@ -8,10 +8,10 @@ import { useState } from "react";
 interface SummarizeOptionsDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (params: { source: string; viewType: "text" | "diagram" | "both" }) => void;
+  onSubmit: (_params: { source: string; viewType: "text" | "diagram" | "both" }) => void;
 }
 
-export default function SummarizeOptionsDialog({ open, onClose, onSubmit }: SummarizeOptionsDialogProps) {
+export default function SummarizeOptionsDialog({ open, onClose, onSubmit: _onSubmit }: SummarizeOptionsDialogProps) {
   const [source, setSource] = useState("");
   const [viewType, setViewType] = useState<"text" | "diagram" | "both">("both");
   const [loading, setLoading] = useState(false);

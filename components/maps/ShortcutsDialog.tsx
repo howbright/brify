@@ -14,32 +14,41 @@ export default function ShortcutsDialog({
   return (
     <div className="fixed inset-0 z-[220]">
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"
+        className="absolute inset-0 bg-black/45 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
-      <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-neutral-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-[#0b1220] max-h-[80vh] flex flex-col">
+      <div className="absolute left-1/2 top-1/2 flex max-h-[80vh] w-[92vw] max-w-[520px] -translate-x-1/2 -translate-y-1/2 flex-col rounded-3xl border border-slate-400 bg-white p-5 shadow-[0_28px_90px_-40px_rgba(15,23,42,0.85)] dark:border-white/20 dark:bg-[#0F172A] dark:ring-1 dark:ring-white/16 dark:shadow-[0_34px_120px_-60px_rgba(0,0,0,0.95)]">
+        <div
+          className="
+            pointer-events-none absolute inset-0 rounded-3xl
+            bg-[radial-gradient(800px_260px_at_20%_0%,rgba(59,130,246,0.18),transparent_55%)]
+            dark:bg-[radial-gradient(800px_260px_at_20%_0%,rgba(56,189,248,0.18),transparent_55%)]
+          "
+        />
+        <div className="pointer-events-none absolute inset-0 rounded-3xl dark:bg-white/[0.03]" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-slate-400 dark:bg-white/20" />
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <h3 className="text-base font-semibold text-neutral-900 dark:text-white/90">
+          <div className="relative">
+            <h3 className="text-lg md:text-xl font-bold text-blue-700 dark:text-[rgb(var(--hero-b))]">
               단축키 안내
             </h3>
-            <p className="mt-1 text-xs text-neutral-500 dark:text-white/60">
+            <p className="mt-3 text-base font-semibold text-neutral-900 dark:text-white">
               Mind Elixir 기본 단축키 목록입니다.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center gap-1.5 rounded-2xl border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
+            aria-label="닫기"
+            className="relative inline-flex items-center justify-center text-neutral-500 hover:text-neutral-800 dark:text-white/60 dark:hover:text-white"
           >
-            <Icon icon="mdi:close" className="h-4 w-4" />
-            닫기
+            <Icon icon="mdi:close" className="h-6 w-6" />
           </button>
         </div>
 
-        <div className="mt-4 grid gap-2 text-xs text-neutral-700 dark:text-white/80 overflow-y-auto pr-1">
-          <div className="grid grid-cols-[1fr_1.4fr] gap-2 rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2 font-semibold text-[11px] text-neutral-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/60">
+        <div className="relative mt-4 grid gap-2 overflow-y-auto pr-1 text-xs text-neutral-700 dark:text-white/80">
+          <div className="grid grid-cols-[1fr_1.4fr] gap-2 rounded-2xl border border-slate-400 bg-white px-3 py-2 font-semibold text-[11px] text-neutral-500 dark:border-white/20 dark:bg-white/[0.08] dark:text-white/60">
             <span>단축키</span>
             <span>기능</span>
           </div>
@@ -72,7 +81,7 @@ export default function ShortcutsDialog({
           ].map(([key, desc]) => (
             <div
               key={key}
-              className="grid grid-cols-[1fr_1.4fr] gap-2 rounded-2xl border border-neutral-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-white/[0.02]"
+              className="grid grid-cols-[1fr_1.4fr] gap-2 rounded-2xl border border-slate-400 bg-white px-3 py-2 dark:border-white/20 dark:bg-white/[0.08]"
             >
               <span className="font-semibold text-neutral-800 dark:text-white/85">
                 {key}

@@ -16,7 +16,6 @@ interface Props {
   onExtracted: (text: string, succeed: boolean) => void;
   isLoading: boolean;
   setIsLoading: (v: boolean) => void;
-  onManualSubmit?: (text: string) => void; // 🔹 요약용 콜백
 }
 
 export default function InputSection({
@@ -24,7 +23,6 @@ export default function InputSection({
   onExtracted,
   isLoading,
   setIsLoading,
-  onManualSubmit,
 }: Props) {
   const [textInput, setTextInput] = useState<string>("");
   const [fileInput, setFileInput] = useState<File | null>(null);
@@ -33,8 +31,6 @@ export default function InputSection({
   const [openOcrHelp, setOpenOcrHelp] = useState<boolean>(false);
   const [alertText, setAlertText] = useState<string>("");
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const [dragOver, setDragOver] = useState(false);
-
   const locale = useLocale();
 
   const handleSubmit = async () => {
@@ -139,16 +135,8 @@ export default function InputSection({
         onExtracted("❌ 요청 처리에 실패했습니다.", false);
         setIsLoading(false);
       }
-    } catch (e: any) {
-      console.error("❌ 유튜브 요청 중 에러 발생:", e);
-
-      // 에러 상세 정보 로그
-      if (e.response) {
-        console.error("응답 상태:", e.response.status);
-        console.error("응답 데이터:", await e.response.text?.());
-      }
-
-      // 사용자에게도 알려주기
+    } catch (error: unknown) {
+      console.error("❌ 유튜브 요청 중 에러 발생:", error);
       onExtracted("❌ 네트워크 오류가 발생했습니다. 다시 시도해주세요.", false);
       setIsLoading(false);
     }
@@ -219,17 +207,9 @@ export default function InputSection({
         setIsLoading(false);
         setIsLoading(false);
       }
-    } catch (e: any) {
-      console.error("❌ 웹사이트 요청 중 에러 발생:", e);
+    } catch (error: unknown) {
+      console.error("❌ 웹사이트 요청 중 에러 발생:", error);
       setIsLoading(false);
-
-      // 에러 상세 정보 로그
-      if (e.response) {
-        console.error("응답 상태:", e.response.status);
-        console.error("응답 데이터:", await e.response.text?.());
-      }
-
-      // 사용자에게도 알려주기
       onExtracted(
         "❌ 웹사이트 요청 중 에러 발생했습니다. 다시 시도해주세요.",
         false

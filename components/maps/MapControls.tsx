@@ -23,11 +23,13 @@ export default function MapControls({
   onPublish,
   onShare,
   onExportPng,
+  onCloseMap,
   onCenterMap,
   onZoomIn,
   onZoomOut,
   highlightEditToggle = false,
   placement = "floating",
+  hidePanToggle = false,
 }: {
   editMode: "view" | "edit";
   panMode: boolean;
@@ -46,11 +48,13 @@ export default function MapControls({
   onPublish?: () => void;
   onShare?: () => void;
   onExportPng?: () => void;
+  onCloseMap?: () => void;
   onCenterMap?: () => void;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
   highlightEditToggle?: boolean;
   placement?: "floating" | "inline";
+  hidePanToggle?: boolean;
 }) {
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [confirmShareOpen, setConfirmShareOpen] = useState(false);
@@ -100,20 +104,20 @@ export default function MapControls({
             <div
               className="
                 flex items-center gap-2
-                text-[11px] font-semibold text-neutral-700
+                text-base font-extrabold text-neutral-700
                 dark:text-white/80
               "
             >
             {/* Left: Mode + Status */}
             <div className="flex items-center gap-2">
-              <div className="inline-flex items-center gap-1 rounded-md border border-neutral-200/70 px-1 py-0.5 dark:border-white/10">
+              <div className="inline-flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => {
                     if (editMode !== "view") onToggleEdit();
                   }}
                   className={`
-                    inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[11px] font-semibold transition-colors
+                    inline-flex items-center gap-1.5 px-2 py-1 text-base font-extrabold transition-colors
                     ${editMode === "view"
                       ? "text-blue-800 dark:text-blue-100 bg-blue-100/70 dark:bg-blue-500/20 rounded-md shadow-[inset_0_1px_2px_rgba(15,23,42,0.25),inset_0_0_0_1px_rgba(59,130,246,0.35)]"
                       : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
@@ -122,7 +126,7 @@ export default function MapControls({
                   aria-label="보기 모드"
                   title="보기 모드"
                 >
-                  <Icon icon="mdi:eye-outline" className="h-3.5 w-3.5" />
+                  <Icon icon="mdi:eye-outline" className="h-4 w-4" />
                   <span className="hidden min-[760px]:inline">보기</span>
                 </button>
                 <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
@@ -132,7 +136,7 @@ export default function MapControls({
                     if (editMode !== "edit") onToggleEdit();
                   }}
                   className={`
-                    inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[11px] font-semibold transition-colors
+                    inline-flex items-center gap-1.5 px-2 py-1 text-base font-extrabold transition-colors
                     ${editMode === "edit"
                       ? "text-blue-800 dark:text-blue-100 bg-blue-100/70 dark:bg-blue-500/20 rounded-md shadow-[inset_0_1px_2px_rgba(15,23,42,0.25),inset_0_0_0_1px_rgba(59,130,246,0.35)]"
                       : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
@@ -141,53 +145,55 @@ export default function MapControls({
                   aria-label="편집 모드"
                   title="편집 모드"
                 >
-                  <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
+                  <Icon icon="mdi:pencil" className="h-4 w-4" />
                   <span className="hidden min-[760px]:inline">편집</span>
                 </button>
               </div>
 
-              <div className="inline-flex items-center gap-1 rounded-md border border-neutral-200/70 px-1 py-0.5 dark:border-white/10">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (panMode) onTogglePanMode();
-                  }}
-                  className={`
-                    inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[11px] font-semibold transition-colors
-                    ${!panMode
-                      ? "text-blue-800 dark:text-blue-100 bg-blue-100/70 dark:bg-blue-500/20 rounded-md shadow-[inset_0_1px_2px_rgba(15,23,42,0.25),inset_0_0_0_1px_rgba(59,130,246,0.35)]"
-                      : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
-                  `}
-                  aria-label="선택 모드"
-                  title="선택 모드"
-                >
-                  <Icon icon="mdi:arrow-top-left" className="h-3.5 w-3.5" />
-                  <span className="hidden min-[760px]:inline">선택</span>
-                </button>
-                <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!panMode) onTogglePanMode();
-                  }}
-                  className={`
-                    inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[11px] font-semibold transition-colors
-                    ${panMode
-                      ? "text-blue-800 dark:text-blue-100 bg-blue-100/70 dark:bg-blue-500/20 rounded-md shadow-[inset_0_1px_2px_rgba(15,23,42,0.25),inset_0_0_0_1px_rgba(59,130,246,0.35)]"
-                      : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
-                  `}
-                  aria-label="이동 모드"
-                  title="이동 모드"
-                >
-                  <Icon icon="mdi:hand-back-left" className="h-3.5 w-3.5" />
-                  <span className="hidden min-[760px]:inline">이동</span>
-                </button>
-              </div>
+              {!hidePanToggle && (
+                <div className="inline-flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (panMode) onTogglePanMode();
+                    }}
+                    className={`
+                      inline-flex items-center gap-1.5 px-2 py-1 text-base font-extrabold transition-colors
+                      ${!panMode
+                        ? "text-blue-800 dark:text-blue-100 bg-blue-100/70 dark:bg-blue-500/20 rounded-md shadow-[inset_0_1px_2px_rgba(15,23,42,0.25),inset_0_0_0_1px_rgba(59,130,246,0.35)]"
+                        : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
+                    `}
+                    aria-label="선택 모드"
+                    title="선택 모드"
+                  >
+                    <Icon icon="mdi:arrow-top-left" className="h-4 w-4" />
+                    <span className="hidden min-[760px]:inline">선택</span>
+                  </button>
+                  <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!panMode) onTogglePanMode();
+                    }}
+                    className={`
+                      inline-flex items-center gap-1.5 px-2 py-1 text-base font-extrabold transition-colors
+                      ${panMode
+                        ? "text-blue-800 dark:text-blue-100 bg-blue-100/70 dark:bg-blue-500/20 rounded-md shadow-[inset_0_1px_2px_rgba(15,23,42,0.25),inset_0_0_0_1px_rgba(59,130,246,0.35)]"
+                        : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
+                    `}
+                    aria-label="이동 모드"
+                    title="이동 모드"
+                  >
+                    <Icon icon="mdi:hand-back-left" className="h-4 w-4" />
+                    <span className="hidden min-[760px]:inline">이동</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Right: Map actions + More */}
             <div className="flex items-center gap-2">
-              <div className="inline-flex items-center gap-1 rounded-md border border-neutral-200/70 px-1 py-0.5 dark:border-white/10">
+              <div className="inline-flex items-center gap-1">
                 {onCenterMap && (
                   <MapControlButton
                     icon="mdi:crosshairs-gps"
@@ -222,14 +228,33 @@ export default function MapControls({
                 />
                 <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
                 <div className="relative" ref={mapActionsRef}>
-                  <MapControlButton
-                    icon="mdi:vector-polyline"
-                    label="맵 조작"
+                  <button
+                    type="button"
                     onClick={() => setMapActionsOpen((v) => !v)}
-                  />
+                    className={`
+                      inline-flex items-center gap-1 rounded-lg px-2 py-1 text-base font-extrabold transition-colors duration-150
+                      ${
+                        mapActionsOpen
+                          ? "bg-blue-100/80 text-blue-800 shadow-[inset_0_1px_2px_rgba(15,23,42,0.18),inset_0_0_0_1px_rgba(59,130,246,0.3)] dark:bg-blue-500/20 dark:text-blue-100"
+                          : "text-neutral-700 hover:bg-slate-200/70 hover:text-neutral-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
+                      }
+                    `}
+                    aria-label="맵 조작"
+                    aria-expanded={mapActionsOpen}
+                    aria-haspopup="menu"
+                    title="맵 조작"
+                  >
+                    <span className="hidden min-[760px]:inline leading-none">맵 조작</span>
+                    <Icon
+                      icon="mdi:chevron-down"
+                      className={`h-5 w-5 shrink-0 transition-transform duration-200 ${
+                        mapActionsOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
 
                   {mapActionsOpen && (
-                    <div className="absolute right-0 mt-2 w-[180px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
+                    <div className="absolute right-0 mt-2 w-[220px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
                       <MenuButton
                         icon="mdi:unfold-more-horizontal"
                         label="전체 펴기"
@@ -292,7 +317,7 @@ export default function MapControls({
                 </div>
               </div>
 
-              <div className="inline-flex items-center gap-1 rounded-md border border-neutral-200/70 px-1 py-0.5 dark:border-white/10">
+              <div className="inline-flex items-center gap-1">
                 <div className="relative" ref={themeRef}>
                   <MapControlButton
                     icon="mdi:palette-outline"
@@ -328,6 +353,7 @@ export default function MapControls({
                     <div className="absolute right-0 mt-2 w-[180px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
                       {onExportPng && (
                         <MenuButton
+                          icon="mdi:image-outline"
                           label="이미지로 저장 (PNG)"
                           onClick={() => {
                             setMoreOpen(false);
@@ -336,6 +362,7 @@ export default function MapControls({
                         />
                       )}
                       <MenuButton
+                        icon="mdi:share-variant-outline"
                         label="공유"
                         onClick={() => {
                           setMoreOpen(false);
@@ -347,12 +374,27 @@ export default function MapControls({
                         }}
                       />
                       <MenuButton
+                        icon="mdi:keyboard-outline"
                         label="단축키"
                         onClick={() => {
                           setMoreOpen(false);
                           setShortcutsOpen(true);
                         }}
                       />
+                      {onCloseMap && (
+                        <>
+                          <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
+                          <MenuButton
+                            icon="mdi:close-circle-outline"
+                            label="맵 닫기"
+                            danger
+                            onClick={() => {
+                              setMoreOpen(false);
+                              onCloseMap();
+                            }}
+                          />
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
@@ -403,7 +445,7 @@ function MapControlButton({
       onClick={onClick}
       className={`
         inline-flex items-center gap-1.5
-        px-1.5 py-0.5 text-[11px] font-semibold
+        px-2 py-1 text-base font-extrabold
         transition-colors duration-150
         ${
           pressed
@@ -415,7 +457,14 @@ function MapControlButton({
       aria-label={label}
       title={label}
     >
-      <Icon icon={icon} className="h-3.5 w-3.5" />
+      <Icon
+        icon={icon}
+        className={
+          icon === "mdi:plus" || icon === "mdi:minus"
+            ? "h-6 w-6"
+            : "h-4 w-4"
+        }
+      />
       {!hideLabel && (
       <span className="hidden min-[760px]:inline">{label}</span>
       )}
@@ -441,7 +490,7 @@ function MenuButton({
       type="button"
       onClick={onClick}
       className={`
-        w-full rounded-xl px-3 py-2 text-left text-xs font-semibold inline-flex items-center gap-2
+        inline-flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-base font-semibold
         ${
           danger
             ? "text-rose-600 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/10"
@@ -449,10 +498,10 @@ function MenuButton({
         }
       `}
     >
-      {icon ? <Icon icon={icon} className="h-3.5 w-3.5" /> : null}
-      <span>{label}</span>
+      {icon ? <Icon icon={icon} className="h-5 w-5" /> : null}
+      <span className="whitespace-nowrap">{label}</span>
       {checked ? (
-        <Icon icon="mdi:check" className="h-3.5 w-3.5 ml-auto" />
+        <Icon icon="mdi:check" className="ml-auto h-5 w-5" />
       ) : null}
     </button>
   );

@@ -203,6 +203,17 @@ export default function VideoToMapPage() {
     [t]
   );
 
+  const buildTooLargeMessage = (current: number) =>
+    [
+      t("errors.tooLargeLine1"),
+      t("errors.tooLargeLine2", {
+        max: CREDIT_POLICY.TWO_MAX_CHARS.toLocaleString(),
+      }),
+      t("errors.tooLargeLine3", {
+        current: current.toLocaleString(),
+      }),
+    ].join("\n");
+
   useEffect(() => {
     let cancelled = false;
 
@@ -254,7 +265,7 @@ export default function VideoToMapPage() {
 
         const mindData = (data as { mind_elixir?: any })?.mind_elixir ?? null;
         if (!mindData) {
-          throw new Error("mind_elixir 데이터가 없습니다.");
+          throw new Error(t("errors.missingMindData"));
         }
 
         setOpenMapData(mindData);
@@ -267,7 +278,7 @@ export default function VideoToMapPage() {
         }
       } catch (e: any) {
         if (cancelled) return;
-        setOpenMapError(e?.message ?? "구조맵을 불러오지 못했습니다.");
+        setOpenMapError(e?.message ?? t("errors.openMapFailed"));
         setOpenMapData(null);
       } finally {
         if (!cancelled) setOpenMapLoading(false);
@@ -277,7 +288,7 @@ export default function VideoToMapPage() {
     return () => {
       cancelled = true;
     };
-  }, [showFullscreen, openDraft?.id]);
+  }, [showFullscreen, openDraft?.id, t]);
 
   useEffect(() => {
     if (!isProcessing) {
@@ -327,16 +338,13 @@ export default function VideoToMapPage() {
       getRequiredCreditsUnsafe(scriptText);
     } catch (e: any) {
       if (e?.message === "INPUT_TOO_LARGE") {
-        const msg =
-          `입력 분량이 너무 커서 현재는 처리할 수 없어요.\n` +
-          `최대: ${CREDIT_POLICY.TWO_MAX_CHARS.toLocaleString()}자 (과금 기준)\n` +
-          `현재: ${creditInfo.length.toLocaleString()}자 (과금 기준)`;
+        const msg = buildTooLargeMessage(creditInfo.length);
         setError(msg);
         openToast(msg);
         return;
       }
-      setError("처리 중 오류가 발생했습니다.");
-      openToast("처리 중 오류가 발생했습니다.");
+      setError(t("errors.processingFailed"));
+      openToast(t("errors.processingFailed"));
       return;
     }
 
@@ -354,7 +362,7 @@ export default function VideoToMapPage() {
       setIsFetchingYoutube(true);
 
       const u = youtubeUrl.trim();
-      if (!u) throw new Error("유튜브 URL을 입력해 주세요.");
+      if (!u) throw new Error(t("errors.youtubeUrlRequired"));
 
       // ✅ 1) 브라우저 Supabase 세션에서 access_token 가져오기
       const supabase = createClient();
@@ -362,18 +370,20 @@ export default function VideoToMapPage() {
         await supabase.auth.getSession();
 
       if (sessionErr) {
-        throw new Error("세션을 가져오지 못했습니다: " + sessionErr.message);
+        throw new Error(
+          t("errors.sessionFailed", { message: sessionErr.message })
+        );
       }
 
       const accessToken = sessionData.session?.access_token;
       if (!accessToken) {
-        throw new Error("로그인이 필요합니다.");
+        throw new Error(t("errors.loginRequired"));
       }
 
       // ✅ 2) Nest API 호출 (Bearer 토큰)
       const base = process.env.NEXT_PUBLIC_API_BASE_URL;
       if (!base) {
-        throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
+        throw new Error(t("errors.missingApiBase"));
       }
 
       const res = await fetch(`${base}/youtube-scripts/fetch`, {
@@ -392,9 +402,9 @@ export default function VideoToMapPage() {
 
       if (!res.ok) {
         const msg =
-          json?.message || json?.error || "스크립트를 가져오지 못했습니다.";
+          json?.message || json?.error || t("errors.youtubeFetchFailed");
         throw new Error(
-          typeof msg === "string" ? msg : msg?.[0] || "요청 실패"
+          typeof msg === "string" ? msg : msg?.[0] || t("errors.requestFailed")
         );
       }
 
@@ -402,7 +412,7 @@ export default function VideoToMapPage() {
       const previewText = String(json?.previewText ?? "");
       if (!previewText.trim()) {
         throw new Error(
-          "자막/스크립트를 찾지 못했습니다. (영상에 자막이 없을 수 있습니다.)"
+          t("errors.noTranscriptFound")
         );
       }
 
@@ -417,7 +427,7 @@ export default function VideoToMapPage() {
       setError(null);
 
       setYoutubeSuccess(
-        "스크립트를 가져와 입력칸에 채워 드렸습니다. 이제 바로 생성하실 수 있습니다."
+        t("messages.youtubeFilled")
       );
 
       // ✅ 성공하면 0.6초 후 자동 닫기
@@ -426,7 +436,7 @@ export default function VideoToMapPage() {
         setYoutubeSuccess(null);
       }, 600);
     } catch (e: any) {
-      setYoutubeError(e?.message ?? "스크립트를 가져오지 못했습니다.");
+      setYoutubeError(e?.message ?? t("errors.youtubeFetchFailed"));
     } finally {
       setIsFetchingYoutube(false);
     }
@@ -441,18 +451,15 @@ export default function VideoToMapPage() {
       creditsNow = getRequiredCreditsUnsafe(scriptText);
     } catch (e: any) {
       if (e?.message === "INPUT_TOO_LARGE") {
-        const msg =
-          `입력 분량이 너무 커서 현재는 처리할 수 없어요.\n` +
-          `최대: ${CREDIT_POLICY.TWO_MAX_CHARS.toLocaleString()}자 (과금 기준)\n` +
-          `현재: ${creditInfo.length.toLocaleString()}자 (과금 기준)`;
+        const msg = buildTooLargeMessage(creditInfo.length);
         setShowCreditDialog(false);
         setError(msg);
         openToast(msg);
         return;
       }
       setShowCreditDialog(false);
-      setError("처리 중 오류가 발생했습니다.");
-      openToast("처리 중 오류가 발생했습니다.");
+      setError(t("errors.processingFailed"));
+      openToast(t("errors.processingFailed"));
       return;
     }
 
@@ -472,17 +479,19 @@ export default function VideoToMapPage() {
         await supabase.auth.getSession();
 
       if (sessionErr) {
-        throw new Error("세션을 가져오지 못했습니다: " + sessionErr.message);
+        throw new Error(
+          t("errors.sessionFailed", { message: sessionErr.message })
+        );
       }
 
       const accessToken = sessionData.session?.access_token;
       if (!accessToken) {
-        throw new Error("로그인이 필요합니다.");
+        throw new Error(t("errors.loginRequired"));
       }
 
       const base = process.env.NEXT_PUBLIC_API_BASE_URL;
       if (!base) {
-        throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
+        throw new Error(t("errors.missingApiBase"));
       }
 
       const sourceUrl = youtubeMeta?.sourceUrl || youtubeUrl || undefined;
@@ -494,7 +503,7 @@ export default function VideoToMapPage() {
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          title: "제목없음",
+          title: t("labels.untitled"),
           extracted_text: scriptText,
           source_type: detectSourceType(sourceUrl),
           source_url: sourceUrl,
@@ -506,15 +515,15 @@ export default function VideoToMapPage() {
       const json = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        const msg = json?.message || json?.error || "요청 실패";
+        const msg = json?.message || json?.error || t("errors.requestFailed");
         throw new Error(
-          typeof msg === "string" ? msg : msg?.[0] || "요청 실패"
+          typeof msg === "string" ? msg : msg?.[0] || t("errors.requestFailed")
         );
       }
 
       const mapId = String(json?.id ?? "");
       if (!mapId) {
-        throw new Error("mapId가 없습니다.");
+        throw new Error(t("errors.missingMapId"));
       }
 
       setDrafts((prev) => {
@@ -527,7 +536,7 @@ export default function VideoToMapPage() {
           createdAt: Date.now(),
           sourceUrl,
           sourceType: detectSourceType(sourceUrl),
-          title: "제목없음",
+          title: t("labels.untitled"),
           channelName: youtubeMeta?.channelName ?? undefined,
           thumbnailUrl: youtubeMeta?.thumbnailUrl ?? undefined,
           tags: [],
@@ -545,7 +554,7 @@ export default function VideoToMapPage() {
       setScriptText("");
     } catch (e: any) {
       setIsProcessing(false);
-      const msg = e?.message ?? "구조맵 생성에 실패했습니다.";
+      const msg = e?.message ?? t("errors.createFailed");
       setError(msg);
       openToast(msg);
     }
@@ -565,7 +574,7 @@ export default function VideoToMapPage() {
     try {
       const targetId = createdMapId ?? editingDraft?.id;
       if (!targetId) {
-        throw new Error("mapId가 없습니다.");
+        throw new Error(t("errors.missingMapId"));
       }
 
       setSavingMetaId(targetId);
@@ -575,17 +584,19 @@ export default function VideoToMapPage() {
         await supabase.auth.getSession();
 
       if (sessionErr) {
-        throw new Error("세션을 가져오지 못했습니다: " + sessionErr.message);
+        throw new Error(
+          t("errors.sessionFailed", { message: sessionErr.message })
+        );
       }
 
       const accessToken = sessionData.session?.access_token;
       if (!accessToken) {
-        throw new Error("로그인이 필요합니다.");
+        throw new Error(t("errors.loginRequired"));
       }
 
       const base = process.env.NEXT_PUBLIC_API_BASE_URL;
       if (!base) {
-        throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
+        throw new Error(t("errors.missingApiBase"));
       }
 
       const res = await fetch(`${base}/maps/${targetId}/metadata`, {
@@ -608,8 +619,10 @@ export default function VideoToMapPage() {
       const json = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        const msg = json?.message || json?.error || "요청 실패";
-        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+        const msg = json?.message || json?.error || t("errors.requestFailed");
+        throw new Error(
+          typeof msg === "string" ? msg : msg?.[0] || t("errors.requestFailed")
+        );
       }
 
       let latestDraft: MapDraft | null = null;
@@ -633,7 +646,7 @@ export default function VideoToMapPage() {
               ? ((data as { source_type?: string | null })
                   .source_type as MapDraft["sourceType"])
               : undefined,
-            title: data.title ?? "제목없음",
+            title: data.title ?? t("labels.untitled"),
             channelName: data.channel_name ?? undefined,
             thumbnailUrl: data.thumbnail_url
               ? withCacheBuster(data.thumbnail_url)
@@ -672,7 +685,7 @@ export default function VideoToMapPage() {
           id,
           createdAt: Date.now(),
           sourceUrl: meta.sourceUrl,
-          title: meta.title || "제목없음",
+          title: meta.title || t("labels.untitled"),
           channelName: meta.channelName,
           thumbnailUrl: cacheBustedThumb,
           tags: meta.tags ?? [],
@@ -696,7 +709,7 @@ export default function VideoToMapPage() {
       setSavingMetaId(null);
     } catch (e: any) {
       setIsProcessing(false);
-      const msg = e?.message ?? "구조맵 생성에 실패했습니다.";
+      const msg = e?.message ?? t("errors.createFailed");
       setError(msg);
       openToast(msg);
       setSavingMetaId(null);
@@ -803,7 +816,7 @@ export default function VideoToMapPage() {
         {drafts.length > 0 && (
           <section ref={draftsSectionRef} className="mt-2 space-y-3">
             <div className="flex items-end justify-between gap-2">
-              <h2 className="text-base md:text-lg font-semibold">만든 구조맵</h2>
+              <h2 className="text-base md:text-lg font-semibold">{t("labels.draftsTitle")}</h2>
             </div>
 
             <div className="grid gap-3">
@@ -878,7 +891,7 @@ export default function VideoToMapPage() {
 
       <FullscreenDialog
         open={showFullscreen}
-        title={openDraft?.title ?? "구조맵 미리보기"}
+        title={openDraft?.title ?? t("labels.previewTitle")}
         draft={openDraft}
         mapData={openMapData}
         mapLoading={openMapLoading}

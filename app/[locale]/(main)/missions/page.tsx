@@ -3,7 +3,6 @@
 import { useState } from "react";
 import MissionTabs from "@/components/missions/MissionTabs";
 import MissionParticipatePanel from "@/components/missions/MissionParticipatePanel";
-import FeedbackMissionPanel from "@/components/missions/FeedbackMissionPanel";
 import MissionHistoryPanel from "@/components/missions/MissionHistoryPanel";
 
 export default function MissionPage() {

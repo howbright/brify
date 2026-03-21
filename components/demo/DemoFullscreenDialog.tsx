@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTheme } from "next-themes";
+import { toast } from "sonner";
 
 import FullscreenHeader from "@/components/maps/FullscreenHeader";
 import MapControls from "@/components/maps/MapControls";
@@ -237,7 +238,7 @@ function DemoLeftPanel({
         ${open ? "translate-x-0" : "-translate-x-[calc(100%+28px)]"}
       `}
     >
-      <div className="relative flex h-full w-[340px] flex-col border-r border-slate-400 bg-white/96 shadow-[0_20px_50px_-36px_rgba(15,23,42,0.55)] backdrop-blur dark:border-white/20 dark:bg-[#0b1220]/96 dark:shadow-[0_32px_100px_-70px_rgba(0,0,0,0.95)]">
+      <div className="relative flex h-full w-[550px] flex-col border-r border-slate-400 bg-white/96 shadow-[0_20px_50px_-36px_rgba(15,23,42,0.55)] backdrop-blur dark:border-white/20 dark:bg-[#0b1220]/96 dark:shadow-[0_32px_100px_-70px_rgba(0,0,0,0.95)]">
         <div className="border-b border-slate-400 px-4 pb-3 pt-4 dark:border-white/20">
           <div className="flex items-start gap-2">
             <div className="inline-flex rounded-full border border-slate-400 bg-neutral-50 p-1 dark:border-white/20 dark:bg-white/[0.04]">
@@ -254,8 +255,8 @@ function DemoLeftPanel({
                   }
                   className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
                     activeTab === tab
-                      ? "bg-blue-600 text-white dark:bg-blue-500"
-                      : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"
+                      ? "bg-blue-600 text-[16px] font-extrabold text-white dark:bg-blue-500"
+                      : "text-[16px] font-bold text-neutral-700 hover:text-neutral-900 dark:text-white/80 dark:hover:text-white"
                   }`}
                 >
                   {label}
@@ -275,7 +276,7 @@ function DemoLeftPanel({
           </div>
 
           {activeTab === "info" && (
-            <div className="mt-3 whitespace-normal break-words text-sm font-semibold text-neutral-900 dark:text-white/90">
+            <div className="mt-3 whitespace-normal break-words text-lg font-bold text-neutral-900 dark:text-white/90">
               {map.title}
             </div>
           )}
@@ -284,7 +285,7 @@ function DemoLeftPanel({
         <div className="relative min-h-0 flex-1 overflow-y-auto px-4 py-4">
           {activeTab === "info" ? (
             <>
-              <div className="mb-3 text-[11px] text-neutral-400 dark:text-white/40">
+              <div className="mb-3 text-[14px] text-neutral-500 dark:text-white/55">
                 <div>
                   생성 {createdLabel} · 수정 {updatedLabel}
                 </div>
@@ -302,11 +303,11 @@ function DemoLeftPanel({
                 <section className="mb-4">
                   <div className="mb-2.5 flex items-center gap-2">
                     <div className="h-5 w-1 rounded-full bg-blue-200 dark:bg-blue-500/40" />
-                    <h3 className="text-xs font-semibold text-neutral-900 dark:text-white/85">
+                    <h3 className="text-base font-bold text-neutral-900 dark:text-white/90">
                       한문단요약
                     </h3>
                   </div>
-                  <div className="rounded-3xl border border-slate-400 bg-blue-50/60 p-3.5 text-[12px] leading-5 text-neutral-700 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] dark:border-white/20 dark:bg-blue-500/10 dark:text-white/80 dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]">
+                  <div className="rounded-3xl border border-slate-400 bg-blue-50/60 p-3.5 text-base leading-7 text-neutral-700 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] dark:border-white/20 dark:bg-blue-500/10 dark:text-white/80 dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]">
                     <p className="whitespace-pre-wrap break-words">{map.summary}</p>
                   </div>
                 </section>
@@ -338,7 +339,7 @@ function DemoLeftPanel({
                     />
 
                     <div className="mt-1">
-                      <div className="text-[11px] text-neutral-500 dark:text-white/60">
+                      <div className="text-[13px] text-neutral-500 dark:text-white/60">
                         원본 링크
                       </div>
                       {map.sourceUrl ? (
@@ -346,13 +347,13 @@ function DemoLeftPanel({
                           href={map.sourceUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-0.5 block truncate text-xs font-semibold text-blue-700 hover:underline dark:text-sky-200"
+                          className="mt-0.5 block truncate text-base font-semibold text-blue-700 hover:underline dark:text-sky-200"
                           title={map.sourceUrl}
                         >
                           {map.sourceUrl}
                         </a>
                       ) : (
-                        <div className="mt-0.5 text-xs text-neutral-700 dark:text-white/85">
+                        <div className="mt-0.5 text-base text-neutral-700 dark:text-white/85">
                           -
                         </div>
                       )}
@@ -367,7 +368,7 @@ function DemoLeftPanel({
                     {map.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="rounded-full border border-slate-400 bg-neutral-50 px-2 py-0.5 text-[11px] font-semibold text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
+                        className="rounded-full border border-slate-400 bg-neutral-50 px-2.5 py-1 text-[13px] font-semibold text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
                       >
                         #{tag}
                       </span>
@@ -377,14 +378,14 @@ function DemoLeftPanel({
               </DemoSection>
 
               <DemoSection title="설명">
-                <div className="whitespace-pre-wrap break-words text-xs text-neutral-700 dark:text-white/80">
+                <div className="whitespace-pre-wrap break-words text-base leading-7 text-neutral-700 dark:text-white/80">
                   {map.description ?? "-"}
                 </div>
               </DemoSection>
             </>
           ) : activeTab === "notes" ? (
             <div className="flex flex-col gap-3">
-              <div className="text-xs text-neutral-500 dark:text-white/60">
+              <div className="text-base text-neutral-600 dark:text-white/75">
                 중요한 노드를 읽으면서 떠오른 생각을 바로 남길 수 있어요.
               </div>
               <div className="rounded-2xl border border-slate-400 bg-white p-3 dark:border-white/20 dark:bg-white/[0.04]">
@@ -392,14 +393,14 @@ function DemoLeftPanel({
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
                   placeholder="이 노드에서 떠오른 생각을 적어보세요."
-                  className="w-full rounded-xl border border-slate-400 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-200 dark:border-white/20 dark:bg-white/[0.06] dark:text-white dark:focus:ring-blue-500/20"
+                  className="w-full rounded-xl border border-slate-400 bg-white px-3 py-2 text-lg outline-none focus:ring-2 focus:ring-blue-200 dark:border-white/20 dark:bg-white/[0.06] dark:text-white dark:focus:ring-blue-500/20"
                   rows={3}
                 />
                 <div className="mt-3 flex justify-end">
                   <button
                     type="button"
                     onClick={addNote}
-                    className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-400 bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700 dark:border-white/20 dark:bg-blue-500"
+                    className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-400 bg-blue-600 px-3 py-2 text-base font-semibold text-white hover:bg-blue-700 dark:border-white/20 dark:bg-blue-500"
                   >
                     <Icon icon="mdi:plus" className="h-4 w-4" />
                     노트 추가
@@ -424,7 +425,7 @@ function DemoLeftPanel({
             </div>
           ) : (
             <>
-              <div className="mb-3 rounded-2xl border border-slate-400 bg-sky-50/70 px-3 py-2 text-[11px] text-slate-700 shadow-[0_16px_30px_-24px_rgba(14,116,144,0.45)] dark:border-white/20 dark:bg-sky-500/10 dark:text-white/75">
+              <div className="mb-3 rounded-2xl border border-slate-400 bg-sky-50/70 px-3 py-2 text-base text-slate-700 shadow-[0_16px_30px_-24px_rgba(14,116,144,0.45)] dark:border-white/20 dark:bg-sky-500/10 dark:text-white/75">
                 <div className="flex items-center gap-2">
                   <Icon icon="mdi:sparkles" className="h-4 w-4 text-sky-500 dark:text-sky-300" />
                   <span className="font-semibold">
@@ -461,7 +462,7 @@ function DemoSection({
     <section className="mb-4">
       <div className="mb-2 flex items-center gap-2">
         <div className="h-5 w-1 rounded-full bg-neutral-200 dark:bg-white/15" />
-        <h3 className="text-xs font-semibold text-neutral-900 dark:text-white/85">
+        <h3 className="text-base font-bold text-neutral-900 dark:text-white/90">
           {title}
         </h3>
       </div>
@@ -485,8 +486,8 @@ function DemoRow({
     <div className="flex min-w-0 items-center gap-2">
       <Icon icon={icon} className="h-4 w-4 text-neutral-500 dark:text-white/55" />
       <div className="min-w-0">
-        <div className="text-[11px] text-neutral-500 dark:text-white/60">{label}</div>
-        <div className="truncate text-xs font-semibold text-neutral-800 dark:text-white/85">
+        <div className="text-[13px] text-neutral-500 dark:text-white/60">{label}</div>
+        <div className="truncate text-base font-semibold text-neutral-800 dark:text-white/85">
           {value}
         </div>
       </div>
@@ -513,12 +514,14 @@ export default function DemoFullscreenDialog({
   const { resolvedTheme } = useTheme();
   const [leftOpen, setLeftOpen] = useState(true);
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
-  const [panMode, setPanMode] = useState(false);
+  const [showMoveHint, setShowMoveHint] = useState(true);
+  const [showContextHint, setShowContextHint] = useState(true);
   const [themeName, setThemeName] = useState<string>(
     profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME
   );
   const mindRef = useRef<ClientMindElixirHandle | null>(null);
   const [mounted, setMounted] = useState(false);
+  const lastEditHintRef = useRef(0);
 
   const themeOptions = useMemo(
     () => [{ name: PROFILE_THEME_NAME }, { name: DEFAULT_THEME_NAME }, ...MIND_THEMES],
@@ -530,8 +533,28 @@ export default function DemoFullscreenDialog({
   }, []);
 
   useEffect(() => {
-    mindRef.current?.setPanMode(panMode);
-  }, [panMode]);
+    if (!open || !mounted) return;
+    const timer = window.setTimeout(() => {
+      mindRef.current?.collapseToLevel?.(1);
+      mindRef.current?.centerMap?.();
+      window.setTimeout(() => {
+        mindRef.current?.zoomIn?.();
+        window.setTimeout(() => {
+          mindRef.current?.zoomIn?.();
+          window.setTimeout(() => {
+            mindRef.current?.zoomIn?.();
+            window.setTimeout(() => {
+              mindRef.current?.zoomIn?.();
+              window.setTimeout(() => {
+                mindRef.current?.zoomIn?.();
+              }, 140);
+            }, 140);
+          }, 140);
+        }, 140);
+      }, 120);
+    }, 220);
+    return () => window.clearTimeout(timer);
+  }, [open, mounted, draft?.id, language]);
 
   if (!open || !draft || !mounted) return null;
 
@@ -580,7 +603,7 @@ export default function DemoFullscreenDialog({
             >
               <span className="sr-only">정보 패널</span>
               {leftOpen ? (
-                <Icon icon="mdi:close" className="h-6 w-6" />
+                <Icon icon="mdi:chevron-left" className="h-8 w-8" />
               ) : (
                 <span className="inline-flex h-4 w-5 flex-col justify-between">
                   <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />
@@ -594,13 +617,13 @@ export default function DemoFullscreenDialog({
             <div className="hidden items-center gap-2 sm:flex">
               <MapControls
                 editMode={editMode}
-                panMode={panMode}
+                panMode={false}
                 themes={themeOptions}
                 currentThemeName={themeName}
                 onToggleEdit={() =>
                   setEditMode((mode) => (mode === "view" ? "edit" : "view"))
                 }
-                onTogglePanMode={() => setPanMode((prev) => !prev)}
+                onTogglePanMode={() => {}}
                 onSelectTheme={(name) => setThemeName(name)}
                 onCollapseAll={() => mindRef.current?.collapseAll?.()}
                 onExpandAll={() => mindRef.current?.expandAll?.()}
@@ -613,7 +636,9 @@ export default function DemoFullscreenDialog({
                 onZoomIn={() => mindRef.current?.zoomIn?.()}
                 onZoomOut={() => mindRef.current?.zoomOut?.()}
                 onExportPng={handleExportPng}
+                onCloseMap={onClose}
                 placement="inline"
+                hidePanToggle
               />
             </div>
           }
@@ -625,7 +650,7 @@ export default function DemoFullscreenDialog({
           <div className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(closest-side,black,transparent)] bg-[radial-gradient(900px_520px_at_50%_30%,rgba(59,130,246,0.10),transparent_62%)] dark:bg-[radial-gradient(900px_520px_at_50%_30%,rgba(56,189,248,0.10),transparent_62%)]" />
 
           <div className="absolute inset-0 p-0">
-            <div className="h-full w-full rounded-2xl border border-slate-400 bg-white/65 shadow-sm backdrop-blur-sm dark:border-white/20 dark:bg-white/[0.03]">
+            <div className="h-full w-full rounded-b-2xl border-x border-b border-slate-400 bg-white/65 shadow-sm backdrop-blur-sm dark:border-white/20 dark:bg-white/[0.03]">
               <ClientMindElixir
                 ref={mindRef}
                 mode={resolvedTheme === "dark" ? "dark" : "light"}
@@ -634,9 +659,54 @@ export default function DemoFullscreenDialog({
                 data={mapData ?? undefined}
                 loading={false}
                 placeholderData={loadingMindElixir}
+                onViewModeEditAttempt={() => {
+                  if (editMode !== "view") return;
+                  const now = Date.now();
+                  if (now - lastEditHintRef.current < 5000) return;
+                  lastEditHintRef.current = now;
+                  toast.message("노드를 수정하려면 편집 모드를 눌러주세요.");
+                }}
               />
             </div>
           </div>
+
+          {showMoveHint && (
+            <div className="pointer-events-auto absolute right-4 top-14 z-[16] sm:right-4 sm:top-[52px]">
+              <div className="relative rounded-2xl border border-slate-400 bg-[#2f3643] px-4 py-3 pr-10 text-white shadow-[0_18px_36px_-22px_rgba(15,23,42,0.9)] dark:border-white/20 dark:bg-[#2b3240]">
+                <button
+                  type="button"
+                  onClick={() => setShowMoveHint(false)}
+                  className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-full text-white/65 hover:bg-white/10 hover:text-white"
+                  aria-label="이동 안내 닫기"
+                  title="닫기"
+                >
+                  <Icon icon="mdi:close" className="h-4 w-4" />
+                </button>
+                <div className="text-sm font-extrabold tracking-[-0.01em]">
+                  맵 이동은 우클릭 드래그
+                </div>
+                <div className="mt-1 text-[11px] font-medium text-white/75">
+                  트랙패드는 두 손가락
+                </div>
+              </div>
+              {showContextHint && (
+                <div className="relative mt-3 rounded-2xl border border-slate-400 bg-[#2f3643] px-4 py-3 pr-10 text-white shadow-[0_18px_36px_-22px_rgba(15,23,42,0.9)] dark:border-white/20 dark:bg-[#2b3240]">
+                  <button
+                    type="button"
+                    onClick={() => setShowContextHint(false)}
+                    className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-full text-white/65 hover:bg-white/10 hover:text-white"
+                    aria-label="우클릭 안내 닫기"
+                    title="닫기"
+                  >
+                    <Icon icon="mdi:close" className="h-4 w-4" />
+                  </button>
+                  <div className="text-sm font-extrabold tracking-[-0.01em]">
+                    노드를 선택한 뒤 우클릭해보세요
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           <button
             type="button"
@@ -649,8 +719,8 @@ export default function DemoFullscreenDialog({
           </button>
 
           <div className="absolute right-4 top-3 z-[15] hidden sm:block">
-            <span className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white/80 px-2.5 py-1 text-[11px] text-neutral-600 dark:border-white/20 dark:bg-[#0b1220]/60 dark:text-white/65">
-              <Icon icon="mdi:gesture-tap" className="h-3.5 w-3.5" />
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-400 bg-white/80 px-3 py-1 text-[14px] font-extrabold text-neutral-700 dark:border-white/20 dark:bg-[#0b1220]/60 dark:text-white/85">
+              <Icon icon="mdi:gesture-tap" className="h-4 w-4" />
               {editMode === "edit" ? "편집 모드" : "보기 모드"}
             </span>
           </div>
@@ -662,11 +732,6 @@ export default function DemoFullscreenDialog({
                 onClick: () =>
                   setEditMode((mode) => (mode === "view" ? "edit" : "view")),
                 label: editMode === "view" ? "편집 모드" : "보기 모드",
-              },
-              {
-                icon: panMode ? "mdi:arrow-top-left" : "mdi:hand-back-left",
-                onClick: () => setPanMode((prev) => !prev),
-                label: panMode ? "선택 모드" : "이동 모드",
               },
               {
                 icon: "mdi:crosshairs-gps",

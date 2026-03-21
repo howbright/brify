@@ -18,13 +18,6 @@ interface Props {
 
 export default function SummaryActionsFloating({
   mode,
-  text,
-  onHighlight,
-  onRegenerate,
-  onExplainTerms,
-  onExportPDF,
-  onAskGPT,
-  onCopy,
   targetId = "textView",
 }: Props) {
   const [show, setShow] = useState(false);

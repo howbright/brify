@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 
 export type LangOption = {
   code: string;
@@ -93,38 +94,65 @@ export default function OutputLanguageSelect({
   quickOptions,
   allOptions,
 }: Props) {
+  const t = useTranslations("OutputLanguageSelect");
   const quick = useMemo(() => uniqByCode(quickOptions ?? DEFAULT_QUICK), [quickOptions]);
   const all = useMemo(() => uniqByCode(allOptions ?? DEFAULT_ALL), [allOptions]);
 
   const [isOpen, setIsOpen] = useState(false);
   const [q, setQ] = useState("");
 
+  const translateLabel = useCallback(
+    (opt: LangOption) => ({
+      ...opt,
+      label:
+        opt.code === "auto"
+          ? t("labels.auto")
+          : opt.code === "ko"
+          ? t("labels.ko")
+          : opt.code === "en"
+          ? t("labels.en")
+          : opt.label,
+    }),
+    [t]
+  );
+
+  const translatedQuick = useMemo(
+    () => quick.map(translateLabel),
+    [quick, translateLabel]
+  );
+  const translatedAll = useMemo(
+    () => all.map(translateLabel),
+    [all, translateLabel]
+  );
+
   const current =
-    all.find((o) => o.code === value) ?? quick.find((o) => o.code === value) ?? null;
+    translatedAll.find((o) => o.code === value) ??
+    translatedQuick.find((o) => o.code === value) ??
+    null;
 
   const currentLabel = current?.label ?? value;
 
   const selectOptions = useMemo(() => {
-    const inQuick = quick.some((o) => o.code === value);
-    if (inQuick) return quick;
+    const inQuick = translatedQuick.some((o) => o.code === value);
+    if (inQuick) return translatedQuick;
 
     const injected: LangOption = {
       code: value,
-      label: `현재 선택: ${currentLabel} (${value})`,
+      label: t("currentSelectedOption", { label: currentLabel, code: value }),
     };
 
-    return [injected, ...quick];
-  }, [quick, value, currentLabel]);
+    return [injected, ...translatedQuick];
+  }, [translatedQuick, value, currentLabel, t]);
 
   const filtered = useMemo(() => {
     const keyword = q.trim().toLowerCase();
-    if (!keyword) return all;
-    return all.filter((o) => {
+    if (!keyword) return translatedAll;
+    return translatedAll.filter((o) => {
       const label = o.label.toLowerCase();
       const code = o.code.toLowerCase();
       return label.includes(keyword) || code.includes(keyword);
     });
-  }, [q, all]);
+  }, [q, translatedAll]);
 
   const handlePick = (code: string) => {
     onChange(code);
@@ -178,7 +206,7 @@ export default function OutputLanguageSelect({
             disabled:opacity-60 disabled:cursor-not-allowed
           "
         >
-          더보기…
+          {t("more")}
         </button>
       </div>
 
@@ -192,7 +220,7 @@ export default function OutputLanguageSelect({
           "
           role="dialog"
           aria-modal="true"
-          aria-label="출력 언어 선택"
+          aria-label={t("dialogAria")}
             onMouseDown={(e) => {
               if (e.target === e.currentTarget) setIsOpen(false);
             }}
@@ -225,10 +253,10 @@ export default function OutputLanguageSelect({
               <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1">
                   <h3 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
-                    출력 언어를 선택해 주세요
+                    {t("title")}
                   </h3>
                   <p className="text-xs md:text-sm text-neutral-600 dark:text-white/70">
-                    선택하신 언어로 구조맵을 생성해 드립니다.
+                    {t("description")}
                   </p>
                 </div>
 
@@ -241,7 +269,7 @@ export default function OutputLanguageSelect({
                     dark:border-white/35 dark:bg-white/[0.08] dark:text-white/85 dark:hover:bg-white/[0.12]
                   "
                 >
-                  닫기
+                  {t("close")}
                 </button>
               </div>
 
@@ -254,7 +282,7 @@ export default function OutputLanguageSelect({
                   <input
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
-                    placeholder="언어를 검색해 주세요 (예: English, 한국어, ja, zh...)"
+                    placeholder={t("searchPlaceholder")}
                     className="
                       w-full rounded-2xl border border-slate-500 bg-white
                       pl-9 pr-3 py-2 text-sm text-neutral-900
@@ -313,16 +341,16 @@ export default function OutputLanguageSelect({
 
                   {filtered.length === 0 && (
                     <div className="px-3 py-8 text-center text-sm text-neutral-600 dark:text-white/70">
-                      검색 결과가 없습니다. 다른 키워드로 시도해 주세요.
+                      {t("noResults")}
                     </div>
                   )}
                 </div>
 
                 <div className="mt-3 text-xs text-neutral-500 dark:text-white/60">
-                  현재 선택:{" "}
+                  {t("currentSelection")}:{" "}
                   <b className="text-neutral-900 dark:text-white">{currentLabel}</b>{" "}
                   <span className="mx-1 text-neutral-300 dark:text-white/20">·</span>
-                  코드: <b className="text-neutral-900 dark:text-white">{value}</b>
+                  {t("code")}: <b className="text-neutral-900 dark:text-white">{value}</b>
                 </div>
               </div>
               </div>

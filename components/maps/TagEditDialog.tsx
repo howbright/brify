@@ -66,22 +66,22 @@ export default function TagEditDialog({
       <DialogContent className="max-w-[420px]">
         <div className="flex flex-col gap-4">
           <div>
-            <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
+            <h3 className="text-lg md:text-xl font-bold text-blue-700 dark:text-[rgb(var(--hero-b))]">
               태그 편집
             </h3>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-white/60">
+            <p className="mt-3 text-base font-semibold text-neutral-900 dark:text-white">
               태그를 입력하고 엔터로 추가하세요.
             </p>
           </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-neutral-400 dark:text-white/60">
+              <label className="text-base font-semibold text-neutral-900 dark:text-white">
                 {draftTitle}
               </label>
-              <div className="flex flex-wrap gap-2 rounded-2xl border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 focus-within:border-neutral-900 focus-within:ring-2 focus-within:ring-neutral-200/70 dark:border-white/15 dark:bg-white/[0.06] dark:text-white dark:focus-within:border-white dark:focus-within:ring-white/20">
+              <div className="flex flex-wrap gap-2 rounded-2xl border border-slate-400 bg-white px-3 py-2 text-sm text-neutral-900 focus-within:border-neutral-900 focus-within:ring-2 focus-within:ring-neutral-200/70 dark:border-white/20 dark:bg-white/[0.08] dark:text-white dark:focus-within:border-white dark:focus-within:ring-white/20">
                 {items.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-xs text-neutral-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80"
+                    className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-2 py-0.5 text-xs font-semibold text-neutral-700 dark:border-white/20 dark:bg-white/[0.08] dark:text-white/85"
                   >
                     #{tag}
                     <button
@@ -120,7 +120,7 @@ export default function TagEditDialog({
                       onClick={() =>
                         setItems((prev) => (prev.includes(tag) ? prev : [...prev, tag]))
                       }
-                      className="rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-400/30 dark:bg-blue-500/10 dark:text-blue-200 dark:hover:bg-blue-500/20"
+                      className="rounded-full border border-blue-300 bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-400/30 dark:bg-blue-500/10 dark:text-blue-200 dark:hover:bg-blue-500/20"
                     >
                       #{tag}
                     </button>
@@ -131,7 +131,7 @@ export default function TagEditDialog({
                 <button
                   type="button"
                   onClick={() => setPickerOpen((prev) => !prev)}
-                  className="text-xs font-semibold text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"
+                  className="text-sm font-semibold text-neutral-700 hover:text-neutral-900 dark:text-white/80 dark:hover:text-white"
                 >
                   기존 태그에서 추가
                 </button>
@@ -140,12 +140,12 @@ export default function TagEditDialog({
                 </span>
               </div>
               {pickerOpen && (
-                <div className="rounded-2xl border border-neutral-200 bg-white p-3 text-xs text-neutral-700 shadow-sm dark:border-white/12 dark:bg-white/[0.04] dark:text-white/80">
+                <div className="rounded-2xl border border-slate-400 bg-white p-3 text-xs text-neutral-700 shadow-sm dark:border-white/20 dark:bg-white/[0.08] dark:text-white/80">
                   <input
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)}
                     placeholder="태그 검색"
-                    className="w-full rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs text-neutral-700 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none dark:border-white/12 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/40 dark:focus:border-white"
+                    className="w-full rounded-full border border-slate-400 bg-white px-3 py-1 text-xs text-neutral-700 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none dark:border-white/20 dark:bg-white/[0.08] dark:text-white dark:placeholder:text-white/40 dark:focus:border-white"
                   />
                   <div className="mt-2 max-h-40 overflow-y-auto">
                     <div className="flex flex-wrap gap-2">
@@ -163,7 +163,7 @@ export default function TagEditDialog({
                                 prev.includes(tag) ? prev : [...prev, tag]
                               )
                             }
-                            className="rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-[11px] text-neutral-700 hover:bg-neutral-100 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80 dark:hover:bg-white/10"
+                            className="rounded-full border border-slate-400 bg-white px-2 py-0.5 text-[11px] text-neutral-700 hover:bg-neutral-100 dark:border-white/20 dark:bg-white/[0.08] dark:text-white/80 dark:hover:bg-white/10"
                           >
                             #{tag}
                           </button>
@@ -178,15 +178,15 @@ export default function TagEditDialog({
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
+              className="rounded-2xl border border-slate-400 bg-white px-3 py-1.5 text-xs md:text-sm font-semibold text-neutral-700 hover:bg-neutral-100 dark:border-white/20 dark:bg-white/[0.08] dark:text-white/90 dark:hover:bg-white/[0.12]"
             >
-              닫기
+              취소
             </button>
             <button
               type="button"
               onClick={() => onSave(items)}
               disabled={saving}
-              className="rounded-full border border-neutral-800 bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/15 dark:bg-white dark:text-neutral-900 dark:hover:bg-white/90"
+              className="rounded-2xl bg-blue-600 px-3.5 py-1.5 text-xs md:text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[rgb(var(--hero-b))] dark:hover:bg-[rgb(var(--hero-a))] dark:text-neutral-950"
             >
               {saving ? "저장 중..." : "저장"}
             </button>

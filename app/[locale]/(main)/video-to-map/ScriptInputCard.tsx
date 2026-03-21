@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { useTranslations } from "next-intl";
 import OutputLanguageSelect from "./OutputLanguageSelect";
 
 type Props = {
@@ -26,6 +27,8 @@ type Props = {
   isTooLarge?: boolean;
   billingLength?: number; // 과금 기준 글자수
   maxLength?: number; // 최대 허용 과금 기준 글자수 (ex: 110,000)
+  textareaReadOnly?: boolean;
+  onAttemptEditReadOnly?: () => void;
 };
 
 export default function ScriptInputCard({
@@ -45,7 +48,10 @@ export default function ScriptInputCard({
   isTooLarge = false,
   billingLength,
   maxLength,
+  textareaReadOnly = false,
+  onAttemptEditReadOnly,
 }: Props) {
+  const t = useTranslations("ScriptInputCard");
   const locked = disabled || isProcessing;
 
   // ✅ 생성 버튼 차단 조건: 입력 없음 / 잠금 / 한도초과
@@ -86,7 +92,7 @@ export default function ScriptInputCard({
                 dark:border-white/20 dark:bg-[#0F172A]/92 dark:text-white
               "
             >
-              작업이 진행 중입니다. 잠시만 기다려 주세요.
+              {t("lockedMessage")}
             </div>
           </div>
         </div>
@@ -99,7 +105,7 @@ export default function ScriptInputCard({
             1
           </span>
           <h2 className="text-lg md:text-xl font-bold text-neutral-900 dark:text-white">
-            콘텐츠를 붙여넣으세요
+            {t("title")}
           </h2>
         </div>
 
@@ -117,7 +123,7 @@ export default function ScriptInputCard({
           "
         >
           <Icon icon="mdi:youtube" className="h-4.5 w-4.5 text-red-500" />
-          유투브 스크립트 가져오는 방법
+          {t("youtubeHelp")}
         </button>
       </div>
 
@@ -131,18 +137,18 @@ export default function ScriptInputCard({
             whitespace-pre-line
           "
         >
-          입력 분량이 너무 커서 처리할 수 없습니다.
+          {t("tooLargeTitle")}
           {"\n"}
           {typeof billingLength === "number" ? (
             <>
-              과금 기준 분량: {billingLength.toLocaleString()}자
+              {t("billingLength", { count: billingLength })}
               {"\n"}
             </>
           ) : null}
           {typeof maxLength === "number" ? (
-            <>최대 허용: {maxLength.toLocaleString()}자</>
+            <>{t("maxLength", { count: maxLength })}</>
           ) : (
-            <>최대 허용치를 초과했어</>
+            <>{t("maxExceeded")}</>
           )}
         </div>
       )}
@@ -161,9 +167,50 @@ export default function ScriptInputCard({
             dark:focus:border-[rgb(var(--hero-b))] dark:focus:ring-[rgb(var(--hero-b))]/25
             disabled:opacity-60 disabled:cursor-not-allowed
           "
-          placeholder="여기에 텍스트를 그대로 붙여 넣어 주세요. (예: 0:03, 12:45 같은 시간 표시가 함께 있어도 괜찮아요.)"
+          placeholder={t("placeholder")}
           value={scriptText}
-          onChange={(e) => setScriptText(e.target.value)}
+          onChange={(e) => {
+            if (textareaReadOnly) {
+              onAttemptEditReadOnly?.();
+              return;
+            }
+            setScriptText(e.target.value);
+          }}
+          onClick={() => {
+            if (!textareaReadOnly) return;
+            onAttemptEditReadOnly?.();
+          }}
+          onBeforeInput={(e) => {
+            if (!textareaReadOnly) return;
+            e.preventDefault();
+            onAttemptEditReadOnly?.();
+          }}
+          onPaste={(e) => {
+            if (!textareaReadOnly) return;
+            e.preventDefault();
+            onAttemptEditReadOnly?.();
+          }}
+          onDrop={(e) => {
+            if (!textareaReadOnly) return;
+            e.preventDefault();
+            onAttemptEditReadOnly?.();
+          }}
+          onKeyDown={(e) => {
+            if (!textareaReadOnly) return;
+            const blockedKeys = [
+              "Backspace",
+              "Delete",
+              "Enter",
+            ];
+            if (
+              blockedKeys.includes(e.key) ||
+              (e.key.length === 1 && !e.metaKey && !e.ctrlKey && !e.altKey)
+            ) {
+              e.preventDefault();
+              onAttemptEditReadOnly?.();
+            }
+          }}
+          readOnly={textareaReadOnly}
           disabled={locked}
         />
       </div>
@@ -186,7 +233,7 @@ export default function ScriptInputCard({
                       2
                     </span>
                     <p className="text-lg md:text-xl font-bold text-neutral-900 dark:text-white">
-                      어떤 언어로 맵을 만들까요?
+                      {t("languageTitle")}
                     </p>
                   </div>
                 </div>
@@ -204,11 +251,14 @@ export default function ScriptInputCard({
                     3
                   </span>
                   <p className="text-lg md:text-xl font-bold text-neutral-900 dark:text-white">
-                    맵을 생성해요
+                    {t("generateTitle")}
                   </p>
                 </div>
                 <div className="text-[15px] font-semibold text-neutral-700 dark:text-neutral-200">
-                  보유 {currentCredits.toLocaleString()}크레딧 · 이번 생성 {requiredCredits}크레딧
+                  {t("creditsInfo", {
+                    current: currentCredits.toLocaleString(),
+                    required: requiredCredits,
+                  })}
                 </div>
                 <button
                   type="button"
@@ -228,7 +278,7 @@ export default function ScriptInputCard({
                     focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60
                   "
                 >
-                  구조맵 생성하기
+                  {t("generateButton")}
                 </button>
               </div>
             </div>

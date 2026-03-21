@@ -6,34 +6,21 @@ import {
   summarizeAndGenerateTree,
   summarizeTextOnly,
 } from "@/app/lib/gtp/summarize";
-import { TreeNode } from "@/app/types/diagram";
-import SummaryResult from "@/components/SummaryResult";
-import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function ResultPage() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [text, setText] = useState<string>("");
-  const [tree, setTree] = useState<TreeNode | null>(null);
-
-  const searchParams = useSearchParams();
-  const viewType = (searchParams.get("view") ?? "both") as
-    | "text"
-    | "diagram"
-    | "both";
 
   useEffect(() => {
     setMounted(true);
 
     const input = localStorage.getItem("brify:latestInput") || "";
-    const source = localStorage.getItem("brify:latestSource") || "";
+    void localStorage.getItem("brify:latestSource");
 
     const fetchSummary = async () => {
-      const summaryText = await summarizeTextOnly(input);
-      const summarizeTree = await summarizeAndGenerateTree(input);
-      setText(summaryText);
-      setTree(summarizeTree); // 실제 API 호출 시 summarizeAndGenerateTree(input)
+      await summarizeTextOnly(input);
+      await summarizeAndGenerateTree(input);
       setLoading(false);
     };
 
@@ -48,7 +35,6 @@ export default function ResultPage() {
 
   return (
     <section className="bg-linear-to-br from-[#fbf7ee] via-[#f6f7f1] to-[#f2f8fc] ">
-      {/* <SummaryResult text={text} tree={tree ?? undefined} /> */}
     </section>
   );
 }

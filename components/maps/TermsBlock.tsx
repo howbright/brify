@@ -83,7 +83,7 @@ export default function TermsBlock({
       ) : null}
 
       {loading ? (
-        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75">
+        <div className="rounded-2xl border border-slate-400 bg-neutral-50 p-4 text-sm text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/75">
           <div className="flex items-center gap-2">
             <span className="inline-flex h-2.5 w-2.5 animate-pulse rounded-full bg-blue-400" />
             {t("loading")}
@@ -102,13 +102,13 @@ export default function TermsBlock({
 
       {hasTerms && !loading && (
         <>
-          <div className="sticky top-[-16px] z-30 -mx-4 px-4 py-2 bg-white dark:bg-[#0b1220] border-b border-neutral-200/80 dark:border-white/10 shadow-[0_6px_16px_rgba(15,23,42,0.08)]">
+          <div className="sticky top-[-16px] z-30 -mx-4 border-b border-slate-400 bg-white px-4 py-2 shadow-[0_6px_16px_rgba(15,23,42,0.08)] dark:border-white/20 dark:bg-[#0b1220]">
             <button
               type="button"
               onClick={() => setCustomInlineOpen((v) => !v)}
               className="
                 group inline-flex w-full items-center justify-between gap-2
-                rounded-2xl border border-blue-200/70
+                rounded-2xl border border-slate-400
                 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500
                 px-3 py-2 text-xs font-semibold text-white
                 shadow-[0_10px_30px_rgba(59,130,246,0.25)]
@@ -126,7 +126,7 @@ export default function TermsBlock({
             </button>
 
             {customInlineOpen && (
-              <div className="mt-3 rounded-2xl border border-blue-200/60 bg-white p-3 shadow-[0_8px_24px_rgba(59,130,246,0.12)] dark:border-blue-500/30 dark:bg-[#0b1220]">
+              <div className="mt-3 rounded-2xl border border-slate-400 bg-white p-3 shadow-[0_8px_24px_rgba(59,130,246,0.12)] dark:border-white/20 dark:bg-[#0b1220]">
                 <div className="text-xs font-semibold text-neutral-900 dark:text-white">
                   {t("customInline.title")}
                 </div>
@@ -144,10 +144,10 @@ export default function TermsBlock({
                   }}
                   placeholder={t("customInline.placeholder")}
                   className="
-                    mt-3 w-full rounded-2xl border border-blue-200/70 bg-white px-3 py-2
+                    mt-3 w-full rounded-2xl border border-slate-400 bg-white px-3 py-2
                     text-sm text-neutral-900 placeholder:text-neutral-400
                     outline-none focus:ring-2 focus:ring-blue-200
-                    dark:border-blue-500/30 dark:bg-white/[0.06]
+                    dark:border-white/20 dark:bg-white/[0.06]
                     dark:text-white dark:placeholder:text-white/35
                     dark:focus:ring-blue-500/25
                   "
@@ -166,11 +166,11 @@ export default function TermsBlock({
                     disabled={!canCustomSubmit}
                     className="
                       inline-flex items-center gap-1.5 rounded-2xl
-                      border border-blue-200 bg-blue-600 px-3 py-2
+                      border border-slate-400 bg-blue-600 px-3 py-2
                       text-xs font-semibold text-white
                       hover:bg-blue-700
                       disabled:cursor-not-allowed disabled:opacity-60
-                      dark:border-blue-500/30 dark:bg-blue-500
+                      dark:border-white/20 dark:bg-blue-500
                     "
                   >
                     <Icon icon="mdi:send" className="h-4 w-4" />
@@ -188,8 +188,8 @@ export default function TermsBlock({
                 className={[
                   "rounded-2xl border p-3 transition-colors duration-300",
                   x.isNew
-                    ? "border-blue-200/80 bg-blue-50/70 dark:border-blue-500/30 dark:bg-blue-500/10"
-                    : "border-neutral-200 bg-white dark:border-white/10 dark:bg-white/[0.06]",
+                    ? "border-slate-400 bg-blue-50/70 dark:border-white/20 dark:bg-blue-500/10"
+                    : "border-slate-400 bg-white dark:border-white/20 dark:bg-white/[0.06]",
                 ].join(" ")}
               >
                 <div className="flex items-start justify-between gap-2">
@@ -199,7 +199,7 @@ export default function TermsBlock({
                   <button
                     type="button"
                     onClick={() => onDeleteTerm?.(x.term)}
-                    className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-neutral-200 text-neutral-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50 dark:border-white/10 dark:text-white/45 dark:hover:text-rose-300 dark:hover:border-rose-500/25 dark:hover:bg-rose-500/10"
+                    className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-400 text-neutral-400 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-500 dark:border-white/20 dark:text-white/45 dark:hover:border-rose-500/25 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
                     title={t("delete")}
                     aria-label={t("delete")}
                   >
@@ -239,7 +239,7 @@ export default function TermsBlock({
       )}
 
       {!hasTerms && !loading && pickerOpen && (
-        <div className="rounded-2xl border border-neutral-200 bg-white p-3 dark:border-white/10 dark:bg-white/[0.06]">
+        <div className="rounded-2xl border border-slate-400 bg-white p-3 dark:border-white/20 dark:bg-white/[0.06]">
           <div className="text-xs font-semibold text-neutral-900 dark:text-white">
             {t("picker.title")}
           </div>
@@ -250,8 +250,8 @@ export default function TermsBlock({
               className={[
                 "rounded-2xl border p-3 text-left text-sm",
                 mode === "auto"
-                  ? "border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-400/30 dark:bg-blue-500/10 dark:text-blue-100"
-                  : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:bg-neutral-100 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/80 dark:hover:bg-white/[0.08]",
+                  ? "border-slate-400 bg-blue-50 text-blue-900 dark:border-white/20 dark:bg-blue-500/10 dark:text-blue-100"
+                  : "border-slate-400 bg-neutral-50 text-neutral-700 hover:bg-neutral-100 dark:border-white/20 dark:bg-white/[0.04] dark:text-white/80 dark:hover:bg-white/[0.08]",
               ].join(" ")}
             >
               <div className="flex items-center gap-2 font-semibold">
@@ -269,8 +269,8 @@ export default function TermsBlock({
               className={[
                 "rounded-2xl border p-3 text-left text-sm",
                 mode === "custom"
-                  ? "border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-400/30 dark:bg-blue-500/10 dark:text-blue-100"
-                  : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:bg-neutral-100 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/80 dark:hover:bg-white/[0.08]",
+                  ? "border-slate-400 bg-blue-50 text-blue-900 dark:border-white/20 dark:bg-blue-500/10 dark:text-blue-100"
+                  : "border-slate-400 bg-neutral-50 text-neutral-700 hover:bg-neutral-100 dark:border-white/20 dark:bg-white/[0.04] dark:text-white/80 dark:hover:bg-white/[0.08]",
               ].join(" ")}
             >
               <div className="flex items-center gap-2 font-semibold">
@@ -295,9 +295,9 @@ export default function TermsBlock({
               }}
               placeholder={t("picker.custom.placeholder")}
               className="
-                mt-2 w-full rounded-2xl border border-neutral-200 bg-white px-3 py-2
+                mt-2 w-full rounded-2xl border border-slate-400 bg-white px-3 py-2
                 text-sm text-neutral-900 placeholder:text-neutral-400
-                dark:border-white/10 dark:bg-white/[0.06]
+                dark:border-white/20 dark:bg-white/[0.06]
                 dark:text-white dark:placeholder:text-white/35
               "
             />
@@ -317,11 +317,11 @@ export default function TermsBlock({
               disabled={!canSubmit}
               className="
                 inline-flex items-center gap-1.5 rounded-2xl
-                border border-blue-200 bg-blue-600 px-3 py-2
+                border border-slate-400 bg-blue-600 px-3 py-2
                 text-xs font-semibold text-white
                 hover:bg-blue-700
                 disabled:cursor-not-allowed disabled:opacity-60
-                dark:border-blue-500/30 dark:bg-blue-500
+                dark:border-white/20 dark:bg-blue-500
               "
             >
               <Icon icon={mode === "custom" ? "mdi:send" : "mdi:sparkles"} className="h-4 w-4" />

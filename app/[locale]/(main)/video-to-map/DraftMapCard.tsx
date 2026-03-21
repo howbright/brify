@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslations } from "next-intl";
 import { MapDraft } from "./types";
 
 const MS_PER_CHAR = 112610 / 8460;
@@ -20,15 +21,16 @@ export default function DraftMapCard({
   onOpen?: (draft: MapDraft) => void;
   highlighted?: boolean;
 }) {
+  const t = useTranslations("DraftMapCard");
   const processingMessages = useMemo(
     () => [
-      "구조맵 생성하는 중이에요.",
-      "조금만 더 기다려주세요.",
-      "내용이 길어도 괜찮아요, 차근차근 만들고 있어요.",
-      "중요한 흐름을 정리하는 중이에요",
-      "거의 다 됐어요, 곧 보여드릴게요",
+      t("processingMessages.1"),
+      t("processingMessages.2"),
+      t("processingMessages.3"),
+      t("processingMessages.4"),
+      t("processingMessages.5"),
     ],
-    []
+    [t]
   );
   const [processingIndex, setProcessingIndex] = useState(0);
   const [now, setNow] = useState(Date.now());
@@ -63,14 +65,14 @@ export default function DraftMapCard({
   const badge =
     draft.status === "done"
       ? {
-          text: "완료",
+          text: t("status.done"),
           cls: "bg-emerald-100 text-emerald-700 border-emerald-200",
           darkCls:
             "dark:bg-emerald-500/12 dark:text-emerald-200 dark:border-emerald-400/25",
         }
       : draft.status === "failed"
       ? {
-          text: "실패",
+          text: t("status.failed"),
           cls: "bg-rose-100 text-rose-700 border-rose-200",
           darkCls:
             "dark:bg-rose-500/12 dark:text-rose-200 dark:border-rose-400/25",
@@ -132,8 +134,8 @@ export default function DraftMapCard({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={draft.thumbnailUrl} alt="" className="h-full w-full object-cover" />
         ) : (
-          <div className="h-full w-full flex items-center justify-center text-[11px] text-neutral-400 dark:text-white/45">
-            thumbnail
+          <div className="h-full w-full flex items-center justify-center text-[12px] text-neutral-400 dark:text-white/45">
+            {t("thumbnailAlt")}
           </div>
         )}
       </div>
@@ -154,7 +156,7 @@ export default function DraftMapCard({
           <span
             className={`
               shrink-0 whitespace-nowrap
-              rounded-full border px-2.5 py-1 text-[11px] font-semibold
+              rounded-full border px-2.5 py-1 text-[12px] font-semibold
               inline-flex items-center gap-1.5
               ${badge.cls} ${badge.darkCls}
               ${
@@ -171,7 +173,7 @@ export default function DraftMapCard({
             )}
             <span>{badge.text}</span>
             {draft.status === "processing" && progressPercent !== null && (
-              <span className="ml-1.5 inline-flex items-center gap-1.5 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums">
+              <span className="ml-1.5 inline-flex items-center gap-1.5 rounded-full bg-white/20 px-1.5 py-0.5 text-[11px] font-semibold tabular-nums">
                 {progressPercent}%
                 <span className="h-1.5 w-16 overflow-hidden rounded-full bg-white/30">
                   <span
@@ -185,9 +187,9 @@ export default function DraftMapCard({
         </div>
 
         {/* ✅ 출처 라인(따로 분리해서 폭 싸움 방지) */}
-        <p className="mt-1 text-xs text-neutral-500 dark:text-white/60 truncate">
-          {draft.channelName ? draft.channelName : "출처 없음"}
-          {draft.sourceUrl ? " · URL 있음" : ""}
+        <p className="mt-1 text-sm text-neutral-500 dark:text-white/60 truncate">
+          {draft.channelName ? draft.channelName : t("noSource")}
+          {draft.sourceUrl ? ` · ${t("hasUrl")}` : ""}
         </p>
 
         
@@ -199,7 +201,7 @@ export default function DraftMapCard({
                 key={tag}
                 className="
                   rounded-full border border-neutral-400 bg-neutral-100
-                  px-2 py-0.5 text-[11px] font-semibold text-neutral-700
+                  px-2.5 py-1 text-[12px] font-semibold text-neutral-700
                   dark:border-white/30
                   dark:bg-white/[0.08]
                   dark:text-white/85
@@ -214,7 +216,7 @@ export default function DraftMapCard({
         {/* ✅ 하단: 모바일에서 날짜/버튼이 '각자 자리' 갖도록 */}
         <div className="mt-3 flex items-center justify-between gap-2">
           {/* 날짜는 줄바꿈보단 한 줄 + ...가 더 보기 좋음 */}
-          <div className="min-w-0 text-[11px] text-neutral-500 dark:text-white/60 truncate">
+          <div className="min-w-0 text-[13px] font-medium text-neutral-500 dark:text-white/60 truncate">
             {new Date(draft.createdAt).toLocaleString()}
           </div>
 
@@ -227,10 +229,10 @@ export default function DraftMapCard({
                 className="
                   whitespace-nowrap
                   inline-flex items-center justify-center gap-1.5 rounded-2xl
-                  border border-neutral-200 bg-white px-3 py-1.5
-                  text-xs font-semibold text-neutral-700 hover:bg-neutral-50
+                  border border-neutral-400 bg-white px-3.5 py-2
+                  text-sm font-semibold text-neutral-800 hover:bg-neutral-50
                   disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-white
-                  dark:border-white/12
+                  dark:border-white/30
                   dark:bg-white/[0.06]
                   dark:text-white/85
                   dark:hover:bg-white/10
@@ -240,37 +242,42 @@ export default function DraftMapCard({
                 {isSavingMetadata ? (
                   <>
                     <Icon icon="mdi:loading" className="h-4 w-4 animate-spin" />
-                    저장 중...
+                    {t("saving")}
                   </>
                 ) : (
                   <>
                     <Icon icon="mdi:pencil-outline" className="h-4 w-4" />
-                    정보 수정
+                    {t("editMetadata")}
                   </>
                 )}
               </button>
             )}
 
-            <button
-              type="button"
-              disabled={draft.status === "processing"}
-              onClick={() => onOpen?.(draft)}
-              className="
-                whitespace-nowrap
-                inline-flex items-center justify-center gap-1.5 rounded-2xl
-                border border-neutral-400 bg-white px-3 py-1.5
-                text-xs font-semibold text-neutral-700 hover:bg-neutral-50
-                disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white
-                dark:border-white/30
-                dark:bg-white/[0.06]
-                dark:text-white/85
-                dark:hover:bg-white/10
-                dark:disabled:hover:bg-white/[0.06]
-              "
-            >
-              <Icon icon="mdi:open-in-new" className="h-4 w-4" />
-              열기
-            </button>
+            {draft.status === "done" && (
+              <button
+                type="button"
+                onClick={() => onOpen?.(draft)}
+                className="
+                  whitespace-nowrap
+                  inline-flex items-center justify-center gap-1.5 rounded-2xl
+                  border border-blue-700 bg-[linear-gradient(135deg,#2563eb_0%,#3b82f6_55%,#60a5fa_100%)] px-3.5 py-1.5
+                  text-sm font-extrabold tracking-[-0.01em] text-white
+                  shadow-[0_14px_30px_-18px_rgba(37,99,235,0.95)]
+                  transition-all duration-200
+                  hover:-translate-y-0.5 hover:brightness-[1.06]
+                  hover:shadow-[0_18px_38px_-18px_rgba(37,99,235,1)]
+                  dark:border-blue-400
+                  dark:bg-[linear-gradient(135deg,#1d4ed8_0%,#2563eb_55%,#3b82f6_100%)]
+                  dark:text-white
+                  dark:shadow-[0_20px_42px_-20px_rgba(37,99,235,0.95)]
+                  dark:hover:shadow-[0_24px_48px_-20px_rgba(59,130,246,1)]
+                "
+              >
+                <Icon icon="mdi:shape-outline" className="h-4 w-4" />
+                {t("viewMap")}
+                <Icon icon="mdi:arrow-right" className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </div>
       </div>

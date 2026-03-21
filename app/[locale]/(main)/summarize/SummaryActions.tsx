@@ -2,7 +2,6 @@
 
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
-import { useState } from "react";
 
 export interface SummaryActionsProps {
   mode: "text" | "diagram";
@@ -25,8 +24,6 @@ export default function SummaryActions({
   onCopy,
   text
 }: SummaryActionsProps) {
-  const [open, setOpen] = useState(false);
-
   return (
     <div className="mt-4 border-t pt-4 border-gray-200 dark:border-white/10">
       <div className="flex flex-wrap gap-3 justify-center text-sm">

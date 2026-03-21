@@ -11,7 +11,6 @@ interface Props {
   setRawText: (v: string) => void;
   loading: boolean;
   hasSummarized: boolean;
-  setTags: (tags: string[]) => void;
   extractionSucceeded: boolean;
   onSummarize: (
     text: string,
@@ -25,7 +24,6 @@ export default function EditExtractedSection({
   setRawText,
   loading,
   hasSummarized,
-  setTags,
   extractionSucceeded,
   onSummarize,
 }: Props) {

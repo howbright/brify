@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { useTranslations } from "next-intl";
 import type { MapDraft } from "./types";
 
 export default function ResultReadyPanel({
@@ -12,6 +13,7 @@ export default function ResultReadyPanel({
   onOpen: () => void;
   onCreateNew: () => void;
 }) {
+  const t = useTranslations("ResultReadyPanel");
   return (
     <section
       className="
@@ -55,10 +57,10 @@ export default function ResultReadyPanel({
 
             <div className="min-w-0">
               <p className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
-                생성이 완료되었습니다
+                {t("title")}
               </p>
               <p className="text-xs text-neutral-500 dark:text-white/60 truncate">
-                {draft?.title ? `“${draft.title}”` : "방금 생성된 구조맵을 확인해 주세요."}
+                {draft?.title ? `“${draft.title}”` : t("fallbackDescription")}
               </p>
             </div>
           </div>
@@ -75,10 +77,10 @@ export default function ResultReadyPanel({
             "
           >
             <p className="text-sm font-semibold text-neutral-900 dark:text-white">
-              다음 단계
+              {t("nextTitle")}
             </p>
             <p className="mt-1 text-xs text-neutral-700 dark:text-white/75">
-              구조맵을 열어 확인하시거나, 새 콘텐츠로 다시 생성하실 수 있습니다.
+              {t("nextDescription")}
             </p>
           </div>
         </div>
@@ -100,7 +102,7 @@ export default function ResultReadyPanel({
           "
         >
           <Icon icon="mdi:plus" className="h-4 w-4" />
-          다른 구조맵 생성하기
+          {t("createAnother")}
         </button>
 
         <button
@@ -115,7 +117,7 @@ export default function ResultReadyPanel({
           "
         >
           <Icon icon="mdi:open-in-new" className="h-4 w-4" />
-          구조맵 열기
+          {t("openMap")}
         </button>
       </div>
     </section>

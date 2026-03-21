@@ -51,7 +51,7 @@ export const DialogTitle = DialogPrimitive.Title;
 export const DialogOverlay = (props: React.ComponentPropsWithoutRef<"div">) => (
   <DialogPrimitive.Overlay
     {...props}
-    className={cn("fixed inset-0 bg-black/30 z-[200]", props.className)}
+    className={cn("fixed inset-0 z-[200] bg-black/45 backdrop-blur-sm", props.className)}
   />
 );
 
@@ -60,17 +60,26 @@ export const DialogContent = ({ className, children, ...props }: React.Component
     <DialogOverlay />
     <DialogPrimitive.Content
       className={cn(
-        "fixed left-1/2 top-1/2 z-[210] w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-2xl bg-white dark:bg-black p-6 shadow-xl focus:outline-none",
+        "fixed left-1/2 top-1/2 z-[210] w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-3xl border border-slate-400 bg-white p-5 shadow-[0_28px_90px_-40px_rgba(15,23,42,0.85)] focus:outline-none dark:border-white/20 dark:bg-[#0F172A] dark:ring-1 dark:ring-white/16 dark:shadow-[0_34px_120px_-60px_rgba(0,0,0,0.95)]",
         className
       )}
       {...props}
     >
+      <div
+        className="
+          pointer-events-none absolute inset-0 rounded-3xl
+          bg-[radial-gradient(800px_260px_at_20%_0%,rgba(59,130,246,0.18),transparent_55%)]
+          dark:bg-[radial-gradient(800px_260px_at_20%_0%,rgba(56,189,248,0.18),transparent_55%)]
+        "
+      />
+      <div className="pointer-events-none absolute inset-0 rounded-3xl dark:bg-white/[0.03]" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-slate-400 dark:bg-white/20" />
       <DialogPrimitive.Title asChild>
         <VisuallyHidden>Login Required</VisuallyHidden>
       </DialogPrimitive.Title>
       {children}
-      <DialogPrimitive.Close className="absolute top-3 right-3 text-gray-500 hover:text-black dark:hover:text-white">
-        <X className="w-5 h-5" />
+      <DialogPrimitive.Close className="absolute top-4 right-4 z-10 text-neutral-500 hover:text-neutral-800 dark:text-white/60 dark:hover:text-white">
+        <X className="h-6 w-6" />
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPrimitive.Portal>

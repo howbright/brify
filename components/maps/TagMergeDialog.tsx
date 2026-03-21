@@ -25,13 +25,13 @@ export default function TagMergeDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[420px]">
+      <DialogContent className="max-w-[420px] border-slate-400 dark:border-white/20">
         <div className="flex flex-col gap-4">
           <div>
-            <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
+            <h3 className="text-lg md:text-xl font-bold text-blue-700 dark:text-[rgb(var(--hero-b))]">
               태그 합치기
             </h3>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-white/60">
+            <p className="mt-3 text-base font-semibold text-neutral-900 dark:text-white">
               선택한 태그를 하나로 통합합니다.
             </p>
           </div>
@@ -54,7 +54,7 @@ export default function TagMergeDialog({
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-neutral-700 dark:text-white/80">
+              <label className="text-base font-semibold text-neutral-900 dark:text-white">
               기준 태그
             </label>
             <input
@@ -69,15 +69,15 @@ export default function TagMergeDialog({
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="rounded-full border border-slate-400 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.08] dark:text-white/85 dark:hover:bg-white/[0.12]"
+              className="rounded-2xl border border-slate-400 bg-white px-3 py-1.5 text-xs md:text-sm font-semibold text-neutral-700 hover:bg-neutral-100 dark:border-white/20 dark:bg-white/[0.08] dark:text-white/90 dark:hover:bg-white/[0.12]"
             >
-              닫기
+              취소
             </button>
             <button
               type="button"
               disabled={target.trim().length === 0}
               onClick={() => onConfirm(target.trim())}
-              className="rounded-full border border-neutral-800 bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/20 dark:bg-white dark:text-neutral-900 dark:hover:bg-white/90"
+              className="rounded-2xl bg-blue-600 px-3.5 py-1.5 text-xs md:text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[rgb(var(--hero-b))] dark:hover:bg-[rgb(var(--hero-a))] dark:text-neutral-950"
             >
               합치기
             </button>

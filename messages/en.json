@@ -52,8 +52,146 @@
       "emptyScript": "Please paste the video script into the field below first.",
       "insufficientCredits": "You don’t have enough credits to generate this structure map. Please top up your credits first.",
       "requestFailed": "The request to the server failed. Please try again in a moment.",
-      "unknown": "An unknown error occurred."
+      "unknown": "An unknown error occurred.",
+      "processingFailed": "Something went wrong while processing.",
+      "openMapFailed": "Failed to load the structure map.",
+      "missingMindData": "mind_elixir data is missing.",
+      "tooLargeLine1": "The input is too large to process right now.",
+      "tooLargeLine2": "Maximum: {max} characters (billing length)",
+      "tooLargeLine3": "Current: {current} characters (billing length)",
+      "youtubeUrlRequired": "Please enter a YouTube URL.",
+      "sessionFailed": "Failed to get the session: {message}",
+      "loginRequired": "Please sign in first.",
+      "missingApiBase": "NEXT_PUBLIC_API_BASE_URL is missing.",
+      "youtubeFetchFailed": "Failed to fetch the script.",
+      "noTranscriptFound": "Could not find subtitles or a transcript. (The video may not have subtitles.)",
+      "missingMapId": "mapId is missing.",
+      "createFailed": "Failed to create the structure map."
+    },
+    "messages": {
+      "youtubeFilled": "We filled the input with the fetched script. You can generate the map right away."
+    },
+    "labels": {
+      "untitled": "Untitled",
+      "draftsTitle": "Created structure maps",
+      "previewTitle": "Structure map preview"
     }
+  },
+  "ScriptInputCard": {
+    "lockedMessage": "This task is in progress. Please wait a moment.",
+    "title": "Paste your content",
+    "youtubeHelp": "How to get a YouTube script",
+    "tooLargeTitle": "The input is too large to process.",
+    "billingLength": "Billing length: {count} characters",
+    "maxLength": "Maximum allowed: {count} characters",
+    "maxExceeded": "You exceeded the maximum allowed length",
+    "placeholder": "Paste the text here as it is. (Timestamps like 0:03 or 12:45 are okay too.)",
+    "languageTitle": "Which language should we use for the map?",
+    "generateTitle": "Generate the map",
+    "creditsInfo": "{current} credits available · this run uses {required} credit(s)",
+    "generateButton": "Generate structure map"
+  },
+  "OutputLanguageSelect": {
+    "labels": {
+      "auto": "Same as the script language",
+      "ko": "Korean",
+      "en": "English"
+    },
+    "currentSelectedOption": "Current selection: {label} ({code})",
+    "more": "More…",
+    "dialogAria": "Select output language",
+    "title": "Choose an output language",
+    "description": "We’ll generate the structure map in the language you select.",
+    "close": "Close",
+    "searchPlaceholder": "Search languages (e.g. English, Korean, ja, zh...)",
+    "noResults": "No results found. Try a different keyword.",
+    "currentSelection": "Current selection",
+    "code": "Code"
+  },
+  "YoutubeScriptDialog": {
+    "dialogAria": "Fetch a script from YouTube",
+    "title": "How to get a YouTube script",
+    "subtitle": "Copy the full YouTube transcript in one go.",
+    "close": "Close",
+    "pastePrefix": "In the input field,",
+    "shiftHold": "keep holding it",
+    "imagePlaceholder": "You can place a related image here.",
+    "steps": {
+      "1": {
+        "title": "Open “More” under the video",
+        "imageLabel": "Step 1 image"
+      },
+      "2": {
+        "title": "Click to open the script",
+        "imageLabel": "Step 2 image"
+      },
+      "3": {
+        "title": "Start dragging from the beginning",
+        "imageLabel": "Step 3 image"
+      },
+      "4": {
+        "title": "Scroll all the way down",
+        "imageLabel": "Step 4 image"
+      },
+      "5": {
+        "title": "Keep holding Shift",
+        "description": "Do not release it, and click the last word right away.",
+        "imageLabel": "Step 5 image"
+      },
+      "6": {
+        "title": "Click the last word",
+        "imageLabel": "Step 6 image"
+      },
+      "7": {
+        "title": "Ctrl + C",
+        "imageLabel": "Step 7 image"
+      },
+      "8": {
+        "title": "Ctrl + V into the input field",
+        "imageLabel": "Step 8 image"
+      }
+    }
+  },
+  "CreditConfirmModal": {
+    "dialogAria": "Confirm credit usage",
+    "title": "Credit usage",
+    "usage": "{credits} credit will be used.",
+    "notice": "You can't cancel after starting.",
+    "cancel": "Cancel",
+    "confirm": "Use {credits} credit(s) and start"
+  },
+  "DraftMapCard": {
+    "processingMessages": {
+      "1": "Generating your structure map.",
+      "2": "Please wait just a little longer.",
+      "3": "Long content is fine. We’re building it step by step.",
+      "4": "We’re organizing the key flow right now.",
+      "5": "Almost done. We’ll show it to you soon."
+    },
+    "status": {
+      "done": "Done",
+      "failed": "Failed"
+    },
+    "thumbnailAlt": "thumbnail",
+    "noSource": "No source",
+    "hasUrl": "URL included",
+    "saving": "Saving...",
+    "editMetadata": "Edit info",
+    "viewMap": "View structure map"
+  },
+  "ResultReadyPanel": {
+    "title": "Generation is complete",
+    "fallbackDescription": "Please check the structure map that was just created.",
+    "nextTitle": "Next steps",
+    "nextDescription": "Open the structure map to review it, or create another one with new content.",
+    "createAnother": "Create another structure map",
+    "openMap": "Open structure map"
+  },
+  "NoteItem": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete"
   },
   "ScriptHelpSection": {
     "badge": "Help",
@@ -938,6 +1076,7 @@
       "youtubeAutofill": "Autofill from YouTube",
       "youtubeLoading": "Loading...",
       "uploadThumbnail": "Upload thumbnail",
+      "close": "Close",
       "save": "Save and continue"
     },
     "hints": {
@@ -959,6 +1098,7 @@
       "loginRequired": "Login required.",
       "missingApiBase": "Missing NEXT_PUBLIC_API_BASE_URL.",
       "youtubeFetchFailed": "Failed to fetch YouTube metadata.",
+      "requestFailed": "Request failed.",
       "invalidImage": "The image file is invalid.",
       "titleRequired": "Title is required. Please enter a title.",
       "missingMapId": "Missing mapId. Can't upload thumbnail.",

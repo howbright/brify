@@ -4,17 +4,6 @@ import { useEffect, useMemo } from "react";
 import useSWR from "swr";
 import { createClient } from "@/utils/supabase/client";
 import { MapDraft, MapJobStatus } from "../[locale]/(main)/video-to-map/types";
-// ⚠️ 위 import 경로는 네 실제 types 위치에 맞게 고쳐줘
-
-function withCacheBuster(url: string) {
-  try {
-    const u = new URL(url);
-    u.searchParams.set("t", Date.now().toString());
-    return u.toString();
-  } catch {
-    return url;
-  }
-}
 
 type ServerDraftRow = {
   id: string;

@@ -368,6 +368,7 @@ export default function FullscreenDialog({
                 onZoomIn={() => mindRef.current?.zoomIn?.()}
                 onZoomOut={() => mindRef.current?.zoomOut?.()}
                 onExportPng={handleExportPng}
+                onCloseMap={onClose}
                 placement="inline"
               />
             </div>

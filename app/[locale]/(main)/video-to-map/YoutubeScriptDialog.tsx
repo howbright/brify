@@ -3,76 +3,26 @@
 import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 type Props = {
   open: boolean;
   onClose: () => void;
 };
 
-const GUIDE_STEPS = [
-  {
-    number: 1,
-    title: "영상 밑의 '더보기' 열기",
-    imageLabel: "1단계 이미지",
-    accent: "neutral",
-    imageSrc: "/images/help/youtube-step1-watch-page.png",
-  },
-  {
-    number: 2,
-    title: "스크립트열기 클릭!",
-    imageLabel: "2단계 이미지",
-    accent: "neutral",
-    imageSrc: "/images/help/youtube-step2-menu.png",
-  },
-  {
-    number: 3,
-    title: "처음부분 드래그 선택",
-    imageLabel: "3단계 이미지",
-    accent: "neutral",
-    imageSrc: "/images/help/firstwordselected.png",
-  },
-  {
-    number: 4,
-    title: "아래로 끝까지 스크롤",
-    imageLabel: "4단계 이미지",
-    accent: "neutral",
-    imageSrc: "/images/help/scroll.png",
-  },
-  {
-    number: 5,
-    title: "Shift 누른 채 유지",
-    description: "떼지 말고 바로 마지막 단어를 클릭하세요.",
-    imageLabel: "5단계 이미지",
-    accent: "indigo",
-    imageSrc: "/images/help/shiftkey.jpg",
-  },
-  {
-    number: 6,
-    title: "마지막 단어 클릭",
-    imageLabel: "6단계 이미지",
-    accent: "neutral",
-    imageSrc: "/images/help/allselected.png",
-  },
-  {
-    number: 7,
-    title: "Ctrl + C",
-    imageLabel: "7단계 이미지",
-    accent: "neutral",
-    keycap: true,
-    imageSrc: "/images/help/copy.png",
-  },
-  {
-    number: 8,
-    title: "입력창에 Ctrl + V",
-    imageLabel: "8단계 이미지",
-    accent: "neutral",
-    keycap: true,
-    imageSrc: "/images/help/paste.png",
-  },
-] as const;
-
 export default function YoutubeScriptDialog({ open, onClose }: Props) {
+  const t = useTranslations("YoutubeScriptDialog");
   const [openStep, setOpenStep] = useState<number>(5);
+  const GUIDE_STEPS = [
+    { number: 1, title: t("steps.1.title"), imageLabel: t("steps.1.imageLabel"), accent: "neutral", imageSrc: "/images/help/youtube-step1-watch-page.png" },
+    { number: 2, title: t("steps.2.title"), imageLabel: t("steps.2.imageLabel"), accent: "neutral", imageSrc: "/images/help/youtube-step2-menu.png" },
+    { number: 3, title: t("steps.3.title"), imageLabel: t("steps.3.imageLabel"), accent: "neutral", imageSrc: "/images/help/firstwordselected.png" },
+    { number: 4, title: t("steps.4.title"), imageLabel: t("steps.4.imageLabel"), accent: "neutral", imageSrc: "/images/help/scroll.png" },
+    { number: 5, title: t("steps.5.title"), description: t("steps.5.description"), imageLabel: t("steps.5.imageLabel"), accent: "indigo", imageSrc: "/images/help/shiftkey.jpg" },
+    { number: 6, title: t("steps.6.title"), imageLabel: t("steps.6.imageLabel"), accent: "neutral", imageSrc: "/images/help/allselected.png" },
+    { number: 7, title: t("steps.7.title"), imageLabel: t("steps.7.imageLabel"), accent: "neutral", keycap: true, imageSrc: "/images/help/copy.png" },
+    { number: 8, title: t("steps.8.title"), imageLabel: t("steps.8.imageLabel"), accent: "neutral", keycap: true, imageSrc: "/images/help/paste.png" },
+  ] as const;
 
   // ✅ ESC 닫기
   useEffect(() => {
@@ -100,7 +50,7 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
       "
       role="dialog"
       aria-modal="true"
-      aria-label="유튜브 링크로 스크립트 가져오기"
+      aria-label={t("dialogAria")}
       onMouseDown={(e) => {
         // ✅ 바깥 클릭 닫기
         if (e.target === e.currentTarget) onClose();
@@ -120,14 +70,16 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
           dark:bg-[linear-gradient(to_bottom,rgba(255,255,255,0.06),rgba(255,255,255,0.0))]
         "
       >
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_240px_at_20%_0%,rgba(59,130,246,0.12),transparent_58%)] dark:bg-[radial-gradient(900px_240px_at_20%_0%,rgba(56,189,248,0.14),transparent_58%)]" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-300/90 to-transparent dark:via-white/18" />
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">
-            <h2 className="text-lg md:text-xl font-bold text-neutral-900 dark:text-white flex items-center gap-2">
-              <Icon icon="mdi:youtube" className="h-6 w-6 text-red-500" />
-              유투브 스크립트 가져오는 방법
+            <h2 className="text-xl md:text-2xl font-bold text-blue-700 dark:text-[rgb(var(--hero-b))] flex items-center gap-2">
+              <Icon icon="mdi:youtube" className="h-6 w-6 text-blue-700 dark:text-[rgb(var(--hero-b))]" />
+              {t("title")}
             </h2>
-            <p className="text-sm md:text-base font-medium text-neutral-700 dark:text-neutral-200">
-              유튜브 스크립트 전체를 한 번에 복사해오세요.
+            <p className="text-base font-medium text-neutral-700 dark:text-neutral-200">
+              {t("subtitle")}
             </p>
           </div>
 
@@ -135,12 +87,11 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
             type="button"
             onClick={onClose}
             className="
-              rounded-xl p-2
-              border border-slate-600 bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100
-              dark:text-neutral-300 dark:hover:text-white dark:hover:bg-white/10
-              dark:border-white/30 dark:bg-white/[0.06]
+              rounded-full p-1.5
+              text-neutral-500 transition hover:text-neutral-900
+              dark:text-neutral-300 dark:hover:text-white
             "
-            aria-label="닫기"
+            aria-label={t("close")}
           >
             <Icon icon="mdi:close" className="h-5 w-5" />
           </button>
@@ -193,7 +144,7 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
                           </span>
                         ) : (
                           <>
-                            입력창에{" "}
+                            {t("pastePrefix")}{" "}
                             <span className="rounded-md bg-white px-2 py-1 text-xs font-bold text-neutral-800 shadow-sm dark:bg-slate-900 dark:text-neutral-100">
                               Ctrl + V
                             </span>
@@ -204,7 +155,7 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
                           <span className="rounded-md bg-white px-2 py-1 text-xs font-bold text-indigo-700 shadow-sm dark:bg-indigo-950 dark:text-indigo-200">
                             Shift
                           </span>{" "}
-                          누른 채 유지
+                          {t("shiftHold")}
                         </>
                       ) : (
                         step.title
@@ -271,7 +222,7 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
                               {step.imageLabel}
                             </p>
                             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                              여기에 관련 이미지를 넣으면 됩니다.
+                              {t("imagePlaceholder")}
                             </p>
                           </>
                         )}
@@ -289,17 +240,17 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
             type="button"
             onClick={onClose}
             className="
-              rounded-2xl px-3.5 py-2 text-xs md:text-sm text-neutral-700
-              border border-slate-600 bg-white
+              rounded-2xl px-4 py-2.5 text-sm font-semibold text-neutral-800
+              border border-slate-400 bg-white
               hover:bg-neutral-100
 
-              dark:text-neutral-100
-              dark:border-white/30
-              dark:bg-white/6
+              dark:text-white
+              dark:border-white/20
+              dark:bg-white/[0.04]
               dark:hover:bg-white/10
             "
           >
-            닫기
+            {t("close")}
           </button>
         </div>
       </div>

@@ -905,6 +905,7 @@ export default function MapDetailPage() {
                   onCenterMap={() => mindRef.current?.centerMap?.()}
                   onZoomIn={() => mindRef.current?.zoomIn?.()}
                   onZoomOut={() => mindRef.current?.zoomOut?.()}
+                  onCloseMap={() => router.push(`/${locale}/maps`)}
               onShare={() => {
                 setShareOpen(true);
                 void fetchShareStatus();

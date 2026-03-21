@@ -1,5 +1,8 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import { Icon } from "@iconify/react";
+
 type Props = {
   credits: number;
   onCancel: () => void;
@@ -11,6 +14,7 @@ export default function CreditConfirmModal({
   onCancel,
   onConfirm,
 }: Props) {
+  const t = useTranslations("CreditConfirmModal");
   return (
     <div
       className="
@@ -19,7 +23,7 @@ export default function CreditConfirmModal({
       "
       role="dialog"
       aria-modal="true"
-      aria-label="크레딧 사용 확인"
+      aria-label={t("dialogAria")}
       onMouseDown={(e) => {
         // 바깥 클릭은 '취소'와 동일하게 처리
         if (e.target === e.currentTarget) onCancel();
@@ -40,6 +44,20 @@ export default function CreditConfirmModal({
           dark:shadow-[0_34px_120px_-60px_rgba(0,0,0,0.95)]
         "
       >
+        <button
+          type="button"
+          onClick={onCancel}
+          aria-label={t("cancel")}
+          className="
+            absolute right-4 top-4 z-10
+            inline-flex items-center justify-center
+            text-neutral-500 hover:text-neutral-800
+            dark:text-white/60 dark:hover:text-white
+          "
+        >
+          <Icon icon="mdi:close" className="h-6 w-6" />
+        </button>
+
         {/* ✅ 상단 하이라이트 + 가장자리 그라데이션(카드 표면감) */}
         <div
           className="
@@ -53,27 +71,29 @@ export default function CreditConfirmModal({
         {/* ✅ 아주 얇은 하단 경계(카드가 떠 보이게) */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-slate-400 dark:bg-white/20" />
 
-        <h2 className="relative text-base md:text-lg font-semibold text-neutral-900 dark:text-white mb-2.5">
-          크레딧 사용
+        <h2 className="relative text-lg md:text-xl font-bold text-blue-700 dark:text-[rgb(var(--hero-b))] mb-3">
+          {t("title")}
         </h2>
 
-        <p className="relative text-sm md:text-[15px] text-neutral-700 dark:text-white/80 mb-2">
-          이번 작업에 <span className="font-semibold">{credits}</span> 크레딧이
-          사용됩니다.
-        </p>
+        <div
+          className="
+            relative mb-2
+            text-base md:text-lg font-semibold text-neutral-900
+            dark:text-white
+          "
+        >
+          {t("usage", { credits })}
+        </div>
 
-        {/* ✅ 핵심 고지: 시작 후 취소 불가 */}
         <div
           className="
             relative mb-4
-            rounded-2xl border border-amber-300 bg-amber-50
-            px-3 py-2.5 text-[12px] md:text-[13px] text-amber-900/90
-            dark:border-amber-300/25 dark:bg-amber-500/10 dark:text-amber-100/90
+            text-base md:text-lg font-semibold text-neutral-900
+            dark:text-white
           "
           role="note"
         >
-          이 작업은 <span className="font-semibold">시작 후 취소할 수 없습니다.</span>{" "}
-          크레딧은 즉시 차감되며, 생성이 완료되면 결과가 저장됩니다.
+          {t("notice")}
         </div>
 
         <div className="relative flex justify-end gap-2">
@@ -92,7 +112,7 @@ export default function CreditConfirmModal({
               focus:outline-none focus-visible:ring-2 focus-visible:ring-white/25
             "
           >
-            취소
+            {t("cancel")}
           </button>
 
           <button
@@ -107,7 +127,7 @@ export default function CreditConfirmModal({
               focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-b))]/35
             "
           >
-            {credits} 크레딧 사용하고 시작하기
+            {t("confirm", { credits })}
           </button>
         </div>
       </div>
