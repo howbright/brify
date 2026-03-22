@@ -61,7 +61,7 @@ export default function TagPanel({
                     | "count_asc"
                 )
               }
-              className="rounded-full border border-blue-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-700 shadow-sm focus:border-blue-500 focus:outline-none dark:border-blue-500/30 dark:bg-white/[0.06] dark:text-white"
+              className="rounded-full border border-slate-600 bg-neutral-50 px-3 py-1.5 text-[13px] font-semibold text-neutral-800 shadow-sm focus:border-blue-500 focus:outline-none dark:border-white/25 dark:bg-white/[0.08] dark:text-white"
               aria-label="태그 정렬"
             >
               <option value="recent">최신</option>
@@ -115,7 +115,7 @@ export default function TagPanel({
             value={tagListQuery}
             onChange={(event) => onTagListQueryChange(event.target.value)}
             placeholder="태그 검색"
-            className="w-full rounded-full border border-blue-200 bg-white px-3 py-1.5 pr-8 text-xs text-neutral-700 placeholder:text-neutral-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200/70 dark:border-blue-500/30 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/40 dark:focus:border-blue-300 dark:focus:ring-blue-500/20"
+            className="w-full rounded-full border border-slate-600 bg-white px-3.5 py-2 pr-9 text-sm text-neutral-800 placeholder:text-neutral-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200/70 dark:border-white/25 dark:bg-white/[0.08] dark:text-white dark:placeholder:text-white/40 dark:focus:border-blue-300 dark:focus:ring-blue-500/20"
           />
           {tagListQuery.trim().length > 0 && (
             <button

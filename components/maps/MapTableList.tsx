@@ -40,7 +40,7 @@ export default function MapTableList({
 }: MapTableListProps) {
   return (
     <div className="mt-4 w-full min-w-0 overflow-x-auto rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#0b1220]/70">
-      <table className="min-w-[760px] w-full table-fixed text-left text-[12px] [table-layout:fixed]">
+      <table className="min-w-[760px] w-full table-fixed text-left text-[13px] [table-layout:fixed]">
         <colgroup>
           {selectionMode && !tagOrganizeMode && <col style={{ width: "24px" }} />}
           <col style={{ width: "240px" }} />
@@ -50,7 +50,7 @@ export default function MapTableList({
           <col style={{ width: "110px" }} />
           <col style={{ width: "110px" }} />
         </colgroup>
-        <thead className="text-[11px] font-semibold text-neutral-600 dark:text-white/70">
+        <thead className="text-[12px] font-semibold text-neutral-700 dark:text-white/75">
           <tr className="border-b border-neutral-300 bg-neutral-50/80 dark:border-white/15 dark:bg-white/[0.04]">
             {selectionMode && !tagOrganizeMode && (
               <th className="w-6 min-w-[24px] max-w-[24px] px-[3px] py-1.5 border-r border-neutral-200 dark:border-white/10 text-center">
@@ -117,7 +117,7 @@ export default function MapTableList({
                 )}
                 <td className="px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
                   <div className="flex items-center gap-2">
-                    <div className="min-w-0 flex-1 font-medium text-neutral-700 dark:text-white/80 truncate">
+                    <div className="min-w-0 flex-1 text-[14px] font-medium text-neutral-800 dark:text-white/85 truncate">
                       {draft.title}
                     </div>
                     {showOpenDetail && onOpenDetail && (
@@ -127,23 +127,23 @@ export default function MapTableList({
                             event.stopPropagation();
                             onOpenDetail(draft);
                           }}
-                          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-neutral-300 bg-white px-2 py-0.5 text-[10px] font-semibold text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/15 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
+                          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/15 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
                         >
-                          <Icon icon="mdi:open-in-new" className="h-3 w-3" />
+                          <Icon icon="mdi:open-in-new" className="h-3.5 w-3.5" />
                           열기
                         </button>
                     )}
                   </div>
                 </td>
-                <td className="w-[64px] px-2 py-1.5 text-neutral-600 dark:text-white/70 border-r border-neutral-200 dark:border-white/10">
+                <td className="w-[64px] px-2 py-1.5 text-[13px] text-neutral-700 dark:text-white/75 border-r border-neutral-200 dark:border-white/10">
                   {statusLabels[draft.status] ?? "-"}
                 </td>
-                <td className="w-[64px] px-2 py-1.5 text-neutral-600 dark:text-white/70 border-r border-neutral-200 dark:border-white/10">
+                <td className="w-[64px] px-2 py-1.5 text-[13px] text-neutral-700 dark:text-white/75 border-r border-neutral-200 dark:border-white/10">
                   {draft.sourceType ? sourceLabels[draft.sourceType] : "-"}
                 </td>
-                <td className="w-[120px] px-2 py-1.5 text-neutral-500 dark:text-white/60 border-r border-neutral-200 dark:border-white/10">
+                <td className="w-[120px] px-2 py-1.5 text-neutral-600 dark:text-white/70 border-r border-neutral-200 dark:border-white/10">
                   <div className="flex items-start justify-between gap-2">
-                    <span className="min-h-[32px] flex-1 text-[11px] leading-4 text-neutral-600 dark:text-white/65 line-clamp-2">
+                    <span className="min-h-[36px] flex-1 text-[12px] leading-5 text-neutral-700 dark:text-white/75 line-clamp-2">
                       {visibleTags.length > 0
                         ? `${visibleTags.map((tag) => `#${tag}`).join(" ")}${
                             remainingTags > 0 ? ` +${remainingTags}` : ""
@@ -157,22 +157,22 @@ export default function MapTableList({
                             event.stopPropagation();
                             onEditTags(draft);
                           }}
-                          className="inline-flex items-center gap-1 self-center rounded-full border border-blue-500/70 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 hover:bg-blue-100 cursor-pointer dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25"
+                          className="inline-flex items-center gap-1 self-center rounded-full border border-blue-500/70 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700 hover:bg-blue-100 cursor-pointer dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25"
                         >
-                          <Icon icon="mdi:pencil" className="h-3 w-3" />
+                          <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
                           편집
                         </button>
                     )}
                   </div>
                 </td>
-                <td className="w-[110px] px-2 py-1.5 text-neutral-500 dark:text-white/60 border-r border-neutral-200 dark:border-white/10 whitespace-nowrap">
+                <td className="w-[110px] px-2 py-1.5 text-[12px] font-medium text-neutral-600 dark:text-white/70 border-r border-neutral-200 dark:border-white/10 whitespace-nowrap">
                   {new Date(draft.createdAt).toLocaleDateString("ko-KR", {
                     year: "numeric",
                     month: "2-digit",
                     day: "2-digit",
                   })}
                 </td>
-                <td className="w-[110px] px-2 py-1.5 text-neutral-500 dark:text-white/60 whitespace-nowrap">
+                <td className="w-[110px] px-2 py-1.5 text-[12px] font-medium text-neutral-600 dark:text-white/70 whitespace-nowrap">
                   {draft.updatedAt
                     ? new Date(draft.updatedAt).toLocaleDateString("ko-KR", {
                         year: "numeric",

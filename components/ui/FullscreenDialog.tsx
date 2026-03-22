@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import LeftPanel from "@/components/maps/LeftPanel";
 import FullscreenHeader from "@/components/maps/FullscreenHeader";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
@@ -18,8 +19,32 @@ import {
 } from "@/components/maps/themes";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 import type { ClientMindElixirHandle } from "@/components/ClientMindElixir";
+import TagEditDialog from "@/components/maps/TagEditDialog";
 
 const PROFILE_THEME_NAME = "내설정테마";
+
+type MindNode = {
+  children?: MindNode[];
+  expanded?: boolean;
+};
+
+function cloneJson<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
+function collapseToLevel(node: MindNode, level: number, depth = 0) {
+  node.expanded = depth < level;
+  node.children?.forEach((child) => collapseToLevel(child, level, depth + 1));
+}
+
+function getInitialCollapsedMapData<T>(raw: T): T {
+  if (!raw || typeof raw !== "object") return raw;
+  const cloned = cloneJson(raw) as T & { nodeData?: MindNode };
+  const root = cloned?.nodeData;
+  if (!root) return cloned;
+  collapseToLevel(root, 2);
+  return cloned;
+}
 
 const ClientMindElixir = dynamic(
   () => import("@/components/ClientMindElixir"),
@@ -50,7 +75,7 @@ export default function FullscreenDialog({
   onClose: () => void;
   onGoList?: () => void;
   draft?: MapDraft | null;
-  mapData?: any | null;
+  mapData?: unknown | null;
   mapLoading?: boolean;
   mapError?: string | null;
 }) {
@@ -97,6 +122,14 @@ export default function FullscreenDialog({
   const mobileMapActionsRef = useRef<HTMLDivElement | null>(null);
   const mobileThemeRef = useRef<HTMLDivElement | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [localDraft, setLocalDraft] = useState<MapDraft | null>(draft ?? null);
+  const [tagEditOpen, setTagEditOpen] = useState(false);
+  const [tagEditSubmitting, setTagEditSubmitting] = useState(false);
+  const [allTagNames, setAllTagNames] = useState<string[]>([]);
+
+  useEffect(() => {
+    setLocalDraft(draft ?? null);
+  }, [draft]);
 
   useEffect(() => {
     if (!mobileMapActionsOpen && !mobileThemeOpen) return;
@@ -164,12 +197,72 @@ export default function FullscreenDialog({
     mindRef.current?.setPanMode(panMode);
   }, [panMode]);
 
+  const initialMapData = useMemo(
+    () => getInitialCollapsedMapData(mapData ?? null),
+    [mapData]
+  );
+
+  useEffect(() => {
+    if (!tagEditOpen || !draft?.id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/maps/tags?limit=200", {
+          credentials: "include",
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok || cancelled) return;
+        const names = Array.isArray(json?.tags)
+          ? json.tags
+              .map((tag: { name?: string }) => tag?.name)
+              .filter((name: unknown): name is string => Boolean(name))
+          : [];
+        setAllTagNames(names);
+      } catch {
+        if (!cancelled) setAllTagNames([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [draft?.id, tagEditOpen]);
+
   if (!open || !draft) return null;
 
   if (!mounted) return null;
 
   const handleGoList = onGoList ?? onClose;
-  const mapDraft = draft;
+  const mapDraft = localDraft ?? draft;
+  const tagEditDraft = mapDraft;
+
+  const handleTagEditSave = async (tags: string[]) => {
+    if (!tagEditDraft?.id || tagEditSubmitting) return;
+    const normalized = tags.map((tag) => tag.trim()).filter(Boolean);
+    const unique = Array.from(new Set(normalized));
+    try {
+      setTagEditSubmitting(true);
+      const res = await fetch("/api/maps/tags/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ mapId: tagEditDraft.id, tags: unique }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(json?.error || "요청 실패");
+      }
+      const nextTags: string[] = Array.isArray(json?.tags) ? json.tags : unique;
+      setLocalDraft((prev) => (prev ? { ...prev, tags: nextTags } : prev));
+      setTagEditOpen(false);
+      toast.success("태그를 업데이트했어요.");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "태그 업데이트에 실패했습니다.";
+      toast.error(message);
+    } finally {
+      setTagEditSubmitting(false);
+    }
+  };
   const resolvedThemeName =
     themeName === PROFILE_THEME_NAME ? profileThemeName : themeName;
   const appliedTheme =
@@ -423,7 +516,7 @@ export default function FullscreenDialog({
                 mode={resolvedTheme === "dark" ? "dark" : "light"}
                 editMode={editMode}
                 theme={appliedTheme}
-                data={mapData ?? undefined}
+                data={initialMapData ?? undefined}
                 loading={mapLoading}
                 placeholderData={loadingMindElixir}
               />
@@ -699,11 +792,23 @@ export default function FullscreenDialog({
             mapId={mapDraft.id}
             tab={leftTab}
             onTabChange={setLeftTab}
+            onEditTags={() => setTagEditOpen(true)}
           />
 
           {/* ✅ 패널 닫기 버튼 제거 */}
         </div>
       </div>
+      {tagEditDraft ? (
+        <TagEditDialog
+          open={tagEditOpen}
+          onOpenChange={setTagEditOpen}
+          draftTitle={tagEditDraft.title ?? "선택한 맵"}
+          initialTags={tagEditDraft.tags ?? []}
+          allTags={allTagNames}
+          saving={tagEditSubmitting}
+          onSave={handleTagEditSave}
+        />
+      ) : null}
     </div>
   );
 

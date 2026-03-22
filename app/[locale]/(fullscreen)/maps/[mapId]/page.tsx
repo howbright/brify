@@ -19,12 +19,36 @@ import MetadataDialog from "@/app/[locale]/(main)/video-to-map/MetadataDialog";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import DiscardDraftDialog from "@/components/maps/DiscardDraftDialog";
 import ShareDialog from "@/components/maps/ShareDialog";
+import TagEditDialog from "@/components/maps/TagEditDialog";
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/app/types/database.types";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 import { loadingMindElixir } from "@/app/lib/g6/sampleData";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 import FullscreenHeader from "@/components/maps/FullscreenHeader";
+
+type MindNode = {
+  children?: MindNode[];
+  expanded?: boolean;
+};
+
+function cloneJson<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
+function collapseToLevel(node: MindNode, level: number, depth = 0) {
+  node.expanded = depth < level;
+  node.children?.forEach((child) => collapseToLevel(child, level, depth + 1));
+}
+
+function getInitialCollapsedMapData<T>(raw: T): T {
+  if (!raw || typeof raw !== "object") return raw;
+  const cloned = cloneJson(raw) as T & { nodeData?: MindNode };
+  const root = cloned?.nodeData;
+  if (!root) return cloned;
+  collapseToLevel(root, 2);
+  return cloned;
+}
 
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
 
@@ -116,6 +140,9 @@ export default function MapDetailPage() {
   const centeredOnceRef = useRef(false);
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
   const [isSavingMeta, setIsSavingMeta] = useState(false);
+  const [tagEditOpen, setTagEditOpen] = useState(false);
+  const [tagEditSubmitting, setTagEditSubmitting] = useState(false);
+  const [allTagNames, setAllTagNames] = useState<string[]>([]);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
@@ -230,6 +257,31 @@ export default function MapDetailPage() {
   }, [mapId]);
 
   useEffect(() => {
+    if (!tagEditOpen) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/maps/tags?limit=200", {
+          credentials: "include",
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok || cancelled) return;
+        const names = Array.isArray(json?.tags)
+          ? json.tags
+              .map((tag: { name?: string }) => tag?.name)
+              .filter((name: unknown): name is string => Boolean(name))
+          : [];
+        setAllTagNames(names);
+      } catch {
+        if (!cancelled) setAllTagNames([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [tagEditOpen]);
+
+  useEffect(() => {
     if (!themeInitRef.current) {
       setThemeName(profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME);
       themeInitRef.current = true;
@@ -241,6 +293,10 @@ export default function MapDetailPage() {
   }, [profileThemeName, themeName]);
 
   const title = useMemo(() => draft?.title ?? t("fallbackTitle"), [draft?.title, t]);
+  const initialMapData = useMemo(
+    () => getInitialCollapsedMapData(mapData ?? null),
+    [mapData]
+  );
 
   const openTab = (next: "info" | "notes" | "terms") => {
     setLeftTab(next);
@@ -570,6 +626,35 @@ export default function MapDetailPage() {
       window.alert(msg);
     } finally {
       setIsSavingMeta(false);
+    }
+  };
+
+  const handleTagEditSave = async (tags: string[]) => {
+    if (!draft?.id || tagEditSubmitting) return;
+    const normalized = tags.map((tag) => tag.trim()).filter(Boolean);
+    const unique = Array.from(new Set(normalized));
+    try {
+      setTagEditSubmitting(true);
+      const res = await fetch("/api/maps/tags/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ mapId: draft.id, tags: unique }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(json?.error || "요청 실패");
+      }
+      const nextTags: string[] = Array.isArray(json?.tags) ? json.tags : unique;
+      setDraft((prev) => (prev ? { ...prev, tags: nextTags } : prev));
+      setTagEditOpen(false);
+      toast.success("태그를 업데이트했어요.");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "태그 업데이트에 실패했습니다.";
+      toast.error(message);
+    } finally {
+      setTagEditSubmitting(false);
     }
   };
 
@@ -1237,7 +1322,7 @@ export default function MapDetailPage() {
                   ? undefined
                   : MIND_THEME_BY_NAME[themeName]
               }
-              data={mapData ?? undefined}
+              data={initialMapData ?? undefined}
               loading={loading}
               placeholderData={loadingMindElixir}
             />
@@ -1310,6 +1395,7 @@ export default function MapDetailPage() {
             open={leftOpen}
             onClose={() => setLeftOpen(false)}
             onEdit={() => setShowMetadataDialog(true)}
+            onEditTags={() => setTagEditOpen(true)}
             onDelete={() => setConfirmDeleteOpen(true)}
             deleteLabel={t("actions.delete")}
             map={draft}
@@ -1318,6 +1404,18 @@ export default function MapDetailPage() {
             onTabChange={setLeftTab}
           />
         )}
+
+        {draft ? (
+          <TagEditDialog
+            open={tagEditOpen}
+            onOpenChange={setTagEditOpen}
+            draftTitle={draft.title ?? "선택한 맵"}
+            initialTags={draft.tags ?? []}
+            allTags={allTagNames}
+            saving={tagEditSubmitting}
+            onSave={handleTagEditSave}
+          />
+        ) : null}
 
         {showMetadataDialog && draft && (
           <MetadataDialog

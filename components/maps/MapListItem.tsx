@@ -189,18 +189,18 @@ export default function MapListItem({
                   aria-label={`${draft.title} 선택`}
                 />
               )}
-              <h3 className="text-sm font-semibold text-neutral-900 dark:text-white line-clamp-1">
+              <h3 className="text-base font-semibold text-neutral-900 dark:text-white line-clamp-1">
                 {draft.title}
               </h3>
               {sourceBadge && (
                 <span
-                  className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${sourceBadge.cls} ${sourceBadge.darkCls}`}
+                  className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${sourceBadge.cls} ${sourceBadge.darkCls}`}
                 >
                   {sourceBadge.label}
                 </span>
               )}
             </div>
-            <p className="mt-1 text-xs text-neutral-500 dark:text-white/60 line-clamp-1">
+            <p className="mt-1 text-sm text-neutral-600 dark:text-white/70 line-clamp-1">
               {summary}
             </p>
           </div>
@@ -214,15 +214,15 @@ export default function MapListItem({
                 event.stopPropagation();
                 onOpenDetail(draft);
               }}
-              className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-2 py-0.5 text-[11px] font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
+              className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-2.5 py-1 text-[12px] font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
             >
-              <Icon icon="mdi:open-in-new" className="h-3 w-3" />
+              <Icon icon="mdi:open-in-new" className="h-3.5 w-3.5" />
               열기
             </button>
           )}
           {statusBadge && (
             <span
-              className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${statusBadge.cls} ${statusBadge.darkCls}`}
+              className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${statusBadge.cls} ${statusBadge.darkCls}`}
             >
               {statusBadge.text}
             </span>
@@ -236,12 +236,12 @@ export default function MapListItem({
                   event.stopPropagation();
                   setMenuOpen((v) => !v);
                 }}
-                className="inline-flex items-center justify-center rounded-full border border-slate-400 bg-white p-1 text-neutral-500 hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-full border border-slate-400 bg-white p-1.5 text-neutral-500 hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/10"
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
                 aria-label="More actions"
               >
-                <Icon icon="mdi:dots-horizontal" className="h-4 w-4" />
+                <Icon icon="mdi:dots-horizontal" className="h-4.5 w-4.5" />
               </button>
 
               {menuOpen && (
@@ -257,7 +257,7 @@ export default function MapListItem({
                       onDelete(draft);
                     }}
                     disabled={isDeleting}
-                    className="w-full rounded-xl px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-rose-300 dark:hover:bg-rose-500/10"
+                    className="w-full rounded-xl px-3 py-2.5 text-left text-[15px] font-medium text-rose-600 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-rose-300 dark:hover:bg-rose-500/10"
                   >
                     <span className="inline-flex items-center gap-2">
                       <Icon
@@ -281,19 +281,19 @@ export default function MapListItem({
               {draft.tags.slice(0, 4).map((tag) => (
                 <span
                   key={tag}
-                  className="max-w-[120px] truncate rounded-full border border-slate-400 bg-neutral-50 px-2 py-0.5 text-[11px] text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/75"
+                  className="max-w-[140px] truncate rounded-full border border-slate-400 bg-neutral-50 px-2.5 py-1 text-[12px] font-medium text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
                 >
                   #{tag}
                 </span>
               ))}
               {draft.tags.length > 4 && (
-                <span className="rounded-full border border-slate-400 bg-neutral-50 px-2 py-0.5 text-[11px] text-neutral-500 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/60">
+                <span className="rounded-full border border-slate-400 bg-neutral-50 px-2.5 py-1 text-[12px] font-medium text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/70">
                   +{draft.tags.length - 4}
                 </span>
               )}
             </>
           ) : (
-            <span className="text-[11px] text-neutral-400 dark:text-white/40">
+            <span className="text-[12px] text-neutral-500 dark:text-white/50">
               태그 없음
             </span>
           )}
@@ -307,9 +307,9 @@ export default function MapListItem({
                   event.stopPropagation();
                   onEditTags(draft);
                 }}
-                className="inline-flex items-center gap-1 rounded-full border border-blue-500/70 bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 hover:bg-blue-100 cursor-pointer dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25"
+                className="inline-flex items-center gap-1 rounded-full border border-blue-500/70 bg-blue-50 px-2.5 py-1 text-[12px] font-semibold text-blue-700 hover:bg-blue-100 cursor-pointer dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25"
               >
-                <Icon icon="mdi:pencil" className="h-3 w-3" />
+                <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
                 편집
               </button>
             )}
@@ -317,7 +317,7 @@ export default function MapListItem({
         )}
       </div>
 
-      <div className="mt-2 text-[11px] text-neutral-500 dark:text-white/60">
+      <div className="mt-2 text-[13px] font-medium text-neutral-500 dark:text-white/60">
         {formatDate(draft)}
       </div>
     </article>

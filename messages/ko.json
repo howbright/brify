@@ -915,11 +915,13 @@
     "title": "상세 정보",
     "infoTab": "정보",
     "edit": "편집",
+    "delete": "삭제",
     "close": "닫기",
     "untitled": "제목없음",
     "created": "생성",
     "updated": "수정",
     "credits": "소요 크레딧",
+    "summarySection": "한문단요약",
     "sourceSection": "출처",
     "thumbnailPlaceholder": "thumbnail",
     "sourceType": "출처 유형",
@@ -929,7 +931,9 @@
     "tagsSection": "태그",
     "noTags": "태그 없음",
     "descriptionSection": "설명",
-    "noDescription": "설명 없음"
+    "noDescription": "설명 없음",
+    "termsIntro": "AI가 핵심 용어를 자동으로 추출해 이해를 돕습니다.",
+    "requestFailed": "요청 실패"
   },
   "RightPanel": {
     "tabs": {
@@ -939,7 +943,7 @@
     "closeAria": "패널 닫기",
     "closeTitle": "닫기",
     "notes": {
-      "helper": "구조맵을 보면서 떠오른 생각을 바로 적어둘 수 있어요.",
+      "helper": "떠오르는 생각을 적으세요.",
       "placeholder": "노트를 적어주세요… (Enter로 추가)",
       "add": "추가",
       "loading": "노트를 불러오는 중…",
@@ -975,7 +979,7 @@
     "helper": "",
     "loading": "용어 해설 생성 중…",
     "delete": "삭제",
-    "cta": "AI 용어 해설하기",
+    "cta": "AI 용어 해설 받기",
     "usedCount": "이 세션에서 {count}회 사용했어요.",
     "customInline": {
       "toggle": "추가로 해설 받을 용어 입력",
@@ -998,6 +1002,19 @@
       "cancel": "취소",
       "submit": "시작하기"
     }
+  },
+  "TagEditDialog": {
+    "title": "태그 편집",
+    "description": "태그를 입력하고 엔터로 추가하세요.",
+    "removeTagAria": "태그 삭제",
+    "addTagPlaceholder": "태그 추가",
+    "addFromExisting": "기존 태그에서 추가",
+    "selectedCount": "{count}개 선택됨",
+    "searchPlaceholder": "태그 검색",
+    "noTagsToAdd": "추가할 태그가 없어요.",
+    "cancel": "취소",
+    "save": "저장",
+    "saving": "저장 중..."
   },
   "FullscreenMapPage": {
     "fallbackTitle": "구조맵",
@@ -1056,6 +1073,9 @@
     "title": "콘텐츠 정보 입력",
     "subtitle": "제목은 필수이며, 나머지는 선택입니다.",
     "fields": {
+      "sourceQuestion": "입력하신 유튜브 스크립트인가요?",
+      "sourceTypeYes": "네",
+      "sourceTypeNo": "아니오",
       "url": "URL (선택)",
       "title": "제목",
     "channel": "채널/출처",
@@ -1082,6 +1102,15 @@
       "youtubeUrl": "유튜브 URL이라면 제목/채널/썸네일을 자동으로 채울 수 있습니다.",
       "nonYoutubeUrl": "유튜브 URL이 아니라면 아래 항목을 직접 입력해 주세요.",
       "tags": ""
+    },
+    "tags": {
+      "removeTagAria": "태그 삭제",
+      "addTagPlaceholder": "태그 추가",
+      "enterHint": "태그를 입력한 뒤 Enter를 누르면 추가됩니다.",
+      "addFromExisting": "기존 태그에서 추가",
+      "selectedCount": "{count}개 선택됨",
+      "searchPlaceholder": "태그 검색",
+      "noTagsToAdd": "추가할 태그가 없어요."
     },
     "thumbnail": {
       "empty": "no image",

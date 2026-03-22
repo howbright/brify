@@ -21,6 +21,7 @@ export default function LeftPanel({
   open,
   onClose,
   onEdit,
+  onEditTags,
   onDelete,
   deleteLabel,
   map,
@@ -31,6 +32,7 @@ export default function LeftPanel({
   open: boolean;
   onClose: () => void;
   onEdit?: () => void;
+  onEditTags?: () => void;
   onDelete?: () => void;
   deleteLabel?: string;
   map: MapDraft;
@@ -288,7 +290,9 @@ export default function LeftPanel({
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
         const msg = json?.message || json?.error || tRight("errors.terms.fetch");
-        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+        throw new Error(
+          typeof msg === "string" ? msg : msg?.[0] || t("requestFailed")
+        );
       }
 
       const rows = Array.isArray(json?.terms)
@@ -350,7 +354,9 @@ export default function LeftPanel({
       if (!res.ok || !json?.ok) {
         const msg =
           json?.message || json?.error || tRight("errors.terms.statusFetch");
-        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+        throw new Error(
+          typeof msg === "string" ? msg : msg?.[0] || t("requestFailed")
+        );
       }
 
       const status = String(json?.status ?? "").toLowerCase();
@@ -444,7 +450,9 @@ export default function LeftPanel({
       if (!res.ok) {
         const msg =
           json?.message || json?.error || tRight("errors.terms.autoStartFail");
-        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+        throw new Error(
+          typeof msg === "string" ? msg : msg?.[0] || t("requestFailed")
+        );
       }
 
       await fetchTermsStatus();
@@ -483,7 +491,9 @@ export default function LeftPanel({
       if (!res.ok) {
         const msg =
           json?.message || json?.error || tRight("errors.terms.customStartFail");
-        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+        throw new Error(
+          typeof msg === "string" ? msg : msg?.[0] || t("requestFailed")
+        );
       }
 
       await fetchTermsStatus();
@@ -516,7 +526,9 @@ export default function LeftPanel({
       if (!res.ok) {
         const msg =
           json?.message || json?.error || tRight("errors.terms.deleteFail");
-        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+        throw new Error(
+          typeof msg === "string" ? msg : msg?.[0] || t("requestFailed")
+        );
       }
 
       setTerms((prev) => prev.filter((item) => item.term !== term));
@@ -552,7 +564,7 @@ export default function LeftPanel({
     <aside
       className={`
         absolute top-0 left-0 z-[30]
-        h-full w-[92vw] max-w-[420px]
+        h-full w-[94vw] max-w-[550px]
         transition-transform duration-200 ease-out
         ${open ? "translate-x-0" : "-translate-x-full"}
       `}
@@ -578,26 +590,23 @@ export default function LeftPanel({
         <div className="pointer-events-none absolute inset-0 dark:bg-white/[0.03]" />
 
         {/* header */}
-        <div className="relative px-4 pt-2 border-b border-slate-400 dark:border-white/20">
+        <div className="relative px-5 pt-3 border-b border-slate-400 dark:border-white/20">
           <div className="flex items-center justify-between gap-3">
             {mapId ? (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-5">
                 <TabButton
                   active={activeTab === "info"}
-                  icon="mdi:information-outline"
                   label={t("infoTab")}
                   onClick={() => setActiveTab("info")}
                 />
                 <TabButton
                   active={activeTab === "notes"}
-                  icon="mdi:notebook-outline"
                   label={tRight("tabs.notes")}
                   count={notes.length}
                   onClick={() => setActiveTab("notes")}
                 />
                 <TabButton
                   active={activeTab === "terms"}
-                  icon="mdi:book-open-variant"
                   label={tRight("tabs.terms")}
                   count={terms.length}
                   badge="AI"
@@ -618,7 +627,7 @@ export default function LeftPanel({
               type="button"
               onClick={onClose}
               className="
-                ml-auto -mr-4 inline-flex items-center justify-center
+                ml-auto -mr-5 inline-flex items-center justify-center
                 h-8 w-10
                 rounded-l-full rounded-r-md
                 bg-blue-600 text-white
@@ -633,17 +642,17 @@ export default function LeftPanel({
           </div>
 
           {activeTab === "info" && (
-            <div className="mt-3 text-sm font-semibold text-neutral-900 dark:text-white/90 whitespace-normal break-words">
+            <div className="mt-3 text-[17px] font-bold text-neutral-900 dark:text-white/90 whitespace-normal break-words leading-6">
               {map.title ?? t("untitled")}
             </div>
           )}
         </div>
 
         {/* body */}
-        <div className="relative flex-1 min-h-0 overflow-y-auto px-4 py-4">
+        <div className="relative flex-1 min-h-0 overflow-y-auto px-5 py-5">
           {activeTab === "info" ? (
             <>
-              <div className="mb-3 text-[11px] text-neutral-400 dark:text-white/40">
+              <div className="mb-4 text-[14px] leading-6 text-neutral-500 dark:text-white/55">
                 <div>
                   {t("created")} {createdLabel} · {t("updated")} {updatedLabel}
                 </div>
@@ -665,7 +674,7 @@ export default function LeftPanel({
                       shrink-0
                       inline-flex items-center gap-1.5
                       rounded-2xl border border-slate-400 bg-blue-50 px-3 py-1.5
-                      text-xs font-semibold text-blue-700 hover:bg-blue-100
+                      text-sm font-semibold text-blue-700 hover:bg-blue-100
                       dark:border-white/20 dark:bg-blue-500/10
                       dark:text-blue-50/90 dark:hover:bg-blue-500/20
                     "
@@ -679,14 +688,14 @@ export default function LeftPanel({
                 <section className="mb-4">
                   <div className="mb-2.5 flex items-center gap-2">
                     <div className="h-5 w-1 rounded-full bg-blue-200 dark:bg-blue-500/40" />
-                    <h3 className="text-xs font-semibold text-neutral-900 dark:text-white/85">
-                      한문단요약
+                    <h3 className="text-[15px] font-bold text-neutral-900 dark:text-white/85">
+                      {t("summarySection")}
                     </h3>
                   </div>
                   <div
                     className="
                       rounded-3xl border border-slate-400 bg-blue-50/60 p-3.5
-                      text-[12px] leading-5 text-neutral-700
+                      text-[15px] leading-7 text-neutral-700
                       shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)]
                       dark:border-white/20 dark:bg-blue-500/10 dark:text-white/80
                       dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]
@@ -736,7 +745,7 @@ export default function LeftPanel({
                     />
 
                     <div className="mt-1">
-                      <div className="text-[11px] text-neutral-500 dark:text-white/60">
+                      <div className="text-[14px] font-medium text-neutral-500 dark:text-white/60">
                         {t("sourceLink")}
                       </div>
                       {map.sourceUrl ? (
@@ -745,7 +754,7 @@ export default function LeftPanel({
                           target="_blank"
                           rel="noreferrer"
                           className="
-                            mt-0.5 block text-xs font-semibold
+                            mt-0.5 block text-[14px] font-semibold
                             text-blue-700 hover:underline truncate
                             dark:text-sky-200
                           "
@@ -754,7 +763,7 @@ export default function LeftPanel({
                           {map.sourceUrl}
                         </a>
                       ) : (
-                        <div className="mt-0.5 text-xs text-neutral-700 dark:text-white/85">
+                        <div className="mt-0.5 text-[14px] text-neutral-700 dark:text-white/85">
                           {t("none")}
                         </div>
                       )}
@@ -764,30 +773,65 @@ export default function LeftPanel({
               </Section>
 
               {/* ✅ 태그: description 보다 위로 올림 */}
-              <Section title={t("tagsSection")}>
-                {map.tags?.length ? (
-                  <div className="flex flex-wrap gap-1.5">
-                    {map.tags.slice(0, 24).map((t) => (
-                      <span
-                        key={t}
+              <section className="mb-4">
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="h-5 w-1 rounded-full bg-neutral-200 dark:bg-white/15" />
+                    <h3 className="text-[15px] font-bold text-neutral-900 dark:text-white/85">
+                      {t("tagsSection")}
+                    </h3>
+                    {onEditTags ? (
+                      <button
+                        type="button"
+                        onClick={onEditTags}
                         className="
-                          rounded-full border border-slate-400 bg-neutral-50
-                          px-2 py-0.5 text-[11px] text-neutral-600
-                          dark:border-white/20 dark:bg-white/[0.06] dark:text-white/75
+                          inline-flex h-7 w-7 items-center justify-center
+                          rounded-lg border border-slate-400 bg-white
+                          text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900
+                          dark:border-white/20 dark:bg-white/[0.08]
+                          dark:text-white/75 dark:hover:bg-white/[0.12] dark:hover:text-white
                         "
+                        aria-label={t("edit")}
+                        title={t("edit")}
                       >
-                        #{t}
-                      </span>
-                    ))}
+                        <Icon icon="mdi:pencil" className="h-4 w-4" />
+                      </button>
+                    ) : null}
                   </div>
-                ) : (
-                  <EmptyText>{t("noTags")}</EmptyText>
-                )}
-              </Section>
+                </div>
+
+                <div
+                  className="
+                    rounded-3xl border border-slate-400 bg-white p-3
+                    shadow-[0_18px_40px_-28px_rgba(15,23,42,0.25)]
+                    dark:border-white/20 dark:bg-white/[0.04]
+                    dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]
+                  "
+                >
+                  {map.tags?.length ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {map.tags.slice(0, 24).map((t) => (
+                        <span
+                          key={t}
+                          className="
+                            rounded-full border border-slate-400 bg-neutral-50
+                            px-2.5 py-1 text-[13px] font-medium text-neutral-700
+                            dark:border-white/20 dark:bg-white/[0.06] dark:text-white/75
+                          "
+                        >
+                          #{t}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyText>{t("noTags")}</EmptyText>
+                  )}
+                </div>
+              </section>
 
               {/* ✅ description: 접기/펼치기 제거 → 항상 노출 */}
               <Section title={t("descriptionSection")}>
-                <div className="text-xs text-neutral-700 dark:text-white/80 whitespace-pre-wrap break-words">
+                <div className="text-[15px] leading-7 text-neutral-700 dark:text-white/80 whitespace-pre-wrap break-words">
                   {map.description ?? t("noDescription")}
                 </div>
               </Section>
@@ -800,13 +844,13 @@ export default function LeftPanel({
                     className="
                       inline-flex items-center gap-1.5
                       rounded-2xl border border-rose-200 bg-rose-50 px-3 py-1.5
-                      text-xs font-semibold text-rose-700 hover:bg-rose-100
+                      text-sm font-semibold text-rose-700 hover:bg-rose-100
                       dark:border-rose-300/30 dark:bg-rose-500/10
                       dark:text-rose-100/90 dark:hover:bg-rose-500/20
                     "
                   >
                     <Icon icon="mdi:trash-outline" className="h-4 w-4" />
-                    {deleteLabel ?? "삭제"}
+                    {deleteLabel ?? t("delete")}
                   </button>
                 </div>
               )}
@@ -830,11 +874,11 @@ export default function LeftPanel({
             />
           ) : (
             <>
-              <div className="mb-3 rounded-2xl border border-slate-400 bg-sky-50/70 px-3 py-2 text-[11px] text-slate-700 shadow-[0_16px_30px_-24px_rgba(14,116,144,0.45)] dark:border-white/20 dark:bg-sky-500/10 dark:text-white/75">
+              <div className="mb-4 rounded-2xl border border-slate-400 bg-sky-50/70 px-4 py-3 text-[14px] leading-6 text-slate-700 shadow-[0_16px_30px_-24px_rgba(14,116,144,0.45)] dark:border-white/20 dark:bg-sky-500/10 dark:text-white/75">
                 <div className="flex items-center gap-2">
-                  <Icon icon="mdi:sparkles" className="h-4 w-4 text-sky-500 dark:text-sky-300" />
+                  <Icon icon="mdi:sparkles" className="h-5 w-5 text-sky-500 dark:text-sky-300" />
                   <span className="font-semibold">
-                    AI가 핵심 용어를 자동으로 추출해 이해를 돕습니다.
+                    {t("termsIntro")}
                   </span>
                 </div>
               </div>
@@ -876,7 +920,7 @@ function Section({
     <section className="mb-4">
       <div className="mb-2 flex items-center gap-2">
         <div className="h-5 w-1 rounded-full bg-neutral-200 dark:bg-white/15" />
-        <h3 className="text-xs font-semibold text-neutral-900 dark:text-white/85">
+        <h3 className="text-[15px] font-bold text-neutral-900 dark:text-white/85">
           {title}
         </h3>
       </div>
@@ -908,13 +952,13 @@ function RowItem({
     <div className="flex items-center gap-2 min-w-0">
       <Icon
         icon={icon}
-        className="h-4 w-4 text-neutral-500 dark:text-white/55"
+        className="h-5 w-5 text-neutral-500 dark:text-white/55"
       />
       <div className="min-w-0">
-        <div className="text-[11px] text-neutral-500 dark:text-white/60">
+        <div className="text-[13px] text-neutral-500 dark:text-white/60">
           {label}
         </div>
-        <div className="text-xs font-semibold text-neutral-800 dark:text-white/85 truncate">
+        <div className="text-[15px] font-semibold text-neutral-800 dark:text-white/85 truncate">
           {value}
         </div>
       </div>
@@ -924,7 +968,7 @@ function RowItem({
 
 function EmptyText({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-xs text-neutral-500 dark:text-white/60">
+    <div className="text-[14px] leading-6 text-neutral-500 dark:text-white/60">
       {children}
     </div>
   );
@@ -932,7 +976,6 @@ function EmptyText({ children }: { children: React.ReactNode }) {
 
 function TabButton({
   active,
-  icon,
   label,
   count,
   badge,
@@ -940,7 +983,6 @@ function TabButton({
   onClick,
 }: {
   active: boolean;
-  icon: string;
   label: string;
   count?: number;
   badge?: string;
@@ -954,7 +996,7 @@ function TabButton({
       onClick={onClick}
       className={`
         relative inline-flex items-center gap-2
-        border-b-2 px-1 pb-1 text-xs font-semibold transition-colors
+        border-b-2 px-1 pb-2 text-[16px] font-bold transition-colors
         ${
           active
             ? isMystic
@@ -976,13 +1018,12 @@ function TabButton({
         }
         aria-hidden="true"
       />
-      <Icon icon={icon} className="relative h-4 w-4" />
       <span className="relative">{label}</span>
       {typeof count === "number" && count > 0 ? (
         <span
           className={`
-            relative inline-flex min-w-5 items-center justify-center
-            rounded-full px-1.5 py-0.5 text-[9px] font-semibold tracking-tight
+            relative inline-flex min-w-6 items-center justify-center
+            rounded-full px-1.5 py-0.5 text-[11px] font-semibold tracking-tight
             ${
               active
                 ? "bg-blue-100 text-blue-700 dark:bg-blue-400/20 dark:text-blue-200"
@@ -997,7 +1038,7 @@ function TabButton({
         <span
           className="
             relative inline-flex items-center gap-1
-            rounded-full px-1.5 py-0.5 text-[9px] font-semibold tracking-tight
+            rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-tight
             text-white
             bg-[linear-gradient(135deg,#7c3aed,#22c55e,#3b82f6)]
             shadow-[0_8px_18px_-10px_rgba(124,58,237,0.65)]
@@ -1044,12 +1085,12 @@ function NotesBlock({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <div className="text-xs text-neutral-500 dark:text-white/60">
+      <div className="text-[16px] font-medium leading-7 text-neutral-600 dark:text-white/70">
         {helperText}
       </div>
 
       {error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-[14px] leading-6 text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
           {error}
         </div>
       ) : null}
@@ -1066,7 +1107,7 @@ function NotesBlock({
           }}
           placeholder={placeholder}
           className="
-            flex-1 rounded-2xl border border-slate-400 bg-blue-50/40 px-3 py-2 text-sm
+            flex-1 rounded-2xl border border-slate-400 bg-blue-50/40 px-4 py-3 text-[15px]
             outline-none focus:ring-2 focus:ring-blue-200
             dark:border-white/20 dark:bg-white/[0.06] dark:text-white
             dark:focus:ring-blue-500/20
@@ -1077,11 +1118,11 @@ function NotesBlock({
           onClick={onAdd}
           disabled={submitting}
           className="
-            rounded-2xl border border-slate-400 bg-blue-50 px-3 py-2
-            text-sm font-semibold text-blue-700 hover:bg-blue-100
+            rounded-2xl border border-blue-700 bg-blue-700 px-4 py-3
+            text-[15px] font-semibold text-white hover:bg-blue-800
             disabled:cursor-not-allowed disabled:opacity-60
-            dark:border-white/20 dark:bg-blue-500/10
-            dark:text-blue-50/90 dark:hover:bg-blue-500/20
+            dark:border-blue-400 dark:bg-blue-500
+            dark:text-white dark:hover:bg-blue-400
           "
         >
           {addLabel}
@@ -1090,11 +1131,11 @@ function NotesBlock({
 
       <div className="flex flex-col gap-2">
         {loading ? (
-          <div className="rounded-2xl border border-slate-400 bg-blue-50/50 p-4 text-sm text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/75">
+          <div className="rounded-2xl border border-slate-400 bg-blue-50/50 p-4 text-[15px] leading-6 text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/75">
             {loadingLabel}
           </div>
         ) : notes.length === 0 ? (
-          <div className="rounded-2xl border border-slate-400 bg-blue-50/50 p-4 text-sm text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/75">
+          <div className="rounded-2xl border border-slate-400 bg-blue-50/50 p-4 text-[17px] font-medium leading-7 text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80">
             {emptyLabel}
           </div>
         ) : (

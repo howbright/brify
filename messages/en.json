@@ -916,11 +916,13 @@
     "title": "Details",
     "infoTab": "Info",
     "edit": "Edit",
+    "delete": "Delete",
     "close": "Close",
     "untitled": "Untitled",
     "created": "Created",
     "updated": "Updated",
     "credits": "Credits used",
+    "summarySection": "One-paragraph summary",
     "sourceSection": "Source",
     "thumbnailPlaceholder": "thumbnail",
     "sourceType": "Source type",
@@ -930,7 +932,9 @@
     "tagsSection": "Tags",
     "noTags": "No tags",
     "descriptionSection": "Description",
-    "noDescription": "No description"
+    "noDescription": "No description",
+    "termsIntro": "AI automatically extracts key terms to help you understand the content.",
+    "requestFailed": "Request failed"
   },
   "RightPanel": {
     "tabs": {
@@ -940,7 +944,7 @@
     "closeAria": "Close panel",
     "closeTitle": "Close",
     "notes": {
-      "helper": "Write down any thoughts while reviewing the structure map.",
+      "helper": "Write down your thoughts.",
       "placeholder": "Write a note… (Press Enter to add)",
       "add": "Add",
       "loading": "Loading notes…",
@@ -973,10 +977,10 @@
     }
   },
   "TermsBlock": {
-    "helper": "Difficult terms will be summarized automatically.",
+    "helper": "",
     "loading": "Generating term explanations…",
     "delete": "Delete",
-    "cta": "AI Term Explanations",
+    "cta": "Get AI term explanations",
     "usedCount": "Used {count} time(s) in this session.",
     "customInline": {
       "toggle": "Add more terms to explain",
@@ -999,6 +1003,19 @@
       "cancel": "Cancel",
       "submit": "Start"
     }
+  },
+  "TagEditDialog": {
+    "title": "Edit tags",
+    "description": "Type a tag and press Enter to add it.",
+    "removeTagAria": "Remove tag",
+    "addTagPlaceholder": "Add a tag",
+    "addFromExisting": "Add from existing tags",
+    "selectedCount": "{count} selected",
+    "searchPlaceholder": "Search tags",
+    "noTagsToAdd": "No tags to add.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving..."
   },
   "FullscreenMapPage": {
     "fallbackTitle": "Structure Map",
@@ -1057,6 +1074,9 @@
     "title": "Content Details",
     "subtitle": "Title is required; everything else is optional.",
     "fields": {
+      "sourceQuestion": "Is this a YouTube script?",
+      "sourceTypeYes": "Yes",
+      "sourceTypeNo": "No",
       "url": "URL (optional)",
       "title": "Title",
       "channel": "Channel/Source (optional)",
@@ -1083,6 +1103,15 @@
       "youtubeUrl": "If this is a YouTube URL, we can autofill title/channel/thumbnail.",
       "nonYoutubeUrl": "If it's not a YouTube URL, please fill in the fields below.",
       "tags": "Separate tags with commas to save them."
+    },
+    "tags": {
+      "removeTagAria": "Remove tag",
+      "addTagPlaceholder": "Add a tag",
+      "enterHint": "Type a tag and press Enter to add it.",
+      "addFromExisting": "Add from existing tags",
+      "selectedCount": "{count} selected",
+      "searchPlaceholder": "Search tags",
+      "noTagsToAdd": "No tags to add."
     },
     "thumbnail": {
       "empty": "no image",

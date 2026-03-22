@@ -25,12 +25,11 @@ function isYouTubeUrl(url: string) {
   return u.includes("youtube.com") || u.includes("youtu.be");
 }
 
-function splitTags(input: string) {
-  return input
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .slice(0, 12);
+function normalizeTags(tags: string[]) {
+  return Array.from(new Set(tags.map((tag) => tag.trim()).filter(Boolean))).slice(
+    0,
+    12
+  );
 }
 
 type Props = {
@@ -65,15 +64,26 @@ export default function MetadataDialog({
 }: Props) {
   const t = useTranslations("MetadataDialog");
   const [sourceUrl, setSourceUrl] = useState(initial.sourceUrl ?? "");
+  const [sourceType, setSourceType] = useState<"youtube" | "manual" | null>(() => {
+    const initialSourceUrl = initial.sourceUrl ?? "";
+    if (!initialSourceUrl) return null;
+    return isYouTubeUrl(initialSourceUrl) ? "youtube" : "manual";
+  });
   const [title, setTitle] = useState(initial.title ?? "");
   const [channelName, setChannelName] = useState(initial.channelName ?? "");
   const [thumbnailUrl, setThumbnailUrl] = useState(initial.thumbnailUrl ?? "");
-  const [tagInput, setTagInput] = useState((initial.tags ?? []).join(", "));
+  const [tagInput, setTagInput] = useState("");
+  const [tagItems, setTagItems] = useState<string[]>(normalizeTags(initial.tags ?? []));
+  const [tagComposing, setTagComposing] = useState(false);
+  const [tagPickerOpen, setTagPickerOpen] = useState(false);
+  const [tagSearchTerm, setTagSearchTerm] = useState("");
+  const [allTags, setAllTags] = useState<string[]>([]);
   const [description, setDescription] = useState(initial.description ?? "");
 
   const [titleError, setTitleError] = useState<string | null>(null);
   const [isFetchingYoutubeMeta, setIsFetchingYoutubeMeta] = useState(false);
   const [youtubeMetaError, setYoutubeMetaError] = useState<string | null>(null);
+  const [youtubeAutofilled, setYoutubeAutofilled] = useState(false);
 
   // ✅ manual upload states
   const [thumbFile, setThumbFile] = useState<File | null>(null);
@@ -83,7 +93,39 @@ export default function MetadataDialog({
   // ✅ 선택한 파일 미리보기 URL(Object URL)
   const [thumbPreviewUrl, setThumbPreviewUrl] = useState<string | null>(null);
 
-  const youtube = useMemo(() => isYouTubeUrl(sourceUrl), [sourceUrl]);
+  const youtube = sourceType === "youtube";
+  const [detailsExpanded, setDetailsExpanded] = useState(() => {
+    const initialSourceUrl = initial.sourceUrl ?? "";
+    const initialType = !initialSourceUrl
+      ? null
+      : isYouTubeUrl(initialSourceUrl)
+        ? "youtube"
+        : "manual";
+    const hasExistingDetails =
+      Boolean(initial.title?.trim()) ||
+      Boolean(initial.channelName?.trim()) ||
+      Boolean(initial.thumbnailUrl?.trim()) ||
+      Boolean(initial.description?.trim()) ||
+      Boolean(initial.tags?.length);
+    if (initialType === "manual") return true;
+    if (initialType === "youtube") return false;
+    return false;
+  });
+  const tagSuggestions = useMemo(() => {
+    const term = tagInput.trim().toLowerCase();
+    if (!term) return [];
+    return allTags
+      .filter((tag) => !tagItems.includes(tag))
+      .filter((tag) => tag.toLowerCase().includes(term))
+      .slice(0, 8);
+  }, [allTags, tagInput, tagItems]);
+
+  const tagPickerCandidates = useMemo(() => {
+    const term = tagSearchTerm.trim().toLowerCase();
+    return allTags
+      .filter((tag) => !tagItems.includes(tag))
+      .filter((tag) => (term ? tag.toLowerCase().includes(term) : true));
+  }, [allTags, tagItems, tagSearchTerm]);
 
   const clearManualUploadState = () => {
     setThumbFile(null);
@@ -143,11 +185,13 @@ export default function MetadataDialog({
       if (json?.description) setDescription(String(json.description));
 
       if (Array.isArray(json?.tags) && json.tags.length > 0) {
-        setTagInput(json.tags.slice(0, 12).join(", "));
+        setTagItems(normalizeTags(json.tags));
       }
 
       // ✅ 유튜브 자동 채우기를 성공하면 "수동 업로드 상태"는 해제 (충돌 방지)
       clearManualUploadState();
+      setYoutubeAutofilled(true);
+      setDetailsExpanded(true);
     } catch (error: unknown) {
       setYoutubeMetaError(
         getErrorMessage(error, t("errors.youtubeFetchFailed"))
@@ -160,6 +204,55 @@ export default function MetadataDialog({
   useEffect(() => {
     if (titleError && title.trim()) setTitleError(null);
   }, [title, titleError]);
+
+  useEffect(() => {
+    if (sourceType === "manual") {
+      setDetailsExpanded(true);
+      return;
+    }
+
+    if (sourceType !== "youtube") {
+      setDetailsExpanded(false);
+      return;
+    }
+
+    setDetailsExpanded(youtubeAutofilled);
+  }, [sourceType, youtubeAutofilled]);
+
+  useEffect(() => {
+    setTagItems(normalizeTags(initial.tags ?? []));
+  }, [initial.tags]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/maps/tags?limit=200", {
+          credentials: "include",
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok || cancelled) return;
+        const names = Array.isArray(json?.tags)
+          ? json.tags
+              .map((tag: { name?: string }) => tag?.name)
+              .filter((name: unknown): name is string => Boolean(name))
+          : [];
+        setAllTags(names);
+      } catch {
+        if (!cancelled) setAllTags([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleAddTag = () => {
+    const next = tagInput.trim();
+    if (!next) return;
+    setTagItems((prev) => normalizeTags([...prev, next]));
+    setTagInput("");
+  };
 
   // ✅ Object URL 정리
   useEffect(() => {
@@ -277,7 +370,7 @@ export default function MetadataDialog({
       title: title.trim(),
       channelName: channelName.trim() || undefined,
       thumbnailUrl: finalThumbUrl,
-      tags: splitTags(tagInput),
+      tags: tagItems,
       description: description.trim() || undefined,
     };
 
@@ -372,12 +465,42 @@ export default function MetadataDialog({
               overflow-x-hidden
             "
           >
-            {/* URL */}
-            <div className="grid gap-1.5 min-w-0">
-              <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">
-                {t("fields.url")}
-              </label>
+            {sourceType === null ? (
+              <div className="grid gap-2 min-w-0">
+                <label className="text-[17px] font-bold text-neutral-800 dark:text-neutral-100">
+                  {t("fields.sourceQuestion")}
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSourceType("youtube");
+                      setYoutubeAutofilled(false);
+                      setDetailsExpanded(false);
+                    }}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-400 bg-white px-4 py-3 text-[15px] font-bold text-neutral-800 transition hover:bg-neutral-50 dark:border-white/30 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+                  >
+                    <Icon icon="mdi:youtube" className="h-6 w-6 flex-shrink-0 text-[#FF0000]" />
+                    {t("fields.sourceTypeYes")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSourceType("manual");
+                      setYoutubeAutofilled(false);
+                      setDetailsExpanded(true);
+                    }}
+                    className="rounded-2xl border border-slate-400 bg-white px-4 py-3 text-[15px] font-bold text-neutral-800 transition hover:bg-neutral-50 dark:border-white/30 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+                  >
+                    {t("fields.sourceTypeNo")}
+                  </button>
+                </div>
+              </div>
+            ) : null}
 
+            {/* URL */}
+            {sourceType === "youtube" ? (
+            <div className="grid gap-1.5 min-w-0">
               <div className="flex flex-col sm:flex-row gap-2 min-w-0">
                 <input
                   value={sourceUrl}
@@ -415,202 +538,297 @@ export default function MetadataDialog({
               </div>
 
               {youtubeMetaError && (
-                <p className="text-[12px] text-rose-600 dark:text-rose-300 break-words">
+                <p className="text-[14px] leading-6 text-rose-600 dark:text-rose-300 break-words">
                   {youtubeMetaError}
                 </p>
               )}
 
-              <p className="text-[11px] text-neutral-500 dark:text-white/60 break-words">
-                {youtube ? t("hints.youtubeUrl") : t("hints.nonYoutubeUrl")}
-              </p>
             </div>
+            ) : null}
 
-            {/* Title + Channel */}
-            <div className="grid md:grid-cols-2 gap-3 min-w-0">
-              <div className="grid gap-1.5 min-w-0">
-                <div className="flex items-center justify-between gap-2 min-w-0">
-                  <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-100">
-                    {t("fields.title")} <span className="text-rose-500">*</span>
-                  </label>
-                  <span className="text-[11px] text-neutral-500 dark:text-white/60 flex-shrink-0">
-                    {titleCounter}
-                  </span>
-                </div>
-
-                <input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value.slice(0, 200))}
-                  placeholder={t("placeholders.title")}
-                  className={`
-                    w-full min-w-0
-                    rounded-2xl border bg-neutral-50 px-3 py-2 text-sm
-                    focus:outline-none focus:ring-2
-                    dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
-                    ${
-                      titleError
-                        ? "border-rose-300 focus:border-rose-400 focus:ring-rose-300/50 dark:border-rose-500/50"
-                        : "border-slate-400 focus:border-blue-400 focus:ring-blue-300/60 dark:border-white/30"
-                    }
-                  `}
-                />
-                {titleError && (
-                  <p className="text-[12px] text-rose-600 dark:text-rose-300 break-words">
-                    {titleError}
-                  </p>
-                )}
-              </div>
-
-              <div className="grid gap-1.5 min-w-0">
-                <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-100">
-                  {t("fields.channel")}
-                </label>
-                <input
-                  value={channelName}
-                  onChange={(e) => setChannelName(e.target.value)}
-                  placeholder={t("placeholders.channel")}
-                  className="
-                    w-full min-w-0
-                    rounded-2xl border border-slate-400 bg-neutral-50
-                    px-3 py-2 text-sm
-                    focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-                    dark:border-white/30 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
-                  "
-                />
-              </div>
-            </div>
-
-            {/* Thumbnail */}
-            <div className="grid gap-1.5 min-w-0">
-              <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-100">
-                {t("fields.thumbnail")}
-              </label>
-
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 min-w-0">
-                <div
-                  className="
-                    h-16 w-28 rounded-2xl overflow-hidden
-                    border border-slate-400 bg-neutral-50
-                    dark:border-white/30 dark:bg-white/5
-                    flex-shrink-0
-                  "
-                >
-                  {thumbnailUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={thumbnailUrl}
-                      alt="thumbnail"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="h-full w-full flex items-center justify-center text-[11px] text-neutral-400 dark:text-white/40">
-                      {t("thumbnail.empty")}
+            {detailsExpanded ? (
+              <>
+                {/* Title + Channel */}
+                <div className="grid md:grid-cols-2 gap-3 min-w-0">
+                  <div className="grid gap-1.5 min-w-0">
+                    <div className="flex items-center justify-between gap-2 min-w-0">
+                      <label className="text-[17px] font-bold text-neutral-800 dark:text-neutral-100">
+                        {t("fields.title")} <span className="text-rose-500">*</span>
+                      </label>
+                      <span className="text-[14px] font-semibold text-neutral-500 dark:text-white/60 flex-shrink-0">
+                        {titleCounter}
+                      </span>
                     </div>
-                  )}
+
+                    <input
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value.slice(0, 200))}
+                      placeholder={t("placeholders.title")}
+                      className={`
+                        w-full min-w-0
+                        rounded-2xl border bg-neutral-50 px-3 py-2.5 text-[15px]
+                        focus:outline-none focus:ring-2
+                        dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
+                        ${
+                          titleError
+                            ? "border-rose-300 focus:border-rose-400 focus:ring-rose-300/50 dark:border-rose-500/50"
+                            : "border-slate-400 focus:border-blue-400 focus:ring-blue-300/60 dark:border-white/30"
+                        }
+                      `}
+                    />
+                    {titleError && (
+                      <p className="text-[15px] leading-6 font-medium text-rose-600 dark:text-rose-300 break-words">
+                        {titleError}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="grid gap-1.5 min-w-0">
+                    <label className="text-[17px] font-bold text-neutral-800 dark:text-neutral-100">
+                      {t("fields.channel")}
+                    </label>
+                    <input
+                      value={channelName}
+                      onChange={(e) => setChannelName(e.target.value)}
+                      placeholder={t("placeholders.channel")}
+                      className="
+                        w-full min-w-0
+                        rounded-2xl border border-slate-400 bg-neutral-50
+                        px-3 py-2.5 text-[15px]
+                        focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
+                        dark:border-white/30 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
+                      "
+                    />
+                  </div>
                 </div>
 
-                <div className="flex-1 grid gap-2 min-w-0">
-                  <input
-                    value={thumbnailUrl}
-                    onChange={(e) => {
-                      setThumbnailUrl(e.target.value);
-                      // URL 직접 수정하면 파일 업로드 상태는 해제(충돌 방지)
-                      clearManualUploadState();
-                    }}
-                    placeholder={t("placeholders.thumbnailUrl")}
+                {/* Thumbnail */}
+                <div className="grid gap-1.5 min-w-0">
+                  <label className="text-[17px] font-bold text-neutral-800 dark:text-neutral-100">
+                    {t("fields.thumbnail")}
+                  </label>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 min-w-0">
+                    <div
+                      className="
+                        h-16 w-28 rounded-2xl overflow-hidden
+                        border border-slate-400 bg-neutral-50
+                        dark:border-white/30 dark:bg-white/5
+                        flex-shrink-0
+                      "
+                    >
+                      {thumbnailUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={thumbnailUrl}
+                          alt="thumbnail"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-[14px] font-medium text-neutral-400 dark:text-white/40">
+                          {t("thumbnail.empty")}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 grid gap-2 min-w-0">
+                      <input
+                        value={thumbnailUrl}
+                        onChange={(e) => {
+                          setThumbnailUrl(e.target.value);
+                          clearManualUploadState();
+                        }}
+                        placeholder={t("placeholders.thumbnailUrl")}
+                        className="
+                          w-full min-w-0
+                          rounded-2xl border border-slate-400 bg-neutral-50
+                          px-3 py-2.5 text-[15px]
+                          focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
+                          dark:border-white/30 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
+                        "
+                      />
+
+                      <div className="flex items-center gap-2 min-w-0">
+                        <label
+                          className="
+                            inline-flex items-center gap-2 cursor-pointer
+                            rounded-2xl px-3 py-2.5 text-[15px] font-bold
+                            border border-slate-400 bg-white hover:bg-neutral-50
+                            dark:border-white/30 dark:bg-white/6 dark:text-white dark:hover:bg-white/10
+                            whitespace-nowrap
+                          "
+                        >
+                          <Icon icon="mdi:upload" className="h-4 w-4" />
+                          {t("buttons.uploadThumbnail")}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) =>
+                              handlePickThumbFile(e.target.files?.[0] ?? null)
+                            }
+                          />
+                        </label>
+
+                        {isUploadingThumb && (
+                          <span className="text-[15px] font-medium text-neutral-500 dark:text-white/60">
+                            {t("status.uploading")}
+                          </span>
+                        )}
+                      </div>
+
+                      {thumbUploadError && (
+                        <p className="text-[15px] leading-6 font-medium text-rose-600 dark:text-rose-300 break-words">
+                          {thumbUploadError}
+                        </p>
+                      )}
+
+                      {thumbFile && !thumbUploadError && (
+                        <p className="text-[15px] leading-6 font-medium text-neutral-500 dark:text-white/60 break-words">
+                          {t("thumbnail.uploadHint")}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tags */}
+                <div className="grid gap-1.5 min-w-0">
+                  <label className="text-[17px] font-bold text-neutral-800 dark:text-neutral-100">
+                    {t("fields.tags")}
+                  </label>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-wrap gap-2 rounded-2xl border border-slate-400 bg-neutral-50 px-3 py-2.5 text-[15px] text-neutral-900 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-300/60 dark:border-white/30 dark:bg-white/5 dark:text-white dark:focus-within:border-white dark:focus-within:ring-white/20">
+                      {tagItems.map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-slate-400 bg-white px-3 py-1.5 text-[15px] font-semibold text-neutral-700 dark:border-white/20 dark:bg-white/[0.08] dark:text-white/85"
+                        >
+                          #{tag}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setTagItems((prev) => prev.filter((item) => item !== tag))
+                            }
+                            className="text-neutral-400 hover:text-neutral-700 dark:text-white/50 dark:hover:text-white"
+                            aria-label={t("tags.removeTagAria")}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                      <input
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onCompositionStart={() => setTagComposing(true)}
+                        onCompositionEnd={() => setTagComposing(false)}
+                        onKeyDown={(e) => {
+                          if (tagComposing || e.nativeEvent.isComposing) return;
+                          if (e.key !== "Enter" && e.key !== ",") return;
+                          e.preventDefault();
+                          handleAddTag();
+                        }}
+                        placeholder={t("tags.addTagPlaceholder")}
+                        className="min-w-[140px] flex-1 border-0 bg-transparent px-0 py-0 text-[16px] text-neutral-900 placeholder:text-neutral-400 focus:outline-none dark:text-white dark:placeholder:text-white/40"
+                      />
+                    </div>
+
+                    <p className="text-[14px] font-medium text-neutral-500 dark:text-white/60">
+                      {t("tags.enterHint")}
+                    </p>
+
+                    {tagSuggestions.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {tagSuggestions.map((tag) => (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() =>
+                              setTagItems((prev) =>
+                                normalizeTags(prev.includes(tag) ? prev : [...prev, tag])
+                              )
+                            }
+                            className="rounded-full border border-blue-300 bg-blue-50 px-3 py-1.5 text-[14px] font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-400/30 dark:bg-blue-500/10 dark:text-blue-200 dark:hover:bg-blue-500/20"
+                          >
+                            #{tag}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={() => setTagPickerOpen((prev) => !prev)}
+                        className="inline-flex items-center gap-1.5 text-[16px] font-bold text-blue-700 hover:text-blue-800 dark:text-[rgb(var(--hero-b))] dark:hover:text-[rgb(var(--hero-a))]"
+                      >
+                        {t("tags.addFromExisting")}
+                        <Icon
+                          icon="mdi:chevron-down"
+                          className={`h-4.5 w-4.5 transition-transform ${tagPickerOpen ? "rotate-180" : ""}`}
+                        />
+                      </button>
+                      <span className="text-[15px] font-semibold text-neutral-500 dark:text-white/50">
+                        {t("tags.selectedCount", { count: tagItems.length })}
+                      </span>
+                    </div>
+
+                    {tagPickerOpen && (
+                      <div className="rounded-2xl border border-slate-400 bg-white p-3 text-[15px] text-neutral-700 shadow-sm dark:border-white/30 dark:bg-white/[0.08] dark:text-white/80">
+                        <input
+                          value={tagSearchTerm}
+                          onChange={(e) => setTagSearchTerm(e.target.value)}
+                          placeholder={t("tags.searchPlaceholder")}
+                          className="w-full rounded-full border border-slate-400 bg-white px-3 py-2.5 text-[16px] text-neutral-700 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none dark:border-white/30 dark:bg-white/[0.08] dark:text-white dark:placeholder:text-white/40 dark:focus:border-white"
+                        />
+                        <div className="mt-2 max-h-40 overflow-y-auto">
+                          <div className="flex flex-wrap gap-2">
+                            {tagPickerCandidates.length === 0 ? (
+                              <span className="text-[15px] font-medium text-neutral-400 dark:text-white/50">
+                                {t("tags.noTagsToAdd")}
+                              </span>
+                            ) : (
+                              tagPickerCandidates.map((tag) => (
+                                <button
+                                  key={tag}
+                                  type="button"
+                                  onClick={() =>
+                                    setTagItems((prev) => normalizeTags([...prev, tag]))
+                                  }
+                                  className="rounded-full border border-slate-400 bg-white px-3 py-1.5 text-[15px] text-neutral-700 hover:bg-neutral-100 dark:border-white/30 dark:bg-white/[0.08] dark:text-white/80 dark:hover:bg-white/10"
+                                >
+                                  #{tag}
+                                </button>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="grid gap-1.5 min-w-0">
+                  <label className="text-[17px] font-bold text-neutral-800 dark:text-neutral-100">
+                    {t("fields.description")}
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder={t("placeholders.description")}
                     className="
                       w-full min-w-0
-                      rounded-2xl border border-slate-400 bg-neutral-50
-                      px-3 py-2 text-sm
+                      min-h-[110px] resize-y rounded-2xl
+                      border border-slate-400 bg-neutral-50
+                      px-3 py-2.5 text-[15px] placeholder:text-[15px]
                       focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
                       dark:border-white/30 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
                     "
                   />
-
-                  <div className="flex items-center gap-2 min-w-0">
-                    <label
-                      className="
-                        inline-flex items-center gap-2 cursor-pointer
-                        rounded-2xl px-3 py-2 text-sm font-semibold
-                        border border-slate-400 bg-white hover:bg-neutral-50
-                        dark:border-white/30 dark:bg-white/6 dark:text-white dark:hover:bg-white/10
-                        whitespace-nowrap
-                      "
-                    >
-                      <Icon icon="mdi:upload" className="h-4 w-4" />
-                      {t("buttons.uploadThumbnail")}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) =>
-                          handlePickThumbFile(e.target.files?.[0] ?? null)
-                        }
-                      />
-                    </label>
-
-                    {isUploadingThumb && (
-                      <span className="text-[12px] text-neutral-500 dark:text-white/60">
-                        {t("status.uploading")}
-                      </span>
-                    )}
-                  </div>
-
-                  {thumbUploadError && (
-                    <p className="text-[12px] text-rose-600 dark:text-rose-300 break-words">
-                      {thumbUploadError}
-                    </p>
-                  )}
-
-                  {thumbFile && !thumbUploadError && (
-                    <p className="text-[11px] text-neutral-500 dark:text-white/60 break-words">
-                      {t("thumbnail.uploadHint")}
-                    </p>
-                  )}
                 </div>
-              </div>
-            </div>
-
-            {/* Tags */}
-            <div className="grid gap-1.5 min-w-0">
-              <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-100">
-                {t("fields.tags")}
-              </label>
-              <input
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                placeholder={t("placeholders.tags")}
-                className="
-                  w-full min-w-0
-                  rounded-2xl border border-slate-400 bg-neutral-50
-                  px-3 py-2 text-sm
-                  focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-                  dark:border-white/30 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
-                "
-              />
-              <p className="text-[11px] text-neutral-500 dark:text-white/60 break-words">
-                {t("hints.tags")}
-              </p>
-            </div>
-
-            {/* Description */}
-            <div className="grid gap-1.5 min-w-0">
-              <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-100">
-                {t("fields.description")}
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder={t("placeholders.description")}
-                className="
-                  w-full min-w-0
-                  min-h-[110px] resize-y rounded-2xl
-                  border border-slate-400 bg-neutral-50
-                  px-3 py-2 text-sm
-                  focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60
-                  dark:border-white/30 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
-                "
-              />
-            </div>
+              </>
+            ) : null}
           </div>
 
           {/* footer */}
@@ -625,16 +843,12 @@ export default function MetadataDialog({
             "
           >
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-            <div className="text-xs font-medium text-neutral-600 dark:text-white/70 break-words">
-              {t("footerHint")}
-            </div>
-
             <button
               onClick={handleTryClose}
               disabled={isBusy}
               className="
                 w-full sm:w-auto sm:ml-auto
-                rounded-2xl border border-slate-400 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-800
+                rounded-2xl border border-slate-400 bg-white px-4 py-3 text-[15px] font-bold text-neutral-800
                 hover:bg-neutral-100
                 dark:border-white/20 dark:bg-white/[0.04] dark:text-white dark:hover:bg-white/10
                 disabled:opacity-50 disabled:cursor-not-allowed
@@ -648,7 +862,7 @@ export default function MetadataDialog({
               disabled={isBusy}
                 className="
                   w-full sm:w-auto
-                  rounded-2xl px-4 py-2.5 text-sm font-semibold text-white
+                  rounded-2xl px-4 py-3 text-[15px] font-bold text-white
                   bg-blue-600 hover:bg-blue-700
                   shadow-[0_12px_30px_-18px_rgba(37,99,235,0.9)]
                   dark:bg-[rgb(var(--hero-b))] dark:text-[#081120] dark:hover:bg-[rgb(var(--hero-a))]

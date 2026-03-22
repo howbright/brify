@@ -77,13 +77,13 @@ export default function TermsBlock({
   return (
     <div className="flex flex-col gap-3">
       {helperText?.trim() ? (
-        <div className="text-xs text-neutral-500 dark:text-white/60">
+        <div className="text-[14px] leading-6 text-neutral-500 dark:text-white/60">
           {helperText}
         </div>
       ) : null}
 
       {loading ? (
-        <div className="rounded-2xl border border-slate-400 bg-neutral-50 p-4 text-sm text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/75">
+        <div className="rounded-2xl border border-slate-400 bg-neutral-50 p-4 text-[15px] leading-6 text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/75">
           <div className="flex items-center gap-2">
             <span className="inline-flex h-2.5 w-2.5 animate-pulse rounded-full bg-blue-400" />
             {t("loading")}
@@ -95,7 +95,7 @@ export default function TermsBlock({
       ) : null}
 
       {error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-[14px] leading-6 text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
           {error}
         </div>
       ) : null}
@@ -110,27 +110,27 @@ export default function TermsBlock({
                 group inline-flex w-full items-center justify-between gap-2
                 rounded-2xl border border-slate-400
                 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500
-                px-3 py-2 text-xs font-semibold text-white
+                px-4 py-3 text-[15px] font-semibold text-white
                 shadow-[0_10px_30px_rgba(59,130,246,0.25)]
                 hover:shadow-[0_14px_40px_rgba(79,70,229,0.45)]
                 transition-all duration-150
               "
             >
               <span className="inline-flex items-center gap-2">
-                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-white/50 bg-white/15 shadow-sm">
-                  <Icon icon="mdi:form-textbox" className="h-3.5 w-3.5" />
+                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-white/50 bg-white/15 shadow-sm">
+                  <Icon icon="mdi:form-textbox" className="h-4 w-4" />
                 </span>
                 {t("customInline.toggle")}
               </span>
-              <Icon icon="mdi:chevron-up" className="h-4 w-4 opacity-90" />
+              <Icon icon="mdi:chevron-up" className="h-5 w-5 opacity-90" />
             </button>
 
             {customInlineOpen && (
               <div className="mt-3 rounded-2xl border border-slate-400 bg-white p-3 shadow-[0_8px_24px_rgba(59,130,246,0.12)] dark:border-white/20 dark:bg-[#0b1220]">
-                <div className="text-xs font-semibold text-neutral-900 dark:text-white">
+                <div className="text-[15px] font-semibold text-neutral-900 dark:text-white">
                   {t("customInline.title")}
                 </div>
-                <div className="mt-1 text-xs text-neutral-600 dark:text-white/70">
+                <div className="mt-1 text-[14px] leading-6 text-neutral-600 dark:text-white/70">
                   {t("customInline.description")}
                 </div>
                 <input
@@ -145,7 +145,7 @@ export default function TermsBlock({
                   placeholder={t("customInline.placeholder")}
                   className="
                     mt-3 w-full rounded-2xl border border-slate-400 bg-white px-3 py-2
-                    text-sm text-neutral-900 placeholder:text-neutral-400
+                    text-[15px] text-neutral-900 placeholder:text-neutral-400
                     outline-none focus:ring-2 focus:ring-blue-200
                     dark:border-white/20 dark:bg-white/[0.06]
                     dark:text-white dark:placeholder:text-white/35
@@ -154,7 +154,7 @@ export default function TermsBlock({
                 />
                 <div className="mt-3 flex items-center justify-between">
                   {usedCount > 0 ? (
-                    <div className="text-[11px] text-neutral-500 dark:text-white/50">
+                    <div className="text-[13px] text-neutral-500 dark:text-white/50">
                       {t("usedCount", { count: usedCount })}
                     </div>
                   ) : (
@@ -167,13 +167,13 @@ export default function TermsBlock({
                     className="
                       inline-flex items-center gap-1.5 rounded-2xl
                       border border-slate-400 bg-blue-600 px-3 py-2
-                      text-xs font-semibold text-white
+                      text-[14px] font-semibold text-white
                       hover:bg-blue-700
                       disabled:cursor-not-allowed disabled:opacity-60
                       dark:border-white/20 dark:bg-blue-500
                     "
                   >
-                    <Icon icon="mdi:send" className="h-4 w-4" />
+                    <Icon icon="mdi:send" className="h-5 w-5" />
                     {t("customInline.submit")}
                   </button>
                 </div>
@@ -206,7 +206,7 @@ export default function TermsBlock({
                     <Icon icon="mdi:close" className="h-3.5 w-3.5" />
                   </button>
                 </div>
-                <div className="mt-1 text-sm text-neutral-700 dark:text-white/80">
+                <div className="mt-1 text-[15px] leading-6 text-neutral-700 dark:text-white/80">
                   {x.meaning}
                 </div>
               </div>
@@ -222,7 +222,7 @@ export default function TermsBlock({
           onClick={handleOpen}
           className="
             group inline-flex items-center gap-2
-            rounded-2xl px-3 py-2 text-xs font-semibold
+            rounded-2xl px-4 py-3 text-[15px] font-semibold
             text-white
             bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500
             shadow-[0_10px_30px_rgba(37,99,235,0.30)]
@@ -240,7 +240,7 @@ export default function TermsBlock({
 
       {!hasTerms && !loading && pickerOpen && (
         <div className="rounded-2xl border border-slate-400 bg-white p-3 dark:border-white/20 dark:bg-white/[0.06]">
-          <div className="text-xs font-semibold text-neutral-900 dark:text-white">
+          <div className="text-[18px] font-bold text-neutral-900 dark:text-white">
             {t("picker.title")}
           </div>
           <div className="mt-2 flex flex-col gap-2">
@@ -254,11 +254,11 @@ export default function TermsBlock({
                   : "border-slate-400 bg-neutral-50 text-neutral-700 hover:bg-neutral-100 dark:border-white/20 dark:bg-white/[0.04] dark:text-white/80 dark:hover:bg-white/[0.08]",
               ].join(" ")}
             >
-              <div className="flex items-center gap-2 font-semibold">
-                <Icon icon="mdi:auto-fix" className="h-4 w-4" />
+              <div className="flex items-center gap-2 text-[15px] font-semibold">
+                <Icon icon="mdi:auto-fix" className="h-5 w-5" />
                 {t("picker.auto.title")}
               </div>
-              <div className="mt-1 text-xs text-neutral-600 dark:text-white/60">
+              <div className="mt-1 text-[14px] leading-6 text-neutral-600 dark:text-white/60">
                 {t("picker.auto.description")}
               </div>
             </button>
@@ -273,11 +273,11 @@ export default function TermsBlock({
                   : "border-slate-400 bg-neutral-50 text-neutral-700 hover:bg-neutral-100 dark:border-white/20 dark:bg-white/[0.04] dark:text-white/80 dark:hover:bg-white/[0.08]",
               ].join(" ")}
             >
-              <div className="flex items-center gap-2 font-semibold">
-                <Icon icon="mdi:form-textbox" className="h-4 w-4" />
+              <div className="flex items-center gap-2 text-[15px] font-semibold">
+                <Icon icon="mdi:form-textbox" className="h-5 w-5" />
                 {t("picker.custom.title")}
               </div>
-              <div className="mt-1 text-xs text-neutral-600 dark:text-white/60">
+              <div className="mt-1 text-[14px] leading-6 text-neutral-600 dark:text-white/60">
                 {t("picker.custom.description")}
               </div>
             </button>
@@ -296,7 +296,7 @@ export default function TermsBlock({
               placeholder={t("picker.custom.placeholder")}
               className="
                 mt-2 w-full rounded-2xl border border-slate-400 bg-white px-3 py-2
-                text-sm text-neutral-900 placeholder:text-neutral-400
+                text-[15px] text-neutral-900 placeholder:text-neutral-400
                 dark:border-white/20 dark:bg-white/[0.06]
                 dark:text-white dark:placeholder:text-white/35
               "
@@ -307,7 +307,7 @@ export default function TermsBlock({
             <button
               type="button"
               onClick={() => setPickerOpen(false)}
-              className="text-xs font-semibold text-neutral-500 hover:text-neutral-700 dark:text-white/60 dark:hover:text-white/85"
+              className="text-[14px] font-semibold text-neutral-500 hover:text-neutral-700 dark:text-white/60 dark:hover:text-white/85"
             >
               {t("picker.cancel")}
             </button>
@@ -318,18 +318,18 @@ export default function TermsBlock({
               className="
                 inline-flex items-center gap-1.5 rounded-2xl
                 border border-slate-400 bg-blue-600 px-3 py-2
-                text-xs font-semibold text-white
+                text-[14px] font-semibold text-white
                 hover:bg-blue-700
                 disabled:cursor-not-allowed disabled:opacity-60
                 dark:border-white/20 dark:bg-blue-500
               "
             >
-              <Icon icon={mode === "custom" ? "mdi:send" : "mdi:sparkles"} className="h-4 w-4" />
+              <Icon icon={mode === "custom" ? "mdi:send" : "mdi:sparkles"} className="h-5 w-5" />
               {t("picker.submit")}
             </button>
           </div>
           {usedCount > 0 ? (
-            <div className="mt-2 text-[11px] text-neutral-500 dark:text-white/50">
+            <div className="mt-2 text-[13px] text-neutral-500 dark:text-white/50">
               {t("usedCount", { count: usedCount })}
             </div>
           ) : null}
