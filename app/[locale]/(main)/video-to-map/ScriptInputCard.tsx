@@ -14,7 +14,8 @@ type Props = {
   onGenerate: () => void;
 
   // ✅ 유튜브 모달 열기
-  onOpenYoutubeDialog: () => void;
+  onOpenYoutubeDialog?: () => void;
+  showYoutubeHelpButton?: boolean;
 
   // ✅ 출력 언어 state (부모에서 관리)
   outputLang: string;
@@ -40,6 +41,7 @@ export default function ScriptInputCard({
   requiredCredits,
   onGenerate,
   onOpenYoutubeDialog,
+  showYoutubeHelpButton = true,
   outputLang,
   setOutputLang,
   disabled = false,
@@ -109,22 +111,24 @@ export default function ScriptInputCard({
           </h2>
         </div>
 
-        <button
-          type="button"
-          onClick={onOpenYoutubeDialog}
-          disabled={locked}
-          className="
-            inline-flex items-center gap-1.5
-            rounded-full border border-slate-400 bg-white
-            px-3 py-1.5 text-sm font-semibold text-neutral-800
-            hover:bg-slate-100
-            dark:border-white/30 dark:bg-white/[0.08] dark:text-neutral-100 dark:hover:bg-white/[0.12]
-            disabled:opacity-60 disabled:cursor-not-allowed
-          "
-        >
-          <Icon icon="mdi:youtube" className="h-4.5 w-4.5 text-red-500" />
-          {t("youtubeHelp")}
-        </button>
+        {showYoutubeHelpButton && onOpenYoutubeDialog ? (
+          <button
+            type="button"
+            onClick={onOpenYoutubeDialog}
+            disabled={locked}
+            className="
+              inline-flex items-center gap-1.5
+              rounded-full border border-slate-400 bg-white
+              px-3 py-1.5 text-sm font-semibold text-neutral-800
+              hover:bg-slate-100
+              dark:border-white/30 dark:bg-white/[0.08] dark:text-neutral-100 dark:hover:bg-white/[0.12]
+              disabled:opacity-60 disabled:cursor-not-allowed
+            "
+          >
+            <Icon icon="mdi:youtube" className="h-4.5 w-4.5 text-red-500" />
+            {t("youtubeHelp")}
+          </button>
+        ) : null}
       </div>
 
       {/* ✅ 한도 초과 배너 (잠금과 무관하게 표시) */}

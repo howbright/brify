@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import ScriptInputCard from "@/app/[locale]/(main)/video-to-map/ScriptInputCard";
 import DraftMapCard from "@/app/[locale]/(main)/video-to-map/DraftMapCard";
-import YoutubeScriptDialog from "@/app/[locale]/(main)/video-to-map/YoutubeScriptDialog";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 import { brifyDemoSample } from "@/app/lib/demo/brifyDemoSample";
 import DemoFullscreenDialog from "@/components/demo/DemoFullscreenDialog";
@@ -43,7 +42,6 @@ export default function DemoPage() {
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [drafts, setDrafts] = useState<MapDraft[]>([]);
-  const [showYoutubeDialog, setShowYoutubeDialog] = useState(false);
   const [openDraft, setOpenDraft] = useState<MapDraft | null>(null);
   const [showFullscreen, setShowFullscreen] = useState(false);
   const processingTimerRef = useRef<number | null>(null);
@@ -169,7 +167,7 @@ export default function DemoPage() {
             currentCredits={DEMO_CREDITS}
             requiredCredits={requiredCredits}
             onGenerate={handleGenerate}
-            onOpenYoutubeDialog={() => setShowYoutubeDialog(true)}
+            showYoutubeHelpButton={false}
             outputLang={outputLang}
             setOutputLang={handleDemoLanguageChange}
             isTooLarge={false}
@@ -200,11 +198,6 @@ export default function DemoPage() {
           </section>
         )}
       </div>
-
-      <YoutubeScriptDialog
-        open={showYoutubeDialog}
-        onClose={() => setShowYoutubeDialog(false)}
-      />
 
       <DemoFullscreenDialog
         open={showFullscreen}

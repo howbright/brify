@@ -163,7 +163,7 @@ export default function LandingBlueHero() {
   const safeIdx = titles.length ? idx % titles.length : 0;
 
   return (
-    <main className="relative w-full overflow-hidden pt-14 md:min-h-[88vh]">
+    <main className="relative w-full overflow-hidden pt-14">
       {/* background */}
       <div
         className="
@@ -222,7 +222,7 @@ export default function LandingBlueHero() {
         "
       />
 
-      <section className="mx-auto grid max-w-7xl items-start gap-10 px-6 py-10 md:grid-cols-2 md:items-center md:gap-14 md:px-10 md:py-14 lg:py-16">
+      <section className="mx-auto grid max-w-7xl items-start gap-10 px-6 py-10 md:grid-cols-2 md:items-start md:gap-14 md:px-10 md:pt-[108px] md:pb-12 lg:pt-[116px] lg:pb-14">
         {/* LEFT */}
         <div>
           <div className="text-sm md:text-base font-semibold text-neutral-700 dark:text-neutral-200">
@@ -289,7 +289,7 @@ export default function LandingBlueHero() {
             </motion.button>
           </div>
 
-          <p className="mt-4 max-w-2xl text-[15px] font-semibold leading-6 text-slate-700 dark:text-slate-200">
+          <p className="mt-4 max-w-2xl text-[17px] font-semibold leading-7 text-slate-700 dark:text-slate-200 md:text-[19px] md:leading-8">
             {t("helper")}
           </p>
 
@@ -372,7 +372,7 @@ export default function LandingBlueHero() {
                       className="h-5 w-5"
                     />
                   </span>
-                  <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                  <span className="text-[15px] font-semibold leading-6 text-neutral-900 dark:text-neutral-100 md:text-[17px] md:leading-7">
                     {text}
                   </span>
                 </motion.div>
