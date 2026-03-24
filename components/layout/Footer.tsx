@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 
@@ -32,6 +32,10 @@ function FooterLink({ href, label }: { href: string; label: string }) {
 
 export default function Footer() {
   const t = useTranslations("Footer");
+  const locale = useLocale();
+  const contactEmailLabel = locale === "ko" ? "이메일" : "Email";
+  const contactPhoneLabel = locale === "ko" ? "전화" : "Phone";
+  const contactAddressLabel = locale === "ko" ? "주소" : "Address";
 
   return (
     <footer
@@ -91,13 +95,13 @@ export default function Footer() {
             </div>
             <div className="mt-4 space-y-2 text-[14px] font-medium text-slate-500 dark:text-slate-400">
               <p>
-                {t("contactEmail")}: hello@brify.ai
+                {contactEmailLabel}: hello@brify.ai
               </p>
               <p>
-                {t("contactPhone")}: 031-701-0274
+                {contactPhoneLabel}: 031-701-0274
               </p>
               <p>
-                {t("contactAddress")}: {t("contact.address")}
+                {contactAddressLabel}: {t("contact.address")}
               </p>
             </div>
           </div>

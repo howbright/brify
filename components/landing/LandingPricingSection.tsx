@@ -2,29 +2,16 @@
 "use client";
 
 import PricingGrid, { Pack } from "@/components/pricing/PricingGrid";
+import { getBillingCatalog } from "@/app/lib/billing/catalog";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 type Props = {
   isAuthed: boolean;
-  packs?: Pack[]; // 안 넘기면 locale + paymentMode 기준 기본 팩 사용
+  packs?: Pack[];
 };
-
-type PaymentMode = "krw" | "usd";
-
-const KRW_PACKS: Pack[] = [
-  { id: "50_kr", credits: 50, priceUSD: 3500, starter: true },
-  { id: "150_kr", credits: 150, priceUSD: 9000, popular: true },
-  { id: "300_kr", credits: 300, priceUSD: 15000 },
-];
-
-const USD_PACKS: Pack[] = [
-  { id: "50_us", credits: 50, priceUSD: 3, starter: true },
-  { id: "150_us", credits: 150, priceUSD: 7, popular: true },
-  { id: "300_us", credits: 300, priceUSD: 12 },
-];
 
 function RibbonText({ text }: { text: string }) {
   return (
@@ -55,22 +42,20 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
   const locale = useLocale();
   const isKorean = locale === "ko";
 
-  const [paymentMode, setPaymentMode] = useState<PaymentMode>(
-    isKorean ? "krw" : "usd"
-  );
-
   const effectivePacks: Pack[] = useMemo(() => {
-    // packs를 외부에서 주면 토글 의미가 없으니 그대로 사용
     if (packs) return packs;
-    if (!isKorean) return USD_PACKS;
-    return paymentMode === "krw" ? KRW_PACKS : USD_PACKS;
-  }, [packs, isKorean, paymentMode]);
+    return getBillingCatalog(locale).map((pack) => ({
+      id: pack.id,
+      credits: pack.credits,
+      priceUSD: pack.price,
+      popular: pack.popular,
+      starter: pack.starter,
+    }));
+  }, [packs, locale]);
 
-  const currency = paymentMode === "usd" ? "usd" : "krw";
-
-  const signedInHref = `/billing?currency=${currency}`;
-  const signedOutHref = `/login?next=${encodeURIComponent(
-    `/billing?currency=${currency}`
+  const signedInHref = `/${locale}/billing`;
+  const signedOutHref = `/${locale}/login?next=${encodeURIComponent(
+    `/${locale}/billing`
   )}`;
 
   return (
@@ -178,15 +163,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
               variant="compact"
               showFooterNote={false}
               showReassurance={false}
-              billingCurrency={paymentMode === "usd" ? "USD" : "KRW"}
-              // ✅ 토글을 PricingGrid가 렌더하도록 넘겨줌
-              showCurrencyToggle={isKorean && !packs}
-              paymentMode={paymentMode}
-              onPaymentModeChange={setPaymentMode}
-              currencyLabels={{
-                krw: t("paymentToggle.krw"),
-                usd: t("paymentToggle.usd"),
-              }}
+              billingCurrency={isKorean ? "KRW" : "USD"}
             />
           </div>
         </motion.div>

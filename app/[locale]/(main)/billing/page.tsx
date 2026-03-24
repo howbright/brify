@@ -7,18 +7,11 @@ import Script from "next/script";
 import { useSession } from "@/components/SessionProvider";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-
-type Currency = "krw" | "usd";
-
-type CreditPack = {
-  id: string;
-  credits: number;
-  price: number; // 원 또는 달러
-  currency: Currency;
-  checkoutUrl: string;
-  popular?: boolean;
-  starter?: boolean;
-};
+import {
+  getBillingCatalog,
+  type BillingCatalogItem,
+  type BillingCurrency,
+} from "@/app/lib/billing/catalog";
 
 type BalanceResponse = {
   total: number;
@@ -26,60 +19,7 @@ type BalanceResponse = {
   free: number;
 };
 
-const PACKS_BY_CURRENCY: Record<Currency, CreditPack[]> = {
-  krw: [
-    {
-      id: "50_kr",
-      credits: 50,
-      price: 3500,
-      currency: "krw",
-      starter: true,
-      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT || "#",
-    },
-    {
-      id: "150_kr",
-      credits: 150,
-      price: 9000,
-      currency: "krw",
-      popular: true,
-      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT || "#",
-    },
-    {
-      id: "300_kr",
-      credits: 300,
-      price: 15000,
-      currency: "krw",
-      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT || "#",
-    },
-  ],
-  usd: [
-    {
-      id: "50_us",
-      credits: 50,
-      price: 3,
-      currency: "usd",
-      starter: true,
-      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT || "#",
-    },
-    {
-      id: "150_us",
-      credits: 150,
-      price: 7,
-      currency: "usd",
-      popular: true,
-      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT || "#",
-    },
-    {
-      id: "300_us",
-      credits: 300,
-      price: 12,
-      currency: "usd",
-      checkoutUrl: process.env.NEXT_PUBLIC_LEMON_CHECKOUT || "#",
-    },
-  ],
-};
-
-function formatPrice(amount: number, currency: Currency) {
+function formatPrice(amount: number, currency: BillingCurrency) {
   if (currency === "krw") {
     return new Intl.NumberFormat("ko-KR", {
       style: "currency",
@@ -99,7 +39,6 @@ export default function BillingPage() {
   const router = useRouter();
   const locale = useLocale();
   const isKorean = locale === "ko";
-  const currency: Currency = isKorean ? "krw" : "usd";
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
   const [openFaq, setOpenFaq] = useState<"q2" | "q3" | "q4" | null>(null);
 
@@ -147,11 +86,7 @@ export default function BillingPage() {
     };
   }, [session, router, locale]);
 
-  const packs = useMemo(
-    () =>
-      [...PACKS_BY_CURRENCY[currency]].sort((a, b) => a.credits - b.credits),
-    [currency]
-  );
+  const packs = useMemo(() => getBillingCatalog(locale), [locale]);
 
   const refundPolicyHref = `/${locale}/refund-policy`;
   const billingHistoryHref = `/${locale}/billing/history`;
@@ -410,16 +345,21 @@ function CreditPackCard({
   userId,
   locale,
 }: {
-  pack: CreditPack;
+  pack: BillingCatalogItem;
   userId: string | null;
   locale: string;
 }) {
   const t = useTranslations("BillingPage");
-  const { credits, price, currency, checkoutUrl, popular, starter } = pack;
+  const { credits, price, currency, checkoutUrl, popular, starter, provider } = pack;
   const router = useRouter();
 
   const handleBuy = () => {
-    if (!checkoutUrl || checkoutUrl === "#") {
+    if (provider === "toss") {
+      alert("토스 결제 연결은 다음 단계에서 이어서 구현할게요.");
+      return;
+    }
+
+    if (!checkoutUrl) {
       alert("Checkout URL이 설정되지 않았어요.");
       return;
     }
