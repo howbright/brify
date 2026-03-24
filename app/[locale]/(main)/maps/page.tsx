@@ -921,7 +921,6 @@ export default function MapsPage() {
       );
       setTagOptions((prev) => prev.filter((tag) => tag.name !== tagName));
       setRecentTagOptions((prev) => prev.filter((tag) => tag.name !== tagName));
-      setManualTags((prev) => prev.filter((name) => name !== tagName));
       setSelectedTagNames((prev) => prev.filter((name) => name !== tagName));
       toast.success(`#${tagName} 태그를 삭제했어요.`);
     } catch (e: any) {
