@@ -350,7 +350,7 @@
       "languageRestricted": "Only Korean and English are available in the demo.",
       "emptyScript": "The sample text is empty, so we can't create a Structure Map.",
       "success": "Your sample Structure Map is ready.",
-      "autoOpen": "All set. Opening your Structure Map now.",
+      "autoOpen": "Your Structure Map is ready. Opening the Structure Map page now.",
       "readOnly": "You can't edit the sample text on the demo page."
     }
   },
@@ -375,6 +375,12 @@
     "toasts": {
       "demoFinished": "The demo is over. Returning to the home page.",
       "editModeRequired": "Switch to Edit mode to modify nodes."
+    },
+    "shareDialog": {
+      "title": "This Structure Map is for demo only",
+      "description": "In the full service, you can share your Structure Map by link and view it together with others. Start using Brify to create a share link for your own map.",
+      "action": "Start Using Brify",
+      "cancel": "Close"
     },
     "tabs": {
       "info": "Info",
@@ -567,6 +573,7 @@
     "eyebrow": "Reviews",
     "title": "What people found especially useful",
     "featuredLabel": "Featured Review",
+    "cta": "Start using Brify",
     "items": {
       "one": {
         "quote": "Organizing stock-related YouTube information into a Structure Map helped me grasp the key points quickly and make decisions.",

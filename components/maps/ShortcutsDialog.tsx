@@ -12,13 +12,13 @@ export default function ShortcutsDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[220]">
+    <div className="fixed inset-0 z-[220] flex items-center justify-center p-3 sm:p-5">
       <div
         className="absolute inset-0 bg-black/45 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
-      <div className="absolute left-1/2 top-1/2 flex max-h-[80vh] w-[92vw] max-w-[520px] -translate-x-1/2 -translate-y-1/2 flex-col rounded-3xl border border-slate-400 bg-white p-5 shadow-[0_28px_90px_-40px_rgba(15,23,42,0.85)] dark:border-white/20 dark:bg-[#0F172A] dark:ring-1 dark:ring-white/16 dark:shadow-[0_34px_120px_-60px_rgba(0,0,0,0.95)]">
+      <div className="relative flex max-h-[calc(100dvh-24px)] w-full max-w-[520px] flex-col overflow-hidden rounded-3xl border border-slate-400 bg-white p-4 sm:max-h-[min(80vh,calc(100dvh-40px))] sm:w-[92vw] sm:p-5 shadow-[0_28px_90px_-40px_rgba(15,23,42,0.85)] dark:border-white/20 dark:bg-[#0F172A] dark:ring-1 dark:ring-white/16 dark:shadow-[0_34px_120px_-60px_rgba(0,0,0,0.95)]">
         <div
           className="
             pointer-events-none absolute inset-0 rounded-3xl

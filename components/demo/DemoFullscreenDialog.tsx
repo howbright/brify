@@ -13,6 +13,7 @@ import FullscreenHeader from "@/components/maps/FullscreenHeader";
 import MapControls from "@/components/maps/MapControls";
 import NoteItem, { type NoteItemData } from "@/components/maps/NoteItem";
 import TermsBlock from "@/components/maps/TermsBlock";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import MapTutorialOverlay, {
   type MapTutorialLanguage as DemoLanguage,
 } from "@/components/maps/tutorial/MapTutorialOverlay";
@@ -480,6 +481,7 @@ export default function DemoFullscreenDialog({
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
+  const [shareGuideOpen, setShareGuideOpen] = useState(false);
   const [themeName, setThemeName] = useState<string>(
     profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME
   );
@@ -503,7 +505,7 @@ export default function DemoFullscreenDialog({
     setTutorialOpen(!tutorialCompleted);
     setTutorialStepIndex(0);
     const timer = window.setTimeout(() => {
-      mindRef.current?.collapseToLevel?.(1);
+      mindRef.current?.collapseToLevel?.(2);
       mindRef.current?.centerMap?.();
       window.setTimeout(() => {
         mindRef.current?.zoomIn?.();
@@ -581,6 +583,10 @@ export default function DemoFullscreenDialog({
     router.push(`/${language}/video-to-map`);
   };
 
+  const handleOpenDemoShareGuide = () => {
+    setShareGuideOpen(true);
+  };
+
   return createPortal(
     <div className="fixed left-0 top-0 z-[120] h-screen w-screen max-w-none bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={title ?? t("dialog.title")}>
       <div className="relative h-full w-full overflow-hidden bg-white [--header-h:68px] dark:bg-[#0b1220]">
@@ -630,6 +636,8 @@ export default function DemoFullscreenDialog({
                 onCenterMap={() => mindRef.current?.centerMap?.()}
                 onZoomIn={() => mindRef.current?.zoomIn?.()}
                 onZoomOut={() => mindRef.current?.zoomOut?.()}
+                onPublish={() => {}}
+                onShare={handleOpenDemoShareGuide}
                 highlightEditToggle={tutorialOpen && tutorialStepIndex === 0}
                 modeToggleTutorialId="demo-mode-toggle"
                 editButtonTutorialId={DEMO_EDIT_BUTTON_ID}
@@ -749,6 +757,20 @@ export default function DemoFullscreenDialog({
               onSkip={() => setTutorialOpen(false)}
             />
           ) : null}
+
+          <ConfirmDialog
+            open={shareGuideOpen}
+            onOpenChange={setShareGuideOpen}
+            onConfirm={() => {
+              setShareGuideOpen(false);
+              handleStartService();
+            }}
+            title={t("shareDialog.title")}
+            description={t("shareDialog.description")}
+            actionLabel={t("shareDialog.action")}
+            cancelLabel={t("shareDialog.cancel")}
+            tone="primary"
+          />
         </div>
       </div>
     </div>,

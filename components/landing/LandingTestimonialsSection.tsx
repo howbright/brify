@@ -3,6 +3,7 @@
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 
 function ReviewCard({
   quote,
@@ -94,6 +95,16 @@ export default function LandingTestimonialsSection() {
             role={t("items.three.role")}
             index={2}
           />
+        </div>
+
+        <div className="mt-8 flex justify-center md:mt-10">
+          <Link
+            href="/video-to-map"
+            className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,#2563eb_0%,#0ea5e9_48%,#22c55e_100%)] px-6 py-3.5 text-[15px] font-extrabold tracking-[-0.01em] text-white shadow-[0_22px_48px_-22px_rgba(14,165,233,0.85)] transition-transform duration-200 hover:scale-[1.03] hover:brightness-[1.05] md:px-7 md:py-4 md:text-base"
+          >
+            <span>{t("cta")}</span>
+            <Icon icon="mdi:arrow-right" className="h-5 w-5" />
+          </Link>
         </div>
       </div>
     </section>
