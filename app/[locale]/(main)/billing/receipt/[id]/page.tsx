@@ -311,7 +311,7 @@ export default function BillingReceiptPage({
           <section className="mt-10">
             <div
               className="
-                rounded-3xl border border-neutral-200/80 bg-white/95 backdrop-blur p-5 sm:p-6 text-center
+                rounded-3xl border border-neutral-200/80 bg-white/95 p-5 sm:p-6 text-center
                 dark:bg-black/50 dark:border-white/18 dark:ring-1 dark:ring-white/5
               "
             >
@@ -343,7 +343,7 @@ export default function BillingReceiptPage({
             <section className="mt-8">
               <div
                 className="
-                  rounded-3xl border border-neutral-200/80 bg-white/95 backdrop-blur px-5 py-5 sm:px-6 sm:py-6
+                  rounded-3xl border border-neutral-200/80 bg-white/95 px-5 py-5 sm:px-6 sm:py-6
                   dark:bg-[#050816] dark:border-white/18 dark:ring-1 dark:ring-white/5
                 "
               >
@@ -392,7 +392,7 @@ export default function BillingReceiptPage({
               {/* 결제 정보 */}
               <div
                 className="
-                  rounded-3xl border border-neutral-200/80 bg-white/95 backdrop-blur p-4 sm:p-5
+                  rounded-3xl border border-neutral-200/80 bg-white/95 p-4 sm:p-5
                   dark:bg-[#050816] dark:border-white/18 dark:ring-1 dark:ring-white/5
                 "
               >
@@ -443,7 +443,7 @@ export default function BillingReceiptPage({
               {/* 크레딧 정보 */}
               <div
                 className="
-                  rounded-3xl border border-neutral-200/80 bg-white/95 backdrop-blur p-4 sm:p-5
+                  rounded-3xl border border-neutral-200/80 bg-white/95 p-4 sm:p-5
                   dark:bg-[#050816] dark:border-white/18 dark:ring-1 dark:ring-white/5
                 "
               >
@@ -485,7 +485,7 @@ export default function BillingReceiptPage({
             <section className="mt-10">
               <div
                 className="
-                  rounded-3xl border border-neutral-200/80 bg-white/90 backdrop-blur p-4 sm:p-5
+                  rounded-3xl border border-neutral-200/80 bg-white/90 p-4 sm:p-5
                   dark:bg-[#050816] dark:border-white/18 dark:ring-1 dark:ring-white/5
                 "
               >

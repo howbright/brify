@@ -125,8 +125,7 @@ export default function FinalCTA({
                   href={secondaryHref}
                   className="
                     px-5 py-3 rounded-2xl
-                    bg-white/[0.12] border border-white/30 text-white font-semibold
-                    backdrop-blur hover:-translate-y-0.5 hover:bg-white/[0.16] hover:shadow-md transition-all
+                    bg-white/[0.12] border border-white/30 text-white font-semibold hover:-translate-y-0.5 hover:bg-white/[0.16] hover:shadow-md transition-all
                     focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30
                   "
                 >

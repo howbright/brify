@@ -1056,7 +1056,7 @@ export default function MapDetailPage() {
             onClick={() => setEditMode((m) => (m === "view" ? "edit" : "view"))}
             className="
               inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
               dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
             "
             aria-label={editMode === "view" ? "편집 모드" : "보기 모드"}
@@ -1069,7 +1069,7 @@ export default function MapDetailPage() {
             onClick={() => setPanMode((v) => !v)}
             className="
               inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
               dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
             "
             aria-label={panMode ? "선택 모드" : "이동 모드"}
@@ -1082,7 +1082,7 @@ export default function MapDetailPage() {
             onClick={() => mindRef.current?.centerMap?.()}
             className="
               inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
               dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
             "
             aria-label="가운데로"
@@ -1095,7 +1095,7 @@ export default function MapDetailPage() {
             onClick={() => mindRef.current?.zoomIn?.()}
             className="
               inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
               dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
             "
             aria-label="확대"
@@ -1108,7 +1108,7 @@ export default function MapDetailPage() {
             onClick={() => mindRef.current?.zoomOut?.()}
             className="
               inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
               dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
             "
             aria-label="축소"
@@ -1122,7 +1122,7 @@ export default function MapDetailPage() {
             onClick={() => mindRef.current?.collapseAll?.()}
             className="
               inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
               dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
             "
             aria-label="전체 접기"
@@ -1137,7 +1137,7 @@ export default function MapDetailPage() {
               onClick={() => setMobileMapActionsOpen((v) => !v)}
               className="
                 inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+                border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
                 dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
               "
               aria-label="맵 조작"
@@ -1219,7 +1219,7 @@ export default function MapDetailPage() {
               onClick={() => setMobileThemeOpen((v) => !v)}
               className="
                 inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+                border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
                 dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
               "
               aria-label="테마"
@@ -1260,7 +1260,7 @@ export default function MapDetailPage() {
             onClick={handleExportPng}
             className="
               inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
               dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
             "
             aria-label="PNG 저장"
@@ -1277,7 +1277,7 @@ export default function MapDetailPage() {
             }}
             className="
               inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
               dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
             "
             aria-label="공유"
@@ -1293,7 +1293,7 @@ export default function MapDetailPage() {
             }}
             className="
               inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
               dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
             "
             aria-label="단축키"
@@ -1309,7 +1309,7 @@ export default function MapDetailPage() {
         <div className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(closest-side,black,transparent)] bg-[radial-gradient(900px_520px_at_50%_30%,rgba(59,130,246,0.10),transparent_62%)] dark:bg-[radial-gradient(900px_520px_at_50%_30%,rgba(56,189,248,0.10),transparent_62%)]" />
 
         <div className="absolute inset-0">
-          <div className="h-full w-full rounded-2xl border border-neutral-200/70 bg-white/65 backdrop-blur-sm shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="h-full w-full rounded-2xl border border-neutral-200/70 bg-white/65 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
             <ClientMindElixir
               ref={mindRef}
               mode={resolvedTheme === "dark" ? "dark" : "light"}
@@ -1402,7 +1402,7 @@ export default function MapDetailPage() {
                   className="
                     inline-flex items-center gap-1.5 rounded-full border border-neutral-200/70
                     bg-white/90 px-2 py-0.5 text-[11px] font-semibold text-neutral-600
-                    shadow-sm backdrop-blur hover:text-neutral-900
+                    shadow-sm hover:text-neutral-900
                     dark:border-white/10 dark:bg-[#0b1220]/80 dark:text-white/70 dark:hover:text-white
                   "
                 >

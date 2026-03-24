@@ -87,7 +87,7 @@ export default async function RootLayout({
             duration={2400}
             toastOptions={{
               className:
-                "rounded-2xl border border-slate-200/90 bg-slate-800/95 px-4 py-3 text-lg font-semibold leading-7 text-slate-50 shadow-[0_20px_45px_-22px_rgba(15,23,42,0.56)] backdrop-blur-md",
+                "rounded-2xl border border-slate-200/90 bg-slate-800/95 px-4 py-3 text-lg font-semibold leading-7 text-slate-50 shadow-[0_20px_45px_-22px_rgba(15,23,42,0.56)]",
               style: {
                 background: "rgba(30, 41, 59, 0.94)",
                 color: "#f8fafc",

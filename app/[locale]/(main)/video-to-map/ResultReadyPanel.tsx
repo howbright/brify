@@ -20,7 +20,6 @@ export default function ResultReadyPanel({
         relative overflow-hidden
         mt-1 rounded-3xl border border-neutral-200 bg-white
         shadow-[0_22px_45px_-24px_rgba(15,23,42,0.55)]
-        backdrop-blur-sm
         p-5 md:p-6
 
         /* ✅ dark: 페이지 배경(#020818)보다 한 톤 밝은 surface */

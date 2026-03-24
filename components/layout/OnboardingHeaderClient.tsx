@@ -13,8 +13,7 @@ export default function OnboardingHeaderClient({
   return (
     <header
       className="
-        fixed top-0 inset-x-0 z-40
-        backdrop-blur-md border-b border-black/5 dark:border-white/10
+        fixed top-0 inset-x-0 z-40 border-b border-black/5 dark:border-white/10
         bg-white/90 dark:bg-[#020617]/80
       "
       role="banner"

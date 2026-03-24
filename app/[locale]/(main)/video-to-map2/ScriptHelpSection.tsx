@@ -20,7 +20,6 @@ export default function ScriptHelpSection({
       className={`
         rounded-3xl border border-neutral-200 bg-white
         shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)]
-        backdrop-blur-sm
 
         dark:bg-[#0F172A]
         dark:border-white/10

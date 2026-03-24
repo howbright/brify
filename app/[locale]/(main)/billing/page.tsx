@@ -232,7 +232,7 @@ export default function BillingPage() {
 
         {/* 상단 헤더 영역 */}
         <header className="mx-auto max-w-5xl px-6 md:px-10 pt-20">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-3 py-1 text-[11px] font-medium text-neutral-700 shadow-sm backdrop-blur dark:bg-black/40 dark:border-white/15 dark:text-neutral-200">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-3 py-1 text-[11px] font-medium text-neutral-700 shadow-sm dark:bg-black/40 dark:border-white/15 dark:text-neutral-200">
             {t("badge")}
           </div>
 
@@ -254,7 +254,7 @@ export default function BillingPage() {
                     inline-flex items-center
                     rounded-full border border-white/70 bg-white/80
                     px-1.5 py-0.5 text-[11px]
-                    shadow-sm backdrop-blur
+                    shadow-sm
                     dark:border-white/20 dark:bg-black/40
                   "
                 >
@@ -296,7 +296,6 @@ export default function BillingPage() {
                 relative overflow-hidden
                 rounded-3xl border border-neutral-200/80 dark:border-white/15
                 bg-white/95 dark:bg-black/50
-                backdrop-blur
                 shadow-[0_18px_45px_-26px_rgba(15,23,42,0.20)]
                 px-5 py-5 sm:px-6 sm:py-6
               "
@@ -477,7 +476,7 @@ export default function BillingPage() {
             <div
               className="
                 mt-7 rounded-3xl border border-neutral-200/80 dark:border-white/15
-                bg-white/80 backdrop-blur p-4 sm:p-5
+                bg-white/80 p-4 sm:p-5
                 text-xs sm:text-sm text-neutral-700 space-y-1.5
                 dark:bg-black/35 dark:text-neutral-200
               "
@@ -490,7 +489,7 @@ export default function BillingPage() {
 
           {/* 크레딧 사용 기준 */}
           <section className="mt-10">
-            <div className="rounded-3xl border border-neutral-200/80 dark:border-white/15 bg-white/90 backdrop-blur p-4 sm:p-5 dark:bg-black/40">
+            <div className="rounded-3xl border border-neutral-200/80 dark:border-white/15 bg-white/90 p-4 sm:p-5 dark:bg-black/40">
               <h3 className="text-sm sm:text-base font-semibold text-neutral-900 dark:text-neutral-50">
                 {t("usage.title")}
               </h3>
@@ -571,7 +570,7 @@ function CreditPackCard({
   return (
     <div
       className={[
-        "rounded-3xl border bg-white/85 backdrop-blur p-5 flex flex-col",
+        "rounded-3xl border bg-white/85 p-5 flex flex-col",
         "shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)]",
         popular
           ? "border-blue-500/70 dark:border-[rgb(var(--hero-b))]"
@@ -630,7 +629,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
     <div
       className="
         rounded-2xl border border-neutral-200/80 dark:border-white/15
-        bg-white/85 p-4 backdrop-blur
+        bg-white/85 p-4
         dark:bg-black/35
       "
     >

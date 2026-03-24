@@ -33,7 +33,7 @@ export default function ConfirmDialog({
   return (
     <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 z-[200] bg-black/45 backdrop-blur-sm" />
+        <AlertDialog.Overlay className="fixed inset-0 z-[200] bg-black/45" />
         <AlertDialog.Content
           className="
             fixed left-1/2 top-1/2 z-[210] w-[92vw] max-w-[440px]

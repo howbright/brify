@@ -348,7 +348,7 @@ export default function FullscreenDialog({
       className="
         fixed left-0 top-0 z-[120]
         h-screen w-screen max-w-none
-        bg-black/70 backdrop-blur-sm
+        bg-black/70
       "
       role="dialog"
       aria-modal="true"
@@ -547,7 +547,7 @@ export default function FullscreenDialog({
               👇 이 wrapper가 배경을 잡아주니까,
               Elixir 자체 배경이 하얗더라도 "작업영역" 느낌이 살아남.
             */}
-            <div className="h-full w-full rounded-2xl border border-slate-400 bg-white/65 backdrop-blur-sm shadow-sm dark:border-white/20 dark:bg-white/[0.03]">
+            <div className="h-full w-full rounded-2xl border border-slate-400 bg-white/65 shadow-sm dark:border-white/20 dark:bg-white/[0.03]">
               <ClientMindElixir
                 ref={mindRef}
                 mode={resolvedTheme === "dark" ? "dark" : "light"}
@@ -568,7 +568,7 @@ export default function FullscreenDialog({
               absolute left-4 bottom-4 z-[15]
               inline-flex items-center gap-1.5
               rounded-2xl border border-slate-400 bg-white/90 px-3 py-2
-              text-xs font-semibold text-neutral-700 shadow-lg backdrop-blur hover:bg-white
+              text-xs font-semibold text-neutral-700 shadow-lg hover:bg-white
               dark:border-white/20 dark:bg-[#0b1220]/75 dark:text-white/80 dark:hover:bg-[#0b1220]/90
             "
             title="내 맵 리스트로"
@@ -609,7 +609,7 @@ export default function FullscreenDialog({
               onClick={() => setEditMode((m) => (m === "view" ? "edit" : "view"))}
               className="
                 inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                border border-slate-400 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+                border border-slate-400 bg-white/95 text-neutral-700 shadow-md
                 dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
               "
               aria-label={editMode === "view" ? "편집 모드" : "보기 모드"}
@@ -622,7 +622,7 @@ export default function FullscreenDialog({
               onClick={() => setPanMode((v) => !v)}
               className="
                 inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                border border-slate-400 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+                border border-slate-400 bg-white/95 text-neutral-700 shadow-md
                 dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
               "
               aria-label={panMode ? "선택 모드" : "이동 모드"}
@@ -635,7 +635,7 @@ export default function FullscreenDialog({
               onClick={() => mindRef.current?.centerMap?.()}
               className="
                 inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                border border-slate-400 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+                border border-slate-400 bg-white/95 text-neutral-700 shadow-md
                 dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
               "
               aria-label="가운데로"
@@ -648,7 +648,7 @@ export default function FullscreenDialog({
               onClick={() => mindRef.current?.zoomIn?.()}
               className="
                 inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                border border-slate-400 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+                border border-slate-400 bg-white/95 text-neutral-700 shadow-md
                 dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
               "
               aria-label="확대"
@@ -661,7 +661,7 @@ export default function FullscreenDialog({
               onClick={() => mindRef.current?.zoomOut?.()}
               className="
                 inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                border border-slate-400 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+                border border-slate-400 bg-white/95 text-neutral-700 shadow-md
                 dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
               "
               aria-label="축소"
@@ -674,7 +674,7 @@ export default function FullscreenDialog({
               onClick={() => mindRef.current?.collapseAll?.()}
               className="
                 inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                border border-slate-400 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+                border border-slate-400 bg-white/95 text-neutral-700 shadow-md
                 dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
               "
               aria-label="전체 접기"
@@ -689,7 +689,7 @@ export default function FullscreenDialog({
                 onClick={() => setMobileMapActionsOpen((v) => !v)}
                 className="
                   inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                  border border-slate-400 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+                  border border-slate-400 bg-white/95 text-neutral-700 shadow-md
                   dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
                 "
                 aria-label="맵 조작"
@@ -771,7 +771,7 @@ export default function FullscreenDialog({
                 onClick={() => setMobileThemeOpen((v) => !v)}
                 className="
                   inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                  border border-slate-400 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+                  border border-slate-400 bg-white/95 text-neutral-700 shadow-md
                   dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
                 "
                 aria-label="테마"
@@ -812,7 +812,7 @@ export default function FullscreenDialog({
               onClick={handleExportPng}
               className="
                 inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                border border-slate-400 bg-white/95 text-neutral-700 shadow-md backdrop-blur
+                border border-slate-400 bg-white/95 text-neutral-700 shadow-md
                 dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
               "
               aria-label="PNG 저장"

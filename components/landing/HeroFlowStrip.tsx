@@ -86,7 +86,6 @@ export default function HeroFlowStrip() {
             rounded-[32px] border border-blue-200/85 px-5 py-5
             bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(230,242,255,0.96))]
             shadow-[0_28px_80px_-40px_rgba(37,99,235,0.3)]
-            backdrop-blur-md
             dark:border-blue-200/14 dark:bg-[linear-gradient(180deg,rgba(11,28,46,0.84),rgba(9,23,40,0.92))]
             dark:shadow-[0_24px_70px_-42px_rgba(8,15,31,0.86)]
             md:gap-x-3 md:px-8 md:py-6

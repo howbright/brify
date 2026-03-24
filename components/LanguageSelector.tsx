@@ -46,7 +46,7 @@ export default function LanguageSelector() {
         align="end"
         className="
   w-40 rounded-xl border border-slate-400
-  bg-white/95 shadow-lg backdrop-blur-md
+  bg-white/95 shadow-lg
   dark:border-white/20 dark:bg-slate-900/95
 "
       >

@@ -136,7 +136,7 @@ export default function PricingGrid({
                 "text-sm sm:text-base font-semibold",
                 "text-[var(--color-foreground)]",
                 "bg-[linear-gradient(90deg,rgba(59,130,246,0.14),rgba(99,102,241,0.12))] border border-[color:var(--color-border)]",
-                "supports-[backdrop-filter]:backdrop-blur-[2px]",
+                "supports-[backdrop-filter]:",
                 "dark:bg-[linear-gradient(90deg,rgba(59,130,246,0.20),rgba(99,102,241,0.18))] dark:border-white/20"
               )}
             >

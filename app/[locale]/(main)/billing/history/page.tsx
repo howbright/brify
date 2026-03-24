@@ -329,7 +329,7 @@ export default function BillingHistoryPage() {
 
         {/* 헤더 */}
         <header className="mx-auto max-w-5xl px-6 md:px-10 pt-20">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-3 py-1 text-[11px] font-medium text-neutral-700 shadow-sm backdrop-blur dark:bg-black/40 dark:border-white/15 dark:text-neutral-200">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-3 py-1 text-[11px] font-medium text-neutral-700 shadow-sm dark:bg-black/40 dark:border-white/15 dark:text-neutral-200">
             {t("badge")}
           </div>
 
@@ -368,7 +368,6 @@ export default function BillingHistoryPage() {
               className="
                 rounded-3xl border border-neutral-200/80 dark:border-white/18
                 bg-white/90 dark:bg-[#050816]
-                backdrop-blur
                 px-5 py-4 sm:px-6 sm:py-5
                 dark:ring-1 dark:ring-white/5
               "
@@ -422,7 +421,6 @@ export default function BillingHistoryPage() {
               className="
                 rounded-3xl border border-neutral-200/80 dark:border-white/18
                 bg-white/95 dark:bg-[#050816]
-                backdrop-blur
                 px-4 py-4 sm:px-5 sm:py-5
                 dark:ring-1 dark:ring-white/5
               "
@@ -564,7 +562,7 @@ export default function BillingHistoryPage() {
           <section className="mt-10">
             <div
               className="
-                rounded-3xl border border-neutral-200/80 bg-white/90 backdrop-blur p-4 sm:p-5
+                rounded-3xl border border-neutral-200/80 bg-white/90 p-4 sm:p-5
                 dark:bg-[#050816] dark:border-white/18 dark:ring-1 dark:ring-white/5
               "
             >

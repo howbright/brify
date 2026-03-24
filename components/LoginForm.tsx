@@ -135,7 +135,6 @@ export default function LoginForm() {
         dark:border-white/35
         dark:bg-[linear-gradient(180deg,#0d1728_0%,#0a1322_100%)]
         dark:shadow-[0_28px_70px_-34px_rgba(0,0,0,0.92)]
-        backdrop-blur
       "
     >
       <div className="flex flex-col gap-6 p-7 sm:p-9">

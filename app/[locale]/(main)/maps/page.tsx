@@ -1406,7 +1406,7 @@ export default function MapsPage() {
               <button
                 type="button"
                 onClick={() => setMobileTagSheetOpen(true)}
-                className="inline-flex items-center gap-2 rounded-full border border-neutral-300 bg-white/95 px-4 py-2 text-xs font-semibold text-neutral-700 shadow-lg backdrop-blur dark:border-white/15 dark:bg-[#0b1220]/90 dark:text-white/85"
+                className="inline-flex items-center gap-2 rounded-full border border-neutral-300 bg-white/95 px-4 py-2 text-xs font-semibold text-neutral-700 shadow-lg dark:border-white/15 dark:bg-[#0b1220]/90 dark:text-white/85"
               >
                 <Icon icon="mdi:chevron-up" className="h-4 w-4" />
                 태그 정리 다시 열기

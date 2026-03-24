@@ -91,7 +91,6 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
           border border-slate-400 dark:border-white/20
           bg-white/95 dark:bg-[rgba(15,23,42,0.98)]
           shadow-[0_18px_40px_-18px_rgba(15,23,42,0.9)]
-          backdrop-blur-xl
           p-1.5
         "
       >

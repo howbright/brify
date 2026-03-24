@@ -137,7 +137,7 @@ export default function MapPreviewPanel({
         )}
 
         {previewStatus === "loaded" && (
-          <div className="absolute bottom-3 right-3 flex items-center rounded-full border border-slate-400 bg-white/90 text-sm font-semibold text-neutral-700 shadow-sm backdrop-blur dark:border-white/20 dark:bg-[#0b1220]/75 dark:text-white/85">
+          <div className="absolute bottom-3 right-3 flex items-center rounded-full border border-slate-400 bg-white/90 text-sm font-semibold text-neutral-700 shadow-sm dark:border-white/20 dark:bg-[#0b1220]/75 dark:text-white/85">
             <button
               type="button"
               onClick={() => miniRef.current?.center()}

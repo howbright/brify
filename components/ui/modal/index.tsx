@@ -12,7 +12,7 @@ const ModalContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
 >(({ className, children, ...props }, ref) => (
   <DialogPrimitive.Portal>
-    <DialogPrimitive.Overlay className="fixed inset-0 z-[200] bg-black/45 backdrop-blur-sm" />
+    <DialogPrimitive.Overlay className="fixed inset-0 z-[200] bg-black/45" />
 
     <DialogPrimitive.Content
       ref={ref}

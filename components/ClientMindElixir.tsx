@@ -1721,7 +1721,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       <div ref={elRef} className="relative w-full h-full" />
 
       {showMiniMap && (
-        <div className="pointer-events-auto absolute bottom-6 right-4 z-20 rounded-xl border border-neutral-200 bg-white/90 p-2 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#0b1220]/75">
+        <div className="pointer-events-auto absolute bottom-6 right-4 z-20 rounded-xl border border-neutral-200 bg-white/90 p-2 shadow-sm dark:border-white/10 dark:bg-[#0b1220]/75">
           <div className="text-[10px] font-semibold text-neutral-500 dark:text-white/60">
             미니맵
           </div>
@@ -1828,7 +1828,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             top: selectedRect.top,
           }}
         >
-          <div className="max-w-[260px] rounded-xl border border-blue-200 bg-white/95 px-3 py-2 text-xs text-neutral-700 shadow-lg backdrop-blur dark:border-white/10 dark:bg-[#0b1220]/95 dark:text-white/85">
+          <div className="max-w-[260px] rounded-xl border border-blue-200 bg-white/95 px-3 py-2 text-xs text-neutral-700 shadow-lg dark:border-white/10 dark:bg-[#0b1220]/95 dark:text-white/85">
             {selectedNoteText}
           </div>
         </div>

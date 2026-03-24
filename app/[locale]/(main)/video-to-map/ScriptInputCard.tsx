@@ -66,7 +66,6 @@ export default function ScriptInputCard({
         mt-1 rounded-3xl border border-blue-300
         bg-[linear-gradient(180deg,#eef5ff_0%,#f7fbff_100%)]
         shadow-[0_26px_60px_-28px_rgba(15,23,42,0.22)]
-        backdrop-blur-sm
         p-4 sm:p-5 md:p-6 flex flex-col gap-4
         ring-1 ring-blue-200/90
 
@@ -81,7 +80,7 @@ export default function ScriptInputCard({
         <div
           className="
             absolute inset-0 z-20 rounded-3xl
-            bg-white/65 backdrop-blur-sm
+            bg-white/65
             dark:bg-black/35
           "
         >

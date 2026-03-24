@@ -160,7 +160,6 @@ export default function VideoToMapPage() {
             className="
               mt-1 rounded-3xl border border-neutral-200 bg-white
               shadow-[0_22px_45px_-24px_rgba(15,23,42,0.55)]
-              backdrop-blur-sm
               dark:bg-[#020818] dark:border-white/15
               p-5 md:p-6 flex flex-col gap-4
             "
@@ -251,7 +250,6 @@ export default function VideoToMapPage() {
                 className="
                   rounded-3xl border border-blue-200 bg-blue-50
                   shadow-[0_18px_40px_-24px_rgba(37,99,235,0.45)]
-                  backdrop-blur-sm
                   dark:bg-[#020818]/98 dark:border-[rgb(var(--hero-b))]/50
                   p-4 md:p-5 flex items-start gap-3
                 "
@@ -290,7 +288,6 @@ export default function VideoToMapPage() {
             className="
               mt-6 rounded-3xl border border-neutral-200 bg-white
               shadow-[0_22px_45px_-24px_rgba(15,23,42,0.55)]
-              backdrop-blur-sm
               dark:bg-[#020818]/98 dark:border-white/15
               p-4 md:p-6 space-y-3
             "
@@ -321,7 +318,7 @@ export default function VideoToMapPage() {
 
       {/* 크레딧 사용 안내 모달 */}
       {showCreditDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55">
           <div
             className="
               w-full max-w-md rounded-3xl

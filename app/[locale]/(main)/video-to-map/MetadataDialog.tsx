@@ -383,7 +383,7 @@ export default function MetadataDialog({
   return (
       <div className="fixed inset-0 z-50">
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm dark:bg-black/65"
+        className="absolute inset-0 bg-black/40 dark:bg-black/65"
         onClick={handleTryClose}
       />
 
@@ -422,7 +422,6 @@ export default function MetadataDialog({
               flex items-center justify-between
               sticky top-0 z-10
               bg-white/90 dark:bg-[#111C2E]/92
-              backdrop-blur-md
             "
           >
             <div className="flex items-center gap-2 min-w-0">
@@ -839,7 +838,6 @@ export default function MetadataDialog({
               border-t border-slate-400 dark:border-white/30
               sticky bottom-0 z-10
               bg-white/90 dark:bg-[#111C2E]/92
-              backdrop-blur-md
             "
           >
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">

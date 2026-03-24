@@ -123,7 +123,7 @@ export default function SharedMapPage() {
         className="relative z-[20] w-full border-b border-neutral-200/80 dark:border-white/10"
         style={{ height: "var(--header-h)" }}
       >
-        <div className="h-full px-4 flex items-center justify-between gap-4 bg-white/92 backdrop-blur dark:bg-[#0b1220]/88">
+        <div className="h-full px-4 flex items-center justify-between gap-4 bg-white/92 dark:bg-[#0b1220]/88">
           <div className="min-w-0">
             <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-400 dark:text-white/45">
               공유 보기
@@ -241,7 +241,7 @@ export default function SharedMapPage() {
                 className="
                   inline-flex items-center gap-1.5 rounded-md border border-neutral-200/70
                   bg-white/90 px-2 py-1 text-[11px] font-semibold text-neutral-700
-                  shadow-sm backdrop-blur hover:bg-white
+                  shadow-sm hover:bg-white
                   dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80 dark:hover:bg-white/10
                 "
               >
@@ -264,7 +264,7 @@ export default function SharedMapPage() {
         />
 
         <div className="absolute inset-0">
-          <div className="h-full w-full rounded-2xl border border-neutral-200/70 bg-white/65 backdrop-blur-sm shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="h-full w-full rounded-2xl border border-neutral-200/70 bg-white/65 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
             <ClientMindElixir
               ref={mindRef}
               mode={themeMode === "dark" ? "dark" : "light"}

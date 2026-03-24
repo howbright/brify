@@ -10,7 +10,6 @@ type Props = {
         className="
           rounded-3xl border border-blue-200 bg-blue-50
           shadow-[0_18px_40px_-24px_rgba(37,99,235,0.45)]
-          backdrop-blur-sm
           dark:bg-[#020818]/98 dark:border-[rgb(var(--hero-b))]/50
           p-4 md:p-5 flex items-start gap-3
         "

@@ -93,7 +93,7 @@ function StatPill({
     <div
       className={cn(
         "rounded-2xl border border-slate-400 dark:border-white/20",
-        "bg-white dark:bg-black/45 backdrop-blur",
+        "bg-white dark:bg-black/45",
         "px-3 py-2"
       )}
     >
@@ -142,7 +142,7 @@ function WeeklyQuotaBadge({
       className="
         w-full
         rounded-3xl border border-slate-400 dark:border-white/20
-        bg-white dark:bg-black/45 backdrop-blur
+        bg-white dark:bg-black/45
         px-4 py-3 sm:px-5 sm:py-4
       "
       aria-label="주간 제출 한도"
@@ -492,7 +492,6 @@ export default function FeedbackMissionPanel() {
           className="
             rounded-3xl border border-neutral-200/80 dark:border-white/15
             bg-white/90 dark:bg-black/45
-            backdrop-blur
             px-5 py-5 sm:px-6 sm:py-6
             shadow-[0_18px_45px_-26px_rgba(15,23,42,0.20)]
           "
@@ -565,7 +564,7 @@ export default function FeedbackMissionPanel() {
                 className="
                   relative overflow-hidden rounded-2xl
                   border border-neutral-200/80 dark:border-white/15
-                  bg-white/70 dark:bg-black/30 backdrop-blur
+                  bg-white/70 dark:bg-black/30
                   p-4
                 "
               >
@@ -661,7 +660,6 @@ export default function FeedbackMissionPanel() {
           className="
             rounded-3xl border border-neutral-200/80 dark:border-white/15
             bg-white/85 dark:bg-black/40
-            backdrop-blur
             p-5 sm:p-6
           "
         >
@@ -730,7 +728,6 @@ export default function FeedbackMissionPanel() {
             rounded-3xl
             border border-blue-200/70 dark:border-white/15
             bg-white/90 dark:bg-black/45
-            backdrop-blur
             p-5 sm:p-6
             shadow-[0_18px_45px_-26px_rgba(59,130,246,0.25)]
             md:sticky md:top-24
@@ -1053,7 +1050,6 @@ export default function FeedbackMissionPanel() {
           className="
             rounded-3xl border border-neutral-200/80 dark:border-white/15
             bg-white/80 dark:bg-black/35
-            backdrop-blur
             p-4 sm:p-5
             text-xs sm:text-sm text-neutral-700 dark:text-neutral-200
           "

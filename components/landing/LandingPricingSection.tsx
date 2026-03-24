@@ -118,7 +118,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.45, ease: "easeOut" }}
           whileHover={{ y: -4, scale: 1.01 }}
-          className="mt-8 rounded-[32px] border border-slate-400 bg-white px-6 py-7 text-center shadow-[0_22px_60px_-34px_rgba(37,99,235,0.26)] backdrop-blur-sm dark:border-white/20 dark:bg-white/[0.08]"
+          className="mt-8 rounded-[32px] border border-slate-400 bg-white px-6 py-7 text-center shadow-[0_22px_60px_-34px_rgba(37,99,235,0.26)] dark:border-white/20 dark:bg-white/[0.08]"
         >
           <div className="flex justify-center">
             <div className="relative w-full max-w-[420px] md:max-w-[480px]">
@@ -164,7 +164,6 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
             mt-6
             rounded-3xl
             bg-transparent
-            backdrop-blur-[2px]
             shadow-none
           "
         >

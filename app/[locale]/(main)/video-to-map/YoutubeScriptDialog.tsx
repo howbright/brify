@@ -46,7 +46,7 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
     <div
       className="
         fixed inset-0 z-50 flex items-center justify-center
-        bg-black/55 backdrop-blur-sm
+        bg-black/55
       "
       role="dialog"
       aria-modal="true"

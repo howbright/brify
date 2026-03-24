@@ -615,7 +615,7 @@ function SidePanel({
       <div
         className="
           h-full
-          border border-neutral-200 bg-white/95 backdrop-blur
+          border border-neutral-200 bg-white/95
           dark:border-white/10 dark:bg-[#0b1220]/85
           shadow-2xl
           flex flex-col

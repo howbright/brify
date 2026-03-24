@@ -248,7 +248,7 @@ export default function MapTutorialOverlay({
       ) : null}
 
       <div className={`absolute inset-0 flex p-4 sm:p-6 ${isMobileViewport ? "items-end justify-center" : "items-center justify-center"}`}>
-        <div className={`pointer-events-auto w-full border border-white/20 bg-[#0f172a]/96 text-white shadow-[0_36px_100px_-42px_rgba(0,0,0,0.75)] backdrop-blur-xl ${isMobileViewport ? "max-w-[24rem] rounded-[26px] px-4 py-4" : "max-w-md rounded-[30px] p-6"}`}>
+        <div className={`pointer-events-auto w-full border border-white/20 bg-[#0f172a]/96 text-white shadow-[0_36px_100px_-42px_rgba(0,0,0,0.75)] ${isMobileViewport ? "max-w-[24rem] rounded-[26px] px-4 py-4" : "max-w-md rounded-[30px] p-6"}`}>
           <div className="flex items-start justify-between gap-4">
             <div className="mt-0 flex items-center gap-2">
               <div className="rounded-full border border-white/15 bg-white/6 px-3 py-1 text-xs font-black tracking-[0.16em] text-white/78">

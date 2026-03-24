@@ -19,7 +19,7 @@ export default function CreditConfirmModal({
     <div
       className="
         fixed inset-0 z-50 flex items-center justify-center
-        bg-black/50 backdrop-blur-sm
+        bg-black/50
       "
       role="dialog"
       aria-modal="true"

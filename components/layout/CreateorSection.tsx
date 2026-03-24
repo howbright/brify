@@ -109,7 +109,7 @@ export default function CreatorSection({
               className="
                 relative rounded-full overflow-hidden
                 ring-1 ring-black/5 dark:ring-white/10 shadow-sm
-                bg-white/70 dark:bg-black/40 backdrop-blur
+                bg-white/70 dark:bg-black/40
                 border border-white/60 dark:border-white/10
                 w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44
               "
@@ -143,7 +143,7 @@ export default function CreatorSection({
               whileHover={{ y: -4, scale: 1.01 }}
               className="
                 relative mt-4 rounded-3xl px-6 py-5 sm:px-8 sm:py-7
-                bg-white/80 backdrop-blur
+                bg-white/80
                 border border-white/60 
                 shadow-[0_18px_50px_-18px_rgba(15,23,42,0.35)]
                 text-neutral-900
@@ -154,7 +154,7 @@ export default function CreatorSection({
                 dark:text-neutral-50
                 dark:border-white/10
                 dark:ring-1 dark:ring-white/5
-                dark:backdrop-blur-sm
+                dark:
                 dark:shadow-[0_18px_50px_-18px_rgba(0,0,0,0.7)]
               "
             >

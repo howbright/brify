@@ -186,7 +186,6 @@ export default function MissionHistoryPanel() {
           className="
             rounded-3xl border border-slate-400 dark:border-white/20
             bg-white dark:bg-black/45
-            backdrop-blur
             px-5 py-5 sm:px-6 sm:py-6
             shadow-[0_18px_45px_-26px_rgba(15,23,42,0.20)]
           "

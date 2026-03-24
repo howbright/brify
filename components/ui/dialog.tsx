@@ -51,7 +51,7 @@ export const DialogTitle = DialogPrimitive.Title;
 export const DialogOverlay = (props: React.ComponentPropsWithoutRef<"div">) => (
   <DialogPrimitive.Overlay
     {...props}
-    className={cn("fixed inset-0 z-[200] bg-black/45 backdrop-blur-sm", props.className)}
+    className={cn("fixed inset-0 z-[200] bg-black/45", props.className)}
   />
 );
 

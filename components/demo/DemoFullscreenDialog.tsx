@@ -198,7 +198,7 @@ function DemoLeftPanel({
         ${open ? "translate-x-0" : "-translate-x-[calc(100%+28px)]"}
       `}
     >
-      <div className="relative flex h-full w-[min(420px,calc(100vw-18px))] max-w-full flex-col border-r border-slate-400 bg-white/96 shadow-[0_20px_50px_-36px_rgba(15,23,42,0.55)] backdrop-blur dark:border-white/20 dark:bg-[#0b1220]/96 dark:shadow-[0_32px_100px_-70px_rgba(0,0,0,0.95)]">
+      <div className="relative flex h-full w-[min(420px,calc(100vw-18px))] max-w-full flex-col border-r border-slate-400 bg-white/96 shadow-[0_20px_50px_-36px_rgba(15,23,42,0.55)] dark:border-white/20 dark:bg-[#0b1220]/96 dark:shadow-[0_32px_100px_-70px_rgba(0,0,0,0.95)]">
         <div className="border-b border-slate-400 px-3 pb-3 pt-3 sm:px-4 sm:pt-4 dark:border-white/20">
           <div className="flex items-start gap-2">
             <div className="inline-flex rounded-full border border-slate-400 bg-neutral-50 p-1 dark:border-white/20 dark:bg-white/[0.04]">
@@ -617,7 +617,7 @@ export default function DemoFullscreenDialog({
     shareDialogMessages?.cancel ?? (language === "ko" ? "닫기" : "Close");
 
   return createPortal(
-    <div className="fixed left-0 top-0 z-[120] h-screen w-screen max-w-none bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={title ?? t("dialog.title")}>
+    <div className="fixed left-0 top-0 z-[120] h-screen w-screen max-w-none bg-black/70" role="dialog" aria-modal="true" aria-label={title ?? t("dialog.title")}>
       <div className="relative h-full w-full overflow-hidden bg-white [--header-h:68px] dark:bg-[#0b1220]">
         <FullscreenHeader
           title={title ?? t("dialog.title")}
@@ -687,7 +687,7 @@ export default function DemoFullscreenDialog({
           <div className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(closest-side,black,transparent)] bg-[radial-gradient(900px_520px_at_50%_30%,rgba(59,130,246,0.10),transparent_62%)] dark:bg-[radial-gradient(900px_520px_at_50%_30%,rgba(56,189,248,0.10),transparent_62%)]" />
 
           <div className="absolute inset-0 p-0">
-            <div className="h-full w-full rounded-b-2xl border-x border-b border-slate-400 bg-white/65 shadow-sm backdrop-blur-sm dark:border-white/20 dark:bg-white/[0.03]">
+            <div className="h-full w-full rounded-b-2xl border-x border-b border-slate-400 bg-white/65 shadow-sm dark:border-white/20 dark:bg-white/[0.03]">
               <ClientMindElixir
                 ref={mindRef}
                 mode={resolvedTheme === "dark" ? "dark" : "light"}
@@ -759,7 +759,7 @@ export default function DemoFullscreenDialog({
                 id={action.id}
                 type="button"
                 onClick={action.onClick}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-400 bg-white/95 text-neutral-700 shadow-md backdrop-blur dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-400 bg-white/95 text-neutral-700 shadow-md dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80"
                 aria-label={action.label}
                 title={action.label}
               >

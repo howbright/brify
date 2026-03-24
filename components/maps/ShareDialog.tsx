@@ -26,7 +26,7 @@ export default function ShareDialog({
   return (
     <div className="fixed inset-0 z-[230]">
       <div
-        className="absolute inset-0 bg-black/45 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/45"
         onClick={onClose}
         aria-hidden="true"
       />

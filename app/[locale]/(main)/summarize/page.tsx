@@ -198,7 +198,6 @@ export default function SummarizePage() {
               onExtracted={handleExtractedText}
               isLoading={extracting}
               setIsLoading={setExtracting}
-              onManualSubmit={handleSummarize}
             />
 
             <ConfirmDialog

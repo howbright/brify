@@ -69,7 +69,7 @@ export default function MapListToolbar({
   filterPopover,
 }: MapListToolbarProps) {
   return (
-    <div className="md:sticky md:top-0 md:z-20 md:-mx-2 md:px-2 md:pb-3 md:pt-0 md:backdrop-blur md:supports-[backdrop-filter]:bg-transparent dark:md:supports-[backdrop-filter]:bg-transparent">
+    <div className="md:sticky md:top-0 md:z-20 md:-mx-2 md:px-2 md:pb-3 md:pt-0 md: md:supports-[backdrop-filter]:bg-transparent dark:md:supports-[backdrop-filter]:bg-transparent">
       {!tagOrganizeMode && (
         <div className="relative">
           <Icon

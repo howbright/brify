@@ -55,7 +55,7 @@ export default function MindThemePreferenceModal({
   return createPortal(
     <div className="fixed inset-0 z-[220]">
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"
+        className="absolute inset-0 bg-black/40"
         onClick={onClose}
         aria-hidden="true"
       />

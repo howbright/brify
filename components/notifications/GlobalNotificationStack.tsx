@@ -79,7 +79,7 @@ function NotificationCard({
         "relative overflow-hidden rounded-2xl",
         "border border-slate-400 dark:border-white/20",
         // ✅ 다크에서 카드가 배경에 묻히지 않게: 조금 더 밝은 카드 + 더 강한 그림자
-        "bg-white dark:bg-[#0b1220] backdrop-blur",
+        "bg-white dark:bg-[#0b1220]",
         "shadow-[0_18px_45px_-26px_rgba(15,23,42,0.28)]",
         "dark:shadow-[0_26px_70px_-36px_rgba(0,0,0,0.85)]"
       )}
@@ -315,7 +315,7 @@ export default function GlobalNotificationsStack() {
           className="
             inline-flex items-center gap-2
             rounded-full border border-neutral-200/70 dark:border-white/14
-            bg-white/65 dark:bg-[#0b1220]/70 backdrop-blur
+            bg-white/65 dark:bg-[#0b1220]/70
             px-3 py-1
             text-[11px] font-semibold text-neutral-700 dark:text-neutral-200
             dark:shadow-[0_14px_40px_-28px_rgba(0,0,0,0.85)]

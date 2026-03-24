@@ -51,7 +51,6 @@ export default function ClientMobileUserMenu({
               className="
                 fixed left-0 right-0 top-[64px] h-[calc(100vh-64px)]
                 bg-black/40 dark:bg-black/70
-                backdrop-blur-[6px]
                 z-30
               "
               onClick={() => setOpen(false)}
@@ -70,7 +69,6 @@ export default function ClientMobileUserMenu({
                 bg-white/95 dark:bg-[rgba(15,23,42,0.96)]
                 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.55)]
                 dark:shadow-[0_22px_60px_-26px_rgba(15,23,42,0.95)]
-                backdrop-blur-xl
                 px-4 pb-4 pt-3
                 z-40
               "
