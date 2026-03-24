@@ -273,7 +273,7 @@ export default function PricingGrid({
 
               <div
                 className={cx(
-                  isCompact ? "text-[32px] md:text-[40px]" : "text-2xl",
+                  isCompact ? "text-[28px] md:text-[34px]" : "text-2xl",
                   "relative font-bold text-neutral-900 dark:text-[var(--color-foreground,#e5e7eb)]"
                 )}
               >

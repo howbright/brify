@@ -340,7 +340,7 @@
     "tagline": "Sign in to continue working on your structure maps."
   },
   "DemoPage": {
-    "eyebrow": "Interactive Demo",
+    "eyebrow": "Live Demo",
     "titlePrefix": "Try the",
     "titleHighlight": "Structure Map creation flow",
     "titleSuffix": "with sample content",
@@ -722,7 +722,7 @@
       "triggerLabel": "My account",
       "sectionTitle": "Signed-in account",
       "items": {
-        "billing": "Credits & billing",
+        "billing": "Top up credits",
         "billingHistory": "Billing history",
         "accountSettings": "Account settings"
       },
@@ -756,22 +756,25 @@
     }
   },
   "BillingPage": {
-    "badge": "Pay-as-you-go credits · No subscription",
-    "title": "Credits & billing",
+    "badge": "Pay only when you need it · No subscription",
+    "title": "Top up credits",
     "subtitle": "Top up credits only when you need them.",
 
     "currencyToggle": {
-      "krw": "KRW",
-      "usd": "USD"
+      "krw": "Domestic payment",
+      "usd": "International card",
+      "krwHint": "Recommended when paying in Korea.",
+      "usdHint": "Choose this if you're using a card issued overseas."
     },
 
     "balance": {
-      "label": "Available balance",
+      "label": "Current credit balance",
       "unit": "credits",
       "hintPrefix": "Most Structure Maps use",
       "hintStrong": "around 1 credit.",
       "mainButton": "Back to home",
       "chargeButton": "Add credits",
+      "historyButton": "View billing history",
       "paidLabel": "Paid credits",
       "freeLabel": "Reward credits"
     },
@@ -794,7 +797,8 @@
       "info": {
         "usdFee": "• Payments are processed in USD and some cards may charge a small foreign transaction fee.",
         "instant": "• Credits are added to your account automatically within a few seconds after payment.",
-        "refund": "• Refunds are available for unused credits within 7 days of purchase. Details will be announced later."
+        "refund": "• Unused credits can be refunded within 7 days of purchase.",
+        "refundPolicy": "View refund policy"
       }
     },
 

@@ -69,7 +69,9 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
   const currency = paymentMode === "usd" ? "usd" : "krw";
 
   const signedInHref = `/billing?currency=${currency}`;
-  const signedOutHref = `/login?currency=${currency}`;
+  const signedOutHref = `/login?next=${encodeURIComponent(
+    `/billing?currency=${currency}`
+  )}`;
 
   return (
     <section

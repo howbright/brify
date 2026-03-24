@@ -30,7 +30,9 @@ export default async function MainLayout({
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    redirect(`/${locale}/login`);
+    const h = await headers();
+    const currentPath = normalizeNext(h.get("x-pathname"));
+    redirect(`/${locale}/login?next=${encodeURIComponent(currentPath)}`);
   }
 
   const { data: profile, error: profileError } = await supabase

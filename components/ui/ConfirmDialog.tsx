@@ -13,6 +13,8 @@ interface ConfirmDialogProps {
   actionLabel?: string;
   cancelLabel?: string;
   tone?: "primary" | "danger";
+  titleClassName?: string;
+  descriptionClassName?: string;
 }
 
 export default function ConfirmDialog({
@@ -24,6 +26,8 @@ export default function ConfirmDialog({
   actionLabel = "초기화",
   cancelLabel = "취소",
   tone = "danger",
+  titleClassName,
+  descriptionClassName,
 }: ConfirmDialogProps) {
   const actionClasses =
     tone === "danger"
@@ -71,12 +75,26 @@ export default function ConfirmDialog({
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-slate-400 dark:bg-white/20" />
 
           <div className="relative">
-            <AlertDialog.Title className="text-lg md:text-xl font-bold text-blue-700 dark:text-[rgb(var(--hero-b))]">
+            <AlertDialog.Title
+              className={[
+                "text-lg md:text-xl font-bold text-blue-700 dark:text-[rgb(var(--hero-b))]",
+                titleClassName,
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            >
               {title}
             </AlertDialog.Title>
           </div>
 
-          <AlertDialog.Description className="relative mt-3 text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
+          <AlertDialog.Description
+            className={[
+              "relative mt-3 text-base md:text-lg font-semibold text-neutral-900 dark:text-white",
+              descriptionClassName,
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
             {description}
           </AlertDialog.Description>
 

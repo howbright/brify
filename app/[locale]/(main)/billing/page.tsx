@@ -106,7 +106,11 @@ export default function BillingPage() {
 
   const currencyFromQuery = searchParams.get("currency");
   const initialCurrency: Currency =
-    isKorean && currencyFromQuery === "krw" ? "krw" : "usd";
+    currencyFromQuery === "krw" || currencyFromQuery === "usd"
+      ? currencyFromQuery
+      : isKorean
+        ? "krw"
+        : "usd";
 
   const [currency, setCurrency] = useState<Currency>(initialCurrency);
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
@@ -114,9 +118,9 @@ export default function BillingPage() {
   // 로그인 안되면 /login 으로
   useEffect(() => {
     if (!session) {
-      router.push("/login");
+      router.push(`/${locale}/login?next=${encodeURIComponent(`/${locale}/billing`)}`);
     }
-  }, [session, router]);
+  }, [session, router, locale]);
 
   // TODO: 실제 크레딧 잔액 API 연동 전까지는 더미 데이터
   // 실제 크레딧 잔액 API 연동
@@ -134,7 +138,7 @@ export default function BillingPage() {
 
         if (res.status === 401) {
           // 혹시 세션이 꼬였을 때 대비
-          router.push("/login");
+          router.push(`/${locale}/login?next=${encodeURIComponent(`/${locale}/billing`)}`);
           return;
         }
 
@@ -157,7 +161,7 @@ export default function BillingPage() {
     return () => {
       cancelled = true;
     };
-  }, [session, router]);
+  }, [session, router, locale]);
 
   // locale이 한국어가 아니면 강제로 USD
   useEffect(() => {
@@ -172,13 +176,8 @@ export default function BillingPage() {
     [currency]
   );
 
-  const currencyLabel =
-    currency === "krw" ? t("packs.summary.krw") : t("packs.summary.usd");
-
-  const processorLabel =
-    currency === "krw"
-      ? t("packs.summary.processor.krw")
-      : t("packs.summary.processor.usd");
+  const refundPolicyHref = `/${locale}/refund-policy`;
+  const billingHistoryHref = `/${locale}/billing/history`;
 
   return (
     <>
@@ -231,72 +230,35 @@ export default function BillingPage() {
         />
 
         {/* 상단 헤더 영역 */}
-        <header className="mx-auto max-w-5xl px-6 md:px-10 pt-20">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-3 py-1 text-[11px] font-medium text-neutral-700 shadow-sm dark:bg-black/40 dark:border-white/15 dark:text-neutral-200">
+        <header className="mx-auto max-w-5xl px-6 md:px-10 pt-24 md:pt-28">
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-300 bg-blue-50/90 px-3.5 py-1.5 text-[12px] font-semibold text-blue-700 shadow-sm dark:border-white/32 dark:bg-[linear-gradient(135deg,rgba(37,99,235,0.24),rgba(15,23,42,0.88))] dark:text-white dark:shadow-[0_18px_42px_-24px_rgba(37,99,235,0.72)]">
             {t("badge")}
           </div>
 
-          <div className="mt-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+          <div className="mt-2.5">
             <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-white dark:[text-shadow:0_1px_12px_rgba(0,0,0,0.45)]">
+              <h1 className="text-[26px] sm:text-[30px] md:text-[36px] font-extrabold tracking-tight text-neutral-900 dark:text-white dark:[text-shadow:0_1px_12px_rgba(0,0,0,0.45)]">
                 {t("title")}
               </h1>
-              <p className="mt-2 text-sm md:text-base text-neutral-700 dark:text-neutral-300 max-w-xl">
-                {t("subtitle")}
-              </p>
             </div>
-
-            {/* 한국어일 때만 KRW / USD 토글 */}
-            {isKorean && (
-              <div className="mt-1 md:mt-0 flex justify-end">
-                <div
-                  className="
-                    inline-flex items-center
-                    rounded-full border border-white/70 bg-white/80
-                    px-1.5 py-0.5 text-[11px]
-                    shadow-sm
-                    dark:border-white/20 dark:bg-black/40
-                  "
-                >
-                  <button
-                    type="button"
-                    onClick={() => setCurrency("krw")}
-                    className={[
-                      "px-2.5 py-0.5 rounded-full transition-all",
-                      currency === "krw"
-                        ? "bg-blue-600 text-white shadow"
-                        : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100/80 dark:hover:bg-white/5",
-                    ].join(" ")}
-                  >
-                    {t("currencyToggle.krw")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCurrency("usd")}
-                    className={[
-                      "px-2.5 py-0.5 rounded-full transition-all",
-                      currency === "usd"
-                        ? "bg-blue-600 text-white shadow"
-                        : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100/80 dark:hover:bg-white/5",
-                    ].join(" ")}
-                  >
-                    {t("currencyToggle.usd")}
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </header>
 
         <main className="mx-auto max-w-5xl px-6 md:px-10 pb-24">
           {/* 잔액 카드 */}
-          <section className="mt-2">
+          <section className="mt-8">
+            <div className="mb-5">
+              <h2 className="flex items-center gap-3 text-[22px] md:text-[27px] font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
+                <span className="inline-block h-3 w-3 rounded-full bg-blue-600 shadow-[0_0_0_5px_rgba(59,130,246,0.12)] dark:bg-blue-300 dark:shadow-[0_0_0_5px_rgba(96,165,250,0.16)]" />
+                {t("balance.label")}
+              </h2>
+            </div>
             <div
               className="
                 relative overflow-hidden
-                rounded-3xl border border-neutral-200/80 dark:border-white/15
-                bg-white/95 dark:bg-black/50
-                shadow-[0_18px_45px_-26px_rgba(15,23,42,0.20)]
+                rounded-3xl border border-slate-400 dark:border-white/28
+                bg-white/95 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.96),rgba(2,6,23,0.98))]
+                shadow-[0_18px_45px_-26px_rgba(15,23,42,0.20)] dark:shadow-[0_28px_70px_-34px_rgba(0,0,0,0.92)]
                 px-5 py-5 sm:px-6 sm:py-6
               "
             >
@@ -312,29 +274,13 @@ export default function BillingPage() {
 
               <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 {/* 왼쪽: 아이콘 + 숫자 + 간단 설명 */}
-                <div className="space-y-2">
-                  <div className="inline-flex items-center gap-2 text-xs font-medium text-neutral-600 dark:text-neutral-300">
-                    {/* 크레딧 코인 아이콘 */}
-                    <span
-                      className="
-                        inline-flex h-7 w-7 items-center justify-center
-                        rounded-full
-                        bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500
-                        text-[11px] font-semibold text-white
-                        shadow-[0_4px_14px_rgba(37,99,235,0.55)]
-                      "
-                    >
-                      CR
-                    </span>
-                    <span>{t("balance.label")}</span>
-                  </div>
-
+                <div className="flex flex-col gap-2">
                   {/* 숫자 + '크레딧' 아래 정렬 */}
-                  <div className="mt-1 flex items-end gap-2">
-                    <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
+                  <div className="mt-1 flex items-baseline gap-2">
+                    <span className="leading-none text-[38px] sm:text-[48px] font-extrabold tracking-tight text-neutral-900 dark:text-white">
                       {balance === null ? "…" : balance.total.toLocaleString()}
                     </span>
-                    <span className="text-sm font-medium text-neutral-500 dark:text-neutral-300 pb-1">
+                    <span className="leading-none text-[18px] font-semibold text-neutral-500 dark:text-white/72">
                       {t("balance.unit")}
                     </span>
                   </div>
@@ -345,9 +291,9 @@ export default function BillingPage() {
                     <div
                       className="
       inline-flex flex-wrap items-center gap-1.5
-      rounded-full bg-neutral-100/80 px-2.5 py-1
-      text-[10px] sm:text-[11px] text-neutral-700
-      dark:bg-white/5 dark:text-neutral-300
+      rounded-full border border-slate-400 bg-neutral-100/80 px-2.5 py-1
+      text-[12px] sm:text-[13px] text-neutral-700
+      dark:border-white/24 dark:bg-white/10 dark:text-white/86
     "
                     >
                       <span className="font-semibold">
@@ -355,7 +301,7 @@ export default function BillingPage() {
                       </span>
                       <span>{balance.paid.toLocaleString()}</span>
 
-                      <span className="mx-1 h-3 w-px bg-neutral-300/70 dark:bg-neutral-600/70" />
+                      <span className="mx-1 h-3 w-px bg-neutral-300/70 dark:bg-white/22" />
 
                       <span className="font-semibold">
                         {t("balance.freeLabel")}
@@ -364,72 +310,51 @@ export default function BillingPage() {
                     </div>
                   )}
 
-                  <p className="mt-2 text-xs sm:text-sm text-neutral-600 dark:text-neutral-300">
-                    {t("balance.hintPrefix")}{" "}
-                    <span className="font-semibold">
-                      {t("balance.hintStrong")}
-                    </span>
-                  </p>
                 </div>
 
-                {/* 오른쪽: 액션 버튼 2개 (충전 + 미션) */}
+                {/* 오른쪽: 액션 버튼 + 보조 링크 */}
                 <div className="flex flex-col gap-2 sm:items-end min-w-[220px]">
-                  {/* 1) Primary: 충전하기 */}
-                  <a
-                    href="#packs"
+                  <Link
+                    href={billingHistoryHref}
                     className="
       inline-flex w-full sm:w-auto items-center justify-center
       rounded-2xl px-5 py-3
-      text-sm font-semibold text-white
-      bg-blue-600 dark:bg-[rgb(var(--hero-a))]
-      border border-blue-600/20 dark:border-white/10
+      text-sm font-semibold
+      text-slate-800 dark:text-slate-100
+      bg-slate-100/95 dark:bg-slate-900/70
+      border border-slate-500/80 dark:border-slate-500/55
       transition-all
-      hover:scale-[1.02] hover:shadow-sm
+      hover:scale-[1.02] hover:shadow-sm hover:bg-slate-200/90 dark:hover:bg-slate-800/85
       active:scale-[0.99]
-      focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/35
-      dark:focus-visible:ring-[rgb(var(--hero-b))]/35
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20
     "
                   >
-                    {t("balance.chargeButton")}
-                  </a>
+                    {t("balance.historyButton")}
+                  </Link>
 
                   {/* 2) Secondary: 미션으로 무료 크레딧 */}
                   <Link
                     href="/missions"
                     className="
-      group inline-flex w-full sm:w-auto items-center justify-center gap-2
-      rounded-2xl px-5 py-3
-      text-sm font-semibold
-      text-neutral-900 dark:text-neutral-50
-      bg-white/90 dark:bg-black/40
-      border border-neutral-200/80 dark:border-white/15
-      transition-all
-      hover:scale-[1.02] hover:shadow-sm
-      active:scale-[0.99]
-      focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/25
-    "
+      group inline-flex w-full sm:w-auto items-center justify-center gap-1.5
+      px-1 py-1
+      text-[13px] font-medium
+      text-emerald-700 dark:text-emerald-300
+      transition-colors
+      hover:text-emerald-800 dark:hover:text-emerald-200
+      focus:outline-none
+                    "
                   >
-                    <span
-                      className="
-        inline-flex h-6 items-center justify-center rounded-full px-2
-        text-[11px] font-extrabold
-        bg-emerald-500/12 text-emerald-800
-        dark:bg-emerald-400/15 dark:text-emerald-100
-        border border-emerald-600/15 dark:border-emerald-300/15
-      "
-                    >
-                      +5
-                    </span>
                     <span className="whitespace-nowrap">
-                    {t("bullets.missionCredits")}
+                      {t("bullets.missionCredits")}
                     </span>
 
                     <span
                       aria-hidden
                       className="
-        ml-1 inline-block h-4 w-4
+        inline-block h-3.5 w-3.5
         [clip-path:polygon(25%_15%,85%_50%,25%_85%)]
-        bg-neutral-400 dark:bg-neutral-500
+        bg-current
         transition-transform group-hover:translate-x-0.5
       "
                     />
@@ -441,24 +366,12 @@ export default function BillingPage() {
 
           {/* 패키지 카드 섹션 */}
           <section id="packs" className="mt-10">
-            <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div className="mb-5">
               <div>
-                <h2 className="text-xl md:text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
+                <h2 className="flex items-center gap-3 text-[22px] md:text-[27px] font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
+                  <span className="inline-block h-3 w-3 rounded-full bg-blue-600 shadow-[0_0_0_5px_rgba(59,130,246,0.12)] dark:bg-blue-300 dark:shadow-[0_0_0_5px_rgba(96,165,250,0.16)]" />
                   {t("packs.title")}
                 </h2>
-                <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-                  {t("packs.subtitle")}{" "}
-                  <span className="font-semibold text-blue-700 dark:text-[rgb(var(--hero-b))]">
-                    {t("packs.subtitleHighlight")}
-                  </span>
-                </p>
-              </div>
-              <div className="text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400">
-                {t("packs.summary.prefix")}{" "}
-                <span className="font-medium">{currencyLabel}</span>{" "}
-                {t("packs.summary.middle")}{" "}
-                <span className="font-medium">{processorLabel}</span>{" "}
-                {t("packs.summary.suffix")}
               </div>
             </div>
 
@@ -468,49 +381,30 @@ export default function BillingPage() {
                   key={pack.id}
                   pack={pack}
                   userId={session?.user?.id ?? null}
+                  locale={locale}
                 />
               ))}
             </div>
 
-            {/* 결제/환불 안내 */}
-            <div
-              className="
-                mt-7 rounded-3xl border border-neutral-200/80 dark:border-white/15
-                bg-white/80 p-4 sm:p-5
-                text-xs sm:text-sm text-neutral-700 space-y-1.5
-                dark:bg-black/35 dark:text-neutral-200
-              "
-            >
-              {currency === "usd" && <p>{t("packs.info.usdFee")}</p>}
-              <p>{t("packs.info.instant")}</p>
-              <p>{t("packs.info.refund")}</p>
-            </div>
-          </section>
-
-          {/* 크레딧 사용 기준 */}
-          <section className="mt-10">
-            <div className="rounded-3xl border border-neutral-200/80 dark:border-white/15 bg-white/90 p-4 sm:p-5 dark:bg-black/40">
-              <h3 className="text-sm sm:text-base font-semibold text-neutral-900 dark:text-neutral-50">
-                {t("usage.title")}
-              </h3>
-              <ul className="mt-2 space-y-1.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200">
-                <li>{t("usage.item1")}</li>
-                <li>{t("usage.item2")}</li>
-                <li>{t("usage.item3")}</li>
-              </ul>
-              <p className="mt-2 text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400">
-                {t("usage.note")}
+            <div className="mt-4 text-right text-xs sm:text-sm text-neutral-500 dark:text-neutral-400">
+              <p>
+                {t("packs.info.refund")}{" "}
+                <Link
+                  href={refundPolicyHref}
+                  className="font-semibold text-blue-700 hover:underline dark:text-[rgb(var(--hero-b))]"
+                >
+                  {t("packs.info.refundPolicy")}
+                </Link>
               </p>
             </div>
           </section>
 
           {/* FAQ 섹션 */}
           <section className="mt-12">
-            <h3 className="text-lg md:text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+            <h3 className="text-base md:text-lg font-semibold text-neutral-700 dark:text-neutral-300">
               {t("faq.title")}
             </h3>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <FaqItem q={t("faq.q1")} a={t("faq.a1")} />
               <FaqItem q={t("faq.q2")} a={t("faq.a2")} />
               <FaqItem q={t("faq.q3")} a={t("faq.a3")} />
               <FaqItem q={t("faq.q4")} a={t("faq.a4")} />
@@ -525,13 +419,14 @@ export default function BillingPage() {
 function CreditPackCard({
   pack,
   userId,
+  locale,
 }: {
   pack: CreditPack;
   userId: string | null;
+  locale: string;
 }) {
   const t = useTranslations("BillingPage");
   const { credits, price, currency, checkoutUrl, popular, starter } = pack;
-  console.log(pack);
   const router = useRouter();
 
   const handleBuy = () => {
@@ -542,7 +437,7 @@ function CreditPackCard({
 
     if (!userId) {
       // 혹시 세션 풀리거나 비로그인 상태면 로그인으로
-      router.push("/login");
+      router.push(`/${locale}/login?next=${encodeURIComponent(`/${locale}/billing`)}`);
       return;
     }
 
@@ -557,29 +452,66 @@ function CreditPackCard({
     // 결제 완료 후 리다이렉트 URL (선택)
     url.searchParams.set(
       "checkout[product_options][redirect_url]",
-      `${window.location.origin}/billing?success=1`
+      `${window.location.origin}/${locale}/billing?success=1`
     );
 
     window.open(url.toString(), "_blank", "noopener,noreferrer");
   };
 
   const unit = price / credits; // 1크레딧당 대략 가격
-  const approxMaps = credits; // 구조맵 1개 = 1크레딧 기준
   const isLargePack = !popular && !starter && credits >= 300;
 
   return (
     <div
       className={[
-        "rounded-3xl border bg-white/85 p-5 flex flex-col",
-        "shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)]",
+        "group relative flex h-full flex-col rounded-2xl border p-4 shadow-sm transition-all duration-300 ease-out will-change-transform",
+        "text-neutral-900 hover:-translate-y-1 hover:shadow-[0_24px_44px_-24px_rgba(15,23,42,0.34)] hover:rotate-[-0.4deg] dark:hover:shadow-[0_28px_52px_-28px_rgba(37,99,235,0.42)]",
         popular
-          ? "border-blue-500/70 dark:border-[rgb(var(--hero-b))]"
-          : "border-neutral-200/80 dark:border-white/15",
-        "dark:bg-black/40",
+          ? "border-[var(--color-primary-500)] bg-[linear-gradient(180deg,#ffffff_0%,#f5f9ff_100%)] shadow-[0_26px_60px_-34px_rgba(37,99,235,0.34)] hover:border-[var(--color-primary-400)] dark:border-blue-400/35 dark:bg-[linear-gradient(180deg,rgba(37,99,235,0.16),rgba(15,23,42,0.94))] dark:text-[var(--color-card-foreground,#e5e7eb)]"
+          : "border-slate-400 bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] shadow-[0_22px_48px_-34px_rgba(15,23,42,0.22)] hover:border-slate-500 dark:border-white/12 dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(15,23,42,0.94))] dark:text-[var(--color-card-foreground,#e5e7eb)] dark:hover:border-white/20",
       ].join(" ")}
     >
+      <div
+        aria-hidden
+        className={[
+          "pointer-events-none absolute inset-x-6 top-0 h-px opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+          popular
+            ? "bg-gradient-to-r from-transparent via-blue-400 to-transparent"
+            : "bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-500",
+        ].join(" ")}
+      />
+      <div
+        aria-hidden
+        className={[
+          "pointer-events-none absolute inset-x-4 top-0 h-20 rounded-t-[18px] opacity-90",
+          popular
+            ? "bg-[radial-gradient(60%_100%_at_50%_0%,rgba(59,130,246,0.16),transparent_74%)] dark:bg-[radial-gradient(60%_100%_at_50%_0%,rgba(96,165,250,0.18),transparent_76%)]"
+            : "bg-[radial-gradient(60%_100%_at_50%_0%,rgba(148,163,184,0.10),transparent_74%)] dark:bg-[radial-gradient(60%_100%_at_50%_0%,rgba(255,255,255,0.08),transparent_76%)]",
+        ].join(" ")}
+      />
+
+      <div className="mb-1 h-6">
       {(popular || starter || isLargePack) && (
-        <div className="mb-3 inline-flex items-center gap-1 self-start rounded-full border border-blue-500/40 bg-blue-500/10 px-2.5 py-0.5 text-[11px] font-medium text-blue-700 dark:border-[rgb(var(--hero-b))]/50 dark:bg-[rgb(var(--hero-b))]/15 dark:text-[rgb(var(--hero-b))]">
+        <div
+          className={[
+            "inline-flex items-center gap-1 self-start rounded-full border px-3 py-1 text-xs font-bold transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-[1.03]",
+            starter && !popular ? "opacity-85" : "",
+            popular
+              ? "border-blue-500 bg-blue-600 text-white shadow-[0_12px_24px_-12px_rgba(37,99,235,0.6)] dark:border-blue-300 dark:bg-blue-500"
+              : "",
+          ].join(" ")}
+          style={
+            popular
+              ? undefined
+              : {
+                  borderColor:
+                    "color-mix(in_srgb,var(--color-primary-500),transparent 70%)",
+                  background:
+                    "color-mix(in_srgb,var(--color-primary-500),white 85%)",
+                  color: "var(--color-primary-700)",
+                }
+          }
+        >
           {popular
             ? t("card.badge.popular")
             : starter
@@ -587,21 +519,23 @@ function CreditPackCard({
             : t("card.badge.large")}
         </div>
       )}
-      <div className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
+      </div>
+      <div className="relative text-[28px] font-bold tracking-tight text-neutral-900 dark:text-[var(--color-foreground,#e5e7eb)] md:text-[34px]">
         {credits.toLocaleString()}{" "}
-        <span className="text-base font-medium text-neutral-500 dark:text-neutral-400">
+        <span className="text-xl font-semibold text-neutral-600 dark:text-[var(--color-muted-foreground,#cbd5e1)]">
           {t("card.creditsUnit")}
         </span>
       </div>
 
-      <div className="mt-1 text-neutral-800 dark:text-neutral-200">
+      <div className="mt-2 text-2xl font-bold text-neutral-900 dark:text-[var(--color-card-foreground,#e5e7eb)] md:text-[28px]">
         {formatPrice(price, currency)}
       </div>
 
-      <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-        {t("card.unitPricePrefix")} {formatPrice(unit, currency)}{" "}
-        {t("card.unitPriceMiddle")} {approxMaps.toLocaleString()}
-        {t("card.unitPriceSuffix")}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <div className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700 transition-transform duration-300 group-hover:-translate-y-0.5 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200">
+          {t("card.unitPricePrefix")} {formatPrice(unit, currency)} /{" "}
+          {t("card.creditsUnit")}
+        </div>
       </div>
 
       <div className="mt-5 flex-1" />
@@ -609,13 +543,11 @@ function CreditPackCard({
       <button
         onClick={handleBuy}
         className="
-          w-full rounded-2xl px-4 py-2.5 text-sm font-semibold
-          bg-blue-600 text-white
-          hover:bg-blue-700
-          hover:-translate-y-0.5 hover:shadow-lg
-          active:translate-y-0
-          transition-all
-          dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+          block w-full rounded-[var(--radius-lg)] px-4 py-3 text-center text-[16px] font-semibold shadow-sm
+          bg-[var(--color-primary-500,#2563eb)] text-[var(--color-primary-foreground,#ffffff)]
+          hover:bg-[var(--color-primary-hover,#1d4ed8)] hover:text-[var(--color-primary-foreground,#ffffff)]
+          dark:bg-[var(--color-primary-500,#3758f9)] dark:hover:bg-[var(--color-primary-hover,#2f49d1)] dark:text-white
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring,#93c5fd)]
         "
       >
         {t("card.cta")}
@@ -628,15 +560,15 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   return (
     <div
       className="
-        rounded-2xl border border-neutral-200/80 dark:border-white/15
-        bg-white/85 p-4
-        dark:bg-black/35
+        rounded-2xl border border-neutral-200/70 dark:border-white/12
+        bg-white/72 p-4
+        dark:bg-black/28
       "
     >
-      <div className="font-medium text-neutral-900 dark:text-neutral-50">
+      <div className="font-medium text-neutral-800 dark:text-neutral-100">
         {q}
       </div>
-      <div className="mt-1.5 text-sm text-neutral-700 dark:text-neutral-200">
+      <div className="mt-1.5 text-sm text-neutral-600 dark:text-neutral-300">
         {a}
       </div>
     </div>

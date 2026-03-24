@@ -7,7 +7,7 @@ import DraftMapCard from "@/app/[locale]/(main)/video-to-map/DraftMapCard";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 import { brifyDemoSample } from "@/app/lib/demo/brifyDemoSample";
 import DemoFullscreenDialog from "@/components/demo/DemoFullscreenDialog";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 const DEMO = brifyDemoSample;
 const DEMO_CREDITS = 26;
@@ -39,6 +39,7 @@ function buildDemoDraft(language: "ko" | "en", scriptText: string): MapDraft {
 
 export default function DemoPage() {
   const t = useTranslations("DemoPage");
+  const locale = useLocale();
   const [scriptText, setScriptText] = useState(DEMO.transcriptLines.join("\n\n"));
   const [outputLang, setOutputLang] = useState("ko");
   const [error, setError] = useState<string | null>(null);
@@ -57,6 +58,7 @@ export default function DemoPage() {
   );
   const selectedMindData = DEMO.mindDataByLanguage[resolvedLanguage];
   const requiredCredits = 1;
+  const eyebrowLabel = locale === "ko" ? "사용해보기" : "Live Demo";
 
   const handleDemoLanguageChange = (nextLang: string) => {
     if (nextLang === "ko" || nextLang === "en" || nextLang === "auto") {
@@ -163,9 +165,9 @@ export default function DemoPage() {
 
       <div className="max-w-6xl mx-auto px-2 md:px-10 flex flex-col gap-3 relative">
         <header className="mt-12 md:mt-[78px]">
-          <div className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-700 shadow-sm dark:border-white/20 dark:bg-white/8 dark:text-blue-300">
-            <span className="h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400" />
-            {t("eyebrow")}
+          <div className="inline-flex items-center gap-3 text-xl font-black tracking-[-0.03em] text-neutral-900 dark:text-white sm:text-2xl md:text-3xl">
+            <span className="h-2.5 w-2.5 rounded-full bg-blue-600 dark:bg-blue-400" />
+            {eyebrowLabel}
           </div>
           <h1 className="mt-4 text-2xl font-extrabold leading-tight tracking-tight text-neutral-900 dark:text-white">
             {t("titlePrefix")}{" "}

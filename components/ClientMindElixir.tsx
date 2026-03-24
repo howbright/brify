@@ -311,6 +311,7 @@ function parseScale(transform: string | null) {
 }
 
 const PAN_MODE_CLASS = "me-pan-mode";
+const DARK_CANVAS_CLASS = "me-dark-canvas";
 const VIEW_MODE_CLASS = "me-view-mode";
 const BLOCKED_OPS = [
   "addChild",
@@ -1638,7 +1639,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   }, [panMode, panModeButton, ready]);
 
   return (
-    <div ref={wrapperRef} className="relative w-full h-full">
+    <div
+      ref={wrapperRef}
+      className={`relative h-full w-full ${effectiveMode === "dark" ? DARK_CANVAS_CLASS : ""}`}
+    >
       <style jsx global>{`
         .${PAN_MODE_CLASS} me-tpc,
         .${PAN_MODE_CLASS} [data-nodeid],
@@ -1661,6 +1665,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         me-tpc {
           position: relative;
           overflow: visible;
+        }
+        .${DARK_CANVAS_CLASS} me-tpc {
+          border: 1.5px solid rgba(255, 255, 255, 0.84) !important;
+          box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+        }
+        .${DARK_CANVAS_CLASS} me-root me-tpc,
+        .${DARK_CANVAS_CLASS} me-tpc.root {
+          border-color: rgba(255, 255, 255, 0.97) !important;
         }
         .me-note-dot {
           position: absolute;
@@ -1721,11 +1733,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       <div ref={elRef} className="relative w-full h-full" />
 
       {showMiniMap && (
-        <div className="pointer-events-auto absolute bottom-6 right-4 z-20 rounded-xl border border-neutral-200 bg-white/90 p-2 shadow-sm dark:border-white/10 dark:bg-[#0b1220]/75">
-          <div className="text-[10px] font-semibold text-neutral-500 dark:text-white/60">
+        <div className="pointer-events-auto absolute bottom-6 right-4 z-20 rounded-xl border border-neutral-200 bg-white/90 p-2 shadow-sm dark:border-white/45 dark:bg-[#0b1220]/82 dark:shadow-[0_16px_42px_-24px_rgba(15,23,42,0.92)]">
+          <div className="text-[14px] font-bold text-neutral-600 dark:text-white/88">
             미니맵
           </div>
-          <canvas ref={miniMapRef} className="mt-1 h-[120px] w-[160px]" />
+          <canvas ref={miniMapRef} className="mt-1 h-[132px] w-[176px]" />
         </div>
       )}
       {!isFocusMode && selectedNodeId && selectedRect && (
