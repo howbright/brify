@@ -52,7 +52,9 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => null);
     const rootTitle = String(body?.rootTitle ?? "").trim();
     const orderedMapIds = Array.isArray(body?.orderedMapIds)
-      ? body.orderedMapIds.map((id: any) => String(id)).filter(Boolean)
+      ? body.orderedMapIds
+          .map((id: unknown) => String(id))
+          .filter(Boolean)
       : [];
 
     if (!rootTitle) {
@@ -92,11 +94,11 @@ export async function POST(request: Request) {
     const children: MindNode[] = [];
     const tagSet = new Set<string>();
     const orderedIds = orderedMapIds.slice();
-    orderedIds.forEach((id) => {
+    orderedIds.forEach((id: string) => {
       const row = rowById.get(id);
       if (!row) return;
       if (Array.isArray(row.tags)) {
-        row.tags.forEach((tag) => tagSet.add(tag));
+        row.tags.forEach((tag: string) => tagSet.add(tag));
       }
       const raw = row.mind_elixir_draft ?? row.mind_elixir ?? null;
       const cloned = cloneData(raw);

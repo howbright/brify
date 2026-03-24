@@ -20,10 +20,18 @@ type MindData =
 
 function getRootNode(data: MindData): MindNode | null {
   if (!data) return null;
-  if (data.nodeData) return data.nodeData as MindNode;
-  if (data.data?.nodeData) return data.data.nodeData as MindNode;
-  if (data.root?.nodeData) return data.root.nodeData as MindNode;
-  if (data.topic || data.children) return data as MindNode;
+  if (typeof data === "object" && "nodeData" in data && data.nodeData) {
+    return data.nodeData as MindNode;
+  }
+  if (typeof data === "object" && "data" in data && data.data?.nodeData) {
+    return data.data.nodeData as MindNode;
+  }
+  if (typeof data === "object" && "root" in data && data.root?.nodeData) {
+    return data.root.nodeData as MindNode;
+  }
+  if (typeof data === "object" && ("topic" in data || "children" in data)) {
+    return data as MindNode;
+  }
   return null;
 }
 

@@ -215,7 +215,6 @@ export default function SummarizePage() {
               setRawText={setRawText}
               loading={loading}
               hasSummarized={hasSummarized}
-              setTags={setTags}
               extractionSucceeded={extractionSucceeded}
               onSummarize={handleSummarize}
               isManual={sourceType === SourceType.MANUAL}

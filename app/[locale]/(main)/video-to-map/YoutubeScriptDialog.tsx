@@ -10,10 +10,20 @@ type Props = {
   onClose: () => void;
 };
 
+type GuideStep = {
+  number: number;
+  title: string;
+  imageLabel: string;
+  accent: "neutral" | "indigo";
+  imageSrc: string;
+  description?: string;
+  keycap?: boolean;
+};
+
 export default function YoutubeScriptDialog({ open, onClose }: Props) {
   const t = useTranslations("YoutubeScriptDialog");
   const [openStep, setOpenStep] = useState<number>(5);
-  const GUIDE_STEPS = [
+  const GUIDE_STEPS: GuideStep[] = [
     { number: 1, title: t("steps.1.title"), imageLabel: t("steps.1.imageLabel"), accent: "neutral", imageSrc: "/images/help/youtube-step1-watch-page.png" },
     { number: 2, title: t("steps.2.title"), imageLabel: t("steps.2.imageLabel"), accent: "neutral", imageSrc: "/images/help/youtube-step2-menu.png" },
     { number: 3, title: t("steps.3.title"), imageLabel: t("steps.3.imageLabel"), accent: "neutral", imageSrc: "/images/help/firstwordselected.png" },
@@ -22,7 +32,7 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
     { number: 6, title: t("steps.6.title"), imageLabel: t("steps.6.imageLabel"), accent: "neutral", imageSrc: "/images/help/allselected.png" },
     { number: 7, title: t("steps.7.title"), imageLabel: t("steps.7.imageLabel"), accent: "neutral", keycap: true, imageSrc: "/images/help/copy.png" },
     { number: 8, title: t("steps.8.title"), imageLabel: t("steps.8.imageLabel"), accent: "neutral", keycap: true, imageSrc: "/images/help/paste.png" },
-  ] as const;
+  ];
 
   // ✅ ESC 닫기
   useEffect(() => {
@@ -199,33 +209,13 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
                       ].join(" ")}
                     >
                       <div className="flex flex-col items-center gap-2 text-center">
-                        {"imageSrc" in step ? (
-                          <Image
-                            src={step.imageSrc}
-                            alt={step.title}
-                            width={1200}
-                            height={800}
-                            className="max-h-[320px] w-full rounded-xl object-contain"
-                          />
-                        ) : (
-                          <>
-                            <Icon
-                              icon="mdi:image-outline"
-                              className={[
-                                "h-8 w-8",
-                                isAccent
-                                  ? "text-indigo-400 dark:text-indigo-300"
-                                  : "text-neutral-300 dark:text-neutral-500",
-                              ].join(" ")}
-                            />
-                            <p className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
-                              {step.imageLabel}
-                            </p>
-                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                              {t("imagePlaceholder")}
-                            </p>
-                          </>
-                        )}
+                        <Image
+                          src={step.imageSrc}
+                          alt={step.title}
+                          width={1200}
+                          height={800}
+                          className="max-h-[320px] w-full rounded-xl object-contain"
+                        />
                       </div>
                     </div>
                   </div>

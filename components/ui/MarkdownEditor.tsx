@@ -3,6 +3,7 @@ import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Highlight from "@tiptap/extension-highlight";
 import { Markdown } from "tiptap-markdown";
+import type { Level } from "@tiptap/extension-heading";
 
 interface Props {
   initialContent?: string;
@@ -53,14 +54,14 @@ export default function MarkdownEditor({
 
 function Toolbar({ editor }: { editor: Editor | null }) {
   if (!editor) return null;
-  const btn = (cmd: string, label: string) => (
+  const toggleButton = (
+    label: string,
+    onClick: () => void,
+    active: boolean
+  ) => (
     <button
-      onClick={() => editor.chain().focus()[cmd]().run()}
-      className={`px-2 py-1 text-xs rounded ${
-        editor.isActive(cmd.split(/([()])/)[0])
-          ? "bg-blue-600 text-white"
-          : "bg-white text-gray-800"
-      }`}
+      onClick={onClick}
+      className={`px-2 py-1 text-xs rounded ${active ? "bg-blue-600 text-white" : "bg-white text-gray-800"}`}
     >
       {label}
     </button>
@@ -68,13 +69,13 @@ function Toolbar({ editor }: { editor: Editor | null }) {
 
   return (
     <div className="flex gap-2 p-2 border-b bg-gray-50 sticky top-0 z-10">
-      {btn("toggleBold", "Bold")}
-      {btn("toggleHighlight", "Highlight")}
-      {[1, 2, 3].map((l) => (
+      {toggleButton("Bold", () => editor.chain().focus().toggleBold().run(), editor.isActive("bold"))}
+      {toggleButton("Highlight", () => editor.chain().focus().toggleHighlight().run(), editor.isActive("highlight"))}
+      {([1, 2, 3] as const).map((l) => (
         <button
           key={l}
           onClick={() =>
-            editor.chain().focus().toggleHeading({ level: l }).run()
+            editor.chain().focus().toggleHeading({ level: l as Level }).run()
           }
           className={`px-2 py-1 text-xs rounded ${
             editor.isActive("heading", { level: l })

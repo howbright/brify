@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
 
-    const sourceLower = new Set(sourceTags.map((tag) => tag.toLowerCase()));
+    const sourceLower = new Set(sourceTags.map((tag: string) => tag.toLowerCase()));
     let offset = 0;
     let updated = 0;
 
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
           sourceLower.has(tag.toLowerCase()) ? targetTag : tag
         );
         const seen = new Set<string>();
-        const deduped = next.filter((tag) => {
+        const deduped = next.filter((tag: string) => {
           const key = tag.toLowerCase();
           if (seen.has(key)) return false;
           seen.add(key);

@@ -28,7 +28,7 @@ function buildDemoDraft(language: "ko" | "en", scriptText: string): MapDraft {
     title: DEMO.title,
     channelName: DEMO.channelName,
     thumbnailUrl: DEMO.thumbnailUrl,
-    tags: DEMO.tags,
+    tags: [...DEMO.tags],
     description: DEMO.summaryByLanguage[language],
     summary: DEMO.summaryByLanguage[language],
     sourceCharCount: scriptText.length,
