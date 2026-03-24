@@ -144,7 +144,7 @@ export default function ClientMobileUserMenu({
                       }}
                       className="w-full text-left py-2"
                     >
-                      크레딧·결제
+                      {t("userMenu.items.billing")}
                     </button>
                     <button
                       onClick={() => {

@@ -758,22 +758,10 @@
   "BillingPage": {
     "badge": "Pay only when you need it · No subscription",
     "title": "Top up credits",
-    "subtitle": "Top up credits only when you need them.",
-
-    "currencyToggle": {
-      "krw": "Domestic payment",
-      "usd": "International card",
-      "krwHint": "Recommended when paying in Korea.",
-      "usdHint": "Choose this if you're using a card issued overseas."
-    },
-
     "balance": {
       "label": "Current credit balance",
       "unit": "credits",
-      "hintPrefix": "Most Structure Maps use",
-      "hintStrong": "around 1 credit.",
       "mainButton": "Back to home",
-      "chargeButton": "Add credits",
       "historyButton": "View billing history",
       "paidLabel": "Paid credits",
       "freeLabel": "Reward credits"
@@ -781,45 +769,20 @@
 
     "packs": {
       "title": "Choose a credit pack",
-      "subtitle": "The more you top up,",
-      "subtitleHighlight": "the less you pay per credit.",
-      "summary": {
-        "prefix": "Payments are processed in",
-        "middle": "via",
-        "suffix": "and handled securely.",
-        "krw": "KRW",
-        "usd": "USD",
-        "processor": {
-          "krw": "Toss Payments",
-          "usd": "LemonSqueezy"
-        }
-      },
       "info": {
-        "usdFee": "• Payments are processed in USD and some cards may charge a small foreign transaction fee.",
-        "instant": "• Credits are added to your account automatically within a few seconds after payment.",
         "refund": "• Unused credits can be refunded within 7 days of purchase.",
         "refundPolicy": "View refund policy"
       }
     },
 
-    "usage": {
-      "title": "How credits are used",
-      "item1": "• Scripts up to 2 hours → 1 credit",
-      "item2": "• 2–3 hour long videos → 2 credits",
-      "item3": "• 3+ hour very long videos → 3 credits",
-      "note": "※ These thresholds may change in the future. We’ll let you know in advance before any updates."
-    },
-
     "faq": {
       "title": "FAQ",
-      "q1": "Why do you use a credit system?",
-      "a1": "Some days you use it a lot and some days not at all. A pay-as-you-go credit system is more flexible than a fixed subscription.",
       "q2": "How many credits does a video use?",
-      "a2": "By default, 1 Structure Map = 1 credit. Longer videos (2–3 hours) use 2 credits, and very long videos (3+ hours) use 3 credits.",
+      "a2": "Most content uses just 1 credit. Up to 70,000 characters uses 1 credit, 70,001 to 110,000 characters uses 2 credits, and anything over 110,000 characters can't be processed.",
       "q3": "Do credits expire?",
       "a3": "For now, credits don’t expire. If we ever change this, we’ll give you plenty of notice.",
-      "q4": "Can I get an invoice or receipt?",
-      "a4": "Every payment comes with an email receipt. If you need additional documents for your company, contact us and we’ll help."
+      "q4": "Will I receive a payment receipt?",
+      "a4": "Yes. Lemon Squeezy sends a receipt email after payment. If you have a billing issue and can't find it, contact us and we can help you check the order details."
     },
 
     "card": {
@@ -1339,6 +1302,9 @@
   },
   "Footer": {
     "description": "A service that turns large amounts of information into structure for faster understanding.",
+    "contactEmail": "Email",
+    "contactPhone": "Phone",
+    "contactAddress": "Address",
     "company": {
       "representative": "Representative: Nahyun Lee",
       "businessNumber": "Business Registration Number: 726-22-01928",

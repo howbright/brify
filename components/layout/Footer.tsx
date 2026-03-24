@@ -90,9 +90,15 @@ export default function Footer() {
               {t("contact.title")}
             </div>
             <div className="mt-4 space-y-2 text-[14px] font-medium text-slate-500 dark:text-slate-400">
-              <p>contact@brify.ai</p>
-              <p>031-701-0274</p>
-              <p>{t("contact.address")}</p>
+              <p>
+                {t("contactEmail")}: hello@brify.ai
+              </p>
+              <p>
+                {t("contactPhone")}: 031-701-0274
+              </p>
+              <p>
+                {t("contactAddress")}: {t("contact.address")}
+              </p>
             </div>
           </div>
 

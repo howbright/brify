@@ -5,7 +5,7 @@ import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import Script from "next/script";
 import { useSession } from "@/components/SessionProvider";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
 type Currency = "krw" | "usd";
@@ -20,14 +20,12 @@ type CreditPack = {
   starter?: boolean;
 };
 
-// ✅ 잔액 타입: 전체 / 유료 / 무료
 type BalanceResponse = {
   total: number;
   paid: number;
   free: number;
 };
 
-// 💳 결제 링크는 환경변수로 주입 (예시)
 const PACKS_BY_CURRENCY: Record<Currency, CreditPack[]> = {
   krw: [
     {
@@ -81,7 +79,6 @@ const PACKS_BY_CURRENCY: Record<Currency, CreditPack[]> = {
   ],
 };
 
-// 통화별 포맷터
 function formatPrice(amount: number, currency: Currency) {
   if (currency === "krw") {
     return new Intl.NumberFormat("ko-KR", {
@@ -100,30 +97,18 @@ export default function BillingPage() {
   const t = useTranslations("BillingPage");
   const { session } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const locale = useLocale();
   const isKorean = locale === "ko";
-
-  const currencyFromQuery = searchParams.get("currency");
-  const initialCurrency: Currency =
-    currencyFromQuery === "krw" || currencyFromQuery === "usd"
-      ? currencyFromQuery
-      : isKorean
-        ? "krw"
-        : "usd";
-
-  const [currency, setCurrency] = useState<Currency>(initialCurrency);
+  const currency: Currency = isKorean ? "krw" : "usd";
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
+  const [openFaq, setOpenFaq] = useState<"q2" | "q3" | "q4" | null>(null);
 
-  // 로그인 안되면 /login 으로
   useEffect(() => {
     if (!session) {
       router.push(`/${locale}/login?next=${encodeURIComponent(`/${locale}/billing`)}`);
     }
   }, [session, router, locale]);
 
-  // TODO: 실제 크레딧 잔액 API 연동 전까지는 더미 데이터
-  // 실제 크레딧 잔액 API 연동
   useEffect(() => {
     if (!session) return;
 
@@ -137,7 +122,6 @@ export default function BillingPage() {
         });
 
         if (res.status === 401) {
-          // 혹시 세션이 꼬였을 때 대비
           router.push(`/${locale}/login?next=${encodeURIComponent(`/${locale}/billing`)}`);
           return;
         }
@@ -163,13 +147,6 @@ export default function BillingPage() {
     };
   }, [session, router, locale]);
 
-  // locale이 한국어가 아니면 강제로 USD
-  useEffect(() => {
-    if (!isKorean && currency !== "usd") {
-      setCurrency("usd");
-    }
-  }, [isKorean, currency]);
-
   const packs = useMemo(
     () =>
       [...PACKS_BY_CURRENCY[currency]].sort((a, b) => a.credits - b.credits),
@@ -178,14 +155,20 @@ export default function BillingPage() {
 
   const refundPolicyHref = `/${locale}/refund-policy`;
   const billingHistoryHref = `/${locale}/billing/history`;
+  const faqItems = [
+    { id: "q2" as const, q: t("faq.q2"), a: t("faq.a2") },
+    { id: "q3" as const, q: t("faq.q3"), a: t("faq.a3") },
+    { id: "q4" as const, q: t("faq.q4"), a: t("faq.a4") },
+  ];
 
   return (
     <>
-      {/* LemonSqueezy 스크립트 (체크아웃용) */}
-      <Script
-        src="https://assets.lemonsqueezy.com/lemon.js"
-        strategy="afterInteractive"
-      />
+      {!isKorean ? (
+        <Script
+          src="https://assets.lemonsqueezy.com/lemon.js"
+          strategy="afterInteractive"
+        />
+      ) : null}
 
       <div className="relative min-h-[100dvh] bg-[#f4f6fb] dark:bg-[#020617] overflow-hidden">
         {/* 💡 Light BG */}
@@ -231,13 +214,13 @@ export default function BillingPage() {
 
         {/* 상단 헤더 영역 */}
         <header className="mx-auto max-w-5xl px-6 md:px-10 pt-24 md:pt-28">
-          <div className="inline-flex items-center gap-2 rounded-full border border-blue-300 bg-blue-50/90 px-3.5 py-1.5 text-[12px] font-semibold text-blue-700 shadow-sm dark:border-white/32 dark:bg-[linear-gradient(135deg,rgba(37,99,235,0.24),rgba(15,23,42,0.88))] dark:text-white dark:shadow-[0_18px_42px_-24px_rgba(37,99,235,0.72)]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-300 bg-blue-50/90 px-3.5 py-1 text-[12px] font-semibold text-blue-700 shadow-sm dark:border-white/32 dark:bg-[linear-gradient(135deg,rgba(37,99,235,0.24),rgba(15,23,42,0.88))] dark:text-white dark:shadow-[0_18px_42px_-24px_rgba(37,99,235,0.72)]">
             {t("badge")}
           </div>
 
-          <div className="mt-2.5">
+          <div className="mt-1.5">
             <div>
-              <h1 className="text-[26px] sm:text-[30px] md:text-[36px] font-extrabold tracking-tight text-neutral-900 dark:text-white dark:[text-shadow:0_1px_12px_rgba(0,0,0,0.45)]">
+              <h1 className="text-[22px] sm:text-[26px] md:text-[30px] font-extrabold tracking-tight text-neutral-900 dark:text-white dark:[text-shadow:0_1px_12px_rgba(0,0,0,0.45)]">
                 {t("title")}
               </h1>
             </div>
@@ -248,7 +231,7 @@ export default function BillingPage() {
           {/* 잔액 카드 */}
           <section className="mt-8">
             <div className="mb-5">
-              <h2 className="flex items-center gap-3 text-[22px] md:text-[27px] font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
+              <h2 className="flex items-center gap-3 text-[20px] md:text-[24px] font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
                 <span className="inline-block h-3 w-3 rounded-full bg-blue-600 shadow-[0_0_0_5px_rgba(59,130,246,0.12)] dark:bg-blue-300 dark:shadow-[0_0_0_5px_rgba(96,165,250,0.16)]" />
                 {t("balance.label")}
               </h2>
@@ -256,13 +239,17 @@ export default function BillingPage() {
             <div
               className="
                 relative overflow-hidden
-                rounded-3xl border border-slate-400 dark:border-white/28
-                bg-white/95 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.96),rgba(2,6,23,0.98))]
-                shadow-[0_18px_45px_-26px_rgba(15,23,42,0.20)] dark:shadow-[0_28px_70px_-34px_rgba(0,0,0,0.92)]
+                rounded-3xl border border-blue-300
+                bg-[linear-gradient(180deg,#eef5ff_0%,#f7fbff_100%)]
+                shadow-[0_26px_60px_-28px_rgba(15,23,42,0.22)]
+                ring-1 ring-blue-200/90
+                dark:border-[rgb(var(--hero-b))]/35
+                dark:bg-[linear-gradient(180deg,rgba(59,130,246,0.12),rgba(15,23,42,0.9))]
+                dark:ring-1 dark:ring-[rgb(var(--hero-b))]/20
+                dark:shadow-[0_28px_90px_-55px_rgba(0,0,0,0.85)]
                 px-5 py-5 sm:px-6 sm:py-6
               "
             >
-              {/* 오른쪽 배경 포인트 (살짝만) */}
               <div
                 aria-hidden
                 className="
@@ -273,9 +260,7 @@ export default function BillingPage() {
               />
 
               <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                {/* 왼쪽: 아이콘 + 숫자 + 간단 설명 */}
                 <div className="flex flex-col gap-2">
-                  {/* 숫자 + '크레딧' 아래 정렬 */}
                   <div className="mt-1 flex items-baseline gap-2">
                     <span className="leading-none text-[38px] sm:text-[48px] font-extrabold tracking-tight text-neutral-900 dark:text-white">
                       {balance === null ? "…" : balance.total.toLocaleString()}
@@ -285,8 +270,6 @@ export default function BillingPage() {
                     </span>
                   </div>
 
-                  {/* 유료 / 무료 크레딧 breakdown */}
-                  {/* 유료 / 무료 크레딧 breakdown */}
                   {balance && (
                     <div
                       className="
@@ -312,7 +295,6 @@ export default function BillingPage() {
 
                 </div>
 
-                {/* 오른쪽: 액션 버튼 + 보조 링크 */}
                 <div className="flex flex-col gap-2 sm:items-end min-w-[220px]">
                   <Link
                     href={billingHistoryHref}
@@ -332,7 +314,6 @@ export default function BillingPage() {
                     {t("balance.historyButton")}
                   </Link>
 
-                  {/* 2) Secondary: 미션으로 무료 크레딧 */}
                   <Link
                     href="/missions"
                     className="
@@ -368,7 +349,7 @@ export default function BillingPage() {
           <section id="packs" className="mt-10">
             <div className="mb-5">
               <div>
-                <h2 className="flex items-center gap-3 text-[22px] md:text-[27px] font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
+                <h2 className="flex items-center gap-3 text-[20px] md:text-[24px] font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
                   <span className="inline-block h-3 w-3 rounded-full bg-blue-600 shadow-[0_0_0_5px_rgba(59,130,246,0.12)] dark:bg-blue-300 dark:shadow-[0_0_0_5px_rgba(96,165,250,0.16)]" />
                   {t("packs.title")}
                 </h2>
@@ -404,10 +385,18 @@ export default function BillingPage() {
             <h3 className="text-base md:text-lg font-semibold text-neutral-700 dark:text-neutral-300">
               {t("faq.title")}
             </h3>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <FaqItem q={t("faq.q2")} a={t("faq.a2")} />
-              <FaqItem q={t("faq.q3")} a={t("faq.a3")} />
-              <FaqItem q={t("faq.q4")} a={t("faq.a4")} />
+            <div className="mt-4 space-y-3">
+              {faqItems.map((item) => (
+                <FaqAccordionItem
+                  key={item.id}
+                  q={item.q}
+                  a={item.a}
+                  open={openFaq === item.id}
+                  onToggle={() =>
+                    setOpenFaq((prev) => (prev === item.id ? null : item.id))
+                  }
+                />
+              ))}
             </div>
           </section>
         </main>
@@ -436,20 +425,15 @@ function CreditPackCard({
     }
 
     if (!userId) {
-      // 혹시 세션 풀리거나 비로그인 상태면 로그인으로
       router.push(`/${locale}/login?next=${encodeURIComponent(`/${locale}/billing`)}`);
       return;
     }
 
-    // 레몬스퀴즈 기본 buy 링크에 custom 데이터 붙이기
-    // (NEXT_PUBLIC_LEMON_CHECKOUT_XXX는 https://... 로 시작하는 절대 URL이라고 가정)
     const url = new URL(checkoutUrl);
 
-    // webhook에서 쓸 유저 id / 팩 코드
     url.searchParams.set("checkout[custom][user_id]", userId);
     url.searchParams.set("checkout[custom][pack_code]", pack.id);
 
-    // 결제 완료 후 리다이렉트 URL (선택)
     url.searchParams.set(
       "checkout[product_options][redirect_url]",
       `${window.location.origin}/${locale}/billing?success=1`
@@ -458,7 +442,7 @@ function CreditPackCard({
     window.open(url.toString(), "_blank", "noopener,noreferrer");
   };
 
-  const unit = price / credits; // 1크레딧당 대략 가격
+  const unit = price / credits;
   const isLargePack = !popular && !starter && credits >= 300;
 
   return (
@@ -556,21 +540,37 @@ function CreditPackCard({
   );
 }
 
-function FaqItem({ q, a }: { q: string; a: string }) {
+function FaqAccordionItem({
+  q,
+  a,
+  open,
+  onToggle,
+}: {
+  q: string;
+  a: string;
+  open: boolean;
+  onToggle: () => void;
+}) {
   return (
-    <div
-      className="
-        rounded-2xl border border-neutral-200/70 dark:border-white/12
-        bg-white/72 p-4
-        dark:bg-black/28
-      "
-    >
-      <div className="font-medium text-neutral-800 dark:text-neutral-100">
-        {q}
-      </div>
-      <div className="mt-1.5 text-sm text-neutral-600 dark:text-neutral-300">
-        {a}
-      </div>
+    <div className="rounded-2xl border border-slate-400 bg-white/72 dark:border-white/12 dark:bg-black/28">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left"
+      >
+        <span className="flex items-center gap-2 font-medium text-neutral-800 dark:text-neutral-100">
+          <span className="text-sm font-bold text-blue-700 dark:text-blue-300">Q</span>
+          <span>{q}</span>
+        </span>
+        <span className="text-lg font-semibold leading-none text-neutral-400 dark:text-neutral-500">
+          {open ? "−" : "+"}
+        </span>
+      </button>
+      {open ? (
+        <div className="border-t border-slate-300 px-4 py-3 text-sm text-neutral-600 dark:border-white/10 dark:text-neutral-300">
+          {a}
+        </div>
+      ) : null}
     </div>
   );
 }
