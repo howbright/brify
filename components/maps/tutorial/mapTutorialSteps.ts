@@ -99,17 +99,6 @@ export function getMapTutorialSteps(
       illustration: "mouse",
     },
     {
-      title: t("steps.trackpad.title"),
-      description: t("steps.trackpad.description"),
-      targetClassName: "left-[18%] bottom-[18%] h-24 w-24",
-      hideTargetRing: true,
-      highlightCalloutRing: true,
-      calloutClassName: "left-1/2 top-[18%] w-72 -translate-x-[42%]",
-      calloutTitle: t("steps.trackpad.calloutTitle"),
-      calloutDescription: t("steps.trackpad.calloutDescription"),
-      illustration: "trackpad",
-    },
-    {
       title: t("steps.context.title"),
       description: t("steps.context.description"),
       targetClassName: "right-[24%] top-[36%] h-28 w-28",

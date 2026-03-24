@@ -24,6 +24,7 @@ export default function MapControls({
   onShare,
   onExportPng,
   onCloseMap,
+  onOpenTutorial,
   onCenterMap,
   onZoomIn,
   onZoomOut,
@@ -52,6 +53,7 @@ export default function MapControls({
   onShare?: () => void;
   onExportPng?: () => void;
   onCloseMap?: () => void;
+  onOpenTutorial?: () => void;
   onCenterMap?: () => void;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
@@ -392,6 +394,16 @@ export default function MapControls({
                           setShortcutsOpen(true);
                         }}
                       />
+                      {onOpenTutorial && (
+                        <MenuButton
+                          icon="mdi:school-outline"
+                          label="튜토리얼"
+                          onClick={() => {
+                            setMoreOpen(false);
+                            onOpenTutorial();
+                          }}
+                        />
+                      )}
                       {onCloseMap && (
                         <>
                           <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />

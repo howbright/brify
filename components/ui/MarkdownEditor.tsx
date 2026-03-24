@@ -1,5 +1,5 @@
 "use client";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Highlight from "@tiptap/extension-highlight";
 import { Markdown } from "tiptap-markdown";
@@ -51,7 +51,7 @@ export default function MarkdownEditor({
   );
 }
 
-function Toolbar({ editor }: { editor: any }) {
+function Toolbar({ editor }: { editor: Editor | null }) {
   if (!editor) return null;
   const btn = (cmd: string, label: string) => (
     <button

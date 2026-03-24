@@ -862,39 +862,3 @@ export default function FullscreenDialog({
 
   return createPortal(content, document.body);
 }
-
-/* ---------------- UI Parts ---------------- */
-
-function ToolbarToggle({
-  pressed,
-  icon,
-  label,
-  onClick,
-}: {
-  pressed: boolean;
-  icon: string;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`
-        inline-flex items-center gap-1.5
-        rounded-xl border px-3 py-1.5
-        text-xs font-semibold shadow-sm transition-colors
-        ${
-          pressed
-            ? "border-blue-500 bg-blue-600 text-white shadow-[0_10px_24px_rgba(37,99,235,0.35)] dark:border-blue-300 dark:bg-blue-500/35 dark:text-blue-50 dark:shadow-[0_10px_24px_rgba(59,130,246,0.35)]"
-            : "border-blue-200/70 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:border-blue-300 dark:border-blue-300/50 dark:bg-blue-500/10 dark:text-blue-50/90 hover:dark:bg-blue-500/20"
-        }
-      `}
-      aria-label={label}
-      title={label}
-    >
-      <Icon icon={icon} className="h-4 w-4" />
-      <span className="hidden sm:inline max-[738px]:inline">{label}</span>
-    </button>
-  );
-}

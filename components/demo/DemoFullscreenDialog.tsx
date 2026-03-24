@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useTranslations } from "next-intl";
+import { useMessages, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import FullscreenHeader from "@/components/maps/FullscreenHeader";
@@ -198,7 +198,7 @@ function DemoLeftPanel({
         ${open ? "translate-x-0" : "-translate-x-[calc(100%+28px)]"}
       `}
     >
-      <div className="relative flex h-full w-[min(550px,calc(100vw-18px))] max-w-full flex-col border-r border-slate-400 bg-white/96 shadow-[0_20px_50px_-36px_rgba(15,23,42,0.55)] backdrop-blur dark:border-white/20 dark:bg-[#0b1220]/96 dark:shadow-[0_32px_100px_-70px_rgba(0,0,0,0.95)]">
+      <div className="relative flex h-full w-[min(460px,calc(100vw-18px))] max-w-full flex-col border-r border-slate-400 bg-white/96 shadow-[0_20px_50px_-36px_rgba(15,23,42,0.55)] backdrop-blur dark:border-white/20 dark:bg-[#0b1220]/96 dark:shadow-[0_32px_100px_-70px_rgba(0,0,0,0.95)]">
         <div className="border-b border-slate-400 px-3 pb-3 pt-3 sm:px-4 sm:pt-4 dark:border-white/20">
           <div className="flex items-start gap-2">
             <div className="inline-flex rounded-full border border-slate-400 bg-neutral-50 p-1 dark:border-white/20 dark:bg-white/[0.04]">
@@ -268,7 +268,7 @@ function DemoLeftPanel({
                       {t("info.summary")}
                     </h3>
                   </div>
-                  <div className="rounded-3xl border border-slate-400 bg-blue-50/60 p-3 text-[15px] leading-6 text-neutral-700 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] sm:p-3.5 sm:text-base sm:leading-7 dark:border-white/20 dark:bg-blue-500/10 dark:text-white/80 dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]">
+                  <div className="rounded-3xl border border-slate-400 bg-blue-50/60 p-3 text-[14px] leading-6 text-neutral-700 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] sm:p-3.5 sm:text-[15px] sm:leading-6 dark:border-white/20 dark:bg-blue-500/10 dark:text-white/80 dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]">
                     <p className="whitespace-pre-wrap break-words">{map.summary}</p>
                   </div>
                 </section>
@@ -339,29 +339,26 @@ function DemoLeftPanel({
               </DemoSection>
 
               <DemoSection title={t("info.description")}>
-                <div className="whitespace-pre-wrap break-words text-[15px] leading-6 sm:text-base sm:leading-7 text-neutral-700 dark:text-white/80">
+                <div className="whitespace-pre-wrap break-words text-[14px] leading-6 sm:text-[15px] sm:leading-6 text-neutral-700 dark:text-white/80">
                   {map.description ?? "-"}
                 </div>
               </DemoSection>
             </>
           ) : activeTab === "notes" ? (
             <div className="flex flex-col gap-3">
-              <div className="text-[15px] sm:text-base text-neutral-600 dark:text-white/75">
-                {t("notes.helper")}
-              </div>
               <div className="rounded-2xl border border-slate-400 bg-white p-3 dark:border-white/20 dark:bg-white/[0.04]">
                 <textarea
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
                   placeholder={t("notes.placeholder")}
-                  className="w-full rounded-xl border border-slate-400 bg-white px-3 py-2 text-[15px] outline-none focus:ring-2 focus:ring-blue-200 sm:text-lg dark:border-white/20 dark:bg-white/[0.06] dark:text-white dark:focus:ring-blue-500/20"
+                  className="w-full rounded-xl border-2 border-blue-500 bg-white px-3 py-2 text-[14px] shadow-[0_16px_36px_-24px_rgba(37,99,235,0.35)] outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-200/80 sm:text-[15px] dark:border-blue-400 dark:bg-white/[0.06] dark:text-white dark:shadow-[0_20px_42px_-28px_rgba(56,189,248,0.4)] dark:focus:border-blue-300 dark:focus:ring-blue-500/20"
                   rows={3}
                 />
                 <div className="mt-3 flex justify-end">
                   <button
                     type="button"
                     onClick={addNote}
-                    className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-400 bg-blue-600 px-3 py-2 text-[15px] font-semibold text-white hover:bg-blue-700 sm:text-base dark:border-white/20 dark:bg-blue-500"
+                    className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-400 bg-blue-600 px-3 py-2 text-[14px] font-semibold text-white hover:bg-blue-700 sm:text-[15px] dark:border-white/20 dark:bg-blue-500"
                   >
                     <Icon icon="mdi:plus" className="h-4 w-4" />
                     {t("notes.add")}
@@ -370,7 +367,7 @@ function DemoLeftPanel({
               </div>
 
               {notes.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-slate-400 bg-neutral-50 p-4 text-sm text-neutral-500 dark:border-white/20 dark:bg-white/[0.04] dark:text-white/60">
+                <div className="rounded-2xl border border-dashed border-slate-400 bg-neutral-50 p-4 text-[13px] sm:text-sm text-neutral-500 dark:border-white/20 dark:bg-white/[0.04] dark:text-white/60">
                   {t("notes.empty")}
                 </div>
               ) : (
@@ -474,6 +471,16 @@ export default function DemoFullscreenDialog({
   const router = useRouter();
   const t = useTranslations("DemoFullscreenDialog");
   const tTutorial = useTranslations("MapTutorial");
+  const messages = useMessages() as {
+    DemoFullscreenDialog?: {
+      shareDialog?: {
+        title?: string;
+        description?: string;
+        action?: string;
+        cancel?: string;
+      };
+    };
+  };
   const isTutorialMobile = useTutorialIsMobile();
   const { profileThemeName } = useMindThemePreference();
   const { resolvedTheme } = useTheme();
@@ -587,6 +594,28 @@ export default function DemoFullscreenDialog({
     setShareGuideOpen(true);
   };
 
+  const handleRestartTutorial = () => {
+    setTutorialStepIndex(0);
+    setTutorialOpen(true);
+  };
+
+  const shareDialogMessages = messages.DemoFullscreenDialog?.shareDialog;
+  const shareDialogTitle =
+    shareDialogMessages?.title ??
+    (language === "ko"
+      ? "이 구조맵은 데모용입니다"
+      : "This Structure Map is for demo only");
+  const shareDialogDescription =
+    shareDialogMessages?.description ??
+    (language === "ko"
+      ? "실제 서비스에서는 구조맵을 링크로 공유하고 다른 사람과 함께 볼 수 있어요. 서비스를 시작하면 내 구조맵의 공유 링크를 바로 만들 수 있습니다."
+      : "In the full service, you can share your Structure Map by link and view it together with others. Start using Brify to create a share link for your own map.");
+  const shareDialogAction =
+    shareDialogMessages?.action ??
+    (language === "ko" ? "서비스 시작하기" : "Start Using Brify");
+  const shareDialogCancel =
+    shareDialogMessages?.cancel ?? (language === "ko" ? "닫기" : "Close");
+
   return createPortal(
     <div className="fixed left-0 top-0 z-[120] h-screen w-screen max-w-none bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={title ?? t("dialog.title")}>
       <div className="relative h-full w-full overflow-hidden bg-white [--header-h:68px] dark:bg-[#0b1220]">
@@ -638,6 +667,7 @@ export default function DemoFullscreenDialog({
                 onZoomOut={() => mindRef.current?.zoomOut?.()}
                 onPublish={() => {}}
                 onShare={handleOpenDemoShareGuide}
+                onOpenTutorial={handleRestartTutorial}
                 highlightEditToggle={tutorialOpen && tutorialStepIndex === 0}
                 modeToggleTutorialId="demo-mode-toggle"
                 editButtonTutorialId={DEMO_EDIT_BUTTON_ID}
@@ -687,7 +717,7 @@ export default function DemoFullscreenDialog({
           <button
             type="button"
             onClick={handleStartService}
-            className="absolute bottom-5 right-5 z-[20] inline-flex items-center gap-2 rounded-[22px] bg-[linear-gradient(135deg,#2563eb_0%,#0ea5e9_42%,#14b8a6_100%)] px-6 py-4 text-[17px] font-black tracking-[-0.02em] text-white shadow-[0_28px_60px_-24px_rgba(14,165,233,0.78)] transition-transform hover:scale-[1.03] hover:shadow-[0_32px_70px_-24px_rgba(37,99,235,0.82)]"
+            className="absolute bottom-[190px] right-5 z-[20] inline-flex items-center gap-2 rounded-[22px] bg-[linear-gradient(135deg,#2563eb_0%,#0ea5e9_42%,#14b8a6_100%)] px-6 py-4 text-[17px] font-black tracking-[-0.02em] text-white shadow-[0_28px_60px_-24px_rgba(14,165,233,0.78)] transition-transform hover:scale-[1.03] hover:shadow-[0_32px_70px_-24px_rgba(37,99,235,0.82)]"
             title={t("actions.startService")}
           >
             <Icon icon="mdi:rocket-launch" className="h-5 w-5" />
@@ -765,10 +795,10 @@ export default function DemoFullscreenDialog({
               setShareGuideOpen(false);
               handleStartService();
             }}
-            title={t("shareDialog.title")}
-            description={t("shareDialog.description")}
-            actionLabel={t("shareDialog.action")}
-            cancelLabel={t("shareDialog.cancel")}
+            title={shareDialogTitle}
+            description={shareDialogDescription}
+            actionLabel={shareDialogAction}
+            cancelLabel={shareDialogCancel}
             tone="primary"
           />
         </div>

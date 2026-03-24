@@ -57,7 +57,7 @@ function NoteItem({
             }
           }}
           className="
-            w-full rounded-xl border border-slate-400 bg-white px-4 py-2.5 text-[19px] leading-7
+            w-full rounded-xl border border-slate-400 bg-white px-4 py-2.5 text-[14px] leading-6 sm:text-[15px] sm:leading-6
             outline-none focus:ring-2 focus:ring-blue-200
             dark:border-white/20 dark:bg-white/[0.08] dark:text-white
             dark:focus:ring-blue-500/20
@@ -65,12 +65,12 @@ function NoteItem({
           rows={3}
         />
       ) : (
-        <div className="whitespace-pre-wrap text-[18px] leading-7 text-neutral-900 dark:text-white">
+        <div className="whitespace-pre-wrap text-[14px] leading-6 sm:text-[15px] sm:leading-6 text-neutral-900 dark:text-white">
           {note.text}
         </div>
       )}
       <div className="mt-2 flex items-center justify-between">
-        <span className="text-[15px] font-medium text-neutral-500 dark:text-white/60">
+        <span className="text-[13px] sm:text-[14px] font-medium text-neutral-500 dark:text-white/60">
           {note.createdAtLabel}
         </span>
         <div className="flex items-center gap-1.5">

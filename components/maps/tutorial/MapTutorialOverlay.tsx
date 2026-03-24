@@ -267,17 +267,17 @@ export default function MapTutorialOverlay({
             </button>
           </div>
 
-          <h3 className={`mt-4 font-black tracking-tight text-white ${isMobileViewport ? "text-[21px]" : "text-2xl"}`}>
+          <h3 className={`mt-4 font-black tracking-tight text-white ${isMobileViewport ? "text-[19px]" : "text-[22px]"}`}>
             {step.title}
           </h3>
-          <p className={`mt-3 font-medium text-white/78 ${isMobileViewport ? "text-[14px] leading-6" : "text-[15px] leading-7"}`}>
+          <p className={`mt-3 font-medium text-white/78 ${isMobileViewport ? "text-[13px] leading-6" : "text-[14px] leading-6"}`}>
             {step.description}
           </p>
 
           <button
             type="button"
             onClick={onNext}
-            className={`mt-5 inline-flex w-full items-center justify-center rounded-2xl bg-red-500 px-4 font-bold text-white shadow-[0_18px_40px_-18px_rgba(239,68,68,0.58)] transition-transform hover:scale-[1.01] hover:bg-red-400 ${isMobileViewport ? "py-3 text-[15px]" : "py-3 text-base"}`}
+            className={`mt-5 inline-flex w-full items-center justify-center rounded-2xl bg-red-500 px-4 font-bold text-white shadow-[0_18px_40px_-18px_rgba(239,68,68,0.58)] transition-transform hover:scale-[1.01] hover:bg-red-400 ${isMobileViewport ? "py-3 text-[14px]" : "py-3 text-[15px]"}`}
           >
             {isLast ? t("overlay.start") : t("overlay.next")}
           </button>

@@ -26,33 +26,51 @@ function normalizeNoteText(input: unknown) {
   return { normalized, compactLen: compact.length };
 }
 
-function mapDbErrorToStatus(err: any) {
-  const code = String(err?.code ?? "");
+function getDbErrorCode(err: unknown) {
+  if (err && typeof err === "object" && "code" in err) {
+    return String((err as { code?: unknown }).code ?? "");
+  }
+  return "";
+}
+
+function getDbErrorMessage(err: unknown) {
+  if (err && typeof err === "object" && "message" in err) {
+    return String((err as { message?: unknown }).message ?? "");
+  }
+  return "DB_ERROR";
+}
+
+function mapDbErrorToStatus(err: unknown) {
+  const code = getDbErrorCode(err);
   if (code === "42501") return 403; // insufficient_privilege (RLS 등)
   if (code === "23503") return 404; // foreign_key_violation
   if (code === "23505") return 409; // unique_violation
   if (code === "23514" || code === "22001" || code === "22P02") return 400;
 
-  const msg = String(err?.message ?? "").toLowerCase();
+  const msg = getDbErrorMessage(err).toLowerCase();
   if (msg.includes("permission") || msg.includes("not allowed")) return 403;
 
   return 500;
 }
 
-function mapDbErrorToPublicMessage(err: any) {
-  const code = String(err?.code ?? "");
+function mapDbErrorToPublicMessage(err: unknown) {
+  const code = getDbErrorCode(err);
   if (code === "42501") return "FORBIDDEN";
   if (code === "23503") return "NOT_FOUND";
   if (code === "23505") return "DUPLICATE";
   if (code === "23514") return "INVALID_INPUT";
   if (code === "22001") return "TEXT_TOO_LONG";
   if (code === "22P02") return "INVALID_ID";
-  return String(err?.message ?? "DB_ERROR");
+  return getDbErrorMessage(err);
 }
 
-export async function PATCH(req: NextRequest, context: { params: { id: string } }) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const noteId = String(context.params?.id ?? "").trim();
+    const { id } = await params;
+    const noteId = String(id ?? "").trim();
     const body = await req.json().catch(() => ({}));
     const { normalized: text, compactLen } = normalizeNoteText(body?.text);
 
@@ -93,14 +111,21 @@ export async function PATCH(req: NextRequest, context: { params: { id: string } 
     }
 
     return NextResponse.json({ ok: true, item }, { status: 200 });
-  } catch (e: any) {
-    return jsonError(500, e?.message ?? "INTERNAL_ERROR");
+  } catch (e: unknown) {
+    return jsonError(
+      500,
+      e instanceof Error ? e.message : "INTERNAL_ERROR"
+    );
   }
 }
 
-export async function DELETE(_req: NextRequest, context: { params: { id: string } }) {
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const noteId = String(context.params?.id ?? "").trim();
+    const { id } = await params;
+    const noteId = String(id ?? "").trim();
 
     if (!noteId) return jsonError(400, "id is required");
     if (!validateIdLike(noteId)) return jsonError(400, "INVALID_NOTE_ID");
@@ -132,7 +157,10 @@ export async function DELETE(_req: NextRequest, context: { params: { id: string 
     }
 
     return NextResponse.json({ ok: true }, { status: 200 });
-  } catch (e: any) {
-    return jsonError(500, e?.message ?? "INTERNAL_ERROR");
+  } catch (e: unknown) {
+    return jsonError(
+      500,
+      e instanceof Error ? e.message : "INTERNAL_ERROR"
+    );
   }
 }
