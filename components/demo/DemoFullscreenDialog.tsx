@@ -198,7 +198,7 @@ function DemoLeftPanel({
         ${open ? "translate-x-0" : "-translate-x-[calc(100%+28px)]"}
       `}
     >
-      <div className="relative flex h-full w-[min(460px,calc(100vw-18px))] max-w-full flex-col border-r border-slate-400 bg-white/96 shadow-[0_20px_50px_-36px_rgba(15,23,42,0.55)] backdrop-blur dark:border-white/20 dark:bg-[#0b1220]/96 dark:shadow-[0_32px_100px_-70px_rgba(0,0,0,0.95)]">
+      <div className="relative flex h-full w-[min(420px,calc(100vw-18px))] max-w-full flex-col border-r border-slate-400 bg-white/96 shadow-[0_20px_50px_-36px_rgba(15,23,42,0.55)] backdrop-blur dark:border-white/20 dark:bg-[#0b1220]/96 dark:shadow-[0_32px_100px_-70px_rgba(0,0,0,0.95)]">
         <div className="border-b border-slate-400 px-3 pb-3 pt-3 sm:px-4 sm:pt-4 dark:border-white/20">
           <div className="flex items-start gap-2">
             <div className="inline-flex rounded-full border border-slate-400 bg-neutral-50 p-1 dark:border-white/20 dark:bg-white/[0.04]">
@@ -237,7 +237,7 @@ function DemoLeftPanel({
           </div>
 
           {activeTab === "info" && (
-            <div className="mt-3 whitespace-normal break-words text-base font-bold text-neutral-900 sm:text-lg dark:text-white/90">
+            <div className="mt-3 whitespace-normal break-words text-[15px] font-bold text-neutral-900 sm:text-[17px] dark:text-white/90">
               {map.title}
             </div>
           )}
@@ -268,7 +268,7 @@ function DemoLeftPanel({
                       {t("info.summary")}
                     </h3>
                   </div>
-                  <div className="rounded-3xl border border-slate-400 bg-blue-50/60 p-3 text-[14px] leading-6 text-neutral-700 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] sm:p-3.5 sm:text-[15px] sm:leading-6 dark:border-white/20 dark:bg-blue-500/10 dark:text-white/80 dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]">
+                  <div className="rounded-3xl border border-slate-400 bg-blue-50/60 p-3 text-[13px] leading-6 text-neutral-700 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] sm:p-3.5 sm:text-[14px] sm:leading-6 dark:border-white/20 dark:bg-blue-500/10 dark:text-white/80 dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]">
                     <p className="whitespace-pre-wrap break-words">{map.summary}</p>
                   </div>
                 </section>
@@ -308,13 +308,13 @@ function DemoLeftPanel({
                           href={map.sourceUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-0.5 block truncate text-[15px] font-semibold text-blue-700 hover:underline sm:text-base dark:text-sky-200"
+                          className="mt-0.5 block truncate text-[14px] font-semibold text-blue-700 hover:underline sm:text-[15px] dark:text-sky-200"
                           title={map.sourceUrl}
                         >
                           {map.sourceUrl}
                         </a>
                       ) : (
-                        <div className="mt-0.5 text-[15px] sm:text-base text-neutral-700 dark:text-white/85">
+                        <div className="mt-0.5 text-[14px] sm:text-[15px] text-neutral-700 dark:text-white/85">
                           -
                         </div>
                       )}
@@ -339,7 +339,7 @@ function DemoLeftPanel({
               </DemoSection>
 
               <DemoSection title={t("info.description")}>
-                <div className="whitespace-pre-wrap break-words text-[14px] leading-6 sm:text-[15px] sm:leading-6 text-neutral-700 dark:text-white/80">
+                <div className="whitespace-pre-wrap break-words text-[13px] leading-6 sm:text-[14px] sm:leading-6 text-neutral-700 dark:text-white/80">
                   {map.description ?? "-"}
                 </div>
               </DemoSection>
