@@ -3,7 +3,8 @@ import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Highlight from "@tiptap/extension-highlight";
 import { Markdown } from "tiptap-markdown";
-import type { Level } from "@tiptap/extension-heading";
+
+type HeadingLevel = 1 | 2 | 3;
 
 interface Props {
   initialContent?: string;
@@ -75,7 +76,7 @@ function Toolbar({ editor }: { editor: Editor | null }) {
         <button
           key={l}
           onClick={() =>
-            editor.chain().focus().toggleHeading({ level: l as Level }).run()
+            editor.chain().focus().toggleHeading({ level: l as HeadingLevel }).run()
           }
           className={`px-2 py-1 text-xs rounded ${
             editor.isActive("heading", { level: l })
