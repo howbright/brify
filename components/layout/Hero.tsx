@@ -51,56 +51,98 @@ function Highlight({ children }: { children: React.ReactNode }) {
 
 /* ---------------- image block ---------------- */
 
-function HeroDiagramImage({ alt }: { alt: string }) {
+function HeroDiagramImage({
+  alt,
+  videoLabel,
+}: {
+  alt: string;
+  videoLabel: string;
+}) {
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
+
   return (
-    <div
-      className="
-        group relative overflow-hidden
-        rounded-3xl
-        border border-white/70 bg-white/55
-        shadow-[0_26px_70px_-30px_rgba(15,23,42,0.34)]
-        dark:border-white/10 dark:bg-black/35
-        dark:shadow-[0_24px_70px_-28px_rgba(56,189,248,0.26)]
-      "
-    >
-      <div
-        aria-hidden
-        className="
-          pointer-events-none absolute inset-0 z-10
-          rounded-3xl ring-1 ring-inset ring-white/50
-          dark:ring-white/8
-        "
-      />
-      <div
-        aria-hidden
-        className="
-          pointer-events-none absolute inset-x-10 top-0 z-10 h-20
-          bg-[radial-gradient(50%_100%_at_50%_0%,rgba(255,255,255,0.70),transparent_78%)]
-          opacity-80
-          dark:bg-[radial-gradient(50%_100%_at_50%_0%,rgba(255,255,255,0.10),transparent_78%)]
-          dark:opacity-100
-        "
-      />
-      <div
-        aria-hidden
-        className="
-          pointer-events-none absolute -inset-6 -z-10 rounded-[36px]
-          bg-[radial-gradient(60%_60%_at_50%_50%,rgba(59,130,246,0.16),transparent_72%)]
-          blur-2xl
-          dark:bg-[radial-gradient(60%_60%_at_50%_50%,rgba(99,102,241,0.16),transparent_72%)]
-        "
-      />
-      <div className="relative w-full aspect-[16/10]">
-        <Image
-          src="/images/hero.png"
-          alt={alt}
-          fill
-          priority
-          sizes="(max-width: 768px) 100vw, 520px"
-          className="object-cover transition-transform duration-500 group-hover:scale-[1.012]"
+    <div className="group relative">
+        <div
+          aria-hidden
+          className="
+            pointer-events-none absolute inset-0 z-10
+            rounded-3xl ring-1 ring-inset ring-white/50
+            dark:ring-white/8
+          "
         />
+        <div
+          aria-hidden
+          className="
+            pointer-events-none absolute inset-x-10 top-0 z-10 h-20
+            bg-[radial-gradient(50%_100%_at_50%_0%,rgba(255,255,255,0.70),transparent_78%)]
+            opacity-80
+            dark:bg-[radial-gradient(50%_100%_at_50%_0%,rgba(255,255,255,0.10),transparent_78%)]
+            dark:opacity-100
+          "
+        />
+        <div
+          aria-hidden
+          className="
+            pointer-events-none absolute -inset-6 -z-10 rounded-[36px]
+            bg-[radial-gradient(60%_60%_at_50%_50%,rgba(59,130,246,0.16),transparent_72%)]
+            blur-2xl
+            dark:bg-[radial-gradient(60%_60%_at_50%_50%,rgba(99,102,241,0.16),transparent_72%)]
+          "
+        />
+        <div className="relative w-full aspect-video overflow-hidden rounded-3xl">
+        <button
+          type="button"
+          onClick={() => setIsVideoOpen(true)}
+          className="absolute bottom-4 right-4 z-20 inline-flex cursor-pointer items-center rounded-full border border-white/70 bg-slate-950/70 px-3.5 py-2 text-sm font-bold tracking-[0.04em] text-white backdrop-blur-sm transition-transform duration-200 hover:scale-[1.03] dark:border-white/55 dark:bg-slate-950/72 md:text-[15px]"
+        >
+          {videoLabel}
+        </button>
+        {isVideoOpen ? (
+          <iframe
+            src="https://www.youtube.com/embed/Zr3y3y9_Jcg?autoplay=1&rel=0"
+            title={alt}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+            className="absolute left-1/2 top-1/2 h-[118%] w-[118%] -translate-x-1/2 -translate-y-1/2 border-0"
+          />
+        ) : (
+          <button
+            type="button"
+            aria-label={`${alt} 재생`}
+            onClick={() => setIsVideoOpen(true)}
+            className="relative block h-full w-full cursor-pointer"
+          >
+            <Image
+              src="/images/hero.png"
+              alt={alt}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 520px"
+              className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+            />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span
+                className="
+                  inline-flex h-20 w-20 items-center justify-center rounded-full
+                  bg-[#ff0033] text-white shadow-[0_22px_50px_-18px_rgba(255,0,51,0.45)]
+                  transition-transform duration-200 group-hover:scale-[1.04]
+                  dark:bg-[#ff0033] dark:text-white
+                "
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="ml-1.5 h-14 w-14 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:scale-110"
+                >
+                  <path d="M8 6.5v11l9-5.5-9-5.5Z" />
+                </svg>
+              </span>
+            </div>
+          </button>
+        )}
+        </div>
       </div>
-    </div>
   );
 }
 
@@ -133,30 +175,22 @@ export default function LandingBlueHero() {
     {
       icon: "mdi:check-decagram",
       iconWrap:
-        "bg-emerald-400/14 text-slate-700 dark:bg-emerald-300/12 dark:text-slate-100",
-      item:
-        "border-blue-100/90 bg-white/82 dark:border-blue-400/15 dark:bg-white/6",
+        "border border-emerald-200/90 bg-emerald-50 text-emerald-700 shadow-[0_12px_28px_-18px_rgba(16,185,129,0.45)] dark:border-emerald-300/30 dark:bg-emerald-300/18 dark:text-emerald-100 dark:shadow-[0_16px_34px_-20px_rgba(16,185,129,0.45)]",
     },
     {
       icon: "mdi:book-open-variant",
       iconWrap:
-        "bg-emerald-400/14 text-slate-700 dark:bg-emerald-300/12 dark:text-slate-100",
-      item:
-        "border-indigo-100/90 bg-white/78 dark:border-indigo-400/15 dark:bg-white/6",
+        "border border-blue-200/90 bg-blue-50 text-blue-700 shadow-[0_12px_28px_-18px_rgba(37,99,235,0.42)] dark:border-blue-300/30 dark:bg-blue-300/16 dark:text-blue-100 dark:shadow-[0_16px_34px_-20px_rgba(37,99,235,0.48)]",
     },
     {
       icon: "mdi:translate",
       iconWrap:
-        "bg-emerald-400/14 text-slate-700 dark:bg-emerald-300/12 dark:text-slate-100",
-      item:
-        "border-sky-100/90 bg-white/78 dark:border-sky-400/15 dark:bg-white/6",
+        "border border-sky-200/90 bg-sky-50 text-sky-700 shadow-[0_12px_28px_-18px_rgba(14,165,233,0.4)] dark:border-sky-300/30 dark:bg-sky-300/18 dark:text-sky-100 dark:shadow-[0_16px_34px_-20px_rgba(14,165,233,0.46)]",
     },
     {
       icon: "mdi:sitemap-outline",
       iconWrap:
-        "bg-emerald-400/14 text-slate-700 dark:bg-emerald-300/12 dark:text-slate-100",
-      item:
-        "border-emerald-100/90 bg-white/82 dark:border-emerald-400/15 dark:bg-white/6",
+        "border border-cyan-200/90 bg-cyan-50 text-cyan-700 shadow-[0_12px_28px_-18px_rgba(6,182,212,0.42)] dark:border-cyan-300/30 dark:bg-cyan-300/18 dark:text-cyan-100 dark:shadow-[0_16px_34px_-20px_rgba(6,182,212,0.48)]",
     },
   ];
 
@@ -295,7 +329,7 @@ export default function LandingBlueHero() {
 
           {/* mobile image */}
           <div className="mt-6 md:hidden">
-            <HeroDiagramImage alt={t("visualAlt")} />
+            <HeroDiagramImage alt={t("visualAlt")} videoLabel={t("videoLabel")} />
           </div>
 
           {/* CTA */}
@@ -365,11 +399,11 @@ export default function LandingBlueHero() {
                   className="flex items-center gap-3"
                 >
                   <span
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${featureStyles[i % featureStyles.length].iconWrap}`}
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${featureStyles[i % featureStyles.length].iconWrap}`}
                   >
                     <Icon
                       icon={featureStyles[i % featureStyles.length].icon}
-                      className="h-5 w-5"
+                      className="h-5.5 w-5.5"
                     />
                   </span>
                   <span className="text-[15px] font-semibold leading-6 text-neutral-900 dark:text-neutral-100 md:text-[17px] md:leading-7">
@@ -384,7 +418,7 @@ export default function LandingBlueHero() {
 
         {/* RIGHT */}
         <div className="relative hidden md:block">
-          <HeroDiagramImage alt={t("visualAlt")} />
+          <HeroDiagramImage alt={t("visualAlt")} videoLabel={t("videoLabel")} />
         </div>
       </section>
     </main>

@@ -172,25 +172,35 @@ export default function SignupForm() {
   
 
   return (
-    <div className="w-full col-span-6 mx-auto sm:max-w-lg rounded-3xl border border-slate-400 bg-white dark:bg-[#020617] dark:border-white/20 shadow-[0_22px_45px_-28px_rgba(15,23,42,0.85)]">
-      <div className="p-6 sm:p-8 flex flex-col gap-6">
+    <div
+      className="
+        w-full col-span-6 mx-auto sm:max-w-lg
+        rounded-3xl border border-slate-400 bg-white
+        shadow-[0_22px_45px_-28px_rgba(15,23,42,0.85)]
+        dark:border-white/35
+        dark:bg-[linear-gradient(180deg,#0d1728_0%,#0a1322_100%)]
+        dark:shadow-[0_28px_70px_-34px_rgba(0,0,0,0.92)]
+        backdrop-blur
+      "
+    >
+      <div className="flex flex-col gap-6 p-7 sm:p-9">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-black tracking-tight text-neutral-900 dark:text-white">
+          <h1 className="text-[26px] font-black tracking-tight text-neutral-900 dark:text-white sm:text-[28px]">
             {t("title")}
           </h1>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="text-[15px] text-neutral-500 dark:text-neutral-400">
             {t("subtitle")}
           </p>
         </div>
 
         {step === "email" && (
-          <div className="text-sm flex flex-col gap-2 text-neutral-700 dark:text-neutral-200">
+          <div className="flex flex-col gap-3 text-[15px] text-neutral-700 dark:text-neutral-200">
             <label className="flex items-start gap-2">
               <input
                 type="checkbox"
                 checked={agreeTerms}
                 onChange={() => setAgreeTerms(!agreeTerms)}
-                className="mt-1 h-4 w-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
+                className="mt-1 h-4 w-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500 dark:border-white/35"
                 required
               />
               <span>
@@ -210,7 +220,7 @@ export default function SignupForm() {
                 type="checkbox"
                 checked={agreePrivacy}
                 onChange={() => setAgreePrivacy(!agreePrivacy)}
-                className="mt-1 h-4 w-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
+                className="mt-1 h-4 w-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500 dark:border-white/35"
                 required
               />
               <span>
@@ -230,7 +240,7 @@ export default function SignupForm() {
         {message && (
           <p
             className={clsx(
-              "text-sm text-center",
+              "text-base text-center",
               messageType === "success"
                 ? "text-emerald-600 dark:text-emerald-400"
                 : "text-red-600 dark:text-red-400"
@@ -248,9 +258,10 @@ export default function SignupForm() {
             className="
               flex items-center justify-center w-full
               rounded-2xl border border-slate-400 bg-white
-              py-2.5 px-5 text-sm font-medium text-neutral-900
+              py-3 px-5 text-[17px] font-medium text-neutral-900
               hover:-translate-y-0.5 hover:shadow-md
-              dark:bg-white/[0.08] dark:border-white/20 dark:text-neutral-50
+              dark:bg-white/[0.09] dark:border-white/30 dark:text-neutral-50
+              dark:hover:bg-white/[0.13] dark:hover:border-white/40
               transition-all disabled:opacity-60 disabled:hover:shadow-none disabled:hover:translate-y-0
             "
           >
@@ -268,10 +279,10 @@ export default function SignupForm() {
           </button>
         </div>
 
-        <div className="flex items-center text-[11px] font-semibold uppercase text-neutral-400 tracking-wider">
-          <div className="grow border-t border-slate-400 dark:border-white/20" />
+        <div className="flex items-center text-xs font-semibold uppercase tracking-wider text-neutral-400">
+          <div className="grow border-t border-slate-400 dark:border-white/28" />
           <span className="px-3">{t("or")}</span>
-          <div className="grow border-t border-slate-400 dark:border-white/20" />
+          <div className="grow border-t border-slate-400 dark:border-white/28" />
         </div>
 
         {step === "email" ? (
@@ -279,7 +290,7 @@ export default function SignupForm() {
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-neutral-800 dark:text-neutral-100"
+                className="block text-[17px] font-medium text-neutral-800 dark:text-neutral-100"
               >
                 {t("email.label")}
               </label>
@@ -291,10 +302,11 @@ export default function SignupForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="
                   w-full rounded-2xl border border-slate-400 bg-white
-                  px-3 py-2.5 text-sm text-neutral-900
-                  placeholder:text-neutral-400
+                  px-4 py-3 text-base text-neutral-900
+                  placeholder:text-[15px] placeholder:text-neutral-400
                   focus:outline-none focus:ring-2 focus:ring-blue-500/70 focus:border-blue-500
-                  dark:bg-white/[0.08] dark:border-white/20 dark:text-neutral-50 dark:placeholder:text-neutral-500
+                  dark:bg-white/[0.07] dark:border-white/30 dark:text-neutral-50 dark:placeholder:text-neutral-500
+                  dark:focus:border-blue-300/75 dark:focus:ring-blue-400/40
                 "
                 required
               />
@@ -305,12 +317,14 @@ export default function SignupForm() {
               disabled={isSubmitting || isGoogleLoading}
               className="
                 w-full inline-flex items-center justify-center gap-2
-                rounded-2xl px-4 py-2.5 text-sm font-semibold
+                rounded-2xl px-4 py-3 text-[17px] font-semibold
                 text-white bg-neutral-900 border border-neutral-900
                 hover:bg-neutral-950 hover:-translate-y-0.5 hover:shadow-lg
                 active:translate-y-0
-                dark:bg-white dark:text-neutral-900 dark:border-white/20
+                dark:bg-gradient-to-r dark:from-blue-600 dark:via-blue-500 dark:to-cyan-500
+                dark:border-white/28 dark:text-white
                 transition-transform transition-shadow
+                dark:hover:shadow-[0_18px_50px_-28px_rgba(37,99,235,0.8)]
                 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0
               "
             >
@@ -329,7 +343,7 @@ export default function SignupForm() {
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="token"
-                className="block text-sm font-medium text-neutral-800 dark:text-neutral-100"
+                className="block text-[17px] font-medium text-neutral-800 dark:text-neutral-100"
               >
                 {t("otp.label")}
               </label>
@@ -342,10 +356,11 @@ export default function SignupForm() {
                 onChange={(e) => setToken(e.target.value)}
                 className="
                   w-full rounded-2xl border border-slate-400 bg-white
-                  px-3 py-2.5 text-sm text-neutral-900
-                  placeholder:text-neutral-400
+                  px-4 py-3 text-base text-neutral-900
+                  placeholder:text-[15px] placeholder:text-neutral-400
                   focus:outline-none focus:ring-2 focus:ring-blue-500/70 focus:border-blue-500
-                  dark:bg-white/[0.08] dark:border-white/20 dark:text-neutral-50 dark:placeholder:text-neutral-500
+                  dark:bg-white/[0.07] dark:border-white/30 dark:text-neutral-50 dark:placeholder:text-neutral-500
+                  dark:focus:border-blue-300/75 dark:focus:ring-blue-400/40
                 "
                 required
               />
@@ -356,12 +371,14 @@ export default function SignupForm() {
               disabled={isSubmitting || isGoogleLoading}
               className="
                 w-full inline-flex items-center justify-center gap-2
-                rounded-2xl px-4 py-2.5 text-sm font-semibold
+                rounded-2xl px-4 py-3 text-[17px] font-semibold
                 text-white bg-neutral-900 border border-neutral-900
                 hover:bg-neutral-950 hover:-translate-y-0.5 hover:shadow-lg
                 active:translate-y-0
-                dark:bg-white dark:text-neutral-900 dark:border-white/20
+                dark:bg-gradient-to-r dark:from-blue-600 dark:via-blue-500 dark:to-cyan-500
+                dark:border-white/28 dark:text-white
                 transition-transform transition-shadow
+                dark:hover:shadow-[0_18px_50px_-28px_rgba(37,99,235,0.8)]
                 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0
               "
             >

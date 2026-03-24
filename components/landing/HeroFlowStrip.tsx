@@ -14,10 +14,10 @@ function FlowStep({
 }) {
   const toneClass =
     tone === "blue"
-      ? "bg-gradient-to-r from-blue-500 to-sky-500 text-white shadow-[0_14px_28px_-18px_rgba(59,130,246,0.44)]"
+      ? "bg-gradient-to-r from-blue-600 to-sky-500 text-white shadow-[0_14px_28px_-18px_rgba(37,99,235,0.46)]"
       : tone === "indigo"
-        ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-[0_14px_28px_-18px_rgba(79,70,229,0.52)]"
-        : "bg-gradient-to-r from-sky-500 to-cyan-500 text-white shadow-[0_14px_28px_-18px_rgba(14,165,233,0.5)]";
+        ? "bg-gradient-to-r from-blue-700 to-blue-500 text-white shadow-[0_14px_28px_-18px_rgba(29,78,216,0.5)]"
+        : "bg-gradient-to-r from-sky-500 to-cyan-400 text-white shadow-[0_14px_28px_-18px_rgba(8,145,178,0.48)]";
 
   return (
     <motion.div
@@ -54,17 +54,25 @@ export default function HeroFlowStrip() {
         aria-hidden
         className="
           pointer-events-none absolute inset-x-0 top-0 h-full
-          bg-[linear-gradient(180deg,rgba(238,245,255,0)_0%,rgba(222,237,255,0.9)_20%,#edf5ff_52%,rgba(232,242,255,0.96)_100%)]
-          dark:bg-[linear-gradient(180deg,rgba(5,17,30,0)_0%,rgba(10,24,46,0.88)_18%,rgba(10,23,42,0.96)_56%,rgba(8,17,31,0.98)_100%)]
+          bg-[linear-gradient(180deg,#e4f0ff_0%,#d7e9ff_18%,#cfe5ff_48%,#dbeeff_100%)]
+          dark:bg-[linear-gradient(180deg,#06111f_0%,#08192d_16%,#0a2036_48%,#081727_100%)]
         "
       />
       <div
         aria-hidden
         className="
-          pointer-events-none absolute left-1/2 top-8 h-40 w-[36rem] -translate-x-1/2 rounded-full
-          bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.18),rgba(59,130,246,0.06)_45%,transparent_72%)]
-          blur-3xl
-          dark:bg-[radial-gradient(circle_at_center,rgba(96,165,250,0.16),rgba(56,189,248,0.06)_42%,transparent_72%)]
+          pointer-events-none absolute inset-0
+          bg-[radial-gradient(56%_80%_at_50%_14%,rgba(255,255,255,0.54),transparent_60%),radial-gradient(44%_52%_at_18%_58%,rgba(59,130,246,0.16),transparent_68%),radial-gradient(44%_52%_at_82%_58%,rgba(14,165,233,0.14),transparent_70%)]
+          dark:bg-[radial-gradient(56%_80%_at_50%_14%,rgba(56,189,248,0.08),transparent_58%),radial-gradient(44%_52%_at_18%_58%,rgba(37,99,235,0.12),transparent_68%),radial-gradient(44%_52%_at_82%_58%,rgba(14,165,233,0.10),transparent_70%)]
+        "
+      />
+      <div
+        aria-hidden
+        className="
+          pointer-events-none absolute left-1/2 top-10 h-52 w-[44rem] -translate-x-1/2 rounded-full
+          bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.24),rgba(37,99,235,0.12)_42%,transparent_72%)]
+          blur-[72px]
+          dark:bg-[radial-gradient(circle_at_center,rgba(37,99,235,0.14),rgba(8,47,73,0.08)_42%,transparent_74%)]
         "
       />
       <div className="mx-auto max-w-7xl">
@@ -75,11 +83,12 @@ export default function HeroFlowStrip() {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="
             relative mx-auto flex w-full max-w-4xl flex-wrap items-center justify-center gap-x-2 gap-y-3
-            rounded-[30px] border border-white/70 px-5 py-5
-            bg-white/72 shadow-[0_24px_70px_-40px_rgba(37,99,235,0.28)]
+            rounded-[32px] border border-blue-200/85 px-5 py-5
+            bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(230,242,255,0.96))]
+            shadow-[0_28px_80px_-40px_rgba(37,99,235,0.3)]
             backdrop-blur-md
-            dark:border-white/10 dark:bg-white/[0.05]
-            dark:shadow-[0_24px_70px_-42px_rgba(8,15,31,0.9)]
+            dark:border-blue-200/14 dark:bg-[linear-gradient(180deg,rgba(11,28,46,0.84),rgba(9,23,40,0.92))]
+            dark:shadow-[0_24px_70px_-42px_rgba(8,15,31,0.86)]
             md:gap-x-3 md:px-8 md:py-6
           "
         >
@@ -87,7 +96,7 @@ export default function HeroFlowStrip() {
             aria-hidden
             className="
               pointer-events-none absolute inset-x-10 top-1/2 hidden h-px -translate-y-1/2
-              bg-[linear-gradient(90deg,transparent,rgba(59,130,246,0.24),rgba(99,102,241,0.22),rgba(14,165,233,0.24),transparent)]
+              bg-[linear-gradient(90deg,transparent,rgba(59,130,246,0.18),rgba(14,165,233,0.22),rgba(56,189,248,0.2),transparent)]
               md:block
             "
           />

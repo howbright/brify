@@ -11,6 +11,7 @@ import {
 import { Icon } from "@iconify/react";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
+import { useLocale } from "next-intl";
 import { sampled } from "@/app/lib/g6/sampleData";
 import {
   DEFAULT_THEME_NAME,
@@ -105,37 +106,60 @@ function cloneMindData<T>(data: T): T {
   }
 }
 
-function getMaxDepth(node: AnyNode, depth = 0): number {
+function isNodeLike(node: AnyNode | null | undefined): node is AnyNode {
+  return Boolean(node && typeof node === "object");
+}
+
+function getMaxDepth(node: AnyNode | null | undefined, depth = 0): number {
+  if (!isNodeLike(node)) return depth;
   if (!node.children || node.children.length === 0) return depth;
   let max = depth;
   for (const child of node.children) {
+    if (!isNodeLike(child)) continue;
     max = Math.max(max, getMaxDepth(child, depth + 1));
   }
   return max;
 }
 
-function getMaxExpandedDepth(node: AnyNode, depth = 0): number {
+function getMaxExpandedDepth(
+  node: AnyNode | null | undefined,
+  depth = 0
+): number {
+  if (!isNodeLike(node)) return depth;
   const isExpanded = node.expanded !== false;
   if (!isExpanded || !node.children || node.children.length === 0) return depth;
   let max = depth;
   for (const child of node.children) {
+    if (!isNodeLike(child)) continue;
     max = Math.max(max, getMaxExpandedDepth(child, depth + 1));
   }
   return max;
 }
 
-function setAllExpanded(node: AnyNode, expanded: boolean) {
+function setAllExpanded(
+  node: AnyNode | null | undefined,
+  expanded: boolean
+) {
+  if (!isNodeLike(node)) return;
   node.expanded = expanded;
   node.children?.forEach((child) => setAllExpanded(child, expanded));
 }
 
-function setExpandedToLevel(node: AnyNode, level: number, depth = 0) {
+function setExpandedToLevel(
+  node: AnyNode | null | undefined,
+  level: number,
+  depth = 0
+) {
+  if (!isNodeLike(node)) return;
   node.expanded = depth < level;
   node.children?.forEach((child) => setExpandedToLevel(child, level, depth + 1));
 }
 
-function clearAutoBranchColors(node: AnyNode, palette: string[] | null) {
-  if (!palette || palette.length === 0) return;
+function clearAutoBranchColors(
+  node: AnyNode | null | undefined,
+  palette: string[] | null
+) {
+  if (!isNodeLike(node) || !palette || palette.length === 0) return;
   if (node.branchColor && palette.includes(node.branchColor)) {
     delete node.branchColor;
   }
@@ -154,11 +178,12 @@ function escapeAttr(value: string) {
 }
 
 function collectMatches(
-  node: AnyNode,
+  node: AnyNode | null | undefined,
   query: string,
   includeNotes: boolean,
   out: Array<{ id: string; text: string }>
 ) {
+  if (!isNodeLike(node)) return;
   const topic = node.topic ?? "";
   const note = includeNotes ? node.note ?? "" : "";
   const hay = `${topic}\n${note}`.toLowerCase();
@@ -230,6 +255,7 @@ const NOTE_BADGE_SVG =
   '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1.5V8h4.5L14 3.5zM7 12h10v1.5H7V12zm0 4h10v1.5H7V16zm0-8h6v1.5H7V8z"/></svg>';
 
 function findNodeById(node: AnyNode, id: string): AnyNode | null {
+  if (!isNodeLike(node)) return null;
   if (node.id === id) return node;
   if (!node.children) return null;
   for (const child of node.children) {
@@ -239,7 +265,11 @@ function findNodeById(node: AnyNode, id: string): AnyNode | null {
   return null;
 }
 
-function expandPathToId(node: AnyNode, targetId: string): boolean {
+function expandPathToId(
+  node: AnyNode | null | undefined,
+  targetId: string
+): boolean {
+  if (!isNodeLike(node)) return false;
   const nodeId = node.id ? normalizeNodeId(node.id) : "";
   const target = normalizeNodeId(targetId);
   if (nodeId === target) {
@@ -329,6 +359,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const currentLevelRef = useRef(0);
 
   const { resolvedTheme } = useTheme();
+  const locale = useLocale();
 
   const [mounted, setMounted] = useState(false);
   const [ready, setReady] = useState(false);
@@ -792,6 +823,29 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     return allowSampled ? sampled : null;
   }, [data, placeholderData, allowSampled]);
 
+  const mindLocale = useMemo(() => {
+    const normalized = (locale || "en").toLowerCase();
+    return normalized.startsWith("ko") ? "ko" : "en";
+  }, [locale]);
+
+  const contextMenuText = useMemo(
+    () =>
+      mindLocale === "ko"
+        ? {
+            copyMarkdown: "마크다운 복사",
+            copyExpandedMarkdown: "펼쳐진 노드만 마크다운 복사",
+            copySuccess: "마크다운을 복사했어요.",
+            copyFail: "복사에 실패했습니다.",
+          }
+        : {
+            copyMarkdown: "Copy as Markdown",
+            copyExpandedMarkdown: "Copy expanded nodes as Markdown",
+            copySuccess: "Copied the markdown.",
+            copyFail: "Failed to copy.",
+          },
+    [mindLocale]
+  );
+
   const getNodeElById = (id: string) => {
     const host = elRef.current;
     if (!host) return null;
@@ -1232,7 +1286,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           link: true,
           extend: [
             {
-              name: "마크다운 복사",
+              name: contextMenuText.copyMarkdown,
               onclick: async () => {
                 const current = mind.currentNode?.nodeObj as AnyNode | undefined;
                 if (!current) return;
@@ -1240,14 +1294,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
                 if (!markdown.trim()) return;
                 const ok = await copyToClipboard(markdown);
                 if (ok) {
-                  toast.message("마크다운을 복사했어요.");
+                  toast.message(contextMenuText.copySuccess);
                 } else {
-                  toast.message("복사에 실패했습니다.");
+                  toast.message(contextMenuText.copyFail);
                 }
               },
             },
             {
-              name: "펼쳐진 노드만 마크다운 복사",
+              name: contextMenuText.copyExpandedMarkdown,
               onclick: async () => {
                 const current = mind.currentNode?.nodeObj as AnyNode | undefined;
                 if (!current) return;
@@ -1255,15 +1309,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
                 if (!markdown.trim()) return;
                 const ok = await copyToClipboard(markdown);
                 if (ok) {
-                  toast.message("마크다운을 복사했어요.");
+                  toast.message(contextMenuText.copySuccess);
                 } else {
-                  toast.message("복사에 실패했습니다.");
+                  toast.message(contextMenuText.copyFail);
                 }
               },
             },
           ],
         },
-        locale: "ko",
+        locale: mindLocale,
         scaleSensitivity: zoomSensitivity,
         mouseSelectionButton: dragButton,
         handleWheel,
@@ -1535,6 +1589,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     openMenuOnClick,
     showToolbar,
     initialData,
+    mindLocale,
+    contextMenuText,
   ]);
 
   useEffect(() => {

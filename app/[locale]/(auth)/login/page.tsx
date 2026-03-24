@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
+import Image from "next/image";
 
 export default function Login() {
   const t = useTranslations("loginPage");
@@ -43,8 +44,8 @@ export default function Login() {
         relative min-h-screen w-full
         bg-[#f4f6fb] dark:bg-[#020617]
         text-neutral-900 dark:text-neutral-50
-        pt-20 pb-16
-        flex items-start md:items-center justify-center
+        pt-[86px] pb-16
+        flex items-start justify-center md:pt-[142px]
       "
     >
       {/* 상단 블루 톤 그라데이션 */}
@@ -67,26 +68,22 @@ export default function Login() {
       />
 
       <div className="relative w-full max-w-md px-4 sm:px-0">
-        {/* 상단 작은 브랜딩 + 한 줄 카피 */}
-        <div className="mb-6 flex flex-col items-center gap-2 text-center">
+        <div className="mb-5 flex justify-center">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-800 dark:text-neutral-100"
+            className="inline-flex items-center gap-3 text-neutral-900 dark:text-neutral-100"
           >
-            <div
-              className="
-                h-8 w-8 rounded-2xl bg-white/90 dark:bg-white/10
-                shadow-md flex items-center justify-center
-                text-sm font-black text-blue-600 dark:text-[rgb(var(--hero-b))]
-              "
-            >
-              B
-            </div>
-            <span className="tracking-tight">{t("brand")}</span>
+            <Image
+              src="/images/newlogo.png"
+              alt="Brify Logo"
+              className="h-9 w-9"
+              width={512}
+              height={512}
+            />
+            <span className="text-[24px] font-extrabold tracking-tight">
+              {t("brand")}
+            </span>
           </Link>
-          {/* <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            {t("tagline")}
-          </p> */}
         </div>
 
         {/* 로그인 카드 */}

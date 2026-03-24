@@ -90,7 +90,7 @@ export default function DraftMapCard({
         relative overflow-hidden
         rounded-3xl border border-neutral-400 bg-white
         shadow-[0_18px_40px_-28px_rgba(15,23,42,0.45)]
-        p-4 flex gap-4
+        p-3.5 sm:p-4 flex gap-3 sm:gap-4
         transition-all duration-500
 
         dark:bg-[#111C2E]
@@ -123,7 +123,7 @@ export default function DraftMapCard({
       <div
         className="
           relative
-          h-16 w-28 rounded-2xl overflow-hidden
+          h-14 w-24 sm:h-16 sm:w-28 rounded-2xl overflow-hidden
           border border-neutral-400 bg-neutral-50
           flex-shrink-0
           dark:border-white/30
@@ -147,7 +147,7 @@ export default function DraftMapCard({
           {/* text block */}
           <div className="min-w-0 pr-1">
             {/* ✅ 모바일: 2줄까지 보여주고 그 이상은 ... */}
-            <p className="font-semibold text-neutral-900 dark:text-white line-clamp-2">
+            <p className="text-[14px] sm:text-base font-semibold text-neutral-900 dark:text-white line-clamp-2">
               {draft.title}
             </p>
           </div>
@@ -156,7 +156,7 @@ export default function DraftMapCard({
           <span
             className={`
               shrink-0 whitespace-nowrap
-              rounded-full border px-2.5 py-1 text-[12px] font-semibold
+              rounded-full border px-2 py-1 sm:px-2.5 text-[11px] sm:text-[12px] font-semibold
               inline-flex items-center gap-1.5
               ${badge.cls} ${badge.darkCls}
               ${
@@ -167,15 +167,15 @@ export default function DraftMapCard({
             `}
           >
             {draft.status === "processing" && (
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
+              <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5">
+                <span className="relative inline-flex h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-white" />
               </span>
             )}
             <span>{badge.text}</span>
             {draft.status === "processing" && progressPercent !== null && (
-              <span className="ml-1.5 inline-flex items-center gap-1.5 rounded-full bg-white/20 px-1.5 py-0.5 text-[11px] font-semibold tabular-nums">
+              <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] sm:text-[11px] font-semibold tabular-nums">
                 {progressPercent}%
-                <span className="h-1.5 w-16 overflow-hidden rounded-full bg-white/30">
+                <span className="h-1.5 w-12 sm:w-16 overflow-hidden rounded-full bg-white/30">
                   <span
                     className="block h-full rounded-full bg-white transition-[width] duration-500 ease-out"
                     style={{ width: `${progressPercent}%` }}
@@ -187,7 +187,7 @@ export default function DraftMapCard({
         </div>
 
         {/* ✅ 출처 라인(따로 분리해서 폭 싸움 방지) */}
-        <p className="mt-1 text-sm text-neutral-500 dark:text-white/60 truncate">
+        <p className="mt-1 text-[12px] sm:text-sm text-neutral-500 dark:text-white/60 truncate">
           {draft.channelName ? draft.channelName : t("noSource")}
           {draft.sourceUrl ? ` · ${t("hasUrl")}` : ""}
         </p>
@@ -201,7 +201,7 @@ export default function DraftMapCard({
                 key={tag}
                 className="
                   rounded-full border border-neutral-400 bg-neutral-100
-                  px-2.5 py-1 text-[12px] font-semibold text-neutral-700
+                  px-2 py-1 sm:px-2.5 text-[11px] sm:text-[12px] font-semibold text-neutral-700
                   dark:border-white/30
                   dark:bg-white/[0.08]
                   dark:text-white/85
@@ -214,13 +214,13 @@ export default function DraftMapCard({
         )}
 
         {/* ✅ 하단: 모바일에서 날짜/버튼이 '각자 자리' 갖도록 */}
-        <div className="mt-3 flex items-center justify-between gap-2">
+        <div className="mt-3 flex flex-col items-stretch gap-2.5 sm:flex-row sm:items-center sm:justify-between">
           {/* 날짜는 줄바꿈보단 한 줄 + ...가 더 보기 좋음 */}
-          <div className="min-w-0 text-[13px] font-medium text-neutral-500 dark:text-white/60 truncate">
+          <div className="min-w-0 text-[12px] sm:text-[13px] font-medium text-neutral-500 dark:text-white/60 truncate">
             {new Date(draft.createdAt).toLocaleString()}
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 sm:self-auto">
             {onEditMetadata && (
               <button
                 type="button"
@@ -229,8 +229,8 @@ export default function DraftMapCard({
                 className="
                   whitespace-nowrap
                   inline-flex items-center justify-center gap-1.5 rounded-2xl
-                  border border-neutral-400 bg-white px-3.5 py-2
-                  text-sm font-semibold text-neutral-800 hover:bg-neutral-50
+                  border border-neutral-400 bg-white px-3 py-2 sm:px-3.5
+                  text-[13px] sm:text-sm font-semibold text-neutral-800 hover:bg-neutral-50
                   disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-white
                   dark:border-white/30
                   dark:bg-white/[0.06]
@@ -258,24 +258,25 @@ export default function DraftMapCard({
                 type="button"
                 onClick={() => onOpen?.(draft)}
                 className="
+                  flex-1 sm:flex-none
                   whitespace-nowrap
-                  inline-flex items-center justify-center gap-1.5 rounded-2xl
-                  border border-blue-700 bg-[linear-gradient(135deg,#2563eb_0%,#3b82f6_55%,#60a5fa_100%)] px-3.5 py-1.5
-                  text-sm font-extrabold tracking-[-0.01em] text-white
-                  shadow-[0_14px_30px_-18px_rgba(37,99,235,0.95)]
+                  inline-flex items-center justify-center gap-2 rounded-[18px] sm:rounded-[20px]
+                  border border-sky-300 bg-[linear-gradient(135deg,#0f172a_0%,#2563eb_18%,#06b6d4_48%,#7c3aed_78%,#38bdf8_100%)] px-4 py-2.5 sm:px-5 sm:py-3
+                  text-[15px] sm:text-[17px] font-extrabold tracking-[-0.01em] text-white
+                  shadow-[0_20px_46px_-18px_rgba(37,99,235,0.9)]
                   transition-all duration-200
-                  hover:-translate-y-0.5 hover:brightness-[1.06]
-                  hover:shadow-[0_18px_38px_-18px_rgba(37,99,235,1)]
-                  dark:border-blue-400
-                  dark:bg-[linear-gradient(135deg,#1d4ed8_0%,#2563eb_55%,#3b82f6_100%)]
+                  hover:-translate-y-0.5 hover:brightness-[1.1] hover:saturate-[1.08]
+                  hover:shadow-[0_26px_54px_-18px_rgba(56,189,248,0.95)]
+                  dark:border-sky-300/80
+                  dark:bg-[linear-gradient(135deg,#111827_0%,#1d4ed8_16%,#0891b2_44%,#6d28d9_74%,#38bdf8_100%)]
                   dark:text-white
-                  dark:shadow-[0_20px_42px_-20px_rgba(37,99,235,0.95)]
-                  dark:hover:shadow-[0_24px_48px_-20px_rgba(59,130,246,1)]
+                  dark:shadow-[0_24px_52px_-20px_rgba(37,99,235,0.95)]
+                  dark:hover:shadow-[0_30px_62px_-20px_rgba(34,211,238,0.95)]
                 "
               >
-                <Icon icon="mdi:shape-outline" className="h-4 w-4" />
+                <Icon icon="mdi:shape-outline" className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
                 {t("viewMap")}
-                <Icon icon="mdi:arrow-right" className="h-4 w-4" />
+                <Icon icon="mdi:arrow-right" className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
               </button>
             )}
           </div>

@@ -17,11 +17,21 @@ import {
   MIND_THEMES,
   MIND_THEME_BY_NAME,
 } from "@/components/maps/themes";
+import MapTutorialOverlay from "@/components/maps/tutorial/MapTutorialOverlay";
+import { getMapTutorialSteps } from "@/components/maps/tutorial/mapTutorialSteps";
+import useTutorialIsMobile from "@/components/maps/tutorial/useTutorialIsMobile";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 import type { ClientMindElixirHandle } from "@/components/ClientMindElixir";
 import TagEditDialog from "@/components/maps/TagEditDialog";
+import {
+  getMapTutorialCompleted,
+  setMapTutorialCompleted,
+} from "@/app/lib/mapTutorialState";
 
 const PROFILE_THEME_NAME = "내설정테마";
+const FULLSCREEN_EDIT_BUTTON_ID = "fullscreen-map-edit-button";
+const FULLSCREEN_MOBILE_EDIT_BUTTON_ID = "fullscreen-mobile-map-edit-button";
+const FULLSCREEN_TERMS_TAB_ID = "fullscreen-map-terms-tab";
 
 type MindNode = {
   children?: MindNode[];
@@ -95,6 +105,10 @@ export default function FullscreenDialog({
   const mindRef = useRef<ClientMindElixirHandle | null>(null);
   const { resolvedTheme } = useTheme();
   const t = useTranslations("FullscreenDialog");
+  const tTutorial = useTranslations("MapTutorial");
+  const isTutorialMobile = useTutorialIsMobile();
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+  const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
 
 
   // ✅ 좌측 패널(메타) 토글
@@ -154,6 +168,14 @@ export default function FullscreenDialog({
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!open || !mounted) return;
+    setLeftOpen(true);
+    const tutorialCompleted = getMapTutorialCompleted();
+    setTutorialOpen(!tutorialCompleted);
+    setTutorialStepIndex(0);
+  }, [open, mounted, draft?.id]);
 
   useEffect(() => {
     if (!searchOpen) {
@@ -232,6 +254,11 @@ export default function FullscreenDialog({
   if (!mounted) return null;
 
   const handleGoList = onGoList ?? onClose;
+  const tutorialSteps = getMapTutorialSteps(tTutorial, {
+    platform: isTutorialMobile ? "mobile" : "desktop",
+    editButtonId: isTutorialMobile ? FULLSCREEN_MOBILE_EDIT_BUTTON_ID : FULLSCREEN_EDIT_BUTTON_ID,
+    termsTabId: FULLSCREEN_TERMS_TAB_ID,
+  });
   const mapDraft = localDraft ?? draft;
   const tagEditDraft = mapDraft;
 
@@ -289,6 +316,14 @@ export default function FullscreenDialog({
     link.click();
     link.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+  const handleTutorialNext = () => {
+    if (tutorialStepIndex >= tutorialSteps.length - 1) {
+      setMapTutorialCompleted(true);
+      setTutorialOpen(false);
+      return;
+    }
+    setTutorialStepIndex((prev) => prev + 1);
   };
   const closeSearch = () => {
     setSearchOpen(false);
@@ -445,6 +480,7 @@ export default function FullscreenDialog({
                 panMode={panMode}
                 themes={themeOptions}
                 currentThemeName={themeName}
+                highlightEditToggle={tutorialOpen && tutorialStepIndex === 0}
                 onToggleEdit={() =>
                   setEditMode((m) => (m === "view" ? "edit" : "view"))
                 }
@@ -462,6 +498,7 @@ export default function FullscreenDialog({
                 onZoomOut={() => mindRef.current?.zoomOut?.()}
                 onExportPng={handleExportPng}
                 onCloseMap={onClose}
+                editButtonId={FULLSCREEN_EDIT_BUTTON_ID}
                 placement="inline"
               />
             </div>
@@ -567,6 +604,7 @@ export default function FullscreenDialog({
 
           <div className="pointer-events-auto absolute right-3 top-3 z-[25] flex flex-col gap-2 sm:hidden">
             <button
+              id={FULLSCREEN_MOBILE_EDIT_BUTTON_ID}
               type="button"
               onClick={() => setEditMode((m) => (m === "view" ? "edit" : "view"))}
               className="
@@ -793,7 +831,17 @@ export default function FullscreenDialog({
             tab={leftTab}
             onTabChange={setLeftTab}
             onEditTags={() => setTagEditOpen(true)}
+            termsTabId={FULLSCREEN_TERMS_TAB_ID}
           />
+
+          {tutorialOpen ? (
+            <MapTutorialOverlay
+              stepIndex={tutorialStepIndex}
+              steps={tutorialSteps}
+              onNext={handleTutorialNext}
+              onSkip={() => setTutorialOpen(false)}
+            />
+          ) : null}
 
           {/* ✅ 패널 닫기 버튼 제거 */}
         </div>

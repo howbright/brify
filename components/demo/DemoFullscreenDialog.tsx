@@ -4,13 +4,20 @@ import dynamic from "next/dynamic";
 import { Icon } from "@iconify/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import FullscreenHeader from "@/components/maps/FullscreenHeader";
 import MapControls from "@/components/maps/MapControls";
 import NoteItem, { type NoteItemData } from "@/components/maps/NoteItem";
 import TermsBlock from "@/components/maps/TermsBlock";
+import MapTutorialOverlay, {
+  type MapTutorialLanguage as DemoLanguage,
+} from "@/components/maps/tutorial/MapTutorialOverlay";
+import { getMapTutorialSteps } from "@/components/maps/tutorial/mapTutorialSteps";
+import useTutorialIsMobile from "@/components/maps/tutorial/useTutorialIsMobile";
 import {
   DEFAULT_THEME_NAME,
   MIND_THEMES,
@@ -18,6 +25,10 @@ import {
 } from "@/components/maps/themes";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 import { loadingMindElixir } from "@/app/lib/g6/sampleData";
+import {
+  getMapTutorialCompleted,
+  setMapTutorialCompleted,
+} from "@/app/lib/mapTutorialState";
 import type { ClientMindElixirHandle } from "@/components/ClientMindElixir";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 
@@ -37,75 +48,29 @@ const ClientMindElixir = dynamic(
   }
 );
 
-type DemoLanguage = "ko" | "en";
-
 type DemoTermItem = {
   term: string;
   meaning: string;
   isNew?: boolean;
 };
 
-const DEMO_NOTES_BY_LANGUAGE: Record<DemoLanguage, NoteItemData[]> = {
-  ko: [
-    {
-      id: "demo-note-1",
-      text: "첫 번째 식사와 두 번째 식사의 시간대가 명확해서 하루 흐름이 한눈에 들어온다.",
-      createdAt: Date.now() - 1000 * 60 * 18,
-      createdAtLabel: "방금 전",
-    },
-    {
-      id: "demo-note-2",
-      text: "OMAD를 하지 않는 이유가 체중 유지라는 점이 핵심 포인트다.",
-      createdAt: Date.now() - 1000 * 60 * 42,
-      createdAtLabel: "방금 전",
-    },
-  ],
-  en: [
-    {
-      id: "demo-note-1",
-      text: "The meal timing makes the daily fasting rhythm easy to follow at a glance.",
-      createdAt: Date.now() - 1000 * 60 * 18,
-      createdAtLabel: "Just now",
-    },
-    {
-      id: "demo-note-2",
-      text: "A key takeaway is that he avoids OMAD to maintain weight, not because of hunger.",
-      createdAt: Date.now() - 1000 * 60 * 42,
-      createdAtLabel: "Just now",
-    },
-  ],
-};
+const DEMO_EDIT_BUTTON_ID = "demo-edit-button";
+const DEMO_MOBILE_EDIT_BUTTON_ID = "demo-mobile-edit-button";
+const DEMO_TERMS_TAB_ID = "demo-terms-tab";
 
-const DEMO_TERMS_BY_LANGUAGE: Record<DemoLanguage, DemoTermItem[]> = {
-  ko: [
-    {
-      term: "OMAD",
-      meaning: "하루 한 끼만 먹는 식사 방식이다.",
-    },
-    {
-      term: "grass-fed",
-      meaning: "곡물보다 목초 위주로 사육된 재료를 뜻하며, 영상에서는 품질 기준으로 반복해서 언급된다.",
-    },
-    {
-      term: "pasture-raised",
-      meaning: "방목 환경에서 키운 달걀이나 가축을 뜻하며, 식재료 선택 기준으로 강조된다.",
-    },
-  ],
-  en: [
-    {
-      term: "OMAD",
-      meaning: "A one-meal-a-day eating pattern.",
-    },
-    {
-      term: "grass-fed",
-      meaning: "Used as a quality standard for animal-based foods in the video.",
-    },
-    {
-      term: "pasture-raised",
-      meaning: "A sourcing standard for eggs and livestock that is emphasized throughout the routine.",
-    },
-  ],
-};
+function getDemoNotes(t: ReturnType<typeof useTranslations>): NoteItemData[] {
+  const items = t.raw("notes.items") as Array<{ text: string; createdAtLabel: string }>;
+  return items.map((item, index) => ({
+    id: `demo-note-${index + 1}`,
+    text: item.text,
+    createdAt: Date.now() - 1000 * 60 * (index === 0 ? 18 : 42),
+    createdAtLabel: item.createdAtLabel,
+  }));
+}
+
+function getDemoTerms(t: ReturnType<typeof useTranslations>): DemoTermItem[] {
+  return t.raw("terms.items") as DemoTermItem[];
+}
 
 function safeDateLabel(value?: number) {
   if (!value) return "-";
@@ -120,16 +85,19 @@ function safeDateLabel(value?: number) {
   }
 }
 
-function sourceTypeLabel(sourceType?: MapDraft["sourceType"]) {
+function sourceTypeLabel(
+  t: ReturnType<typeof useTranslations>,
+  sourceType?: MapDraft["sourceType"]
+) {
   switch (sourceType) {
     case "youtube":
-      return "youtube";
+      return t("sourceTypes.youtube");
     case "website":
-      return "website";
+      return t("sourceTypes.website");
     case "file":
-      return "file";
+      return t("sourceTypes.file");
     default:
-      return "manual";
+      return t("sourceTypes.manual");
   }
 }
 
@@ -144,20 +112,17 @@ function DemoLeftPanel({
   map: MapDraft;
   language: DemoLanguage;
 }) {
+  const t = useTranslations("DemoFullscreenDialog");
   const [activeTab, setActiveTab] = useState<"info" | "notes" | "terms">("info");
   const [noteText, setNoteText] = useState("");
-  const [notes, setNotes] = useState<NoteItemData[]>(() =>
-    DEMO_NOTES_BY_LANGUAGE[language].map((item) => ({ ...item }))
-  );
-  const [terms, setTerms] = useState<DemoTermItem[]>(() =>
-    DEMO_TERMS_BY_LANGUAGE[language].map((item) => ({ ...item }))
-  );
+  const [notes, setNotes] = useState<NoteItemData[]>(() => getDemoNotes(t));
+  const [terms, setTerms] = useState<DemoTermItem[]>(() => getDemoTerms(t));
 
   useEffect(() => {
-    setNotes(DEMO_NOTES_BY_LANGUAGE[language].map((item) => ({ ...item })));
-    setTerms(DEMO_TERMS_BY_LANGUAGE[language].map((item) => ({ ...item })));
+    setNotes(getDemoNotes(t));
+    setTerms(getDemoTerms(t));
     setActiveTab("info");
-  }, [language, map.id]);
+  }, [language, map.id, t]);
 
   const createdLabel = useMemo(() => safeDateLabel(map.createdAt), [map.createdAt]);
   const updatedLabel = useMemo(() => safeDateLabel(map.updatedAt), [map.updatedAt]);
@@ -171,7 +136,7 @@ function DemoLeftPanel({
         id: `demo-note-${createdAt}`,
         text: trimmed,
         createdAt,
-        createdAtLabel: language === "ko" ? "방금 전" : "Just now",
+        createdAtLabel: t("notes.justNow"),
       },
       ...prev,
     ]);
@@ -193,10 +158,7 @@ function DemoLeftPanel({
         ...prev,
         {
           term: "xylitol",
-          meaning:
-            language === "ko"
-              ? "영상에서 커피에 넣는 감미료로 언급된다."
-              : "Mentioned in the video as the sweetener added to coffee.",
+          meaning: t("terms.autoAddedXylitol"),
           isNew: true,
         },
       ];
@@ -210,10 +172,7 @@ function DemoLeftPanel({
       .filter(Boolean)
       .map((term) => ({
         term,
-        meaning:
-          language === "ko"
-            ? "데모용으로 추가된 사용자 지정 용어입니다."
-            : "A custom term added in the demo view.",
+        meaning: t("terms.customAdded"),
         isNew: true,
       }));
 
@@ -238,25 +197,26 @@ function DemoLeftPanel({
         ${open ? "translate-x-0" : "-translate-x-[calc(100%+28px)]"}
       `}
     >
-      <div className="relative flex h-full w-[550px] flex-col border-r border-slate-400 bg-white/96 shadow-[0_20px_50px_-36px_rgba(15,23,42,0.55)] backdrop-blur dark:border-white/20 dark:bg-[#0b1220]/96 dark:shadow-[0_32px_100px_-70px_rgba(0,0,0,0.95)]">
-        <div className="border-b border-slate-400 px-4 pb-3 pt-4 dark:border-white/20">
+      <div className="relative flex h-full w-[min(550px,calc(100vw-18px))] max-w-full flex-col border-r border-slate-400 bg-white/96 shadow-[0_20px_50px_-36px_rgba(15,23,42,0.55)] backdrop-blur dark:border-white/20 dark:bg-[#0b1220]/96 dark:shadow-[0_32px_100px_-70px_rgba(0,0,0,0.95)]">
+        <div className="border-b border-slate-400 px-3 pb-3 pt-3 sm:px-4 sm:pt-4 dark:border-white/20">
           <div className="flex items-start gap-2">
             <div className="inline-flex rounded-full border border-slate-400 bg-neutral-50 p-1 dark:border-white/20 dark:bg-white/[0.04]">
               {[
-                ["info", "정보"],
-                ["notes", "노트"],
-                ["terms", "용어"],
+                ["info", t("tabs.info")],
+                ["notes", t("tabs.notes")],
+                ["terms", t("tabs.terms")],
               ].map(([tab, label]) => (
                 <button
                   key={tab}
                   type="button"
+                  id={tab === "terms" ? DEMO_TERMS_TAB_ID : undefined}
                   onClick={() =>
                     setActiveTab(tab as "info" | "notes" | "terms")
                   }
-                  className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  className={`rounded-full px-2.5 py-1 text-[13px] font-semibold transition-colors sm:px-3 sm:py-1.5 ${
                     activeTab === tab
-                      ? "bg-blue-600 text-[16px] font-extrabold text-white dark:bg-blue-500"
-                      : "text-[16px] font-bold text-neutral-700 hover:text-neutral-900 dark:text-white/80 dark:hover:text-white"
+                      ? "bg-blue-600 text-[14px] font-extrabold text-white sm:text-[16px] dark:bg-blue-500"
+                      : "text-[14px] font-bold text-neutral-700 hover:text-neutral-900 sm:text-[16px] dark:text-white/80 dark:hover:text-white"
                   }`}
                 >
                   {label}
@@ -268,29 +228,29 @@ function DemoLeftPanel({
               type="button"
               onClick={onClose}
               className="ml-auto -mr-4 inline-flex h-8 w-10 items-center justify-center rounded-l-full rounded-r-md bg-blue-600 text-white shadow-sm hover:bg-blue-700 dark:bg-blue-500/70 dark:hover:bg-blue-500"
-              aria-label="닫기"
-              title="닫기"
+              aria-label={t("actions.close")}
+              title={t("actions.close")}
             >
               <Icon icon="mdi:chevron-left" className="h-5 w-5" />
             </button>
           </div>
 
           {activeTab === "info" && (
-            <div className="mt-3 whitespace-normal break-words text-lg font-bold text-neutral-900 dark:text-white/90">
+            <div className="mt-3 whitespace-normal break-words text-base font-bold text-neutral-900 sm:text-lg dark:text-white/90">
               {map.title}
             </div>
           )}
         </div>
 
-        <div className="relative min-h-0 flex-1 overflow-y-auto px-4 py-4">
+        <div className="relative min-h-0 flex-1 overflow-y-auto px-3 py-3 sm:px-4 sm:py-4">
           {activeTab === "info" ? (
             <>
-              <div className="mb-3 text-[14px] text-neutral-500 dark:text-white/55">
+              <div className="mb-3 text-[13px] sm:text-[14px] text-neutral-500 dark:text-white/55">
                 <div>
                   생성 {createdLabel} · 수정 {updatedLabel}
                 </div>
                 <div className="mt-0.5">
-                  크레딧:{" "}
+                  {t("info.credits")}:{" "}
                   <span className="font-semibold text-neutral-600 dark:text-white/70">
                     {typeof map.creditsCharged === "number"
                       ? map.creditsCharged
@@ -304,16 +264,16 @@ function DemoLeftPanel({
                   <div className="mb-2.5 flex items-center gap-2">
                     <div className="h-5 w-1 rounded-full bg-blue-200 dark:bg-blue-500/40" />
                     <h3 className="text-base font-bold text-neutral-900 dark:text-white/90">
-                      한문단요약
+                      {t("info.summary")}
                     </h3>
                   </div>
-                  <div className="rounded-3xl border border-slate-400 bg-blue-50/60 p-3.5 text-base leading-7 text-neutral-700 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] dark:border-white/20 dark:bg-blue-500/10 dark:text-white/80 dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]">
+                  <div className="rounded-3xl border border-slate-400 bg-blue-50/60 p-3 text-[15px] leading-6 text-neutral-700 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] sm:p-3.5 sm:text-base sm:leading-7 dark:border-white/20 dark:bg-blue-500/10 dark:text-white/80 dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]">
                     <p className="whitespace-pre-wrap break-words">{map.summary}</p>
                   </div>
                 </section>
               ) : null}
 
-              <DemoSection title="출처">
+              <DemoSection title={t("info.source")}>
                 <div className="flex gap-3">
                   <div className="relative h-16 w-28 flex-shrink-0 overflow-hidden rounded-2xl border border-slate-400 bg-neutral-50 dark:border-white/20 dark:bg-white/[0.06]">
                     {map.thumbnailUrl ? (
@@ -321,7 +281,7 @@ function DemoLeftPanel({
                       <img src={map.thumbnailUrl} alt="" className="h-full w-full object-cover" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-[11px] text-neutral-400 dark:text-white/45">
-                        thumbnail
+                        {t("info.thumbnail")}
                       </div>
                     )}
                   </div>
@@ -329,31 +289,31 @@ function DemoLeftPanel({
                   <div className="min-w-0 flex-1">
                     <DemoRow
                       icon="mdi:youtube"
-                      label="출처 타입"
-                      value={sourceTypeLabel(map.sourceType)}
+                      label={t("info.sourceType")}
+                      value={sourceTypeLabel(t, map.sourceType)}
                     />
                     <DemoRow
                       icon="mdi:account-circle-outline"
-                      label="채널"
+                      label={t("info.channel")}
                       value={map.channelName ?? "-"}
                     />
 
                     <div className="mt-1">
                       <div className="text-[13px] text-neutral-500 dark:text-white/60">
-                        원본 링크
+                        {t("info.originalLink")}
                       </div>
                       {map.sourceUrl ? (
                         <a
                           href={map.sourceUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-0.5 block truncate text-base font-semibold text-blue-700 hover:underline dark:text-sky-200"
+                          className="mt-0.5 block truncate text-[15px] font-semibold text-blue-700 hover:underline sm:text-base dark:text-sky-200"
                           title={map.sourceUrl}
                         >
                           {map.sourceUrl}
                         </a>
                       ) : (
-                        <div className="mt-0.5 text-base text-neutral-700 dark:text-white/85">
+                        <div className="mt-0.5 text-[15px] sm:text-base text-neutral-700 dark:text-white/85">
                           -
                         </div>
                       )}
@@ -362,7 +322,7 @@ function DemoLeftPanel({
                 </div>
               </DemoSection>
 
-              <DemoSection title="태그">
+              <DemoSection title={t("info.tags")}>
                 {map.tags?.length ? (
                   <div className="flex flex-wrap gap-1.5">
                     {map.tags.map((tag) => (
@@ -377,40 +337,40 @@ function DemoLeftPanel({
                 ) : null}
               </DemoSection>
 
-              <DemoSection title="설명">
-                <div className="whitespace-pre-wrap break-words text-base leading-7 text-neutral-700 dark:text-white/80">
+              <DemoSection title={t("info.description")}>
+                <div className="whitespace-pre-wrap break-words text-[15px] leading-6 sm:text-base sm:leading-7 text-neutral-700 dark:text-white/80">
                   {map.description ?? "-"}
                 </div>
               </DemoSection>
             </>
           ) : activeTab === "notes" ? (
             <div className="flex flex-col gap-3">
-              <div className="text-base text-neutral-600 dark:text-white/75">
-                중요한 노드를 읽으면서 떠오른 생각을 바로 남길 수 있어요.
+              <div className="text-[15px] sm:text-base text-neutral-600 dark:text-white/75">
+                {t("notes.helper")}
               </div>
               <div className="rounded-2xl border border-slate-400 bg-white p-3 dark:border-white/20 dark:bg-white/[0.04]">
                 <textarea
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
-                  placeholder="이 노드에서 떠오른 생각을 적어보세요."
-                  className="w-full rounded-xl border border-slate-400 bg-white px-3 py-2 text-lg outline-none focus:ring-2 focus:ring-blue-200 dark:border-white/20 dark:bg-white/[0.06] dark:text-white dark:focus:ring-blue-500/20"
+                  placeholder={t("notes.placeholder")}
+                  className="w-full rounded-xl border border-slate-400 bg-white px-3 py-2 text-[15px] outline-none focus:ring-2 focus:ring-blue-200 sm:text-lg dark:border-white/20 dark:bg-white/[0.06] dark:text-white dark:focus:ring-blue-500/20"
                   rows={3}
                 />
                 <div className="mt-3 flex justify-end">
                   <button
                     type="button"
                     onClick={addNote}
-                    className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-400 bg-blue-600 px-3 py-2 text-base font-semibold text-white hover:bg-blue-700 dark:border-white/20 dark:bg-blue-500"
+                    className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-400 bg-blue-600 px-3 py-2 text-[15px] font-semibold text-white hover:bg-blue-700 sm:text-base dark:border-white/20 dark:bg-blue-500"
                   >
                     <Icon icon="mdi:plus" className="h-4 w-4" />
-                    노트 추가
+                    {t("notes.add")}
                   </button>
                 </div>
               </div>
 
               {notes.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-slate-400 bg-neutral-50 p-4 text-sm text-neutral-500 dark:border-white/20 dark:bg-white/[0.04] dark:text-white/60">
-                  아직 노트가 없습니다.
+                  {t("notes.empty")}
                 </div>
               ) : (
                 notes.map((note) => (
@@ -425,11 +385,11 @@ function DemoLeftPanel({
             </div>
           ) : (
             <>
-              <div className="mb-3 rounded-2xl border border-slate-400 bg-sky-50/70 px-3 py-2 text-base text-slate-700 shadow-[0_16px_30px_-24px_rgba(14,116,144,0.45)] dark:border-white/20 dark:bg-sky-500/10 dark:text-white/75">
+              <div className="mb-3 rounded-2xl border border-slate-400 bg-sky-50/70 px-3 py-2 text-[15px] text-slate-700 shadow-[0_16px_30px_-24px_rgba(14,116,144,0.45)] sm:text-base dark:border-white/20 dark:bg-sky-500/10 dark:text-white/75">
                 <div className="flex items-center gap-2">
                   <Icon icon="mdi:sparkles" className="h-4 w-4 text-sky-500 dark:text-sky-300" />
                   <span className="font-semibold">
-                    AI가 핵심 용어를 자동으로 추출해 이해를 돕습니다.
+                    {t("terms.helper")}
                   </span>
                 </div>
               </div>
@@ -462,11 +422,11 @@ function DemoSection({
     <section className="mb-4">
       <div className="mb-2 flex items-center gap-2">
         <div className="h-5 w-1 rounded-full bg-neutral-200 dark:bg-white/15" />
-        <h3 className="text-base font-bold text-neutral-900 dark:text-white/90">
+        <h3 className="text-[15px] font-bold text-neutral-900 sm:text-base dark:text-white/90">
           {title}
         </h3>
       </div>
-      <div className="rounded-3xl border border-slate-400 bg-white p-3 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.25)] dark:border-white/20 dark:bg-white/[0.04] dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]">
+      <div className="rounded-3xl border border-slate-400 bg-white p-3 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.25)] sm:p-3 dark:border-white/20 dark:bg-white/[0.04] dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]">
         {children}
       </div>
     </section>
@@ -486,8 +446,8 @@ function DemoRow({
     <div className="flex min-w-0 items-center gap-2">
       <Icon icon={icon} className="h-4 w-4 text-neutral-500 dark:text-white/55" />
       <div className="min-w-0">
-        <div className="text-[13px] text-neutral-500 dark:text-white/60">{label}</div>
-        <div className="truncate text-base font-semibold text-neutral-800 dark:text-white/85">
+        <div className="text-[12px] sm:text-[13px] text-neutral-500 dark:text-white/60">{label}</div>
+        <div className="truncate text-[15px] font-semibold text-neutral-800 sm:text-base dark:text-white/85">
           {value}
         </div>
       </div>
@@ -510,12 +470,16 @@ export default function DemoFullscreenDialog({
   mapData?: unknown | null;
   language?: DemoLanguage;
 }) {
+  const router = useRouter();
+  const t = useTranslations("DemoFullscreenDialog");
+  const tTutorial = useTranslations("MapTutorial");
+  const isTutorialMobile = useTutorialIsMobile();
   const { profileThemeName } = useMindThemePreference();
   const { resolvedTheme } = useTheme();
   const [leftOpen, setLeftOpen] = useState(true);
   const [editMode, setEditMode] = useState<"view" | "edit">("view");
-  const [showMoveHint, setShowMoveHint] = useState(true);
-  const [showContextHint, setShowContextHint] = useState(true);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+  const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
   const [themeName, setThemeName] = useState<string>(
     profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME
   );
@@ -534,6 +498,10 @@ export default function DemoFullscreenDialog({
 
   useEffect(() => {
     if (!open || !mounted) return;
+    setLeftOpen(!isTutorialMobile);
+    const tutorialCompleted = getMapTutorialCompleted();
+    setTutorialOpen(!tutorialCompleted);
+    setTutorialStepIndex(0);
     const timer = window.setTimeout(() => {
       mindRef.current?.collapseToLevel?.(1);
       mindRef.current?.centerMap?.();
@@ -554,7 +522,7 @@ export default function DemoFullscreenDialog({
       }, 120);
     }, 220);
     return () => window.clearTimeout(timer);
-  }, [open, mounted, draft?.id, language]);
+  }, [open, mounted, draft?.id, language, isTutorialMobile]);
 
   if (!open || !draft || !mounted) return null;
 
@@ -586,22 +554,49 @@ export default function DemoFullscreenDialog({
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
+  const handleTutorialNext = () => {
+    const steps = getMapTutorialSteps(tTutorial, {
+      platform: isTutorialMobile ? "mobile" : "desktop",
+      editButtonId: isTutorialMobile ? DEMO_MOBILE_EDIT_BUTTON_ID : DEMO_EDIT_BUTTON_ID,
+      termsTabId: DEMO_TERMS_TAB_ID,
+    });
+    if (tutorialStepIndex >= steps.length - 1) {
+      setMapTutorialCompleted(true);
+      setTutorialOpen(false);
+      return;
+    }
+    setTutorialStepIndex((prev) => prev + 1);
+  };
+
+  const handleGoHome = () => {
+    toast.message(
+      t("toasts.demoFinished")
+    );
+    window.setTimeout(() => {
+      router.push(`/${language}`);
+    }, 900);
+  };
+
+  const handleStartService = () => {
+    router.push(`/${language}/video-to-map`);
+  };
+
   return createPortal(
-    <div className="fixed left-0 top-0 z-[120] h-screen w-screen max-w-none bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={title ?? "구조맵 미리보기"}>
+    <div className="fixed left-0 top-0 z-[120] h-screen w-screen max-w-none bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={title ?? t("dialog.title")}>
       <div className="relative h-full w-full overflow-hidden bg-white [--header-h:68px] dark:bg-[#0b1220]">
         <FullscreenHeader
-          title={title ?? "구조맵 미리보기"}
-          onClose={onClose}
-          closeLabel="맵 닫기"
+          title={title ?? t("dialog.title")}
+          onClose={handleGoHome}
+          closeLabel={t("actions.closeMap")}
           left={
             <button
               type="button"
               onClick={() => setLeftOpen((prev) => !prev)}
               className="inline-flex items-center p-1 text-neutral-800 hover:text-neutral-900 dark:text-white/85 dark:hover:text-white"
-              aria-label="정보 패널"
-              title="정보 패널"
+              aria-label={t("actions.infoPanel")}
+              title={t("actions.infoPanel")}
             >
-              <span className="sr-only">정보 패널</span>
+              <span className="sr-only">{t("actions.infoPanel")}</span>
               {leftOpen ? (
                 <Icon icon="mdi:chevron-left" className="h-8 w-8" />
               ) : (
@@ -635,8 +630,12 @@ export default function DemoFullscreenDialog({
                 onCenterMap={() => mindRef.current?.centerMap?.()}
                 onZoomIn={() => mindRef.current?.zoomIn?.()}
                 onZoomOut={() => mindRef.current?.zoomOut?.()}
+                highlightEditToggle={tutorialOpen && tutorialStepIndex === 0}
+                modeToggleTutorialId="demo-mode-toggle"
+                editButtonTutorialId={DEMO_EDIT_BUTTON_ID}
+                editButtonId={DEMO_EDIT_BUTTON_ID}
                 onExportPng={handleExportPng}
-                onCloseMap={onClose}
+                onCloseMap={handleGoHome}
                 placement="inline"
                 hidePanToggle
               />
@@ -664,93 +663,62 @@ export default function DemoFullscreenDialog({
                   const now = Date.now();
                   if (now - lastEditHintRef.current < 5000) return;
                   lastEditHintRef.current = now;
-                  toast.message("노드를 수정하려면 편집 모드를 눌러주세요.");
+                  toast.message(t("toasts.editModeRequired"));
                 }}
               />
             </div>
           </div>
 
-          {showMoveHint && (
-            <div className="pointer-events-auto absolute right-4 top-14 z-[16] sm:right-4 sm:top-[52px]">
-              <div className="relative rounded-2xl border border-slate-400 bg-[#2f3643] px-4 py-3 pr-10 text-white shadow-[0_18px_36px_-22px_rgba(15,23,42,0.9)] dark:border-white/20 dark:bg-[#2b3240]">
-                <button
-                  type="button"
-                  onClick={() => setShowMoveHint(false)}
-                  className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-full text-white/65 hover:bg-white/10 hover:text-white"
-                  aria-label="이동 안내 닫기"
-                  title="닫기"
-                >
-                  <Icon icon="mdi:close" className="h-4 w-4" />
-                </button>
-                <div className="text-sm font-extrabold tracking-[-0.01em]">
-                  맵 이동은 우클릭 드래그
-                </div>
-                <div className="mt-1 text-[11px] font-medium text-white/75">
-                  트랙패드는 두 손가락
-                </div>
-              </div>
-              {showContextHint && (
-                <div className="relative mt-3 rounded-2xl border border-slate-400 bg-[#2f3643] px-4 py-3 pr-10 text-white shadow-[0_18px_36px_-22px_rgba(15,23,42,0.9)] dark:border-white/20 dark:bg-[#2b3240]">
-                  <button
-                    type="button"
-                    onClick={() => setShowContextHint(false)}
-                    className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-full text-white/65 hover:bg-white/10 hover:text-white"
-                    aria-label="우클릭 안내 닫기"
-                    title="닫기"
-                  >
-                    <Icon icon="mdi:close" className="h-4 w-4" />
-                  </button>
-                  <div className="text-sm font-extrabold tracking-[-0.01em]">
-                    노드를 선택한 뒤 우클릭해보세요
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute bottom-4 left-4 z-[15] inline-flex items-center gap-1.5 rounded-2xl border border-slate-400 bg-white/90 px-3 py-2 text-xs font-semibold text-neutral-700 shadow-lg backdrop-blur hover:bg-white dark:border-white/20 dark:bg-[#0b1220]/75 dark:text-white/80 dark:hover:bg-[#0b1220]/90"
-            title="데모로 돌아가기"
-          >
-            <Icon icon="mdi:arrow-left" className="h-4 w-4" />
-            데모로 돌아가기
-          </button>
-
           <div className="absolute right-4 top-3 z-[15] hidden sm:block">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-400 bg-white/80 px-3 py-1 text-[14px] font-extrabold text-neutral-700 dark:border-white/20 dark:bg-[#0b1220]/60 dark:text-white/85">
               <Icon icon="mdi:gesture-tap" className="h-4 w-4" />
-              {editMode === "edit" ? "편집 모드" : "보기 모드"}
+              {editMode === "edit" ? t("badges.editMode") : t("badges.viewMode")}
             </span>
           </div>
 
-          <div className="pointer-events-auto absolute right-3 top-3 z-[25] flex flex-col gap-2 sm:hidden">
+          <button
+            type="button"
+            onClick={handleStartService}
+            className="absolute bottom-5 right-5 z-[20] inline-flex items-center gap-2 rounded-[22px] bg-[linear-gradient(135deg,#2563eb_0%,#0ea5e9_42%,#14b8a6_100%)] px-6 py-4 text-[17px] font-black tracking-[-0.02em] text-white shadow-[0_28px_60px_-24px_rgba(14,165,233,0.78)] transition-transform hover:scale-[1.03] hover:shadow-[0_32px_70px_-24px_rgba(37,99,235,0.82)]"
+            title={t("actions.startService")}
+          >
+            <Icon icon="mdi:rocket-launch" className="h-5 w-5" />
+            {t("actions.startService")}
+          </button>
+
+          <div className="pointer-events-auto absolute right-3 top-16 z-[25] flex flex-col gap-2 sm:hidden">
             {[
               {
                 icon: editMode === "view" ? "mdi:pencil" : "mdi:eye-outline",
                 onClick: () =>
                   setEditMode((mode) => (mode === "view" ? "edit" : "view")),
-                label: editMode === "view" ? "편집 모드" : "보기 모드",
+                label: editMode === "view" ? t("badges.editMode") : t("badges.viewMode"),
+                id: DEMO_MOBILE_EDIT_BUTTON_ID,
               },
               {
                 icon: "mdi:crosshairs-gps",
                 onClick: () => mindRef.current?.centerMap?.(),
-                label: "가운데로",
+                label: t("actions.centerMap"),
               },
               {
                 icon: "mdi:plus",
                 onClick: () => mindRef.current?.zoomIn?.(),
-                label: "확대",
+                label: t("actions.zoomIn"),
               },
               {
                 icon: "mdi:minus",
                 onClick: () => mindRef.current?.zoomOut?.(),
-                label: "축소",
+                label: t("actions.zoomOut"),
+              },
+              {
+                icon: "mdi:unfold-less-horizontal",
+                onClick: () => mindRef.current?.collapseAll?.(),
+                label: t("actions.collapseAll"),
               },
             ].map((action) => (
               <button
                 key={action.label}
+                id={action.id}
                 type="button"
                 onClick={action.onClick}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-400 bg-white/95 text-neutral-700 shadow-md backdrop-blur dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80"
@@ -768,6 +736,19 @@ export default function DemoFullscreenDialog({
             map={draft}
             language={language}
           />
+
+          {tutorialOpen ? (
+            <MapTutorialOverlay
+              stepIndex={tutorialStepIndex}
+              steps={getMapTutorialSteps(tTutorial, {
+                platform: isTutorialMobile ? "mobile" : "desktop",
+                editButtonId: isTutorialMobile ? DEMO_MOBILE_EDIT_BUTTON_ID : DEMO_EDIT_BUTTON_ID,
+                termsTabId: DEMO_TERMS_TAB_ID,
+              })}
+              onNext={handleTutorialNext}
+              onSkip={() => setTutorialOpen(false)}
+            />
+          ) : null}
         </div>
       </div>
     </div>,

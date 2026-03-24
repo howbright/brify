@@ -4,7 +4,6 @@ import MapLibrarySection from "@/components/landing/MapLibrarySection";
 import LandingPricingSection from "@/components/landing/LandingPricingSection";
 import LandingTestimonialsSection from "@/components/landing/LandingTestimonialsSection";
 import CreatorSection from "@/components/layout/CreateorSection";
-import Footer from "@/components/layout/Footer";
 import Hero from "@/components/layout/Hero";
 import { createClient } from "@/utils/supabase/server";
 
@@ -24,7 +23,6 @@ export default async function Home() {
       <LandingPricingSection isAuthed={isAuthed} />
       <FinalCTA isAuthed={isAuthed} />
       <CreatorSection />
-      <Footer />
     </div>
   );
 }

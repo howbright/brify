@@ -7,6 +7,7 @@ import DraftMapCard from "@/app/[locale]/(main)/video-to-map/DraftMapCard";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 import { brifyDemoSample } from "@/app/lib/demo/brifyDemoSample";
 import DemoFullscreenDialog from "@/components/demo/DemoFullscreenDialog";
+import { useTranslations } from "next-intl";
 
 const DEMO = brifyDemoSample;
 const DEMO_CREDITS = 26;
@@ -37,6 +38,7 @@ function buildDemoDraft(language: "ko" | "en", scriptText: string): MapDraft {
 }
 
 export default function DemoPage() {
+  const t = useTranslations("DemoPage");
   const [scriptText, setScriptText] = useState(DEMO.transcriptLines.join("\n\n"));
   const [outputLang, setOutputLang] = useState("ko");
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +47,7 @@ export default function DemoPage() {
   const [openDraft, setOpenDraft] = useState<MapDraft | null>(null);
   const [showFullscreen, setShowFullscreen] = useState(false);
   const processingTimerRef = useRef<number | null>(null);
+  const autoOpenTimerRef = useRef<number | null>(null);
   const draftsSectionRef = useRef<HTMLElement | null>(null);
   const lastReadonlyToastRef = useRef(0);
 
@@ -61,7 +64,7 @@ export default function DemoPage() {
       return;
     }
 
-    toast.message("데모에서는 한국어와 영어만 선택할 수 있어요.");
+    toast.message(t("toasts.languageRestricted"));
   };
 
   useEffect(() => {
@@ -69,12 +72,15 @@ export default function DemoPage() {
       if (processingTimerRef.current) {
         window.clearTimeout(processingTimerRef.current);
       }
+      if (autoOpenTimerRef.current) {
+        window.clearTimeout(autoOpenTimerRef.current);
+      }
     };
   }, []);
 
   const handleGenerate = () => {
     if (!scriptText.trim()) {
-      setError("샘플 원문이 비어 있어 구조맵을 만들 수 없어요.");
+      setError(t("toasts.emptyScript"));
       return;
     }
 
@@ -89,24 +95,36 @@ export default function DemoPage() {
     const nextDraft = buildDemoDraft(language, scriptText);
     setDrafts([nextDraft]);
     window.setTimeout(() => {
-      draftsSectionRef.current?.scrollIntoView({
+      if (!draftsSectionRef.current) return;
+      const top =
+        draftsSectionRef.current.getBoundingClientRect().top +
+        window.scrollY -
+        96;
+      window.scrollTo({
+        top: Math.max(0, top),
         behavior: "smooth",
-        block: "start",
       });
     }, 120);
 
     processingTimerRef.current = window.setTimeout(() => {
+      const completedDraft = {
+        ...nextDraft,
+        updatedAt: Date.now(),
+        status: "done" as const,
+        result: DEMO.mindDataByLanguage[language],
+      };
+
       setDrafts([
-        {
-          ...nextDraft,
-          updatedAt: Date.now(),
-          status: "done",
-          result: DEMO.mindDataByLanguage[language],
-        },
+        completedDraft,
       ]);
       setScriptText("");
       setIsProcessing(false);
-      toast.success("샘플 구조맵 생성이 완료됐어요.");
+      toast.success(t("toasts.autoOpen"));
+      autoOpenTimerRef.current = window.setTimeout(() => {
+        setOpenDraft(completedDraft);
+        setShowFullscreen(true);
+        autoOpenTimerRef.current = null;
+      }, 950);
       processingTimerRef.current = null;
     }, DEMO_PROCESSING_MS);
   };
@@ -115,13 +133,13 @@ export default function DemoPage() {
     const now = Date.now();
     if (now - lastReadonlyToastRef.current < 1600) return;
     lastReadonlyToastRef.current = now;
-    toast.message("데모 페이지에서는 샘플 원문을 수정할 수 없어요.");
+    toast.message(t("toasts.readOnly"));
   };
 
   return (
     <main
       className="
-        pt-16 pb-16 min-h-screen w-full relative
+        pt-16 pb-36 min-h-screen w-full relative
         bg-[#f4f6fb] dark:bg-[#020617]
         text-neutral-900 dark:text-neutral-50
       "
@@ -144,17 +162,18 @@ export default function DemoPage() {
       />
 
       <div className="max-w-6xl mx-auto px-2 md:px-10 flex flex-col gap-3 relative">
-        <header className="mt-7">
+        <header className="mt-12 md:mt-[78px]">
           <div className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-700 shadow-sm dark:border-white/20 dark:bg-white/8 dark:text-blue-300">
             <span className="h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400" />
-            Interactive Demo
+            {t("eyebrow")}
           </div>
           <h1 className="mt-4 text-2xl font-extrabold leading-tight tracking-tight text-neutral-900 dark:text-white">
-            샘플 콘텐츠로{" "}
+            {t("titlePrefix")}{" "}
             <span className="text-blue-700 dark:text-[rgb(var(--hero-b))]">
-              구조맵 생성 흐름
+              {t("titleHighlight")}
             </span>
-            을 체험해보세요
+            {" "}
+            {t("titleSuffix")}
           </h1>
         </header>
 
@@ -180,7 +199,7 @@ export default function DemoPage() {
         {drafts.length > 0 && (
           <section ref={draftsSectionRef} className="mt-2 space-y-3">
             <div className="flex items-end justify-between gap-2">
-              <h2 className="text-base font-semibold md:text-lg">만든 구조맵</h2>
+              <h2 className="text-base font-semibold md:text-lg">{t("draftsTitle")}</h2>
             </div>
 
             <div className="grid gap-3">
@@ -201,7 +220,7 @@ export default function DemoPage() {
 
       <DemoFullscreenDialog
         open={showFullscreen}
-        title={openDraft?.title ?? "구조맵 미리보기"}
+        title={openDraft?.title ?? t("previewTitle")}
         draft={openDraft}
         mapData={openDraft?.result ?? selectedMindData}
         language={resolvedLanguage}

@@ -339,6 +339,197 @@
     "brand": "Brify",
     "tagline": "계정을 불러와서 구조맵 작업을 이어갈게요."
   },
+  "DemoPage": {
+    "eyebrow": "Interactive Demo",
+    "titlePrefix": "샘플 콘텐츠로",
+    "titleHighlight": "구조맵 생성 흐름",
+    "titleSuffix": "을 체험해보세요",
+    "draftsTitle": "만든 구조맵",
+    "previewTitle": "구조맵 미리보기",
+    "toasts": {
+      "languageRestricted": "데모에서는 한국어와 영어만 선택할 수 있어요.",
+      "emptyScript": "샘플 원문이 비어 있어 구조맵을 만들 수 없어요.",
+      "success": "샘플 구조맵 생성이 완료됐어요.",
+      "autoOpen": "다 되었습니다. 구조맵으로 이동합니다.",
+      "readOnly": "데모 페이지에서는 샘플 원문을 수정할 수 없어요."
+    }
+  },
+  "DemoFullscreenDialog": {
+    "dialog": {
+      "title": "구조맵 미리보기"
+    },
+    "actions": {
+      "close": "닫기",
+      "closeMap": "맵 닫기",
+      "infoPanel": "정보 패널",
+      "startService": "서비스 시작하기",
+      "centerMap": "가운데로",
+      "collapseAll": "전체 접기",
+      "zoomIn": "확대",
+      "zoomOut": "축소"
+    },
+    "badges": {
+      "editMode": "편집 모드",
+      "viewMode": "보기 모드"
+    },
+    "toasts": {
+      "demoFinished": "데모가 끝났습니다. 홈으로 돌아갑니다.",
+      "editModeRequired": "노드를 수정하려면 편집 모드를 눌러주세요."
+    },
+    "tabs": {
+      "info": "정보",
+      "notes": "노트",
+      "terms": "용어"
+    },
+    "sourceTypes": {
+      "youtube": "youtube",
+      "website": "website",
+      "file": "file",
+      "manual": "manual"
+    },
+    "info": {
+      "credits": "크레딧",
+      "summary": "한문단요약",
+      "source": "출처",
+      "thumbnail": "thumbnail",
+      "sourceType": "출처 타입",
+      "channel": "채널",
+      "originalLink": "원본 링크",
+      "tags": "태그",
+      "description": "설명"
+    },
+    "notes": {
+      "justNow": "방금 전",
+      "helper": "중요한 노드를 읽으면서 떠오른 생각을 바로 남길 수 있어요.",
+      "placeholder": "이 노드에서 떠오른 생각을 적어보세요.",
+      "add": "노트 추가",
+      "empty": "아직 노트가 없습니다.",
+      "items": [
+        {
+          "text": "첫 번째 식사와 두 번째 식사의 시간대가 명확해서 하루 흐름이 한눈에 들어온다.",
+          "createdAtLabel": "방금 전"
+        },
+        {
+          "text": "OMAD를 하지 않는 이유가 체중 유지라는 점이 핵심 포인트다.",
+          "createdAtLabel": "방금 전"
+        }
+      ]
+    },
+    "terms": {
+      "autoAddedXylitol": "영상에서 커피에 넣는 감미료로 언급된다.",
+      "customAdded": "데모용으로 추가된 사용자 지정 용어입니다.",
+      "helper": "AI가 핵심 용어를 자동으로 추출해 이해를 돕습니다.",
+      "items": [
+        {
+          "term": "OMAD",
+          "meaning": "하루 한 끼만 먹는 식사 방식이다."
+        },
+        {
+          "term": "grass-fed",
+          "meaning": "곡물보다 목초 위주로 사육된 재료를 뜻하며, 영상에서는 품질 기준으로 반복해서 언급된다."
+        },
+        {
+          "term": "pasture-raised",
+          "meaning": "방목 환경에서 키운 달걀이나 가축을 뜻하며, 식재료 선택 기준으로 강조된다."
+        }
+      ]
+    }
+  },
+  "MapTutorial": {
+    "overlay": {
+      "label": "튜토리얼",
+      "skip": "건너뛰기",
+      "next": "확인",
+      "start": "시작하기"
+    },
+    "illustrations": {
+      "mode": {
+        "view": "보기",
+        "edit": "편집"
+      },
+      "mouse": {
+        "alt": "우클릭 마우스 안내",
+        "label": "우클릭 + 드래그"
+      },
+      "trackpad": {
+        "alt": "두 손가락 트랙패드 안내",
+        "label": "두 손가락으로 이동"
+      },
+      "context": {
+        "alt": "컨텍스트 메뉴 안내"
+      }
+    },
+    "steps": {
+      "edit": {
+        "title": "편집하려면 편집 모드로 전환하세요",
+        "description": "지금은 보기 모드예요. 노드를 수정하거나 구조를 바꾸려면 상단의 편집 모드로 전환해야 해요.",
+        "calloutTitle": "보기 / 편집 모드",
+        "calloutDescription": "먼저 여기서 작업 모드를 바꿔 주세요."
+      },
+      "mouse": {
+        "title": "맵 이동은 우클릭 드래그하세요",
+        "description": "마우스를 쓸 때는 우클릭을 누른 채 드래그하면 화면 안에서 맵을 부드럽게 이동할 수 있어요.",
+        "calloutTitle": "마우스 이동",
+        "calloutDescription": "우클릭을 누른 채 끌어서 맵을 이동해요."
+      },
+      "trackpad": {
+        "title": "트랙패드는 두 손가락으로 맵을 이동하세요",
+        "description": "노트북 트랙패드에서는 두 손가락으로 밀면 맵 위치를 자연스럽게 이동할 수 있어요.",
+        "calloutTitle": "트랙패드 이동",
+        "calloutDescription": "두 손가락으로 밀어서 화면을 움직여 보세요."
+      },
+      "context": {
+        "title": "노드를 선택한 뒤 우클릭하세요",
+        "description": "노드를 먼저 선택한 다음 우클릭하면 관련 작업이 담긴 컨텍스트 메뉴를 열 수 있어요.",
+        "calloutTitle": "컨텍스트 메뉴",
+        "calloutDescription": "선택 후 우클릭하면 여기처럼 메뉴가 열려요."
+      },
+      "highlight": {
+        "title": "하이라이트로 중요한 흐름을 표시해 보세요",
+        "description": "중요내용의 노드는 하이라이트로 강조하며 읽으세요.",
+        "calloutTitle": "하이라이트",
+        "calloutDescription": "중요내용의 노드는 하이라이트로 강조하며 읽으세요."
+      },
+      "terms": {
+        "title": "AI가 어려운 용어를 찾아서 정리해드려요",
+        "description": "왼쪽 패널의 용어 탭에서는 영상 속 낯선 표현이나 어려운 용어를 자동으로 정리해서 더 쉽게 이해할 수 있어요.",
+        "calloutTitle": "용어",
+        "calloutDescription": "AI가 어려운 용어를 찾아서 정리해드려요."
+      }
+    },
+    "mobile": {
+      "edit": {
+        "title": "편집하려면 먼저 편집 모드로 바꿔주세요",
+        "description": "모바일에서도 노드를 수정하려면 먼저 상단의 편집 버튼을 눌러 편집 모드로 전환해야 해요.",
+        "calloutTitle": "편집 모드",
+        "calloutDescription": "여기서 편집 모드로 전환해 주세요."
+      },
+      "move": {
+        "title": "모바일에서는 두 손가락으로 맵을 이동하세요",
+        "description": "화면을 이동할 때는 두 손가락으로 밀어서 맵을 움직이면 더 자연스럽게 탐색할 수 있어요.",
+        "calloutTitle": "맵 이동",
+        "calloutDescription": "두 손가락으로 밀어서 맵을 움직여 보세요."
+      },
+      "select": {
+        "title": "노드를 먼저 선택한 뒤 작업하세요",
+        "description": "모바일에선 먼저 노드를 눌러 선택한 다음, 그다음 작업 버튼이나 메뉴를 확인하는 흐름이 가장 편해요.",
+        "calloutTitle": "노드 선택",
+        "calloutDescription": "먼저 노드를 눌러 선택해 주세요."
+      },
+      "highlight": {
+        "title": "중요한 노드는 하이라이트하며 읽으세요",
+        "description": "중요한 내용은 하이라이트로 표시해 두면 작은 화면에서도 다시 찾기가 훨씬 쉬워져요.",
+        "calloutTitle": "하이라이트",
+        "calloutDescription": "중요한 노드는 하이라이트해 두세요."
+      },
+      "terms": {
+        "title": "용어 탭에서 어려운 표현을 정리해드려요",
+        "description": "모바일에서도 용어 탭을 열면 AI가 정리한 어려운 표현과 설명을 쉽게 확인할 수 있어요.",
+        "calloutTitle": "용어",
+        "calloutDescription": "어려운 용어는 여기서 바로 확인할 수 있어요."
+      }
+    }
+  },
   "CreatorSection": {
     "imageAlt": "Brify 만든 사람",
     "label": "서비스 만든이",
@@ -750,6 +941,7 @@
       "구조맵으로 흐름까지 한눈에"
     ],
     "flowItems": ["스크립트 입력", "구조맵 생성", "읽기 · 편집 · 공유"],
+    "videoLabel": "30초 안에 보는 사용 흐름",
     "visualAlt": "요약 다이어그램 미리보기"
   },
   "WelcomePage": {

@@ -8,6 +8,7 @@ import { Icon } from "@iconify/react";
 import { Link } from "@/i18n/navigation";
 import LanguageSelector from "@/components/LanguageSelector";
 import { ThemeToggleText } from "@/components/ThemeToggleText";
+import { useTranslations } from "next-intl";
 
 export default function ClientMobileUserMenu({
   isAuthed,
@@ -18,6 +19,7 @@ export default function ClientMobileUserMenu({
 }) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const t = useTranslations("Header");
 
   const dividerClass =
     "my-2 mx-1.5 h-px bg-gradient-to-r " +
@@ -81,7 +83,17 @@ export default function ClientMobileUserMenu({
                 }}
                 className="w-full text-left py-2 text-sm"
               >
-                데모
+                {t("nav.samples")}
+              </button>
+
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  router.push("/#about");
+                }}
+                className="w-full text-left py-2 text-sm"
+              >
+                {t("nav.about")}
               </button>
 
               <button
@@ -91,7 +103,17 @@ export default function ClientMobileUserMenu({
                 }}
                 className="w-full text-left py-2 text-sm"
               >
-                요금제
+                {t("nav.pricing")}
+              </button>
+
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  router.push("/support");
+                }}
+                className="w-full text-left py-2 text-sm"
+              >
+                {t("nav.contactFeedback")}
               </button>
 
               {/* 인사 / 이메일 */}
@@ -151,14 +173,14 @@ export default function ClientMobileUserMenu({
               )}
 
               {/* 테마 / 언어 영역 */}
-              <div className="px-1 py-1.5 space-y-2 text-xs text-muted-foreground">
+              <div className="flex flex-col gap-2 px-1 py-1.5 text-xs text-muted-foreground">
                 <div className="flex items-center justify-between gap-2">
-                  <span>테마</span>
+                  <span>{t("userMenu.theme")}</span>
                   <ThemeToggleText />
                 </div>
 
                 <div className="flex items-center justify-between gap-2">
-                  <span>언어</span>
+                  <span>{t("userMenu.language")}</span>
                   <div>
                     <LanguageSelector />
                   </div>
@@ -177,7 +199,7 @@ export default function ClientMobileUserMenu({
                         rounded-lg text-sm px-4 py-2 text-center"
                       onClick={() => setOpen(false)}
                     >
-                      로그인
+                      {t("auth.login")}
                     </Link>
                     <Link
                       href="/login"
@@ -185,7 +207,7 @@ export default function ClientMobileUserMenu({
                         rounded-lg text-sm px-4 py-2 text-center"
                       onClick={() => setOpen(false)}
                     >
-                      회원가입
+                      {t("auth.signup")}
                     </Link>
                   </>
                 ) : (
@@ -196,7 +218,7 @@ export default function ClientMobileUserMenu({
                         rounded-lg text-sm px-4 py-2 text-center"
                       onClick={() => setOpen(false)}
                     >
-                      로그아웃
+                      {t("userMenu.logout")}
                     </button>
                   </form>
                 )}

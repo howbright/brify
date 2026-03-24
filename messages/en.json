@@ -339,6 +339,197 @@
     "brand": "Brify",
     "tagline": "Sign in to continue working on your structure maps."
   },
+  "DemoPage": {
+    "eyebrow": "Interactive Demo",
+    "titlePrefix": "Try the",
+    "titleHighlight": "Structure Map creation flow",
+    "titleSuffix": "with sample content",
+    "draftsTitle": "Created structure maps",
+    "previewTitle": "Structure map preview",
+    "toasts": {
+      "languageRestricted": "Only Korean and English are available in the demo.",
+      "emptyScript": "The sample text is empty, so we can't create a Structure Map.",
+      "success": "Your sample Structure Map is ready.",
+      "autoOpen": "All set. Opening your Structure Map now.",
+      "readOnly": "You can't edit the sample text on the demo page."
+    }
+  },
+  "DemoFullscreenDialog": {
+    "dialog": {
+      "title": "Structure map preview"
+    },
+    "actions": {
+      "close": "Close",
+      "closeMap": "Close map",
+      "infoPanel": "Info panel",
+      "startService": "Start Using Brify",
+      "centerMap": "Center",
+      "collapseAll": "Collapse all",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out"
+    },
+    "badges": {
+      "editMode": "Edit mode",
+      "viewMode": "View mode"
+    },
+    "toasts": {
+      "demoFinished": "The demo is over. Returning to the home page.",
+      "editModeRequired": "Switch to Edit mode to modify nodes."
+    },
+    "tabs": {
+      "info": "Info",
+      "notes": "Notes",
+      "terms": "Terms"
+    },
+    "sourceTypes": {
+      "youtube": "youtube",
+      "website": "website",
+      "file": "file",
+      "manual": "manual"
+    },
+    "info": {
+      "credits": "Credits",
+      "summary": "One-paragraph summary",
+      "source": "Source",
+      "thumbnail": "thumbnail",
+      "sourceType": "Source type",
+      "channel": "Channel",
+      "originalLink": "Original link",
+      "tags": "Tags",
+      "description": "Description"
+    },
+    "notes": {
+      "justNow": "Just now",
+      "helper": "You can leave quick thoughts while reading important nodes.",
+      "placeholder": "Write down what comes to mind from this node.",
+      "add": "Add note",
+      "empty": "There are no notes yet.",
+      "items": [
+        {
+          "text": "The meal timing makes the daily fasting rhythm easy to follow at a glance.",
+          "createdAtLabel": "Just now"
+        },
+        {
+          "text": "A key takeaway is that he avoids OMAD to maintain weight, not because of hunger.",
+          "createdAtLabel": "Just now"
+        }
+      ]
+    },
+    "terms": {
+      "autoAddedXylitol": "Mentioned in the video as the sweetener added to coffee.",
+      "customAdded": "A custom term added in the demo view.",
+      "helper": "AI automatically extracts key terms to make them easier to understand.",
+      "items": [
+        {
+          "term": "OMAD",
+          "meaning": "A one-meal-a-day eating pattern."
+        },
+        {
+          "term": "grass-fed",
+          "meaning": "Used as a quality standard for animal-based foods in the video."
+        },
+        {
+          "term": "pasture-raised",
+          "meaning": "A sourcing standard for eggs and livestock that is emphasized throughout the routine."
+        }
+      ]
+    }
+  },
+  "MapTutorial": {
+    "overlay": {
+      "label": "TUTORIAL",
+      "skip": "Skip",
+      "next": "Next",
+      "start": "Start"
+    },
+    "illustrations": {
+      "mode": {
+        "view": "View",
+        "edit": "Edit"
+      },
+      "mouse": {
+        "alt": "Right click mouse guide",
+        "label": "Right click + drag"
+      },
+      "trackpad": {
+        "alt": "Two-finger trackpad guide",
+        "label": "Two-finger move"
+      },
+      "context": {
+        "alt": "Context menu guide"
+      }
+    },
+    "steps": {
+      "edit": {
+        "title": "Switch to Edit mode before editing",
+        "description": "You're currently in View mode. Switch to Edit mode at the top before changing nodes or structure.",
+        "calloutTitle": "View / Edit mode",
+        "calloutDescription": "Start here when you want to edit the map."
+      },
+      "mouse": {
+        "title": "Move the map by right-dragging",
+        "description": "When you're using a mouse, hold right click and drag to move around the map smoothly.",
+        "calloutTitle": "Mouse move",
+        "calloutDescription": "Hold right click and drag the map."
+      },
+      "trackpad": {
+        "title": "Use two fingers on a trackpad to move the map",
+        "description": "On a laptop trackpad, slide with two fingers to pan across the map naturally.",
+        "calloutTitle": "Trackpad move",
+        "calloutDescription": "Use a two-finger gesture to move around."
+      },
+      "context": {
+        "title": "Select a node, then right click",
+        "description": "Select a node first, then right click to open a context menu with the available actions.",
+        "calloutTitle": "Context menu",
+        "calloutDescription": "The menu opens after selecting a node."
+      },
+      "highlight": {
+        "title": "Use highlight to mark important parts",
+        "description": "Click the middle icon to highlight a node. Mark important parts so they are much easier to revisit later.",
+        "calloutTitle": "Highlight",
+        "calloutDescription": "Highlight key parts while you read."
+      },
+      "terms": {
+        "title": "AI organizes difficult terms for you",
+        "description": "In the Terms tab on the left panel, AI can gather unfamiliar words from the content and explain them clearly.",
+        "calloutTitle": "Terms",
+        "calloutDescription": "AI finds difficult terms and organizes them for you."
+      }
+    },
+    "mobile": {
+      "edit": {
+        "title": "Switch to Edit mode first",
+        "description": "On mobile too, you need to switch into Edit mode before changing nodes or structure.",
+        "calloutTitle": "Edit mode",
+        "calloutDescription": "Start by switching to Edit mode here."
+      },
+      "move": {
+        "title": "Use two fingers to move around the map",
+        "description": "To navigate on mobile, slide with two fingers so the map moves more naturally on the screen.",
+        "calloutTitle": "Move the map",
+        "calloutDescription": "Use a two-finger gesture to move around."
+      },
+      "select": {
+        "title": "Select a node before taking action",
+        "description": "On mobile, it is easiest to tap a node first and then use the available actions or menu from that selection.",
+        "calloutTitle": "Select a node",
+        "calloutDescription": "Tap a node first to select it."
+      },
+      "highlight": {
+        "title": "Highlight important nodes as you read",
+        "description": "Highlighting important parts makes them much easier to find again later, especially on a smaller screen.",
+        "calloutTitle": "Highlight",
+        "calloutDescription": "Save important nodes with highlight."
+      },
+      "terms": {
+        "title": "The Terms tab helps organize difficult expressions",
+        "description": "On mobile too, the Terms tab lets you quickly check unfamiliar expressions and AI-generated explanations.",
+        "calloutTitle": "Terms",
+        "calloutDescription": "You can review difficult terms here."
+      }
+    }
+  },
   "CreatorSection": {
     "imageAlt": "Creator of Brify",
     "label": "Creator",
@@ -751,6 +942,7 @@
       "See the flow as a Structure Map"
     ],
     "flowItems": ["Paste a script", "Create a Structure Map", "Read · Edit · Share"],
+    "videoLabel": "See the workflow in 30 seconds",
     "visualAlt": "Structure Map preview"
   },
   "WelcomePage": {

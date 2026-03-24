@@ -28,6 +28,9 @@ export default function MapControls({
   onZoomIn,
   onZoomOut,
   highlightEditToggle = false,
+  modeToggleTutorialId,
+  editButtonTutorialId,
+  editButtonId,
   placement = "floating",
   hidePanToggle = false,
 }: {
@@ -53,6 +56,9 @@ export default function MapControls({
   onZoomIn?: () => void;
   onZoomOut?: () => void;
   highlightEditToggle?: boolean;
+  modeToggleTutorialId?: string;
+  editButtonTutorialId?: string;
+  editButtonId?: string;
   placement?: "floating" | "inline";
   hidePanToggle?: boolean;
 }) {
@@ -110,7 +116,10 @@ export default function MapControls({
             >
             {/* Left: Mode + Status */}
             <div className="flex items-center gap-2">
-              <div className="inline-flex items-center gap-1">
+              <div
+                className="inline-flex items-center gap-1"
+                data-tutorial-id={modeToggleTutorialId}
+              >
                 <button
                   type="button"
                   onClick={() => {
@@ -135,6 +144,8 @@ export default function MapControls({
                   onClick={() => {
                     if (editMode !== "edit") onToggleEdit();
                   }}
+                  id={editButtonId}
+                  data-tutorial-id={editButtonTutorialId}
                   className={`
                     inline-flex items-center gap-1.5 px-2 py-1 text-base font-extrabold transition-colors
                     ${editMode === "edit"

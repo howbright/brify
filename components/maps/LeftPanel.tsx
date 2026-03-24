@@ -28,6 +28,7 @@ export default function LeftPanel({
   mapId,
   tab,
   onTabChange,
+  termsTabId,
 }: {
   open: boolean;
   onClose: () => void;
@@ -39,6 +40,7 @@ export default function LeftPanel({
   mapId?: string;
   tab?: LeftPanelTab;
   onTabChange?: (next: LeftPanelTab) => void;
+  termsTabId?: string;
 }) {
   const t = useTranslations("LeftPanel");
   const tRight = useTranslations("RightPanel");
@@ -607,6 +609,7 @@ export default function LeftPanel({
                 />
                 <TabButton
                   active={activeTab === "terms"}
+                  id={termsTabId}
                   label={tRight("tabs.terms")}
                   count={terms.length}
                   badge="AI"
@@ -975,6 +978,7 @@ function EmptyText({ children }: { children: React.ReactNode }) {
 }
 
 function TabButton({
+  id,
   active,
   label,
   count,
@@ -982,6 +986,7 @@ function TabButton({
   tone = "default",
   onClick,
 }: {
+  id?: string;
   active: boolean;
   label: string;
   count?: number;
@@ -992,6 +997,7 @@ function TabButton({
   const isMystic = tone === "mystic";
   return (
     <button
+      id={id}
       type="button"
       onClick={onClick}
       className={`

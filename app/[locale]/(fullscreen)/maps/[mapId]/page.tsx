@@ -8,6 +8,9 @@ import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
 import LeftPanel from "@/components/maps/LeftPanel";
 import MapControls from "@/components/maps/MapControls";
+import MapTutorialOverlay from "@/components/maps/tutorial/MapTutorialOverlay";
+import { getMapTutorialSteps } from "@/components/maps/tutorial/mapTutorialSteps";
+import useTutorialIsMobile from "@/components/maps/tutorial/useTutorialIsMobile";
 import ClientMindElixir, {
   type ClientMindElixirHandle,
 } from "@/components/ClientMindElixir";
@@ -24,6 +27,10 @@ import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/app/types/database.types";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 import { loadingMindElixir } from "@/app/lib/g6/sampleData";
+import {
+  getMapTutorialCompleted,
+  setMapTutorialCompleted,
+} from "@/app/lib/mapTutorialState";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 import FullscreenHeader from "@/components/maps/FullscreenHeader";
 
@@ -82,6 +89,10 @@ function toFileSafeName(value: string) {
   return value.replace(/[\\/:*?"<>|]+/g, "-").trim();
 }
 
+const FULLSCREEN_PAGE_EDIT_BUTTON_ID = "fullscreen-page-edit-button";
+const FULLSCREEN_PAGE_MOBILE_EDIT_BUTTON_ID = "fullscreen-page-mobile-edit-button";
+const FULLSCREEN_PAGE_TERMS_TAB_ID = "fullscreen-page-terms-tab";
+
 function toDraft(row: MapRow): MapDraft {
   return {
     id: row.id,
@@ -103,6 +114,8 @@ function toDraft(row: MapRow): MapDraft {
 
 export default function MapDetailPage() {
   const t = useTranslations("FullscreenMapPage");
+  const tTutorial = useTranslations("MapTutorial");
+  const isTutorialMobile = useTutorialIsMobile();
   const params = useParams();
   const router = useRouter();
   const { resolvedTheme } = useTheme();
@@ -166,6 +179,8 @@ export default function MapDetailPage() {
   const [mobileThemeOpen, setMobileThemeOpen] = useState(false);
   const mobileMapActionsRef = useRef<HTMLDivElement | null>(null);
   const mobileThemeRef = useRef<HTMLDivElement | null>(null);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+  const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
 
   const MUTATING_OPS = useMemo(
     () =>
@@ -257,6 +272,14 @@ export default function MapDetailPage() {
   }, [mapId]);
 
   useEffect(() => {
+    if (loading || !draft) return;
+    setLeftOpen(true);
+    const tutorialCompleted = getMapTutorialCompleted();
+    setTutorialOpen(!tutorialCompleted);
+    setTutorialStepIndex(0);
+  }, [loading, draft?.id]);
+
+  useEffect(() => {
     if (!tagEditOpen) return;
     let cancelled = false;
     (async () => {
@@ -293,6 +316,17 @@ export default function MapDetailPage() {
   }, [profileThemeName, themeName]);
 
   const title = useMemo(() => draft?.title ?? t("fallbackTitle"), [draft?.title, t]);
+  const tutorialSteps = useMemo(
+    () =>
+      getMapTutorialSteps(tTutorial, {
+        platform: isTutorialMobile ? "mobile" : "desktop",
+        editButtonId: isTutorialMobile
+          ? FULLSCREEN_PAGE_MOBILE_EDIT_BUTTON_ID
+          : FULLSCREEN_PAGE_EDIT_BUTTON_ID,
+        termsTabId: FULLSCREEN_PAGE_TERMS_TAB_ID,
+      }),
+    [tTutorial, isTutorialMobile]
+  );
   const initialMapData = useMemo(
     () => getInitialCollapsedMapData(mapData ?? null),
     [mapData]
@@ -310,6 +344,15 @@ export default function MapDetailPage() {
     setSearchIndex(0);
     mindRef.current?.clearSearchHighlights?.();
     mindRef.current?.setSearchActive?.(null);
+  };
+
+  const handleTutorialNext = () => {
+    if (tutorialStepIndex >= tutorialSteps.length - 1) {
+      setMapTutorialCompleted(true);
+      setTutorialOpen(false);
+      return;
+    }
+    setTutorialStepIndex((prev) => prev + 1);
   };
 
   const stepSearch = (dir: 1 | -1) => {
@@ -973,7 +1016,9 @@ export default function MapDetailPage() {
               panMode={panMode}
               themes={themeOptions}
               currentThemeName={themeName}
-              highlightEditToggle={editHintPulse}
+              highlightEditToggle={
+                editHintPulse || (tutorialOpen && tutorialStepIndex === 0)
+              }
               onToggleEdit={() =>
                 setEditMode((m) => (m === "view" ? "edit" : "view"))
               }
@@ -991,6 +1036,7 @@ export default function MapDetailPage() {
                   onZoomIn={() => mindRef.current?.zoomIn?.()}
                   onZoomOut={() => mindRef.current?.zoomOut?.()}
                   onCloseMap={() => router.push(`/${locale}/maps`)}
+              editButtonId={FULLSCREEN_PAGE_EDIT_BUTTON_ID}
               onShare={() => {
                 setShareOpen(true);
                 void fetchShareStatus();
@@ -1005,6 +1051,7 @@ export default function MapDetailPage() {
       <div className="relative w-full" style={{ height: "calc(100% - var(--header-h))" }}>
         <div className="pointer-events-auto absolute right-3 top-3 z-[25] flex flex-col gap-2 sm:hidden">
           <button
+            id={FULLSCREEN_PAGE_MOBILE_EDIT_BUTTON_ID}
             type="button"
             onClick={() => setEditMode((m) => (m === "view" ? "edit" : "view"))}
             className="
@@ -1402,8 +1449,18 @@ export default function MapDetailPage() {
             mapId={mapId}
             tab={leftTab}
             onTabChange={setLeftTab}
+            termsTabId={FULLSCREEN_PAGE_TERMS_TAB_ID}
           />
         )}
+
+        {tutorialOpen ? (
+          <MapTutorialOverlay
+            stepIndex={tutorialStepIndex}
+            steps={tutorialSteps}
+            onNext={handleTutorialNext}
+            onSkip={() => setTutorialOpen(false)}
+          />
+        ) : null}
 
         {draft ? (
           <TagEditDialog
