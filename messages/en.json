@@ -66,7 +66,8 @@
       "youtubeFetchFailed": "Failed to fetch the script.",
       "noTranscriptFound": "Could not find subtitles or a transcript. (The video may not have subtitles.)",
       "missingMapId": "mapId is missing.",
-      "createFailed": "Failed to create the structure map."
+      "createFailed": "Failed to create the structure map.",
+      "createTimedOut": "The map creation request is taking too long. The server may be delayed, so please try again shortly."
     },
     "messages": {
       "youtubeFilled": "We filled the input with the fetched script. You can generate the map right away."

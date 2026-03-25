@@ -8,6 +8,10 @@ import { MapDraft } from "./types";
 const MS_PER_CHAR = 112610 / 8460;
 const PROGRESS_CAP = 97;
 
+function isActiveStatus(status: MapDraft["status"]) {
+  return status === "idle" || status === "queued" || status === "processing";
+}
+
 function formatDraftTimestamp(value: number, locale: string) {
   return new Intl.DateTimeFormat(locale === "ko" ? "ko-KR" : "en-US", {
     year: "numeric",
@@ -48,7 +52,7 @@ export default function DraftMapCard({
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
-    if (draft.status !== "processing") return;
+    if (!isActiveStatus(draft.status)) return;
     const timer = window.setInterval(() => {
       setProcessingIndex((i) => (i + 1) % processingMessages.length);
     }, 2500);
@@ -56,7 +60,7 @@ export default function DraftMapCard({
   }, [draft.status, processingMessages.length]);
 
   useEffect(() => {
-    if (draft.status !== "processing") return;
+    if (!isActiveStatus(draft.status)) return;
     const tick = window.setInterval(() => setNow(Date.now()), 800);
     return () => window.clearInterval(tick);
   }, [draft.status]);
@@ -67,7 +71,7 @@ export default function DraftMapCard({
       : null;
   const elapsedMs = Math.max(0, now - draft.createdAt);
   const progressPercent =
-    draft.status === "processing" && expectedMs
+    isActiveStatus(draft.status) && expectedMs
       ? Math.min(
           PROGRESS_CAP,
           Math.max(1, Math.floor((elapsedMs / expectedMs) * 100))
@@ -172,19 +176,19 @@ export default function DraftMapCard({
               inline-flex items-center gap-1.5
               ${badge.cls} ${badge.darkCls}
               ${
-                draft.status === "processing"
+                isActiveStatus(draft.status)
                   ? "bg-[linear-gradient(90deg,#3b82f6,#22c55e,#a855f7)]"
                   : ""
               }
             `}
           >
-            {draft.status === "processing" && (
+            {isActiveStatus(draft.status) && (
               <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5">
                 <span className="relative inline-flex h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-white" />
               </span>
             )}
             <span>{badge.text}</span>
-            {draft.status === "processing" && progressPercent !== null && (
+            {isActiveStatus(draft.status) && progressPercent !== null && (
               <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] sm:text-[11px] font-semibold tabular-nums">
                 {progressPercent}%
                 <span className="h-1.5 w-12 sm:w-16 overflow-hidden rounded-full bg-white/30">

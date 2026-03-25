@@ -66,7 +66,8 @@
       "youtubeFetchFailed": "스크립트를 가져오지 못했습니다.",
       "noTranscriptFound": "자막/스크립트를 찾지 못했습니다. (영상에 자막이 없을 수 있습니다.)",
       "missingMapId": "mapId가 없습니다.",
-      "createFailed": "구조맵 생성에 실패했습니다."
+      "createFailed": "구조맵 생성에 실패했습니다.",
+      "createTimedOut": "구조맵 생성 요청이 너무 오래 걸리고 있어요. 서버 작업이 지연 중일 수 있으니 잠시 후 다시 시도해 주세요."
     },
     "messages": {
       "youtubeFilled": "스크립트를 가져와 입력칸에 채워 드렸습니다. 이제 바로 생성하실 수 있습니다."

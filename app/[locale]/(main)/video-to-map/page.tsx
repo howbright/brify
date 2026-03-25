@@ -109,6 +109,7 @@ function withCacheBuster(url: string) {
 
 const DRAFT_SELECT_FIELDS =
   "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
+const MAP_CREATE_TIMEOUT_MS = 45_000;
 
 function coerceMapStatus(status?: string | null): MapJobStatus {
   if (status === "done" || status === "failed" || status === "processing") {
@@ -495,6 +496,10 @@ export default function VideoToMapPage() {
       }
 
       const sourceUrl = youtubeMeta?.sourceUrl || youtubeUrl || undefined;
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => {
+        controller.abort();
+      }, MAP_CREATE_TIMEOUT_MS);
 
       const res = await fetch(`${base}/maps`, {
         method: "POST",
@@ -510,6 +515,9 @@ export default function VideoToMapPage() {
           schema_version: 1,
           output_language: outputLang || null,
         }),
+        signal: controller.signal,
+      }).finally(() => {
+        window.clearTimeout(timeoutId);
       });
 
       const json = await res.json().catch(() => ({}));
@@ -554,7 +562,10 @@ export default function VideoToMapPage() {
       setScriptText("");
     } catch (e: any) {
       setIsProcessing(false);
-      const msg = e?.message ?? t("errors.createFailed");
+      const msg =
+        e?.name === "AbortError"
+          ? t("errors.createTimedOut")
+          : e?.message ?? t("errors.createFailed");
       setError(msg);
       openToast(msg);
     }
@@ -876,6 +887,9 @@ export default function VideoToMapPage() {
           onClose={() => {
             setShowMetadataDialog(false);
             setEditingDraft(null);
+            setYoutubeMeta(null);
+            setCreatedMapId(null);
+            setIsProcessing(false);
           }}
           onSave={handleSaveMetadata}
           isProcessing={isProcessing}

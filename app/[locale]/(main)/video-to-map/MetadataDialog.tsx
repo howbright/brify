@@ -292,7 +292,6 @@ export default function MetadataDialog({
   };
 
   const handleTryClose = () => {
-    if (!requireTitle()) return;
     onClose();
   };
 

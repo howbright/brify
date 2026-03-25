@@ -34,7 +34,13 @@ export function useMapDraftStatusPolling(
   }, [drafts]);
 
   const hasProcessingDraft = useMemo(
-    () => drafts.some((d) => d.status === "processing"),
+    () =>
+      drafts.some(
+        (d) =>
+          d.status === "idle" ||
+          d.status === "queued" ||
+          d.status === "processing"
+      ),
     [drafts]
   );
 
@@ -57,8 +63,13 @@ export function useMapDraftStatusPolling(
       // ✅ 서버 응답 기준으로 processing이면 계속 폴링, 아니면 중지
       refreshInterval: (latest) => {
         const list = latest ?? [];
-        const hasProcessing = list.some((d) => d.map_status === "processing");
-        return hasProcessing ? refreshMs : 0;
+        const hasActiveJob = list.some(
+          (d) =>
+            d.map_status === "idle" ||
+            d.map_status === "queued" ||
+            d.map_status === "processing"
+        );
+        return hasActiveJob ? refreshMs : 0;
       },
       keepPreviousData: true,
       revalidateOnFocus: true,

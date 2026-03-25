@@ -1,4 +1,9 @@
-export type MapJobStatus = "processing" | "done" | "failed";
+export type MapJobStatus =
+  | "idle"
+  | "queued"
+  | "processing"
+  | "done"
+  | "failed";
 
 export type MapDraft = {
   id: string;

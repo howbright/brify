@@ -56,6 +56,8 @@ const DATE_PRESETS = [
 
 type DatePresetId = (typeof DATE_PRESETS)[number]["id"] | "custom";
 const STATUS_LABELS: Record<MapJobStatus, string> = {
+  idle: "대기중",
+  queued: "대기중",
   processing: "진행중",
   done: "완료",
   failed: "실패",
