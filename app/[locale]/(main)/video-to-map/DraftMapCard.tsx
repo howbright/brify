@@ -2,11 +2,22 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { MapDraft } from "./types";
 
 const MS_PER_CHAR = 112610 / 8460;
 const PROGRESS_CAP = 97;
+
+function formatDraftTimestamp(value: number, locale: string) {
+  return new Intl.DateTimeFormat(locale === "ko" ? "ko-KR" : "en-US", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+  }).format(new Date(value));
+}
 
 export default function DraftMapCard({
   draft,
@@ -22,6 +33,7 @@ export default function DraftMapCard({
   highlighted?: boolean;
 }) {
   const t = useTranslations("DraftMapCard");
+  const locale = useLocale();
   const processingMessages = useMemo(
     () => [
       t("processingMessages.1"),
@@ -217,7 +229,7 @@ export default function DraftMapCard({
         <div className="mt-3 flex flex-col items-stretch gap-2.5 sm:flex-row sm:items-center sm:justify-between">
           {/* 날짜는 줄바꿈보단 한 줄 + ...가 더 보기 좋음 */}
           <div className="min-w-0 text-[12px] sm:text-[13px] font-medium text-neutral-500 dark:text-white/60 truncate">
-            {new Date(draft.createdAt).toLocaleString()}
+            {formatDraftTimestamp(draft.createdAt, locale)}
           </div>
 
           <div className="flex items-center gap-2 shrink-0 sm:self-auto">

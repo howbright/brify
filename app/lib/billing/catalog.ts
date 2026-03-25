@@ -109,3 +109,10 @@ export function getBillingCatalog(locale: string): BillingCatalogItem[] {
   const currency = getBillingCurrencyByLocale(locale);
   return [...BILLING_CATALOG[currency]].sort((a, b) => a.credits - b.credits);
 }
+
+export function getBillingCatalogItemById(
+  packId: string
+): BillingCatalogItem | null {
+  const allItems = [...BILLING_CATALOG.krw, ...BILLING_CATALOG.usd];
+  return allItems.find((item) => item.id === packId) ?? null;
+}

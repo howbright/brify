@@ -7,6 +7,7 @@ import Script from "next/script";
 import { useSession } from "@/components/SessionProvider";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { toast } from "sonner";
 import {
   getBillingCatalog,
   type BillingCatalogItem,
@@ -18,6 +19,26 @@ type BalanceResponse = {
   paid: number;
   free: number;
 };
+
+type TossPaymentsInstance = {
+  payment: (params: { customerKey: string }) => {
+    requestPayment: (params: {
+      method: "CARD";
+      amount: { currency: "KRW"; value: number };
+      orderId: string;
+      orderName: string;
+      successUrl: string;
+      failUrl: string;
+      customerEmail?: string;
+    }) => void;
+  };
+};
+
+declare global {
+  interface Window {
+    TossPayments?: (clientKey: string) => TossPaymentsInstance;
+  }
+}
 
 function formatPrice(amount: number, currency: BillingCurrency) {
   if (currency === "krw") {
@@ -90,6 +111,7 @@ export default function BillingPage() {
 
   const refundPolicyHref = `/${locale}/refund-policy`;
   const billingHistoryHref = `/${locale}/billing/history`;
+  const creditHistoryHref = `/${locale}/billing/credits`;
   const faqItems = [
     { id: "q2" as const, q: t("faq.q2"), a: t("faq.a2") },
     { id: "q3" as const, q: t("faq.q3"), a: t("faq.a3") },
@@ -103,7 +125,12 @@ export default function BillingPage() {
           src="https://assets.lemonsqueezy.com/lemon.js"
           strategy="afterInteractive"
         />
-      ) : null}
+      ) : (
+        <Script
+          src="https://js.tosspayments.com/v2/standard"
+          strategy="afterInteractive"
+        />
+      )}
 
       <div className="relative min-h-[100dvh] bg-[#f4f6fb] dark:bg-[#020617] overflow-hidden">
         {/* 💡 Light BG */}
@@ -149,13 +176,14 @@ export default function BillingPage() {
 
         {/* 상단 헤더 영역 */}
         <header className="mx-auto max-w-5xl px-6 md:px-10 pt-24 md:pt-28">
-          <div className="inline-flex items-center gap-2 rounded-full border border-blue-300 bg-blue-50/90 px-3.5 py-1 text-[12px] font-semibold text-blue-700 shadow-sm dark:border-white/32 dark:bg-[linear-gradient(135deg,rgba(37,99,235,0.24),rgba(15,23,42,0.88))] dark:text-white dark:shadow-[0_18px_42px_-24px_rgba(37,99,235,0.72)]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-[11px] font-semibold tracking-[0.02em] text-slate-800 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.28)] dark:border-white/14 dark:bg-slate-900 dark:text-slate-100 dark:shadow-[0_16px_34px_-24px_rgba(0,0,0,0.7)]">
+            <span className="inline-block h-2 w-2 rounded-full bg-blue-500 dark:bg-blue-400" />
             {t("badge")}
           </div>
 
           <div className="mt-1.5">
             <div>
-              <h1 className="text-[22px] sm:text-[26px] md:text-[30px] font-extrabold tracking-tight text-neutral-900 dark:text-white dark:[text-shadow:0_1px_12px_rgba(0,0,0,0.45)]">
+              <h1 className="text-[20px] sm:text-[24px] md:text-[28px] font-extrabold tracking-tight text-neutral-900 dark:text-white dark:[text-shadow:0_1px_12px_rgba(0,0,0,0.45)]">
                 {t("title")}
               </h1>
             </div>
@@ -166,7 +194,7 @@ export default function BillingPage() {
           {/* 잔액 카드 */}
           <section className="mt-8">
             <div className="mb-5">
-              <h2 className="flex items-center gap-3 text-[20px] md:text-[24px] font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
+              <h2 className="flex items-center gap-3 text-[18px] md:text-[22px] font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
                 <span className="inline-block h-3 w-3 rounded-full bg-blue-600 shadow-[0_0_0_5px_rgba(59,130,246,0.12)] dark:bg-blue-300 dark:shadow-[0_0_0_5px_rgba(96,165,250,0.16)]" />
                 {t("balance.label")}
               </h2>
@@ -205,21 +233,22 @@ export default function BillingPage() {
                     </span>
                   </div>
 
-                  {balance && (
-                    <div
-                      className="
-      inline-flex flex-wrap items-center gap-1.5
-      rounded-full border border-slate-400 bg-neutral-100/80 px-2.5 py-1
-      text-[12px] sm:text-[13px] text-neutral-700
-      dark:border-white/24 dark:bg-white/10 dark:text-white/86
-    "
-                    >
+	                  {balance && (
+	                    <div
+	                      className="
+	      inline-flex flex-wrap items-center gap-1.5
+	      rounded-full border border-blue-300 bg-[linear-gradient(180deg,#dbeafe_0%,#bfdbfe_100%)] px-2.5 py-1
+	      text-[12px] sm:text-[13px] text-blue-900
+	      shadow-[0_10px_24px_-18px_rgba(37,99,235,0.35)]
+	      dark:border-blue-400/24 dark:bg-[linear-gradient(180deg,rgba(59,130,246,0.22),rgba(30,41,59,0.92))] dark:text-blue-100
+	    "
+	                    >
                       <span className="font-semibold">
                         {t("balance.paidLabel")}
                       </span>
                       <span>{balance.paid.toLocaleString()}</span>
 
-                      <span className="mx-1 h-3 w-px bg-neutral-300/70 dark:bg-white/22" />
+	                      <span className="mx-1 h-3 w-px bg-blue-700/20 dark:bg-white/18" />
 
                       <span className="font-semibold">
                         {t("balance.freeLabel")}
@@ -231,22 +260,40 @@ export default function BillingPage() {
                 </div>
 
                 <div className="flex flex-col gap-2 sm:items-end min-w-[220px]">
+	                  <Link
+	                    href={billingHistoryHref}
+	                    className="
+	      inline-flex w-full sm:w-auto items-center justify-center
+	      rounded-2xl px-5 py-3
+	      text-sm font-semibold
+	      text-white
+	      bg-slate-800
+	      border border-slate-700
+	      transition-all
+	      hover:scale-[1.02] hover:shadow-sm hover:bg-slate-700
+	      active:scale-[0.99]
+	      focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20
+	    "
+	                  >
+                    {t("balance.historyButton")}
+                  </Link>
+
                   <Link
-                    href={billingHistoryHref}
+                    href={creditHistoryHref}
                     className="
       inline-flex w-full sm:w-auto items-center justify-center
       rounded-2xl px-5 py-3
       text-sm font-semibold
-      text-slate-800 dark:text-slate-100
-      bg-slate-100/95 dark:bg-slate-900/70
-      border border-slate-500/80 dark:border-slate-500/55
+      text-white
+      bg-slate-700
+      border border-slate-600
       transition-all
-      hover:scale-[1.02] hover:shadow-sm hover:bg-slate-200/90 dark:hover:bg-slate-800/85
+      hover:scale-[1.02] hover:shadow-sm hover:bg-slate-600
       active:scale-[0.99]
       focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20
     "
                   >
-                    {t("balance.historyButton")}
+                    {t("balance.creditHistoryButton")}
                   </Link>
 
                   <Link
@@ -284,7 +331,7 @@ export default function BillingPage() {
           <section id="packs" className="mt-10">
             <div className="mb-5">
               <div>
-                <h2 className="flex items-center gap-3 text-[20px] md:text-[24px] font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
+                <h2 className="flex items-center gap-3 text-[18px] md:text-[22px] font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
                   <span className="inline-block h-3 w-3 rounded-full bg-blue-600 shadow-[0_0_0_5px_rgba(59,130,246,0.12)] dark:bg-blue-300 dark:shadow-[0_0_0_5px_rgba(96,165,250,0.16)]" />
                   {t("packs.title")}
                 </h2>
@@ -297,6 +344,7 @@ export default function BillingPage() {
                   key={pack.id}
                   pack={pack}
                   userId={session?.user?.id ?? null}
+                  userEmail={session?.user?.email ?? null}
                   locale={locale}
                 />
               ))}
@@ -343,29 +391,88 @@ export default function BillingPage() {
 function CreditPackCard({
   pack,
   userId,
+  userEmail,
   locale,
 }: {
   pack: BillingCatalogItem;
   userId: string | null;
+  userEmail: string | null;
   locale: string;
 }) {
   const t = useTranslations("BillingPage");
   const { credits, price, currency, checkoutUrl, popular, starter, provider } = pack;
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleBuy = () => {
+  const handleBuy = async () => {
+    if (!userId) {
+      router.push(`/${locale}/login?next=${encodeURIComponent(`/${locale}/billing`)}`);
+      return;
+    }
+
     if (provider === "toss") {
-      alert("토스 결제 연결은 다음 단계에서 이어서 구현할게요.");
+      const tossClientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
+
+      if (!tossClientKey) {
+        toast.error("NEXT_PUBLIC_TOSS_CLIENT_KEY가 설정되지 않았어요.");
+        return;
+      }
+
+      if (typeof window === "undefined" || !window.TossPayments) {
+        toast.error("토스 결제 SDK를 아직 불러오지 못했어요.");
+        return;
+      }
+
+      setIsSubmitting(true);
+
+      try {
+        const res = await fetch("/api/payments/create-order", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ packId: pack.id }),
+        });
+
+        const data = (await res.json()) as {
+          orderId?: string;
+          amount?: number;
+          orderName?: string;
+          error?: string;
+        };
+
+        if (!res.ok || !data.orderId || !data.amount || !data.orderName) {
+          throw new Error(data.error || "Failed to create order");
+        }
+
+        const tossPayments = window.TossPayments(tossClientKey);
+        const payment = tossPayments.payment({
+          customerKey: userId,
+        });
+
+        payment.requestPayment({
+          method: "CARD",
+          amount: {
+            currency: "KRW",
+            value: data.amount,
+          },
+          orderId: data.orderId,
+          orderName: data.orderName,
+          successUrl: `${window.location.origin}/${locale}/billing/toss/success`,
+          failUrl: `${window.location.origin}/${locale}/billing/toss/fail`,
+          customerEmail: userEmail ?? undefined,
+        });
+      } catch (error) {
+        console.error("Failed to open Toss payment window:", error);
+        toast.error("토스 결제를 준비하는 중 문제가 발생했어요.");
+        setIsSubmitting(false);
+      }
+
       return;
     }
 
     if (!checkoutUrl) {
-      alert("Checkout URL이 설정되지 않았어요.");
-      return;
-    }
-
-    if (!userId) {
-      router.push(`/${locale}/login?next=${encodeURIComponent(`/${locale}/billing`)}`);
+      toast.error("Checkout URL이 설정되지 않았어요.");
       return;
     }
 
@@ -464,17 +571,19 @@ function CreditPackCard({
 
       <div className="mt-5 flex-1" />
 
-      <button
-        onClick={handleBuy}
-        className="
-          block w-full rounded-[var(--radius-lg)] px-4 py-3 text-center text-[16px] font-semibold shadow-sm
-          bg-[var(--color-primary-500,#2563eb)] text-[var(--color-primary-foreground,#ffffff)]
-          hover:bg-[var(--color-primary-hover,#1d4ed8)] hover:text-[var(--color-primary-foreground,#ffffff)]
-          dark:bg-[var(--color-primary-500,#3758f9)] dark:hover:bg-[var(--color-primary-hover,#2f49d1)] dark:text-white
-          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring,#93c5fd)]
-        "
-      >
-        {t("card.cta")}
+	      <button
+	        onClick={handleBuy}
+	        disabled={isSubmitting}
+	        className="
+	          block w-full cursor-pointer rounded-[var(--radius-lg)] px-4 py-3 text-center text-[16px] font-semibold shadow-sm
+	          bg-slate-800 text-white
+	          hover:bg-blue-600
+	          dark:bg-slate-800 dark:hover:bg-blue-600 dark:text-white
+	          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring,#93c5fd)]
+	          disabled:cursor-not-allowed disabled:opacity-65
+	        "
+	      >
+        {isSubmitting ? t("card.loading") : t("card.cta")}
       </button>
     </div>
   );

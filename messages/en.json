@@ -394,6 +394,8 @@
       "manual": "manual"
     },
     "info": {
+      "created": "Created",
+      "updated": "Updated",
       "credits": "Credits",
       "summary": "One-paragraph summary",
       "source": "Source",
@@ -745,6 +747,82 @@
       "myMaps": "My maps"
     }
   },
+  "MapControls": {
+    "mode": {
+      "view": "View",
+      "viewAria": "View mode",
+      "edit": "Edit",
+      "editAria": "Edit mode"
+    },
+    "pan": {
+      "select": "Select",
+      "selectAria": "Select mode",
+      "move": "Pan",
+      "moveAria": "Pan mode"
+    },
+    "menus": {
+      "mapActions": "Map actions",
+      "theme": "Theme",
+      "more": "More"
+    },
+    "actions": {
+      "center": "Center",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "collapseAll": "Collapse all",
+      "expandAll": "Expand all",
+      "expandLevel": "Expand one level",
+      "collapseLevel": "Collapse one level",
+      "alignLeft": "Align left",
+      "alignRight": "Align right",
+      "alignCenter": "Center align",
+      "exportPng": "Save as image (PNG)",
+      "share": "Share",
+      "shortcuts": "Shortcuts",
+      "tutorial": "Tutorial",
+      "closeMap": "Close map"
+    }
+  },
+  "ShortcutsDialog": {
+    "title": "Keyboard Shortcuts",
+    "description": "Default Mind Elixir keyboard shortcuts.",
+    "close": "Close",
+    "columns": {
+      "shortcut": "Shortcut",
+      "action": "Action"
+    },
+    "items": [
+      { "key": "Enter", "description": "Insert sibling node" },
+      { "key": "Shift + Enter", "description": "Insert sibling node before" },
+      { "key": "Tab", "description": "Insert child node" },
+      { "key": "Ctrl + Enter", "description": "Insert parent node" },
+      { "key": "F1", "description": "Center the map" },
+      { "key": "F2", "description": "Edit current node" },
+      { "key": "↑", "description": "Select previous node" },
+      { "key": "↓", "description": "Select next node" },
+      { "key": "← / →", "description": "Select left/right node" },
+      { "key": "PageUp / Alt + ↑", "description": "Move up" },
+      { "key": "PageDown / Alt + ↓", "description": "Move down" },
+      { "key": "Ctrl + ↑", "description": "Both-side layout" },
+      { "key": "Ctrl + ←", "description": "Left layout" },
+      { "key": "Ctrl + →", "description": "Right layout" },
+      { "key": "Ctrl + C", "description": "Copy" },
+      { "key": "Ctrl + X", "description": "Cut" },
+      { "key": "Ctrl + V", "description": "Paste" },
+      { "key": "Delete / Backspace", "description": "Delete node/edge/summary" },
+      { "key": "Ctrl + +", "description": "Zoom in" },
+      { "key": "Ctrl + -", "description": "Zoom out" },
+      { "key": "Ctrl + 0", "description": "Reset zoom" },
+      { "key": "Ctrl + K, Ctrl + 0", "description": "Collapse all" },
+      { "key": "Ctrl + K, Ctrl + =", "description": "Expand all" },
+      { "key": "Ctrl + K, Ctrl + 1-9", "description": "Expand to level N" }
+    ]
+  },
+  "ConfirmShareDialog": {
+    "title": "Publish before sharing",
+    "description": "Publish the current changes and generate a share link?",
+    "actionLabel": "Publish and share"
+  },
   "ThemeToggle": {
     "label": {
       "light": "Light mode",
@@ -763,6 +841,7 @@
       "unit": "credits",
       "mainButton": "Back to home",
       "historyButton": "View billing history",
+      "creditHistoryButton": "View credit history",
       "paidLabel": "Paid credits",
       "freeLabel": "Reward credits"
     },
@@ -795,7 +874,8 @@
       "unitPricePrefix": "≈",
       "unitPriceMiddle": "/ credit · about",
       "unitPriceSuffix": "Structure Maps",
-      "cta": "Buy now"
+      "cta": "Buy now",
+      "loading": "Preparing order..."
     },
     "bullets": {
       "missionCredits": "Earn free credits through missions"
@@ -806,10 +886,10 @@
     "title": "Payment history",
     "subtitle": "You can review your credit top-ups and receipts in one place.",
     "summary": {
-      "title": "Credit usage overview",
-      "totalCharged": "Total purchased credits",
-      "currentBalance": "Current balance",
-      "used": "Credits used so far",
+      "title": "Paid credit overview",
+      "totalCharged": "Total paid credits purchased",
+      "currentBalance": "Current paid credit balance",
+      "used": "Paid credits used so far",
       "unit": "credits"
     },
     "list": {
@@ -838,6 +918,44 @@
       "item3": "• Refunded payments are shown with the \"Refunded\" status.",
       "item4": "• Failed payments do not add any credits, and you can try the payment again if needed.",
       "note": "More detailed payment and refund policies will be provided later on a separate policy page."
+    }
+  },
+  "BillingCreditsPage": {
+    "badge": "Free and paid credit activity",
+    "title": "Credit history",
+    "subtitle": "Review all credit changes including purchases, rewards, usage, and refunds.",
+    "buttons": {
+      "paymentHistory": "View billing history",
+      "backToBilling": "Back to billing"
+    },
+    "summary": {
+      "title": "Current credit balance",
+      "total": "Total credits",
+      "paid": "Paid credits",
+      "free": "Reward credits",
+      "unit": "credits"
+    },
+    "list": {
+      "title": "Credit activity",
+      "loading": "Loading your credit history.",
+      "empty": "No credit activity yet.",
+      "balanceAfter": "{total} {unit} after this change",
+      "breakdown": "Paid {paid} · Reward {free}"
+    },
+    "types": {
+      "purchase": "Paid top-up",
+      "spend": "Credit used",
+      "bonus": "Reward granted",
+      "refund": "Refund restored",
+      "adjustment": "Manual adjustment",
+      "expire": "Expired"
+    },
+    "sources": {
+      "toss": "Toss Payments",
+      "lemon_squeezy": "LemonSqueezy",
+      "system": "System",
+      "admin": "Admin",
+      "migration": "Migration"
     }
   },
   "BillingReceiptPage": {

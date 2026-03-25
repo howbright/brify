@@ -394,6 +394,8 @@
       "manual": "manual"
     },
     "info": {
+      "created": "생성",
+      "updated": "수정",
       "credits": "크레딧",
       "summary": "한문단요약",
       "source": "출처",
@@ -746,6 +748,82 @@
       "myMaps": "나의 맵"
     }
   },
+  "MapControls": {
+    "mode": {
+      "view": "보기",
+      "viewAria": "보기 모드",
+      "edit": "편집",
+      "editAria": "편집 모드"
+    },
+    "pan": {
+      "select": "선택",
+      "selectAria": "선택 모드",
+      "move": "이동",
+      "moveAria": "이동 모드"
+    },
+    "menus": {
+      "mapActions": "맵 조작",
+      "theme": "테마",
+      "more": "더보기"
+    },
+    "actions": {
+      "center": "가운데로",
+      "zoomIn": "확대",
+      "zoomOut": "축소",
+      "collapseAll": "전체 접기",
+      "expandAll": "전체 펴기",
+      "expandLevel": "한단계 펴기",
+      "collapseLevel": "한단계 접기",
+      "alignLeft": "왼쪽 정렬",
+      "alignRight": "오른쪽 정렬",
+      "alignCenter": "가운데 정렬",
+      "exportPng": "이미지로 저장 (PNG)",
+      "share": "공유",
+      "shortcuts": "단축키",
+      "tutorial": "튜토리얼",
+      "closeMap": "맵 닫기"
+    }
+  },
+  "ShortcutsDialog": {
+    "title": "단축키 안내",
+    "description": "Mind Elixir 기본 단축키 목록입니다.",
+    "close": "닫기",
+    "columns": {
+      "shortcut": "단축키",
+      "action": "기능"
+    },
+    "items": [
+      { "key": "Enter", "description": "형제 노드 삽입" },
+      { "key": "Shift + Enter", "description": "앞쪽에 형제 노드 삽입" },
+      { "key": "Tab", "description": "자식 노드 삽입" },
+      { "key": "Ctrl + Enter", "description": "부모 노드 삽입" },
+      { "key": "F1", "description": "맵 중앙 정렬" },
+      { "key": "F2", "description": "현재 노드 편집" },
+      { "key": "↑", "description": "이전 노드 선택" },
+      { "key": "↓", "description": "다음 노드 선택" },
+      { "key": "← / →", "description": "좌/우 노드 선택" },
+      { "key": "PageUp / Alt + ↑", "description": "위로 이동" },
+      { "key": "PageDown / Alt + ↓", "description": "아래로 이동" },
+      { "key": "Ctrl + ↑", "description": "양쪽 레이아웃" },
+      { "key": "Ctrl + ←", "description": "좌측 레이아웃" },
+      { "key": "Ctrl + →", "description": "우측 레이아웃" },
+      { "key": "Ctrl + C", "description": "복사" },
+      { "key": "Ctrl + X", "description": "잘라내기" },
+      { "key": "Ctrl + V", "description": "붙여넣기" },
+      { "key": "Delete / Backspace", "description": "노드/화살표/요약 삭제" },
+      { "key": "Ctrl + +", "description": "확대" },
+      { "key": "Ctrl + -", "description": "축소" },
+      { "key": "Ctrl + 0", "description": "확대/축소 초기화" },
+      { "key": "Ctrl + K, Ctrl + 0", "description": "전체 접기" },
+      { "key": "Ctrl + K, Ctrl + =", "description": "전체 펼치기" },
+      { "key": "Ctrl + K, Ctrl + 1-9", "description": "N단계까지 펼치기" }
+    ]
+  },
+  "ConfirmShareDialog": {
+    "title": "발행 후 공유",
+    "description": "현재 변경사항을 발행하고 공유 링크를 생성할까요?",
+    "actionLabel": "발행 후 공유"
+  },
   "ThemeToggle": {
     "label": {
       "light": "라이트 모드",
@@ -764,6 +842,7 @@
       "unit": "크레딧",
       "mainButton": "메인으로",
       "historyButton": "결제 내역 보기",
+      "creditHistoryButton": "크레딧 내역 보기",
       "paidLabel": "유료 크레딧",
       "freeLabel": "보상 크레딧"
     },
@@ -795,7 +874,8 @@
       "unitPricePrefix": "≈",
       "unitPriceMiddle": "/ 크레딧 · 구조맵 약",
       "unitPriceSuffix": "개 분량",
-      "cta": "지금 충전하기"
+      "cta": "지금 충전하기",
+      "loading": "주문 준비 중..."
     },
     "bullets": {
       "missionCredits": "미션으로 무료 크레딧 받기"
@@ -806,10 +886,10 @@
     "title": "결제 내역",
     "subtitle": "크레딧 충전 내역과 영수증을 한 곳에서 확인할 수 있어요.",
     "summary": {
-      "title": "크레딧 사용 요약",
-      "totalCharged": "총 충전 크레딧",
-      "currentBalance": "현재 남은 크레딧",
-      "used": "지금까지 사용한 크레딧",
+      "title": "유료 크레딧 요약",
+      "totalCharged": "총 충전한 유료 크레딧",
+      "currentBalance": "현재 남은 유료 크레딧",
+      "used": "지금까지 사용한 유료 크레딧",
       "unit": "크레딧"
     },
     "list": {
@@ -838,6 +918,44 @@
       "item3": "• 환불 완료된 결제는 \"환불 완료\" 상태로 표시돼요.",
       "item4": "• 결제 실패 건은 실제로 크레딧이 충전되지 않으며, 필요 시 다시 결제를 시도할 수 있어요.",
       "note": "자세한 환불/결제 정책은 추후 서비스 정책 페이지에서 별도로 안내될 예정입니다."
+    }
+  },
+  "BillingCreditsPage": {
+    "badge": "무료 · 유료 크레딧 변동 내역",
+    "title": "크레딧 내역",
+    "subtitle": "유료 충전, 보상, 사용, 환불까지 전체 크레딧 변동을 확인할 수 있어요.",
+    "buttons": {
+      "paymentHistory": "결제 내역 보기",
+      "backToBilling": "크레딧 충전으로 돌아가기"
+    },
+    "summary": {
+      "title": "현재 크레딧 현황",
+      "total": "전체 크레딧",
+      "paid": "유료 크레딧",
+      "free": "보상 크레딧",
+      "unit": "크레딧"
+    },
+    "list": {
+      "title": "크레딧 변동 내역",
+      "loading": "크레딧 내역을 불러오는 중이에요.",
+      "empty": "아직 크레딧 변동 내역이 없습니다.",
+      "balanceAfter": "변동 후 {total} {unit}",
+      "breakdown": "유료 {paid} · 보상 {free}"
+    },
+    "types": {
+      "purchase": "유료 충전",
+      "spend": "크레딧 사용",
+      "bonus": "보상 지급",
+      "refund": "환불 복구",
+      "adjustment": "수동 조정",
+      "expire": "만료 차감"
+    },
+    "sources": {
+      "toss": "토스페이먼츠",
+      "lemon_squeezy": "LemonSqueezy",
+      "system": "시스템",
+      "admin": "운영자",
+      "migration": "마이그레이션"
     }
   },
   "BillingReceiptPage": {

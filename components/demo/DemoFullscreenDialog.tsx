@@ -73,10 +73,10 @@ function getDemoTerms(t: ReturnType<typeof useTranslations>): DemoTermItem[] {
   return t.raw("terms.items") as DemoTermItem[];
 }
 
-function safeDateLabel(value?: number) {
+function safeDateLabel(value: number | undefined, locale: string) {
   if (!value) return "-";
   try {
-    return new Date(value).toLocaleDateString("ko-KR", {
+    return new Date(value).toLocaleDateString(locale === "ko" ? "ko-KR" : "en-US", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
@@ -125,8 +125,14 @@ function DemoLeftPanel({
     setActiveTab("info");
   }, [language, map.id, t]);
 
-  const createdLabel = useMemo(() => safeDateLabel(map.createdAt), [map.createdAt]);
-  const updatedLabel = useMemo(() => safeDateLabel(map.updatedAt), [map.updatedAt]);
+  const createdLabel = useMemo(
+    () => safeDateLabel(map.createdAt, language),
+    [language, map.createdAt]
+  );
+  const updatedLabel = useMemo(
+    () => safeDateLabel(map.updatedAt, language),
+    [language, map.updatedAt]
+  );
 
   const addNote = () => {
     const trimmed = noteText.trim();
@@ -248,7 +254,8 @@ function DemoLeftPanel({
             <>
               <div className="mb-3 text-[13px] sm:text-[14px] text-neutral-500 dark:text-white/55">
                 <div>
-                  생성 {createdLabel} · 수정 {updatedLabel}
+                  {t("info.created")} {createdLabel} · {t("info.updated")}{" "}
+                  {updatedLabel}
                 </div>
                 <div className="mt-0.5">
                   {t("info.credits")}:{" "}
