@@ -361,6 +361,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
   const { resolvedTheme } = useTheme();
   const locale = useLocale();
+  const miniMapLabel = locale === "ko" ? "미니맵" : "Mini map";
 
   const [mounted, setMounted] = useState(false);
   const [ready, setReady] = useState(false);
@@ -1735,7 +1736,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       {showMiniMap && (
         <div className="pointer-events-auto absolute bottom-6 right-4 z-20 rounded-xl border border-neutral-200 bg-white/90 p-2 shadow-sm dark:border-white/45 dark:bg-[#0b1220]/82 dark:shadow-[0_16px_42px_-24px_rgba(15,23,42,0.92)]">
           <div className="text-[14px] font-bold text-neutral-600 dark:text-white/88">
-            미니맵
+            {miniMapLabel}
           </div>
           <canvas ref={miniMapRef} className="mt-1 h-[132px] w-[176px]" />
         </div>

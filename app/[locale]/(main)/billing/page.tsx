@@ -222,8 +222,8 @@ export default function BillingPage() {
                 "
               />
 
-              <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex flex-col gap-2">
+	              <div className="relative">
+	                <div className="flex flex-col gap-2">
                   <div className="mt-1 flex items-baseline gap-2">
                     <span className="leading-none text-[38px] sm:text-[48px] font-extrabold tracking-tight text-neutral-900 dark:text-white">
                       {balance === null ? "…" : balance.total.toLocaleString()}
@@ -256,31 +256,32 @@ export default function BillingPage() {
                       <span>{balance.free.toLocaleString()}</span>
                     </div>
                   )}
+	                </div>
+	              </div>
+	            </div>
 
-                </div>
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+              <Link
+                href={billingHistoryHref}
+                className="
+      inline-flex w-full sm:w-auto items-center justify-center
+      rounded-2xl px-5 py-3
+      text-sm font-semibold
+      text-white
+      bg-slate-800
+      border border-slate-700
+      transition-all
+      hover:shadow-sm hover:bg-slate-700
+      active:scale-[0.99]
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20
+    "
+              >
+                {t("balance.historyButton")}
+              </Link>
 
-                <div className="flex flex-col gap-2 sm:items-end min-w-[220px]">
-	                  <Link
-	                    href={billingHistoryHref}
-	                    className="
-	      inline-flex w-full sm:w-auto items-center justify-center
-	      rounded-2xl px-5 py-3
-	      text-sm font-semibold
-	      text-white
-	      bg-slate-800
-	      border border-slate-700
-	      transition-all
-	      hover:scale-[1.02] hover:shadow-sm hover:bg-slate-700
-	      active:scale-[0.99]
-	      focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20
-	    "
-	                  >
-                    {t("balance.historyButton")}
-                  </Link>
-
-                  <Link
-                    href={creditHistoryHref}
-                    className="
+              <Link
+                href={creditHistoryHref}
+                className="
       inline-flex w-full sm:w-auto items-center justify-center
       rounded-2xl px-5 py-3
       text-sm font-semibold
@@ -288,17 +289,17 @@ export default function BillingPage() {
       bg-slate-700
       border border-slate-600
       transition-all
-      hover:scale-[1.02] hover:shadow-sm hover:bg-slate-600
+      hover:shadow-sm hover:bg-slate-600
       active:scale-[0.99]
       focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20
     "
-                  >
-                    {t("balance.creditHistoryButton")}
-                  </Link>
+              >
+                {t("balance.creditHistoryButton")}
+              </Link>
 
-                  <Link
-                    href="/missions"
-                    className="
+              <Link
+                href="/missions"
+                className="
       group inline-flex w-full sm:w-auto items-center justify-center gap-1.5
       px-1 py-1
       text-[13px] font-medium
@@ -306,24 +307,22 @@ export default function BillingPage() {
       transition-colors
       hover:text-emerald-800 dark:hover:text-emerald-200
       focus:outline-none
-                    "
-                  >
-                    <span className="whitespace-nowrap">
-                      {t("bullets.missionCredits")}
-                    </span>
+                "
+              >
+                <span className="whitespace-nowrap">
+                  {t("bullets.missionCredits")}
+                </span>
 
-                    <span
-                      aria-hidden
-                      className="
+                <span
+                  aria-hidden
+                  className="
         inline-block h-3.5 w-3.5
         [clip-path:polygon(25%_15%,85%_50%,25%_85%)]
         bg-current
         transition-transform group-hover:translate-x-0.5
       "
-                    />
-                  </Link>
-                </div>
-              </div>
+                />
+              </Link>
             </div>
           </section>
 
