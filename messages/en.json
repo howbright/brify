@@ -337,7 +337,8 @@
   },
   "loginPage": {
     "brand": "Brify",
-    "tagline": "Sign in to continue working on your structure maps."
+    "tagline": "Sign in to continue working on your structure maps.",
+    "launchNotice": "Brify has not officially launched yet and is currently preparing for release."
   },
   "DemoPage": {
     "eyebrow": "Live Demo",

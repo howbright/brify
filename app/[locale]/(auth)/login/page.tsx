@@ -86,6 +86,13 @@ export default function Login() {
           </Link>
         </div>
 
+        <div className="mb-5 rounded-2xl border border-blue-200/80 bg-blue-50/90 px-4 py-3 text-center text-[14px] font-medium leading-6 text-blue-900 shadow-sm dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-100">
+          <p>{t("tagline")}</p>
+          <p className="mt-1 text-[13px] text-blue-700 dark:text-blue-200/90">
+            {t("launchNotice")}
+          </p>
+        </div>
+
         {/* 로그인 카드 */}
         <LoginForm />
       </div>
