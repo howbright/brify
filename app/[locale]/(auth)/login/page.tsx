@@ -3,16 +3,23 @@
 import { useEffect, useRef } from "react";
 import LoginForm from "@/components/LoginForm";
 import { Link } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
 
 export default function Login() {
   const t = useTranslations("loginPage");
+  const locale = useLocale();
   const router = useRouter();
   const sp = useSearchParams();
   const supabase = createClient();
+  const prelaunchTitle =
+    locale === "ko" ? "서비스가 준비중입니다." : "The service is currently in preparation.";
+  const launchNotice =
+    locale === "ko"
+      ? "4월 초 정식 오픈합니다. 조금만 더 기다려주세요."
+      : "Official launch is planned for early April. Please wait just a little longer.";
 
   // ✅ StrictMode에서 effect 2번 도는 것 방지용
   const onceRef = useRef(false);
@@ -86,10 +93,12 @@ export default function Login() {
           </Link>
         </div>
 
-        <div className="mb-5 rounded-2xl border border-blue-200/80 bg-blue-50/90 px-4 py-3 text-center text-[14px] font-medium leading-6 text-blue-900 shadow-sm dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-100">
-          <p>{t("tagline")}</p>
-          <p className="mt-1 text-[13px] text-blue-700 dark:text-blue-200/90">
-            {t("launchNotice")}
+        <div className="mb-5 rounded-2xl border border-blue-200/80 bg-blue-50/90 px-5 py-4 text-center text-[16px] font-semibold leading-7 text-blue-900 shadow-sm dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-100 sm:text-[17px]">
+          <p className="text-[18px] font-extrabold leading-7 sm:text-[19px]">
+            {prelaunchTitle}
+          </p>
+          <p className="mt-1.5 text-[16px] font-bold leading-7 text-blue-700 dark:text-blue-200/90 sm:text-[17px]">
+            {launchNotice}
           </p>
         </div>
 

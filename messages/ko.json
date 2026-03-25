@@ -337,7 +337,7 @@
   },
   "loginPage": {
     "brand": "Brify",
-    "tagline": "계정을 불러와서 구조맵 작업을 이어갈게요.",
+    "prelaunchTitle": "서비스가 준비중입니다.",
     "launchNotice": "Brify는 아직 정식 출시 전이며, 현재 출시를 준비 중인 서비스입니다."
   },
   "DemoPage": {
