@@ -369,6 +369,24 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const { resolvedTheme } = useTheme();
   const locale = useLocale();
   const miniMapLabel = locale === "ko" ? "미니맵" : "Mini map";
+  const {
+    mounted,
+    effectiveMode,
+    isPanModeControlled,
+    effectivePanMode,
+    showMobileControls,
+    showInternalMobileModeToggle,
+    mobileEditLabels,
+    setMobilePanMode,
+  } = useMindElixirResponsiveState({
+    mode,
+    resolvedTheme,
+    locale,
+    editMode,
+    panMode,
+    preferPanModeOnTouch,
+    showMobileEditControls,
+  });
 
   const [ready, setReady] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -903,7 +921,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
   const resolveThemeObj = useMemo(() => {
     return (
-      defaults: { light: any; dark: any } | null,
+      defaults: { light: unknown; dark: unknown } | null,
       modeValue: "light" | "dark"
     ) => {
       const fallback = defaults?.[modeValue];
@@ -911,24 +929,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       return theme ?? profileTheme ?? fallback;
     };
   }, [theme, profileTheme]);
-  const {
-    mounted,
-    effectiveMode,
-    isPanModeControlled,
-    effectivePanMode,
-    showMobileControls,
-    showInternalMobileModeToggle,
-    mobileEditLabels,
-    setMobilePanMode,
-  } = useMindElixirResponsiveState({
-    mode,
-    resolvedTheme,
-    locale,
-    editMode,
-    panMode,
-    preferPanModeOnTouch,
-    showMobileEditControls,
-  });
 
   const initialData = useMemo(() => {
     if (data !== undefined && data !== null) return data;
