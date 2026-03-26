@@ -1,22 +1,39 @@
-export const MAP_TUTORIAL_STORAGE_KEY = "brify:map-tutorial-completed:v1";
+export type MapTutorialPlatform = "desktop" | "mobile";
 
-export function getMapTutorialCompleted(): boolean {
+const MAP_TUTORIAL_STORAGE_KEYS: Record<MapTutorialPlatform, string> = {
+  desktop: "brify:map-tutorial-completed:desktop:v2",
+  mobile: "brify:map-tutorial-completed:mobile:v2",
+};
+
+function getMapTutorialStorageKey(platform: MapTutorialPlatform): string {
+  return MAP_TUTORIAL_STORAGE_KEYS[platform];
+}
+
+export function getMapTutorialCompleted(
+  platform: MapTutorialPlatform = "desktop"
+): boolean {
   if (typeof window === "undefined") return false;
   try {
-    return window.localStorage.getItem(MAP_TUTORIAL_STORAGE_KEY) === "true";
+    return (
+      window.localStorage.getItem(getMapTutorialStorageKey(platform)) === "true"
+    );
   } catch {
     return false;
   }
 }
 
-export function setMapTutorialCompleted(completed: boolean): void {
+export function setMapTutorialCompleted(
+  completed: boolean,
+  platform: MapTutorialPlatform = "desktop"
+): void {
   if (typeof window === "undefined") return;
   try {
+    const key = getMapTutorialStorageKey(platform);
     if (completed) {
-      window.localStorage.setItem(MAP_TUTORIAL_STORAGE_KEY, "true");
+      window.localStorage.setItem(key, "true");
       return;
     }
-    window.localStorage.removeItem(MAP_TUTORIAL_STORAGE_KEY);
+    window.localStorage.removeItem(key);
   } catch {
     // Ignore storage failures so the tutorial still works in restricted environments.
   }

@@ -274,10 +274,12 @@ export default function MapDetailPage() {
   useEffect(() => {
     if (loading || !draft) return;
     setLeftOpen(true);
-    const tutorialCompleted = getMapTutorialCompleted();
+    const tutorialCompleted = getMapTutorialCompleted(
+      isTutorialMobile ? "mobile" : "desktop"
+    );
     setTutorialOpen(!tutorialCompleted);
     setTutorialStepIndex(0);
-  }, [loading, draft?.id]);
+  }, [loading, draft?.id, isTutorialMobile]);
 
   useEffect(() => {
     if (!tagEditOpen) return;
@@ -348,7 +350,7 @@ export default function MapDetailPage() {
 
   const handleTutorialNext = () => {
     if (tutorialStepIndex >= tutorialSteps.length - 1) {
-      setMapTutorialCompleted(true);
+      setMapTutorialCompleted(true, isTutorialMobile ? "mobile" : "desktop");
       setTutorialOpen(false);
       return;
     }

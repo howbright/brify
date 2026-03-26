@@ -18,6 +18,9 @@ import {
   MIND_THEME_BY_NAME,
 } from "@/components/maps/themes";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
+import MindElixirMobileControls from "@/components/MindElixirMobileControls";
+import MindElixirMiniMap from "@/components/MindElixirMiniMap";
+import { useMindElixirResponsiveState } from "@/components/useMindElixirResponsiveState";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 type ClientMindElixirProps = {
@@ -40,6 +43,8 @@ type ClientMindElixirProps = {
   showToolbar?: boolean;
   panMode?: boolean;
   panModeButton?: 0 | 2;
+  preferPanModeOnTouch?: boolean;
+  showMobileEditControls?: boolean;
 };
 
 export type ClientMindElixirHandle = {
@@ -349,8 +354,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       openMenuOnClick = true,
       showMiniMap = true,
       showToolbar = false,
-      panMode = false,
+      panMode,
       panModeButton = 2,
+      preferPanModeOnTouch = true,
+      showMobileEditControls = true,
     },
     ref
   ) {
@@ -363,7 +370,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const locale = useLocale();
   const miniMapLabel = locale === "ko" ? "미니맵" : "Mini map";
 
-  const [mounted, setMounted] = useState(false);
   const [ready, setReady] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedRect, setSelectedRect] = useState<DOMRect | null>(null);
@@ -372,6 +378,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const [noteEditorOpen, setNoteEditorOpen] = useState(false);
   const [noteDraft, setNoteDraft] = useState("");
   const [noteTargetId, setNoteTargetId] = useState<string | null>(null);
+  const [mobileActionNodeId, setMobileActionNodeId] = useState<string | null>(null);
   const miniMapRef = useRef<HTMLCanvasElement>(null);
   const miniMapBoundsRef = useRef<{
     minX: number;
@@ -389,6 +396,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const miniMapDrawRef = useRef<() => void>(() => {});
   const selectedNodeIdRef = useRef<string | null>(null);
   const selectedNodeElRef = useRef<HTMLElement | null>(null);
+  const longPressTimerRef = useRef<number | null>(null);
+  const longPressTriggeredRef = useRef(false);
+  const longPressTargetRef = useRef<{
+    nodeId: string | null;
+    startX: number;
+    startY: number;
+    el: HTMLElement | null;
+  }>({ nodeId: null, startX: 0, startY: 0, el: null });
   const highlightVariant = "gold";
   const searchHighlightIdsRef = useRef<Set<string>>(new Set());
   const searchActiveIdRef = useRef<string | null>(null);
@@ -757,11 +772,28 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     selectedNodeElRef.current = nodeEl;
   };
 
+  const clearLongPressState = () => {
+    if (longPressTimerRef.current) {
+      window.clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    longPressTargetRef.current = {
+      nodeId: null,
+      startX: 0,
+      startY: 0,
+      el: null,
+    };
+  };
+
   useEffect(() => {
     const host = elRef.current;
     if (!host) return;
 
     const handleClick = (e: MouseEvent) => {
+      if (longPressTriggeredRef.current) {
+        longPressTriggeredRef.current = false;
+        return;
+      }
       const el = e.target as HTMLElement | null;
       if (!el) return;
       const nodeEl =
@@ -773,12 +805,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         setSelectedRect(null);
         selectedNodeElRef.current = null;
         setSelectedNoteText(null);
+        setMobileActionNodeId(null);
         return;
       }
       const nodeId = nodeEl.getAttribute("data-nodeid");
       if (!nodeId) return;
       setSelectedNodeId(nodeId);
       selectedNodeElRef.current = nodeEl;
+      setMobileActionNodeId(null);
       requestAnimationFrame(() => updateSelectedRect(nodeId));
     };
 
@@ -787,18 +821,79 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       host.removeEventListener("click", handleClick);
     };
   }, []);
+
+  useEffect(() => {
+    const host = elRef.current;
+    if (!host) return;
+    if (!showMobileControls || effectivePanMode) return;
+
+    const triggerLongPress = () => {
+      const { nodeId, el } = longPressTargetRef.current;
+      if (!nodeId || !el) return;
+      longPressTriggeredRef.current = true;
+      setSelectedNodeId(nodeId);
+      selectedNodeElRef.current = el;
+      setMobileActionNodeId(nodeId);
+      requestAnimationFrame(() => updateSelectedRect(nodeId));
+      try {
+        navigator.vibrate?.(10);
+      } catch {}
+    };
+
+    const handlePointerDown = (e: PointerEvent) => {
+      if (e.pointerType !== "touch") return;
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      const nodeEl =
+        target.closest?.("me-tpc[data-nodeid]") ??
+        target.closest?.("me-tpc") ??
+        target.closest?.("[data-nodeid]");
+      if (!nodeEl || !(nodeEl instanceof HTMLElement)) {
+        clearLongPressState();
+        return;
+      }
+      const nodeId = nodeEl.getAttribute("data-nodeid");
+      if (!nodeId) return;
+      clearLongPressState();
+      longPressTargetRef.current = {
+        nodeId,
+        startX: e.clientX,
+        startY: e.clientY,
+        el: nodeEl,
+      };
+      longPressTimerRef.current = window.setTimeout(triggerLongPress, 420);
+    };
+
+    const handlePointerMove = (e: PointerEvent) => {
+      if (e.pointerType !== "touch") return;
+      const { nodeId, startX, startY } = longPressTargetRef.current;
+      if (!nodeId) return;
+      const moved =
+        Math.abs(e.clientX - startX) > 8 || Math.abs(e.clientY - startY) > 8;
+      if (moved) clearLongPressState();
+    };
+
+    const handlePointerEnd = () => {
+      clearLongPressState();
+    };
+
+    host.addEventListener("pointerdown", handlePointerDown);
+    host.addEventListener("pointermove", handlePointerMove);
+    host.addEventListener("pointerup", handlePointerEnd);
+    host.addEventListener("pointercancel", handlePointerEnd);
+
+    return () => {
+      host.removeEventListener("pointerdown", handlePointerDown);
+      host.removeEventListener("pointermove", handlePointerMove);
+      host.removeEventListener("pointerup", handlePointerEnd);
+      host.removeEventListener("pointercancel", handlePointerEnd);
+      clearLongPressState();
+    };
+  }, [showMobileControls, effectivePanMode]);
   const lastTransformRef = useRef<string | null>(null);
   const lastScaleRef = useRef<number | null>(null);
 
-  useEffect(() => setMounted(true), []);
-
   const { profileThemeName } = useMindThemePreference();
-
-  const effectiveMode = useMemo<"light" | "dark">(() => {
-    if (mode === "light" || mode === "dark") return mode;
-    if (!mounted) return "light";
-    return resolvedTheme === "dark" ? "dark" : "light";
-  }, [mode, resolvedTheme, mounted]);
 
   const profileTheme = useMemo(() => {
     if (!profileThemeName) return null;
@@ -816,6 +911,24 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       return theme ?? profileTheme ?? fallback;
     };
   }, [theme, profileTheme]);
+  const {
+    mounted,
+    effectiveMode,
+    isPanModeControlled,
+    effectivePanMode,
+    showMobileControls,
+    showInternalMobileModeToggle,
+    mobileEditLabels,
+    setMobilePanMode,
+  } = useMindElixirResponsiveState({
+    mode,
+    resolvedTheme,
+    locale,
+    editMode,
+    panMode,
+    preferPanModeOnTouch,
+    showMobileEditControls,
+  });
 
   const initialData = useMemo(() => {
     if (data !== undefined && data !== null) return data;
@@ -997,6 +1110,56 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     el.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
   };
 
+  const runMobileNodeAction = async (
+    action: "addChild" | "addSibling" | "rename" | "remove"
+  ) => {
+    const mind = mindRef.current;
+    const currentNode = mind?.currentNode;
+    if (!mind || !currentNode) return;
+
+    try {
+      if (action === "addChild") {
+        await mind.addChild(currentNode);
+        return;
+      }
+      if (action === "addSibling") {
+        await mind.insertSibling("after", currentNode);
+        return;
+      }
+      if (action === "rename") {
+        await mind.beginEdit(currentNode);
+        return;
+      }
+      const isRoot =
+        (currentNode.nodeObj as AnyNode | undefined)?.root ||
+        !(currentNode.nodeObj as AnyNode | undefined)?.parent?.id;
+      if (isRoot) return;
+      await mind.removeNodes([currentNode]);
+      setMobileActionNodeId(null);
+    } catch (error) {
+      console.error("[ME] mobile action failed:", action, error);
+    }
+  };
+
+  const selectedNodeObj =
+    (selectedNodeElRef.current as (HTMLElement & { nodeObj?: AnyNode }) | null)
+      ?.nodeObj ?? null;
+  const selectedNodeIsRoot = Boolean(
+    selectedNodeObj?.root || !selectedNodeObj?.parent?.id
+  );
+
+  useEffect(() => {
+    if (!showMobileControls || effectivePanMode || editMode !== "edit") {
+      setMobileActionNodeId(null);
+    }
+  }, [showMobileControls, effectivePanMode, editMode]);
+
+  useEffect(() => {
+    if (!selectedNodeId) {
+      setMobileActionNodeId(null);
+    }
+  }, [selectedNodeId]);
+
   function applyEditMode(mind: any, enabled: boolean) {
     if (!mind) return;
 
@@ -1022,6 +1185,29 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
     if (elRef.current) {
       elRef.current.classList.toggle(VIEW_MODE_CLASS, !enabled);
+    }
+  }
+
+  function applyPanInteraction(
+    mind: any,
+    enabled: boolean,
+    button: 0 | 2 = panModeButton
+  ) {
+    if (wrapperRef.current) {
+      wrapperRef.current.classList.toggle(PAN_MODE_CLASS, enabled);
+    }
+    if (elRef.current) {
+      elRef.current.classList.toggle(PAN_MODE_CLASS, enabled);
+      elRef.current.style.touchAction = enabled ? "none" : "";
+    }
+
+    if (!mind) return;
+    mind.mouseSelectionButton = enabled ? button : 0;
+    if (enabled) {
+      mind.selection?.cancel?.();
+      mind.selection?.disable?.();
+    } else {
+      mind.selection?.enable?.();
     }
   }
 
@@ -1121,19 +1307,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         currentLevelRef.current = target;
       },
       setPanMode: (enabled: boolean) => {
-        const mind = mindRef.current;
-        if (!mind) return;
-        mind.mouseSelectionButton = enabled ? 2 : 0;
-        if (enabled) {
-          mind.selection?.cancel?.();
-          mind.selection?.disable?.();
-        } else {
-          mind.selection?.enable?.();
-        }
-
-        if (elRef.current) {
-          elRef.current.classList.toggle(PAN_MODE_CLASS, enabled);
-        }
+        applyPanInteraction(mindRef.current, enabled, 2);
       },
       setEditMode: (enabled: boolean) => {
         const mind = mindRef.current;
@@ -1620,24 +1794,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   }, [editMode]);
 
   useEffect(() => {
-    const enabled = Boolean(panMode);
-    if (wrapperRef.current) {
-      wrapperRef.current.classList.toggle(PAN_MODE_CLASS, enabled);
-    }
-    if (elRef.current) {
-      elRef.current.classList.toggle(PAN_MODE_CLASS, enabled);
-    }
-
-    const mind = mindRef.current;
-    if (!mind) return;
-    mind.mouseSelectionButton = enabled ? panModeButton : 0;
-    if (enabled) {
-      mind.selection?.cancel?.();
-      mind.selection?.disable?.();
-    } else {
-      mind.selection?.enable?.();
-    }
-  }, [panMode, panModeButton, ready]);
+    applyPanInteraction(mindRef.current, Boolean(effectivePanMode), panModeButton);
+  }, [effectivePanMode, panModeButton, ready]);
 
   return (
     <div
@@ -1731,16 +1889,38 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           border-radius: 4px;
         }
       `}</style>
-      <div ref={elRef} className="relative w-full h-full" />
+      <div
+        ref={elRef}
+        className="relative h-full w-full"
+        style={{ touchAction: effectivePanMode ? "none" : undefined }}
+      />
 
-      {showMiniMap && (
-        <div className="pointer-events-auto absolute bottom-6 right-4 z-20 rounded-xl border border-neutral-200 bg-white/90 p-2 shadow-sm dark:border-white/45 dark:bg-[#0b1220]/82 dark:shadow-[0_16px_42px_-24px_rgba(15,23,42,0.92)]">
-          <div className="text-[14px] font-bold text-neutral-600 dark:text-white/88">
-            {miniMapLabel}
-          </div>
-          <canvas ref={miniMapRef} className="mt-1 h-[132px] w-[176px]" />
-        </div>
-      )}
+      <MindElixirMobileControls
+        showModeToggle={showInternalMobileModeToggle}
+        showActionBar={
+          showMobileControls &&
+          editMode === "edit" &&
+          !effectivePanMode &&
+          !!selectedNodeId &&
+          mobileActionNodeId === selectedNodeId
+        }
+        effectivePanMode={Boolean(effectivePanMode)}
+        labels={mobileEditLabels}
+        disableAddSibling={selectedNodeIsRoot}
+        disableRename={!selectedNodeId}
+        disableRemove={selectedNodeIsRoot}
+        onSelectPanMode={setMobilePanMode}
+        onAddChild={() => void runMobileNodeAction("addChild")}
+        onAddSibling={() => void runMobileNodeAction("addSibling")}
+        onRename={() => void runMobileNodeAction("rename")}
+        onRemove={() => void runMobileNodeAction("remove")}
+      />
+
+      <MindElixirMiniMap
+        show={showMiniMap}
+        label={miniMapLabel}
+        canvasRef={miniMapRef}
+      />
       {!isFocusMode && selectedNodeId && selectedRect && (
         <>
           <div

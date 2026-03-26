@@ -17,7 +17,7 @@ function RibbonText({ text }: { text: string }) {
   return (
     <svg
       viewBox="0 0 1000 120"
-      className="h-[54px] w-full overflow-visible"
+      className="h-[72px] w-full overflow-visible sm:h-[54px]"
       aria-hidden="true"
     >
       <defs>
@@ -25,9 +25,9 @@ function RibbonText({ text }: { text: string }) {
       </defs>
       <text
         fill="currentColor"
-        fontSize="46"
         fontWeight="800"
         letterSpacing="-0.02em"
+        className="text-[60px] sm:text-[46px]"
       >
         <textPath href="#ribbon-arc" startOffset="50%" textAnchor="middle">
           {text}
@@ -117,8 +117,8 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
                 className="h-auto w-full"
                 priority={false}
               />
-              <div className="absolute inset-0 flex -translate-y-[10px] items-center justify-center px-8 text-center">
-                <span className="block w-full max-w-[88%] text-slate-900">
+              <div className="absolute inset-0 flex -translate-y-[8px] items-center justify-center px-5 text-center sm:-translate-y-[10px] sm:px-8">
+                <span className="block w-full max-w-[96%] text-slate-900 sm:max-w-[88%]">
                   <RibbonText text={t("freeCreditsBadge")} />
                 </span>
               </div>

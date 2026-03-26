@@ -172,10 +172,12 @@ export default function FullscreenDialog({
   useEffect(() => {
     if (!open || !mounted) return;
     setLeftOpen(true);
-    const tutorialCompleted = getMapTutorialCompleted();
+    const tutorialCompleted = getMapTutorialCompleted(
+      isTutorialMobile ? "mobile" : "desktop"
+    );
     setTutorialOpen(!tutorialCompleted);
     setTutorialStepIndex(0);
-  }, [open, mounted, draft?.id]);
+  }, [open, mounted, draft?.id, isTutorialMobile]);
 
   useEffect(() => {
     if (!searchOpen) {
@@ -319,7 +321,7 @@ export default function FullscreenDialog({
   };
   const handleTutorialNext = () => {
     if (tutorialStepIndex >= tutorialSteps.length - 1) {
-      setMapTutorialCompleted(true);
+      setMapTutorialCompleted(true, isTutorialMobile ? "mobile" : "desktop");
       setTutorialOpen(false);
       return;
     }

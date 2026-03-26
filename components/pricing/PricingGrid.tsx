@@ -219,6 +219,7 @@ export default function PricingGrid({
                 "group relative flex h-full flex-col rounded-2xl border shadow-sm transition-all duration-300 ease-out will-change-transform",
                 "text-neutral-900",
                 isCompact ? "p-4" : "p-5",
+                isCompact && "items-center text-center sm:items-stretch sm:text-left",
                 "hover:-translate-y-1 hover:shadow-[0_24px_44px_-24px_rgba(15,23,42,0.34)] hover:rotate-[-0.4deg] dark:hover:shadow-[0_28px_52px_-28px_rgba(37,99,235,0.42)]",
                 p.popular
                   ? "border-[var(--color-primary-500)] bg-[linear-gradient(180deg,#ffffff_0%,#f5f9ff_100%)] shadow-[0_26px_60px_-34px_rgba(37,99,235,0.34)] hover:border-[var(--color-primary-400)] dark:border-blue-400/35 dark:bg-[linear-gradient(180deg,rgba(37,99,235,0.16),rgba(15,23,42,0.94))] dark:text-[var(--color-card-foreground,#e5e7eb)]"
@@ -243,11 +244,16 @@ export default function PricingGrid({
                     : "bg-[radial-gradient(60%_100%_at_50%_0%,rgba(148,163,184,0.10),transparent_74%)] dark:bg-[radial-gradient(60%_100%_at_50%_0%,rgba(255,255,255,0.08),transparent_76%)]"
                 )}
               />
-              <div className={cx(isCompact ? "mb-1 h-6" : "mb-2 h-6")}>
+              <div
+                className={cx(
+                  isCompact ? "mb-1 flex h-6 w-full justify-center sm:justify-start" : "mb-2 h-6"
+                )}
+              >
                 {badge ? (
                   <div
                     className={cx(
-                      "inline-flex items-center gap-1 self-start rounded-full border px-3 py-1 text-xs font-bold transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-[1.03]",
+                      "inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-bold transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-[1.03]",
+                      isCompact ? "self-center sm:self-start" : "self-start",
                       p.starter && !p.popular && "opacity-85",
                       p.popular &&
                         "border-blue-500 bg-blue-600 text-white shadow-[0_12px_24px_-12px_rgba(37,99,235,0.6)] dark:border-blue-300 dark:bg-blue-500"
@@ -292,7 +298,12 @@ export default function PricingGrid({
                 {formatCurrency(p.priceUSD)}
               </div>
 
-              <div className="mt-3 flex flex-wrap items-center gap-2">
+              <div
+                className={cx(
+                  "mt-3 flex flex-wrap items-center gap-2",
+                  isCompact && "justify-center sm:justify-start"
+                )}
+              >
                 <div className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700 transition-transform duration-300 group-hover:-translate-y-0.5 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200">
                   ≈ {formatCurrency(unit)} {t("units.perCredit")}
                 </div>
@@ -320,7 +331,8 @@ export default function PricingGrid({
                 <div
                   className={cx(
                     isCompact ? "mt-2" : "mt-3",
-                    "text-xs text-neutral-500 dark:text-[var(--color-muted-foreground,#cbd5e1)]"
+                    "text-xs text-neutral-500 dark:text-[var(--color-muted-foreground,#cbd5e1)]",
+                    isCompact && "text-center sm:text-left"
                   )}
                 >
                   {t("footer.note")}
@@ -333,10 +345,10 @@ export default function PricingGrid({
 
       {isCompact ? (
         <div className="mt-5 rounded-2xl border border-slate-400 bg-white p-4 shadow-sm dark:border-white/20 dark:bg-[#0f172a]">
-          <div className="text-sm font-semibold text-slate-900 dark:text-white">
+          <div className="text-center text-sm font-semibold text-slate-900 dark:text-white">
             {tLanding("creditRule.title")}
           </div>
-          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <div className="mt-3 grid gap-2 text-center sm:grid-cols-3 sm:text-left">
             <div className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-800 dark:bg-white/8 dark:text-slate-100">
               {tLanding("creditRule.details.small")} · {tLanding("creditRule.result.one")}
             </div>

@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function SignupForm() {
+  console.log(`${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`);
   const supabase = createClient();
   const t = useTranslations("signup");
   const locale = useLocale();
@@ -85,9 +86,20 @@ export default function SignupForm() {
       return;
     }
 
+    const redirectUrl = new URL(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
+    );
+    redirectUrl.searchParams.set("flow", "signup");
+    redirectUrl.searchParams.set("terms", "1");
+    redirectUrl.searchParams.set("locale", locale);
+    redirectUrl.searchParams.set("next", "/video-to-map");
+
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: { shouldCreateUser: true },
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: redirectUrl.toString(),
+      },
     });
 
     if (error?.message.includes("Signups not allowed")) {

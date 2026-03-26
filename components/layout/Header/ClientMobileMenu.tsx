@@ -192,7 +192,7 @@ export default function ClientMobileUserMenu({
                 {!isAuthed ? (
                   <>
                     <Link
-                      href="/login"
+                      href="/login?next=%2Fmaps"
                       className="w-full text-primary border border-slate-400 hover:bg-primary/10 font-medium 
                         rounded-lg text-sm px-4 py-2 text-center"
                       onClick={() => setOpen(false)}
@@ -200,7 +200,7 @@ export default function ClientMobileUserMenu({
                       {t("auth.login")}
                     </Link>
                     <Link
-                      href="/login"
+                      href="/signup?next=%2Fvideo-to-map"
                       className="w-full text-white bg-primary hover:bg-primary-hover font-medium 
                         rounded-lg text-sm px-4 py-2 text-center"
                       onClick={() => setOpen(false)}

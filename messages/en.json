@@ -515,22 +515,22 @@
         "calloutDescription": "Start by switching to Edit mode here."
       },
       "move": {
-        "title": "Use two fingers to move around the map",
-        "description": "To navigate on mobile, slide with two fingers so the map moves more naturally on the screen.",
+        "title": "Switch to Move mode first",
+        "description": "On mobile, tap the Move button at the lower left first, then drag with one finger to pan around the map.",
         "calloutTitle": "Move the map",
-        "calloutDescription": "Use a two-finger gesture to move around."
+        "calloutDescription": "Switch to Move mode first, then drag the map."
       },
       "select": {
-        "title": "Select a node before taking action",
-        "description": "On mobile, it is easiest to tap a node first and then use the available actions or menu from that selection.",
-        "calloutTitle": "Select a node",
-        "calloutDescription": "Tap a node first to select it."
+        "title": "Switch to Select mode before tapping a node",
+        "description": "On mobile, switch to Select mode first and then tap a node. After selection, you can use the quick actions next to the node and the bottom edit bar.",
+        "calloutTitle": "Select mode",
+        "calloutDescription": "Switch to Select mode, then tap a node."
       },
       "highlight": {
         "title": "Highlight important nodes as you read",
-        "description": "Highlighting important parts makes them much easier to find again later, especially on a smaller screen.",
+        "description": "When a node is selected, small quick-action buttons appear next to it. Use the highlight button there to mark important parts.",
         "calloutTitle": "Highlight",
-        "calloutDescription": "Save important nodes with highlight."
+        "calloutDescription": "Select a node, then tap the highlight button."
       },
       "terms": {
         "title": "The Terms tab helps organize difficult expressions",
@@ -742,7 +742,7 @@
     },
     "auth": {
       "login": "Log in",
-      "signup": "Get Started"
+      "signup": "Start for free"
     },
     "cta": {
       "newMap": "New map",

@@ -515,7 +515,9 @@ export default function DemoFullscreenDialog({
   useEffect(() => {
     if (!open || !mounted) return;
     setLeftOpen(!isTutorialMobile);
-    const tutorialCompleted = getMapTutorialCompleted();
+    const tutorialCompleted = getMapTutorialCompleted(
+      isTutorialMobile ? "mobile" : "desktop"
+    );
     setTutorialOpen(!tutorialCompleted);
     setTutorialStepIndex(0);
     const timer = window.setTimeout(() => {
@@ -577,7 +579,7 @@ export default function DemoFullscreenDialog({
       termsTabId: DEMO_TERMS_TAB_ID,
     });
     if (tutorialStepIndex >= steps.length - 1) {
-      setMapTutorialCompleted(true);
+      setMapTutorialCompleted(true, isTutorialMobile ? "mobile" : "desktop");
       setTutorialOpen(false);
       return;
     }

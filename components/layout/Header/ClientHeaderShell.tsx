@@ -89,19 +89,29 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
           </nav>
 
           {/* 우측 액션 – 데스크탑 (md 이상) */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2">
             {!isAuthed && (
-              <>
+              <div className="flex items-center gap-0.5 text-sm">
                 <LanguageSelector />
                 <ThemeToggle />
-              </>
+              </div>
             )}
 
             {!isAuthed ? (
               <div className="flex items-center gap-2">
-                {/* ✅ A 방법: CTA는 항상 동일하게(텍스트/스타일 고정) */}
                 <Link
-                  href="/login"
+                  href="/login?next=%2Fmaps"
+                  className="
+                    text-sm px-2 py-1.5 rounded-full
+                    text-slate-700 hover:text-slate-900 hover:bg-slate-100
+                    transition-colors
+                    dark:text-slate-200 dark:hover:text-white dark:hover:bg-white/10
+                  "
+                >
+                  {t("auth.login")}
+                </Link>
+                <Link
+                  href="/signup?next=%2Fvideo-to-map"
                   className="
                     text-sm px-4 py-2 rounded-full
                     bg-blue-600 text-white

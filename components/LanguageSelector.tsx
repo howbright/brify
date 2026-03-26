@@ -37,8 +37,8 @@ export default function LanguageSelector() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-1 rounded-md border border-slate-400 px-3 py-1.5 text-sm text-gray-800 hover:bg-gray-100 dark:border-white/20 dark:text-gray-200 dark:hover:bg-gray-800">
-          <Icon icon="ic:baseline-language" className="text-lg" />
+        <button className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-white/8 dark:hover:text-white">
+          <Icon icon="ic:baseline-language" className="text-base opacity-80" />
           {current?.label || currentLocale}
         </button>
       </DropdownMenuTrigger>

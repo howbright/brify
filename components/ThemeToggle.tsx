@@ -28,13 +28,12 @@ export function ThemeToggle() {
       onClick={handleToggle}
       aria-label={isDark ? "라이트 모드로 전환" : "다크 모드로 전환"}
       className="
-        inline-flex h-9 w-9 items-center justify-center
-        rounded-full border border-border
-        bg-white/80 text-neutral-700
-        shadow-sm hover:bg-neutral-100 hover:-translate-y-0.5 hover:shadow-md
+        inline-flex h-8 w-8 items-center justify-center
+        rounded-full text-neutral-700
+        hover:bg-slate-100 hover:text-neutral-900
         active:translate-y-0
-        transition-all
-        dark:bg-white/10 dark:text-neutral-100
+        transition-colors
+        dark:text-neutral-100 dark:hover:bg-white/10
       "
     >
       <Icon
@@ -43,7 +42,7 @@ export function ThemeToggle() {
             ? "solar:sun-2-bold-duotone"      // 다크 모드일 때: 해 아이콘 (라이트로 전환)
             : "solar:moon-stars-bold-duotone" // 라이트 모드일 때: 달 아이콘 (다크로 전환)
         }
-        className="text-[18px]"
+        className="text-[17px]"
       />
     </button>
   );

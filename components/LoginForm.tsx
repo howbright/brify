@@ -25,6 +25,7 @@ export default function LoginForm() {
   useEffect(() => {
     if (step === "otp" && otpInputRef.current) otpInputRef.current.focus();
   }, [step]);
+   console.log(`${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`);
 
   const handleGoogleLogin = async () => {
     try {
@@ -62,11 +63,16 @@ export default function LoginForm() {
     setIsSubmitting(true);
     setMessage("");
     const lang = locale === "ko" ? "ko" : "en"; // ✅ submit 시점에 확정
+    const next =
+      new URLSearchParams(window.location.search).get("next") ?? "/video-to-map";
 
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
         shouldCreateUser: true,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent(
+          next
+        )}`,
         // ✅ 이메일 템플릿에서 {{ .Data.language }} 로 접근 가능
         data: { language: lang },
       },
