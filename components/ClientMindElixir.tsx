@@ -370,6 +370,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const miniMapLabel = locale === "ko" ? "미니맵" : "Mini map";
   const {
     mounted,
+    isTouchDevice,
     effectiveMode,
     effectivePanMode,
     showMobileControls,
@@ -411,6 +412,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const selectedNodeElRef = useRef<HTMLElement | null>(null);
   const longPressTimerRef = useRef<number | null>(null);
   const longPressTriggeredRef = useRef(false);
+  const touchDragMovedAtRef = useRef(0);
+  const touchPanRef = useRef<{
+    active: boolean;
+    pointerId: number | null;
+    x: number;
+    y: number;
+    moved: boolean;
+  }>({ active: false, pointerId: null, x: 0, y: 0, moved: false });
   const longPressTargetRef = useRef<{
     nodeId: string | null;
     startX: number;
@@ -801,8 +810,70 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   useEffect(() => {
     const host = elRef.current;
     if (!host) return;
+    if (!isTouchDevice) return;
+
+    const handlePointerDown = (e: PointerEvent) => {
+      if (e.pointerType !== "touch") return;
+      touchPanRef.current = {
+        active: true,
+        pointerId: e.pointerId,
+        x: e.clientX,
+        y: e.clientY,
+        moved: false,
+      };
+    };
+
+    const handlePointerMove = (e: PointerEvent) => {
+      const state = touchPanRef.current;
+      if (!state.active || state.pointerId !== e.pointerId) return;
+      const dx = e.clientX - state.x;
+      const dy = e.clientY - state.y;
+      state.x = e.clientX;
+      state.y = e.clientY;
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
+        state.moved = true;
+        clearLongPressState();
+        mindRef.current?.move?.(dx, dy);
+      }
+    };
+
+    const handlePointerEnd = (e: PointerEvent) => {
+      const state = touchPanRef.current;
+      if (state.pointerId !== e.pointerId) return;
+      if (state.moved) {
+        touchDragMovedAtRef.current = Date.now();
+      }
+      touchPanRef.current = {
+        active: false,
+        pointerId: null,
+        x: 0,
+        y: 0,
+        moved: false,
+      };
+    };
+
+    host.addEventListener("pointerdown", handlePointerDown, { passive: true });
+    host.addEventListener("pointermove", handlePointerMove, { passive: true });
+    host.addEventListener("pointerup", handlePointerEnd, { passive: true });
+    host.addEventListener("pointercancel", handlePointerEnd, { passive: true });
+
+    return () => {
+      host.removeEventListener("pointerdown", handlePointerDown);
+      host.removeEventListener("pointermove", handlePointerMove);
+      host.removeEventListener("pointerup", handlePointerEnd);
+      host.removeEventListener("pointercancel", handlePointerEnd);
+    };
+  }, [isTouchDevice]);
+
+  useEffect(() => {
+    const host = elRef.current;
+    if (!host) return;
 
     const handleClick = (e: MouseEvent) => {
+      if (Date.now() - touchDragMovedAtRef.current < 280) {
+        touchDragMovedAtRef.current = 0;
+        return;
+      }
       if (longPressTriggeredRef.current) {
         longPressTriggeredRef.current = false;
         return;
