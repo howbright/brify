@@ -21,7 +21,7 @@ function RibbonText({ text }: { text: string }) {
       aria-hidden="true"
     >
       <defs>
-        <path id="ribbon-arc" d="M 90 96 Q 500 28 910 96" />
+        <path id="ribbon-arc" d="M 90 94 Q 500 24 910 94" />
       </defs>
       <text
         fill="currentColor"
@@ -117,7 +117,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
                 className="h-auto w-full"
                 priority={false}
               />
-              <div className="absolute inset-0 flex translate-y-[4px] items-center justify-center px-5 text-center sm:-translate-y-[2px] sm:px-8">
+              <div className="absolute inset-0 flex translate-y-[2px] items-center justify-center px-5 text-center sm:-translate-y-[1px] sm:px-8">
                 <span className="block w-full max-w-[96%] text-slate-900 sm:max-w-[88%]">
                   <RibbonText text={t("freeCreditsBadge")} />
                 </span>

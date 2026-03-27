@@ -156,8 +156,8 @@ export default function MapListItem({
       className={`relative w-full max-w-full min-w-0 box-border rounded-2xl border px-4 py-3 transition
         ${
           isActive
-            ? "border-blue-300 bg-blue-50/70 shadow-sm dark:border-blue-400/40 dark:bg-blue-500/10"
-            : "border-slate-400 bg-white hover:bg-neutral-50 dark:border-white/20 dark:bg-[#0f172a]/40 dark:hover:bg-white/[0.05]"
+            ? "border-blue-300 bg-blue-50/70 shadow-sm dark:border-blue-300/50 dark:bg-[rgba(37,99,235,0.18)] dark:shadow-[0_18px_36px_-24px_rgba(37,99,235,0.45)]"
+            : "border-slate-400 bg-white hover:bg-neutral-50 dark:border-white/16 dark:bg-[rgba(15,23,42,0.82)] dark:shadow-[0_18px_36px_-28px_rgba(2,6,23,0.85)] dark:hover:border-white/24 dark:hover:bg-[rgba(30,41,59,0.92)]"
         }`}
     >
       <div className="flex min-w-0 flex-col gap-3">
@@ -180,20 +180,6 @@ export default function MapListItem({
         </div>
 
         <div className="absolute right-4 top-3 flex items-center gap-2">
-          {onOpenDetail && showOpenDetail && (
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                onOpenDetail(draft);
-              }}
-              className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
-            >
-              <Icon icon="mdi:open-in-new" className="h-3.5 w-3.5" />
-              열기
-            </button>
-          )}
-
           {onDelete && (
             <div ref={menuRef} className="relative">
               <button
@@ -283,7 +269,7 @@ export default function MapListItem({
       </div>
 
       <div className="mt-3 flex min-w-0 flex-col gap-2 sm:mt-2">
-        <div className="flex min-w-0 flex-wrap gap-1.5">
+        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
           {visibleTags.length ? (
             <>
               {visibleTags.map((tag) => (
@@ -299,34 +285,58 @@ export default function MapListItem({
                   +{remainingTagCount}
                 </span>
               )}
+              {showEditTags && onEditTags && (
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onEditTags(draft);
+                  }}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-blue-500/70 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25"
+                  aria-label="태그 편집"
+                >
+                  <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
+                </button>
+              )}
             </>
           ) : (
-            <span className="text-[12px] text-neutral-500 dark:text-white/50">
-              태그 없음
-            </span>
+            <>
+              <span className="text-[12px] text-neutral-500 dark:text-white/50">
+                태그 없음
+              </span>
+              {showEditTags && onEditTags && (
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onEditTags(draft);
+                  }}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-blue-500/70 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25"
+                  aria-label="태그 편집"
+                >
+                  <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </>
           )}
         </div>
-        {showEditTags && (
-          <div className="flex items-center gap-1.5 shrink-0">
-            {onEditTags && showEditTags && (
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onEditTags(draft);
-                }}
-                className="inline-flex items-center gap-1 rounded-full border border-blue-500/70 bg-blue-50 px-2.5 py-1 text-[12px] font-semibold text-blue-700 hover:bg-blue-100 cursor-pointer dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25"
-              >
-                <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
-                편집
-              </button>
-            )}
-          </div>
-        )}
       </div>
 
-      <div className="mt-2 text-[13px] font-medium text-neutral-500 dark:text-white/60">
-        {formatDate(draft)}
+      <div className="mt-2 flex items-center justify-between gap-3 text-[13px] font-medium text-neutral-500 dark:text-white/60">
+        <span>{formatDate(draft)}</span>
+        {onOpenDetail && showOpenDetail && (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onOpenDetail(draft);
+            }}
+            className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
+          >
+            <Icon icon="mdi:open-in-new" className="h-3.5 w-3.5" />
+            열기
+          </button>
+        )}
       </div>
     </article>
   );

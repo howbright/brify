@@ -1443,10 +1443,10 @@ export default function MapsPage() {
               <button
                 type="button"
                 onClick={() => setMobileTagSheetOpen(true)}
-                className="inline-flex items-center gap-2 rounded-full border border-neutral-300 bg-white/95 px-4 py-2 text-xs font-semibold text-neutral-700 shadow-lg dark:border-white/15 dark:bg-[#0b1220]/90 dark:text-white/85"
+                className="inline-flex items-center gap-2 rounded-full border border-cyan-300 bg-[linear-gradient(135deg,#22d3ee,#2563eb)] px-5 py-3 text-sm font-extrabold tracking-[-0.01em] text-white shadow-[0_18px_36px_-18px_rgba(37,99,235,0.65)] transition-transform duration-200 ease-out animate-[pulse_2.4s_ease-in-out_infinite] dark:border-cyan-200/50 dark:bg-[linear-gradient(135deg,rgba(34,211,238,0.95),rgba(59,130,246,0.95))] dark:text-white"
               >
-                <Icon icon="mdi:chevron-up" className="h-4 w-4" />
-                태그 정리 다시 열기
+                <Icon icon="mdi:tag-outline" className="h-4.5 w-4.5" />
+                태그열기
               </button>
             </div>
           )}

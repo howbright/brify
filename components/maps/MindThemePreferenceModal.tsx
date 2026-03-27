@@ -104,14 +104,13 @@ export default function MindThemePreferenceModal({
                     rounded-2xl border p-3 text-left transition-all outline-offset-1
                     ${
                       preset.name === themeName
-                        ? "border-blue-400 outline outline-2 outline-blue-300/70 shadow-[0_12px_30px_-18px_rgba(59,130,246,0.6)]"
-                        : "border-slate-400 hover:border-slate-500 hover:shadow-sm"
+                        ? "border-blue-400 bg-blue-50/70 outline outline-2 outline-blue-300/70 shadow-[0_12px_30px_-18px_rgba(59,130,246,0.6)] dark:border-blue-300/55 dark:bg-[rgba(37,99,235,0.2)] dark:shadow-[0_20px_40px_-24px_rgba(59,130,246,0.6)]"
+                        : "border-slate-400 bg-white hover:border-slate-500 hover:shadow-sm dark:border-white/14 dark:bg-[rgba(15,23,42,0.88)] dark:shadow-[0_16px_34px_-24px_rgba(2,6,23,0.95)] dark:hover:border-white/24 dark:hover:bg-[rgba(30,41,59,0.95)]"
                     }
-                    dark:border-white/20
                   `}
                 >
                   <div
-                    className="h-20 rounded-xl border border-slate-400 p-2"
+                    className="h-20 rounded-xl border border-slate-400 p-2 dark:border-white/14"
                     style={{ backgroundColor: bg }}
                   >
                     <div
@@ -152,7 +151,7 @@ export default function MindThemePreferenceModal({
                       <div className="text-xs font-semibold text-neutral-900 dark:text-white/90">
                         {preset.name}
                       </div>
-                      <div className="text-[11px] text-neutral-500 dark:text-white/60">
+                      <div className="text-[11px] text-neutral-500 dark:text-white/68">
                         {preset.description}
                       </div>
                     </div>

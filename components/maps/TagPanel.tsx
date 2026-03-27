@@ -171,6 +171,15 @@ export default function TagPanel({
                 {tagOptions.map((tag) => (
                   <div key={tag.name}>
                     <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => onToggleSelect(tag.name)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          onToggleSelect(tag.name);
+                        }
+                      }}
                       className={`flex items-center justify-between rounded-xl border px-3 py-2 text-xs shadow-sm transition ${
                         selectedTags.includes(tag.name)
                           ? "border-blue-500 bg-blue-100 text-blue-800"
@@ -182,6 +191,7 @@ export default function TagPanel({
                           type="checkbox"
                           checked={selectedTags.includes(tag.name)}
                           onChange={() => onToggleSelect(tag.name)}
+                          onClick={(event) => event.stopPropagation()}
                           className="h-3.5 w-3.5 rounded border-blue-200 text-blue-600"
                         />
                         <span className="font-semibold">#{tag.name}</span>

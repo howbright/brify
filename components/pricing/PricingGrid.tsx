@@ -223,7 +223,7 @@ export default function PricingGrid({
                 "hover:-translate-y-1 hover:shadow-[0_24px_44px_-24px_rgba(15,23,42,0.34)] hover:rotate-[-0.4deg] dark:hover:shadow-[0_28px_52px_-28px_rgba(37,99,235,0.42)]",
                 p.popular
                   ? "border-[var(--color-primary-500)] bg-[linear-gradient(180deg,#ffffff_0%,#f5f9ff_100%)] shadow-[0_26px_60px_-34px_rgba(37,99,235,0.34)] hover:border-[var(--color-primary-400)] dark:border-blue-400/35 dark:bg-[linear-gradient(180deg,rgba(37,99,235,0.16),rgba(15,23,42,0.94))] dark:text-[var(--color-card-foreground,#e5e7eb)]"
-                  : "border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] shadow-[0_22px_48px_-34px_rgba(15,23,42,0.22)] hover:border-slate-300 dark:border-white/12 dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(15,23,42,0.94))] dark:text-[var(--color-card-foreground,#e5e7eb)] dark:hover:border-white/20"
+                  : "border-slate-300 bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] shadow-[0_24px_50px_-34px_rgba(15,23,42,0.24)] hover:border-slate-400 dark:border-white/14 dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.10),rgba(15,23,42,0.94))] dark:text-[var(--color-card-foreground,#e5e7eb)] dark:hover:border-white/24"
               )}
             >
               <div
@@ -252,21 +252,21 @@ export default function PricingGrid({
                 {badge ? (
                   <div
                     className={cx(
-                      "inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-bold transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-[1.03]",
+                      "inline-flex items-center gap-1 rounded-full border px-3.5 py-1.5 text-[12px] font-extrabold tracking-[-0.01em] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-[1.04] sm:px-3 sm:py-1 sm:text-xs",
                       isCompact ? "self-center sm:self-start" : "self-start",
-                      p.starter && !p.popular && "opacity-85",
+                      p.starter && !p.popular && "shadow-[0_14px_28px_-18px_rgba(59,130,246,0.35)]",
                       p.popular &&
-                        "border-blue-500 bg-blue-600 text-white shadow-[0_12px_24px_-12px_rgba(37,99,235,0.6)] dark:border-blue-300 dark:bg-blue-500"
+                        "border-blue-500 bg-blue-600 text-white shadow-[0_16px_30px_-16px_rgba(37,99,235,0.72)] dark:border-blue-300 dark:bg-blue-500"
                     )}
                     style={
                       p.popular
                         ? undefined
                         : {
                             borderColor:
-                              "color-mix(in_srgb,var(--color-primary-500),transparent 70%)",
+                              "color-mix(in_srgb,var(--color-primary-500),transparent 40%)",
                             background:
-                              "color-mix(in_srgb,var(--color-primary-500),white 85%)",
-                            color: "var(--color-primary-700)",
+                              "linear-gradient(135deg,color-mix(in_srgb,var(--color-primary-500),white 78%),color-mix(in_srgb,var(--color-primary-500),white 90%))",
+                            color: "var(--color-primary-800,#1d4ed8)",
                           }
                     }
                   >
