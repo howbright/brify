@@ -356,7 +356,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       showToolbar = false,
       panMode,
       panModeButton = 2,
-      preferPanModeOnTouch = true,
       showMobileEditControls = true,
     },
     ref
@@ -372,19 +371,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const {
     mounted,
     effectiveMode,
-    isPanModeControlled,
     effectivePanMode,
     showMobileControls,
-    showInternalMobileModeToggle,
     mobileEditLabels,
-    setMobilePanMode,
   } = useMindElixirResponsiveState({
     mode,
     resolvedTheme,
     locale,
     editMode,
     panMode,
-    preferPanModeOnTouch,
     showMobileEditControls,
   });
 
@@ -843,7 +838,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   useEffect(() => {
     const host = elRef.current;
     if (!host) return;
-    if (!showMobileControls || effectivePanMode) return;
+    if (!showMobileControls) return;
 
     const triggerLongPress = () => {
       const { nodeId, el } = longPressTargetRef.current;
@@ -907,7 +902,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       host.removeEventListener("pointercancel", handlePointerEnd);
       clearLongPressState();
     };
-  }, [showMobileControls, effectivePanMode]);
+  }, [showMobileControls]);
   const lastTransformRef = useRef<string | null>(null);
   const lastScaleRef = useRef<number | null>(null);
 
@@ -1149,10 +1144,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   );
 
   useEffect(() => {
-    if (!showMobileControls || effectivePanMode || editMode !== "edit") {
+    if (!showMobileControls || editMode !== "edit") {
       setMobileActionNodeId(null);
     }
-  }, [showMobileControls, effectivePanMode, editMode]);
+  }, [showMobileControls, editMode]);
 
   useEffect(() => {
     if (!selectedNodeId) {
@@ -1896,20 +1891,16 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       />
 
       <MindElixirMobileControls
-        showModeToggle={showInternalMobileModeToggle}
         showActionBar={
           showMobileControls &&
           editMode === "edit" &&
-          !effectivePanMode &&
           !!selectedNodeId &&
           mobileActionNodeId === selectedNodeId
         }
-        effectivePanMode={Boolean(effectivePanMode)}
         labels={mobileEditLabels}
         disableAddSibling={selectedNodeIsRoot}
         disableRename={!selectedNodeId}
         disableRemove={selectedNodeIsRoot}
-        onSelectPanMode={setMobilePanMode}
         onAddChild={() => void runMobileNodeAction("addChild")}
         onAddSibling={() => void runMobileNodeAction("addSibling")}
         onRename={() => void runMobileNodeAction("rename")}

@@ -3,8 +3,6 @@
 import { Icon } from "@iconify/react";
 
 type Labels = {
-  pan: string;
-  select: string;
   addChild: string;
   addSibling: string;
   rename: string;
@@ -12,14 +10,11 @@ type Labels = {
 };
 
 type Props = {
-  showModeToggle: boolean;
   showActionBar: boolean;
-  effectivePanMode: boolean;
   labels: Labels;
   disableAddSibling?: boolean;
   disableRename?: boolean;
   disableRemove?: boolean;
-  onSelectPanMode: (enabled: boolean) => void;
   onAddChild: () => void;
   onAddSibling: () => void;
   onRename: () => void;
@@ -27,14 +22,11 @@ type Props = {
 };
 
 export default function MindElixirMobileControls({
-  showModeToggle,
   showActionBar,
-  effectivePanMode,
   labels,
   disableAddSibling = false,
   disableRename = false,
   disableRemove = false,
-  onSelectPanMode,
   onAddChild,
   onAddSibling,
   onRename,
@@ -42,44 +34,6 @@ export default function MindElixirMobileControls({
 }: Props) {
   return (
     <>
-      {showModeToggle && (
-        <div className="pointer-events-auto absolute bottom-4 left-4 z-20">
-          <div className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white/92 p-1 shadow-lg dark:border-white/15 dark:bg-[#0b1220]/90">
-            <button
-              type="button"
-              onClick={() => onSelectPanMode(true)}
-              className={[
-                "inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition-colors",
-                effectivePanMode
-                  ? "bg-blue-600 text-white"
-                  : "text-neutral-600 hover:bg-neutral-100 dark:text-white/70 dark:hover:bg-white/8",
-              ].join(" ")}
-              aria-pressed={effectivePanMode}
-            >
-              <Icon icon="mdi:hand-back-left" className="h-3.5 w-3.5" />
-              {labels.pan}
-            </button>
-            <button
-              type="button"
-              onClick={() => onSelectPanMode(false)}
-              className={[
-                "inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition-colors",
-                !effectivePanMode
-                  ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
-                  : "text-neutral-600 hover:bg-neutral-100 dark:text-white/70 dark:hover:bg-white/8",
-              ].join(" ")}
-              aria-pressed={!effectivePanMode}
-            >
-              <Icon
-                icon="mdi:cursor-default-click-outline"
-                className="h-3.5 w-3.5"
-              />
-              {labels.select}
-            </button>
-          </div>
-        </div>
-      )}
-
       {showActionBar && (
         <div className="pointer-events-auto absolute inset-x-4 bottom-20 z-30">
           <div className="mx-auto flex max-w-md items-center justify-between gap-2 rounded-[22px] border border-neutral-200 bg-white/95 p-2 shadow-[0_22px_48px_-28px_rgba(15,23,42,0.42)] dark:border-white/15 dark:bg-[#0b1220]/94 dark:shadow-[0_22px_48px_-28px_rgba(2,6,23,0.9)]">

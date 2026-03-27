@@ -38,7 +38,6 @@ export function getMapTutorialSteps(
         calloutClassName: "left-1/2 top-[17%] w-[min(18rem,calc(100vw-1.5rem))] -translate-x-1/2",
         calloutTitle: t("mobile.move.calloutTitle"),
         calloutDescription: t("mobile.move.calloutDescription"),
-        illustration: "trackpad",
       },
       {
         title: t("mobile.select.title"),
