@@ -20,7 +20,10 @@ export default function MindElixirMiniMap({
       <div className="text-[14px] font-bold text-neutral-600 dark:text-white/88">
         {label}
       </div>
-      <canvas ref={canvasRef} className="mt-1 h-[132px] w-[176px]" />
+      <canvas
+        ref={canvasRef}
+        className="mt-1 h-[132px] w-[176px] touch-none select-none"
+      />
     </div>
   );
 }

@@ -405,7 +405,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     dragging: boolean;
     lastX: number;
     lastY: number;
-  }>({ dragging: false, lastX: 0, lastY: 0 });
+    pointerType: string | null;
+  }>({ dragging: false, lastX: 0, lastY: 0, pointerType: null });
   const miniMapRafRef = useRef<number | null>(null);
   const miniMapDrawRef = useRef<() => void>(() => {});
   const selectedNodeIdRef = useRef<string | null>(null);
@@ -413,6 +414,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const longPressTimerRef = useRef<number | null>(null);
   const longPressTriggeredRef = useRef(false);
   const touchDragMovedAtRef = useRef(0);
+  const activeTouchPointsRef = useRef<Map<number, { x: number; y: number }>>(
+    new Map()
+  );
+  const pinchRef = useRef<{
+    active: boolean;
+    startDistance: number;
+    startScale: number;
+  }>({ active: false, startDistance: 0, startScale: 1 });
   const touchPanRef = useRef<{
     active: boolean;
     pointerId: number | null;
@@ -697,15 +706,43 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     const canvas = miniMapRef.current;
     if (!canvas) return;
 
+    const moveViewportToMiniMapPoint = (clientX: number, clientY: number) => {
+      const mind = mindRef.current;
+      const bounds = miniMapBoundsRef.current;
+      const host = elRef.current;
+      if (!mind || !bounds || !host) return;
+
+      const canvasRect = canvas.getBoundingClientRect();
+      const miniX = clientX - canvasRect.left;
+      const miniY = clientY - canvasRect.top;
+      const hostRect = host.getBoundingClientRect();
+      const viewCenterX = hostRect.left + hostRect.width / 2;
+      const viewCenterY = hostRect.top + hostRect.height / 2;
+      const targetX = (miniX - bounds.offsetX) / bounds.scale;
+      const targetY = (miniY - bounds.offsetY) / bounds.scale;
+
+      mind.move(viewCenterX - targetX, viewCenterY - targetY);
+    };
+
     const handlePointerDown = (e: PointerEvent) => {
       miniMapDragRef.current.dragging = true;
       miniMapDragRef.current.lastX = e.clientX;
       miniMapDragRef.current.lastY = e.clientY;
+       miniMapDragRef.current.pointerType = e.pointerType;
       canvas.setPointerCapture(e.pointerId);
+      if (e.pointerType === "touch") {
+        moveViewportToMiniMapPoint(e.clientX, e.clientY);
+      }
     };
 
     const handlePointerMove = (e: PointerEvent) => {
       if (!miniMapDragRef.current.dragging) return;
+      if (miniMapDragRef.current.pointerType === "touch") {
+        moveViewportToMiniMapPoint(e.clientX, e.clientY);
+        miniMapDragRef.current.lastX = e.clientX;
+        miniMapDragRef.current.lastY = e.clientY;
+        return;
+      }
       const mind = mindRef.current;
       const bounds = miniMapBoundsRef.current;
       if (!mind || !bounds) return;
@@ -721,6 +758,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
     const handlePointerUp = (e: PointerEvent) => {
       miniMapDragRef.current.dragging = false;
+      miniMapDragRef.current.pointerType = null;
       canvas.releasePointerCapture(e.pointerId);
     };
 
@@ -812,8 +850,49 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     if (!host) return;
     if (!isTouchDevice) return;
 
+    const getPinchDistance = () => {
+      const points = Array.from(activeTouchPointsRef.current.values());
+      if (points.length < 2) return null;
+      const [a, b] = points;
+      return Math.hypot(b.x - a.x, b.y - a.y);
+    };
+
+    const getPinchCenter = () => {
+      const points = Array.from(activeTouchPointsRef.current.values());
+      if (points.length < 2) return null;
+      const [a, b] = points;
+      return {
+        x: (a.x + b.x) / 2,
+        y: (a.y + b.y) / 2,
+      };
+    };
+
     const handlePointerDown = (e: PointerEvent) => {
       if (e.pointerType !== "touch") return;
+      activeTouchPointsRef.current.set(e.pointerId, {
+        x: e.clientX,
+        y: e.clientY,
+      });
+      if (activeTouchPointsRef.current.size >= 2) {
+        const distance = getPinchDistance();
+        pinchRef.current = {
+          active: Boolean(distance),
+          startDistance: distance ?? 0,
+          startScale:
+            typeof mindRef.current?.scaleVal === "number"
+              ? mindRef.current.scaleVal
+              : 1,
+        };
+        clearLongPressState();
+        touchPanRef.current = {
+          active: false,
+          pointerId: null,
+          x: 0,
+          y: 0,
+          moved: false,
+        };
+        return;
+      }
       touchPanRef.current = {
         active: true,
         pointerId: e.pointerId,
@@ -824,6 +903,34 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     };
 
     const handlePointerMove = (e: PointerEvent) => {
+      if (e.pointerType !== "touch") return;
+      if (activeTouchPointsRef.current.has(e.pointerId)) {
+        activeTouchPointsRef.current.set(e.pointerId, {
+          x: e.clientX,
+          y: e.clientY,
+        });
+      }
+
+      if (activeTouchPointsRef.current.size >= 2 && pinchRef.current.active) {
+        const distance = getPinchDistance();
+        const center = getPinchCenter();
+        const mind = mindRef.current;
+        if (distance && center && mind?.scale) {
+          const ratio = distance / Math.max(1, pinchRef.current.startDistance);
+          const nextScale = pinchRef.current.startScale * ratio;
+          const clamped = Math.min(
+            mind.scaleMax ?? 1.4,
+            Math.max(mind.scaleMin ?? 0.2, nextScale)
+          );
+          if (Math.abs(clamped - (mind.scaleVal ?? 1)) > 0.001) {
+            clearLongPressState();
+            touchDragMovedAtRef.current = Date.now();
+            mind.scale(clamped, center);
+          }
+        }
+        return;
+      }
+
       const state = touchPanRef.current;
       if (!state.active || state.pointerId !== e.pointerId) return;
       const dx = e.clientX - state.x;
@@ -838,18 +945,31 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     };
 
     const handlePointerEnd = (e: PointerEvent) => {
+      if (e.pointerType !== "touch") return;
       const state = touchPanRef.current;
-      if (state.pointerId !== e.pointerId) return;
-      if (state.moved) {
+      activeTouchPointsRef.current.delete(e.pointerId);
+      if (activeTouchPointsRef.current.size < 2) {
+        pinchRef.current = {
+          active: false,
+          startDistance: 0,
+          startScale:
+            typeof mindRef.current?.scaleVal === "number"
+              ? mindRef.current.scaleVal
+              : 1,
+        };
+      }
+      if (state.pointerId === e.pointerId && state.moved) {
         touchDragMovedAtRef.current = Date.now();
       }
-      touchPanRef.current = {
-        active: false,
-        pointerId: null,
-        x: 0,
-        y: 0,
-        moved: false,
-      };
+      if (state.pointerId === e.pointerId || activeTouchPointsRef.current.size === 0) {
+        touchPanRef.current = {
+          active: false,
+          pointerId: null,
+          x: 0,
+          y: 0,
+          moved: false,
+        };
+      }
     };
 
     host.addEventListener("pointerdown", handlePointerDown, { passive: true });
@@ -862,6 +982,12 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       host.removeEventListener("pointermove", handlePointerMove);
       host.removeEventListener("pointerup", handlePointerEnd);
       host.removeEventListener("pointercancel", handlePointerEnd);
+      activeTouchPointsRef.current.clear();
+      pinchRef.current = {
+        active: false,
+        startDistance: 0,
+        startScale: 1,
+      };
     };
   }, [isTouchDevice]);
 
