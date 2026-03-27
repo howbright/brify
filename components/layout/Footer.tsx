@@ -95,7 +95,7 @@ export default function Footer() {
             </div>
             <div className="mt-4 space-y-2 text-[14px] font-medium text-slate-500 dark:text-slate-400">
               <p>
-                {contactEmailLabel}: hello@brify.ai
+                {contactEmailLabel}: hello@brify.app
               </p>
               <p>
                 {contactPhoneLabel}: 031-701-0274
