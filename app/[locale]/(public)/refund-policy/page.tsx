@@ -29,7 +29,18 @@ export default function RefundPolicyPage() {
 
       <section className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold">
-          {isKorean ? "2. 환불 가능 기준" : "2. Eligibility"}
+          {isKorean ? "2. 이용기간" : "2. Validity Period"}
+        </h2>
+        <p>
+          {isKorean
+            ? "유료 크레딧의 이용기간은 결제일로부터 1년입니다."
+            : "Paid credits are valid for 1 year from the payment date."}
+        </p>
+      </section>
+
+      <section className="flex flex-col gap-2">
+        <h2 className="text-lg font-semibold">
+          {isKorean ? "3. 환불 가능 기준" : "3. Eligibility"}
         </h2>
         <p>
           {isKorean
@@ -40,7 +51,7 @@ export default function RefundPolicyPage() {
 
       <section className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold">
-          {isKorean ? "3. 환불 제한" : "3. Limitations"}
+          {isKorean ? "4. 환불 제한" : "4. Limitations"}
         </h2>
         <p>
           {isKorean
@@ -51,7 +62,7 @@ export default function RefundPolicyPage() {
 
       <section className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold">
-          {isKorean ? "4. 예외 환불" : "4. Exception Cases"}
+          {isKorean ? "5. 예외 환불" : "5. Exception Cases"}
         </h2>
         <p>
           {isKorean
@@ -62,7 +73,7 @@ export default function RefundPolicyPage() {
 
       <section className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold">
-          {isKorean ? "5. 환불 요청 방법" : "5. How to Request a Refund"}
+          {isKorean ? "6. 환불 요청 방법" : "6. How to Request a Refund"}
         </h2>
         <p>
           {isKorean
@@ -78,7 +89,7 @@ export default function RefundPolicyPage() {
 
       <section className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold">
-          {isKorean ? "6. 환불 처리 안내" : "6. Refund Processing"}
+          {isKorean ? "7. 환불 처리 안내" : "7. Refund Processing"}
         </h2>
         <p>
           {isKorean
@@ -89,7 +100,7 @@ export default function RefundPolicyPage() {
 
       <section className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold">
-          {isKorean ? "7. 문의처" : "7. Contact"}
+          {isKorean ? "8. 문의처" : "8. Contact"}
         </h2>
         <p>hello@brify.app</p>
         <p className="text-sm text-neutral-600 dark:text-neutral-300">

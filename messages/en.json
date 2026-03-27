@@ -861,7 +861,7 @@
       "q2": "How many credits does a video use?",
       "a2": "Most content uses just 1 credit. Up to 70,000 characters uses 1 credit, 70,001 to 110,000 characters uses 2 credits, and anything over 110,000 characters can't be processed.",
       "q3": "Do credits expire?",
-      "a3": "For now, credits don’t expire. If we ever change this, we’ll give you plenty of notice.",
+      "a3": "Paid credits are valid for 1 year from the payment date. Refund requests are available within 7 days of purchase, and only orders whose credited amount has not been used are eligible for a full refund.",
       "q4": "Will I receive a payment receipt?",
       "a4": "Yes. Lemon Squeezy sends a receipt email after payment. If you have a billing issue and can't find it, contact us and we can help you check the order details."
     },
@@ -919,7 +919,7 @@
       "item2": "• USD payments are processed via LemonSqueezy and your card issuer may charge an additional international fee.",
       "item3": "• Refunded payments are shown with the \"Refunded\" status.",
       "item4": "• Failed payments do not add any credits, and you can try the payment again if needed.",
-      "note": "You can review the refund criteria on the refund policy page. A full refund is available within 7 days of purchase if the credits from that order have not been used."
+      "note": "Paid credits are valid for 1 year from the payment date, and you can review the refund criteria on the refund policy page. A full refund is available within 7 days of purchase if the credits from that order have not been used."
     }
   },
   "BillingCreditsPage": {

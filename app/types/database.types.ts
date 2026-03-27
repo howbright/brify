@@ -14,6 +14,111 @@ export type Database = {
   }
   public: {
     Tables: {
+      credit_lot_consumptions: {
+        Row: {
+          created_at: string
+          credit_transaction_id: string
+          id: string
+          lot_id: string
+          metadata: Json
+          reference_id: string | null
+          reference_table: string | null
+          usage_type: Database["public"]["Enums"]["credit_usage_type"]
+          used_credits: number
+        }
+        Insert: {
+          created_at?: string
+          credit_transaction_id: string
+          id?: string
+          lot_id: string
+          metadata?: Json
+          reference_id?: string | null
+          reference_table?: string | null
+          usage_type: Database["public"]["Enums"]["credit_usage_type"]
+          used_credits: number
+        }
+        Update: {
+          created_at?: string
+          credit_transaction_id?: string
+          id?: string
+          lot_id?: string
+          metadata?: Json
+          reference_id?: string | null
+          reference_table?: string | null
+          usage_type?: Database["public"]["Enums"]["credit_usage_type"]
+          used_credits?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_lot_consumptions_credit_transaction_id_fkey"
+            columns: ["credit_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "credit_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_lot_consumptions_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "credit_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_lots: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          original_credits: number
+          payment_id: string
+          remaining_credits: number
+          source: Database["public"]["Enums"]["credit_transaction_source"]
+          status: Database["public"]["Enums"]["credit_lot_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          original_credits: number
+          payment_id: string
+          remaining_credits: number
+          source: Database["public"]["Enums"]["credit_transaction_source"]
+          status?: Database["public"]["Enums"]["credit_lot_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          original_credits?: number
+          payment_id?: string
+          remaining_credits?: number
+          source?: Database["public"]["Enums"]["credit_transaction_source"]
+          status?: Database["public"]["Enums"]["credit_lot_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_lots_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: true
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_lots_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_packs: {
         Row: {
           created_at: string
@@ -522,6 +627,7 @@ export type Database = {
           id: string
           locale: string | null
           mind_theme_preference: string | null
+          role: Database["public"]["Enums"]["profile_role"]
           terms_accepted: boolean
         }
         Insert: {
@@ -532,6 +638,7 @@ export type Database = {
           id: string
           locale?: string | null
           mind_theme_preference?: string | null
+          role?: Database["public"]["Enums"]["profile_role"]
           terms_accepted?: boolean
         }
         Update: {
@@ -542,6 +649,7 @@ export type Database = {
           id?: string
           locale?: string | null
           mind_theme_preference?: string | null
+          role?: Database["public"]["Enums"]["profile_role"]
           terms_accepted?: boolean
         }
         Relationships: []
@@ -644,6 +752,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      credit_lot_status: "active" | "depleted" | "expired" | "refunded"
       credit_transaction_source:
         | "lemon_squeezy"
         | "toss"
@@ -657,6 +766,13 @@ export type Database = {
         | "refund"
         | "adjustment"
         | "expire"
+      credit_usage_type:
+        | "map_generation"
+        | "summary_generation"
+        | "export"
+        | "feature_access"
+        | "admin_adjustment"
+        | "system_deduction"
       currency_code: "krw" | "usd"
       map_extract_status:
         | "idle"
@@ -703,6 +819,7 @@ export type Database = {
         | "refunded"
         | "part_refunded"
         | "canceled"
+      profile_role: "ADMIN" | "USER"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -830,6 +947,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      credit_lot_status: ["active", "depleted", "expired", "refunded"],
       credit_transaction_source: [
         "lemon_squeezy",
         "toss",
@@ -844,6 +962,14 @@ export const Constants = {
         "refund",
         "adjustment",
         "expire",
+      ],
+      credit_usage_type: [
+        "map_generation",
+        "summary_generation",
+        "export",
+        "feature_access",
+        "admin_adjustment",
+        "system_deduction",
       ],
       currency_code: ["krw", "usd"],
       map_extract_status: [
@@ -896,6 +1022,7 @@ export const Constants = {
         "part_refunded",
         "canceled",
       ],
+      profile_role: ["ADMIN", "USER"],
     },
   },
 } as const

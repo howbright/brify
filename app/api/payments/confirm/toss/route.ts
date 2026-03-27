@@ -11,6 +11,12 @@ type ConfirmBody = {
   amount?: number | string;
 };
 
+function buildCreditLotExpiry(paidAt: string) {
+  const expiryDate = new Date(paidAt);
+  expiryDate.setUTCFullYear(expiryDate.getUTCFullYear() + 1);
+  return expiryDate.toISOString();
+}
+
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const {
@@ -51,7 +57,7 @@ export async function POST(req: NextRequest) {
 
   const { data: payment, error: paymentError } = await adminSupabase
     .from("payments")
-    .select("id, user_id, provider, provider_order_id, amount, credits, currency, status, credit_pack_id")
+    .select("id, user_id, provider, provider_order_id, amount, credits, currency, status, credit_pack_id, paid_at, receipt_url")
     .eq("provider", "toss")
     .eq("provider_order_id", orderId)
     .single();
@@ -64,15 +70,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  if (payment.status === "paid") {
-    return NextResponse.json({
-      ok: true,
-      alreadyConfirmed: true,
-      paymentId: payment.id,
-    });
-  }
-
-  if (payment.status !== "pending") {
+  if (payment.status !== "pending" && payment.status !== "paid") {
     return NextResponse.json(
       { error: `Payment is not pending: ${payment.status}` },
       { status: 400 }
@@ -86,83 +84,135 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const authorization = Buffer.from(`${secretKey}:`).toString("base64");
+  let approvedAt = payment.paid_at ?? new Date().toISOString();
+  let receiptUrl = payment.receipt_url ?? null;
+  const alreadyConfirmed = payment.status === "paid";
 
-  const tossRes = await fetch("https://api.tosspayments.com/v1/payments/confirm", {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${authorization}`,
-      "Content-Type": "application/json",
-      "Idempotency-Key": orderId,
-    },
-    body: JSON.stringify({
-      paymentKey,
-      orderId,
-      amount,
-    }),
-  });
+  if (!alreadyConfirmed) {
+    const authorization = Buffer.from(`${secretKey}:`).toString("base64");
 
-  const tossPayload = (await tossRes.json()) as Record<string, unknown>;
+    const tossRes = await fetch("https://api.tosspayments.com/v1/payments/confirm", {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${authorization}`,
+        "Content-Type": "application/json",
+        "Idempotency-Key": orderId,
+      },
+      body: JSON.stringify({
+        paymentKey,
+        orderId,
+        amount,
+      }),
+    });
 
-  if (!tossRes.ok) {
-    await adminSupabase
+    const tossPayload = (await tossRes.json()) as Record<string, unknown>;
+
+    if (!tossRes.ok) {
+      await adminSupabase
+        .from("payments")
+        .update({
+          status: "failed",
+          raw_payload: tossPayload as Json,
+        })
+        .eq("id", payment.id);
+
+      return NextResponse.json(
+        {
+          error: typeof tossPayload.message === "string"
+            ? tossPayload.message
+            : "Failed to confirm payment",
+          code: tossPayload.code,
+        },
+        { status: tossRes.status }
+      );
+    }
+
+    approvedAt =
+      typeof tossPayload.approvedAt === "string"
+        ? tossPayload.approvedAt
+        : new Date().toISOString();
+
+    const receipt =
+      tossPayload.receipt &&
+      typeof tossPayload.receipt === "object" &&
+      "url" in tossPayload.receipt
+        ? tossPayload.receipt
+        : null;
+
+    receiptUrl =
+      receipt && typeof receipt.url === "string"
+        ? receipt.url
+        : null;
+
+    const providerCustomerId =
+      typeof tossPayload.customerKey === "string"
+        ? tossPayload.customerKey
+        : null;
+
+    const { error: paymentUpdateError } = await adminSupabase
       .from("payments")
       .update({
-        status: "failed",
+        status: "paid",
+        paid_at: approvedAt,
+        receipt_url: receiptUrl,
+        provider_customer_id: providerCustomerId,
         raw_payload: tossPayload as Json,
       })
       .eq("id", payment.id);
 
+    if (paymentUpdateError) {
+      console.error("Failed to update payment after Toss confirm:", paymentUpdateError.message);
+      return NextResponse.json(
+        { error: "Failed to update payment record" },
+        { status: 500 }
+      );
+    }
+  }
+
+  const { data: existingLot, error: existingLotError } = await adminSupabase
+    .from("credit_lots")
+    .select("id")
+    .eq("payment_id", payment.id)
+    .maybeSingle();
+
+  if (existingLotError) {
+    console.error("Failed to load credit lot:", existingLotError.message);
     return NextResponse.json(
-      {
-        error: typeof tossPayload.message === "string"
-          ? tossPayload.message
-          : "Failed to confirm payment",
-        code: tossPayload.code,
-      },
-      { status: tossRes.status }
+      { error: "Failed to load credit lot" },
+      { status: 500 }
     );
   }
 
-  const approvedAt =
-    typeof tossPayload.approvedAt === "string"
-      ? tossPayload.approvedAt
-      : new Date().toISOString();
+  if (!existingLot) {
+    const { error: lotInsertError } = await adminSupabase
+      .from("credit_lots")
+      .insert({
+        user_id: user.id,
+        payment_id: payment.id,
+        source: "toss",
+        original_credits: payment.credits,
+        remaining_credits: payment.credits,
+        expires_at: buildCreditLotExpiry(approvedAt),
+        status: "active",
+      });
 
-  const receipt =
-    tossPayload.receipt &&
-    typeof tossPayload.receipt === "object" &&
-    "url" in tossPayload.receipt
-      ? tossPayload.receipt
-      : null;
+    if (lotInsertError) {
+      console.error("Failed to create credit lot:", lotInsertError.message);
+      return NextResponse.json(
+        { error: "Failed to create credit lot" },
+        { status: 500 }
+      );
+    }
+  }
 
-  const receiptUrl =
-    receipt && typeof receipt.url === "string"
-      ? receipt.url
-      : null;
-
-  const providerCustomerId =
-    typeof tossPayload.customerKey === "string"
-      ? tossPayload.customerKey
-      : null;
-
-  const { error: paymentUpdateError } = await adminSupabase
-    .from("payments")
-    .update({
-      status: "paid",
-      paid_at: approvedAt,
-      receipt_url: receiptUrl,
-      provider_customer_id: providerCustomerId,
-      raw_payload: tossPayload as Json,
-    })
-    .eq("id", payment.id);
-
-  if (paymentUpdateError) {
-    console.error("Failed to update payment after Toss confirm:", paymentUpdateError.message);
-    return NextResponse.json(
-      { error: "Failed to update payment record" },
-      { status: 500 }
-    );
+  if (alreadyConfirmed) {
+    return NextResponse.json({
+      ok: true,
+      alreadyConfirmed: true,
+      paymentId: payment.id,
+      receiptUrl,
+      chargedCredits: payment.credits,
+    });
   }
 
   const { data: profile, error: profileError } = await adminSupabase
