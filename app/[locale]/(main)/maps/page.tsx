@@ -325,9 +325,11 @@ export default function MapsPage() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const [mobileTagSheetOpen, setMobileTagSheetOpen] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [previewById, setPreviewById] = useState<
     Record<string, { status: "idle" | "loading" | "loaded" | "missing" | "error"; data: any | null }>
   >({});
+  const effectiveViewMode = isMobileViewport ? "card" : viewMode;
 
   const dateRange = useMemo(() => {
     if (datePreset === "all") return { from: null, to: null };
@@ -379,6 +381,26 @@ export default function MapsPage() {
   const router = useRouter();
   const params = useParams();
   const locale = typeof params?.locale === "string" ? params.locale : null;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mediaQuery = window.matchMedia("(max-width: 1023px)");
+    const syncViewport = () => {
+      setIsMobileViewport(mediaQuery.matches);
+    };
+
+    syncViewport();
+    mediaQuery.addEventListener("change", syncViewport);
+    return () => mediaQuery.removeEventListener("change", syncViewport);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobileViewport) return;
+    if (previewOpen) setPreviewOpen(false);
+    if (mobilePreviewOpen) setMobilePreviewOpen(false);
+    if (viewMode !== "card") setViewMode("card");
+  }, [isMobileViewport, mobilePreviewOpen, previewOpen, viewMode]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -1110,6 +1132,7 @@ export default function MapsPage() {
               datePreset={datePreset}
               previewOpen={previewOpen}
               onTogglePreview={() => {
+                if (isMobileViewport) return;
                 const next = !previewOpen;
                 if (next && selectionMode) {
                   setSelectionMode(false);
@@ -1150,6 +1173,8 @@ export default function MapsPage() {
               }}
               viewMode={viewMode}
               onViewModeChange={setViewMode}
+              hidePreviewToggle={isMobileViewport}
+              hideViewModeToggle={isMobileViewport}
               sort={sort}
               onSortChange={(value) => {
                 setSort(value);
@@ -1253,7 +1278,7 @@ export default function MapsPage() {
 
             {loading && (
               <>
-                {viewMode === "card" ? (
+                {effectiveViewMode === "card" ? (
                   <MapCardListSkeleton />
                 ) : (
                   <MapTableListSkeleton />
@@ -1263,7 +1288,7 @@ export default function MapsPage() {
 
             {!loading && !error && hasResults && (
               <>
-                {viewMode === "card" ? (
+                {effectiveViewMode === "card" ? (
                   <MapCardList
                     drafts={filteredDrafts}
                     selectedId={selectedId}
@@ -1419,7 +1444,7 @@ export default function MapsPage() {
       )}
 
       {/* Mobile bottom sheet preview */}
-      <div className={`lg:hidden ${previewOpen ? "" : "hidden"}`}>
+      <div className={`lg:hidden ${previewOpen && !isMobileViewport ? "" : "hidden"}`}>
         <div
           className={`fixed inset-0 z-40 bg-black/25 transition-opacity ${
             mobilePreviewOpen ? "opacity-100" : "pointer-events-none opacity-0"

@@ -36,6 +36,8 @@ type MapListToolbarProps = {
   showResetFilters: boolean;
   onResetFilters: () => void;
   filterPopover?: ReactNode;
+  hidePreviewToggle?: boolean;
+  hideViewModeToggle?: boolean;
 };
 
 export default function MapListToolbar({
@@ -67,6 +69,8 @@ export default function MapListToolbar({
   showResetFilters,
   onResetFilters,
   filterPopover,
+  hidePreviewToggle = false,
+  hideViewModeToggle = false,
 }: MapListToolbarProps) {
   return (
     <div className="md:sticky md:top-0 md:z-20 md:-mx-2 md:px-2 md:pb-3 md:pt-0 md: md:supports-[backdrop-filter]:bg-transparent dark:md:supports-[backdrop-filter]:bg-transparent">
@@ -131,14 +135,16 @@ export default function MapListToolbar({
                 : dateLabel.replace("지난", "최근")}
             </span>
             <div className="flex flex-wrap items-center gap-2 md:flex-nowrap">
-            <button
-              type="button"
-              onClick={onTogglePreview}
-              className="inline-flex min-h-9 items-center gap-2 rounded-full border border-neutral-700 bg-neutral-700 px-3 py-1.5 text-[13px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/25 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:px-4 md:py-2 md:text-sm"
-            >
-              <Icon icon="mdi:eye-outline" className="h-4 w-4" />
-              {previewOpen ? "프리뷰 끄기" : "프리뷰 켜기"}
-            </button>
+            {!hidePreviewToggle && (
+              <button
+                type="button"
+                onClick={onTogglePreview}
+                className="inline-flex min-h-9 items-center gap-2 rounded-full border border-neutral-700 bg-neutral-700 px-3 py-1.5 text-[13px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/25 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:px-4 md:py-2 md:text-sm"
+              >
+                <Icon icon="mdi:eye-outline" className="h-4 w-4" />
+                {previewOpen ? "프리뷰 끄기" : "프리뷰 켜기"}
+              </button>
+            )}
             <button
               type="button"
               onClick={onToggleTagOrganize}
@@ -183,30 +189,32 @@ export default function MapListToolbar({
           </div>
 
           <div className="relative flex w-full items-center gap-2 md:w-auto md:flex-nowrap">
-            <div className="inline-flex min-w-0 shrink-0 rounded-full border border-slate-600 bg-white text-[13px] font-semibold text-neutral-800 shadow-sm overflow-hidden dark:border-white/25 dark:bg-white/[0.06] dark:text-white/85 md:text-sm">
-              <button
-                type="button"
-                onClick={() => onViewModeChange("card")}
-                className={`px-3 py-1.5 md:px-4 md:py-2 ${
-                  viewMode === "card"
-                    ? "bg-neutral-700 text-white"
-                    : "hover:bg-neutral-50 dark:hover:bg-white/10"
-                }`}
-              >
-                카드
-              </button>
-              <button
-                type="button"
-                onClick={() => onViewModeChange("table")}
-                className={`px-3 py-1.5 md:px-4 md:py-2 ${
-                  viewMode === "table"
-                    ? "bg-neutral-700 text-white"
-                    : "hover:bg-neutral-50 dark:hover:bg-white/10"
-                }`}
-              >
-                테이블
-              </button>
-            </div>
+            {!hideViewModeToggle && (
+              <div className="inline-flex min-w-0 shrink-0 overflow-hidden rounded-full border border-slate-600 bg-white text-[13px] font-semibold text-neutral-800 shadow-sm dark:border-white/25 dark:bg-white/[0.06] dark:text-white/85 md:text-sm">
+                <button
+                  type="button"
+                  onClick={() => onViewModeChange("card")}
+                  className={`px-3 py-1.5 md:px-4 md:py-2 ${
+                    viewMode === "card"
+                      ? "bg-neutral-700 text-white"
+                      : "hover:bg-neutral-50 dark:hover:bg-white/10"
+                  }`}
+                >
+                  카드
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onViewModeChange("table")}
+                  className={`px-3 py-1.5 md:px-4 md:py-2 ${
+                    viewMode === "table"
+                      ? "bg-neutral-700 text-white"
+                      : "hover:bg-neutral-50 dark:hover:bg-white/10"
+                  }`}
+                >
+                  테이블
+                </button>
+              </div>
+            )}
             <label className="sr-only" htmlFor="maps-sort">
               정렬
             </label>

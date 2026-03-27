@@ -110,6 +110,8 @@ export default function MapListItem({
 
   const summary =
     draft.summary ?? draft.description ?? "요약이 아직 없어요.";
+  const visibleTags = draft.tags?.slice(0, 6) ?? [];
+  const remainingTagCount = Math.max((draft.tags?.length ?? 0) - visibleTags.length, 0);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -158,9 +160,9 @@ export default function MapListItem({
             : "border-slate-400 bg-white hover:bg-neutral-50 dark:border-white/20 dark:bg-[#0f172a]/40 dark:hover:bg-white/[0.05]"
         }`}
     >
-      <div className="flex items-start justify-between gap-4 min-w-0">
+      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 items-start gap-3">
-          <div className="w-20 shrink-0 overflow-hidden rounded-xl border border-slate-400 bg-neutral-50 aspect-video dark:border-white/20 dark:bg-white/[0.04]">
+          <div className="aspect-video w-24 shrink-0 overflow-hidden rounded-xl border border-slate-400 bg-neutral-50 dark:border-white/20 dark:bg-white/[0.04] sm:w-20">
             {draft.thumbnailUrl ? (
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -177,8 +179,8 @@ export default function MapListItem({
               </div>
             )}
           </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap min-w-0">
+          <div className="min-w-0 flex-1">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
               {selectionMode && (
                 <input
                   type="checkbox"
@@ -189,9 +191,12 @@ export default function MapListItem({
                   aria-label={`${draft.title} 선택`}
                 />
               )}
-              <h3 className="text-base font-semibold text-neutral-900 dark:text-white line-clamp-1">
+              <h3 className="min-w-0 text-[16px] font-semibold leading-5 text-neutral-900 line-clamp-2 dark:text-white sm:text-base sm:line-clamp-1">
                 {draft.title}
               </h3>
+            </div>
+
+            <div className="mt-1.5 flex flex-wrap items-center gap-2">
               {sourceBadge && (
                 <span
                   className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${sourceBadge.cls} ${sourceBadge.darkCls}`}
@@ -199,14 +204,22 @@ export default function MapListItem({
                   {sourceBadge.label}
                 </span>
               )}
+              {statusBadge && (
+                <span
+                  className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${statusBadge.cls} ${statusBadge.darkCls}`}
+                >
+                  {statusBadge.text}
+                </span>
+              )}
             </div>
-            <p className="mt-1 text-sm text-neutral-600 dark:text-white/70 line-clamp-1">
+
+            <p className="mt-2 text-[13px] leading-5 text-neutral-600 line-clamp-3 dark:text-white/70 sm:text-sm sm:line-clamp-2">
               {summary}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center justify-end gap-2 sm:shrink-0">
           {onOpenDetail && showOpenDetail && (
             <button
               type="button"
@@ -214,18 +227,11 @@ export default function MapListItem({
                 event.stopPropagation();
                 onOpenDetail(draft);
               }}
-              className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-2.5 py-1 text-[12px] font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
+              className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
             >
               <Icon icon="mdi:open-in-new" className="h-3.5 w-3.5" />
               열기
             </button>
-          )}
-          {statusBadge && (
-            <span
-              className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${statusBadge.cls} ${statusBadge.darkCls}`}
-            >
-              {statusBadge.text}
-            </span>
           )}
 
           {onDelete && (
@@ -274,21 +280,21 @@ export default function MapListItem({
         </div>
       </div>
 
-      <div className="mt-2 flex items-center gap-2 min-w-0">
-        <div className="flex flex-nowrap gap-1.5 overflow-hidden min-w-0">
-          {draft.tags?.length ? (
+      <div className="mt-3 flex min-w-0 flex-col gap-2 sm:mt-2">
+        <div className="flex min-w-0 flex-wrap gap-1.5">
+          {visibleTags.length ? (
             <>
-              {draft.tags.slice(0, 4).map((tag) => (
+              {visibleTags.map((tag) => (
                 <span
                   key={tag}
-                  className="max-w-[140px] truncate rounded-full border border-slate-400 bg-neutral-50 px-2.5 py-1 text-[12px] font-medium text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
+                  className="max-w-full break-all rounded-full border border-slate-400 bg-neutral-50 px-2.5 py-1 text-[12px] font-medium leading-4 text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 sm:max-w-[160px] sm:truncate sm:break-normal"
                 >
                   #{tag}
                 </span>
               ))}
-              {draft.tags.length > 4 && (
+              {remainingTagCount > 0 && (
                 <span className="rounded-full border border-slate-400 bg-neutral-50 px-2.5 py-1 text-[12px] font-medium text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/70">
-                  +{draft.tags.length - 4}
+                  +{remainingTagCount}
                 </span>
               )}
             </>
