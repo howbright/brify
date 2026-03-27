@@ -12,9 +12,11 @@ type Labels = {
 type Props = {
   showActionBar: boolean;
   labels: Labels;
+  title?: string;
   disableAddSibling?: boolean;
   disableRename?: boolean;
   disableRemove?: boolean;
+  onClose?: () => void;
   onAddChild: () => void;
   onAddSibling: () => void;
   onRename: () => void;
@@ -24,9 +26,11 @@ type Props = {
 export default function MindElixirMobileControls({
   showActionBar,
   labels,
+  title = "Edit menu",
   disableAddSibling = false,
   disableRename = false,
   disableRemove = false,
+  onClose,
   onAddChild,
   onAddSibling,
   onRename,
@@ -39,11 +43,26 @@ export default function MindElixirMobileControls({
     <>
       {showActionBar && (
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30">
-          <div className="absolute inset-0 bg-black/18" />
+          <button
+            type="button"
+            aria-label="Close menu"
+            className="pointer-events-auto absolute inset-0 bg-black/18"
+            onClick={onClose}
+          />
           <div className="pointer-events-auto relative mx-auto w-full max-w-md rounded-t-[28px] border border-b-0 border-neutral-200 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-20px_44px_-28px_rgba(15,23,42,0.38)]">
             <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-neutral-300" />
-            <div className="mb-2 px-1 text-[13px] font-medium text-neutral-500">
-              편집 메뉴
+            <div className="mb-2 flex items-center justify-between px-1">
+              <div className="text-[13px] font-medium text-neutral-500">
+                {title}
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
+                aria-label="Close menu"
+              >
+                <Icon icon="mdi:close" className="h-4 w-4" />
+              </button>
             </div>
             <div className="flex flex-col gap-2">
             <button

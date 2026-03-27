@@ -130,6 +130,7 @@ export default function FullscreenDialog({
   const searchIndexRef = useRef(0);
   const lastStepAtRef = useRef(0);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(false);
   const [mobileMapActionsOpen, setMobileMapActionsOpen] = useState(false);
   const [mobileThemeOpen, setMobileThemeOpen] = useState(false);
   const mobileMapActionsRef = useRef<HTMLDivElement | null>(null);
@@ -181,6 +182,8 @@ export default function FullscreenDialog({
   useEffect(() => {
     if (isTutorialMobile) {
       setEditMode("edit");
+      setPanMode(false);
+      setMobileToolbarCollapsed(true);
     }
   }, [isTutorialMobile]);
 
@@ -612,69 +615,80 @@ export default function FullscreenDialog({
           <div className="pointer-events-auto absolute right-3 top-3 z-[25] flex flex-col gap-2 sm:hidden">
             <button
               type="button"
-              onClick={() => setPanMode((v) => !v)}
+              onClick={() => {
+                setMobileToolbarCollapsed((v) => !v);
+                setMobileMapActionsOpen(false);
+                setMobileThemeOpen(false);
+              }}
               className="
                 inline-flex h-9 w-9 items-center justify-center rounded-2xl
                 border border-slate-400 bg-white/95 text-neutral-700 shadow-md
                 dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
               "
-              aria-label={panMode ? "선택 모드" : "이동 모드"}
-              title={panMode ? "선택 모드" : "이동 모드"}
+              aria-label={mobileToolbarCollapsed ? "도구 펼치기" : "도구 접기"}
+              title={mobileToolbarCollapsed ? "도구 펼치기" : "도구 접기"}
             >
-              <Icon icon={panMode ? "mdi:arrow-top-left" : "mdi:hand-back-left"} className="h-4 w-4" />
+              <Icon
+                icon={mobileToolbarCollapsed ? "mdi:chevron-left" : "mdi:chevron-right"}
+                className="h-4 w-4"
+              />
             </button>
-            <button
-              type="button"
-              onClick={() => mindRef.current?.centerMap?.()}
-              className="
-                inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                border border-slate-400 bg-white/95 text-neutral-700 shadow-md
-                dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
-              "
-              aria-label="가운데로"
-              title="가운데로"
-            >
-              <Icon icon="mdi:crosshairs-gps" className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => mindRef.current?.zoomIn?.()}
-              className="
-                inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                border border-slate-400 bg-white/95 text-neutral-700 shadow-md
-                dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
-              "
-              aria-label="확대"
-              title="확대"
-            >
-              <Icon icon="mdi:plus" className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => mindRef.current?.zoomOut?.()}
-              className="
-                inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                border border-slate-400 bg-white/95 text-neutral-700 shadow-md
-                dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
-              "
-              aria-label="축소"
-              title="축소"
-            >
-              <Icon icon="mdi:minus" className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => mindRef.current?.collapseAll?.()}
-              className="
-                inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                border border-slate-400 bg-white/95 text-neutral-700 shadow-md
-                dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
-              "
-              aria-label="전체 접기"
-              title="전체 접기"
-            >
-              <Icon icon="mdi:collapse-all-outline" className="h-4 w-4" />
-            </button>
+            {!mobileToolbarCollapsed ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => mindRef.current?.centerMap?.()}
+                  className="
+                    inline-flex h-9 w-9 items-center justify-center rounded-2xl
+                    border border-slate-400 bg-white/95 text-neutral-700 shadow-md
+                    dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
+                  "
+                  aria-label="가운데로"
+                  title="가운데로"
+                >
+                  <Icon icon="mdi:crosshairs-gps" className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => mindRef.current?.zoomIn?.()}
+                  className="
+                    inline-flex h-9 w-9 items-center justify-center rounded-2xl
+                    border border-slate-400 bg-white/95 text-neutral-700 shadow-md
+                    dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
+                  "
+                  aria-label="확대"
+                  title="확대"
+                >
+                  <Icon icon="mdi:plus" className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => mindRef.current?.zoomOut?.()}
+                  className="
+                    inline-flex h-9 w-9 items-center justify-center rounded-2xl
+                    border border-slate-400 bg-white/95 text-neutral-700 shadow-md
+                    dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
+                  "
+                  aria-label="축소"
+                  title="축소"
+                >
+                  <Icon icon="mdi:minus" className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => mindRef.current?.collapseAll?.()}
+                  className="
+                    inline-flex h-9 w-9 items-center justify-center rounded-2xl
+                    border border-slate-400 bg-white/95 text-neutral-700 shadow-md
+                    dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
+                  "
+                  aria-label="전체 접기"
+                  title="전체 접기"
+                >
+                  <Icon icon="mdi:collapse-all-outline" className="h-4 w-4" />
+                </button>
+              </>
+            ) : null}
 
             <div className="relative" ref={mobileMapActionsRef}>
               <button

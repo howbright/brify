@@ -1,6 +1,7 @@
 "use client";
 
-import type { RefObject } from "react";
+import { useEffect, useState, type RefObject } from "react";
+import { Icon } from "@iconify/react";
 
 type Props = {
   show: boolean;
@@ -13,17 +14,54 @@ export default function MindElixirMiniMap({
   label,
   canvasRef,
 }: Props) {
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    const detectTouchDevice = () => {
+      const hasCoarsePointer =
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(pointer: coarse)").matches;
+      const hasTouchPoints =
+        typeof navigator !== "undefined" && navigator.maxTouchPoints > 0;
+      const touch = hasCoarsePointer || hasTouchPoints;
+      setIsTouchDevice(touch);
+      setCollapsed((prev) => (prev ? prev : touch));
+    };
+
+    detectTouchDevice();
+    window.addEventListener("resize", detectTouchDevice);
+    return () => window.removeEventListener("resize", detectTouchDevice);
+  }, []);
+
   if (!show) return null;
 
   return (
     <div className="pointer-events-auto absolute bottom-6 right-4 z-20 rounded-xl border border-neutral-200 bg-white/90 p-2 shadow-sm dark:border-white/45 dark:bg-[#0b1220]/82 dark:shadow-[0_16px_42px_-24px_rgba(15,23,42,0.92)]">
-      <div className="text-[14px] font-bold text-neutral-600 dark:text-white/88">
-        {label}
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-[14px] font-bold text-neutral-600 dark:text-white/88">
+          {label}
+        </div>
+        {isTouchDevice ? (
+          <button
+            type="button"
+            onClick={() => setCollapsed((prev) => !prev)}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
+            aria-label={collapsed ? "Expand mini map" : "Collapse mini map"}
+          >
+            <Icon
+              icon={collapsed ? "mdi:chevron-up" : "mdi:chevron-down"}
+              className="h-4 w-4"
+            />
+          </button>
+        ) : null}
       </div>
-      <canvas
-        ref={canvasRef}
-        className="mt-1 h-[132px] w-[176px] touch-none select-none"
-      />
+      {!collapsed ? (
+        <canvas
+          ref={canvasRef}
+          className="mt-1 h-[132px] w-[176px] touch-none select-none"
+        />
+      ) : null}
     </div>
   );
 }

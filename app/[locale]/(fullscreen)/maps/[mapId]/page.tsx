@@ -176,6 +176,7 @@ export default function MapDetailPage() {
   const [shareToken, setShareToken] = useState<string | null>(null);
   const [mobileMapActionsOpen, setMobileMapActionsOpen] = useState(false);
   const [mobileThemeOpen, setMobileThemeOpen] = useState(false);
+  const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(false);
   const mobileMapActionsRef = useRef<HTMLDivElement | null>(null);
   const mobileThemeRef = useRef<HTMLDivElement | null>(null);
   const [tutorialOpen, setTutorialOpen] = useState(false);
@@ -329,6 +330,8 @@ export default function MapDetailPage() {
   useEffect(() => {
     if (isTutorialMobile) {
       setEditMode("edit");
+      setPanMode(false);
+      setMobileToolbarCollapsed(true);
     }
   }, [isTutorialMobile]);
   const initialMapData = useMemo(
@@ -1056,85 +1059,92 @@ export default function MapDetailPage() {
         <div className="pointer-events-auto absolute right-3 top-3 z-[25] flex flex-col gap-2 sm:hidden">
           <button
             type="button"
-            onClick={() => setPanMode((v) => !v)}
+            onClick={() => {
+              setMobileToolbarCollapsed((v) => !v);
+              setMobileMapActionsOpen(false);
+              setMobileThemeOpen(false);
+            }}
             className="
               inline-flex h-9 w-9 items-center justify-center rounded-2xl
               border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
               dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
             "
-            aria-label={panMode ? "선택 모드" : "이동 모드"}
-            title={panMode ? "선택 모드" : "이동 모드"}
+            aria-label={mobileToolbarCollapsed ? "도구 펼치기" : "도구 접기"}
+            title={mobileToolbarCollapsed ? "도구 펼치기" : "도구 접기"}
           >
-            <Icon icon={panMode ? "mdi:arrow-top-left" : "mdi:hand-back-left"} className="h-4 w-4" />
+            <Icon
+              icon={mobileToolbarCollapsed ? "mdi:chevron-left" : "mdi:chevron-right"}
+              className="h-4 w-4"
+            />
           </button>
-          <button
-            type="button"
-            onClick={() => mindRef.current?.centerMap?.()}
-            className="
-              inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-            "
-            aria-label="가운데로"
-            title="가운데로"
-          >
-            <Icon icon="mdi:crosshairs-gps" className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => mindRef.current?.zoomIn?.()}
-            className="
-              inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-            "
-            aria-label="확대"
-            title="확대"
-          >
-            <Icon icon="mdi:plus" className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => mindRef.current?.zoomOut?.()}
-            className="
-              inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-            "
-            aria-label="축소"
-            title="축소"
-          >
-            <Icon icon="mdi:minus" className="h-4 w-4" />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => mindRef.current?.collapseAll?.()}
-            className="
-              inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-            "
-            aria-label="전체 접기"
-            title="전체 접기"
-          >
-            <Icon icon="mdi:collapse-all-outline" className="h-4 w-4" />
-          </button>
-
-          <div className="relative" ref={mobileMapActionsRef}>
-            <button
-              type="button"
-              onClick={() => setMobileMapActionsOpen((v) => !v)}
-              className="
-                inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-                dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-              "
-              aria-label="맵 조작"
-              title="맵 조작"
-            >
-              <Icon icon="mdi:vector-polyline" className="h-4 w-4" />
-            </button>
+          {!mobileToolbarCollapsed ? (
+            <>
+              <button
+                type="button"
+                onClick={() => mindRef.current?.centerMap?.()}
+                className="
+                  inline-flex h-9 w-9 items-center justify-center rounded-2xl
+                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
+                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+                "
+                aria-label="가운데로"
+                title="가운데로"
+              >
+                <Icon icon="mdi:crosshairs-gps" className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => mindRef.current?.zoomIn?.()}
+                className="
+                  inline-flex h-9 w-9 items-center justify-center rounded-2xl
+                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
+                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+                "
+                aria-label="확대"
+                title="확대"
+              >
+                <Icon icon="mdi:plus" className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => mindRef.current?.zoomOut?.()}
+                className="
+                  inline-flex h-9 w-9 items-center justify-center rounded-2xl
+                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
+                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+                "
+                aria-label="축소"
+                title="축소"
+              >
+                <Icon icon="mdi:minus" className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => mindRef.current?.collapseAll?.()}
+                className="
+                  inline-flex h-9 w-9 items-center justify-center rounded-2xl
+                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
+                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+                "
+                aria-label="전체 접기"
+                title="전체 접기"
+              >
+                <Icon icon="mdi:collapse-all-outline" className="h-4 w-4" />
+              </button>
+              <div className="relative" ref={mobileMapActionsRef}>
+                <button
+                  type="button"
+                  onClick={() => setMobileMapActionsOpen((v) => !v)}
+                  className="
+                    inline-flex h-9 w-9 items-center justify-center rounded-2xl
+                    border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
+                    dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+                  "
+                  aria-label="맵 조작"
+                  title="맵 조작"
+                >
+                  <Icon icon="mdi:vector-polyline" className="h-4 w-4" />
+                </button>
 
             {mobileMapActionsOpen && (
               <div className="absolute right-full mr-2 top-0 w-[160px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
@@ -1198,99 +1208,101 @@ export default function MapDetailPage() {
                     className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
                   >
                     가운데 정렬
-                  </button>
-                </div>
-              )}
-            </div>
-
-          <div className="relative" ref={mobileThemeRef}>
-            <button
-              type="button"
-              onClick={() => setMobileThemeOpen((v) => !v)}
-              className="
-                inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-                dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-              "
-              aria-label="테마"
-              title="테마"
-            >
-              <Icon icon="mdi:palette-outline" className="h-4 w-4" />
-            </button>
-            {mobileThemeOpen && (
-              <div className="absolute right-full mr-2 top-0 w-[180px] rounded-2xl border border-neutral-200 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
-                <div className="text-[11px] font-semibold text-neutral-500 dark:text-white/60">
-                  테마
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {themeOptions.map((theme) => (
-                    <button
-                      key={theme.name}
-                      type="button"
-                      onClick={() => {
-                        handleSelectTheme(theme.name);
-                        setMobileThemeOpen(false);
-                      }}
-                      className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold ${
-                        theme.name === themeName
-                          ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-300/40 dark:bg-blue-500/10 dark:text-blue-50/90"
-                          : "border-neutral-200 bg-white text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70"
-                      }`}
-                    >
-                      {theme.name}
-                    </button>
-                  ))}
-                </div>
+                </button>
               </div>
             )}
-          </div>
+              </div>
 
-          <button
-            type="button"
-            onClick={handleExportPng}
-            className="
-              inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-            "
-            aria-label="PNG 저장"
-            title="PNG 저장"
-          >
-            <Icon icon="mdi:download" className="h-4 w-4" />
-          </button>
+              <div className="relative" ref={mobileThemeRef}>
+                <button
+                  type="button"
+                  onClick={() => setMobileThemeOpen((v) => !v)}
+                  className="
+                    inline-flex h-9 w-9 items-center justify-center rounded-2xl
+                    border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
+                    dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+                  "
+                  aria-label="테마"
+                  title="테마"
+                >
+                  <Icon icon="mdi:palette-outline" className="h-4 w-4" />
+                </button>
+                {mobileThemeOpen && (
+                  <div className="absolute right-full mr-2 top-0 w-[180px] rounded-2xl border border-neutral-200 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
+                    <div className="text-[11px] font-semibold text-neutral-500 dark:text-white/60">
+                      테마
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {themeOptions.map((theme) => (
+                        <button
+                          key={theme.name}
+                          type="button"
+                          onClick={() => {
+                            handleSelectTheme(theme.name);
+                            setMobileThemeOpen(false);
+                          }}
+                          className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold ${
+                            theme.name === themeName
+                              ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-300/40 dark:bg-blue-500/10 dark:text-blue-50/90"
+                              : "border-neutral-200 bg-white text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70"
+                          }`}
+                        >
+                          {theme.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              setShareOpen(true);
-              void fetchShareStatus();
-            }}
-            className="
-              inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-            "
-            aria-label="공유"
-            title="공유"
-          >
-            <Icon icon="mdi:share-variant" className="h-4 w-4" />
-          </button>
+              <button
+                type="button"
+                onClick={handleExportPng}
+                className="
+                  inline-flex h-9 w-9 items-center justify-center rounded-2xl
+                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
+                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+                "
+                aria-label="PNG 저장"
+                title="PNG 저장"
+              >
+                <Icon icon="mdi:download" className="h-4 w-4" />
+              </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              toast.message("단축키는 데스크톱에서 확인할 수 있어요.");
-            }}
-            className="
-              inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-            "
-            aria-label="단축키"
-            title="단축키"
-          >
-            <Icon icon="mdi:keyboard-outline" className="h-4 w-4" />
-          </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShareOpen(true);
+                  void fetchShareStatus();
+                }}
+                className="
+                  inline-flex h-9 w-9 items-center justify-center rounded-2xl
+                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
+                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+                "
+                aria-label="공유"
+                title="공유"
+              >
+                <Icon icon="mdi:share-variant" className="h-4 w-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  toast.message("단축키는 데스크톱에서 확인할 수 있어요.");
+                }}
+                className="
+                  inline-flex h-9 w-9 items-center justify-center rounded-2xl
+                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
+                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+                "
+                aria-label="단축키"
+                title="단축키"
+              >
+                <Icon icon="mdi:keyboard-outline" className="h-4 w-4" />
+              </button>
+            </>
+          ) : null}
         </div>
         <div className="absolute inset-0 bg-[#f6f7fb] dark:bg-[#070c16]" />
         <div

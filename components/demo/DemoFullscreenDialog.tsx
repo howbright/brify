@@ -495,6 +495,7 @@ export default function DemoFullscreenDialog({
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
   const [shareGuideOpen, setShareGuideOpen] = useState(false);
+  const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(false);
   const [themeName, setThemeName] = useState<string>(
     profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME
   );
@@ -544,6 +545,7 @@ export default function DemoFullscreenDialog({
   useEffect(() => {
     if (isTutorialMobile) {
       setEditMode("edit");
+      setMobileToolbarCollapsed(true);
     }
   }, [isTutorialMobile]);
 
@@ -739,39 +741,53 @@ export default function DemoFullscreenDialog({
           </button>
 
           <div className="pointer-events-auto absolute right-3 top-16 z-[25] flex flex-col gap-2 sm:hidden">
-            {[
-              {
-                icon: "mdi:crosshairs-gps",
-                onClick: () => mindRef.current?.centerMap?.(),
-                label: t("actions.centerMap"),
-              },
-              {
-                icon: "mdi:plus",
-                onClick: () => mindRef.current?.zoomIn?.(),
-                label: t("actions.zoomIn"),
-              },
-              {
-                icon: "mdi:minus",
-                onClick: () => mindRef.current?.zoomOut?.(),
-                label: t("actions.zoomOut"),
-              },
-              {
-                icon: "mdi:unfold-less-horizontal",
-                onClick: () => mindRef.current?.collapseAll?.(),
-                label: t("actions.collapseAll"),
-              },
-            ].map((action) => (
-              <button
-                key={action.label}
-                type="button"
-                onClick={action.onClick}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-400 bg-white/95 text-neutral-700 shadow-md dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80"
-                aria-label={action.label}
-                title={action.label}
-              >
-                <Icon icon={action.icon} className="h-4 w-4" />
-              </button>
-            ))}
+            <button
+              type="button"
+              onClick={() => setMobileToolbarCollapsed((prev) => !prev)}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-400 bg-white/95 text-neutral-700 shadow-md dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80"
+              aria-label={mobileToolbarCollapsed ? "도구 펼치기" : "도구 접기"}
+              title={mobileToolbarCollapsed ? "도구 펼치기" : "도구 접기"}
+            >
+              <Icon
+                icon={mobileToolbarCollapsed ? "mdi:chevron-left" : "mdi:chevron-right"}
+                className="h-4 w-4"
+              />
+            </button>
+            {!mobileToolbarCollapsed
+              ? [
+                  {
+                    icon: "mdi:crosshairs-gps",
+                    onClick: () => mindRef.current?.centerMap?.(),
+                    label: t("actions.centerMap"),
+                  },
+                  {
+                    icon: "mdi:plus",
+                    onClick: () => mindRef.current?.zoomIn?.(),
+                    label: t("actions.zoomIn"),
+                  },
+                  {
+                    icon: "mdi:minus",
+                    onClick: () => mindRef.current?.zoomOut?.(),
+                    label: t("actions.zoomOut"),
+                  },
+                  {
+                    icon: "mdi:unfold-less-horizontal",
+                    onClick: () => mindRef.current?.collapseAll?.(),
+                    label: t("actions.collapseAll"),
+                  },
+                ].map((action) => (
+                  <button
+                    key={action.label}
+                    type="button"
+                    onClick={action.onClick}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-400 bg-white/95 text-neutral-700 shadow-md dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80"
+                    aria-label={action.label}
+                    title={action.label}
+                  >
+                    <Icon icon={action.icon} className="h-4 w-4" />
+                  </button>
+                ))
+              : null}
           </div>
 
           <DemoLeftPanel

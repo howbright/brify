@@ -368,6 +368,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const { resolvedTheme } = useTheme();
   const locale = useLocale();
   const miniMapLabel = locale === "ko" ? "미니맵" : "Mini map";
+  const mobileEditMenuTitle = locale === "ko" ? "노드 편집" : "Edit node";
+  const moreActionsLabel = locale === "ko" ? "더보기" : "More";
   const {
     mounted,
     isTouchDevice,
@@ -1033,72 +1035,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   }, []);
 
   useEffect(() => {
-    const host = elRef.current;
-    if (!host) return;
-    if (!showMobileControls) return;
-
-    const triggerLongPress = () => {
-      const { nodeId, el } = longPressTargetRef.current;
-      if (!nodeId || !el) return;
-      longPressTriggeredRef.current = true;
-      setSelectedNodeId(nodeId);
-      selectedNodeElRef.current = el;
-      setMobileActionNodeId(nodeId);
-      requestAnimationFrame(() => updateSelectedRect(nodeId));
-      try {
-        navigator.vibrate?.(10);
-      } catch {}
-    };
-
-    const handlePointerDown = (e: PointerEvent) => {
-      if (e.pointerType !== "touch") return;
-      const target = e.target as HTMLElement | null;
-      if (!target) return;
-      const nodeEl =
-        target.closest?.("me-tpc[data-nodeid]") ??
-        target.closest?.("me-tpc") ??
-        target.closest?.("[data-nodeid]");
-      if (!nodeEl || !(nodeEl instanceof HTMLElement)) {
-        clearLongPressState();
-        return;
-      }
-      const nodeId = nodeEl.getAttribute("data-nodeid");
-      if (!nodeId) return;
-      clearLongPressState();
-      longPressTargetRef.current = {
-        nodeId,
-        startX: e.clientX,
-        startY: e.clientY,
-        el: nodeEl,
-      };
-      longPressTimerRef.current = window.setTimeout(triggerLongPress, 420);
-    };
-
-    const handlePointerMove = (e: PointerEvent) => {
-      if (e.pointerType !== "touch") return;
-      const { nodeId, startX, startY } = longPressTargetRef.current;
-      if (!nodeId) return;
-      const moved =
-        Math.abs(e.clientX - startX) > 8 || Math.abs(e.clientY - startY) > 8;
-      if (moved) clearLongPressState();
-    };
-
-    const handlePointerEnd = () => {
-      clearLongPressState();
-    };
-
-    host.addEventListener("pointerdown", handlePointerDown);
-    host.addEventListener("pointermove", handlePointerMove);
-    host.addEventListener("pointerup", handlePointerEnd);
-    host.addEventListener("pointercancel", handlePointerEnd);
-
-    return () => {
-      host.removeEventListener("pointerdown", handlePointerDown);
-      host.removeEventListener("pointermove", handlePointerMove);
-      host.removeEventListener("pointerup", handlePointerEnd);
-      host.removeEventListener("pointercancel", handlePointerEnd);
-      clearLongPressState();
-    };
+    clearLongPressState();
   }, [showMobileControls]);
   const lastTransformRef = useRef<string | null>(null);
   const lastScaleRef = useRef<number | null>(null);
@@ -1312,14 +1249,17 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     try {
       if (action === "addChild") {
         await mind.addChild(currentNode);
+        setMobileActionNodeId(null);
         return;
       }
       if (action === "addSibling") {
         await mind.insertSibling("after", currentNode);
+        setMobileActionNodeId(null);
         return;
       }
       if (action === "rename") {
         await mind.beginEdit(currentNode);
+        setMobileActionNodeId(null);
         return;
       }
       const isRoot =
@@ -2094,10 +2034,12 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           !!selectedNodeId &&
           mobileActionNodeId === selectedNodeId
         }
+        title={mobileEditMenuTitle}
         labels={mobileEditLabels}
         disableAddSibling={selectedNodeIsRoot}
         disableRename={!selectedNodeId}
         disableRemove={selectedNodeIsRoot}
+        onClose={() => setMobileActionNodeId(null)}
         onAddChild={() => void runMobileNodeAction("addChild")}
         onAddSibling={() => void runMobileNodeAction("addSibling")}
         onRename={() => void runMobileNodeAction("rename")}
@@ -2181,6 +2123,24 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
                   포커스 모드
                 </span>
               </button>
+              {showMobileControls && editMode === "edit" ? (
+                <button
+                  type="button"
+                  className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-800 text-[10px] text-white shadow-sm ring-1 ring-slate-900/70"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMobileActionNodeId((prev) =>
+                      prev === selectedNodeId ? null : selectedNodeId
+                    );
+                  }}
+                  aria-label={moreActionsLabel}
+                >
+                  <Icon icon="mdi:dots-horizontal" className="h-3 w-3" />
+                  <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                    {moreActionsLabel}
+                  </span>
+                </button>
+              ) : null}
             </div>
           </div>
         </>
