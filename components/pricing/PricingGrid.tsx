@@ -218,7 +218,7 @@ export default function PricingGrid({
               className={cx(
                 "group relative flex h-full flex-col rounded-2xl border shadow-sm transition-all duration-300 ease-out will-change-transform",
                 "text-neutral-900",
-                isCompact ? "p-4" : "p-5",
+                isCompact ? "p-4 sm:p-4" : "p-5",
                 isCompact && "items-center text-center sm:items-stretch sm:text-left",
                 "hover:-translate-y-1 hover:shadow-[0_24px_44px_-24px_rgba(15,23,42,0.34)] hover:rotate-[-0.4deg] dark:hover:shadow-[0_28px_52px_-28px_rgba(37,99,235,0.42)]",
                 p.popular
@@ -246,7 +246,7 @@ export default function PricingGrid({
               />
               <div
                 className={cx(
-                  isCompact ? "mb-1 flex h-6 w-full justify-center sm:justify-start" : "mb-2 h-6"
+                  isCompact ? "mb-2 flex min-h-6 w-full justify-center sm:mb-1 sm:h-6 sm:justify-start" : "mb-2 h-6"
                 )}
               >
                 {badge ? (
@@ -279,43 +279,43 @@ export default function PricingGrid({
 
               <div
                 className={cx(
-                  isCompact ? "text-[28px] md:text-[34px]" : "text-2xl",
+                  isCompact ? "text-[24px] leading-tight sm:text-[28px] md:text-[34px]" : "text-2xl",
                   "relative font-bold text-neutral-900 dark:text-[var(--color-foreground,#e5e7eb)]"
                 )}
               >
                 {p.credits.toLocaleString()}{" "}
-                <span className="text-xl font-semibold text-neutral-600 dark:text-[var(--color-muted-foreground,#cbd5e1)]">
+                <span className="text-[17px] font-semibold text-neutral-600 dark:text-[var(--color-muted-foreground,#cbd5e1)] sm:text-xl">
                   {t("units.credits")}
                 </span>
                 {(p.bonusPercent || p.bonusCredits) && (
-                  <span className="ml-2 align-middle text-xs font-semibold text-[var(--color-primary-700)]">
+                  <span className="mt-1 block text-[12px] font-semibold text-[var(--color-primary-700)] sm:ml-2 sm:mt-0 sm:inline-block sm:align-middle">
                     +{totalBonus.toLocaleString()} {t("bonus.tag")}
                   </span>
                 )}
               </div>
 
-              <div className="mt-2 text-2xl font-bold text-neutral-900 dark:text-[var(--color-card-foreground,#e5e7eb)] md:text-[28px]">
+              <div className="mt-2 text-[27px] font-bold leading-tight text-neutral-900 dark:text-[var(--color-card-foreground,#e5e7eb)] sm:text-2xl md:text-[28px]">
                 {formatCurrency(p.priceUSD)}
               </div>
 
               <div
                 className={cx(
-                  "mt-3 flex flex-wrap items-center gap-2",
+                  "mt-3 flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center",
                   isCompact && "justify-center sm:justify-start"
                 )}
               >
-                <div className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700 transition-transform duration-300 group-hover:-translate-y-0.5 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200">
+                <div className="inline-flex items-center justify-center rounded-2xl border border-blue-200 bg-blue-50 px-3 py-2 text-[13px] font-semibold text-blue-700 transition-transform duration-300 group-hover:-translate-y-0.5 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200 sm:rounded-full sm:py-1.5 sm:text-sm">
                   ≈ {formatCurrency(unit)} {t("units.perCredit")}
                 </div>
                 {(p.bonusPercent || p.bonusCredits) && (
-                  <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 transition-transform duration-300 group-hover:translate-x-0.5 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200">
+                  <div className="inline-flex items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-[13px] font-semibold text-emerald-700 transition-transform duration-300 group-hover:translate-x-0.5 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200 sm:rounded-full sm:py-1.5 sm:text-sm">
                     {t("unit.effective")} {formatCurrency(effectiveUnit)}{" "}
                     {t("units.perCredit")}
                   </div>
                 )}
               </div>
 
-              <div className="mt-5 flex-1" />
+              <div className="mt-4 flex-1" />
 
               {isAuthed ? (
                 <Link href={signedInHref} className={ctaBtn}>

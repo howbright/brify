@@ -1575,10 +1575,19 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           return;
         }
 
+        const normalizePanDelta = (delta: number) => {
+          const scaled = delta * 0.35;
+          if (scaled === 0) return 0;
+          return Math.sign(scaled) * Math.min(Math.abs(scaled), 42);
+        };
+
         if (event.shiftKey) {
-          mind.move(-event.deltaY, 0);
+          mind.move(-normalizePanDelta(event.deltaY), 0);
         } else {
-          mind.move(-event.deltaX, -event.deltaY);
+          mind.move(
+            -normalizePanDelta(event.deltaX),
+            -normalizePanDelta(event.deltaY)
+          );
         }
       };
 

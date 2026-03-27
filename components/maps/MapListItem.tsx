@@ -153,73 +153,33 @@ export default function MapListItem({
           onSelect?.(draft);
         }
       }}
-      className={`w-full max-w-full min-w-0 box-border rounded-2xl border px-4 py-3 transition
+      className={`relative w-full max-w-full min-w-0 box-border rounded-2xl border px-4 py-3 transition
         ${
           isActive
             ? "border-blue-300 bg-blue-50/70 shadow-sm dark:border-blue-400/40 dark:bg-blue-500/10"
             : "border-slate-400 bg-white hover:bg-neutral-50 dark:border-white/20 dark:bg-[#0f172a]/40 dark:hover:bg-white/[0.05]"
         }`}
     >
-      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex min-w-0 items-start gap-3">
-          <div className="aspect-video w-24 shrink-0 overflow-hidden rounded-xl border border-slate-400 bg-neutral-50 dark:border-white/20 dark:bg-white/[0.04] sm:w-20">
-            {draft.thumbnailUrl ? (
-              <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={draft.thumbnailUrl}
-                  alt={draft.title}
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
-              </>
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-50 via-slate-50 to-fuchsia-50 text-indigo-600 dark:from-indigo-500/10 dark:via-white/5 dark:to-fuchsia-500/10 dark:text-indigo-200">
-                <Icon icon="mdi:map-outline" className="h-5 w-5" />
-              </div>
+      <div className="flex min-w-0 flex-col gap-3">
+        <div className="min-w-0 pr-20 sm:pr-0">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            {selectionMode && (
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={() => onToggleSelect?.(draft)}
+                onClick={(event) => event.stopPropagation()}
+                className="h-4 w-4 rounded border-neutral-300 text-neutral-900"
+                aria-label={`${draft.title} 선택`}
+              />
             )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex min-w-0 flex-wrap items-center gap-2">
-              {selectionMode && (
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={() => onToggleSelect?.(draft)}
-                  onClick={(event) => event.stopPropagation()}
-                  className="h-4 w-4 rounded border-neutral-300 text-neutral-900"
-                  aria-label={`${draft.title} 선택`}
-                />
-              )}
-              <h3 className="min-w-0 text-[16px] font-semibold leading-5 text-neutral-900 line-clamp-2 dark:text-white sm:text-base sm:line-clamp-1">
-                {draft.title}
-              </h3>
-            </div>
-
-            <div className="mt-1.5 flex flex-wrap items-center gap-2">
-              {sourceBadge && (
-                <span
-                  className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${sourceBadge.cls} ${sourceBadge.darkCls}`}
-                >
-                  {sourceBadge.label}
-                </span>
-              )}
-              {statusBadge && (
-                <span
-                  className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${statusBadge.cls} ${statusBadge.darkCls}`}
-                >
-                  {statusBadge.text}
-                </span>
-              )}
-            </div>
-
-            <p className="mt-2 text-[13px] leading-5 text-neutral-600 line-clamp-3 dark:text-white/70 sm:text-sm sm:line-clamp-2">
-              {summary}
-            </p>
+            <h3 className="min-w-0 text-[17px] font-semibold leading-6 text-neutral-900 line-clamp-2 dark:text-white sm:text-base sm:line-clamp-1">
+              {draft.title}
+            </h3>
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2 sm:shrink-0">
+        <div className="absolute right-4 top-3 flex items-center gap-2">
           {onOpenDetail && showOpenDetail && (
             <button
               type="button"
@@ -227,7 +187,7 @@ export default function MapListItem({
                 event.stopPropagation();
                 onOpenDetail(draft);
               }}
-              className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
+              className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
             >
               <Icon icon="mdi:open-in-new" className="h-3.5 w-3.5" />
               열기
@@ -277,6 +237,48 @@ export default function MapListItem({
               )}
             </div>
           )}
+        </div>
+
+        <div className="flex min-w-0 items-start gap-3">
+          <div className="aspect-video w-24 shrink-0 overflow-hidden rounded-xl border border-slate-400 bg-neutral-50 dark:border-white/20 dark:bg-white/[0.04] sm:w-20">
+            {draft.thumbnailUrl ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={draft.thumbnailUrl}
+                  alt={draft.title}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              </>
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-50 via-slate-50 to-fuchsia-50 text-indigo-600 dark:from-indigo-500/10 dark:via-white/5 dark:to-fuchsia-500/10 dark:text-indigo-200">
+                <Icon icon="mdi:map-outline" className="h-5 w-5" />
+              </div>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              {sourceBadge && (
+                <span
+                  className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${sourceBadge.cls} ${sourceBadge.darkCls}`}
+                >
+                  {sourceBadge.label}
+                </span>
+              )}
+              {statusBadge && (
+                <span
+                  className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${statusBadge.cls} ${statusBadge.darkCls}`}
+                >
+                  {statusBadge.text}
+                </span>
+              )}
+            </div>
+
+            <p className="mt-2 text-[13px] leading-5 text-neutral-600 line-clamp-3 dark:text-white/70 sm:text-sm sm:line-clamp-2">
+              {summary}
+            </p>
+          </div>
         </div>
       </div>
 

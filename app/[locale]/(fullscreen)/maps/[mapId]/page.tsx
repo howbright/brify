@@ -1286,21 +1286,6 @@ export default function MapDetailPage() {
                 <Icon icon="mdi:share-variant" className="h-4 w-4" />
               </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  toast.message("단축키는 데스크톱에서 확인할 수 있어요.");
-                }}
-                className="
-                  inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-                "
-                aria-label="단축키"
-                title="단축키"
-              >
-                <Icon icon="mdi:keyboard-outline" className="h-4 w-4" />
-              </button>
             </>
           ) : null}
         </div>

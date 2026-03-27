@@ -1,7 +1,7 @@
 // components/layout/Header/ClientMobileMenu.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Icon } from "@iconify/react";
@@ -9,6 +9,9 @@ import { Link } from "@/i18n/navigation";
 import LanguageSelector from "@/components/LanguageSelector";
 import { ThemeToggleText } from "@/components/ThemeToggleText";
 import { useTranslations } from "next-intl";
+import { createClient } from "@/utils/supabase/client";
+import { DEFAULT_THEME_NAME } from "@/components/maps/themes";
+import MindThemePreferenceModal from "@/components/maps/MindThemePreferenceModal";
 
 export default function ClientMobileUserMenu({
   isAuthed,
@@ -18,8 +21,32 @@ export default function ClientMobileUserMenu({
   email: string | null;
 }) {
   const [open, setOpen] = useState(false);
+  const [themeOpen, setThemeOpen] = useState(false);
+  const [themeName, setThemeName] = useState<string>(DEFAULT_THEME_NAME);
+  const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
   const t = useTranslations("Header");
+
+  useEffect(() => {
+    if (!isAuthed) return;
+    const supabase = createClient();
+
+    (async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const id = userData.user?.id ?? null;
+      setUserId(id);
+      if (!id) return;
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("mind_theme_preference")
+        .eq("id", id)
+        .single();
+      const pref = (data as { mind_theme_preference?: string | null } | null)
+        ?.mind_theme_preference;
+      setThemeName(pref ?? DEFAULT_THEME_NAME);
+    })();
+  }, [isAuthed]);
 
   const dividerClass =
     "my-2 mx-1.5 h-px bg-gradient-to-r " +
@@ -164,6 +191,15 @@ export default function ClientMobileUserMenu({
                     >
                       계정 설정
                     </button>
+                    <button
+                      onClick={() => {
+                        setOpen(false);
+                        setThemeOpen(true);
+                      }}
+                      className="w-full text-left py-2"
+                    >
+                      기본 맵 테마
+                    </button>
                   </div>
 
                   <div className={dividerClass} />
@@ -225,6 +261,25 @@ export default function ClientMobileUserMenu({
           </>
         )}
       </AnimatePresence>
+
+      <MindThemePreferenceModal
+        open={themeOpen}
+        themeName={themeName}
+        onClose={() => setThemeOpen(false)}
+        onSelectTheme={async (name) => {
+          setThemeName(name);
+          if (!userId) return;
+
+          await fetch("/api/profile/theme", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              mind_theme_preference:
+                name === DEFAULT_THEME_NAME ? null : name,
+            }),
+          }).catch(() => {});
+        }}
+      />
     </div>
   );
 }

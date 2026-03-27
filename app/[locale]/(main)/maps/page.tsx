@@ -35,6 +35,7 @@ import { useParams, useRouter } from "next/navigation";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/app/types/database.types";
+import { useRef } from "react";
 
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
 type SourceType = "youtube" | "website" | "file" | "manual";
@@ -330,6 +331,7 @@ export default function MapsPage() {
     Record<string, { status: "idle" | "loading" | "loaded" | "missing" | "error"; data: any | null }>
   >({});
   const effectiveViewMode = isMobileViewport ? "card" : viewMode;
+  const desktopDefaultsAppliedRef = useRef(false);
 
   const dateRange = useMemo(() => {
     if (datePreset === "all") return { from: null, to: null };
@@ -401,6 +403,14 @@ export default function MapsPage() {
     if (mobilePreviewOpen) setMobilePreviewOpen(false);
     if (viewMode !== "card") setViewMode("card");
   }, [isMobileViewport, mobilePreviewOpen, previewOpen, viewMode]);
+
+  useEffect(() => {
+    if (isMobileViewport || desktopDefaultsAppliedRef.current) return;
+    desktopDefaultsAppliedRef.current = true;
+    setViewMode("card");
+    setPreviewOpen(false);
+    setTagOrganizeMode(true);
+  }, [isMobileViewport]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),

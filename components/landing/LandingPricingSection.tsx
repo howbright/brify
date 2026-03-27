@@ -17,11 +17,11 @@ function RibbonText({ text }: { text: string }) {
   return (
     <svg
       viewBox="0 0 1000 120"
-      className="h-[72px] w-full overflow-visible sm:h-[54px]"
+      className="h-[74px] w-full overflow-visible sm:h-[54px]"
       aria-hidden="true"
     >
       <defs>
-        <path id="ribbon-arc" d="M 90 88 Q 500 18 910 88" />
+        <path id="ribbon-arc" d="M 90 96 Q 500 28 910 96" />
       </defs>
       <text
         fill="currentColor"
@@ -117,25 +117,25 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
                 className="h-auto w-full"
                 priority={false}
               />
-              <div className="absolute inset-0 flex -translate-y-[8px] items-center justify-center px-5 text-center sm:-translate-y-[10px] sm:px-8">
+              <div className="absolute inset-0 flex translate-y-[4px] items-center justify-center px-5 text-center sm:-translate-y-[2px] sm:px-8">
                 <span className="block w-full max-w-[96%] text-slate-900 sm:max-w-[88%]">
                   <RibbonText text={t("freeCreditsBadge")} />
                 </span>
               </div>
             </div>
           </div>
-          <div className="mt-5 text-[28px] font-extrabold leading-tight text-slate-900 dark:text-white md:text-[36px]">
+          <div className="mt-5 text-[25px] font-extrabold leading-tight tracking-[-0.02em] text-slate-900 dark:text-white md:text-[36px]">
             {t("cards.main.title")}
           </div>
-          <p className="mt-3 text-base font-semibold text-slate-700 dark:text-slate-200">
+          <p className="mt-3 text-[15px] font-semibold leading-6 text-slate-700 dark:text-slate-200 md:text-base">
             {t("cards.main.description")}
           </p>
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
-            <div className="rounded-full border border-slate-400 bg-white px-4 py-2 text-sm font-semibold text-slate-800 dark:border-white/20 dark:bg-white/[0.08] dark:text-slate-200">
+          <div className="mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row sm:flex-wrap sm:gap-2.5">
+            <div className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 dark:border-white/20 dark:bg-white/[0.08] dark:text-slate-200 sm:w-auto sm:rounded-full sm:px-4 sm:py-2">
               {t("cards.pay.title")}
             </div>
-            <div className="rounded-full border border-slate-400 bg-white px-4 py-2 text-sm font-semibold text-slate-800 dark:border-white/20 dark:bg-white/[0.08] dark:text-slate-200">
+            <div className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 dark:border-white/20 dark:bg-white/[0.08] dark:text-slate-200 sm:w-auto sm:rounded-full sm:px-4 sm:py-2">
               {t("cards.noSubscription.title")}
             </div>
           </div>
