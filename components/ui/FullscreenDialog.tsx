@@ -30,7 +30,6 @@ import {
 
 const PROFILE_THEME_NAME = "내설정테마";
 const FULLSCREEN_EDIT_BUTTON_ID = "fullscreen-map-edit-button";
-const FULLSCREEN_MOBILE_EDIT_BUTTON_ID = "fullscreen-mobile-map-edit-button";
 const FULLSCREEN_TERMS_TAB_ID = "fullscreen-map-terms-tab";
 
 type MindNode = {
@@ -180,6 +179,12 @@ export default function FullscreenDialog({
   }, [open, mounted, draft?.id, isTutorialMobile]);
 
   useEffect(() => {
+    if (isTutorialMobile) {
+      setEditMode("edit");
+    }
+  }, [isTutorialMobile]);
+
+  useEffect(() => {
     if (!searchOpen) {
       setSearchQuery("");
       setSearchResults([]);
@@ -258,7 +263,7 @@ export default function FullscreenDialog({
   const handleGoList = onGoList ?? onClose;
   const tutorialSteps = getMapTutorialSteps(tTutorial, {
     platform: isTutorialMobile ? "mobile" : "desktop",
-    editButtonId: isTutorialMobile ? FULLSCREEN_MOBILE_EDIT_BUTTON_ID : FULLSCREEN_EDIT_BUTTON_ID,
+    editButtonId: FULLSCREEN_EDIT_BUTTON_ID,
     termsTabId: FULLSCREEN_TERMS_TAB_ID,
   });
   const mapDraft = localDraft ?? draft;
@@ -605,20 +610,6 @@ export default function FullscreenDialog({
           )}
 
           <div className="pointer-events-auto absolute right-3 top-3 z-[25] flex flex-col gap-2 sm:hidden">
-            <button
-              id={FULLSCREEN_MOBILE_EDIT_BUTTON_ID}
-              type="button"
-              onClick={() => setEditMode((m) => (m === "view" ? "edit" : "view"))}
-              className="
-                inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                border border-slate-400 bg-white/95 text-neutral-700 shadow-md
-                dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
-              "
-              aria-label={editMode === "view" ? "편집 모드" : "보기 모드"}
-              title={editMode === "view" ? "편집 모드" : "보기 모드"}
-            >
-              <Icon icon={editMode === "view" ? "mdi:pencil" : "mdi:eye-outline"} className="h-4 w-4" />
-            </button>
             <button
               type="button"
               onClick={() => setPanMode((v) => !v)}

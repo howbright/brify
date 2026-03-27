@@ -18,17 +18,6 @@ export function getMapTutorialSteps(
   if (platform === "mobile") {
     return [
       {
-        title: t("mobile.edit.title"),
-        description: t("mobile.edit.description"),
-        targetId: editButtonId,
-        targetClassName: "right-3 top-3 h-16 w-16",
-        hideCalloutOnMobile: true,
-        calloutClassName: "left-1/2 top-[5.5rem] w-[min(18rem,calc(100vw-1.5rem))] -translate-x-1/2",
-        calloutTitle: t("mobile.edit.calloutTitle"),
-        calloutDescription: t("mobile.edit.calloutDescription"),
-        illustration: "mode",
-      },
-      {
         title: t("mobile.move.title"),
         description: t("mobile.move.description"),
         targetClassName: "left-1/2 top-[38%] h-24 w-24 -translate-x-1/2",

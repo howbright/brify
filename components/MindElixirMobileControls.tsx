@@ -32,67 +32,116 @@ export default function MindElixirMobileControls({
   onRename,
   onRemove,
 }: Props) {
+  const baseItemClassName =
+    "flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3.5 text-left text-[15px] font-semibold transition-colors";
+
   return (
     <>
       {showActionBar && (
-        <div className="pointer-events-auto absolute inset-x-4 bottom-20 z-30">
-          <div className="mx-auto flex max-w-md items-center justify-between gap-2 rounded-[22px] border border-neutral-200 bg-white/95 p-2 shadow-[0_22px_48px_-28px_rgba(15,23,42,0.42)] dark:border-white/15 dark:bg-[#0b1220]/94 dark:shadow-[0_22px_48px_-28px_rgba(2,6,23,0.9)]">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30">
+          <div className="absolute inset-0 bg-black/18" />
+          <div className="pointer-events-auto relative mx-auto w-full max-w-md rounded-t-[28px] border border-b-0 border-neutral-200 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-20px_44px_-28px_rgba(15,23,42,0.38)]">
+            <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-neutral-300" />
+            <div className="mb-2 px-1 text-[13px] font-medium text-neutral-500">
+              편집 메뉴
+            </div>
+            <div className="flex flex-col gap-2">
             <button
               type="button"
               onClick={onAddChild}
-              className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-2xl bg-blue-600 px-3 py-3 text-[11px] font-semibold text-white"
+              className={`${baseItemClassName} bg-neutral-50 text-neutral-950 hover:bg-neutral-100`}
             >
+              <span className="inline-flex items-center gap-3">
+                <Icon
+                  icon="mdi:plus-circle-outline"
+                  className="h-5 w-5 shrink-0 text-neutral-700"
+                />
+                <span>{labels.addChild}</span>
+              </span>
               <Icon
-                icon="mdi:plus-circle-outline"
-                className="h-4 w-4 shrink-0"
+                icon="mdi:chevron-right"
+                className="h-5 w-5 shrink-0 text-neutral-400"
               />
-              <span className="truncate">{labels.addChild}</span>
             </button>
             <button
               type="button"
               onClick={onAddSibling}
               disabled={disableAddSibling}
               className={[
-                "inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-2xl px-3 py-3 text-[11px] font-semibold",
+                baseItemClassName,
                 disableAddSibling
-                  ? "cursor-not-allowed bg-emerald-300 text-white/80 dark:bg-emerald-900/60"
-                  : "bg-emerald-600 text-white",
+                  ? "cursor-not-allowed bg-neutral-100 text-neutral-400"
+                  : "bg-neutral-50 text-neutral-950 hover:bg-neutral-100",
               ].join(" ")}
             >
-              <Icon icon="mdi:graph-outline" className="h-4 w-4 shrink-0" />
-              <span className="truncate">{labels.addSibling}</span>
+              <span className="inline-flex items-center gap-3">
+                <Icon
+                  icon="mdi:graph-outline"
+                  className={[
+                    "h-5 w-5 shrink-0",
+                    disableAddSibling ? "text-neutral-400" : "text-neutral-700",
+                  ].join(" ")}
+                />
+                <span>{labels.addSibling}</span>
+              </span>
+              <Icon
+                icon="mdi:chevron-right"
+                className="h-5 w-5 shrink-0 text-neutral-400"
+              />
             </button>
             <button
               type="button"
               onClick={onRename}
               disabled={disableRename}
               className={[
-                "inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-2xl px-3 py-3 text-[11px] font-semibold",
+                baseItemClassName,
                 disableRename
-                  ? "cursor-not-allowed bg-amber-200 text-slate-500 dark:bg-amber-900/50 dark:text-white/55"
-                  : "bg-amber-500 text-slate-950",
+                  ? "cursor-not-allowed bg-neutral-100 text-neutral-400"
+                  : "bg-neutral-50 text-neutral-950 hover:bg-neutral-100",
               ].join(" ")}
             >
-              <Icon icon="mdi:pencil-outline" className="h-4 w-4 shrink-0" />
-              <span className="truncate">{labels.rename}</span>
+              <span className="inline-flex items-center gap-3">
+                <Icon
+                  icon="mdi:pencil-outline"
+                  className={[
+                    "h-5 w-5 shrink-0",
+                    disableRename ? "text-neutral-400" : "text-neutral-700",
+                  ].join(" ")}
+                />
+                <span>{labels.rename}</span>
+              </span>
+              <Icon
+                icon="mdi:chevron-right"
+                className="h-5 w-5 shrink-0 text-neutral-400"
+              />
             </button>
             <button
               type="button"
               onClick={onRemove}
               disabled={disableRemove}
               className={[
-                "inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-2xl px-3 py-3 text-[11px] font-semibold",
+                baseItemClassName,
                 disableRemove
-                  ? "cursor-not-allowed bg-rose-300 text-white/80 dark:bg-rose-900/60"
-                  : "bg-rose-500 text-white",
+                  ? "cursor-not-allowed bg-neutral-100 text-neutral-400"
+                  : "bg-neutral-50 text-neutral-950 hover:bg-neutral-100",
               ].join(" ")}
             >
+              <span className="inline-flex items-center gap-3">
+                <Icon
+                  icon="mdi:trash-can-outline"
+                  className={[
+                    "h-5 w-5 shrink-0",
+                    disableRemove ? "text-neutral-400" : "text-neutral-700",
+                  ].join(" ")}
+                />
+                <span>{labels.remove}</span>
+              </span>
               <Icon
-                icon="mdi:trash-can-outline"
-                className="h-4 w-4 shrink-0"
+                icon="mdi:chevron-right"
+                className="h-5 w-5 shrink-0 text-neutral-400"
               />
-              <span className="truncate">{labels.remove}</span>
             </button>
+            </div>
           </div>
         </div>
       )}

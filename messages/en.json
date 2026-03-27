@@ -509,10 +509,10 @@
     },
     "mobile": {
       "edit": {
-        "title": "Switch to Edit mode first",
-        "description": "On mobile too, you need to switch into Edit mode before changing nodes or structure.",
+        "title": "Editing is ready on mobile by default",
+        "description": "On mobile, the Structure Map opens in an editable state from the start.",
         "calloutTitle": "Edit mode",
-        "calloutDescription": "Start by switching to Edit mode here."
+        "calloutDescription": "You can start editing right away on mobile."
       },
       "move": {
         "title": "You can drag the map directly on mobile",

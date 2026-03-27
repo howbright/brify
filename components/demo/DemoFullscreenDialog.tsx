@@ -56,7 +56,6 @@ type DemoTermItem = {
 };
 
 const DEMO_EDIT_BUTTON_ID = "demo-edit-button";
-const DEMO_MOBILE_EDIT_BUTTON_ID = "demo-mobile-edit-button";
 const DEMO_TERMS_TAB_ID = "demo-terms-tab";
 
 function getDemoNotes(t: ReturnType<typeof useTranslations>): NoteItemData[] {
@@ -542,6 +541,12 @@ export default function DemoFullscreenDialog({
     return () => window.clearTimeout(timer);
   }, [open, mounted, draft?.id, language, isTutorialMobile]);
 
+  useEffect(() => {
+    if (isTutorialMobile) {
+      setEditMode("edit");
+    }
+  }, [isTutorialMobile]);
+
   if (!open || !draft || !mounted) return null;
 
   const resolvedThemeName =
@@ -575,7 +580,7 @@ export default function DemoFullscreenDialog({
   const handleTutorialNext = () => {
     const steps = getMapTutorialSteps(tTutorial, {
       platform: isTutorialMobile ? "mobile" : "desktop",
-      editButtonId: isTutorialMobile ? DEMO_MOBILE_EDIT_BUTTON_ID : DEMO_EDIT_BUTTON_ID,
+      editButtonId: DEMO_EDIT_BUTTON_ID,
       termsTabId: DEMO_TERMS_TAB_ID,
     });
     if (tutorialStepIndex >= steps.length - 1) {
@@ -736,13 +741,6 @@ export default function DemoFullscreenDialog({
           <div className="pointer-events-auto absolute right-3 top-16 z-[25] flex flex-col gap-2 sm:hidden">
             {[
               {
-                icon: editMode === "view" ? "mdi:pencil" : "mdi:eye-outline",
-                onClick: () =>
-                  setEditMode((mode) => (mode === "view" ? "edit" : "view")),
-                label: editMode === "view" ? t("badges.editMode") : t("badges.viewMode"),
-                id: DEMO_MOBILE_EDIT_BUTTON_ID,
-              },
-              {
                 icon: "mdi:crosshairs-gps",
                 onClick: () => mindRef.current?.centerMap?.(),
                 label: t("actions.centerMap"),
@@ -765,7 +763,6 @@ export default function DemoFullscreenDialog({
             ].map((action) => (
               <button
                 key={action.label}
-                id={action.id}
                 type="button"
                 onClick={action.onClick}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-400 bg-white/95 text-neutral-700 shadow-md dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80"
@@ -789,7 +786,7 @@ export default function DemoFullscreenDialog({
               stepIndex={tutorialStepIndex}
               steps={getMapTutorialSteps(tTutorial, {
                 platform: isTutorialMobile ? "mobile" : "desktop",
-                editButtonId: isTutorialMobile ? DEMO_MOBILE_EDIT_BUTTON_ID : DEMO_EDIT_BUTTON_ID,
+                editButtonId: DEMO_EDIT_BUTTON_ID,
                 termsTabId: DEMO_TERMS_TAB_ID,
               })}
               onNext={handleTutorialNext}
