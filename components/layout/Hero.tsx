@@ -202,30 +202,37 @@ export default function LandingBlueHero() {
       <div
         className="
           pointer-events-none absolute inset-0 -z-10
-          bg-[linear-gradient(180deg,#fbfdff_0%,#eef4ff_34%,#f8fbff_100%),radial-gradient(680px_380px_at_12%_10%,rgba(56,189,248,0.24),transparent_58%),radial-gradient(560px_320px_at_80%_8%,rgba(168,85,247,0.18),transparent_54%),radial-gradient(760px_360px_at_52%_100%,rgba(59,130,246,0.16),transparent_66%)]
+          bg-[linear-gradient(180deg,#e9eef5_0%,#e4ebf3_38%,#edf3f8_100%),radial-gradient(420px_210px_at_16%_46%,rgba(37,99,235,0.42),transparent_64%),radial-gradient(420px_210px_at_84%_44%,rgba(59,130,246,0.40),transparent_64%),radial-gradient(640px_220px_at_50%_78%,rgba(255,255,255,0.22),transparent_74%)]
           dark:hidden
         "
       />
       <div
         className="
           pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px]
-          bg-[radial-gradient(48%_68%_at_50%_0%,rgba(255,255,255,0.92),rgba(255,255,255,0.18)_56%,transparent_74%)]
+          bg-[radial-gradient(42%_56%_at_50%_0%,rgba(255,255,255,0.56),rgba(255,255,255,0.12)_58%,transparent_78%)]
           dark:hidden
         "
       />
       <div
         className="
-          pointer-events-none absolute left-[-8%] top-[10%] -z-10 h-[360px] w-[360px] rounded-full
-          bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.30),rgba(56,189,248,0.10)_38%,transparent_70%)]
-          blur-3xl
+          pointer-events-none absolute left-[-8%] top-[34%] -z-10 h-[220px] w-[220px] rounded-full
+          bg-[radial-gradient(circle_at_center,rgba(37,99,235,0.44),rgba(59,130,246,0.16)_42%,transparent_72%)]
+          blur-[46px]
           dark:hidden
         "
       />
       <div
         className="
-          pointer-events-none absolute right-[-10%] top-[2%] -z-10 h-[320px] w-[320px] rounded-full
-          bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.24),rgba(168,85,247,0.08)_40%,transparent_72%)]
-          blur-3xl
+          pointer-events-none absolute right-[-8%] top-[32%] -z-10 h-[220px] w-[220px] rounded-full
+          bg-[radial-gradient(circle_at_center,rgba(37,99,235,0.40),rgba(96,165,250,0.14)_42%,transparent_72%)]
+          blur-[46px]
+          dark:hidden
+        "
+      />
+      <div
+        className="
+          pointer-events-none absolute inset-x-[20%] top-[18%] -z-10 h-[120px]
+          bg-[radial-gradient(50%_100%_at_50%_50%,rgba(255,255,255,0.34),rgba(255,255,255,0.06)_72%,transparent_100%)]
           dark:hidden
         "
       />

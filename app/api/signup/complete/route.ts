@@ -52,6 +52,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const userEmail = user.email ?? null;
+
     // ✅ 1) uid 결정
     // - signed flow(uid+sig 있으면): uidFromBody 사용 (단, 세션 유저와 일치 체크)
     // - session flow(없으면): 세션 유저 id 사용
@@ -82,7 +84,7 @@ export async function POST(req: NextRequest) {
     // ✅ 2) "이번 요청에서 terms가 false -> true로 바뀌는지" 판단
     const { data: beforeProfile, error: beforeErr } = await adminSupabase
       .from("profiles")
-      .select("terms_accepted")
+      .select("terms_accepted, email")
       .eq("id", uid)
       .maybeSingle();
 
@@ -102,6 +104,7 @@ export async function POST(req: NextRequest) {
       const { error } = await adminSupabase.from("profiles").upsert(
         {
           id: uid,
+          email: userEmail,
           locale,
           terms_accepted: true,
         },

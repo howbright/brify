@@ -91,11 +91,12 @@ export async function GET(req: NextRequest) {
 
   // ✅ signup flow에서 terms=1로 왔을 때만 "약관동의 완료"로 간주
   const termsAcceptedFromSignup = flow === "signup" && terms === "1";
+  const userEmail = user.email ?? null;
 
   // 2) profiles 상태 확인
   const { data: existing, error: existingError } = await adminSupabase
     .from("profiles")
-    .select("id, terms_accepted")
+    .select("id, terms_accepted, email")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -110,6 +111,7 @@ export async function GET(req: NextRequest) {
   if (isFirstSignup) {
     const { error: insertProfileError } = await adminSupabase.from("profiles").insert({
       id: user.id,
+      email: userEmail,
       locale,
       terms_accepted: termsAcceptedFromSignup,
       credits_free: 0,
@@ -121,10 +123,28 @@ export async function GET(req: NextRequest) {
       // 경쟁조건 가능 -> 계속 진행
     }
   } else {
-    if (termsAcceptedFromSignup && existing?.terms_accepted !== true) {
+    const shouldUpdateTerms = termsAcceptedFromSignup && existing?.terms_accepted !== true;
+    const shouldBackfillEmail = existing?.email !== userEmail;
+
+    if (shouldUpdateTerms || shouldBackfillEmail) {
+      const updatePayload: {
+        terms_accepted?: boolean;
+        locale?: string;
+        email?: string | null;
+      } = {};
+
+      if (shouldUpdateTerms) {
+        updatePayload.terms_accepted = true;
+        updatePayload.locale = locale;
+      }
+
+      if (shouldBackfillEmail) {
+        updatePayload.email = userEmail;
+      }
+
       const { error: updTermsError } = await adminSupabase
         .from("profiles")
-        .update({ terms_accepted: true, locale })
+        .update(updatePayload)
         .eq("id", user.id);
 
       if (updTermsError) {
@@ -136,7 +156,7 @@ export async function GET(req: NextRequest) {
   // 4) 최종 terms_accepted 재확인
   const { data: finalProfile, error: finalProfileError } = await adminSupabase
     .from("profiles")
-    .select("terms_accepted")
+    .select("terms_accepted, email")
     .eq("id", user.id)
     .maybeSingle();
 

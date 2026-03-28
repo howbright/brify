@@ -399,6 +399,7 @@ function CreditPackCard({
   locale: string;
 }) {
   const t = useTranslations("BillingPage");
+  const tLanding = useTranslations("LandingPricingSection");
   const { credits, price, currency, checkoutUrl, popular, starter, provider } = pack;
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -490,17 +491,39 @@ function CreditPackCard({
 
   const unit = price / credits;
   const isLargePack = !popular && !starter && credits >= 300;
+  const badgeText =
+    credits === 50
+      ? tLanding("packs.50.badgeText")
+      : credits === 150
+        ? tLanding("packs.150.badgeText")
+        : credits === 300
+          ? tLanding("packs.300.badgeText")
+          : popular
+            ? t("card.badge.popular")
+            : starter
+              ? t("card.badge.starter")
+              : isLargePack
+                ? t("card.badge.large")
+                : "";
 
   return (
-    <div
-      className={[
-        "group relative flex h-full flex-col rounded-2xl border p-4 shadow-sm transition-all duration-300 ease-out will-change-transform",
-        "text-neutral-900 hover:-translate-y-1 hover:shadow-[0_24px_44px_-24px_rgba(15,23,42,0.34)] hover:rotate-[-0.4deg] dark:hover:shadow-[0_28px_52px_-28px_rgba(37,99,235,0.42)]",
-        popular
-          ? "border-[var(--color-primary-500)] bg-[linear-gradient(180deg,#ffffff_0%,#f5f9ff_100%)] shadow-[0_26px_60px_-34px_rgba(37,99,235,0.34)] hover:border-[var(--color-primary-400)] dark:border-blue-400/35 dark:bg-[linear-gradient(180deg,rgba(37,99,235,0.16),rgba(15,23,42,0.94))] dark:text-[var(--color-card-foreground,#e5e7eb)]"
-          : "border-slate-400 bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] shadow-[0_22px_48px_-34px_rgba(15,23,42,0.22)] hover:border-slate-500 dark:border-white/12 dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(15,23,42,0.94))] dark:text-[var(--color-card-foreground,#e5e7eb)] dark:hover:border-white/20",
-      ].join(" ")}
-    >
+    <div className="group relative">
+      <div
+        className={[
+          "relative rounded-[28px] bg-[linear-gradient(145deg,#2563eb_0%,#38bdf8_55%,#7dd3fc_100%)] p-[3px] shadow-[0_28px_52px_-34px_rgba(37,99,235,0.34)] transition-all duration-300 ease-out will-change-transform",
+          "hover:-translate-y-1 hover:shadow-[0_24px_44px_-24px_rgba(15,23,42,0.34)] hover:rotate-[-0.4deg] dark:hover:shadow-[0_28px_52px_-28px_rgba(37,99,235,0.42)]",
+          "dark:bg-[linear-gradient(145deg,#60a5fa_0%,#38bdf8_50%,#67e8f9_100%)]",
+        ].join(" ")}
+      >
+        <div
+          className="
+            relative flex h-full flex-col rounded-[25px]
+            bg-[linear-gradient(180deg,#f9fcff_0%,#eef6ff_100%)]
+            p-4 text-neutral-900
+            dark:bg-[linear-gradient(180deg,#0c1729_0%,#0b1322_100%)]
+            dark:text-slate-100
+          "
+        >
       <div
         aria-hidden
         className={[
@@ -520,41 +543,26 @@ function CreditPackCard({
         ].join(" ")}
       />
 
-      <div className="mb-1 h-6">
-      {(popular || starter || isLargePack) && (
-        <div
-          className={[
-            "inline-flex items-center gap-1 self-start rounded-full border px-3 py-1 text-xs font-bold transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-[1.03]",
-            starter && !popular ? "opacity-85" : "",
-            popular
-              ? "border-blue-500 bg-blue-600 text-white shadow-[0_12px_24px_-12px_rgba(37,99,235,0.6)] dark:border-blue-300 dark:bg-blue-500"
-              : "",
-          ].join(" ")}
-          style={
-            popular
-              ? undefined
-              : {
-                  borderColor:
-                    "color-mix(in_srgb,var(--color-primary-500),transparent 70%)",
-                  background:
-                    "color-mix(in_srgb,var(--color-primary-500),white 85%)",
-                  color: "var(--color-primary-700)",
-                }
-          }
-        >
-          {popular
-            ? t("card.badge.popular")
-            : starter
-            ? t("card.badge.starter")
-            : t("card.badge.large")}
+      <div className="mb-3 w-full border-[3px] border-transparent bg-[linear-gradient(180deg,#dff2ff_0%,#bfe4ff_100%),linear-gradient(135deg,#1d4ed8_0%,#0ea5e9_52%,#67e8f9_100%)] bg-origin-border bg-clip-padding-border px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),0_16px_30px_-24px_rgba(37,99,235,0.7)] dark:bg-[linear-gradient(180deg,#16365a_0%,#0f2746_100%),linear-gradient(135deg,#60a5fa_0%,#38bdf8_55%,#67e8f9_100%)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_16px_32px_-22px_rgba(56,189,248,0.42)]">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-[10px] font-black uppercase tracking-[0.16em] text-blue-900/80 dark:text-sky-200/90">
+              Credit Pack
+            </div>
+            <div className="mt-1 text-[30px] font-extrabold leading-none tracking-[-0.04em] text-slate-950 dark:text-white">
+              {credits.toLocaleString()}
+              <span className="ml-1.5 text-[13px] font-bold tracking-[0.03em] text-blue-900/80 dark:text-sky-200">
+                {t("card.creditsUnit")}
+              </span>
+            </div>
+          </div>
+
+          {badgeText ? (
+            <div className="border border-white/65 bg-white/80 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-blue-800 shadow-[0_8px_18px_-14px_rgba(15,23,42,0.45)] dark:border-sky-200/20 dark:bg-white/10 dark:text-sky-100 dark:shadow-none">
+              {badgeText}
+            </div>
+          ) : null}
         </div>
-      )}
-      </div>
-      <div className="relative text-[28px] font-bold tracking-tight text-neutral-900 dark:text-[var(--color-foreground,#e5e7eb)] md:text-[34px]">
-        {credits.toLocaleString()}{" "}
-        <span className="text-xl font-semibold text-neutral-600 dark:text-[var(--color-muted-foreground,#cbd5e1)]">
-          {t("card.creditsUnit")}
-        </span>
       </div>
 
       <div className="mt-2 text-2xl font-bold text-neutral-900 dark:text-[var(--color-card-foreground,#e5e7eb)] md:text-[28px]">
@@ -575,15 +583,17 @@ function CreditPackCard({
 	        disabled={isSubmitting}
 	        className="
 	          block w-full cursor-pointer rounded-[var(--radius-lg)] px-4 py-3 text-center text-[16px] font-semibold shadow-sm
-	          bg-slate-800 text-white
-	          hover:bg-blue-600
-	          dark:bg-slate-800 dark:hover:bg-blue-600 dark:text-white
+	          bg-[var(--color-primary-500,#2563eb)] text-[var(--color-primary-foreground,#ffffff)]
+	          hover:bg-[var(--color-primary-hover,#1d4ed8)] hover:text-[var(--color-primary-foreground,#ffffff)]
+	          dark:bg-[var(--color-primary-500,#3758f9)] dark:hover:bg-[var(--color-primary-hover,#2f49d1)] dark:text-white
 	          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring,#93c5fd)]
 	          disabled:cursor-not-allowed disabled:opacity-65
 	        "
 	      >
         {isSubmitting ? t("card.loading") : t("card.cta")}
       </button>
+        </div>
+      </div>
     </div>
   );
 }

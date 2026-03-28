@@ -565,6 +565,7 @@ export type Database = {
           provider: Database["public"]["Enums"]["payment_provider"]
           provider_customer_id: string | null
           provider_order_id: string
+          provider_payment_key: string | null
           raw_payload: Json | null
           receipt_url: string | null
           refunded_at: string | null
@@ -583,6 +584,7 @@ export type Database = {
           provider: Database["public"]["Enums"]["payment_provider"]
           provider_customer_id?: string | null
           provider_order_id: string
+          provider_payment_key?: string | null
           raw_payload?: Json | null
           receipt_url?: string | null
           refunded_at?: string | null
@@ -601,6 +603,7 @@ export type Database = {
           provider?: Database["public"]["Enums"]["payment_provider"]
           provider_customer_id?: string | null
           provider_order_id?: string
+          provider_payment_key?: string | null
           raw_payload?: Json | null
           receipt_url?: string | null
           refunded_at?: string | null

@@ -213,24 +213,34 @@ export default function PricingGrid({
           }
 
           return (
-            <div
-              key={p.id}
-              className={cx(
-                "group relative flex h-full flex-col rounded-2xl border shadow-sm transition-all duration-300 ease-out will-change-transform",
-                "text-neutral-900",
-                isCompact ? "p-4 sm:p-4" : "p-5",
-                isCompact && "items-center text-center sm:items-stretch sm:text-left",
-                "hover:-translate-y-1 hover:shadow-[0_24px_44px_-24px_rgba(15,23,42,0.34)] hover:rotate-[-0.4deg] dark:hover:shadow-[0_28px_52px_-28px_rgba(37,99,235,0.42)]",
-                p.popular
-                  ? "border-[var(--color-primary-500)] bg-[linear-gradient(180deg,#ffffff_0%,#f5f9ff_100%)] shadow-[0_26px_60px_-34px_rgba(37,99,235,0.34)] hover:border-[var(--color-primary-400)] dark:border-blue-400/35 dark:bg-[linear-gradient(180deg,rgba(37,99,235,0.16),rgba(15,23,42,0.94))] dark:text-[var(--color-card-foreground,#e5e7eb)]"
-                  : "border-slate-300 bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] shadow-[0_24px_50px_-34px_rgba(15,23,42,0.24)] hover:border-slate-400 dark:border-white/14 dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.10),rgba(15,23,42,0.94))] dark:text-[var(--color-card-foreground,#e5e7eb)] dark:hover:border-white/24"
-              )}
-            >
+            <div key={p.id} className="group relative">
+              <div
+                className={cx(
+                  "relative p-[3px] transition-all duration-300 ease-out will-change-transform",
+                  "hover:-translate-y-1 hover:shadow-[0_24px_44px_-24px_rgba(15,23,42,0.34)] hover:rotate-[-0.4deg] dark:hover:shadow-[0_28px_52px_-28px_rgba(37,99,235,0.42)]",
+                  isCompact
+                    ? "rounded-[28px] bg-[linear-gradient(145deg,#2563eb_0%,#38bdf8_55%,#7dd3fc_100%)] shadow-[0_28px_52px_-34px_rgba(37,99,235,0.34)] dark:bg-[linear-gradient(145deg,#60a5fa_0%,#38bdf8_50%,#67e8f9_100%)]"
+                    : p.popular
+                      ? "rounded-2xl bg-[linear-gradient(145deg,#2563eb_0%,#60a5fa_100%)] shadow-[0_26px_60px_-34px_rgba(37,99,235,0.34)]"
+                      : "rounded-2xl bg-[linear-gradient(145deg,#cbd5e1_0%,#e2e8f0_100%)] shadow-[0_24px_50px_-34px_rgba(15,23,42,0.24)]"
+                )}
+              >
+                <div
+                  className={cx(
+                    "relative flex h-full flex-col text-neutral-900",
+                    isCompact
+                      ? "rounded-[25px] bg-[linear-gradient(180deg,#f9fcff_0%,#eef6ff_100%)] p-4 sm:p-5 dark:bg-[linear-gradient(180deg,#0c1729_0%,#0b1322_100%)] dark:text-slate-100"
+                      : "rounded-[13px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] p-5",
+                    isCompact && "items-center text-center sm:items-stretch sm:text-left",
+                    !isCompact && p.popular && "dark:bg-[linear-gradient(180deg,rgba(37,99,235,0.16),rgba(15,23,42,0.94))] dark:text-[var(--color-card-foreground,#e5e7eb)]",
+                    !isCompact && !p.popular && "dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.10),rgba(15,23,42,0.94))] dark:text-[var(--color-card-foreground,#e5e7eb)]"
+                  )}
+                >
               <div
                 aria-hidden
                 className={cx(
                   "pointer-events-none absolute inset-x-6 top-0 h-px opacity-0 transition-opacity duration-300 group-hover:opacity-100",
-                  p.popular
+                  isCompact || p.popular
                     ? "bg-gradient-to-r from-transparent via-blue-400 to-transparent"
                     : "bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-500"
                 )}
@@ -239,7 +249,7 @@ export default function PricingGrid({
                 aria-hidden
                 className={cx(
                   "pointer-events-none absolute inset-x-4 top-0 h-20 rounded-t-[18px] opacity-90",
-                  p.popular
+                  isCompact || p.popular
                     ? "bg-[radial-gradient(60%_100%_at_50%_0%,rgba(59,130,246,0.16),transparent_74%)] dark:bg-[radial-gradient(60%_100%_at_50%_0%,rgba(96,165,250,0.18),transparent_76%)]"
                     : "bg-[radial-gradient(60%_100%_at_50%_0%,rgba(148,163,184,0.10),transparent_74%)] dark:bg-[radial-gradient(60%_100%_at_50%_0%,rgba(255,255,255,0.08),transparent_76%)]"
                 )}
@@ -249,7 +259,7 @@ export default function PricingGrid({
                   isCompact ? "mb-2 flex min-h-6 w-full justify-center sm:mb-1 sm:h-6 sm:justify-start" : "mb-2 h-6"
                 )}
               >
-                {badge ? (
+                {badge && !isCompact ? (
                   <div
                     className={cx(
                       "inline-flex items-center gap-1 rounded-full border px-3.5 py-1.5 text-[12px] font-extrabold tracking-[-0.01em] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-[1.04] sm:px-3 sm:py-1 sm:text-xs",
@@ -277,24 +287,52 @@ export default function PricingGrid({
                 )}
               </div>
 
-              <div
-                className={cx(
-                  isCompact ? "text-[24px] leading-tight sm:text-[28px] md:text-[34px]" : "text-2xl",
-                  "relative font-bold text-neutral-900 dark:text-[var(--color-foreground,#e5e7eb)]"
-                )}
-              >
-                {p.credits.toLocaleString()}{" "}
-                <span className="text-[17px] font-semibold text-neutral-600 dark:text-[var(--color-muted-foreground,#cbd5e1)] sm:text-xl">
-                  {t("units.credits")}
-                </span>
-                {(p.bonusPercent || p.bonusCredits) && (
-                  <span className="mt-1 block text-[12px] font-semibold text-[var(--color-primary-700)] sm:ml-2 sm:mt-0 sm:inline-block sm:align-middle">
-                    +{totalBonus.toLocaleString()} {t("bonus.tag")}
+              {isCompact ? (
+                <div className="mb-3 w-full border-[3px] border-transparent bg-[linear-gradient(180deg,#dff2ff_0%,#bfe4ff_100%),linear-gradient(135deg,#1d4ed8_0%,#0ea5e9_52%,#67e8f9_100%)] bg-origin-border bg-clip-padding-border px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),0_16px_30px_-24px_rgba(37,99,235,0.7)] dark:bg-[linear-gradient(180deg,#16365a_0%,#0f2746_100%),linear-gradient(135deg,#60a5fa_0%,#38bdf8_55%,#67e8f9_100%)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_16px_32px_-22px_rgba(56,189,248,0.42)]">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-black uppercase tracking-[0.16em] text-blue-900/80 dark:text-sky-200/90">
+                        Credit Pack
+                      </div>
+                      <div className="mt-1 text-[30px] font-extrabold leading-none tracking-[-0.04em] text-slate-950 dark:text-white">
+                        {p.credits.toLocaleString()}
+                        <span className="ml-1.5 text-[13px] font-bold tracking-[0.03em] text-blue-900/80 dark:text-sky-200">
+                          {t("units.credits")}
+                        </span>
+                      </div>
+                      {(p.bonusPercent || p.bonusCredits) && (
+                        <div className="mt-1 text-[11px] font-semibold text-blue-900/80 dark:text-sky-200">
+                          +{totalBonus.toLocaleString()} {t("bonus.tag")}
+                        </div>
+                      )}
+                    </div>
+                    {badge ? (
+                      <div className="border border-white/65 bg-white/80 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-blue-800 shadow-[0_8px_18px_-14px_rgba(15,23,42,0.45)] dark:border-sky-200/20 dark:bg-white/10 dark:text-sky-100 dark:shadow-none">
+                        {badge}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className={cx(
+                    "relative font-bold text-neutral-900 dark:text-[var(--color-foreground,#e5e7eb)]",
+                    "text-2xl"
+                  )}
+                >
+                  {p.credits.toLocaleString()}{" "}
+                  <span className="text-[17px] font-semibold text-neutral-600 dark:text-[var(--color-muted-foreground,#cbd5e1)] sm:text-xl">
+                    {t("units.credits")}
                   </span>
-                )}
-              </div>
+                  {(p.bonusPercent || p.bonusCredits) && (
+                    <span className="mt-1 block text-[12px] font-semibold text-[var(--color-primary-700)] sm:ml-2 sm:mt-0 sm:inline-block sm:align-middle">
+                      +{totalBonus.toLocaleString()} {t("bonus.tag")}
+                    </span>
+                  )}
+                </div>
+              )}
 
-              <div className="mt-2 text-[27px] font-bold leading-tight text-neutral-900 dark:text-[var(--color-card-foreground,#e5e7eb)] sm:text-2xl md:text-[28px]">
+              <div className={cx("font-bold leading-tight text-neutral-900 dark:text-[var(--color-card-foreground,#e5e7eb)] sm:text-2xl md:text-[28px]", isCompact ? "mt-1 text-[29px]" : "mt-2 text-[27px]")}>
                 {formatCurrency(p.priceUSD)}
               </div>
 
@@ -338,6 +376,8 @@ export default function PricingGrid({
                   {t("footer.note")}
                 </div>
               )}
+                </div>
+              </div>
             </div>
           );
         })}
