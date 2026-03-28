@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import LeftPanel from "@/components/maps/LeftPanel";
 import FullscreenHeader from "@/components/maps/FullscreenHeader";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
-import { loadingMindElixir } from "@/app/lib/g6/sampleData";
+import { loadingMindElixir } from "@/app/lib/mind-elixir/sampleData";
 import MapControls from "@/components/maps/MapControls";
 import {
   DEFAULT_THEME_NAME,

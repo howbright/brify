@@ -25,7 +25,7 @@ import {
   MIND_THEME_BY_NAME,
 } from "@/components/maps/themes";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
-import { loadingMindElixir } from "@/app/lib/g6/sampleData";
+import { loadingMindElixir } from "@/app/lib/mind-elixir/sampleData";
 import {
   getMapTutorialCompleted,
   setMapTutorialCompleted,

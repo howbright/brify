@@ -26,7 +26,7 @@ import TagEditDialog from "@/components/maps/TagEditDialog";
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/app/types/database.types";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
-import { loadingMindElixir } from "@/app/lib/g6/sampleData";
+import { loadingMindElixir } from "@/app/lib/mind-elixir/sampleData";
 import {
   getMapTutorialCompleted,
   setMapTutorialCompleted,

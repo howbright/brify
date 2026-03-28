@@ -12,7 +12,7 @@ import { Icon } from "@iconify/react";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
 import { useLocale } from "next-intl";
-import { sampled } from "@/app/lib/g6/sampleData";
+import { sampled } from "@/app/lib/mind-elixir/sampleData";
 import {
   DEFAULT_THEME_NAME,
   MIND_THEME_BY_NAME,

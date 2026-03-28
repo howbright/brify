@@ -9,7 +9,7 @@ import ClientMindElixir, {
   type ClientMindElixirHandle,
 } from "@/components/ClientMindElixir";
 import { MIND_THEME_BY_NAME } from "@/components/maps/themes";
-import { loadingMindElixir } from "@/app/lib/g6/sampleData";
+import { loadingMindElixir } from "@/app/lib/mind-elixir/sampleData";
 
 type SharedMapPayload = {
   id: string;

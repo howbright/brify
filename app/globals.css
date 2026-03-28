@@ -365,4 +365,26 @@ layer(base);
   display: initial !important;
 }
 
-  
+@layer utilities {
+  .map-container me-root {
+    margin: 34px 0;
+  }
+
+  .map-container me-root me-tpc,
+  .map-container me-tpc.root {
+    max-width: 18em;
+    font-size: 19px;
+    line-height: 1.28;
+    padding: 10px 18px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
+    text-wrap: pretty;
+  }
+
+  .map-container me-root me-tpc .text,
+  .map-container me-tpc.root .text {
+    display: block;
+    white-space: normal;
+  }
+}
