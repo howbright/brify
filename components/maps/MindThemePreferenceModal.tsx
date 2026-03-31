@@ -73,10 +73,11 @@ export default function MindThemePreferenceModal({
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-400 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.08] dark:text-white/85 dark:hover:bg-white/[0.12]"
+              aria-label="닫기"
+              title="닫기"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-400 bg-white text-neutral-700 hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.08] dark:text-white/85 dark:hover:bg-white/[0.12]"
             >
               <Icon icon="mdi:close" className="h-4 w-4" />
-              닫기
             </button>
           </div>
 

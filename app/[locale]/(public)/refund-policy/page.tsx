@@ -36,6 +36,11 @@ export default function RefundPolicyPage() {
             ? "유료 크레딧의 이용기간은 결제일로부터 1년입니다."
             : "Paid credits are valid for 1 year from the payment date."}
         </p>
+        <p className="text-sm text-neutral-600 dark:text-neutral-300">
+          {isKorean
+            ? "위 기간은 유료 크레딧의 사용 가능 기간을 의미합니다. 환불 가능 여부와 환불 범위는 아래 기준 및 관련 법령에 따라 별도로 판단됩니다."
+            : "This period refers to the validity period for using paid credits. Refund eligibility and refund scope are determined separately under the rules below and applicable law."}
+        </p>
       </section>
 
       <section className="flex flex-col gap-2">
@@ -47,6 +52,11 @@ export default function RefundPolicyPage() {
             ? "크레딧은 구매 후 7일 이내, 해당 주문으로 충전된 크레딧을 사용하지 않은 경우 전액 환불 가능합니다."
             : "Credits are eligible for a full refund within 7 days of purchase if none of the credits charged by that order have been used."}
         </p>
+        <p className="text-sm text-neutral-600 dark:text-neutral-300">
+          {isKorean
+            ? "환불은 원칙적으로 결제에 사용한 동일한 결제수단으로 진행됩니다."
+            : "Refunds are in principle made through the same payment method originally used for the purchase."}
+        </p>
       </section>
 
       <section className="flex flex-col gap-2">
@@ -57,6 +67,16 @@ export default function RefundPolicyPage() {
           {isKorean
             ? "크레딧 사용 또는 맵 생성이 시작된 이후에는 환불이 제한됩니다."
             : "Refunds are limited once credits have been used or map generation has started."}
+        </p>
+        <p className="text-sm text-neutral-600 dark:text-neutral-300">
+          {isKorean
+            ? "구매 후 7일이 지난 미사용 유료 크레딧은 단순 변심에 의한 환불 대상이 아니며, 결제일로부터 1년의 유효기간 내에서만 사용할 수 있습니다."
+            : "Unused paid credits remaining after 7 days from purchase are not eligible for refunds due to a change of mind, and may only be used within the 1-year validity period from the payment date."}
+        </p>
+        <p className="text-sm text-neutral-600 dark:text-neutral-300">
+          {isKorean
+            ? "구매한 유료 크레딧은 회원 간 양도, 대여 또는 이전이 불가합니다."
+            : "Purchased paid credits may not be transferred, assigned, or lent to another member."}
         </p>
       </section>
 

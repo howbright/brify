@@ -326,7 +326,7 @@ export default function MapsPage() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const [mobileTagSheetOpen, setMobileTagSheetOpen] = useState(false);
-  const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState<boolean | null>(null);
   const [previewById, setPreviewById] = useState<
     Record<string, { status: "idle" | "loading" | "loaded" | "missing" | "error"; data: any | null }>
   >({});
@@ -398,14 +398,23 @@ export default function MapsPage() {
   }, []);
 
   useEffect(() => {
-    if (!isMobileViewport) return;
+    if (isMobileViewport !== true) return;
     if (previewOpen) setPreviewOpen(false);
     if (mobilePreviewOpen) setMobilePreviewOpen(false);
+    if (tagOrganizeMode) setTagOrganizeMode(false);
+    if (mobileTagSheetOpen) setMobileTagSheetOpen(false);
     if (viewMode !== "card") setViewMode("card");
-  }, [isMobileViewport, mobilePreviewOpen, previewOpen, viewMode]);
+  }, [
+    isMobileViewport,
+    mobilePreviewOpen,
+    mobileTagSheetOpen,
+    previewOpen,
+    tagOrganizeMode,
+    viewMode,
+  ]);
 
   useEffect(() => {
-    if (isMobileViewport || desktopDefaultsAppliedRef.current) return;
+    if (isMobileViewport === null || isMobileViewport || desktopDefaultsAppliedRef.current) return;
     desktopDefaultsAppliedRef.current = true;
     setViewMode("card");
     setPreviewOpen(false);
@@ -1164,6 +1173,11 @@ export default function MapsPage() {
                   setMobilePreviewOpen(false);
                   toast.message("태그 정리 모드로 전환되어 프리뷰가 꺼졌어요.");
                 }
+                if (next && selectionMode) {
+                  setSelectionMode(false);
+                  setSelectedMapIds([]);
+                  toast.message("태그 정리 모드로 전환되어 선택 모드가 꺼졌어요.");
+                }
                 setMobileTagSheetOpen(next);
                 setTagOrganizeMode(next);
               }}
@@ -1179,12 +1193,17 @@ export default function MapsPage() {
                   setMobilePreviewOpen(false);
                   toast.message("선택 모드로 전환되어 프리뷰가 꺼졌어요.");
                 }
+                if (tagOrganizeMode) {
+                  setTagOrganizeMode(false);
+                  setMobileTagSheetOpen(false);
+                  toast.message("태그 정리 모드를 종료하고 선택 모드로 전환했어요.");
+                }
                 setSelectionMode(true);
               }}
               viewMode={viewMode}
               onViewModeChange={setViewMode}
-              hidePreviewToggle={isMobileViewport}
-              hideViewModeToggle={isMobileViewport}
+              hidePreviewToggle={Boolean(isMobileViewport)}
+              hideViewModeToggle={Boolean(isMobileViewport)}
               sort={sort}
               onSortChange={(value) => {
                 setSort(value);
@@ -1440,14 +1459,19 @@ export default function MapsPage() {
           </div>
           {!mobileTagSheetOpen && (
             <div className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
-              <button
-                type="button"
-                onClick={() => setMobileTagSheetOpen(true)}
-                className="inline-flex items-center gap-2 rounded-full border border-cyan-300 bg-[linear-gradient(135deg,#22d3ee,#2563eb)] px-5 py-3 text-sm font-extrabold tracking-[-0.01em] text-white shadow-[0_18px_36px_-18px_rgba(37,99,235,0.65)] transition-transform duration-200 ease-out animate-[pulse_2.4s_ease-in-out_infinite] dark:border-cyan-200/50 dark:bg-[linear-gradient(135deg,rgba(34,211,238,0.95),rgba(59,130,246,0.95))] dark:text-white"
-              >
-                <Icon icon="mdi:tag-outline" className="h-4.5 w-4.5" />
-                태그열기
-              </button>
+              <div className="relative inline-flex">
+                <span className="pointer-events-none absolute inset-[-8px] rounded-full border-4 border-cyan-300/80 shadow-[0_0_0_8px_rgba(34,211,238,0.18)] dark:border-cyan-200/65 dark:shadow-[0_0_0_8px_rgba(34,211,238,0.14)]" />
+                <span className="pointer-events-none absolute inset-[-8px] animate-ping rounded-full border-4 border-cyan-200/70 [animation-duration:2.2s] dark:border-cyan-100/55" />
+                <span className="pointer-events-none absolute inset-[-15px] rounded-full border-2 border-blue-400/35 dark:border-blue-300/25" />
+                <button
+                  type="button"
+                  onClick={() => setMobileTagSheetOpen(true)}
+                  className="relative z-[1] inline-flex items-center gap-2 rounded-full border border-cyan-300 bg-[linear-gradient(135deg,#22d3ee,#2563eb)] px-5 py-3 text-sm font-extrabold tracking-[-0.01em] text-white shadow-[0_18px_36px_-18px_rgba(37,99,235,0.65)] transition-transform duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] dark:border-cyan-200/50 dark:bg-[linear-gradient(135deg,rgba(34,211,238,0.95),rgba(59,130,246,0.95))] dark:text-white"
+                >
+                  <Icon icon="mdi:tag-outline" className="h-4.5 w-4.5" />
+                  태그열기
+                </button>
+              </div>
             </div>
           )}
         </div>

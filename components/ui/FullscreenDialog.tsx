@@ -131,10 +131,6 @@ export default function FullscreenDialog({
   const lastStepAtRef = useRef(0);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(false);
-  const [mobileMapActionsOpen, setMobileMapActionsOpen] = useState(false);
-  const [mobileThemeOpen, setMobileThemeOpen] = useState(false);
-  const mobileMapActionsRef = useRef<HTMLDivElement | null>(null);
-  const mobileThemeRef = useRef<HTMLDivElement | null>(null);
   const [mounted, setMounted] = useState(false);
   const [localDraft, setLocalDraft] = useState<MapDraft | null>(draft ?? null);
   const [tagEditOpen, setTagEditOpen] = useState(false);
@@ -144,26 +140,6 @@ export default function FullscreenDialog({
   useEffect(() => {
     setLocalDraft(draft ?? null);
   }, [draft]);
-
-  useEffect(() => {
-    if (!mobileMapActionsOpen && !mobileThemeOpen) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node | null;
-      if (!target) return;
-      if (mobileMapActionsOpen && mobileMapActionsRef.current?.contains(target)) {
-        return;
-      }
-      if (mobileThemeOpen && mobileThemeRef.current?.contains(target)) {
-        return;
-      }
-      setMobileMapActionsOpen(false);
-      setMobileThemeOpen(false);
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [mobileMapActionsOpen, mobileThemeOpen]);
 
   useEffect(() => {
     setMounted(true);
@@ -334,6 +310,10 @@ export default function FullscreenDialog({
       return;
     }
     setTutorialStepIndex((prev) => prev + 1);
+  };
+  const handleRestartTutorial = () => {
+    setTutorialStepIndex(0);
+    setTutorialOpen(true);
   };
   const closeSearch = () => {
     setSearchOpen(false);
@@ -508,8 +488,10 @@ export default function FullscreenDialog({
                 onZoomOut={() => mindRef.current?.zoomOut?.()}
                 onExportPng={handleExportPng}
                 onCloseMap={onClose}
+                onOpenTutorial={handleRestartTutorial}
                 editButtonId={FULLSCREEN_EDIT_BUTTON_ID}
                 placement="inline"
+                hidePanToggle
               />
             </div>
           }
@@ -612,14 +594,10 @@ export default function FullscreenDialog({
             </div>
           )}
 
-          <div className="pointer-events-auto absolute right-3 top-3 z-[25] flex flex-col gap-2 sm:hidden">
+          <div className="pointer-events-auto absolute right-3 top-16 z-[25] flex flex-col gap-2 sm:hidden">
             <button
               type="button"
-              onClick={() => {
-                setMobileToolbarCollapsed((v) => !v);
-                setMobileMapActionsOpen(false);
-                setMobileThemeOpen(false);
-              }}
+              onClick={() => setMobileToolbarCollapsed((v) => !v)}
               className="
                 inline-flex h-9 w-9 items-center justify-center rounded-2xl
                 border border-slate-400 bg-white/95 text-neutral-700 shadow-md
@@ -633,204 +611,41 @@ export default function FullscreenDialog({
                 className="h-4 w-4"
               />
             </button>
-            {!mobileToolbarCollapsed ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => mindRef.current?.centerMap?.()}
-                  className="
-                    inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                    border border-slate-400 bg-white/95 text-neutral-700 shadow-md
-                    dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
-                  "
-                  aria-label="가운데로"
-                  title="가운데로"
-                >
-                  <Icon icon="mdi:crosshairs-gps" className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => mindRef.current?.zoomIn?.()}
-                  className="
-                    inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                    border border-slate-400 bg-white/95 text-neutral-700 shadow-md
-                    dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
-                  "
-                  aria-label="확대"
-                  title="확대"
-                >
-                  <Icon icon="mdi:plus" className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => mindRef.current?.zoomOut?.()}
-                  className="
-                    inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                    border border-slate-400 bg-white/95 text-neutral-700 shadow-md
-                    dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
-                  "
-                  aria-label="축소"
-                  title="축소"
-                >
-                  <Icon icon="mdi:minus" className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => mindRef.current?.collapseAll?.()}
-                  className="
-                    inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                    border border-slate-400 bg-white/95 text-neutral-700 shadow-md
-                    dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
-                  "
-                  aria-label="전체 접기"
-                  title="전체 접기"
-                >
-                  <Icon icon="mdi:collapse-all-outline" className="h-4 w-4" />
-                </button>
-              </>
-            ) : null}
-
-            {!mobileToolbarCollapsed ? (
-              <>
-                <div className="relative" ref={mobileMapActionsRef}>
+            {!mobileToolbarCollapsed
+              ? [
+                  {
+                    icon: "mdi:crosshairs-gps",
+                    onClick: () => mindRef.current?.centerMap?.(),
+                    label: "가운데로",
+                  },
+                  {
+                    icon: "mdi:plus",
+                    onClick: () => mindRef.current?.zoomIn?.(),
+                    label: "확대",
+                  },
+                  {
+                    icon: "mdi:minus",
+                    onClick: () => mindRef.current?.zoomOut?.(),
+                    label: "축소",
+                  },
+                  {
+                    icon: "mdi:unfold-less-horizontal",
+                    onClick: () => mindRef.current?.collapseAll?.(),
+                    label: "전체 접기",
+                  },
+                ].map((action) => (
                   <button
+                    key={action.label}
                     type="button"
-                    onClick={() => setMobileMapActionsOpen((v) => !v)}
-                    className="
-                      inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                      border border-slate-400 bg-white/95 text-neutral-700 shadow-md
-                      dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
-                    "
-                    aria-label="맵 조작"
-                    title="맵 조작"
+                    onClick={action.onClick}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-400 bg-white/95 text-neutral-700 shadow-md dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80"
+                    aria-label={action.label}
+                    title={action.label}
                   >
-                    <Icon icon="mdi:vector-polyline" className="h-4 w-4" />
+                    <Icon icon={action.icon} className="h-4 w-4" />
                   </button>
-
-                  {mobileMapActionsOpen && (
-                    <div className="absolute right-full mr-2 top-0 w-[160px] rounded-2xl border border-slate-400 bg-white p-1 shadow-lg dark:border-white/20 dark:bg-[#0f172a]">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMobileMapActionsOpen(false);
-                          mindRef.current?.expandAll?.();
-                        }}
-                        className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
-                      >
-                        전체 펴기
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMobileMapActionsOpen(false);
-                          mindRef.current?.expandOneLevel?.();
-                        }}
-                        className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
-                      >
-                        한단계 펴기
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMobileMapActionsOpen(false);
-                          mindRef.current?.collapseOneLevel?.();
-                        }}
-                        className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
-                      >
-                        한단계 접기
-                      </button>
-                      <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMobileMapActionsOpen(false);
-                          mindRef.current?.setLayout?.("left");
-                        }}
-                        className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
-                      >
-                        왼쪽 정렬
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMobileMapActionsOpen(false);
-                          mindRef.current?.setLayout?.("right");
-                        }}
-                        className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
-                      >
-                        오른쪽 정렬
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMobileMapActionsOpen(false);
-                          mindRef.current?.setLayout?.("side");
-                        }}
-                        className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
-                      >
-                        가운데 정렬
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="relative" ref={mobileThemeRef}>
-                  <button
-                    type="button"
-                    onClick={() => setMobileThemeOpen((v) => !v)}
-                    className="
-                      inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                      border border-slate-400 bg-white/95 text-neutral-700 shadow-md
-                      dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
-                    "
-                    aria-label="테마"
-                    title="테마"
-                  >
-                    <Icon icon="mdi:palette-outline" className="h-4 w-4" />
-                  </button>
-                  {mobileThemeOpen && (
-                    <div className="absolute right-full mr-2 top-0 w-[180px] rounded-2xl border border-slate-400 bg-white p-2 shadow-lg dark:border-white/20 dark:bg-[#0f172a]">
-                      <div className="text-[11px] font-semibold text-neutral-500 dark:text-white/60">
-                        테마
-                      </div>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {themeOptions.map((theme) => (
-                          <button
-                            key={theme.name}
-                            type="button"
-                            onClick={() => {
-                              setThemeName(theme.name);
-                              setMobileThemeOpen(false);
-                            }}
-                            className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold ${
-                              theme.name === themeName
-                                ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-300/40 dark:bg-blue-500/10 dark:text-blue-50/90"
-                                : "border-slate-400 bg-white text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/70"
-                            }`}
-                          >
-                            {theme.name}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleExportPng}
-                  className="
-                    inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                    border border-slate-400 bg-white/95 text-neutral-700 shadow-md
-                    dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80
-                  "
-                  aria-label="PNG 저장"
-                  title="PNG 저장"
-                >
-                  <Icon icon="mdi:download" className="h-4 w-4" />
-                </button>
-              </>
-            ) : null}
+                ))
+              : null}
           </div>
 
           {/* ✅ 좌측: 메타데이터 패널 */}

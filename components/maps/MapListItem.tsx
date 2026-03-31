@@ -112,6 +112,7 @@ export default function MapListItem({
     draft.summary ?? draft.description ?? "요약이 아직 없어요.";
   const visibleTags = draft.tags?.slice(0, 6) ?? [];
   const remainingTagCount = Math.max((draft.tags?.length ?? 0) - visibleTags.length, 0);
+  const hasTopActionMenu = Boolean(onDelete);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -161,7 +162,7 @@ export default function MapListItem({
         }`}
     >
       <div className="flex min-w-0 flex-col gap-3">
-        <div className="min-w-0 pr-20 sm:pr-0">
+        <div className={`min-w-0 ${hasTopActionMenu ? "pr-20 sm:pr-0" : ""}`}>
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             {selectionMode && (
               <input
@@ -179,8 +180,8 @@ export default function MapListItem({
           </div>
         </div>
 
-        <div className="absolute right-4 top-3 flex items-center gap-2">
-          {onDelete && (
+        {hasTopActionMenu ? (
+          <div className="absolute right-4 top-3 flex items-center gap-2">
             <div ref={menuRef} className="relative">
               <button
                 type="button"
@@ -206,7 +207,7 @@ export default function MapListItem({
                     type="button"
                     onClick={() => {
                       setMenuOpen(false);
-                      onDelete(draft);
+                      onDelete?.(draft);
                     }}
                     disabled={isDeleting}
                     className="w-full rounded-xl px-3 py-2.5 text-left text-[15px] font-medium text-rose-600 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-rose-300 dark:hover:bg-rose-500/10"
@@ -222,8 +223,8 @@ export default function MapListItem({
                 </div>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        ) : null}
 
         <div className="flex min-w-0 items-start gap-3">
           <div className="aspect-video w-24 shrink-0 overflow-hidden rounded-xl border border-slate-400 bg-neutral-50 dark:border-white/20 dark:bg-white/[0.04] sm:w-20">

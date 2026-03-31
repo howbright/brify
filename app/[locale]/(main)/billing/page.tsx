@@ -30,7 +30,7 @@ type TossPaymentsInstance = {
       successUrl: string;
       failUrl: string;
       customerEmail?: string;
-    }) => void;
+    }) => Promise<unknown>;
   };
 };
 
@@ -52,6 +52,47 @@ function formatPrice(amount: number, currency: BillingCurrency) {
     style: "currency",
     currency: "USD",
   }).format(amount);
+}
+
+function getTossErrorInfo(error: unknown): { code?: string; message: string } {
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof (error as { message?: unknown }).message === "string"
+  ) {
+    return {
+      code:
+        "code" in error && typeof (error as { code?: unknown }).code === "string"
+          ? (error as { code?: string }).code
+          : undefined,
+      message: (error as { message: string }).message,
+    };
+  }
+
+  if (error instanceof Error) {
+    return { message: error.message };
+  }
+
+  return { message: "알 수 없는 오류가 발생했어요." };
+}
+
+async function syncTossFailedPayment(params: {
+  orderId: string;
+  code?: string;
+  message?: string;
+}) {
+  try {
+    await fetch("/api/payments/fail/toss", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(params),
+    });
+  } catch (error) {
+    console.error("Failed to sync Toss failed payment:", error);
+  }
 }
 
 export default function BillingPage() {
@@ -424,6 +465,14 @@ function CreditPackCard({
       }
 
       setIsSubmitting(true);
+      let orderData:
+        | {
+            orderId?: string;
+            amount?: number;
+            orderName?: string;
+            error?: string;
+          }
+        | null = null;
 
       try {
         const res = await fetch("/api/payments/create-order", {
@@ -440,6 +489,7 @@ function CreditPackCard({
           orderName?: string;
           error?: string;
         };
+        orderData = data;
 
         if (!res.ok || !data.orderId || !data.amount || !data.orderName) {
           throw new Error(data.error || "Failed to create order");
@@ -450,7 +500,7 @@ function CreditPackCard({
           customerKey: userId,
         });
 
-        payment.requestPayment({
+        await payment.requestPayment({
           method: "CARD",
           amount: {
             currency: "KRW",
@@ -463,8 +513,29 @@ function CreditPackCard({
           customerEmail: userEmail ?? undefined,
         });
       } catch (error) {
-        console.error("Failed to open Toss payment window:", error);
-        toast.error("토스 결제를 준비하는 중 문제가 발생했어요.");
+        const { code, message } = getTossErrorInfo(error);
+        const normalizedMessage = message.trim();
+        const isUserCanceled =
+          code === "USER_CANCEL" ||
+          code === "PAY_PROCESS_CANCELED" ||
+          normalizedMessage.includes("취소") ||
+          normalizedMessage.toLowerCase().includes("cancel");
+
+        if (orderData?.orderId) {
+          await syncTossFailedPayment({
+            orderId: orderData.orderId,
+            code,
+            message: normalizedMessage,
+          });
+        }
+
+        if (isUserCanceled) {
+          toast.message("결제가 취소되었어요.");
+        } else {
+          console.error("Failed to open Toss payment window:", error);
+          toast.error("토스 결제를 준비하는 중 문제가 발생했어요.");
+        }
+
         setIsSubmitting(false);
       }
 

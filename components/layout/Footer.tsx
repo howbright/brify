@@ -10,7 +10,7 @@ const supportLinks = [
   { href: "/privacy", labelKey: "privacy" },
   { href: "/refund-policy", labelKey: "refundPolicy" },
   { href: "/support", labelKey: "support" },
-  { href: "/pricing", labelKey: "pricing" },
+  { href: "/#pricing", labelKey: "pricing" },
 ];
 
 function FooterLink({ href, label }: { href: string; label: string }) {

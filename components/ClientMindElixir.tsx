@@ -1974,6 +1974,23 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         .${DARK_CANVAS_CLASS} me-tpc.root {
           border-color: rgba(255, 255, 255, 0.97) !important;
         }
+        me-root me-tpc,
+        me-tpc.root {
+          max-width: 12.5em !important;
+        }
+        me-root me-tpc .text,
+        me-tpc.root .text,
+        me-root me-tpc .topic,
+        me-tpc.root .topic {
+          display: block;
+          max-width: 12.5em !important;
+          font-size: 1rem !important;
+          line-height: 1.3 !important;
+          white-space: normal !important;
+          overflow-wrap: anywhere !important;
+          word-break: break-word !important;
+          text-wrap: wrap !important;
+        }
         .me-note-dot {
           position: absolute;
           right: -6px;
