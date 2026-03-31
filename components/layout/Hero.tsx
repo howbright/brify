@@ -2,7 +2,6 @@
 
 import type { Variants } from "framer-motion";
 import { AnimatePresence, motion } from "framer-motion";
-import { Icon } from "@iconify/react";
 import { Link } from "@/i18n/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -171,29 +170,6 @@ export default function LandingBlueHero() {
       ];
   })();
 
-  const featureStyles = [
-    {
-      icon: "mdi:check-decagram",
-      iconWrap:
-        "border border-emerald-200/90 bg-emerald-50 text-emerald-700 shadow-[0_12px_28px_-18px_rgba(16,185,129,0.45)] dark:border-emerald-300/30 dark:bg-emerald-300/18 dark:text-emerald-100 dark:shadow-[0_16px_34px_-20px_rgba(16,185,129,0.45)]",
-    },
-    {
-      icon: "mdi:book-open-variant",
-      iconWrap:
-        "border border-blue-200/90 bg-blue-50 text-blue-700 shadow-[0_12px_28px_-18px_rgba(37,99,235,0.42)] dark:border-blue-300/30 dark:bg-blue-300/16 dark:text-blue-100 dark:shadow-[0_16px_34px_-20px_rgba(37,99,235,0.48)]",
-    },
-    {
-      icon: "mdi:translate",
-      iconWrap:
-        "border border-sky-200/90 bg-sky-50 text-sky-700 shadow-[0_12px_28px_-18px_rgba(14,165,233,0.4)] dark:border-sky-300/30 dark:bg-sky-300/18 dark:text-sky-100 dark:shadow-[0_16px_34px_-20px_rgba(14,165,233,0.46)]",
-    },
-    {
-      icon: "mdi:sitemap-outline",
-      iconWrap:
-        "border border-cyan-200/90 bg-cyan-50 text-cyan-700 shadow-[0_12px_28px_-18px_rgba(6,182,212,0.42)] dark:border-cyan-300/30 dark:bg-cyan-300/18 dark:text-cyan-100 dark:shadow-[0_16px_34px_-20px_rgba(6,182,212,0.48)]",
-    },
-  ];
-
   const safeIdx = titles.length ? idx % titles.length : 0;
   const renderFeatures = (
     className?: string,
@@ -209,13 +185,9 @@ export default function LandingBlueHero() {
         {features.map((text, i) => (
           <motion.div key={i} variants={itemV} className="flex items-center gap-3">
             <span
-              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${featureStyles[i % featureStyles.length].iconWrap}`}
-            >
-              <Icon
-                icon={featureStyles[i % featureStyles.length].icon}
-                className="h-5.5 w-5.5"
-              />
-            </span>
+              aria-hidden
+              className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-gradient-to-br from-blue-600 via-sky-500 to-cyan-400 shadow-[0_0_0_5px_rgba(59,130,246,0.10)] dark:from-sky-300 dark:via-blue-300 dark:to-cyan-200 dark:shadow-[0_0_0_5px_rgba(125,211,252,0.10)]"
+            />
             <span className="text-[15px] font-semibold leading-6 text-neutral-900 dark:text-neutral-100 md:text-[17px] md:leading-7">
               {text}
             </span>
