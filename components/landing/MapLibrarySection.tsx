@@ -199,7 +199,7 @@ export default function MapLibrarySection() {
   return (
     <section className="relative bg-[#dfeafc] px-6 py-24 dark:bg-[#10203a] md:px-10">
       <div className="mx-auto max-w-7xl rounded-[32px] border border-blue-200 bg-[linear-gradient(180deg,#eff5ff_0%,#f7faff_100%)] p-6 shadow-[0_24px_80px_-40px_rgba(37,99,235,0.24)] dark:border-blue-400/20 dark:bg-[linear-gradient(180deg,#0f172a_0%,#0b1220_100%)] dark:shadow-[0_24px_80px_-40px_rgba(59,130,246,0.24)] md:p-8">
-        <div className="max-w-2xl">
+        <div className="max-w-4xl">
           <div className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">
             {t("eyebrow")}
           </div>

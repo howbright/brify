@@ -2,7 +2,7 @@
   "VideoToMapPage": {
     "title": {
       "prefix": "Turn text",
-      "highlight": "into a structured map"
+      "highlight": "into a Structure Map"
     },
     "description": {
       "beforeBold": "Paste the full script from your video",
@@ -19,29 +19,29 @@
       "rule": "By default, 1 credit covers up to {threshold, number} characters. Scripts longer than that require 2 credits."
     },
     "buttons": {
-      "generate": "Create a structure map from this script",
-      "generating": "Generating structure map..."
+      "generate": "Create a Structure Map from this script",
+      "generating": "Creating your Structure Map..."
     },
     "status": {
       "reading": "Reading the video content...",
       "splittingFlow": "Breaking it into high-level sections...",
-      "arrangingStructure": "Laying everything out as a structure map...",
+      "arrangingStructure": "Laying everything out as a Structure Map...",
       "almostThere": "Almost done. Just a moment!"
     },
     "processing": {
-      "title": "We’re organizing your video into a structure map...",
+      "title": "We’re organizing your video into a Structure Map...",
       "bullet1": "Instead of just summarizing, we first analyze the flow, steps and branches.",
       "bullet2": "Depending on the length of the video, this can take tens of seconds or more.",
       "bullet3": "As long as you keep this page open, the process will continue automatically."
     },
     "result": {
-      "title": "Generated structure map result",
+      "title": "Generated Structure Map",
       "hint": "Later, you can plug your actual Structure Map component into this area.",
       "description": "For now, we’re showing the raw API response as JSON. In the future, this will render a React Flow / mindmap view."
     },
     "modal": {
       "title": "Confirm credit usage",
-      "usageText": "Converting this video script into a structure map will use {credits} credit(s).",
+      "usageText": "Turning this video script into a Structure Map will use {credits} credit(s).",
       "bullet1": "The longer the video, the longer the processing time may be.",
       "bullet2": "Once started, this cannot be undone and used credits are non-refundable.",
       "bullet3": "We recommend keeping this page open while processing is in progress.",
@@ -50,11 +50,11 @@
     },
     "errors": {
       "emptyScript": "Please paste the video script into the field below first.",
-      "insufficientCredits": "You don’t have enough credits to generate this structure map. Please top up your credits first.",
+      "insufficientCredits": "You don’t have enough credits to create this Structure Map. Please top up your credits first.",
       "requestFailed": "The request to the server failed. Please try again in a moment.",
       "unknown": "An unknown error occurred.",
       "processingFailed": "Something went wrong while processing.",
-      "openMapFailed": "Failed to load the structure map.",
+      "openMapFailed": "Failed to load the Structure Map.",
       "missingMindData": "mind_elixir data is missing.",
       "tooLargeLine1": "The input is too large to process right now.",
       "tooLargeLine2": "Maximum: {max} characters (billing length)",
@@ -66,16 +66,16 @@
       "youtubeFetchFailed": "Failed to fetch the script.",
       "noTranscriptFound": "Could not find subtitles or a transcript. (The video may not have subtitles.)",
       "missingMapId": "mapId is missing.",
-      "createFailed": "Failed to create the structure map.",
+      "createFailed": "Failed to create the Structure Map.",
       "createTimedOut": "The map creation request is taking too long. The server may be delayed, so please try again shortly."
     },
     "messages": {
-      "youtubeFilled": "We filled the input with the fetched script. You can generate the map right away."
+      "youtubeFilled": "We filled the input with the fetched script. You can create the map right away."
     },
     "labels": {
       "untitled": "Untitled",
-      "draftsTitle": "Created structure maps",
-      "previewTitle": "Structure map preview"
+      "draftsTitle": "Created Structure Maps",
+      "previewTitle": "Structure Map Preview"
     }
   },
   "ScriptInputCard": {
@@ -90,7 +90,7 @@
     "languageTitle": "Which language should we use for the map?",
     "generateTitle": "Generate the map",
     "creditsInfo": "{current} credits available · this run uses {required} credit(s)",
-    "generateButton": "Generate structure map"
+    "generateButton": "Generate Structure Map"
   },
   "OutputLanguageSelect": {
     "labels": {
@@ -102,7 +102,7 @@
     "more": "More…",
     "dialogAria": "Select output language",
     "title": "Choose an output language",
-    "description": "We’ll generate the structure map in the language you select.",
+    "description": "We’ll generate the Structure Map in the language you select.",
     "close": "Close",
     "searchPlaceholder": "Search languages (e.g. English, Korean, ja, zh...)",
     "noResults": "No results found. Try a different keyword.",
@@ -111,7 +111,7 @@
   },
   "YoutubeScriptDialog": {
     "dialogAria": "Fetch a script from YouTube",
-    "title": "How to get a YouTube script",
+    "title": "How to get a YouTube transcript",
     "subtitle": "Copy the full YouTube transcript in one go.",
     "close": "Close",
     "pastePrefix": "In the input field,",
@@ -119,15 +119,15 @@
     "imagePlaceholder": "You can place a related image here.",
     "steps": {
       "1": {
-        "title": "Open “More” under the video",
+        "title": "Open “More” below the video",
         "imageLabel": "Step 1 image"
       },
       "2": {
-        "title": "Click to open the script",
+        "title": "Open the transcript",
         "imageLabel": "Step 2 image"
       },
       "3": {
-        "title": "Start dragging from the beginning",
+        "title": "Start selecting from the beginning",
         "imageLabel": "Step 3 image"
       },
       "4": {
@@ -148,7 +148,7 @@
         "imageLabel": "Step 7 image"
       },
       "8": {
-        "title": "Ctrl + V into the input field",
+        "title": "Paste it into the input field",
         "imageLabel": "Step 8 image"
       }
     }
@@ -157,7 +157,7 @@
     "dialogAria": "Confirm credit usage",
     "title": "Credit usage",
     "usage": "{credits} credit will be used.",
-    "notice": "You can't cancel after starting.",
+    "notice": "Once it starts, it can’t be canceled.",
     "cancel": "Cancel",
     "confirm": "Use {credits} credit(s) and start"
   },
@@ -173,20 +173,20 @@
       "done": "Done",
       "failed": "Failed"
     },
-    "thumbnailAlt": "thumbnail",
+    "thumbnailAlt": "Thumbnail",
     "noSource": "No source",
     "hasUrl": "URL included",
     "saving": "Saving...",
     "editMetadata": "Edit info",
-    "viewMap": "View structure map"
+    "viewMap": "View Structure Map"
   },
   "ResultReadyPanel": {
     "title": "Generation is complete",
-    "fallbackDescription": "Please check the structure map that was just created.",
+    "fallbackDescription": "Please take a look at the Structure Map that was just created.",
     "nextTitle": "Next steps",
-    "nextDescription": "Open the structure map to review it, or create another one with new content.",
-    "createAnother": "Create another structure map",
-    "openMap": "Open structure map"
+    "nextDescription": "Open the Structure Map to review it, or create another one from new content.",
+    "createAnother": "Create another Structure Map",
+    "openMap": "Open Structure Map"
   },
   "NoteItem": {
     "save": "Save",
@@ -196,10 +196,10 @@
   },
   "ScriptHelpSection": {
     "badge": "Help",
-    "headerTitle": "How to copy your YouTube script",
+    "headerTitle": "How to copy a YouTube transcript",
     "sectionA": {
-      "title": "Getting the script from YouTube (desktop)",
-      "description": "Follow these steps and you can grab the full script in about 1–2 minutes."
+      "title": "Getting a transcript from YouTube on desktop",
+      "description": "Follow these steps to copy the full transcript in about 1–2 minutes."
     },
 
     "step1": {
@@ -259,7 +259,7 @@
     }
   },
   "login": {
-    "title": "Get started",
+    "title": "Log in",
     "google": "Continue with Google",
     "or": "or",
     "email": {
@@ -334,37 +334,37 @@
 
   "signupPage": {
     "brand": "Brify",
-    "tagline": "Create a new account and start working with summaries and structure maps."
+    "tagline": "Create a new account and start organizing summaries and Structure Maps."
   },
   "loginPage": {
     "brand": "Brify",
-    "prelaunchTitle": "The service is currently in preparation.",
-    "launchNotice": "Official launch is planned for early April. Please wait just a little longer."
+    "prelaunchTitle": "The service is still being prepared.",
+    "launchNotice": "Brify has not officially launched yet. We’re currently getting things ready."
   },
   "DemoPage": {
-    "eyebrow": "Live Demo",
+    "eyebrow": "Try it out",
     "titlePrefix": "Try the",
     "titleHighlight": "Structure Map creation flow",
     "titleSuffix": "with sample content",
-    "draftsTitle": "Created structure maps",
-    "previewTitle": "Structure map preview",
+    "draftsTitle": "Created Structure Maps",
+    "previewTitle": "Structure Map Preview",
     "toasts": {
       "languageRestricted": "Only Korean and English are available in the demo.",
       "emptyScript": "The sample text is empty, so we can't create a Structure Map.",
       "success": "Your sample Structure Map is ready.",
-      "autoOpen": "Your Structure Map is ready. Opening the Structure Map page now.",
+      "autoOpen": "Your Structure Map is ready. Opening it now.",
       "readOnly": "You can't edit the sample text on the demo page."
     }
   },
   "DemoFullscreenDialog": {
     "dialog": {
-      "title": "Structure map preview"
+      "title": "Structure Map Preview"
     },
     "actions": {
       "close": "Close",
       "closeMap": "Close map",
       "infoPanel": "Info panel",
-      "startService": "Start Using Brify",
+      "startService": "Start using Brify",
       "centerMap": "Center",
       "collapseAll": "Collapse all",
       "zoomIn": "Zoom in",
@@ -390,10 +390,10 @@
       "terms": "Terms"
     },
     "sourceTypes": {
-      "youtube": "youtube",
-      "website": "website",
-      "file": "file",
-      "manual": "manual"
+      "youtube": "YouTube",
+      "website": "Website",
+      "file": "File",
+      "manual": "Manual"
     },
     "info": {
       "created": "Created",
@@ -401,16 +401,16 @@
       "credits": "Credits",
       "summary": "One-paragraph summary",
       "source": "Source",
-      "thumbnail": "thumbnail",
-      "sourceType": "Source type",
+      "thumbnail": "Thumbnail",
+      "sourceType": "Source Type",
       "channel": "Channel",
-      "originalLink": "Original link",
+      "originalLink": "Original Link",
       "tags": "Tags",
       "description": "Description"
     },
     "notes": {
       "justNow": "Just now",
-      "helper": "You can leave quick thoughts while reading important nodes.",
+      "helper": "You can jot down quick thoughts while reading important nodes.",
       "placeholder": "Write down what comes to mind from this node.",
       "add": "Add note",
       "empty": "There are no notes yet.",
@@ -428,7 +428,7 @@
     "terms": {
       "autoAddedXylitol": "Mentioned in the video as the sweetener added to coffee.",
       "customAdded": "A custom term added in the demo view.",
-      "helper": "AI automatically extracts key terms to make them easier to understand.",
+      "helper": "AI automatically extracts key terms to make the content easier to understand.",
       "items": [
         {
           "term": "OMAD",
@@ -533,7 +533,7 @@
         "calloutDescription": "Select a node, then tap the highlight button."
       },
       "terms": {
-        "title": "The Terms tab helps organize difficult expressions",
+        "title": "The Terms tab also organizes difficult expressions",
         "description": "On mobile too, the Terms tab lets you quickly check unfamiliar expressions and AI-generated explanations.",
         "calloutTitle": "Terms",
         "calloutDescription": "You can review difficult terms here."
@@ -547,29 +547,29 @@
     "quote": "“There’s always more to watch than there is time.\nI’d finish a video thinking it was incredibly helpful, but by the evening <strong>I could barely remember half of it</strong>.\nI kept telling myself I’d <highlight>come back to it later</highlight>, and of course many of those videos just disappeared into the backlog.\nWith <strong>health</strong>, <strong>kids’ education</strong>, and <strong>personal finance</strong> all competing for attention, it became even easier to lose track.\nSo I <heavy>built a tool myself</heavy>. When you save what you just watched as a <strong>“structure map”</strong>, you can reopen it later and still see the <strong>flow and the key points</strong> at a glance.”"
   },
   "MapLibrarySection": {
-    "eyebrow": "After Creation",
-    "title": "Structure Maps get stronger after creation",
-    "subtitle": "Read, organize, connect, and find them again easily.",
+    "eyebrow": "Build Your Own Standard",
+    "title": "The more you compare and connect, the clearer your own standard becomes",
+    "subtitle": "Don’t stop at collecting scattered information. Compare it, organize it, and turn it into a standard you can actually rely on in your own judgment.",
     "cards": {
       "tags": {
         "title": "Tag Organization",
-        "description": "It is easy to organize and manage maps with tags."
+        "description": "Group Structure Maps by theme so it becomes easier to compare perspectives side by side."
       },
       "merge": {
         "title": "Merge Maps",
-        "description": "You can connect multiple Structure Maps into one."
+        "description": "Connect multiple channels and sources into one flow so you can see the bigger picture."
       },
       "edit": {
         "title": "Edit Freely",
-        "description": "You can quickly refine and edit nodes your way."
+        "description": "Refine key claims and reasoning in your own words as you shape your own standard."
       },
       "read": {
         "title": "Highlight and Notes",
-        "description": "You can highlight key parts and read more comfortably."
+        "description": "Return to the important parts and keep your focus even when different viewpoints conflict."
       },
       "share": {
         "title": "Share and Download",
-        "description": "You can share by link and save as an image."
+        "description": "Keep the standards and insights you organized accessible as links or images."
       }
     }
   },
@@ -580,15 +580,15 @@
     "cta": "Start using Brify",
     "items": {
       "one": {
-        "quote": "Organizing stock-related YouTube information into a Structure Map helped me grasp the key points quickly and make decisions.",
+        "quote": "Organizing stock-related YouTube information into a Structure Map helped me grasp the key points quickly, compare multiple perspectives without being swayed in one direction, and make decisions based on my own standard.",
         "role": "Stock enthusiast"
       },
       "two": {
-        "quote": "Organizing English web documents into Structure Maps in my native language and combining them made even complex content much easier to understand.",
-        "role": "Learner"
+        "quote": "I kept wondering how I should raise my child, but I never had time to watch every video. As I compared and organized multiple parenting channels into Structure Maps, I gradually built my own standard for parenting.",
+        "role": "Parent figuring things out"
       },
       "three": {
-        "quote": "It is really useful to be able to organize large amounts of health-related YouTube information in a structured way during a busy daily life.",
+        "quote": "I was often confused because different channels made different claims about health, but comparing and organizing large amounts of health-related YouTube information into Structure Maps helped me build my own standard.",
         "role": "Health enthusiast"
       }
     }
@@ -703,12 +703,12 @@
     "reassurance": {
       "line1": "No subscriptions · No auto-renewals."
     },
-    "positioningText": "No subscription — pay only what you use."
+    "positioningText": "No subscription — pay only for what you use."
   },
   "FinalCTA": {
-    "title": "So much information,",
-    "subtitle": "understand and organize it surprisingly fast.",
-    "body": "Make better decisions.",
+    "title": "Don’t get pulled around by scattered information,",
+    "subtitle": "compare different perspectives and make decisions based on your own standard.",
+    "body": "Build a standard of your own that doesn’t waver, even when opinions differ.",
     "primary": {
       "signedOut": "Get started for free",
       "signedIn": "Get started"
@@ -745,8 +745,8 @@
       "signup": "Start for free"
     },
     "cta": {
-      "newMap": "New map",
-      "myMaps": "My maps"
+      "newMap": "New Structure Map",
+      "myMaps": "My Maps"
     }
   },
   "MapControls": {
@@ -777,7 +777,7 @@
       "collapseLevel": "Collapse one level",
       "alignLeft": "Align left",
       "alignRight": "Align right",
-      "alignCenter": "Center align",
+      "alignCenter": "Center layout",
       "exportPng": "Save as image (PNG)",
       "share": "Share",
       "shortcuts": "Shortcuts",
@@ -806,8 +806,8 @@
       { "key": "PageUp / Alt + ↑", "description": "Move up" },
       { "key": "PageDown / Alt + ↓", "description": "Move down" },
       { "key": "Ctrl + ↑", "description": "Both-side layout" },
-      { "key": "Ctrl + ←", "description": "Left layout" },
-      { "key": "Ctrl + →", "description": "Right layout" },
+      { "key": "Ctrl + ←", "description": "Left-side layout" },
+      { "key": "Ctrl + →", "description": "Right-side layout" },
       { "key": "Ctrl + C", "description": "Copy" },
       { "key": "Ctrl + X", "description": "Cut" },
       { "key": "Ctrl + V", "description": "Paste" },
@@ -836,12 +836,12 @@
     }
   },
   "BillingPage": {
-    "badge": "Pay only when you need it · No subscription",
+    "badge": "Pay only when you need it · No subscription required",
     "title": "Top up credits",
     "balance": {
       "label": "Current credit balance",
       "unit": "credits",
-      "mainButton": "Back to home",
+      "mainButton": "Back to Home",
       "historyButton": "View billing history",
       "creditHistoryButton": "View credit history",
       "paidLabel": "Paid credits",
@@ -863,14 +863,14 @@
       "q3": "Do credits expire?",
       "a3": "Paid credits are valid for 1 year from the payment date. Refund requests are available within 7 days of purchase, and only orders whose credited amount has not been used are eligible for a full refund.",
       "q4": "Will I receive a payment receipt?",
-      "a4": "Yes. Lemon Squeezy sends a receipt email after payment. If you have a billing issue and can't find it, contact us and we can help you check the order details."
+      "a4": "Yes. LemonSqueezy sends a receipt email after payment. If you can’t find it or need help with a billing issue, contact us and we’ll help you check the order details."
     },
 
     "card": {
       "badge": {
         "popular": "Most popular",
-        "starter": "Good for first-timers",
-        "large": "Best if you use a lot"
+        "starter": "Great for first-time users",
+        "large": "Great if you use it often"
       },
       "creditsUnit": "credits",
       "unitPricePrefix": "≈",
@@ -886,7 +886,7 @@
   "BillingHistoryPage": {
     "badge": "Payment history · Receipts",
     "title": "Payment history",
-    "subtitle": "You can review your credit top-ups and receipts in one place.",
+    "subtitle": "You can view your credit top-up history and receipts in one place.",
     "summary": {
       "title": "Paid credit overview",
       "totalCharged": "Total paid credits purchased",
@@ -966,7 +966,7 @@
       "receipt": "Receipt"
     },
     "title": "Payment receipt",
-    "subtitle": "You can review the detailed information for this credit top-up.",
+    "subtitle": "You can view the full details for this credit top-up.",
     "buttons": {
       "backToHistory": "Back to billing history",
       "print": "Print / Save as PDF"
@@ -1014,18 +1014,18 @@
       "failed": "Payment failed"
     },
     "notice": {
-      "item1": "• This page shows an in-app receipt for your reference.",
+      "item1": "• This page shows an in-app receipt for reference.",
       "item2": "• The amount and posting date on your card statement may differ.",
       "item3": "• After a refund is processed, it may take several days to appear on your card statement depending on your card issuer and the processor.",
       "footnote": "If you have any questions, please contact us through the support page with your payment ID."
     }
   },
   "LandingBlueHero": {
-    "eyebrow": "What is Brify?",
+    "eyebrow": "The more information there is, the more you need a standard of your own.",
     "titles": ["Turn YouTube transcripts", "Turn any long text"],
     "titleHighlight": "into a Structure Map",
     "titleSuffix": "!",
-    "helper": "Turn large amounts of information into structure and understand it faster.",
+    "helper": "Don’t follow someone else’s conclusion. Compare different perspectives and build your own standard.",
     "switchTitleAria": "Switch title",
     "ctaPrimary": "Start for free",
     "ctaSecondary": "View demo",
@@ -1120,15 +1120,15 @@
     },
     "mission_approved": {
       "title": "Mission reward granted",
-      "message": "Your mission \"{missionName}\" was approved and {credits} credits have been granted."
+      "message": "Your mission \"{missionName}\" was approved, and {credits} credits have been added."
     },
     "mission_rejected": {
       "title": "Mission rejected",
-      "message": "Your mission \"{missionName}\" was rejected and no reward was granted. Reason: {reason}"
+      "message": "Your mission \"{missionName}\" was rejected, so no reward was granted. Reason: {reason}"
     },
     "payment_completed": {
       "title": "Payment completed",
-      "message": "Your payment for {pack} was successful and {credits} credits have been granted. (Amount: {amount} {currency})"
+      "message": "Your payment for {pack} was successful, and {credits} credits have been added. (Amount: {amount} {currency})"
     },
     "payment_failed": {
       "title": "Payment failed",
@@ -1136,11 +1136,11 @@
     },
     "refund_completed": {
       "title": "Refund completed",
-      "message": "Your refund has been processed. It may take time to appear on your statement. (Refund credits: {credits}, Amount: {amount} {currency})"
+      "message": "Your refund has been processed. It may take some time to appear on your statement. (Refund credits: {credits}, Amount: {amount} {currency})"
     },
     "credit_insufficient": {
       "title": "Insufficient credits",
-      "message": "Your request could not be processed due to insufficient credits. (Required: {required} / Balance: {balance}) Please top up your credits."
+      "message": "Your request couldn’t be processed because you don’t have enough credits. (Required: {required} / Balance: {balance}) Please top up your credits."
     },
     "system_info": {
       "title": "System notice",
@@ -1182,7 +1182,7 @@
       "view": "(View)"
     },
 
-    "helper": "You can always review these policies again later from the links above.",
+    "helper": "You can always review these policies later using the links above.",
 
     "button": {
       "submit": "Agree & Get Started",
@@ -1210,11 +1210,11 @@
     "credits": "Credits used",
     "summarySection": "One-paragraph summary",
     "sourceSection": "Source",
-    "thumbnailPlaceholder": "thumbnail",
-    "sourceType": "Source type",
+    "thumbnailPlaceholder": "Thumbnail",
+    "sourceType": "Source Type",
     "channel": "Channel/Author",
     "none": "None",
-    "sourceLink": "Original link",
+    "sourceLink": "Original Link",
     "tagsSection": "Tags",
     "noTags": "No tags",
     "descriptionSection": "Description",
@@ -1230,7 +1230,7 @@
     "closeAria": "Close panel",
     "closeTitle": "Close",
     "notes": {
-      "helper": "Write down your thoughts.",
+      "helper": "Write down what stands out to you.",
       "placeholder": "Write a note… (Press Enter to add)",
       "add": "Add",
       "loading": "Loading notes…",
@@ -1255,7 +1255,7 @@
       },
       "auth": {
         "session": "Failed to get session: {message}",
-        "login": "Login required."
+        "login": "Please log in first."
       },
       "env": {
         "missingApiBase": "Missing NEXT_PUBLIC_API_BASE_URL."
@@ -1267,7 +1267,7 @@
     "loading": "Generating term explanations…",
     "delete": "Delete",
     "cta": "Get AI term explanations",
-    "usedCount": "Used {count} time(s) in this session.",
+    "usedCount": "Used {count} times in this session.",
     "customInline": {
       "toggle": "Add more terms to explain",
       "title": "Explain only the terms you want",
@@ -1360,7 +1360,7 @@
     "title": "Content Details",
     "subtitle": "Title is required; everything else is optional.",
     "fields": {
-      "sourceQuestion": "Is this a YouTube script?",
+      "sourceQuestion": "Is this the YouTube transcript you entered?",
       "sourceTypeYes": "Yes",
       "sourceTypeNo": "No",
       "url": "URL (optional)",
@@ -1400,7 +1400,7 @@
       "noTagsToAdd": "No tags to add."
     },
     "thumbnail": {
-      "empty": "no image",
+      "empty": "No image",
       "uploadHint": "Selected image will upload on save. (<=5MB, webp conversion)"
     },
     "status": {
@@ -1421,14 +1421,14 @@
     }
   },
   "Footer": {
-    "description": "A service that turns large amounts of information into structure for faster understanding.",
+    "description": "A service that helps you structure different opinions and information so you can compare them quickly and build a standard of your own.",
     "contactEmail": "Email",
     "contactPhone": "Phone",
     "contactAddress": "Address",
     "company": {
       "representative": "Representative: Nahyun Lee",
       "businessNumber": "Business Registration Number: 726-22-01928",
-      "mailOrderNumber": "Mail-Order Sales Report: 2025-Seoul-Gangnam-0123"
+      "mailOrderNumber": "Mail-Order Sales Report: 2026-Seongnam BundangA-0280"
     },
     "contact": {
       "title": "Contact",
@@ -1445,6 +1445,6 @@
       }
     },
     "copyright": "All rights reserved.",
-    "operatedBy": "Brify is a service operated by vision328."
+    "operatedBy": "Brify is operated by vision328."
   }
 }
