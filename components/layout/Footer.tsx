@@ -14,10 +14,13 @@ const supportLinks = [
 ];
 
 function FooterLink({ href, label }: { href: string; label: string }) {
+  const locale = useLocale();
+
   return (
     <li>
       <Link
         href={href}
+        locale={locale}
         className="
           text-[14px] font-medium text-slate-500 transition-colors
           hover:text-blue-700
