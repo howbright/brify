@@ -704,6 +704,7 @@
       "label": "Only very large inputs require extra credits.",
       "itemSuffix": "Uses {credits} credits."
     },
+    "priceNote": "VAT included",
     "toggles": {
       "details": "Details",
       "hide": "Hide"
@@ -884,6 +885,7 @@
       "unitPricePrefix": "≈",
       "unitPriceMiddle": "/ credit · about",
       "unitPriceSuffix": "Structure Maps",
+      "vatIncluded": "VAT included",
       "cta": "Buy now",
       "loading": "Preparing order..."
     },

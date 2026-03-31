@@ -639,6 +639,9 @@ function CreditPackCard({
       <div className="mt-2 text-2xl font-bold text-neutral-900 dark:text-[var(--color-card-foreground,#e5e7eb)] md:text-[28px]">
         {formatPrice(price, currency)}
       </div>
+      <div className="mt-1 text-[11px] font-medium tracking-[0.01em] text-slate-500 dark:text-slate-400">
+        {t("card.vatIncluded")}
+      </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <div className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700 transition-transform duration-300 group-hover:-translate-y-0.5 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200">

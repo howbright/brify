@@ -705,6 +705,7 @@
       "label": "아주 큰 분량의 입력만 추가 크레딧이 필요해요.",
       "itemSuffix": "{credits} 크레딧이 사용됩니다."
     },
+    "priceNote": "부가세 포함 가격",
     "toggles": {
       "details": "자세히",
       "hide": "접기"
@@ -884,6 +885,7 @@
       "unitPricePrefix": "≈",
       "unitPriceMiddle": "/ 크레딧 · 구조맵 약",
       "unitPriceSuffix": "개 분량",
+      "vatIncluded": "부가세 포함 가격",
       "cta": "지금 충전하기",
       "loading": "주문 준비 중..."
     },

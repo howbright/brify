@@ -16,7 +16,7 @@ export default async function Home() {
   // const t = useTranslations("HomePage");
   return (
     <div>
-      <Hero />
+      <Hero isAuthed={isAuthed} />
       <HeroFlowStrip />
       <MapLibrarySection />
       <LandingTestimonialsSection />

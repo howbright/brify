@@ -335,6 +335,14 @@ export default function PricingGrid({
               <div className={cx("font-bold leading-tight text-neutral-900 dark:text-[var(--color-card-foreground,#e5e7eb)] sm:text-2xl md:text-[28px]", isCompact ? "mt-1 text-[29px]" : "mt-2 text-[27px]")}>
                 {formatCurrency(p.priceUSD)}
               </div>
+              <div
+                className={cx(
+                  "mt-1 text-[11px] font-medium tracking-[0.01em] text-slate-500 dark:text-slate-400",
+                  isCompact && "w-full text-center sm:text-left"
+                )}
+              >
+                {t("priceNote")}
+              </div>
 
               <div
                 className={cx(

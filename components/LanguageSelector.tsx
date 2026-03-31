@@ -1,5 +1,6 @@
 "use client";
 
+import { createClient } from "@/utils/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,11 +20,29 @@ export default function LanguageSelector() {
   const pathname = usePathname();
   const router = useRouter();
   const currentLocale = useLocale();
+  const supabase = createClient();
   const current = locales.find((l) => l.code === currentLocale);
   const localeCodes = locales.map((l) => l.code).join("|");
 
-  const handleLocaleChange = (locale: string) => {
+  const handleLocaleChange = async (locale: string) => {
     document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000`;
+
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        await supabase.auth.updateUser({
+          data: {
+            ...(user.user_metadata ?? {}),
+            language: locale,
+          },
+        });
+      }
+    } catch {
+      // 언어 저장 실패가 라우팅을 막을 필요는 없으므로 무시
+    }
 
     const pathWithoutLocale = pathname.replace(
       new RegExp(`^/(${localeCodes})`),

@@ -147,7 +147,7 @@ function HeroDiagramImage({
 
 /* ---------------- main ---------------- */
 
-export default function LandingBlueHero() {
+export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boolean }) {
   const t = useTranslations("LandingBlueHero");
   const [idx, setIdx] = useState(0);
 
@@ -343,7 +343,7 @@ export default function LandingBlueHero() {
           {/* CTA */}
           <div className="mt-7 flex gap-4">
             <Link
-              href="/signup?next=%2Fvideo-to-map"
+              href={isAuthed ? "/video-to-map" : "/signup?next=%2Fvideo-to-map"}
               className="
                 px-6 py-3 rounded-2xl
                 bg-[linear-gradient(135deg,#1d4ed8_0%,#2563eb_45%,#3b82f6_100%)] text-white font-semibold
