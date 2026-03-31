@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
+import { Link } from "@/i18n/navigation";
 import { Icon } from "@iconify/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -11,6 +12,10 @@ export default function LoginForm() {
   const t = useTranslations("login");
   const locale = useLocale(); // e.g. "ko", "en", ...
   const router = useRouter();
+  const lang = locale === "ko" ? "ko" : "en";
+  const signupQuestion =
+    locale === "ko" ? "아직 계정이 없으신가요?" : "Don’t have an account yet?";
+  const signupLinkLabel = locale === "ko" ? "회원가입 하기" : "Sign up";
 
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
@@ -33,14 +38,18 @@ export default function LoginForm() {
       setMessage("");
 
       const next =
-        new URLSearchParams(window.location.search).get("next") ?? "/video-to-map";
+        new URLSearchParams(window.location.search).get("next") ??
+        `/${locale}/video-to-map`;
+      const redirectUrl = new URL(
+        `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
+      );
+      redirectUrl.searchParams.set("locale", locale);
+      redirectUrl.searchParams.set("next", next);
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent(
-            next
-          )}`,
+          redirectTo: redirectUrl.toString(),
           // (참고) OAuth는 이메일 템플릿을 안 타는 경우가 많아서
           // language를 템플릿에 심는 목적이라면 OTP 흐름에서 주로 필요함.
         },
@@ -62,17 +71,20 @@ export default function LoginForm() {
     e.preventDefault();
     setIsSubmitting(true);
     setMessage("");
-    const lang = locale === "ko" ? "ko" : "en"; // ✅ submit 시점에 확정
     const next =
-      new URLSearchParams(window.location.search).get("next") ?? "/video-to-map";
+      new URLSearchParams(window.location.search).get("next") ??
+      `/${locale}/video-to-map`;
+    const redirectUrl = new URL(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
+    );
+    redirectUrl.searchParams.set("locale", locale);
+    redirectUrl.searchParams.set("next", next);
 
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent(
-          next
-        )}`,
+        emailRedirectTo: redirectUrl.toString(),
         // ✅ 이메일 템플릿에서 {{ .Data.language }} 로 접근 가능
         data: { language: lang },
       },
@@ -110,7 +122,6 @@ export default function LoginForm() {
       setMessageType("error");
       return;
     }
-    const lang = locale === "ko" ? "ko" : "en"; // ✅ submit 시점에 확정
 
     // ✅ (권장) 예전에 가입한 유저/메타데이터 없는 유저 대비:
     // OTP 성공 후 user_metadata에 language를 저장해두면,
@@ -127,8 +138,9 @@ export default function LoginForm() {
     setMessageType("success");
     setMessage(t("messages.verifySuccessMoving"));
 
-    const next = new URLSearchParams(window.location.search).get("next") ?? "/";
-    router.push(`/auth/callback?next=${encodeURIComponent(next)}`);
+    const next =
+      new URLSearchParams(window.location.search).get("next") ?? `/${locale}`;
+    router.push(`/auth/callback?locale=${locale}&next=${encodeURIComponent(next)}`);
   };
 
   return (
@@ -270,6 +282,16 @@ export default function LoginForm() {
                 t("submit")
               )}
             </button>
+
+            <div className="pt-1 text-center text-[15px] text-neutral-600 dark:text-neutral-300">
+              <span>{signupQuestion} </span>
+              <Link
+                href="/signup?next=%2Fvideo-to-map"
+                className="font-semibold text-blue-700 underline underline-offset-4 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-200"
+              >
+                {signupLinkLabel}
+              </Link>
+            </div>
           </form>
         ) : (
           <form className="space-y-5" onSubmit={handleOtpSubmit}>

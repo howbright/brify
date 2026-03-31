@@ -2,11 +2,18 @@
 
 import SignupForm from "@/components/SignupForm";
 import { Link } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 
 export default function Signup() {
   const t = useTranslations("signupPage");
+  const locale = useLocale();
+  const prelaunchTitle =
+    locale === "ko" ? "서비스가 준비중입니다." : "The service is currently in preparation.";
+  const launchNotice =
+    locale === "ko"
+      ? "4월 초 정식 오픈합니다. 조금만 더 기다려주세요."
+      : "Official launch is planned for early April. Please wait just a little longer.";
 
   return (
     <main
@@ -54,6 +61,15 @@ export default function Signup() {
               {t("brand")}
             </span>
           </Link>
+        </div>
+
+        <div className="mb-5 rounded-2xl border border-blue-200/80 bg-blue-50/90 px-5 py-4 text-center text-[16px] font-semibold leading-7 text-blue-900 shadow-sm dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-100 sm:text-[17px]">
+          <p className="text-[18px] font-extrabold leading-7 sm:text-[19px]">
+            {prelaunchTitle}
+          </p>
+          <p className="mt-1.5 text-[16px] font-bold leading-7 text-blue-700 dark:text-blue-200/90 sm:text-[17px]">
+            {launchNotice}
+          </p>
         </div>
 
         {/* 회원가입 카드 */}

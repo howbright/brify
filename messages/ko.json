@@ -262,6 +262,10 @@
     "title": "로그인",
     "google": "Google로 시작하기",
     "or": "또는",
+    "signup": {
+      "question": "아직 계정이 없으신가요?",
+      "link": "회원가입 하기"
+    },
     "email": {
       "label": "이메일 주소",
       "placeholder": "이메일 주소를 입력하세요"
@@ -339,7 +343,11 @@
   "loginPage": {
     "brand": "Brify",
     "prelaunchTitle": "서비스가 준비중입니다.",
-    "launchNotice": "Brify는 아직 정식 출시 전이며, 현재 출시를 준비 중인 서비스입니다."
+    "launchNotice": "Brify는 아직 정식 출시 전이며, 현재 출시를 준비 중인 서비스입니다.",
+    "signup": {
+      "question": "아직 계정이 없으신가요?",
+      "link": "회원가입 하기"
+    }
   },
   "DemoPage": {
     "eyebrow": "사용해보기",

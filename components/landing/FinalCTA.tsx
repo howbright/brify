@@ -10,7 +10,7 @@ type Props = {
   primaryHrefSignedOut?: string; // default: /signup
   primaryHrefSignedIn?: string; // default: /summarize
   showSecondary?: boolean;
-  secondaryHref?: string; // default: /pricing
+  secondaryHref?: string; // default: /#pricing
   className?: string;
 };
 
@@ -19,7 +19,7 @@ export default function FinalCTA({
   primaryHrefSignedOut = "/signup",
   primaryHrefSignedIn = "/video-to-map",
   showSecondary = true,
-  secondaryHref = "/pricing",
+  secondaryHref = "/#pricing",
   className = "",
 }: Props) {
   const t = useTranslations("FinalCTA");

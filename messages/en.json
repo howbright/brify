@@ -262,6 +262,10 @@
     "title": "Log in",
     "google": "Continue with Google",
     "or": "or",
+    "signup": {
+      "question": "Don’t have an account yet?",
+      "link": "Sign up"
+    },
     "email": {
       "label": "Email address",
       "placeholder": "Enter your email address"
@@ -339,7 +343,11 @@
   "loginPage": {
     "brand": "Brify",
     "prelaunchTitle": "The service is still being prepared.",
-    "launchNotice": "Brify has not officially launched yet. We’re currently getting things ready."
+    "launchNotice": "Brify has not officially launched yet. We’re currently getting things ready.",
+    "signup": {
+      "question": "Don’t have an account yet?",
+      "link": "Sign up"
+    }
   },
   "DemoPage": {
     "eyebrow": "Try it out",

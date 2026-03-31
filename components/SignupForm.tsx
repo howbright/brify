@@ -13,6 +13,7 @@ export default function SignupForm() {
   const supabase = createClient();
   const t = useTranslations("signup");
   const locale = useLocale();
+  const lang = locale === "ko" ? "ko" : "en";
 
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
@@ -52,10 +53,11 @@ export default function SignupForm() {
       const redirectUrl = new URL(
         `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
       );
+      const nextPath = `/${locale}/video-to-map`;
       redirectUrl.searchParams.set("flow", "signup");
       redirectUrl.searchParams.set("terms", "1");
       redirectUrl.searchParams.set("locale", locale);
-      redirectUrl.searchParams.set("next", "/video-to-map");
+      redirectUrl.searchParams.set("next", nextPath);
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -89,16 +91,18 @@ export default function SignupForm() {
     const redirectUrl = new URL(
       `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
     );
+    const nextPath = `/${locale}/video-to-map`;
     redirectUrl.searchParams.set("flow", "signup");
     redirectUrl.searchParams.set("terms", "1");
     redirectUrl.searchParams.set("locale", locale);
-    redirectUrl.searchParams.set("next", "/video-to-map");
+    redirectUrl.searchParams.set("next", nextPath);
 
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
         shouldCreateUser: true,
         emailRedirectTo: redirectUrl.toString(),
+        data: { language: lang },
       },
     });
 
@@ -138,6 +142,14 @@ export default function SignupForm() {
     }
   
     const user = session?.user;
+
+    try {
+      await supabase.auth.updateUser({
+        data: { language: lang },
+      });
+    } catch {
+      // 언어 저장 실패는 가입 자체를 막을 필요는 없으니 무시
+    }
   
     // ✅ 프로필 업서트(크레딧은 만지지 않음)
     if (user) {
@@ -178,7 +190,7 @@ export default function SignupForm() {
   
     setMessage(t("success.otpVerified"));
     setMessageType("success");
-    router.push("/video-to-map");
+    router.push(`/${locale}/video-to-map`);
     setIsSubmitting(false);
   };
   
