@@ -195,6 +195,35 @@ export default function LandingBlueHero() {
   ];
 
   const safeIdx = titles.length ? idx % titles.length : 0;
+  const renderFeatures = (
+    className?: string,
+    gridClassName = "grid gap-x-5 gap-y-3 sm:grid-cols-2",
+  ) => (
+    <div className={className}>
+      <motion.div
+        className={gridClassName}
+        variants={listV}
+        initial="hidden"
+        animate="show"
+      >
+        {features.map((text, i) => (
+          <motion.div key={i} variants={itemV} className="flex items-center gap-3">
+            <span
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${featureStyles[i % featureStyles.length].iconWrap}`}
+            >
+              <Icon
+                icon={featureStyles[i % featureStyles.length].icon}
+                className="h-5.5 w-5.5"
+              />
+            </span>
+            <span className="text-[15px] font-semibold leading-6 text-neutral-900 dark:text-neutral-100 md:text-[17px] md:leading-7">
+              {text}
+            </span>
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
+  );
 
   return (
     <main className="relative w-full overflow-hidden pt-14">
@@ -392,34 +421,8 @@ export default function LandingBlueHero() {
           </div>
 
           {/* features */}
-          <div className="mt-6">
-            <motion.div
-              className="grid gap-x-5 gap-y-3 sm:grid-cols-2"
-              variants={listV}
-              initial="hidden"
-              animate="show"
-            >
-              {features.map((text, i) => (
-                <motion.div
-                  key={i}
-                  variants={itemV}
-                  className="flex items-center gap-3"
-                >
-                  <span
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${featureStyles[i % featureStyles.length].iconWrap}`}
-                  >
-                    <Icon
-                      icon={featureStyles[i % featureStyles.length].icon}
-                      className="h-5.5 w-5.5"
-                    />
-                  </span>
-                  <span className="text-[15px] font-semibold leading-6 text-neutral-900 dark:text-neutral-100 md:text-[17px] md:leading-7">
-                    {text}
-                  </span>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
+          {renderFeatures("mt-6 md:hidden")}
+          {renderFeatures("mt-6 hidden min-[1126px]:block")}
 
         </div>
 
@@ -427,6 +430,11 @@ export default function LandingBlueHero() {
         <div className="relative hidden md:block">
           <HeroDiagramImage alt={t("visualAlt")} videoLabel={t("videoLabel")} />
         </div>
+
+        {renderFeatures(
+          "hidden md:max-[1125px]:col-span-2 md:max-[1125px]:mt-1 md:max-[1125px]:block",
+          "grid gap-x-6 gap-y-3 md:grid-cols-2 min-[980px]:grid-cols-4",
+        )}
       </section>
     </main>
   );
