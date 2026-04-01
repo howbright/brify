@@ -666,39 +666,50 @@ export default function DemoFullscreenDialog({
             </button>
           }
           right={
-            <div className="hidden items-center gap-2 sm:flex">
-              <MapControls
-                editMode={editMode}
-                panMode={false}
-                themes={themeOptions}
-                currentThemeName={themeName}
-                onToggleEdit={() =>
-                  setEditMode((mode) => (mode === "view" ? "edit" : "view"))
-                }
-                onTogglePanMode={() => {}}
-                onSelectTheme={(name) => setThemeName(name)}
-                onCollapseAll={() => mindRef.current?.collapseAll?.()}
-                onExpandAll={() => mindRef.current?.expandAll?.()}
-                onExpandLevel={() => mindRef.current?.expandOneLevel?.()}
-                onCollapseLevel={() => mindRef.current?.collapseOneLevel?.()}
-                onAlignLeft={() => mindRef.current?.setLayout?.("left")}
-                onAlignRight={() => mindRef.current?.setLayout?.("right")}
-                onAlignSide={() => mindRef.current?.setLayout?.("side")}
-                onCenterMap={() => mindRef.current?.centerMap?.()}
-                onZoomIn={() => mindRef.current?.zoomIn?.()}
-                onZoomOut={() => mindRef.current?.zoomOut?.()}
-                onPublish={() => {}}
-                onShare={handleOpenDemoShareGuide}
-                onOpenTutorial={handleRestartTutorial}
-                highlightEditToggle={tutorialOpen && tutorialStepIndex === 0}
-                modeToggleTutorialId="demo-mode-toggle"
-                editButtonTutorialId={DEMO_EDIT_BUTTON_ID}
-                editButtonId={DEMO_EDIT_BUTTON_ID}
-                onExportPng={handleExportPng}
-                onCloseMap={handleGoHome}
-                placement="inline"
-                hidePanToggle
-              />
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleStartService}
+                className="inline-flex h-8 items-center justify-center rounded-full border border-sky-300 bg-[linear-gradient(135deg,#2563eb_0%,#0ea5e9_55%,#14b8a6_100%)] px-3 text-[12px] font-extrabold tracking-[-0.01em] text-white shadow-[0_16px_30px_-18px_rgba(14,165,233,0.65)] sm:hidden"
+                title={t("actions.startService")}
+              >
+                {t("actions.startService")}
+              </button>
+
+              <div className="hidden items-center gap-2 sm:flex">
+                <MapControls
+                  editMode={editMode}
+                  panMode={false}
+                  themes={themeOptions}
+                  currentThemeName={themeName}
+                  onToggleEdit={() =>
+                    setEditMode((mode) => (mode === "view" ? "edit" : "view"))
+                  }
+                  onTogglePanMode={() => {}}
+                  onSelectTheme={(name) => setThemeName(name)}
+                  onCollapseAll={() => mindRef.current?.collapseAll?.()}
+                  onExpandAll={() => mindRef.current?.expandAll?.()}
+                  onExpandLevel={() => mindRef.current?.expandOneLevel?.()}
+                  onCollapseLevel={() => mindRef.current?.collapseOneLevel?.()}
+                  onAlignLeft={() => mindRef.current?.setLayout?.("left")}
+                  onAlignRight={() => mindRef.current?.setLayout?.("right")}
+                  onAlignSide={() => mindRef.current?.setLayout?.("side")}
+                  onCenterMap={() => mindRef.current?.centerMap?.()}
+                  onZoomIn={() => mindRef.current?.zoomIn?.()}
+                  onZoomOut={() => mindRef.current?.zoomOut?.()}
+                  onPublish={() => {}}
+                  onShare={handleOpenDemoShareGuide}
+                  onOpenTutorial={handleRestartTutorial}
+                  highlightEditToggle={tutorialOpen && tutorialStepIndex === 0}
+                  modeToggleTutorialId="demo-mode-toggle"
+                  editButtonTutorialId={DEMO_EDIT_BUTTON_ID}
+                  editButtonId={DEMO_EDIT_BUTTON_ID}
+                  onExportPng={handleExportPng}
+                  onCloseMap={handleGoHome}
+                  placement="inline"
+                  hidePanToggle
+                />
+              </div>
             </div>
           }
         />
@@ -739,7 +750,7 @@ export default function DemoFullscreenDialog({
           <button
             type="button"
             onClick={handleStartService}
-            className="absolute bottom-5 right-5 z-[20] inline-flex items-center gap-2 rounded-[22px] bg-[linear-gradient(135deg,#2563eb_0%,#0ea5e9_42%,#14b8a6_100%)] px-6 py-4 text-[17px] font-black tracking-[-0.02em] text-white shadow-[0_28px_60px_-24px_rgba(14,165,233,0.78)] transition-transform hover:scale-[1.03] hover:shadow-[0_32px_70px_-24px_rgba(37,99,235,0.82)] sm:bottom-[228px]"
+            className="absolute bottom-[228px] right-5 z-[20] hidden items-center gap-2 rounded-[22px] bg-[linear-gradient(135deg,#2563eb_0%,#0ea5e9_42%,#14b8a6_100%)] px-6 py-4 text-[17px] font-black tracking-[-0.02em] text-white shadow-[0_28px_60px_-24px_rgba(14,165,233,0.78)] transition-transform hover:scale-[1.03] hover:shadow-[0_32px_70px_-24px_rgba(37,99,235,0.82)] sm:inline-flex"
             title={t("actions.startService")}
           >
             <Icon icon="mdi:rocket-launch" className="h-5 w-5" />

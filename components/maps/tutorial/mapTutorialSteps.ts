@@ -117,5 +117,15 @@ export function getMapTutorialSteps(
       calloutTitle: t("steps.terms.calloutTitle"),
       calloutDescription: t("steps.terms.calloutDescription"),
     },
+    {
+      title: t("steps.shortcuts.title"),
+      description: t("steps.shortcuts.description"),
+      targetClassName: "left-0 top-0 h-0 w-0",
+      hideTargetRing: true,
+      hideCallout: true,
+      calloutClassName: "",
+      calloutTitle: "",
+      content: "shortcuts",
+    },
   ];
 }

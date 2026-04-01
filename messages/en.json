@@ -513,6 +513,10 @@
         "description": "In the Terms tab on the left panel, AI can gather unfamiliar words from the content and explain them clearly.",
         "calloutTitle": "Terms",
         "calloutDescription": "AI finds difficult terms and organizes them for you."
+      },
+      "shortcuts": {
+        "title": "It gets much easier once you remember the shortcuts",
+        "description": "Once you remember the most useful shortcuts, working with a Structure Map becomes much faster. You can always open this again from More > Shortcuts."
       }
     },
     "mobile": {

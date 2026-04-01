@@ -2,8 +2,9 @@
 
 import { Icon } from "@iconify/react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useMessages, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { getShortcutCopy } from "@/components/maps/shortcutCopy";
 
 export type MapTutorialLanguage = "ko" | "en";
 
@@ -23,10 +24,12 @@ export type MapTutorialStep = {
   hideTargetRing?: boolean;
   highlightCalloutRing?: boolean;
   hideCalloutOnMobile?: boolean;
+  hideCallout?: boolean;
   calloutClassName: string;
   calloutTitle: string;
   calloutDescription?: string;
   illustration?: MapTutorialIllustration;
+  content?: "shortcuts";
 };
 
 function TutorialIllustration({
@@ -119,8 +122,14 @@ export default function MapTutorialOverlay({
   onSkip: () => void;
 }) {
   const t = useTranslations("MapTutorial");
+  const locale = useLocale();
+  const messages = useMessages() as {
+    ShortcutsDialog?: import("@/components/maps/shortcutCopy").ShortcutMessages;
+  };
   const step = steps[stepIndex];
   const isLast = stepIndex === steps.length - 1;
+  const shortcutCopy =
+    step.content === "shortcuts" ? getShortcutCopy(locale, messages) : null;
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [measuredTargetStyle, setMeasuredTargetStyle] = useState<React.CSSProperties | null>(
     null
@@ -220,7 +229,7 @@ export default function MapTutorialOverlay({
         </div>
       ) : null}
 
-      {!isMobileViewport || !step.hideCalloutOnMobile ? (
+      {(!isMobileViewport || !step.hideCalloutOnMobile) && !step.hideCallout ? (
         <div className={`pointer-events-none absolute ${step.calloutClassName}`}>
           {step.highlightCalloutRing ? (
             <>
@@ -273,6 +282,28 @@ export default function MapTutorialOverlay({
           <p className={`mt-3 font-medium text-white/78 ${isMobileViewport ? "text-[13px] leading-6" : "text-[14px] leading-6"}`}>
             {step.description}
           </p>
+          {step.content === "shortcuts" && shortcutCopy ? (
+            <div className="mt-4 rounded-[22px] border border-white/12 bg-white/6 p-3">
+              <div className="mb-2 text-[12px] font-bold tracking-[0.08em] text-white/60">
+                {shortcutCopy.title}
+              </div>
+              <div className="grid max-h-56 gap-2 overflow-y-auto pr-1 text-[12px]">
+                <div className="grid grid-cols-[1fr_1.4fr] gap-2 rounded-2xl border border-white/10 bg-white/6 px-3 py-2 text-white/65">
+                  <span>{shortcutCopy.columns.shortcut}</span>
+                  <span>{shortcutCopy.columns.action}</span>
+                </div>
+                {shortcutCopy.items.map(({ key, description }) => (
+                  <div
+                    key={key}
+                    className="grid grid-cols-[1fr_1.4fr] gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-white/80"
+                  >
+                    <span className="font-semibold text-white/92">{key}</span>
+                    <span>{description}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           <button
             type="button"
