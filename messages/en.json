@@ -604,7 +604,7 @@
   "LandingPricingSection": {
     "title": "Simple credits, easy to understand",
     "subtitle": "Start free, then pay only when you need more.",
-    "freeCreditsBadge": "Get 15 free credits just for signing up",
+    "freeCreditsBadge": "15 free credits when you sign up",
     "cards": {
       "free": {
         "eyebrow": "Free Start",
@@ -734,10 +734,14 @@
     "userMenu": {
       "triggerLabel": "My account",
       "sectionTitle": "Signed-in account",
+      "greeting": "Hello",
+      "greetingWithEmail": "Hello, {email}",
       "items": {
+        "myMaps": "My Maps",
         "billing": "Top up credits",
         "billingHistory": "Billing history",
-        "accountSettings": "Account settings"
+        "accountSettings": "Account settings",
+        "mapTheme": "Default map theme"
       },
       "theme": "Theme",
       "language": "Language",

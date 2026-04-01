@@ -13,7 +13,7 @@ type Props = {
   packs?: Pack[];
 };
 
-function RibbonText({ text }: { text: string }) {
+function RibbonText({ text, compact = false }: { text: string; compact?: boolean }) {
   return (
     <svg
       viewBox="0 0 1000 140"
@@ -27,7 +27,7 @@ function RibbonText({ text }: { text: string }) {
         fill="currentColor"
         fontWeight="800"
         letterSpacing="-0.02em"
-        className="text-[60px] sm:text-[46px]"
+        className={compact ? "text-[52px] sm:text-[40px]" : "text-[60px] sm:text-[46px]"}
       >
         <textPath href="#ribbon-arc" startOffset="50%" textAnchor="middle">
           {text}
@@ -41,6 +41,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
   const t = useTranslations("LandingPricingSection");
   const locale = useLocale();
   const isKorean = locale === "ko";
+  const isCompactRibbon = locale !== "ko";
 
   const effectivePacks: Pack[] = useMemo(() => {
     if (packs) return packs;
@@ -119,7 +120,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
               />
               <div className="absolute inset-0 flex -translate-y-[4px] items-center justify-center px-5 text-center sm:-translate-y-[8px] sm:px-8">
                 <span className="block w-full max-w-[96%] text-slate-900 sm:max-w-[88%]">
-                  <RibbonText text={t("freeCreditsBadge")} />
+                  <RibbonText text={t("freeCreditsBadge")} compact={isCompactRibbon} />
                 </span>
               </div>
             </div>

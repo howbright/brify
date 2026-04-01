@@ -735,10 +735,14 @@
     "userMenu": {
       "triggerLabel": "내 계정",
       "sectionTitle": "로그인 계정",
+      "greeting": "안녕하세요",
+      "greetingWithEmail": "{email}님, 안녕하세요",
       "items": {
+        "myMaps": "나의 맵",
         "billing": "크레딧 충전",
         "billingHistory": "결제 내역",
-        "accountSettings": "계정 설정"
+        "accountSettings": "계정 설정",
+        "mapTheme": "기본 맵 테마"
       },
       "theme": "테마",
       "language": "언어",

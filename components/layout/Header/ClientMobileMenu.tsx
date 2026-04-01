@@ -8,7 +8,7 @@ import { Icon } from "@iconify/react";
 import { Link } from "@/i18n/navigation";
 import LanguageSelector from "@/components/LanguageSelector";
 import { ThemeToggleText } from "@/components/ThemeToggleText";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import { DEFAULT_THEME_NAME } from "@/components/maps/themes";
 import MindThemePreferenceModal from "@/components/maps/MindThemePreferenceModal";
@@ -25,7 +25,11 @@ export default function ClientMobileUserMenu({
   const [themeName, setThemeName] = useState<string>(DEFAULT_THEME_NAME);
   const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations("Header");
+  const greeting = locale === "ko" ? "안녕하세요" : "Hello";
+  const greetingWithEmail =
+    locale === "ko" && email ? `${email}님, 안녕하세요` : email ? `Hello, ${email}` : greeting;
 
   useEffect(() => {
     if (!isAuthed) return;
@@ -144,7 +148,7 @@ export default function ClientMobileUserMenu({
               {/* 인사 / 이메일 */}
               {isAuthed && (
                 <div className="mt-1 text-xs text-primary font-medium mb-3 text-center truncate">
-                  {email ? `${email}님, 안녕하세요` : "안녕하세요"}
+                  {greetingWithEmail}
                 </div>
               )}
 
@@ -162,7 +166,7 @@ export default function ClientMobileUserMenu({
                       }}
                       className="w-full text-left py-2"
                     >
-                      나의 맵
+                      {t("userMenu.items.myMaps")}
                     </button>
                     <button
                       onClick={() => {
@@ -180,7 +184,7 @@ export default function ClientMobileUserMenu({
                       }}
                       className="w-full text-left py-2"
                     >
-                      결제 내역
+                      {t("userMenu.items.billingHistory")}
                     </button>
                     <button
                       onClick={() => {
@@ -189,7 +193,7 @@ export default function ClientMobileUserMenu({
                       }}
                       className="w-full text-left py-2"
                     >
-                      계정 설정
+                      {t("userMenu.items.accountSettings")}
                     </button>
                     <button
                       onClick={() => {
@@ -198,7 +202,7 @@ export default function ClientMobileUserMenu({
                       }}
                       className="w-full text-left py-2"
                     >
-                      기본 맵 테마
+                      {t("userMenu.items.mapTheme")}
                     </button>
                   </div>
 

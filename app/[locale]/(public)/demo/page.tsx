@@ -41,7 +41,9 @@ export default function DemoPage() {
   const t = useTranslations("DemoPage");
   const locale = useLocale();
   const [scriptText, setScriptText] = useState(DEMO.transcriptLines.join("\n\n"));
-  const [outputLang, setOutputLang] = useState("ko");
+  const [outputLang, setOutputLang] = useState(() =>
+    locale === "en" ? "en" : "ko"
+  );
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [drafts, setDrafts] = useState<MapDraft[]>([]);

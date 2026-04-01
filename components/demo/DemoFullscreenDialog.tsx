@@ -521,23 +521,18 @@ export default function DemoFullscreenDialog({
     setTutorialOpen(!tutorialCompleted);
     setTutorialStepIndex(0);
     const timer = window.setTimeout(() => {
-      mindRef.current?.collapseToLevel?.(2);
+      if (isTutorialMobile) {
+        mindRef.current?.collapseAll?.();
+      } else {
+        mindRef.current?.collapseToLevel?.(2);
+      }
       mindRef.current?.centerMap?.();
-      window.setTimeout(() => {
-        mindRef.current?.zoomIn?.();
+      const zoomCount = isTutorialMobile ? 10 : 5;
+      for (let i = 0; i < zoomCount; i += 1) {
         window.setTimeout(() => {
           mindRef.current?.zoomIn?.();
-          window.setTimeout(() => {
-            mindRef.current?.zoomIn?.();
-            window.setTimeout(() => {
-              mindRef.current?.zoomIn?.();
-              window.setTimeout(() => {
-                mindRef.current?.zoomIn?.();
-              }, 140);
-            }, 140);
-          }, 140);
-        }, 140);
-      }, 120);
+        }, 120 + i * 140);
+      }
     }, 220);
     return () => window.clearTimeout(timer);
   }, [open, mounted, draft?.id, language, isTutorialMobile]);
