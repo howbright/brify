@@ -1,49 +1,45 @@
-"use client";
-
-import { useEffect, useRef } from "react";
 import LoginForm from "@/components/LoginForm";
 import { Link } from "@/i18n/navigation";
-import { useLocale, useTranslations } from "next-intl";
-import { useRouter, useSearchParams } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
+import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
 import Image from "next/image";
 
-export default function Login() {
-  const t = useTranslations("loginPage");
-  const locale = useLocale();
-  const router = useRouter();
-  const sp = useSearchParams();
-  const supabase = createClient();
+function resolveNext(next: string | string[] | undefined, locale: string, fallback: string) {
+  const value = Array.isArray(next) ? next[0] : next;
+  if (!value) return fallback;
+  if (!value.startsWith("/")) return fallback;
+  if (value.startsWith("//")) return fallback;
+  if (value.startsWith(`/${locale}/`) || value === `/${locale}`) return value;
+  if (value.startsWith("/ko/") || value === "/ko" || value.startsWith("/en/") || value === "/en") {
+    return value;
+  }
+  return `/${locale}${value === "/" ? "" : value}`;
+}
+
+export default async function Login({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams?: Promise<{ next?: string | string[] }>;
+}) {
+  const { locale } = await params;
+  const sp = searchParams ? await searchParams : undefined;
+  const supabase = await createClient();
   const prelaunchTitle =
     locale === "ko" ? "서비스가 준비중입니다." : "The service is currently in preparation.";
   const launchNotice =
     locale === "ko"
       ? "4월 초 정식 오픈합니다. 조금만 더 기다려주세요."
       : "Official launch is planned for early April. Please wait just a little longer.";
+  const nextPath = resolveNext(sp?.next, locale, `/${locale}`);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  // ✅ StrictMode에서 effect 2번 도는 것 방지용
-  const onceRef = useRef(false);
-
-  useEffect(() => {
-    if (onceRef.current) return;
-    onceRef.current = true;
-
-    const run = async () => {
-      // next가 있으면 그쪽으로, 없으면 "/"로
-      const next = sp.get("next") ?? "/";
-
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      // ✅ 이미 로그인 상태면 로그인 페이지 보여줄 이유가 없음
-      if (session?.user) {
-        router.replace(next); // next가 /video-to-map이면 거기로도 가능
-      }
-    };
-
-    run();
-  }, [router, sp, supabase]);
+  if (session?.user) {
+    redirect(nextPath);
+  }
 
   return (
     <main
@@ -88,7 +84,7 @@ export default function Login() {
               height={512}
             />
             <span className="text-[24px] font-extrabold tracking-tight">
-              {t("brand")}
+              Brify
             </span>
           </Link>
         </div>

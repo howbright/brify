@@ -89,13 +89,15 @@ function HeroDiagramImage({
           "
         />
         <div className="relative w-full aspect-video overflow-hidden rounded-3xl">
-        <button
-          type="button"
-          onClick={() => setIsVideoOpen(true)}
-          className="absolute bottom-4 right-4 z-20 inline-flex cursor-pointer items-center rounded-full border border-white/70 bg-slate-950/70 px-3.5 py-2 text-sm font-bold tracking-[0.04em] text-white transition-transform duration-200 hover:scale-[1.03] dark:border-white/55 dark:bg-slate-950/72 md:text-[15px]"
-        >
-          {videoLabel}
-        </button>
+        {!isVideoOpen ? (
+          <button
+            type="button"
+            onClick={() => setIsVideoOpen(true)}
+            className="absolute bottom-4 right-4 z-20 inline-flex cursor-pointer items-center rounded-full border border-white/70 bg-slate-950/70 px-3.5 py-2 text-sm font-bold tracking-[0.04em] text-white transition-transform duration-200 hover:scale-[1.03] dark:border-white/55 dark:bg-slate-950/72 md:text-[15px]"
+          >
+            {videoLabel}
+          </button>
+        ) : null}
         {isVideoOpen ? (
           <iframe
             src="https://www.youtube.com/embed/Zr3y3y9_Jcg?autoplay=1&rel=0"

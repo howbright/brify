@@ -1,19 +1,45 @@
-"use client";
-
 import SignupForm from "@/components/SignupForm";
 import { Link } from "@/i18n/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
 import Image from "next/image";
 
-export default function Signup() {
-  const t = useTranslations("signupPage");
-  const locale = useLocale();
+function resolveNext(next: string | string[] | undefined, locale: string, fallback: string) {
+  const value = Array.isArray(next) ? next[0] : next;
+  if (!value) return fallback;
+  if (!value.startsWith("/")) return fallback;
+  if (value.startsWith("//")) return fallback;
+  if (value.startsWith(`/${locale}/`) || value === `/${locale}`) return value;
+  if (value.startsWith("/ko/") || value === "/ko" || value.startsWith("/en/") || value === "/en") {
+    return value;
+  }
+  return `/${locale}${value === "/" ? "" : value}`;
+}
+
+export default async function Signup({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams?: Promise<{ next?: string | string[] }>;
+}) {
+  const { locale } = await params;
+  const sp = searchParams ? await searchParams : undefined;
+  const supabase = await createClient();
   const prelaunchTitle =
     locale === "ko" ? "서비스가 준비중입니다." : "The service is currently in preparation.";
   const launchNotice =
     locale === "ko"
       ? "4월 초 정식 오픈합니다. 조금만 더 기다려주세요."
       : "Official launch is planned for early April. Please wait just a little longer.";
+  const nextPath = resolveNext(sp?.next, locale, `/${locale}/video-to-map`);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session?.user) {
+    redirect(nextPath);
+  }
 
   return (
     <main
@@ -58,7 +84,7 @@ export default function Signup() {
               height={512}
             />
             <span className="text-[24px] font-extrabold tracking-tight">
-              {t("brand")}
+              Brify
             </span>
           </Link>
         </div>
