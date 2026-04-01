@@ -189,15 +189,6 @@ export default function ClientMobileUserMenu({
                     <button
                       onClick={() => {
                         setOpen(false);
-                        router.push("/account");
-                      }}
-                      className="w-full text-left py-2"
-                    >
-                      {t("userMenu.items.accountSettings")}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setOpen(false);
                         setThemeOpen(true);
                       }}
                       className="w-full text-left py-2"

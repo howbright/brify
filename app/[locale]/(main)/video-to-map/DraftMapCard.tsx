@@ -159,9 +159,9 @@ export default function DraftMapCard({
       {/* content */}
       <div className="relative flex-1 min-w-0">
         {/* ✅ 상단: 모바일 2줄 안정 레이아웃 */}
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-2">
           {/* text block */}
-          <div className="min-w-0 pr-1">
+          <div className="min-w-0 pr-0 sm:pr-1">
             {/* ✅ 모바일: 2줄까지 보여주고 그 이상은 ... */}
             <p className="text-[14px] sm:text-base font-semibold text-neutral-900 dark:text-white line-clamp-2">
               {draft.title}
@@ -171,9 +171,9 @@ export default function DraftMapCard({
           {/* ✅ 뱃지는 절대 구겨지지 않게 */}
           <span
             className={`
-              shrink-0 whitespace-nowrap
+              hidden w-fit shrink-0 whitespace-nowrap sm:inline-flex
               rounded-full border px-2 py-1 sm:px-2.5 text-[11px] sm:text-[12px] font-semibold
-              inline-flex items-center gap-1.5
+              items-center gap-1.5
               ${badge.cls} ${badge.darkCls}
               ${
                 isActiveStatus(draft.status)
@@ -189,7 +189,7 @@ export default function DraftMapCard({
             )}
             <span>{badge.text}</span>
             {isActiveStatus(draft.status) && progressPercent !== null && (
-              <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] sm:text-[11px] font-semibold tabular-nums">
+              <span className="ml-1 hidden sm:inline-flex items-center gap-1 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] sm:text-[11px] font-semibold tabular-nums">
                 {progressPercent}%
                 <span className="h-1.5 w-12 sm:w-16 overflow-hidden rounded-full bg-white/30">
                   <span
@@ -208,7 +208,24 @@ export default function DraftMapCard({
           {draft.sourceUrl ? ` · ${t("hasUrl")}` : ""}
         </p>
 
-        
+        {isActiveStatus(draft.status) && progressPercent !== null && (
+          <div className="mt-2 sm:hidden">
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-sky-200 bg-sky-50/80 px-3 py-2 dark:border-sky-400/20 dark:bg-sky-500/10">
+              <span className="text-[11px] font-semibold tracking-[0.01em] text-sky-800 dark:text-sky-100/90">
+                {badge.text}
+              </span>
+              <span className="text-[11px] font-bold tabular-nums text-sky-700 dark:text-sky-100">
+                {progressPercent}%
+              </span>
+            </div>
+            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-sky-100 dark:bg-white/10">
+              <span
+                className="block h-full rounded-full bg-[linear-gradient(90deg,#2563eb_0%,#06b6d4_55%,#22c55e_100%)] transition-[width] duration-500 ease-out"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         {draft.tags?.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5">

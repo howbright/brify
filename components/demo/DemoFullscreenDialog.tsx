@@ -534,13 +534,24 @@ export default function DemoFullscreenDialog({
         }, 120 + i * 140);
       }
     }, 220);
-    return () => window.clearTimeout(timer);
+    const mobileCollapseRetry = isTutorialMobile
+      ? window.setTimeout(() => {
+          mindRef.current?.collapseAll?.();
+          mindRef.current?.centerMap?.();
+        }, 220 + 120 + 10 * 140 + 240)
+      : null;
+    return () => {
+      window.clearTimeout(timer);
+      if (mobileCollapseRetry) {
+        window.clearTimeout(mobileCollapseRetry);
+      }
+    };
   }, [open, mounted, draft?.id, language, isTutorialMobile]);
 
   useEffect(() => {
     if (isTutorialMobile) {
       setEditMode("edit");
-      setMobileToolbarCollapsed(true);
+      setMobileToolbarCollapsed(false);
     }
   }, [isTutorialMobile]);
 
@@ -728,7 +739,7 @@ export default function DemoFullscreenDialog({
           <button
             type="button"
             onClick={handleStartService}
-            className="absolute bottom-[228px] right-5 z-[20] inline-flex items-center gap-2 rounded-[22px] bg-[linear-gradient(135deg,#2563eb_0%,#0ea5e9_42%,#14b8a6_100%)] px-6 py-4 text-[17px] font-black tracking-[-0.02em] text-white shadow-[0_28px_60px_-24px_rgba(14,165,233,0.78)] transition-transform hover:scale-[1.03] hover:shadow-[0_32px_70px_-24px_rgba(37,99,235,0.82)]"
+            className="absolute bottom-5 right-5 z-[20] inline-flex items-center gap-2 rounded-[22px] bg-[linear-gradient(135deg,#2563eb_0%,#0ea5e9_42%,#14b8a6_100%)] px-6 py-4 text-[17px] font-black tracking-[-0.02em] text-white shadow-[0_28px_60px_-24px_rgba(14,165,233,0.78)] transition-transform hover:scale-[1.03] hover:shadow-[0_32px_70px_-24px_rgba(37,99,235,0.82)] sm:bottom-[228px]"
             title={t("actions.startService")}
           >
             <Icon icon="mdi:rocket-launch" className="h-5 w-5" />

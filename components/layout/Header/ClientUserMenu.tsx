@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 
 import LanguageSelector from "@/components/LanguageSelector";
 import { ThemeToggleText } from "@/components/ThemeToggleText";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import { DEFAULT_THEME_NAME } from "@/components/maps/themes";
 import MindThemePreferenceModal from "@/components/maps/MindThemePreferenceModal";
@@ -22,6 +22,7 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const t = useTranslations("Header");
+  const locale = useLocale();
   const [themeOpen, setThemeOpen] = useState(false);
   const [themeName, setThemeName] = useState<string>(DEFAULT_THEME_NAME);
   const [userId, setUserId] = useState<string | null>(null);
@@ -139,21 +140,13 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
 
         <DropdownMenuItem
           className="text-sm"
-          onSelect={(e) => {
-            e.preventDefault();
-            router.push("/account");
-          }}
-        >
-          <span>{t("userMenu.items.accountSettings")}</span>
-        </DropdownMenuItem>
-
-        <DropdownMenuItem
-          className="text-sm"
           onSelect={() => {
             setThemeOpen(true);
           }}
         >
-          <span>기본 맵 테마</span>
+          <span>
+            {locale === "ko" ? "기본 맵 테마" : "Default map theme"}
+          </span>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator className={dividerClass} />

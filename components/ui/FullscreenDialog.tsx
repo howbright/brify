@@ -159,7 +159,7 @@ export default function FullscreenDialog({
     if (isTutorialMobile) {
       setEditMode("edit");
       setPanMode(false);
-      setMobileToolbarCollapsed(true);
+      setMobileToolbarCollapsed(false);
     }
   }, [isTutorialMobile]);
 

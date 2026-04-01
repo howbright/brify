@@ -2073,7 +2073,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       />
 
       <MindElixirMiniMap
-        show={showMiniMap}
+        show={showMiniMap && !isTouchDevice}
         label={miniMapLabel}
         canvasRef={miniMapRef}
       />
