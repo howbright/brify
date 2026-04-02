@@ -24,13 +24,24 @@ export default function LoginForm() {
   const [step, setStep] = useState<"email" | "otp">("email");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
   const otpInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (step === "otp" && otpInputRef.current) otpInputRef.current.focus();
   }, [step]);
-   console.log(`${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`);
+  const validateEmail = (value: string) => {
+    const normalized = value.trim();
+    if (!normalized) return t("email.errors.required");
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(normalized)) {
+      return t("email.errors.invalid");
+    }
+
+    return "";
+  };
 
   const handleGoogleLogin = async () => {
     try {
@@ -69,6 +80,14 @@ export default function LoginForm() {
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const nextEmailError = validateEmail(email);
+    if (nextEmailError) {
+      setEmailError(nextEmailError);
+      setMessage("");
+      setMessageType("error");
+      return;
+    }
+
     setIsSubmitting(true);
     setMessage("");
     const next =
@@ -225,22 +244,41 @@ export default function LoginForm() {
                 id="email"
                 placeholder={t("email.placeholder")}
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="
-                  w-full rounded-2xl border border-slate-400 bg-white
+                onChange={(e) => {
+                  const nextValue = e.target.value;
+                  setEmail(nextValue);
+                  if (emailError) {
+                    setEmailError(validateEmail(nextValue));
+                  }
+                }}
+                onBlur={() => setEmailError(validateEmail(email))}
+                className={`
+                  w-full rounded-2xl border bg-white
                   px-4 py-3 text-base text-neutral-900
                   placeholder:text-[15px] placeholder:text-neutral-400
-                  focus:outline-none focus:ring-2 focus:ring-blue-500/70 focus:border-blue-500
-
+                  focus:outline-none focus:ring-2
                   dark:bg-white/[0.07]
-                  dark:border-white/30
                   dark:text-neutral-50
                   dark:placeholder:text-neutral-500
-                  dark:focus:border-blue-300/75
-                  dark:focus:ring-blue-400/40
-                "
+                  ${
+                    emailError
+                      ? "border-red-400 focus:border-red-500 focus:ring-red-500/30 dark:border-red-400/70 dark:focus:border-red-300 dark:focus:ring-red-400/25"
+                      : "border-slate-400 focus:border-blue-500 focus:ring-blue-500/70 dark:border-white/30 dark:focus:border-blue-300/75 dark:focus:ring-blue-400/40"
+                  }
+                `}
+                aria-invalid={Boolean(emailError)}
+                aria-describedby={emailError ? "login-email-error" : undefined}
                 required
               />
+
+              {emailError ? (
+                <p
+                  id="login-email-error"
+                  className="text-[14px] font-medium text-red-600 dark:text-red-400"
+                >
+                  {emailError}
+                </p>
+              ) : null}
             </div>
 
             {message && (

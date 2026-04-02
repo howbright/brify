@@ -268,7 +268,11 @@
     },
     "email": {
       "label": "Email address",
-      "placeholder": "Enter your email address"
+      "placeholder": "Enter your email address",
+      "errors": {
+        "required": "Please enter your email address.",
+        "invalid": "Please enter a valid email address."
+      }
     },
     "submit": "Send verification code",
     "otp": {
@@ -298,7 +302,11 @@
     "or": "or",
     "email": {
       "label": "Email address",
-      "placeholder": "Enter your email address"
+      "placeholder": "Enter your email address",
+      "errors": {
+        "required": "Please enter your email address.",
+        "invalid": "Please enter a valid email address."
+      }
     },
     "otp": {
       "label": "Verification code",

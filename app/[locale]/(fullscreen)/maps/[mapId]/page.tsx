@@ -103,6 +103,10 @@ function toFileSafeName(value: string) {
   return value.replace(/[\\/:*?"<>|]+/g, "-").trim();
 }
 
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
 const FULLSCREEN_PAGE_TERMS_TAB_ID = "fullscreen-page-terms-tab";
 const FULLSCREEN_PAGE_LEFT_PANEL_BUTTON_ID = "fullscreen-page-left-panel-button";
 
@@ -138,7 +142,7 @@ export default function MapDetailPage() {
   const locale = String(params?.locale ?? "ko");
 
   const [draft, setDraft] = useState<MapDraft | null>(null);
-  const [mapData, setMapData] = useState<any | null>(null);
+  const [mapData, setMapData] = useState<MapRow["mind_elixir"] | null>(null);
   const [hasDraft, setHasDraft] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -176,6 +180,7 @@ export default function MapDetailPage() {
   const autoSaveTimerRef = useRef<number | null>(null);
   const lastSavedDraftRef = useRef<string | null>(null);
   const lastAutoSaveErrorRef = useRef<number>(0);
+  const lastHighlightToastRef = useRef(0);
   const savedPulseTimerRef = useRef<number | null>(null);
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
@@ -240,10 +245,7 @@ export default function MapDetailPage() {
         if (cancelled) return;
         if (error) throw error;
 
-        const row = data as MapRow & {
-          mind_elixir?: any;
-          mind_elixir_draft?: any;
-        };
+        const row = data as MapRow;
         setDraft(toDraft(row));
 
         const draftMind = row?.mind_elixir_draft ?? null;
@@ -263,9 +265,9 @@ export default function MapDetailPage() {
           setThemeName(profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME);
         }
         themeInitRef.current = true;
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (cancelled) return;
-        setError(e?.message ?? "구조맵을 불러오지 못했습니다.");
+        setError(getErrorMessage(e, "구조맵을 불러오지 못했습니다."));
         setDraft(null);
         setMapData(null);
         setHasDraft(false);
@@ -561,8 +563,8 @@ export default function MapDetailPage() {
       window.setTimeout(() => {
         router.push("/maps");
       }, 700);
-    } catch (e: any) {
-      const msg = e?.message ?? "삭제에 실패했습니다.";
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, "삭제에 실패했습니다.");
       toast.error(msg);
     } finally {
       setIsDeleting(false);
@@ -636,8 +638,8 @@ export default function MapDetailPage() {
       }
 
       setShowMetadataDialog(false);
-    } catch (e: any) {
-      const msg = e?.message ?? "메타데이터 저장에 실패했습니다.";
+    } catch (e: unknown) {
+      const msg = getErrorMessage(e, "메타데이터 저장에 실패했습니다.");
       console.error(msg);
       window.alert(msg);
     } finally {
@@ -789,8 +791,8 @@ export default function MapDetailPage() {
       }
       setShareEnabled(Boolean(json?.share_enabled));
       setShareToken(json?.share_token ?? null);
-    } catch (e: any) {
-      toast.message(e?.message ?? "공유 상태를 불러오지 못했습니다.");
+    } catch (e: unknown) {
+      toast.message(getErrorMessage(e, "공유 상태를 불러오지 못했습니다."));
     } finally {
       setShareLoading(false);
     }
@@ -808,8 +810,8 @@ export default function MapDetailPage() {
       setShareEnabled(Boolean(json?.share_enabled));
       setShareToken(json?.share_token ?? null);
       toast.message("공유 링크를 만들었어요.");
-    } catch (e: any) {
-      toast.message(e?.message ?? "공유 링크 생성에 실패했습니다.");
+    } catch (e: unknown) {
+      toast.message(getErrorMessage(e, "공유 링크 생성에 실패했습니다."));
     } finally {
       setShareLoading(false);
     }
@@ -827,8 +829,8 @@ export default function MapDetailPage() {
       setShareEnabled(false);
       setShareToken(null);
       toast.message("공유 링크를 끄었습니다.");
-    } catch (e: any) {
-      toast.message(e?.message ?? "공유 링크 끄기에 실패했습니다.");
+    } catch (e: unknown) {
+      toast.message(getErrorMessage(e, "공유 링크 끄기에 실패했습니다."));
     } finally {
       setShareLoading(false);
     }

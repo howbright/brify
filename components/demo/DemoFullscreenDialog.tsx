@@ -591,7 +591,7 @@ export default function DemoFullscreenDialog({
         mindRef.current?.collapseToLevel?.(2);
       }
       mindRef.current?.centerMap?.();
-      const zoomCount = isTutorialMobile ? 10 : 5;
+      const zoomCount = isTutorialMobile ? 5 : 5;
       for (let i = 0; i < zoomCount; i += 1) {
         window.setTimeout(() => {
           mindRef.current?.zoomIn?.();
@@ -602,7 +602,7 @@ export default function DemoFullscreenDialog({
       ? window.setTimeout(() => {
           mindRef.current?.collapseAll?.();
           mindRef.current?.centerMap?.();
-        }, 220 + 120 + 10 * 140 + 240)
+        }, 220 + 120 + 5 * 140 + 240)
       : null;
     return () => {
       window.clearTimeout(timer);

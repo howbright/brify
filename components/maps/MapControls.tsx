@@ -6,6 +6,22 @@ import ShortcutsDialog from "@/components/maps/ShortcutsDialog";
 import ConfirmShareDialog from "@/components/maps/ConfirmShareDialog";
 import { useLocale, useMessages } from "next-intl";
 
+type ShortcutMap = Partial<
+  Record<
+    | "center"
+    | "zoomIn"
+    | "zoomOut"
+    | "collapseAll"
+    | "expandAll"
+    | "expandLevel"
+    | "collapseLevel"
+    | "alignLeft"
+    | "alignRight"
+    | "alignCenter",
+    string
+  >
+>;
+
 type MapControlsMessages = {
   mode?: {
     view?: string;
@@ -186,14 +202,52 @@ export default function MapControls({
     menus: { ...fallback.menus, ...messages.MapControls?.menus },
     actions: { ...fallback.actions, ...messages.MapControls?.actions },
   };
+  const shortcuts: ShortcutMap =
+    locale === "ko"
+      ? {
+          center: "F1",
+          zoomIn: "Ctrl + +",
+          zoomOut: "Ctrl + -",
+          collapseAll: "Ctrl + K, Ctrl + 0",
+          expandAll: "Ctrl + K, Ctrl + =",
+          expandLevel: "Ctrl + K, Ctrl + 1-9",
+          alignLeft: "Ctrl + ←",
+          alignRight: "Ctrl + →",
+          alignCenter: "Ctrl + ↑",
+        }
+      : {
+          center: "F1",
+          zoomIn: "Ctrl + +",
+          zoomOut: "Ctrl + -",
+          collapseAll: "Ctrl + K, Ctrl + 0",
+          expandAll: "Ctrl + K, Ctrl + =",
+          expandLevel: "Ctrl + K, Ctrl + 1-9",
+          alignLeft: "Ctrl + ←",
+          alignRight: "Ctrl + →",
+          alignCenter: "Ctrl + ↑",
+        };
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [confirmShareOpen, setConfirmShareOpen] = useState(false);
   const [mapActionsOpen, setMapActionsOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
+  const [shortcutHintOpen, setShortcutHintOpen] = useState(false);
   const mapActionsRef = useRef<HTMLDivElement>(null);
   const moreRef = useRef<HTMLDivElement>(null);
   const themeRef = useRef<HTMLDivElement>(null);
+  const shortcutHintItems =
+    locale === "ko"
+      ? [
+          { label: "가운데로", value: shortcuts.center },
+          { label: "확대", value: shortcuts.zoomIn },
+          { label: "축소", value: shortcuts.zoomOut },
+        ]
+      : [
+          { label: "Center", value: shortcuts.center },
+          { label: "Zoom in", value: shortcuts.zoomIn },
+          { label: "Zoom out", value: shortcuts.zoomOut },
+        ];
+  const shortcutHintLabel = locale === "ko" ? "힌트" : "Hint";
 
   useEffect(() => {
     if (!mapActionsOpen && !moreOpen && !themeOpen) return;
@@ -331,10 +385,27 @@ export default function MapControls({
             {/* Right: Map actions + More */}
             <div className="flex items-center gap-2">
               <div className="inline-flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setShortcutHintOpen((open) => !open)}
+                  className="
+                    hidden min-[760px]:inline-flex items-center rounded-full
+                    border border-blue-200 bg-blue-50 px-2 py-0.5
+                    text-[10px] font-bold
+                    text-blue-700 transition-colors hover:bg-blue-100
+                    dark:border-blue-400/20 dark:bg-blue-500/10
+                    dark:text-blue-200 dark:hover:bg-blue-500/20
+                  "
+                  aria-expanded={shortcutHintOpen}
+                  aria-label={locale === "ko" ? "단축키 힌트 토글" : "Toggle shortcut hint"}
+                >
+                  ({shortcutHintLabel})
+                </button>
                 {onCenterMap && (
                   <MapControlButton
                     icon="mdi:crosshairs-gps"
                     label={copy.actions.center}
+                    shortcut={shortcuts.center}
                     onClick={onCenterMap}
                     hideLabel
                   />
@@ -343,6 +414,7 @@ export default function MapControls({
                   <MapControlButton
                     icon="mdi:minus"
                     label={copy.actions.zoomOut}
+                    shortcut={shortcuts.zoomOut}
                     onClick={onZoomOut}
                     hideLabel
                   />
@@ -351,6 +423,7 @@ export default function MapControls({
                   <MapControlButton
                     icon="mdi:plus"
                     label={copy.actions.zoomIn}
+                    shortcut={shortcuts.zoomIn}
                     onClick={onZoomIn}
                     hideLabel
                   />
@@ -361,6 +434,7 @@ export default function MapControls({
                 <MapControlButton
                   icon="mdi:collapse-all-outline"
                   label={copy.actions.collapseAll}
+                  shortcut={shortcuts.collapseAll}
                   onClick={onCollapseAll}
                 />
                 <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
@@ -391,10 +465,11 @@ export default function MapControls({
                   </button>
 
                   {mapActionsOpen && (
-                    <div className="absolute right-0 mt-2 w-[220px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
+                    <div className="absolute right-0 mt-2 w-[268px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
                         <MenuButton
                           icon="mdi:unfold-more-horizontal"
                           label={copy.actions.expandAll}
+                          shortcut={shortcuts.expandAll}
                           onClick={() => {
                           setMapActionsOpen(false);
                           onExpandAll();
@@ -403,6 +478,7 @@ export default function MapControls({
                         <MenuButton
                           icon="mdi:arrow-expand-vertical"
                           label={copy.actions.expandLevel}
+                          shortcut={shortcuts.expandLevel}
                           onClick={() => {
                           setMapActionsOpen(false);
                           onExpandLevel();
@@ -423,6 +499,7 @@ export default function MapControls({
                         <MenuButton
                           icon="mdi:format-horizontal-align-left"
                           label={copy.actions.alignLeft}
+                          shortcut={shortcuts.alignLeft}
                           onClick={() => {
                             setMapActionsOpen(false);
                             onAlignLeft();
@@ -433,6 +510,7 @@ export default function MapControls({
                         <MenuButton
                           icon="mdi:format-horizontal-align-right"
                           label={copy.actions.alignRight}
+                          shortcut={shortcuts.alignRight}
                           onClick={() => {
                             setMapActionsOpen(false);
                             onAlignRight();
@@ -443,6 +521,7 @@ export default function MapControls({
                         <MenuButton
                           icon="mdi:format-horizontal-align-center"
                           label={copy.actions.alignCenter}
+                          shortcut={shortcuts.alignCenter}
                           onClick={() => {
                             setMapActionsOpen(false);
                             onAlignSide();
@@ -548,7 +627,21 @@ export default function MapControls({
               </div>
             </div>
             </div>
-
+            {shortcutHintOpen ? (
+              <div className="hidden min-[760px]:flex items-start gap-2 rounded-2xl border border-blue-200 bg-blue-50/90 px-2.5 py-2 text-[11px] font-medium text-blue-900 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-100/90">
+                <Icon
+                  icon="mdi:keyboard-outline"
+                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-700 dark:text-blue-200"
+                />
+                <div className="flex min-w-0 flex-col items-start gap-0.5">
+                  {shortcutHintItems.map((item) => (
+                    <span key={item.label} className="whitespace-nowrap leading-4">
+                      {item.label} <strong>{item.value}</strong>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
       </div>
 
@@ -574,6 +667,7 @@ export default function MapControls({
 function MapControlButton({
   icon,
   label,
+  shortcut: _shortcut,
   onClick,
   pressed = false,
   highlight = false,
@@ -581,6 +675,7 @@ function MapControlButton({
 }: {
   icon: string;
   label: string;
+  shortcut?: string;
   onClick: () => void;
   pressed?: boolean;
   highlight?: boolean;
@@ -622,12 +717,14 @@ function MapControlButton({
 function MenuButton({
   label,
   icon,
+  shortcut,
   onClick,
   danger = false,
   checked = false,
 }: {
   label: string;
   icon?: string;
+  shortcut?: string;
   onClick: () => void;
   danger?: boolean;
   checked?: boolean;
@@ -647,8 +744,16 @@ function MenuButton({
     >
       {icon ? <Icon icon={icon} className="h-5 w-5" /> : null}
       <span className="whitespace-nowrap">{label}</span>
+      {shortcut ? (
+        <span className="ml-auto whitespace-nowrap rounded-md bg-neutral-100 px-2 py-0.5 text-[11px] font-bold text-neutral-500 dark:bg-white/10 dark:text-white/55">
+          {shortcut}
+        </span>
+      ) : null}
       {checked ? (
-        <Icon icon="mdi:check" className="ml-auto h-5 w-5" />
+        <Icon
+          icon="mdi:check"
+          className={`${shortcut ? "ml-2" : "ml-auto"} h-5 w-5`}
+        />
       ) : null}
     </button>
   );
