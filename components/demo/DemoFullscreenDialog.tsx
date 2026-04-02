@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useMessages, useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 import FullscreenHeader from "@/components/maps/FullscreenHeader";
 import MapControls from "@/components/maps/MapControls";
