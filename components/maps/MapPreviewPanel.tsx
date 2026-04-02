@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 import MapMiniPreview, {
   type MapMiniPreviewHandle,
 } from "@/components/maps/MapMiniPreview";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 function formatDate(draft: MapDraft) {
   const value = draft.updatedAt ?? draft.createdAt;
@@ -34,7 +34,23 @@ export default function MapPreviewPanel({
   onClose: () => void;
 }) {
   const miniRef = useRef<MapMiniPreviewHandle | null>(null);
+  const autoZoomedMapIdRef = useRef<string | null>(null);
   const summary = draft?.summary ?? draft?.description ?? "요약이 아직 없어요.";
+
+  useEffect(() => {
+    if (previewStatus !== "loaded" || !draft?.id) return;
+    if (autoZoomedMapIdRef.current === draft.id) return;
+
+    autoZoomedMapIdRef.current = draft.id;
+
+    const timer = window.setTimeout(() => {
+      miniRef.current?.zoomIn();
+      miniRef.current?.zoomIn();
+      miniRef.current?.zoomIn();
+    }, 120);
+
+    return () => window.clearTimeout(timer);
+  }, [draft?.id, previewStatus]);
 
   if (!draft) {
     return (

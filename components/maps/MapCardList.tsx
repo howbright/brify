@@ -9,6 +9,7 @@ type MapCardListProps = {
   previewOpen: boolean;
   selectionMode: boolean;
   tagOrganizeMode: boolean;
+  compactLayout?: boolean;
   selectedMapIds: string[];
   onSelect: (draft: MapDraft) => void;
   onToggleSelect: (draft: MapDraft) => void;
@@ -23,6 +24,7 @@ export default function MapCardList({
   previewOpen,
   selectionMode,
   tagOrganizeMode,
+  compactLayout = false,
   selectedMapIds,
   onSelect,
   onToggleSelect,
@@ -31,7 +33,11 @@ export default function MapCardList({
   showOpenDetail = false,
 }: MapCardListProps) {
   return (
-    <section className="mt-4 grid gap-2 w-full min-w-0">
+    <section
+      className={`mt-4 grid w-full min-w-0 gap-3 ${
+        compactLayout ? "md:grid-cols-2" : "md:grid-cols-2 xl:grid-cols-3"
+      }`}
+    >
       {drafts.map((draft) => (
         <MapListItem
           key={draft.id}

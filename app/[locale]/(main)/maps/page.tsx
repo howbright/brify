@@ -363,7 +363,8 @@ export default function MapsPage() {
   const [previewById, setPreviewById] = useState<
     Record<string, { status: "idle" | "loading" | "loaded" | "missing" | "error"; data: any | null }>
   >({});
-  const effectiveViewMode = isMobileViewport ? "card" : viewMode;
+  const effectiveViewMode = viewMode;
+  const isTagOrganizeActive = tagOrganizeMode || mobileTagSheetOpen;
   const desktopDefaultsAppliedRef = useRef(false);
 
   const dateRange = useMemo(() => {
@@ -458,16 +459,12 @@ export default function MapsPage() {
     if (isMobileViewport !== true) return;
     if (previewOpen) setPreviewOpen(false);
     if (mobilePreviewOpen) setMobilePreviewOpen(false);
-    if (tagOrganizeMode) setTagOrganizeMode(false);
-    if (mobileTagSheetOpen) setMobileTagSheetOpen(false);
-    if (viewMode !== "card") setViewMode("card");
   }, [
     isMobileViewport,
     mobilePreviewOpen,
     mobileTagSheetOpen,
     previewOpen,
     tagOrganizeMode,
-    viewMode,
   ]);
 
   useEffect(() => {
@@ -748,13 +745,13 @@ export default function MapsPage() {
   const filteredDrafts = useMemo(() => drafts, [drafts]);
   const effectiveTagFilters = useMemo(
     () =>
-      tagOrganizeMode
+      isTagOrganizeActive
         ? selectedTagNames.filter((tag) => tag !== NO_TAG_FILTER)
         : tagFilters,
-    [selectedTagNames, tagOrganizeMode, tagFilters]
+    [selectedTagNames, isTagOrganizeActive, tagFilters]
   );
   const includesNoTagFilter =
-    tagOrganizeMode && selectedTagNames.includes(NO_TAG_FILTER);
+    isTagOrganizeActive && selectedTagNames.includes(NO_TAG_FILTER);
   const mergeReady =
     mergeRootTitle.trim().length > 0 && mergeOrderDrafts.length >= 2;
   const handleMergeSubmit = async () => {
@@ -813,7 +810,7 @@ export default function MapsPage() {
 
 
   useEffect(() => {
-    if (!filtersOpen && !tagOrganizeMode) return;
+    if (!filtersOpen && !isTagOrganizeActive) return;
     let cancelled = false;
 
     (async () => {
@@ -852,7 +849,8 @@ export default function MapsPage() {
     };
   }, [
     filtersOpen,
-    tagOrganizeMode,
+    isTagOrganizeActive,
+    mobileTagSheetOpen,
     dateRange.from,
     dateRange.to,
     statusFilters,
@@ -861,11 +859,10 @@ export default function MapsPage() {
   ]);
 
   useEffect(() => {
-    if (!tagOrganizeMode) {
+    if (!isTagOrganizeActive) {
       setSelectedTagNames([]);
-      setMobileTagSheetOpen(false);
     }
-  }, [tagOrganizeMode]);
+  }, [isTagOrganizeActive]);
 
   useEffect(() => {
     let cancelled = false;
@@ -877,7 +874,7 @@ export default function MapsPage() {
         const supabase = createClient();
         const from = (page - 1) * PAGE_SIZE;
         const to = from + PAGE_SIZE - 1;
-        const q = tagOrganizeMode ? "" : query.trim();
+        const q = isTagOrganizeActive ? "" : query.trim();
 
         let request = supabase.from("maps").select(LIST_FIELDS, { count: "exact" });
 
@@ -986,12 +983,12 @@ export default function MapsPage() {
     statusFilters,
     sourceFilters,
     effectiveTagFilters,
-    tagOrganizeMode,
+    isTagOrganizeActive,
     locale,
     includesNoTagFilter,
   ]);
 
-  const isSearching = !tagOrganizeMode && query.trim().length > 0;
+  const isSearching = !isTagOrganizeActive && query.trim().length > 0;
   const hasActiveFilters =
     statusFilters.length > 0 ||
     sourceFilters.length > 0 ||
@@ -1307,38 +1304,59 @@ export default function MapsPage() {
     : "좌측에서 맵을 선택해 주세요.";
   const showRecentSections =
     !error &&
-    !tagOrganizeMode &&
+    !isTagOrganizeActive &&
     !selectionMode &&
     !previewOpen &&
     page === 1 &&
     (hasDrafts || recentDrafts.length > 0 || recentInterestTags.length > 0);
 
   const recentSections = showRecentSections ? (
-    <div className="mt-4 mb-3 grid gap-3 md:grid-cols-2">
-      <section className="rounded-[22px] border border-blue-200 bg-white px-4 py-3 shadow-sm dark:border-blue-500/20 dark:bg-white/[0.05]">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
-              최근 맵
-            </h2>
+    recentSectionsCollapsed ? (
+      <div className="mt-4 mb-3">
+        <div className="ml-auto flex w-full max-w-[420px] items-center justify-between gap-3 rounded-[18px] border border-neutral-200 bg-white px-3 py-2 shadow-sm dark:border-white/10 dark:bg-white/[0.05]">
+          <div className="flex min-w-0 items-center gap-2 text-[13px] font-semibold text-neutral-800 dark:text-white/85">
+            <Icon icon="mdi:history" className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-300" />
+            <span className="truncate">최근 맵</span>
+            <span className="text-neutral-300 dark:text-white/20">·</span>
+            <Icon
+              icon="mdi:tag-heart-outline"
+              className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-300"
+            />
+            <span className="truncate">최근 관심 태그</span>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setRecentSectionsCollapsed((prev) => !prev)}
-              className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-600 transition hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/75 dark:hover:bg-white/[0.08]"
-              aria-label={recentSectionsCollapsed ? "최근 섹션 펼치기" : "최근 섹션 접기"}
-            >
-              <span>{recentSectionsCollapsed ? "펼치기" : "접기"}</span>
-              <Icon
-                icon={recentSectionsCollapsed ? "mdi:chevron-down" : "mdi:chevron-up"}
-                className="h-3.5 w-3.5"
-              />
-            </button>
-            <Icon icon="mdi:history" className="h-5 w-5 text-blue-600 dark:text-blue-300" />
-          </div>
+          <button
+            type="button"
+            onClick={() => setRecentSectionsCollapsed(false)}
+            className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-neutral-600 transition hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/75 dark:hover:bg-white/[0.08]"
+            aria-label="최근 섹션 펼치기"
+          >
+            <span>펼치기</span>
+            <Icon icon="mdi:chevron-down" className="h-3 w-3" />
+          </button>
         </div>
-        {!recentSectionsCollapsed && (
+      </div>
+    ) : (
+      <div className="mt-4 mb-3 grid gap-3 md:grid-cols-2">
+        <section className="rounded-[22px] border border-blue-200 bg-white px-4 py-3 shadow-sm dark:border-blue-500/20 dark:bg-white/[0.05]">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
+                최근 맵
+              </h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setRecentSectionsCollapsed(true)}
+                className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-600 transition hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/75 dark:hover:bg-white/[0.08]"
+                aria-label="최근 섹션 접기"
+              >
+                <span>접기</span>
+                <Icon icon="mdi:chevron-up" className="h-3.5 w-3.5" />
+              </button>
+              <Icon icon="mdi:history" className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+            </div>
+          </div>
           <div className="mt-3 flex flex-wrap gap-2">
             {recentDrafts.map((draft) => (
               <button
@@ -1351,19 +1369,28 @@ export default function MapsPage() {
               </button>
             ))}
           </div>
-        )}
-      </section>
+        </section>
 
-      <section className="rounded-[22px] border border-emerald-200 bg-white px-4 py-3 shadow-sm dark:border-emerald-500/20 dark:bg-white/[0.05]">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
-              최근 나의 관심 태그
-            </h2>
+        <section className="rounded-[22px] border border-emerald-200 bg-white px-4 py-3 shadow-sm dark:border-emerald-500/20 dark:bg-white/[0.05]">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
+                최근 나의 관심 태그
+              </h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setRecentSectionsCollapsed(true)}
+                className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-600 transition hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/75 dark:hover:bg-white/[0.08]"
+                aria-label="최근 섹션 접기"
+              >
+                <span>접기</span>
+                <Icon icon="mdi:chevron-up" className="h-3.5 w-3.5" />
+              </button>
+              <Icon icon="mdi:tag-heart-outline" className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
+            </div>
           </div>
-          <Icon icon="mdi:tag-heart-outline" className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
-        </div>
-        {!recentSectionsCollapsed && (
           <div className="mt-3 flex flex-wrap gap-2">
             {recentInterestTags.length > 0 ? (
               recentInterestTags.map((tag) => (
@@ -1390,9 +1417,9 @@ export default function MapsPage() {
               </div>
             )}
           </div>
-        )}
-      </section>
-    </div>
+        </section>
+      </div>
+    )
   ) : null;
 
   return (
@@ -1410,7 +1437,7 @@ export default function MapsPage() {
 
         <div
           className={`mt-4 grid gap-6 ${
-            tagOrganizeMode
+            isTagOrganizeActive
               ? "lg:grid-cols-[minmax(0,0.32fr)_minmax(0,0.68fr)]"
               : previewOpen
               ? "lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]"
@@ -1521,15 +1548,26 @@ export default function MapsPage() {
                       setSelectedMapIds([]);
                       toast.message("프리뷰 모드로 전환되어 선택 모드가 꺼졌어요.");
                     }
-                    if (next && tagOrganizeMode) {
+                    if (next && isTagOrganizeActive) {
                       setTagOrganizeMode(false);
+                      setMobileTagSheetOpen(false);
                       toast.message("프리뷰를 위해 태그 정리 모드를 껐어요.");
                     }
                     setPreviewOpen(next);
                     setMobilePreviewOpen(false);
                   }}
-                  tagOrganizeMode={tagOrganizeMode}
+                  tagOrganizeMode={isTagOrganizeActive}
                   onToggleTagOrganize={() => {
+                    if (isMobileViewport) {
+                      const next = !isTagOrganizeActive;
+                      if (previewOpen) {
+                        setPreviewOpen(false);
+                        setMobilePreviewOpen(false);
+                      }
+                      setTagOrganizeMode(next);
+                      setMobileTagSheetOpen(next);
+                      return;
+                    }
                     const next = !tagOrganizeMode;
                     if (next && previewOpen) {
                       setPreviewOpen(false);
@@ -1556,7 +1594,7 @@ export default function MapsPage() {
                       setMobilePreviewOpen(false);
                       toast.message("선택 모드로 전환되어 프리뷰가 꺼졌어요.");
                     }
-                    if (tagOrganizeMode) {
+                    if (isTagOrganizeActive) {
                       setTagOrganizeMode(false);
                       setMobileTagSheetOpen(false);
                       toast.message("태그 정리 모드를 종료하고 선택 모드로 전환했어요.");
@@ -1566,7 +1604,6 @@ export default function MapsPage() {
                   viewMode={viewMode}
                   onViewModeChange={setViewMode}
                   hidePreviewToggle={Boolean(isMobileViewport)}
-                  hideViewModeToggle={Boolean(isMobileViewport)}
                   sort={sort}
                   onSortChange={(value) => {
                     setSort(value);
@@ -1632,7 +1669,7 @@ export default function MapsPage() {
                         toggleArrayValue(value, setTagFilters);
                         setPage(1);
                       }}
-                      showTagFilters={!tagOrganizeMode}
+                      showTagFilters={!isTagOrganizeActive}
                       onClose={() => setFiltersOpen(false)}
                     />
                   }
@@ -1662,7 +1699,7 @@ export default function MapsPage() {
 
             {!loading &&
               !error &&
-              tagOrganizeMode &&
+              isTagOrganizeActive &&
               selectedTagNames.length > 0 &&
               !hasFilteredDrafts && (
                 <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-6 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/5 dark:text-white/60">
@@ -1688,7 +1725,8 @@ export default function MapsPage() {
                     selectedId={selectedId}
                     previewOpen={previewOpen}
                     selectionMode={selectionMode}
-                    tagOrganizeMode={tagOrganizeMode}
+                    tagOrganizeMode={isTagOrganizeActive}
+                    compactLayout={previewOpen || isTagOrganizeActive}
                     selectedMapIds={selectedMapIds}
                     onSelect={handleItemSelect}
                     onToggleSelect={toggleSelectedMap}
@@ -1702,12 +1740,12 @@ export default function MapsPage() {
                     selectedId={selectedId}
                     previewOpen={previewOpen}
                     selectionMode={selectionMode}
-                    tagOrganizeMode={tagOrganizeMode}
+                    tagOrganizeMode={isTagOrganizeActive}
                     selectedMapIds={selectedMapIds}
                     onSelect={handleItemSelect}
                     onToggleSelect={toggleSelectedMap}
                     onEditTags={openTagEditor}
-                    showEditTags={tagOrganizeMode}
+                    showEditTags={isTagOrganizeActive}
                     onOpenDetail={handleOpenDetail}
                     showOpenDetail
                     statusLabels={STATUS_LABELS}
@@ -1749,7 +1787,7 @@ export default function MapsPage() {
             )}
           </section>
 
-          {previewOpen && !tagOrganizeMode &&
+          {previewOpen && !isTagOrganizeActive &&
             (loading ? (
               <MapPreviewSkeleton />
             ) : (
@@ -1783,13 +1821,15 @@ export default function MapsPage() {
         </div>
       </div>
 
-      {tagOrganizeMode && (
+      {mobileTagSheetOpen && (
         <div className="lg:hidden">
           <div
             className={`fixed inset-0 z-40 bg-black/25 transition-opacity ${
               mobileTagSheetOpen ? "opacity-100" : "pointer-events-none opacity-0"
             }`}
-            onClick={() => setMobileTagSheetOpen(false)}
+            onClick={() => {
+              setMobileTagSheetOpen(false);
+            }}
           />
           <div
             className={`fixed inset-x-0 bottom-0 z-50 max-h-[82vh] transform transition-transform ${
@@ -1826,7 +1866,9 @@ export default function MapsPage() {
                   headerAccessory={
                     <button
                       type="button"
-                      onClick={() => setMobileTagSheetOpen(false)}
+                      onClick={() => {
+                        setMobileTagSheetOpen(false);
+                      }}
                       className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-600 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80"
                       aria-label="태그 정리 닫기"
                     >
@@ -1837,23 +1879,27 @@ export default function MapsPage() {
               </div>
             </div>
           </div>
-          {!mobileTagSheetOpen && (
-            <div className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
-              <div className="relative inline-flex">
-                <span className="pointer-events-none absolute inset-[-8px] rounded-full border-4 border-cyan-300/80 shadow-[0_0_0_8px_rgba(34,211,238,0.18)] dark:border-cyan-200/65 dark:shadow-[0_0_0_8px_rgba(34,211,238,0.14)]" />
-                <span className="pointer-events-none absolute inset-[-8px] animate-ping rounded-full border-4 border-cyan-200/70 [animation-duration:2.2s] dark:border-cyan-100/55" />
-                <span className="pointer-events-none absolute inset-[-15px] rounded-full border-2 border-blue-400/35 dark:border-blue-300/25" />
-                <button
-                  type="button"
-                  onClick={() => setMobileTagSheetOpen(true)}
-                  className="relative z-[1] inline-flex items-center gap-2 rounded-full border border-cyan-300 bg-[linear-gradient(135deg,#22d3ee,#2563eb)] px-5 py-3 text-sm font-extrabold tracking-[-0.01em] text-white shadow-[0_18px_36px_-18px_rgba(37,99,235,0.65)] transition-transform duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] dark:border-cyan-200/50 dark:bg-[linear-gradient(135deg,rgba(34,211,238,0.95),rgba(59,130,246,0.95))] dark:text-white"
-                >
-                  <Icon icon="mdi:tag-outline" className="h-4.5 w-4.5" />
-                  태그열기
-                </button>
-              </div>
-            </div>
-          )}
+        </div>
+      )}
+
+      {!mobileTagSheetOpen && tagOrganizeMode && (
+        <div className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-4 lg:hidden">
+          <div className="relative inline-flex">
+            <span className="pointer-events-none absolute inset-[-8px] rounded-full border-4 border-cyan-300/80 shadow-[0_0_0_8px_rgba(34,211,238,0.18)] dark:border-cyan-200/65 dark:shadow-[0_0_0_8px_rgba(34,211,238,0.14)]" />
+            <span className="pointer-events-none absolute inset-[-8px] animate-ping rounded-full border-4 border-cyan-200/70 [animation-duration:2.2s] dark:border-cyan-100/55" />
+            <span className="pointer-events-none absolute inset-[-15px] rounded-full border-2 border-blue-400/35 dark:border-blue-300/25" />
+            <button
+              type="button"
+              onClick={() => {
+                setMobileTagSheetOpen(true);
+                setTagOrganizeMode(true);
+              }}
+              className="relative z-[1] inline-flex items-center gap-2 rounded-full border border-cyan-300 bg-[linear-gradient(135deg,#22d3ee,#2563eb)] px-5 py-3 text-sm font-extrabold tracking-[-0.01em] text-white shadow-[0_18px_36px_-18px_rgba(37,99,235,0.65)] transition-transform duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] dark:border-cyan-200/50 dark:bg-[linear-gradient(135deg,rgba(34,211,238,0.95),rgba(59,130,246,0.95))] dark:text-white"
+            >
+              <Icon icon="mdi:tag-outline" className="h-4.5 w-4.5" />
+              태그 목록
+            </button>
+          </div>
         </div>
       )}
 

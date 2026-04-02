@@ -101,21 +101,17 @@ export default function MapListItem({
     draft.status === "failed"
       ? {
           text: "실패",
-          cls: "bg-rose-50 text-rose-600 border-rose-200",
-          darkCls:
-            "dark:bg-rose-500/12 dark:text-rose-200 dark:border-rose-400/25",
+          dotCls: "bg-rose-500 dark:bg-rose-300",
+          textCls: "text-rose-700 dark:text-rose-200",
         }
       : draft.status === "processing"
       ? {
           text: "처리 중",
-          cls: "bg-blue-50 text-blue-700 border-blue-200",
-          darkCls:
-            "dark:bg-blue-500/12 dark:text-blue-200 dark:border-blue-400/25",
+          dotCls: "bg-blue-500 dark:bg-blue-300",
+          textCls: "text-blue-700 dark:text-blue-200",
         }
       : null;
 
-  const summary =
-    draft.summary ?? draft.description ?? "요약이 아직 없어요.";
   const displayTitle = getDisplayTitle(draft);
   const visibleTags = draft.tags?.slice(0, 6) ?? [];
   const remainingTagCount = Math.max((draft.tags?.length ?? 0) - visibleTags.length, 0);
@@ -161,14 +157,14 @@ export default function MapListItem({
           onSelect?.(draft);
         }
       }}
-      className={`relative w-full max-w-full min-w-0 box-border rounded-2xl border px-4 py-3 transition
+      className={`relative flex h-full w-full max-w-full min-w-0 box-border flex-col rounded-2xl border px-3 py-2.5 transition md:px-4 md:py-3
         ${
           isActive
             ? "border-blue-300 bg-blue-50/70 shadow-sm dark:border-blue-300/50 dark:bg-[rgba(37,99,235,0.18)] dark:shadow-[0_18px_36px_-24px_rgba(37,99,235,0.45)]"
             : "border-slate-400 bg-white hover:bg-neutral-50 dark:border-white/16 dark:bg-[rgba(15,23,42,0.82)] dark:shadow-[0_18px_36px_-28px_rgba(2,6,23,0.85)] dark:hover:border-white/24 dark:hover:bg-[rgba(30,41,59,0.92)]"
         }`}
     >
-      <div className="flex min-w-0 flex-col gap-3">
+      <div className="flex min-w-0 flex-1 flex-col gap-2.5 md:gap-3">
         <div className={`min-w-0 ${hasTopActionMenu ? "pr-20 sm:pr-0" : ""}`}>
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             {selectionMode && (
@@ -181,14 +177,14 @@ export default function MapListItem({
                 aria-label={`${displayTitle} 선택`}
               />
             )}
-            <h3 className="min-w-0 text-[17px] font-semibold leading-6 text-neutral-900 line-clamp-2 dark:text-white sm:text-base sm:line-clamp-1">
+            <h3 className="min-w-0 text-[14px] font-medium leading-5 text-neutral-800 line-clamp-2 dark:text-white/85 md:text-[17px] md:font-semibold md:leading-6 md:text-neutral-900 md:dark:text-white">
               {displayTitle}
             </h3>
           </div>
         </div>
 
         {hasTopActionMenu ? (
-          <div className="absolute right-4 top-3 flex items-center gap-2">
+          <div className="absolute right-3 top-2.5 flex items-center gap-2 md:right-4 md:top-3">
             <div ref={menuRef} className="relative">
               <button
                 type="button"
@@ -233,8 +229,8 @@ export default function MapListItem({
           </div>
         ) : null}
 
-        <div className="flex min-w-0 items-start gap-3">
-          <div className="aspect-video w-24 shrink-0 overflow-hidden rounded-xl border border-slate-400 bg-neutral-50 dark:border-white/20 dark:bg-white/[0.04] sm:w-20">
+        <div className="flex min-w-0 items-start gap-2.5 md:gap-3">
+          <div className="aspect-video w-20 shrink-0 overflow-hidden rounded-lg border border-slate-400 bg-neutral-50 dark:border-white/20 dark:bg-white/[0.04] md:w-24 md:rounded-xl">
             {draft.thumbnailUrl ? (
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -255,82 +251,75 @@ export default function MapListItem({
             <div className="flex flex-wrap items-center gap-2">
               {sourceBadge && (
                 <span
-                  className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${sourceBadge.cls} ${sourceBadge.darkCls}`}
+                  className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold md:px-2.5 md:text-[11px] ${sourceBadge.cls} ${sourceBadge.darkCls}`}
                 >
                   {sourceBadge.label}
                 </span>
               )}
               {statusBadge && (
-                <span
-                  className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${statusBadge.cls} ${statusBadge.darkCls}`}
-                >
+                <span className={`inline-flex items-center gap-1 text-[11px] font-medium md:gap-1.5 md:text-[12px] ${statusBadge.textCls}`}>
+                  <span className={`h-2 w-2 rounded-full ${statusBadge.dotCls}`} />
                   {statusBadge.text}
                 </span>
               )}
             </div>
 
-            <p className="mt-2 text-[13px] leading-5 text-neutral-600 line-clamp-3 dark:text-white/70 sm:text-sm sm:line-clamp-2">
-              {summary}
-            </p>
+            <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1 md:mt-2 md:gap-1.5">
+              {visibleTags.length ? (
+                <>
+                  {visibleTags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="max-w-full break-all rounded-lg bg-neutral-100/90 px-1.5 py-0.5 text-[11px] font-medium leading-4 text-neutral-600 dark:bg-white/[0.06] dark:text-white/70 md:px-2 md:py-1 md:text-[12px] md:max-w-[140px] md:truncate md:break-normal"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                  {remainingTagCount > 0 && (
+                    <span className="rounded-lg bg-neutral-100/90 px-1.5 py-0.5 text-[11px] font-medium text-neutral-500 dark:bg-white/[0.06] dark:text-white/60 md:px-2 md:py-1 md:text-[12px]">
+                      +{remainingTagCount}
+                    </span>
+                  )}
+                  {showEditTags && onEditTags && (
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onEditTags(draft);
+                      }}
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-blue-500/70 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25 md:h-8 md:w-8"
+                      aria-label="태그 편집"
+                    >
+                      <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <span className="text-[11px] text-neutral-500 dark:text-white/50 md:text-[12px]">
+                    태그 없음
+                  </span>
+                  {showEditTags && onEditTags && (
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onEditTags(draft);
+                      }}
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-blue-500/70 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25 md:h-8 md:w-8"
+                      aria-label="태그 편집"
+                    >
+                      <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-3 flex min-w-0 flex-col gap-2 sm:mt-2">
-        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-          {visibleTags.length ? (
-            <>
-              {visibleTags.map((tag) => (
-                <span
-                  key={tag}
-                  className="max-w-full break-all rounded-full border border-slate-400 bg-neutral-50 px-2.5 py-1 text-[12px] font-medium leading-4 text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 sm:max-w-[160px] sm:truncate sm:break-normal"
-                >
-                  #{tag}
-                </span>
-              ))}
-              {remainingTagCount > 0 && (
-                <span className="rounded-full border border-slate-400 bg-neutral-50 px-2.5 py-1 text-[12px] font-medium text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/70">
-                  +{remainingTagCount}
-                </span>
-              )}
-              {showEditTags && onEditTags && (
-                <button
-                  type="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onEditTags(draft);
-                  }}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-blue-500/70 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25"
-                  aria-label="태그 편집"
-                >
-                  <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
-                </button>
-              )}
-            </>
-          ) : (
-            <>
-              <span className="text-[12px] text-neutral-500 dark:text-white/50">
-                태그 없음
-              </span>
-              {showEditTags && onEditTags && (
-                <button
-                  type="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onEditTags(draft);
-                  }}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-blue-500/70 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25"
-                  aria-label="태그 편집"
-                >
-                  <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
-                </button>
-              )}
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className="mt-2 flex items-center justify-between gap-3 text-[13px] font-medium text-neutral-500 dark:text-white/60">
+      <div className="mt-auto flex items-center justify-between gap-3 pt-2 text-[12px] font-medium text-neutral-500 dark:text-white/60 md:pt-3 md:text-[13px]">
         <span>{formatDate(draft)}</span>
         {onOpenDetail && showOpenDetail && (
           <button
@@ -339,7 +328,7 @@ export default function MapListItem({
               event.stopPropagation();
               onOpenDetail(draft);
             }}
-            className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
+            className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-2.5 py-1 text-[10px] font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10 md:px-3 md:py-1.5 md:text-[11px]"
           >
             <Icon icon="mdi:open-in-new" className="h-3.5 w-3.5" />
             열기
