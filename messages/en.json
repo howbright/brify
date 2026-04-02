@@ -1261,6 +1261,7 @@
     "sourceSection": "Source",
     "thumbnailPlaceholder": "Thumbnail",
     "sourceType": "Source Type",
+    "sourceTitle": "Original Title",
     "channel": "Channel/Author",
     "none": "None",
     "sourceLink": "Original Link",
@@ -1475,6 +1476,15 @@
       "titleRequired": "Title is required. Please enter a title.",
       "missingMapId": "Missing mapId. Can't upload thumbnail.",
       "thumbnailUploadFailed": "Failed to upload thumbnail."
+    }
+  },
+  "MapMetadataEditDialog": {
+    "title": "Edit metadata",
+    "subtitle": "Update the current Structure Map title, source, tags, and description directly.",
+    "footerHint": "Saving will update this Structure Map metadata immediately.",
+    "buttons": {
+      "save": "Save",
+      "closeTagPicker": "Close tag list"
     }
   },
   "Footer": {

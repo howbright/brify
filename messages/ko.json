@@ -365,11 +365,11 @@
     "draftsTitle": "만든 구조맵",
     "previewTitle": "구조맵 미리보기",
     "toasts": {
-      "languageRestricted": "데모에서는 한국어와 영어만 선택할 수 있어요.",
+      "languageRestricted": "체험에서는 한국어와 영어만 선택할 수 있어요.",
       "emptyScript": "샘플 원문이 비어 있어 구조맵을 만들 수 없어요.",
       "success": "샘플 구조맵 생성이 완료됐어요.",
       "autoOpen": "구조맵이 준비되었습니다. 구조맵 페이지로 이동합니다.",
-      "readOnly": "데모 페이지에서는 샘플 원문을 수정할 수 없어요."
+      "readOnly": "체험 페이지에서는 샘플 원문을 수정할 수 없어요."
     }
   },
   "DemoFullscreenDialog": {
@@ -392,11 +392,11 @@
       "viewMode": "보기 모드"
     },
     "toasts": {
-      "demoFinished": "데모가 끝났습니다. 홈으로 돌아갑니다.",
+      "demoFinished": "체험이 끝났습니다. 홈으로 돌아갑니다.",
       "editModeRequired": "노드를 수정하려면 편집 모드를 눌러주세요."
     },
     "shareDialog": {
-      "title": "이 구조맵은 데모용입니다",
+      "title": "이 구조맵은 체험용입니다",
       "description": "실제 서비스에서는 구조맵을 링크로 공유하고 다른 사람과 함께 볼 수 있어요. 서비스를 시작하면 내 구조맵의 공유 링크를 바로 만들 수 있습니다.",
       "action": "서비스 시작하기",
       "cancel": "닫기"
@@ -444,7 +444,7 @@
     },
     "terms": {
       "autoAddedXylitol": "영상에서 커피에 넣는 감미료로 언급된다.",
-      "customAdded": "데모용으로 추가된 사용자 지정 용어입니다.",
+      "customAdded": "체험용으로 추가된 사용자 지정 용어입니다.",
       "helper": "AI가 핵심 용어를 자동으로 추출해 이해를 돕습니다.",
       "items": [
         {
@@ -784,7 +784,7 @@
       "logout": "로그아웃"
     },
     "nav": {
-      "samples": "데모",
+      "samples": "체험",
       "about": "소개",
       "pricing": "요금제",
       "contactFeedback": "문의/피드백"
@@ -1077,7 +1077,7 @@
     "helper": "남의 결론을 따라가지 말고, 여러 관점을 비교해 내 기준을 만드세요.",
     "switchTitleAria": "타이틀 전환",
     "ctaPrimary": "무료로 시작하기",
-    "ctaSecondary": "데모 보기",
+    "ctaSecondary": "체험하기",
     "featureItems": [
       "세부내용도 놓치지 않고 정리",
       "어려운 용어도 자동으로 정리",
@@ -1261,6 +1261,7 @@
     "sourceSection": "출처",
     "thumbnailPlaceholder": "thumbnail",
     "sourceType": "출처 유형",
+    "sourceTitle": "원본 제목",
     "channel": "채널/작성자",
     "none": "없음",
     "sourceLink": "원본 링크",
@@ -1475,6 +1476,15 @@
       "titleRequired": "제목은 필수 항목입니다. 제목을 입력해 주세요.",
       "missingMapId": "mapId가 없어 썸네일을 업로드할 수 없습니다.",
       "thumbnailUploadFailed": "썸네일 업로드에 실패했습니다."
+    }
+  },
+  "MapMetadataEditDialog": {
+    "title": "메타데이터 수정",
+    "subtitle": "현재 구조맵의 제목, 출처, 태그, 설명을 바로 수정할 수 있어요.",
+    "footerHint": "저장하면 이 구조맵의 메타데이터가 바로 업데이트됩니다.",
+    "buttons": {
+      "save": "저장",
+      "closeTagPicker": "태그 목록 닫기"
     }
   },
   "Footer": {

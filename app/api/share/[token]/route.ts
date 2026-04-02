@@ -19,7 +19,7 @@ export async function GET(
     const { data, error } = await adminSupabase
       .from("maps")
       .select(
-        "id, title, mind_elixir, mind_theme_override, map_status, updated_at"
+        "id, title, short_title, mind_elixir, mind_theme_override, map_status, updated_at"
       )
       .eq("share_token", token)
       .eq("share_enabled", true)
@@ -33,6 +33,7 @@ export async function GET(
         map: {
           id: data.id,
           title: data.title,
+          short_title: data.short_title,
           mind_elixir: data.mind_elixir,
           mind_theme_override: data.mind_theme_override,
           map_status: data.map_status,
@@ -41,7 +42,8 @@ export async function GET(
       },
       { status: 200 }
     );
-  } catch (e: any) {
-    return jsonError(500, e?.message ?? "INTERNAL_ERROR");
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : "INTERNAL_ERROR";
+    return jsonError(500, message);
   }
 }

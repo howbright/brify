@@ -41,7 +41,7 @@ type MapRow = Database["public"]["Tables"]["maps"]["Row"];
 type SourceType = "youtube" | "website" | "file" | "manual";
 
 const LIST_FIELDS =
-  "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
+  "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
 const PAGE_SIZE = 20;
 const TAG_LIMIT = 24;
 const NO_TAG_FILTER = "__NO_TAG__";
@@ -95,6 +95,7 @@ function toDraft(row: MapRow): MapDraft {
     sourceUrl: row.source_url ?? undefined,
     sourceType: row.source_type ?? undefined,
     title: row.title ?? "제목없음",
+    shortTitle: row.short_title ?? undefined,
     channelName: row.channel_name ?? undefined,
     thumbnailUrl: row.thumbnail_url ? withCacheBuster(row.thumbnail_url) : undefined,
     tags: Array.isArray(row.tags) ? row.tags : [],
@@ -104,6 +105,12 @@ function toDraft(row: MapRow): MapDraft {
     creditsCharged:
       typeof row.credits_charged === "number" ? row.credits_charged : undefined,
   };
+}
+
+function getMapListDisplayTitle(draft: MapDraft) {
+  const baseTitle = draft.shortTitle?.trim() || draft.title;
+  const channel = draft.channelName?.trim();
+  return channel ? `${baseTitle} [${channel}]` : baseTitle;
 }
 
 function startOfDayIso(value: Date) {
@@ -257,7 +264,7 @@ function SortableMergeItem({
     >
       <div className="min-w-0 flex-1">
         <div className="font-medium text-neutral-600 dark:text-white/75 line-clamp-1">
-          {draft.title}
+          {getMapListDisplayTitle(draft)}
         </div>
       </div>
       <button
@@ -298,6 +305,8 @@ export default function MapsPage() {
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [viewMode, setViewMode] = useState<"card" | "table">("card");
   const [tagOrganizeMode, setTagOrganizeMode] = useState(false);
+  const [recentCreatedDrafts, setRecentCreatedDrafts] = useState<MapDraft[]>([]);
+  const [recentUpdatedDrafts, setRecentUpdatedDrafts] = useState<MapDraft[]>([]);
   const [datePreset, setDatePreset] = useState<DatePresetId>("30d");
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
@@ -418,8 +427,46 @@ export default function MapsPage() {
     desktopDefaultsAppliedRef.current = true;
     setViewMode("card");
     setPreviewOpen(false);
-    setTagOrganizeMode(true);
   }, [isMobileViewport]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const supabase = createClient();
+
+        const [{ data: createdData, error: createdError }, { data: updatedData, error: updatedError }] =
+          await Promise.all([
+            supabase
+              .from("maps")
+              .select(LIST_FIELDS)
+              .order("created_at", { ascending: false })
+              .range(0, 4),
+            supabase
+              .from("maps")
+              .select(LIST_FIELDS)
+              .order("updated_at", { ascending: false, nullsFirst: false })
+              .range(0, 4),
+          ]);
+
+        if (cancelled) return;
+        if (createdError) throw createdError;
+        if (updatedError) throw updatedError;
+
+        setRecentCreatedDrafts(((createdData ?? []) as MapRow[]).map(toDraft));
+        setRecentUpdatedDrafts(((updatedData ?? []) as MapRow[]).map(toDraft));
+      } catch {
+        if (cancelled) return;
+        setRecentCreatedDrafts([]);
+        setRecentUpdatedDrafts([]);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -517,6 +564,31 @@ export default function MapsPage() {
       return a.name.localeCompare(b.name, locale ?? "en");
     });
   }, [recentTagOptions, tagOptions, tagQuery, tagSort, locale]);
+
+  const recentInterestTags = useMemo(() => {
+    const counts = new Map<string, number>();
+    const recentDrafts = [...recentUpdatedDrafts, ...recentCreatedDrafts];
+    const seenMapIds = new Set<string>();
+
+    recentDrafts.forEach((draft) => {
+      if (seenMapIds.has(draft.id)) return;
+      seenMapIds.add(draft.id);
+
+      (draft.tags ?? []).forEach((tag) => {
+        const normalized = tag.trim();
+        if (!normalized) return;
+        counts.set(normalized, (counts.get(normalized) ?? 0) + 1);
+      });
+    });
+
+    return Array.from(counts.entries())
+      .sort((a, b) => {
+        if (b[1] !== a[1]) return b[1] - a[1];
+        return a[0].localeCompare(b[0], locale ?? "en");
+      })
+      .slice(0, 8)
+      .map(([name, count]) => ({ name, count }));
+  }, [recentCreatedDrafts, recentUpdatedDrafts, locale]);
   const filteredDrafts = useMemo(() => drafts, [drafts]);
   const effectiveTagFilters = useMemo(
     () =>
@@ -1075,6 +1147,14 @@ export default function MapsPage() {
     : !hasResults && isSearching
     ? "검색 결과가 없어요."
     : "좌측에서 맵을 선택해 주세요.";
+  const showRecentSections =
+    !loading &&
+    !error &&
+    !tagOrganizeMode &&
+    !selectionMode &&
+    !isSearching &&
+    page === 1 &&
+    hasDrafts;
 
   return (
     <main className="min-h-[70vh] bg-neutral-50 px-6 pt-20 pb-12 dark:bg-[#07111f]">
@@ -1094,7 +1174,7 @@ export default function MapsPage() {
               : previewOpen
               ? "lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]"
               : "lg:grid-cols-[minmax(0,1fr)]"
-          } lg:h-[calc(100vh-160px)]`}
+          } lg:min-h-[calc(100vh-160px)]`}
         >
           {tagOrganizeMode && (
             <TagPanel
@@ -1121,10 +1201,106 @@ export default function MapsPage() {
             />
           )}
           <section
-            className={`min-w-0 lg:overflow-y-auto lg:overflow-x-hidden ${
+            className={`min-w-0 lg:overflow-x-hidden ${
               previewOpen ? "lg:pr-4 lg:[scrollbar-gutter:stable]" : ""
             }`}
           >
+            {showRecentSections && (
+              <div className="mb-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                <section className="rounded-[22px] border border-blue-200 bg-white px-4 py-3 shadow-sm dark:border-blue-500/20 dark:bg-white/[0.05]">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
+                        최근 수정한 맵
+                      </h2>
+                      <p className="mt-0.5 text-[12px] text-neutral-500 dark:text-white/60">
+                        최근에 손본 맵부터 바로 이어서 볼 수 있어요.
+                      </p>
+                    </div>
+                    <Icon icon="mdi:history" className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {recentUpdatedDrafts.slice(0, 5).map((draft) => (
+                      <button
+                        key={`updated-${draft.id}`}
+                        type="button"
+                        onClick={() => handleOpenDetail(draft)}
+                        className="inline-flex max-w-full items-center rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-blue-400/20 dark:hover:bg-blue-500/10 dark:hover:text-blue-200"
+                      >
+                        <span className="truncate">{getMapListDisplayTitle(draft)}</span>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="rounded-[22px] border border-neutral-200 bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-white/[0.05]">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
+                        최근 생성한 맵
+                      </h2>
+                      <p className="mt-0.5 text-[12px] text-neutral-500 dark:text-white/60">
+                        새로 만든 구조맵을 빠르게 다시 열어볼 수 있어요.
+                      </p>
+                    </div>
+                    <Icon icon="mdi:sparkles" className="h-5 w-5 text-neutral-700 dark:text-white/80" />
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {recentCreatedDrafts.slice(0, 5).map((draft) => (
+                      <button
+                        key={`created-${draft.id}`}
+                        type="button"
+                        onClick={() => handleOpenDetail(draft)}
+                        className="inline-flex max-w-full items-center rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-neutral-300 hover:bg-neutral-100 hover:text-neutral-900 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
+                      >
+                        <span className="truncate">{getMapListDisplayTitle(draft)}</span>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="rounded-[22px] border border-emerald-200 bg-white px-4 py-3 shadow-sm dark:border-emerald-500/20 dark:bg-white/[0.05]">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
+                        최근 나의 관심 태그
+                      </h2>
+                      <p className="mt-0.5 text-[12px] text-neutral-500 dark:text-white/60">
+                        최근 맵에서 많이 본 주제를 바로 필터링할 수 있어요.
+                      </p>
+                    </div>
+                    <Icon icon="mdi:tag-heart-outline" className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {recentInterestTags.length > 0 ? (
+                      recentInterestTags.map((tag) => (
+                        <button
+                          key={`interest-${tag.name}`}
+                          type="button"
+                          onClick={() => {
+                            setTagFilters([tag.name]);
+                            setSelectedTagNames([tag.name]);
+                            setTagOrganizeMode(false);
+                            setPage(1);
+                          }}
+                          className="inline-flex max-w-full items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[12px] font-semibold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:border-emerald-300/30 dark:hover:bg-emerald-500/20"
+                        >
+                          <span className="truncate">#{tag.name}</span>
+                          <span className="text-[11px] text-emerald-600/80 dark:text-emerald-200/70">
+                            {tag.count}
+                          </span>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="text-[12px] text-neutral-500 dark:text-white/55">
+                        최근 맵에서 태그가 아직 충분히 쌓이지 않았어요.
+                      </div>
+                    )}
+                  </div>
+                </section>
+              </div>
+            )}
+
             <MapListToolbar
               query={query}
               onQueryChange={(value) => {

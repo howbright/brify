@@ -22,6 +22,12 @@ type MapTableListProps = {
   sourceLabels: Record<SourceType, string>;
 };
 
+function getDisplayTitle(draft: MapDraft) {
+  const baseTitle = draft.shortTitle?.trim() || draft.title;
+  const channel = draft.channelName?.trim();
+  return channel ? `${baseTitle} [${channel}]` : baseTitle;
+}
+
 export default function MapTableList({
   drafts,
   selectedId,
@@ -78,6 +84,7 @@ export default function MapTableList({
         <tbody>
           {drafts.map((draft) => {
             const isSelected = previewOpen && draft.id === selectedId;
+            const displayTitle = getDisplayTitle(draft);
             const tags = draft.tags ?? [];
             const visibleTags = tags.slice(0, 2);
             const remainingTags = tags.length - visibleTags.length;
@@ -110,7 +117,7 @@ export default function MapTableList({
                         onChange={() => onToggleSelect(draft)}
                         onClick={(event) => event.stopPropagation()}
                         className="h-4 w-4 rounded border-neutral-300 text-neutral-900"
-                        aria-label={`${draft.title} 선택`}
+                        aria-label={`${displayTitle} 선택`}
                       />
                     </div>
                   </td>
@@ -118,7 +125,7 @@ export default function MapTableList({
                 <td className="px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
                   <div className="flex items-center gap-2">
                     <div className="min-w-0 flex-1 text-[14px] font-medium text-neutral-800 dark:text-white/85 truncate">
-                      {draft.title}
+                      {displayTitle}
                     </div>
                     {showOpenDetail && onOpenDetail && (
                         <button

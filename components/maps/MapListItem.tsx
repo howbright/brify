@@ -61,6 +61,12 @@ function formatDate(draft: MapDraft) {
   });
 }
 
+function getDisplayTitle(draft: MapDraft) {
+  const baseTitle = draft.shortTitle?.trim() || draft.title;
+  const channel = draft.channelName?.trim();
+  return channel ? `${baseTitle} [${channel}]` : baseTitle;
+}
+
 export default function MapListItem({
   draft,
   selected = false,
@@ -110,6 +116,7 @@ export default function MapListItem({
 
   const summary =
     draft.summary ?? draft.description ?? "요약이 아직 없어요.";
+  const displayTitle = getDisplayTitle(draft);
   const visibleTags = draft.tags?.slice(0, 6) ?? [];
   const remainingTagCount = Math.max((draft.tags?.length ?? 0) - visibleTags.length, 0);
   const hasTopActionMenu = Boolean(onDelete);
@@ -171,11 +178,11 @@ export default function MapListItem({
                 onChange={() => onToggleSelect?.(draft)}
                 onClick={(event) => event.stopPropagation()}
                 className="h-4 w-4 rounded border-neutral-300 text-neutral-900"
-                aria-label={`${draft.title} 선택`}
+                aria-label={`${displayTitle} 선택`}
               />
             )}
             <h3 className="min-w-0 text-[17px] font-semibold leading-6 text-neutral-900 line-clamp-2 dark:text-white sm:text-base sm:line-clamp-1">
-              {draft.title}
+              {displayTitle}
             </h3>
           </div>
         </div>
@@ -233,7 +240,7 @@ export default function MapListItem({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={draft.thumbnailUrl}
-                  alt={draft.title}
+                  alt={displayTitle}
                   className="h-full w-full object-cover"
                   loading="lazy"
                 />

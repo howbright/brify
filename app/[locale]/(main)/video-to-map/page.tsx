@@ -108,7 +108,7 @@ function withCacheBuster(url: string) {
 }
 
 const DRAFT_SELECT_FIELDS =
-  "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
+  "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
 const MAP_CREATE_TIMEOUT_MS = 45_000;
 
 function coerceMapStatus(status?: string | null): MapJobStatus {
@@ -658,6 +658,7 @@ export default function VideoToMapPage() {
                   .source_type as MapDraft["sourceType"])
               : undefined,
             title: data.title ?? t("labels.untitled"),
+            shortTitle: data.short_title ?? undefined,
             channelName: data.channel_name ?? undefined,
             thumbnailUrl: data.thumbnail_url
               ? withCacheBuster(data.thumbnail_url)

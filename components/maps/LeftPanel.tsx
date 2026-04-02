@@ -53,6 +53,15 @@ export default function LeftPanel({
     [map.updatedAt]
   );
   const sourceType = useMemo(() => map.sourceType ?? "text", [map.sourceType]);
+  const displayTitle = useMemo(() => {
+    const baseTitle = map.shortTitle?.trim() || map.title?.trim() || t("untitled");
+    const channel = map.channelName?.trim();
+    return channel ? `${baseTitle} [${channel}]` : baseTitle;
+  }, [map.channelName, map.shortTitle, map.title, t]);
+  const originalTitle = useMemo(
+    () => map.title?.trim() || t("untitled"),
+    [map.title, t]
+  );
 
   const [internalTab, setInternalTab] = useState<LeftPanelTab>(tab ?? "info");
   const activeTab = tab ?? internalTab;
@@ -646,7 +655,7 @@ export default function LeftPanel({
 
           {activeTab === "info" && (
             <div className="mt-3 text-[17px] font-bold text-neutral-900 dark:text-white/90 whitespace-normal break-words leading-6">
-              {map.title ?? t("untitled")}
+              {displayTitle}
             </div>
           )}
         </div>
@@ -737,19 +746,27 @@ export default function LeftPanel({
 
                   <div className="min-w-0 flex-1">
                     <RowItem
-                      icon="mdi:youtube"
                       label={t("sourceType")}
                       value={sourceType}
                     />
+                    {sourceType === "youtube" ? (
+                      <RowItem
+                        label={t("sourceTitle")}
+                        value={originalTitle}
+                        multiline
+                      />
+                    ) : null}
                     <RowItem
-                      icon="mdi:account-circle-outline"
                       label={t("channel")}
                       value={map.channelName ?? t("none")}
                     />
 
-                    <div className="mt-1">
-                      <div className="text-[14px] font-medium text-neutral-500 dark:text-white/60">
-                        {t("sourceLink")}
+                    <div className="mt-1 min-w-0">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <div className="h-2 w-2 shrink-0 rounded-full bg-blue-500/80 dark:bg-blue-300/80" />
+                        <div className="text-[12px] font-medium tracking-[0.01em] text-neutral-400 dark:text-white/45">
+                          {t("sourceLink")}
+                        </div>
                       </div>
                       {map.sourceUrl ? (
                         <a
@@ -757,7 +774,7 @@ export default function LeftPanel({
                           target="_blank"
                           rel="noreferrer"
                           className="
-                            mt-0.5 block text-[14px] font-semibold
+                            mt-0.5 block pl-[14px] text-[14px] font-medium
                             text-blue-700 hover:underline truncate
                             dark:text-sky-200
                           "
@@ -766,7 +783,7 @@ export default function LeftPanel({
                           {map.sourceUrl}
                         </a>
                       ) : (
-                        <div className="mt-0.5 text-[14px] text-neutral-700 dark:text-white/85">
+                        <div className="mt-0.5 pl-[14px] text-[14px] text-neutral-700 dark:text-white/85">
                           {t("none")}
                         </div>
                       )}
@@ -943,27 +960,28 @@ function Section({
 }
 
 function RowItem({
-  icon,
   label,
   value,
+  multiline = false,
 }: {
-  icon: string;
   label: string;
   value: string;
+  multiline?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-2 min-w-0">
-      <Icon
-        icon={icon}
-        className="h-5 w-5 text-neutral-500 dark:text-white/55"
-      />
-      <div className="min-w-0">
-        <div className="text-[13px] text-neutral-500 dark:text-white/60">
+    <div className="min-w-0">
+      <div className="flex items-center gap-1.5 min-w-0">
+        <div className="h-2 w-2 shrink-0 rounded-full bg-blue-500/80 dark:bg-blue-300/80" />
+        <div className="text-[12px] font-medium tracking-[0.01em] text-neutral-400 dark:text-white/45">
           {label}
         </div>
-        <div className="text-[15px] font-semibold text-neutral-800 dark:text-white/85 truncate">
-          {value}
-        </div>
+      </div>
+      <div
+        className={`mt-0.5 pl-[14px] text-[14px] font-medium text-neutral-800 dark:text-white/80 ${
+          multiline ? "whitespace-normal break-words leading-6" : "truncate"
+        }`}
+      >
+        {value}
       </div>
     </div>
   );

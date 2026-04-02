@@ -621,6 +621,8 @@ export default function DemoFullscreenDialog({
 
   if (!open || !draft || !mounted) return null;
 
+  const headerTitle = draft.shortTitle ?? title ?? draft.title ?? t("dialog.title");
+
   const resolvedThemeName =
     themeName === PROFILE_THEME_NAME ? profileThemeName : themeName;
   const appliedTheme =
@@ -631,7 +633,7 @@ export default function DemoFullscreenDialog({
   const handleExportPng = async () => {
     const blob = await mindRef.current?.exportPng?.();
     if (!blob) return;
-    const safeTitle = (title ?? "map").replace(/[\\/:*?"<>|]+/g, "-").trim() || "map";
+    const safeTitle = (headerTitle ?? "map").replace(/[\\/:*?"<>|]+/g, "-").trim() || "map";
     const date = new Date();
     const stamp = [
       date.getFullYear(),
@@ -689,7 +691,7 @@ export default function DemoFullscreenDialog({
   const shareDialogTitle =
     shareDialogMessages?.title ??
     (language === "ko"
-      ? "이 구조맵은 데모용입니다"
+      ? "이 구조맵은 체험용입니다"
       : "This Structure Map is for demo only");
   const shareDialogDescription =
     shareDialogMessages?.description ??
@@ -703,10 +705,10 @@ export default function DemoFullscreenDialog({
     shareDialogMessages?.cancel ?? (language === "ko" ? "닫기" : "Close");
 
   return createPortal(
-    <div className="fixed left-0 top-0 z-[120] h-screen w-screen max-w-none bg-black/70" role="dialog" aria-modal="true" aria-label={title ?? t("dialog.title")}>
+    <div className="fixed left-0 top-0 z-[120] h-screen w-screen max-w-none bg-black/70" role="dialog" aria-modal="true" aria-label={headerTitle}>
       <div className="relative h-full w-full overflow-hidden bg-white [--header-h:68px] dark:bg-[#0b1220]">
         <FullscreenHeader
-          title={title ?? t("dialog.title")}
+          title={headerTitle}
           onClose={handleGoHome}
           closeLabel={t("actions.closeMap")}
           left={

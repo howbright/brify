@@ -120,6 +120,7 @@ export default function FullscreenDialog({
   const t = useTranslations("FullscreenDialog");
   const tTutorial = useTranslations("MapTutorial");
   const isTutorialMobile = useTutorialIsMobile();
+  const headerTitle = draft?.shortTitle ?? title ?? draft?.title ?? t("fallbackTitle");
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
 
@@ -297,7 +298,7 @@ export default function FullscreenDialog({
     const blob = await mindRef.current?.exportPng?.();
     if (!blob) return;
     const safeTitle =
-      (title ?? "map").replace(/[\\/:*?"<>|]+/g, "-").trim() || "map";
+      (headerTitle ?? "map").replace(/[\\/:*?"<>|]+/g, "-").trim() || "map";
     const date = new Date();
     const stamp = [
       date.getFullYear(),
@@ -353,11 +354,11 @@ export default function FullscreenDialog({
       "
       role="dialog"
       aria-modal="true"
-      aria-label={title ?? t("fallbackTitle")}
+      aria-label={headerTitle}
     >
       <div className="relative h-full w-full bg-white dark:bg-[#0b1220] overflow-hidden [--header-h:68px]">
         <FullscreenHeader
-          title={title ?? t("title")}
+          title={headerTitle}
           onClose={onClose}
           closeLabel="맵 닫기"
           left={

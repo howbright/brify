@@ -18,7 +18,7 @@ import { MIND_THEMES, MIND_THEME_BY_NAME } from "@/components/maps/themes";
 
 const DEFAULT_THEME_NAME = "Default";
 const PROFILE_THEME_NAME = "내설정테마";
-import MetadataDialog from "@/app/[locale]/(main)/video-to-map/MetadataDialog";
+import MapMetadataEditDialog from "@/components/maps/MapMetadataEditDialog";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import DiscardDraftDialog from "@/components/maps/DiscardDraftDialog";
 import ShareDialog from "@/components/maps/ShareDialog";
@@ -118,6 +118,7 @@ function toDraft(row: MapRow): MapDraft {
     sourceUrl: row.source_url ?? undefined,
     sourceType: row.source_type ?? undefined,
     title: row.title ?? "제목없음",
+    shortTitle: row.short_title ?? undefined,
     channelName: row.channel_name ?? undefined,
     thumbnailUrl: row.thumbnail_url ? withCacheBuster(row.thumbnail_url) : undefined,
     tags: Array.isArray(row.tags) ? row.tags : [],
@@ -237,7 +238,7 @@ export default function MapDetailPage() {
         const { data, error } = await supabase
           .from("maps")
           .select(
-            "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,mind_elixir,mind_elixir_draft,mind_theme_override"
+            "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,mind_elixir,mind_elixir_draft,mind_theme_override"
           )
           .eq("id", mapId)
           .single();
@@ -327,7 +328,10 @@ export default function MapDetailPage() {
     }
   }, [profileThemeName, themeName]);
 
-  const title = useMemo(() => draft?.title ?? t("fallbackTitle"), [draft?.title, t]);
+  const title = useMemo(
+    () => draft?.shortTitle ?? draft?.title ?? t("fallbackTitle"),
+    [draft?.shortTitle, draft?.title, t]
+  );
   const tutorialSteps = useMemo(
     () =>
       getMapTutorialSteps(tTutorial, {
@@ -608,7 +612,7 @@ export default function MapDetailPage() {
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          title: meta.title,
+          short_title: meta.title,
           description: meta.description,
           tags: meta.tags ?? [],
           thumbnail_url: meta.thumbnailUrl,
@@ -627,7 +631,7 @@ export default function MapDetailPage() {
       const { data, error } = await supabase
         .from("maps")
         .select(
-          "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,thumbnail_url,map_status,credits_charged"
+          "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,thumbnail_url,map_status,credits_charged"
         )
         .eq("id", mapId)
         .single();
@@ -1421,11 +1425,11 @@ export default function MapDetailPage() {
         ) : null}
 
         {showMetadataDialog && draft && (
-          <MetadataDialog
+          <MapMetadataEditDialog
             mapId={draft.id}
             initial={{
               sourceUrl: draft.sourceUrl ?? "",
-              title: draft.title ?? "",
+              title: draft.shortTitle ?? draft.title ?? "",
               channelName: draft.channelName ?? "",
               tags: draft.tags ?? [],
               description: draft.description ?? "",
@@ -1433,7 +1437,7 @@ export default function MapDetailPage() {
             }}
             onClose={() => setShowMetadataDialog(false)}
             onSave={handleSaveMetadata}
-            isProcessing={isSavingMeta}
+            saving={isSavingMeta}
           />
         )}
       </div>

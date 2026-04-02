@@ -224,24 +224,6 @@ export type Database = {
           },
         ]
       }
-      keywords: {
-        Row: {
-          id: number
-          lang: string
-          name: string
-        }
-        Insert: {
-          id?: number
-          lang?: string
-          name: string
-        }
-        Update: {
-          id?: number
-          lang?: string
-          name?: string
-        }
-        Relationships: []
-      }
       map_notes: {
         Row: {
           created_at: string
@@ -401,6 +383,7 @@ export type Database = {
           schema_version: number
           share_enabled: boolean
           share_token: string | null
+          short_title: string | null
           source_char_count: number | null
           source_type: Database["public"]["Enums"]["map_source_type"]
           source_url: string | null
@@ -432,6 +415,7 @@ export type Database = {
           schema_version?: number
           share_enabled?: boolean
           share_token?: string | null
+          short_title?: string | null
           source_char_count?: number | null
           source_type?: Database["public"]["Enums"]["map_source_type"]
           source_url?: string | null
@@ -463,6 +447,7 @@ export type Database = {
           schema_version?: number
           share_enabled?: boolean
           share_token?: string | null
+          short_title?: string | null
           source_char_count?: number | null
           source_type?: Database["public"]["Enums"]["map_source_type"]
           source_url?: string | null

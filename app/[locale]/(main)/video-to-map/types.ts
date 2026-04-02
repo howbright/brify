@@ -14,6 +14,7 @@ export type MapDraft = {
   sourceUrl?: string;
   sourceType?: "youtube" | "website" | "file" | "manual";
   title: string;
+  shortTitle?: string;
   channelName?: string;
   tags: string[];
   description?: string;
