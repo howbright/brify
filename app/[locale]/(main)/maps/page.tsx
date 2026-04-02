@@ -282,6 +282,11 @@ function SortableMergeItem({
 
 
 export default function MapsPage() {
+  const listSectionRef = useRef<HTMLElement | null>(null);
+  const toolbarShellRef = useRef<HTMLDivElement | null>(null);
+  const toolbarInnerRef = useRef<HTMLDivElement | null>(null);
+  const previewShellRef = useRef<HTMLElement | null>(null);
+  const tagPanelShellRef = useRef<HTMLElement | null>(null);
   const [drafts, setDrafts] = useState<MapDraft[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -336,6 +341,25 @@ export default function MapsPage() {
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const [mobileTagSheetOpen, setMobileTagSheetOpen] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState<boolean | null>(null);
+  const [recentSectionsCollapsed, setRecentSectionsCollapsed] = useState(false);
+  const [toolbarPinned, setToolbarPinned] = useState(false);
+  const [toolbarMetrics, setToolbarMetrics] = useState({
+    left: 0,
+    width: 0,
+    height: 0,
+  });
+  const [previewMetrics, setPreviewMetrics] = useState({
+    left: 0,
+    width: 0,
+    height: 0,
+  });
+  const [previewPinned, setPreviewPinned] = useState(false);
+  const [tagPanelMetrics, setTagPanelMetrics] = useState({
+    left: 0,
+    width: 0,
+    height: 0,
+  });
+  const [tagPanelPinned, setTagPanelPinned] = useState(false);
   const [previewById, setPreviewById] = useState<
     Record<string, { status: "idle" | "loading" | "loaded" | "missing" | "error"; data: any | null }>
   >({});
@@ -406,6 +430,30 @@ export default function MapsPage() {
     return () => mediaQuery.removeEventListener("change", syncViewport);
   }, []);
 
+  const recentDrafts = useMemo(() => {
+    const byId = new Map<string, MapDraft>();
+    [...recentUpdatedDrafts, ...recentCreatedDrafts].forEach((draft) => {
+      const existing = byId.get(draft.id);
+      if (!existing) {
+        byId.set(draft.id, draft);
+        return;
+      }
+      const existingTs = existing.updatedAt ?? existing.createdAt ?? 0;
+      const nextTs = draft.updatedAt ?? draft.createdAt ?? 0;
+      if (nextTs > existingTs) {
+        byId.set(draft.id, draft);
+      }
+    });
+
+    return Array.from(byId.values())
+      .sort((a, b) => {
+        const aTs = a.updatedAt ?? a.createdAt ?? 0;
+        const bTs = b.updatedAt ?? b.createdAt ?? 0;
+        return bTs - aTs;
+      })
+      .slice(0, 5);
+  }, [recentCreatedDrafts, recentUpdatedDrafts]);
+
   useEffect(() => {
     if (isMobileViewport !== true) return;
     if (previewOpen) setPreviewOpen(false);
@@ -423,11 +471,120 @@ export default function MapsPage() {
   ]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!previewOpen || tagOrganizeMode || isMobileViewport) return;
+    const topOffset = 128;
+    const bottomGap = 24;
+
+    const updatePreviewPosition = () => {
+      const shellEl = previewShellRef.current;
+      if (!shellEl) return;
+      const rect = shellEl.getBoundingClientRect();
+      const panelHeight = Math.max(320, window.innerHeight - topOffset - bottomGap);
+      const shouldPin = rect.bottom > topOffset + panelHeight;
+
+      setPreviewPinned(shouldPin);
+      setPreviewMetrics({
+        left: rect.left,
+        width: rect.width,
+        height: panelHeight,
+      });
+    };
+
+    updatePreviewPosition();
+    window.addEventListener("resize", updatePreviewPosition);
+    window.addEventListener("scroll", updatePreviewPosition, { passive: true });
+
+    return () => {
+      window.removeEventListener("resize", updatePreviewPosition);
+      window.removeEventListener("scroll", updatePreviewPosition);
+    };
+  }, [previewOpen, tagOrganizeMode, isMobileViewport, selectedId]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!tagOrganizeMode || isMobileViewport) return;
+    const topOffset = 132;
+    const bottomGap = 24;
+
+    const updateTagPanelPosition = () => {
+      const shellEl = tagPanelShellRef.current;
+      if (!shellEl) return;
+      const rect = shellEl.getBoundingClientRect();
+      const panelHeight = Math.max(320, window.innerHeight - topOffset - bottomGap);
+      const shouldPin = rect.bottom > topOffset + panelHeight;
+
+      setTagPanelPinned(shouldPin);
+      setTagPanelMetrics({
+        left: rect.left,
+        width: rect.width,
+        height: panelHeight,
+      });
+    };
+
+    updateTagPanelPosition();
+    window.addEventListener("resize", updateTagPanelPosition);
+    window.addEventListener("scroll", updateTagPanelPosition, { passive: true });
+
+    return () => {
+      window.removeEventListener("resize", updateTagPanelPosition);
+      window.removeEventListener("scroll", updateTagPanelPosition);
+    };
+  }, [tagOrganizeMode, isMobileViewport]);
+
+  useEffect(() => {
     if (isMobileViewport === null || isMobileViewport || desktopDefaultsAppliedRef.current) return;
     desktopDefaultsAppliedRef.current = true;
     setViewMode("card");
     setPreviewOpen(false);
   }, [isMobileViewport]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const threshold = 65;
+
+    const updateToolbarPosition = () => {
+      const sectionEl = listSectionRef.current;
+      const shellEl = toolbarShellRef.current;
+      const innerEl = toolbarInnerRef.current;
+      if (!sectionEl || !shellEl || !innerEl) return;
+
+      const sectionRect = sectionEl.getBoundingClientRect();
+      const shellRect = shellEl.getBoundingClientRect();
+      const height = innerEl.offsetHeight;
+      const shouldPin =
+        sectionRect.top <= threshold &&
+        sectionRect.bottom > threshold + height + 12;
+
+      setToolbarPinned(shouldPin);
+      setToolbarMetrics({
+        left: shellRect.left,
+        width: shellRect.width,
+        height,
+      });
+    };
+
+    updateToolbarPosition();
+    window.addEventListener("scroll", updateToolbarPosition, { passive: true });
+    window.addEventListener("resize", updateToolbarPosition);
+
+    return () => {
+      window.removeEventListener("scroll", updateToolbarPosition);
+      window.removeEventListener("resize", updateToolbarPosition);
+    };
+  }, [
+    isMobileViewport,
+    previewOpen,
+    query,
+    page,
+    totalCount,
+    loading,
+    filtersOpen,
+    selectionMode,
+    tagOrganizeMode,
+    viewMode,
+  ]);
 
   useEffect(() => {
     let cancelled = false;
@@ -567,7 +724,6 @@ export default function MapsPage() {
 
   const recentInterestTags = useMemo(() => {
     const counts = new Map<string, number>();
-    const recentDrafts = [...recentUpdatedDrafts, ...recentCreatedDrafts];
     const seenMapIds = new Set<string>();
 
     recentDrafts.forEach((draft) => {
@@ -588,7 +744,7 @@ export default function MapsPage() {
       })
       .slice(0, 8)
       .map(([name, count]) => ({ name, count }));
-  }, [recentCreatedDrafts, recentUpdatedDrafts, locale]);
+  }, [recentDrafts, locale]);
   const filteredDrafts = useMemo(() => drafts, [drafts]);
   const effectiveTagFilters = useMemo(
     () =>
@@ -848,6 +1004,8 @@ export default function MapsPage() {
   const hasDrafts = totalCount > 0;
   const hasFilteredDrafts = filteredDrafts.length > 0;
   const hasResults = totalCount > 0;
+  const isInitialLoading = loading && drafts.length === 0;
+  const isRefreshing = loading && drafts.length > 0;
   const statusSummary =
     statusFilters.length > 0
       ? statusFilters.map((value) => STATUS_LABELS[value]).join(", ")
@@ -1148,13 +1306,94 @@ export default function MapsPage() {
     ? "검색 결과가 없어요."
     : "좌측에서 맵을 선택해 주세요.";
   const showRecentSections =
-    !loading &&
     !error &&
     !tagOrganizeMode &&
     !selectionMode &&
-    !isSearching &&
+    !previewOpen &&
     page === 1 &&
-    hasDrafts;
+    (hasDrafts || recentDrafts.length > 0 || recentInterestTags.length > 0);
+
+  const recentSections = showRecentSections ? (
+    <div className="mt-4 mb-3 grid gap-3 md:grid-cols-2">
+      <section className="rounded-[22px] border border-blue-200 bg-white px-4 py-3 shadow-sm dark:border-blue-500/20 dark:bg-white/[0.05]">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
+              최근 맵
+            </h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setRecentSectionsCollapsed((prev) => !prev)}
+              className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-600 transition hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/75 dark:hover:bg-white/[0.08]"
+              aria-label={recentSectionsCollapsed ? "최근 섹션 펼치기" : "최근 섹션 접기"}
+            >
+              <span>{recentSectionsCollapsed ? "펼치기" : "접기"}</span>
+              <Icon
+                icon={recentSectionsCollapsed ? "mdi:chevron-down" : "mdi:chevron-up"}
+                className="h-3.5 w-3.5"
+              />
+            </button>
+            <Icon icon="mdi:history" className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+          </div>
+        </div>
+        {!recentSectionsCollapsed && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {recentDrafts.map((draft) => (
+              <button
+                key={`recent-${draft.id}`}
+                type="button"
+                onClick={() => handleOpenDetail(draft)}
+                className="inline-flex max-w-full items-center rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-blue-400/20 dark:hover:bg-blue-500/10 dark:hover:text-blue-200"
+              >
+                <span className="truncate">{getMapListDisplayTitle(draft)}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="rounded-[22px] border border-emerald-200 bg-white px-4 py-3 shadow-sm dark:border-emerald-500/20 dark:bg-white/[0.05]">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
+              최근 나의 관심 태그
+            </h2>
+          </div>
+          <Icon icon="mdi:tag-heart-outline" className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
+        </div>
+        {!recentSectionsCollapsed && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {recentInterestTags.length > 0 ? (
+              recentInterestTags.map((tag) => (
+                <button
+                  key={`interest-${tag.name}`}
+                  type="button"
+                  onClick={() => {
+                    setTagFilters([tag.name]);
+                    setSelectedTagNames([tag.name]);
+                    setTagOrganizeMode(false);
+                    setPage(1);
+                  }}
+                  className="inline-flex max-w-full items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[12px] font-semibold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:border-emerald-300/30 dark:hover:bg-emerald-500/20"
+                >
+                  <span className="truncate">#{tag.name}</span>
+                  <span className="text-[11px] text-emerald-600/80 dark:text-emerald-200/70">
+                    {tag.count}
+                  </span>
+                </button>
+              ))
+            ) : (
+              <div className="text-[12px] text-neutral-500 dark:text-white/55">
+                최근 맵에서 태그가 아직 충분히 쌓이지 않았어요.
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+    </div>
+  ) : null;
 
   return (
     <main className="min-h-[70vh] bg-neutral-50 px-6 pt-20 pb-12 dark:bg-[#07111f]">
@@ -1167,6 +1406,8 @@ export default function MapsPage() {
           </div>
         </div>
 
+        {recentSections}
+
         <div
           className={`mt-4 grid gap-6 ${
             tagOrganizeMode
@@ -1177,279 +1418,227 @@ export default function MapsPage() {
           } lg:min-h-[calc(100vh-160px)]`}
         >
           {tagOrganizeMode && (
-            <TagPanel
-              tagListQuery={tagListQuery}
-              onTagListQueryChange={setTagListQuery}
-              tagsLoading={tagsLoading}
-              tagOptions={mergedTagOptions}
-              tagSort={tagSort}
-              onTagSortChange={setTagSort}
-              onDeleteTag={(tag) => {
-                setTagDeleteTarget(tag);
-                setTagDeleteOpen(true);
-              }}
-              selectedTags={selectedTagNames}
-              onToggleSelect={(tag) => {
-                setSelectedTagNames((prev) =>
-                  prev.includes(tag)
-                    ? prev.filter((name) => name !== tag)
-                    : [...prev, tag]
-                );
-                setPage(1);
-              }}
-              onOpenMerge={() => setTagMergeOpen(true)}
-            />
+            <section
+              ref={tagPanelShellRef}
+              className="relative"
+              style={{ minHeight: tagPanelMetrics.height || undefined }}
+            >
+              <div
+                style={{
+                  position: tagPanelPinned ? "fixed" : "absolute",
+                  top: tagPanelPinned ? 132 : undefined,
+                  bottom: tagPanelPinned ? undefined : 0,
+                  left: tagPanelPinned ? tagPanelMetrics.left : 0,
+                  width: tagPanelPinned ? tagPanelMetrics.width : "100%",
+                  height: tagPanelMetrics.height || undefined,
+                  zIndex: 20,
+                }}
+              >
+                <TagPanel
+                  tagListQuery={tagListQuery}
+                  onTagListQueryChange={setTagListQuery}
+                  tagsLoading={tagsLoading}
+                  tagOptions={mergedTagOptions}
+                  tagSort={tagSort}
+                  onTagSortChange={setTagSort}
+                  onDeleteTag={(tag) => {
+                    setTagDeleteTarget(tag);
+                    setTagDeleteOpen(true);
+                  }}
+                  selectedTags={selectedTagNames}
+                  onToggleSelect={(tag) => {
+                    setSelectedTagNames((prev) =>
+                      prev.includes(tag)
+                        ? prev.filter((name) => name !== tag)
+                        : [...prev, tag]
+                    );
+                    setPage(1);
+                  }}
+                  onOpenMerge={() => setTagMergeOpen(true)}
+                  containerClassName="block h-full"
+                  panelClassName="flex h-full flex-col overflow-hidden rounded-2xl border border-blue-200 bg-white p-4 shadow-sm dark:border-blue-500/20 dark:bg-white/[0.04]"
+                  listClassName="mt-3 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-1"
+                />
+              </div>
+            </section>
           )}
           <section
-            className={`min-w-0 lg:overflow-x-hidden ${
+            ref={listSectionRef}
+            className={`min-w-0 lg:self-start ${
               previewOpen ? "lg:pr-4 lg:[scrollbar-gutter:stable]" : ""
             }`}
           >
-            {showRecentSections && (
-              <div className="mb-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                <section className="rounded-[22px] border border-blue-200 bg-white px-4 py-3 shadow-sm dark:border-blue-500/20 dark:bg-white/[0.05]">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
-                        최근 수정한 맵
-                      </h2>
-                      <p className="mt-0.5 text-[12px] text-neutral-500 dark:text-white/60">
-                        최근에 손본 맵부터 바로 이어서 볼 수 있어요.
-                      </p>
-                    </div>
-                    <Icon icon="mdi:history" className="h-5 w-5 text-blue-600 dark:text-blue-300" />
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {recentUpdatedDrafts.slice(0, 5).map((draft) => (
-                      <button
-                        key={`updated-${draft.id}`}
-                        type="button"
-                        onClick={() => handleOpenDetail(draft)}
-                        className="inline-flex max-w-full items-center rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-blue-400/20 dark:hover:bg-blue-500/10 dark:hover:text-blue-200"
-                      >
-                        <span className="truncate">{getMapListDisplayTitle(draft)}</span>
-                      </button>
-                    ))}
-                  </div>
-                </section>
-
-                <section className="rounded-[22px] border border-neutral-200 bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-white/[0.05]">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
-                        최근 생성한 맵
-                      </h2>
-                      <p className="mt-0.5 text-[12px] text-neutral-500 dark:text-white/60">
-                        새로 만든 구조맵을 빠르게 다시 열어볼 수 있어요.
-                      </p>
-                    </div>
-                    <Icon icon="mdi:sparkles" className="h-5 w-5 text-neutral-700 dark:text-white/80" />
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {recentCreatedDrafts.slice(0, 5).map((draft) => (
-                      <button
-                        key={`created-${draft.id}`}
-                        type="button"
-                        onClick={() => handleOpenDetail(draft)}
-                        className="inline-flex max-w-full items-center rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-neutral-300 hover:bg-neutral-100 hover:text-neutral-900 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
-                      >
-                        <span className="truncate">{getMapListDisplayTitle(draft)}</span>
-                      </button>
-                    ))}
-                  </div>
-                </section>
-
-                <section className="rounded-[22px] border border-emerald-200 bg-white px-4 py-3 shadow-sm dark:border-emerald-500/20 dark:bg-white/[0.05]">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
-                        최근 나의 관심 태그
-                      </h2>
-                      <p className="mt-0.5 text-[12px] text-neutral-500 dark:text-white/60">
-                        최근 맵에서 많이 본 주제를 바로 필터링할 수 있어요.
-                      </p>
-                    </div>
-                    <Icon icon="mdi:tag-heart-outline" className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {recentInterestTags.length > 0 ? (
-                      recentInterestTags.map((tag) => (
-                        <button
-                          key={`interest-${tag.name}`}
-                          type="button"
-                          onClick={() => {
-                            setTagFilters([tag.name]);
-                            setSelectedTagNames([tag.name]);
-                            setTagOrganizeMode(false);
-                            setPage(1);
-                          }}
-                          className="inline-flex max-w-full items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[12px] font-semibold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:border-emerald-300/30 dark:hover:bg-emerald-500/20"
-                        >
-                          <span className="truncate">#{tag.name}</span>
-                          <span className="text-[11px] text-emerald-600/80 dark:text-emerald-200/70">
-                            {tag.count}
-                          </span>
-                        </button>
-                      ))
-                    ) : (
-                      <div className="text-[12px] text-neutral-500 dark:text-white/55">
-                        최근 맵에서 태그가 아직 충분히 쌓이지 않았어요.
-                      </div>
-                    )}
-                  </div>
-                </section>
-              </div>
-            )}
-
-            <MapListToolbar
-              query={query}
-              onQueryChange={(value) => {
-                setQuery(value);
-                setPage(1);
-              }}
-              onClearQuery={() => {
-                setQuery("");
-                setPage(1);
-              }}
-              selectionMode={selectionMode}
-              selectedCount={selectedMapIds.length}
-              onOpenMerge={() => setMergeDialogOpen(true)}
-              onOpenBulkDelete={() => setConfirmBulkOpen(true)}
-              onCancelSelection={() => {
-                setSelectionMode(false);
-                setSelectedMapIds([]);
-              }}
-              bulkDeleting={bulkDeleting}
-              statusSummary={statusSummary}
-              sourceSummary={sourceSummary}
-              tagSummary={tagSummary}
-              dateLabel={dateLabel}
-              datePreset={datePreset}
-              previewOpen={previewOpen}
-              onTogglePreview={() => {
-                if (isMobileViewport) return;
-                const next = !previewOpen;
-                if (next && selectionMode) {
-                  setSelectionMode(false);
-                  setSelectedMapIds([]);
-                  toast.message("프리뷰 모드로 전환되어 선택 모드가 꺼졌어요.");
+            <div
+              ref={toolbarShellRef}
+              className="mb-3"
+              style={toolbarPinned ? { height: toolbarMetrics.height } : undefined}
+            >
+              <div
+                ref={toolbarInnerRef}
+                className="rounded-2xl bg-neutral-50/95 py-2 backdrop-blur supports-[backdrop-filter]:bg-neutral-50/80 dark:bg-[#07111f]/95 dark:supports-[backdrop-filter]:bg-[#07111f]/80"
+                style={
+                  toolbarPinned
+                    ? {
+                        position: "fixed",
+                        top: 65,
+                        left: toolbarMetrics.left,
+                        width: toolbarMetrics.width,
+                        zIndex: 40,
+                      }
+                    : undefined
                 }
-                if (next && tagOrganizeMode) {
-                  setTagOrganizeMode(false);
-                  toast.message("프리뷰를 위해 태그 정리 모드를 껐어요.");
-                }
-                setPreviewOpen(next);
-                setMobilePreviewOpen(false);
-              }}
-              tagOrganizeMode={tagOrganizeMode}
-              onToggleTagOrganize={() => {
-                const next = !tagOrganizeMode;
-                if (next && previewOpen) {
-                  setPreviewOpen(false);
-                  setMobilePreviewOpen(false);
-                  toast.message("태그 정리 모드로 전환되어 프리뷰가 꺼졌어요.");
-                }
-                if (next && selectionMode) {
-                  setSelectionMode(false);
-                  setSelectedMapIds([]);
-                  toast.message("태그 정리 모드로 전환되어 선택 모드가 꺼졌어요.");
-                }
-                setMobileTagSheetOpen(next);
-                setTagOrganizeMode(next);
-              }}
-              onToggleSelection={() => {
-                const next = !selectionMode;
-                if (!next) {
-                  setSelectionMode(false);
-                  setSelectedMapIds([]);
-                  return;
-                }
-                if (previewOpen) {
-                  setPreviewOpen(false);
-                  setMobilePreviewOpen(false);
-                  toast.message("선택 모드로 전환되어 프리뷰가 꺼졌어요.");
-                }
-                if (tagOrganizeMode) {
-                  setTagOrganizeMode(false);
-                  setMobileTagSheetOpen(false);
-                  toast.message("태그 정리 모드를 종료하고 선택 모드로 전환했어요.");
-                }
-                setSelectionMode(true);
-              }}
-              viewMode={viewMode}
-              onViewModeChange={setViewMode}
-              hidePreviewToggle={Boolean(isMobileViewport)}
-              hideViewModeToggle={Boolean(isMobileViewport)}
-              sort={sort}
-              onSortChange={(value) => {
-                setSort(value);
-                setPage(1);
-              }}
-              filtersOpen={filtersOpen}
-              onToggleFilters={() => setFiltersOpen((prev) => !prev)}
-              showResetFilters={
-                statusFilters.length > 0 ||
-                sourceFilters.length > 0 ||
-                tagFilters.length > 0 ||
-                datePreset !== "30d"
-              }
-              onResetFilters={() => {
-                setDatePreset("30d");
-                setCustomFrom("");
-                setCustomTo("");
-                setStatusFilters([]);
-                setSourceFilters([]);
-                setTagFilters([]);
-                setPage(1);
-              }}
-              filterPopover={
-                <MapFilterPopover
+              >
+                <MapListToolbar
+                  query={query}
+                  onQueryChange={(value) => {
+                    setQuery(value);
+                    setPage(1);
+                  }}
+                  onClearQuery={() => {
+                    setQuery("");
+                    setPage(1);
+                  }}
+                  selectionMode={selectionMode}
+                  selectedCount={selectedMapIds.length}
+                  onOpenMerge={() => setMergeDialogOpen(true)}
+                  onOpenBulkDelete={() => setConfirmBulkOpen(true)}
+                  onCancelSelection={() => {
+                    setSelectionMode(false);
+                    setSelectedMapIds([]);
+                  }}
+                  bulkDeleting={bulkDeleting}
+                  statusSummary={statusSummary}
+                  sourceSummary={sourceSummary}
+                  tagSummary={tagSummary}
+                  dateLabel={dateLabel}
                   datePreset={datePreset}
-                  onDatePresetChange={(value) => {
-                    if (value === "custom") {
-                      setDatePreset("custom");
-                      setPage(1);
+                  previewOpen={previewOpen}
+                  onTogglePreview={() => {
+                    if (isMobileViewport) return;
+                    const next = !previewOpen;
+                    if (next && selectionMode) {
+                      setSelectionMode(false);
+                      setSelectedMapIds([]);
+                      toast.message("프리뷰 모드로 전환되어 선택 모드가 꺼졌어요.");
+                    }
+                    if (next && tagOrganizeMode) {
+                      setTagOrganizeMode(false);
+                      toast.message("프리뷰를 위해 태그 정리 모드를 껐어요.");
+                    }
+                    setPreviewOpen(next);
+                    setMobilePreviewOpen(false);
+                  }}
+                  tagOrganizeMode={tagOrganizeMode}
+                  onToggleTagOrganize={() => {
+                    const next = !tagOrganizeMode;
+                    if (next && previewOpen) {
+                      setPreviewOpen(false);
+                      setMobilePreviewOpen(false);
+                      toast.message("태그 정리 모드로 전환되어 프리뷰가 꺼졌어요.");
+                    }
+                    if (next && selectionMode) {
+                      setSelectionMode(false);
+                      setSelectedMapIds([]);
+                      toast.message("태그 정리 모드로 전환되어 선택 모드가 꺼졌어요.");
+                    }
+                    setMobileTagSheetOpen(next);
+                    setTagOrganizeMode(next);
+                  }}
+                  onToggleSelection={() => {
+                    const next = !selectionMode;
+                    if (!next) {
+                      setSelectionMode(false);
+                      setSelectedMapIds([]);
                       return;
                     }
-                    setDatePreset(value as typeof datePreset);
+                    if (previewOpen) {
+                      setPreviewOpen(false);
+                      setMobilePreviewOpen(false);
+                      toast.message("선택 모드로 전환되어 프리뷰가 꺼졌어요.");
+                    }
+                    if (tagOrganizeMode) {
+                      setTagOrganizeMode(false);
+                      setMobileTagSheetOpen(false);
+                      toast.message("태그 정리 모드를 종료하고 선택 모드로 전환했어요.");
+                    }
+                    setSelectionMode(true);
+                  }}
+                  viewMode={viewMode}
+                  onViewModeChange={setViewMode}
+                  hidePreviewToggle={Boolean(isMobileViewport)}
+                  hideViewModeToggle={Boolean(isMobileViewport)}
+                  sort={sort}
+                  onSortChange={(value) => {
+                    setSort(value);
+                    setPage(1);
+                  }}
+                  filtersOpen={filtersOpen}
+                  onToggleFilters={() => setFiltersOpen((prev) => !prev)}
+                  showResetFilters={
+                    statusFilters.length > 0 ||
+                    sourceFilters.length > 0 ||
+                    tagFilters.length > 0 ||
+                    datePreset !== "30d"
+                  }
+                  onResetFilters={() => {
+                    setDatePreset("30d");
                     setCustomFrom("");
                     setCustomTo("");
+                    setStatusFilters([]);
+                    setSourceFilters([]);
+                    setTagFilters([]);
                     setPage(1);
                   }}
-                  customFrom={customFrom}
-                  customTo={customTo}
-                  onCustomFromChange={(value) => {
-                    setCustomFrom(value);
-                    setDatePreset("custom");
-                    setPage(1);
-                  }}
-                  onCustomToChange={(value) => {
-                    setCustomTo(value);
-                    setDatePreset("custom");
-                    setPage(1);
-                  }}
-                  statusFilters={statusFilters}
-                  onToggleStatus={(value) => {
-                    toggleArrayValue(value, setStatusFilters);
-                    setPage(1);
-                  }}
-                  sourceFilters={sourceFilters}
-                  onToggleSource={(value) => {
-                    toggleArrayValue(value, setSourceFilters);
-                    setPage(1);
-                  }}
-                  tagFilters={tagFilters}
-                  tagOptions={tagOptions}
-                  tagsLoading={tagsLoading}
-                  onToggleTag={(value) => {
-                    toggleArrayValue(value, setTagFilters);
-                    setPage(1);
-                  }}
-                  showTagFilters={!tagOrganizeMode}
-                  onClose={() => setFiltersOpen(false)}
+                  filterPopover={
+                    <MapFilterPopover
+                      datePreset={datePreset}
+                      onDatePresetChange={(value) => {
+                        if (value === "custom") {
+                          setDatePreset("custom");
+                          setPage(1);
+                          return;
+                        }
+                        setDatePreset(value as typeof datePreset);
+                        setCustomFrom("");
+                        setCustomTo("");
+                        setPage(1);
+                      }}
+                      customFrom={customFrom}
+                      customTo={customTo}
+                      onCustomFromChange={(value) => {
+                        setCustomFrom(value);
+                        setDatePreset("custom");
+                        setPage(1);
+                      }}
+                      onCustomToChange={(value) => {
+                        setCustomTo(value);
+                        setDatePreset("custom");
+                        setPage(1);
+                      }}
+                      statusFilters={statusFilters}
+                      onToggleStatus={(value) => {
+                        toggleArrayValue(value, setStatusFilters);
+                        setPage(1);
+                      }}
+                      sourceFilters={sourceFilters}
+                      onToggleSource={(value) => {
+                        toggleArrayValue(value, setSourceFilters);
+                        setPage(1);
+                      }}
+                      tagFilters={tagFilters}
+                      tagOptions={tagOptions}
+                      tagsLoading={tagsLoading}
+                      onToggleTag={(value) => {
+                        toggleArrayValue(value, setTagFilters);
+                        setPage(1);
+                      }}
+                      showTagFilters={!tagOrganizeMode}
+                      onClose={() => setFiltersOpen(false)}
+                    />
+                  }
                 />
-              }
-            />
+              </div>
+            </div>
 
             {!loading && error && (
               <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
@@ -1481,7 +1670,7 @@ export default function MapsPage() {
                 </div>
               )}
 
-            {loading && (
+            {isInitialLoading && (
               <>
                 {effectiveViewMode === "card" ? (
                   <MapCardListSkeleton />
@@ -1491,8 +1680,8 @@ export default function MapsPage() {
               </>
             )}
 
-            {!loading && !error && hasResults && (
-              <>
+            {!error && hasResults && !isInitialLoading && (
+              <div className={isRefreshing ? "opacity-75 transition-opacity" : "transition-opacity"}>
                 {effectiveViewMode === "card" ? (
                   <MapCardList
                     drafts={filteredDrafts}
@@ -1525,7 +1714,7 @@ export default function MapsPage() {
                     sourceLabels={SOURCE_LABELS}
                   />
                 )}
-              </>
+              </div>
             )}
 
             {!loading && !error && hasResults && (
@@ -1564,16 +1753,31 @@ export default function MapsPage() {
             (loading ? (
               <MapPreviewSkeleton />
             ) : (
-              <section className="hidden lg:block lg:sticky lg:top-24 lg:h-[calc(100vh-160px)]">
-                <MapPreviewPanel
-                  draft={selectedDraft}
-                  previewData={previewData}
-                  previewStatus={loading ? "loading" : previewStatus}
-                  emptyMessage={previewEmptyMessage}
-                  isOpen={previewOpen}
-                  onOpen={() => setPreviewOpen(true)}
-                  onClose={() => setPreviewOpen(false)}
-                />
+              <section
+                ref={previewShellRef}
+                className="relative hidden lg:block"
+                style={{ minHeight: previewMetrics.height || undefined }}
+              >
+                <div
+                  style={{
+                    position: previewPinned ? "fixed" : "absolute",
+                    top: previewPinned ? 128 : undefined,
+                    bottom: previewPinned ? undefined : 0,
+                    left: previewPinned ? previewMetrics.left : 0,
+                    width: previewPinned ? previewMetrics.width : "100%",
+                    zIndex: 20,
+                  }}
+                >
+                  <MapPreviewPanel
+                    draft={selectedDraft}
+                    previewData={previewData}
+                    previewStatus={loading ? "loading" : previewStatus}
+                    emptyMessage={previewEmptyMessage}
+                    isOpen={previewOpen}
+                    onOpen={() => setPreviewOpen(true)}
+                    onClose={() => setPreviewOpen(false)}
+                  />
+                </div>
               </section>
             ))}
         </div>

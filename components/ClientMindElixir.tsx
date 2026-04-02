@@ -2040,6 +2040,17 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             word-break: break-word !important;
             text-wrap: wrap !important;
           }
+          #input-box {
+            box-sizing: border-box !important;
+            width: auto !important;
+            max-width: 21em !important;
+            min-width: min(21em, calc(100vw - 40px)) !important;
+            white-space: normal !important;
+            overflow-wrap: anywhere !important;
+            word-break: break-word !important;
+            text-wrap: wrap !important;
+            line-height: 1.4 !important;
+          }
         }
         .me-note-dot {
           position: absolute;

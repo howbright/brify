@@ -72,11 +72,11 @@ export default function TagPanel({
             {headerAccessory}
           </div>
         </div>
-        {selectedTags.length > 0 && (
-          <div className="mt-2 flex flex-col gap-2 rounded-xl border border-blue-200 bg-blue-50 px-2.5 py-2 text-xs text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200">
-            <span className="text-[11px] font-semibold text-neutral-600 dark:text-white/70">
-              필터링 중
-            </span>
+        <div className="mt-2 flex flex-col gap-2 rounded-xl border border-blue-200 bg-blue-50 px-2.5 py-2 text-xs text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200">
+          <span className="text-[11px] font-semibold text-neutral-600 dark:text-white/70">
+            {selectedTags.length > 0 ? "선택된 필터" : "태그 필터"}
+          </span>
+          {selectedTags.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {selectedTags.map((tag) => (
                 <span
@@ -95,21 +95,25 @@ export default function TagPanel({
                 </span>
               ))}
             </div>
-            <div className="flex items-center justify-between gap-2">
-              <span>{selectedTags.length}개 선택됨</span>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={onOpenMerge}
-                  disabled={mergeSelectableCount < 2}
-                  className="rounded-full border border-blue-500/70 bg-blue-600 px-2 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:border-blue-200 disabled:bg-blue-100 disabled:text-blue-300 dark:disabled:border-blue-500/20 dark:disabled:bg-blue-500/10 dark:disabled:text-blue-200/40"
-                >
-                  태그합치기
-                </button>
-              </div>
+          ) : (
+            <div className="rounded-lg border border-dashed border-blue-200/80 bg-white/70 px-3 py-2 text-[11px] text-blue-700/80 dark:border-blue-400/25 dark:bg-white/[0.04] dark:text-blue-100/75">
+              태그를 체크하면 아래 맵 목록이 해당 태그 기준으로 바로 필터링돼요.
+            </div>
+          )}
+          <div className="flex items-center justify-between gap-2">
+            <span>{selectedTags.length}개 선택됨</span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onOpenMerge}
+                disabled={mergeSelectableCount < 2}
+                className="rounded-full border border-blue-500/70 bg-blue-600 px-2 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:border-blue-200 disabled:bg-blue-100 disabled:text-blue-300 dark:disabled:border-blue-500/20 dark:disabled:bg-blue-500/10 dark:disabled:text-blue-200/40"
+              >
+                태그합치기
+              </button>
             </div>
           </div>
-        )}
+        </div>
         <div className="mt-3 relative flex items-center">
           <input
             value={tagListQuery}
