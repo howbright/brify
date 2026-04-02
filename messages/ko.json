@@ -376,7 +376,8 @@
       "centerMap": "가운데로",
       "collapseAll": "전체 접기",
       "zoomIn": "확대",
-      "zoomOut": "축소"
+      "zoomOut": "축소",
+      "tutorial": "튜토리얼"
     },
     "badges": {
       "editMode": "편집 모드",
@@ -475,6 +476,10 @@
       },
       "context": {
         "alt": "컨텍스트 메뉴 안내"
+      },
+      "expand": {
+        "label": "접기 / 펼치기",
+        "description": "+ 버튼으로 하위 내용을 열 수 있어요"
       }
     },
     "steps": {
@@ -507,6 +512,12 @@
         "description": "중요내용의 노드는 하이라이트로 강조하며 읽으세요.",
         "calloutTitle": "하이라이트",
         "calloutDescription": "중요내용의 노드는 하이라이트로 강조하며 읽으세요."
+      },
+      "expand": {
+        "title": "노드를 접고 펴며 더 편하게 읽으세요",
+        "description": "동그라미 안의 + 버튼을 누르면 하위 내용을 펼칠 수 있어요. 다시 접으면서 필요한 부분만 따라가면 구조맵을 훨씬 편하게 읽을 수 있어요.",
+        "calloutTitle": "접기 / 펼치기",
+        "calloutDescription": "+ 버튼으로 하위 내용을 펼쳐보세요."
       },
       "terms": {
         "title": "AI가 어려운 용어를 찾아서 정리해드려요",
@@ -544,9 +555,21 @@
         "calloutTitle": "하이라이트",
         "calloutDescription": "노드를 선택한 뒤 하이라이트 버튼을 눌러보세요."
       },
+      "expand": {
+        "title": "노드를 접고 펴며 더 편하게 읽으세요",
+        "description": "동그라미 안의 + 버튼을 누르면 하위 내용을 펼칠 수 있어요. 다시 접으면서 필요한 부분만 따라가면 구조맵을 훨씬 편하게 읽을 수 있어요.",
+        "calloutTitle": "접기 / 펼치기",
+        "calloutDescription": "+ 버튼으로 하위 내용을 펼쳐보세요."
+      },
+      "panel": {
+        "title": "왼쪽 패널에서 더 많은 정보를 확인하세요",
+        "description": "왼쪽 패널 버튼을 누르면 정보, 노트, 용어 탭을 열 수 있어요. 구조맵을 읽다가 필요한 정보를 바로 확인해보세요.",
+        "calloutTitle": "왼쪽 패널",
+        "calloutDescription": "이 버튼을 누르면 정보, 노트, 용어 탭을 열 수 있어요."
+      },
       "terms": {
-        "title": "용어 탭에서 어려운 표현을 정리해드려요",
-        "description": "모바일에서도 용어 탭을 열면 AI가 정리한 어려운 표현과 설명을 쉽게 확인할 수 있어요.",
+        "title": "AI가 어려운 용어를 찾아서 정리해드려요",
+        "description": "왼쪽 패널의 용어 탭에서는 영상 속 낯선 표현이나 어려운 용어를 자동으로 정리해서 더 쉽게 이해할 수 있어요.",
         "calloutTitle": "용어",
         "calloutDescription": "어려운 용어는 여기서 바로 확인할 수 있어요."
       }
@@ -1343,7 +1366,8 @@
       "view": "보기모드: 흐름을 집중해서 확인"
     },
     "actions": {
-      "delete": "삭제"
+      "delete": "삭제",
+      "tutorial": "튜토리얼"
     },
     "deleteConfirm": {
       "title": "구조맵을 삭제할까요?",
@@ -1365,6 +1389,13 @@
       "info": "정보",
       "notes": "노트",
       "terms": "용어"
+    },
+    "actions": {
+      "centerMap": "가운데로",
+      "collapseAll": "전체 접기",
+      "zoomIn": "확대",
+      "zoomOut": "축소",
+      "tutorial": "튜토리얼"
     },
     "status": {
       "fetchError": "구조맵을 불러오지 못했어요"

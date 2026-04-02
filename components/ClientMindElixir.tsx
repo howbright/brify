@@ -39,6 +39,8 @@ type ClientMindElixirProps = {
   fitOnInit?: boolean;
   preserveViewState?: boolean;
   openMenuOnClick?: boolean;
+  disableDirectContextMenu?: boolean;
+  showSelectionContextMenuButton?: boolean;
   showMiniMap?: boolean;
   showToolbar?: boolean;
   panMode?: boolean;
@@ -352,6 +354,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       fitOnInit = true,
       preserveViewState = true,
       openMenuOnClick = true,
+      disableDirectContextMenu = false,
+      showSelectionContextMenuButton = false,
       showMiniMap = true,
       showToolbar = false,
       panMode,
@@ -370,6 +374,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const miniMapLabel = locale === "ko" ? "미니맵" : "Mini map";
   const mobileEditMenuTitle = locale === "ko" ? "노드 편집" : "Edit node";
   const moreActionsLabel = locale === "ko" ? "더보기" : "More";
+  const focusModeLabel = locale === "ko" ? "포커스 모드" : "Focus Mode";
+  const focusModeExitLabel = locale === "ko" ? "나가기" : "Exit";
   const {
     mounted,
     isTouchDevice,
@@ -440,6 +446,27 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const highlightVariant = "gold";
   const searchHighlightIdsRef = useRef<Set<string>>(new Set());
   const searchActiveIdRef = useRef<string | null>(null);
+  const openNodeContextMenu = (
+    nodeId?: string | null,
+    anchorEl?: HTMLElement | null
+  ) => {
+    const targetId = nodeId ?? selectedNodeIdRef.current;
+    if (!targetId) return;
+    const nodeEl = getNodeElById(targetId) ?? selectedNodeElRef.current ?? null;
+    if (!nodeEl) return;
+    const triggerRect = (anchorEl ?? nodeEl).getBoundingClientRect();
+    nodeEl.dispatchEvent(
+      new MouseEvent("contextmenu", {
+        bubbles: true,
+        cancelable: true,
+        button: 2,
+        buttons: 2,
+        clientX: triggerRect.right + 8,
+        clientY: triggerRect.top + triggerRect.height / 2,
+        view: window,
+      })
+    );
+  };
   const handleNoteClick = () => {
     const mind = mindRef.current;
     const selectedId = selectedNodeIdRef.current;
@@ -1033,6 +1060,23 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       host.removeEventListener("click", handleClick);
     };
   }, []);
+
+  useEffect(() => {
+    if (!disableDirectContextMenu) return;
+    const host = elRef.current;
+    if (!host) return;
+
+    const handleContextMenuCapture = (event: MouseEvent) => {
+      if (!event.isTrusted) return;
+      event.preventDefault();
+      event.stopPropagation();
+    };
+
+    host.addEventListener("contextmenu", handleContextMenuCapture, true);
+    return () => {
+      host.removeEventListener("contextmenu", handleContextMenuCapture, true);
+    };
+  }, [disableDirectContextMenu]);
 
   useEffect(() => {
     clearLongPressState();
@@ -1844,15 +1888,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
           if (!nodeEl) return;
 
-          const rect = nodeEl.getBoundingClientRect();
-          nodeEl.dispatchEvent(
-            new MouseEvent("contextmenu", {
-              bubbles: true,
-              cancelable: true,
-              clientX: rect.left + rect.width / 2,
-              clientY: rect.top + rect.height / 2,
-            })
-          );
+          openNodeContextMenu(id);
       });
     })().catch((e) => {
       console.error("[ME] init failed:", e);
@@ -1990,6 +2026,20 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           overflow-wrap: anywhere !important;
           word-break: break-word !important;
           text-wrap: wrap !important;
+        }
+        @media (max-width: 639px) {
+          me-parent me-tpc:not(.root) {
+            max-width: 21em !important;
+          }
+          me-parent me-tpc:not(.root) .text,
+          me-parent me-tpc:not(.root) .topic {
+            display: block;
+            max-width: 21em !important;
+            white-space: normal !important;
+            overflow-wrap: anywhere !important;
+            word-break: break-word !important;
+            text-wrap: wrap !important;
+          }
         }
         .me-note-dot {
           position: absolute;
@@ -2166,6 +2216,24 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
                     {moreActionsLabel}
                   </span>
                 </button>
+              ) : showSelectionContextMenuButton && !isTouchDevice ? (
+                <button
+                  type="button"
+                  className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-800 text-[10px] text-white shadow-sm ring-1 ring-slate-900/70"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openNodeContextMenu(
+                      selectedNodeIdRef.current,
+                      e.currentTarget
+                    );
+                  }}
+                  aria-label={moreActionsLabel}
+                >
+                  <Icon icon="mdi:dots-horizontal" className="h-3 w-3" />
+                  <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                    {moreActionsLabel}
+                  </span>
+                </button>
               ) : null}
             </div>
           </div>
@@ -2175,13 +2243,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       {isFocusMode && (
         <div className="pointer-events-auto absolute right-4 top-16 z-30">
           <div className="flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-[11px] text-white shadow-sm">
-            <span className="font-medium">Focus Mode</span>
+            <span className="font-medium">{focusModeLabel}</span>
             <button
               type="button"
               className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] text-white hover:bg-white/25"
               onClick={handleExitFocus}
             >
-              Exit
+              {focusModeExitLabel}
             </button>
           </div>
         </div>

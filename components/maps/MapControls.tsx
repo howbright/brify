@@ -72,6 +72,7 @@ export default function MapControls({
   editButtonId,
   placement = "floating",
   hidePanToggle = false,
+  hideEditToggle = false,
 }: {
   editMode: "view" | "edit";
   panMode: boolean;
@@ -101,6 +102,7 @@ export default function MapControls({
   editButtonId?: string;
   placement?: "floating" | "inline";
   hidePanToggle?: boolean;
+  hideEditToggle?: boolean;
 }) {
   const locale = useLocale();
   const messages = useMessages() as { MapControls?: MapControlsMessages };
@@ -238,50 +240,52 @@ export default function MapControls({
             >
             {/* Left: Mode + Status */}
             <div className="flex items-center gap-2">
-              <div
-                className="inline-flex items-center gap-1"
-                data-tutorial-id={modeToggleTutorialId}
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (editMode !== "view") onToggleEdit();
-                  }}
-                  className={`
-                    inline-flex items-center gap-1.5 px-2 py-1 text-base font-extrabold transition-colors
-                    ${editMode === "view"
-                      ? "text-blue-800 dark:text-blue-100 bg-blue-100/70 dark:bg-blue-500/20 rounded-md shadow-[inset_0_1px_2px_rgba(15,23,42,0.25),inset_0_0_0_1px_rgba(59,130,246,0.35)]"
-                      : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
-                    ${highlightEditToggle ? "text-amber-600 dark:text-amber-300 animate-pulse" : ""}
-                  `}
-                  aria-label={copy.mode.viewAria}
-                  title={copy.mode.viewAria}
+              {!hideEditToggle && (
+                <div
+                  className="inline-flex items-center gap-1"
+                  data-tutorial-id={modeToggleTutorialId}
                 >
-                  <Icon icon="mdi:eye-outline" className="h-4 w-4" />
-                  <span className="hidden min-[760px]:inline">{copy.mode.view}</span>
-                </button>
-                <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (editMode !== "edit") onToggleEdit();
-                  }}
-                  id={editButtonId}
-                  data-tutorial-id={editButtonTutorialId}
-                  className={`
-                    inline-flex items-center gap-1.5 px-2 py-1 text-base font-extrabold transition-colors
-                    ${editMode === "edit"
-                      ? "text-blue-800 dark:text-blue-100 bg-blue-100/70 dark:bg-blue-500/20 rounded-md shadow-[inset_0_1px_2px_rgba(15,23,42,0.25),inset_0_0_0_1px_rgba(59,130,246,0.35)]"
-                      : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
-                    ${highlightEditToggle ? "text-amber-600 dark:text-amber-300 animate-pulse" : ""}
-                  `}
-                  aria-label={copy.mode.editAria}
-                  title={copy.mode.editAria}
-                >
-                  <Icon icon="mdi:pencil" className="h-4 w-4" />
-                  <span className="hidden min-[760px]:inline">{copy.mode.edit}</span>
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (editMode !== "view") onToggleEdit();
+                    }}
+                    className={`
+                      inline-flex items-center gap-1.5 px-2 py-1 text-base font-extrabold transition-colors
+                      ${editMode === "view"
+                        ? "text-blue-800 dark:text-blue-100 bg-blue-100/70 dark:bg-blue-500/20 rounded-md shadow-[inset_0_1px_2px_rgba(15,23,42,0.25),inset_0_0_0_1px_rgba(59,130,246,0.35)]"
+                        : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
+                      ${highlightEditToggle ? "text-amber-600 dark:text-amber-300 animate-pulse" : ""}
+                    `}
+                    aria-label={copy.mode.viewAria}
+                    title={copy.mode.viewAria}
+                  >
+                    <Icon icon="mdi:eye-outline" className="h-4 w-4" />
+                    <span className="hidden min-[760px]:inline">{copy.mode.view}</span>
+                  </button>
+                  <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (editMode !== "edit") onToggleEdit();
+                    }}
+                    id={editButtonId}
+                    data-tutorial-id={editButtonTutorialId}
+                    className={`
+                      inline-flex items-center gap-1.5 px-2 py-1 text-base font-extrabold transition-colors
+                      ${editMode === "edit"
+                        ? "text-blue-800 dark:text-blue-100 bg-blue-100/70 dark:bg-blue-500/20 rounded-md shadow-[inset_0_1px_2px_rgba(15,23,42,0.25),inset_0_0_0_1px_rgba(59,130,246,0.35)]"
+                        : "text-neutral-600 hover:text-neutral-900 dark:text-white/70 dark:hover:text-white"}
+                      ${highlightEditToggle ? "text-amber-600 dark:text-amber-300 animate-pulse" : ""}
+                    `}
+                    aria-label={copy.mode.editAria}
+                    title={copy.mode.editAria}
+                  >
+                    <Icon icon="mdi:pencil" className="h-4 w-4" />
+                    <span className="hidden min-[760px]:inline">{copy.mode.edit}</span>
+                  </button>
+                </div>
+              )}
 
               {!hidePanToggle && (
                 <div className="inline-flex items-center gap-1">

@@ -13,7 +13,8 @@ export type MapTutorialIllustration =
   | "mouse"
   | "trackpad"
   | "context"
-  | "highlight";
+  | "highlight"
+  | "expand";
 
 export type MapTutorialStep = {
   title: string;
@@ -93,6 +94,23 @@ function TutorialIllustration({
     );
   }
 
+  if (type === "expand") {
+    return (
+      <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-3 py-3 text-red-700">
+        <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-red-200">
+          <span className="absolute inset-0 rounded-full border-2 border-red-300/80" />
+          <Icon icon="mdi:plus" className="relative z-[1] h-6 w-6" />
+        </span>
+        <div className="text-left">
+          <div className="text-sm font-extrabold">{t("illustrations.expand.label")}</div>
+          <div className="mt-1 text-[12px] font-semibold text-red-600/80">
+            {t("illustrations.expand.description")}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-1.5 py-1 shadow-sm ring-1 ring-black/5">
       <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-500/90 text-white shadow-sm ring-1 ring-red-600/50 opacity-75">
@@ -105,6 +123,9 @@ function TutorialIllustration({
       </span>
       <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-green-500/90 text-white shadow-sm ring-1 ring-green-600/50 opacity-75">
         <Icon icon="mdi:target" className="h-4 w-4" />
+      </span>
+      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-800/95 text-white shadow-sm ring-1 ring-slate-900/60 opacity-80">
+        <Icon icon="mdi:dots-horizontal" className="h-4 w-4" />
       </span>
     </div>
   );
@@ -282,6 +303,11 @@ export default function MapTutorialOverlay({
           <p className={`mt-3 font-medium text-white/78 ${isMobileViewport ? "text-[13px] leading-6" : "text-[14px] leading-6"}`}>
             {step.description}
           </p>
+          {isMobileViewport && step.illustration ? (
+            <div className="mt-4 flex justify-center">
+              <TutorialIllustration type={step.illustration} />
+            </div>
+          ) : null}
           {step.content === "shortcuts" && shortcutCopy ? (
             <div className="mt-4 rounded-[22px] border border-white/12 bg-white/6 p-3">
               <div className="mb-2 text-[12px] font-bold tracking-[0.08em] text-white/60">

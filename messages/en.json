@@ -376,7 +376,8 @@
       "centerMap": "Center",
       "collapseAll": "Collapse all",
       "zoomIn": "Zoom in",
-      "zoomOut": "Zoom out"
+      "zoomOut": "Zoom out",
+      "tutorial": "Tutorial"
     },
     "badges": {
       "editMode": "Edit mode",
@@ -475,6 +476,10 @@
       },
       "context": {
         "alt": "Context menu guide"
+      },
+      "expand": {
+        "label": "Expand / Collapse",
+        "description": "Use the + button to open child nodes"
       }
     },
     "steps": {
@@ -507,6 +512,12 @@
         "description": "Click the middle icon to highlight a node. Mark important parts so they are much easier to revisit later.",
         "calloutTitle": "Highlight",
         "calloutDescription": "Highlight key parts while you read."
+      },
+      "expand": {
+        "title": "Expand and collapse nodes to read more comfortably",
+        "description": "Click the + button inside the circle to reveal child content. You can collapse it again and follow only what you need, which makes the Structure Map much easier to read.",
+        "calloutTitle": "Expand / Collapse",
+        "calloutDescription": "Click the + button to reveal child content."
       },
       "terms": {
         "title": "AI organizes difficult terms for you",
@@ -544,9 +555,21 @@
         "calloutTitle": "Highlight",
         "calloutDescription": "Select a node, then tap the highlight button."
       },
+      "expand": {
+        "title": "Expand and collapse nodes to read more comfortably",
+        "description": "Tap the + button inside the circle to reveal child content. You can collapse it again and follow only what you need, which makes the Structure Map much easier to read.",
+        "calloutTitle": "Expand / Collapse",
+        "calloutDescription": "Tap the + button to reveal child content."
+      },
+      "panel": {
+        "title": "Open the left panel for more context",
+        "description": "Tap the left panel button to open the Info, Notes, and Terms tabs. While reading the Structure Map, you can quickly check whatever you need there.",
+        "calloutTitle": "Left panel",
+        "calloutDescription": "This button opens the Info, Notes, and Terms tabs."
+      },
       "terms": {
-        "title": "The Terms tab also organizes difficult expressions",
-        "description": "On mobile too, the Terms tab lets you quickly check unfamiliar expressions and AI-generated explanations.",
+        "title": "AI organizes difficult terms for you",
+        "description": "In the Terms tab on the left panel, AI can gather unfamiliar words from the content and explain them clearly.",
         "calloutTitle": "Terms",
         "calloutDescription": "You can review difficult terms here."
       }
@@ -1343,7 +1366,8 @@
       "view": "View mode: focus on the flow"
     },
     "actions": {
-      "delete": "Delete"
+      "delete": "Delete",
+      "tutorial": "Tutorial"
     },
     "deleteConfirm": {
       "title": "Delete this structure map?",
@@ -1365,6 +1389,13 @@
       "info": "Info",
       "notes": "Notes",
       "terms": "Terms"
+    },
+    "actions": {
+      "centerMap": "Center",
+      "collapseAll": "Collapse all",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "tutorial": "Tutorial"
     },
     "status": {
       "fetchError": "We couldn't load the structure map."

@@ -7,7 +7,6 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useMessages, useTranslations } from "next-intl";
-import { toast } from "sonner";
 
 import FullscreenHeader from "@/components/maps/FullscreenHeader";
 import MapControls from "@/components/maps/MapControls";
@@ -55,8 +54,45 @@ type DemoTermItem = {
   isNew?: boolean;
 };
 
-const DEMO_EDIT_BUTTON_ID = "demo-edit-button";
 const DEMO_TERMS_TAB_ID = "demo-terms-tab";
+const DEMO_LEFT_PANEL_BUTTON_ID = "demo-left-panel-button";
+
+type DemoMindNode = {
+  expanded?: boolean;
+  children?: DemoMindNode[];
+};
+
+function cloneJson<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
+function collapseToLevel(node: DemoMindNode, level: number, depth = 0) {
+  node.expanded = depth < level;
+  node.children?.forEach((child) => collapseToLevel(child, level, depth + 1));
+}
+
+function collapseAllDescendants(node: DemoMindNode, depth = 0) {
+  node.expanded = depth === 0;
+  node.children?.forEach((child) => collapseAllDescendants(child, depth + 1));
+}
+
+function getInitialCollapsedMapData<T>(raw: T): T {
+  if (!raw || typeof raw !== "object") return raw;
+  const cloned = cloneJson(raw) as T & { nodeData?: DemoMindNode };
+  const root = cloned?.nodeData;
+  if (!root) return cloned;
+  collapseToLevel(root, 2);
+  return cloned;
+}
+
+function getInitialFullyCollapsedMapData<T>(raw: T): T {
+  if (!raw || typeof raw !== "object") return raw;
+  const cloned = cloneJson(raw) as T & { nodeData?: DemoMindNode };
+  const root = cloned?.nodeData;
+  if (!root) return cloned;
+  collapseAllDescendants(root);
+  return cloned;
+}
 
 function getDemoNotes(t: ReturnType<typeof useTranslations>): NoteItemData[] {
   const items = t.raw("notes.items") as Array<{ text: string; createdAtLabel: string }>;
@@ -208,24 +244,46 @@ function DemoLeftPanel({
           <div className="flex items-start gap-2">
             <div className="inline-flex rounded-full border border-slate-400 bg-neutral-50 p-1 dark:border-white/20 dark:bg-white/[0.04]">
               {[
-                ["info", t("tabs.info")],
-                ["notes", t("tabs.notes")],
-                ["terms", t("tabs.terms")],
-              ].map(([tab, label]) => (
+                {
+                  tab: "info" as const,
+                  label: t("tabs.info"),
+                },
+                {
+                  tab: "notes" as const,
+                  label: t("tabs.notes"),
+                  count: notes.length,
+                },
+                {
+                  tab: "terms" as const,
+                  label: t("tabs.terms"),
+                  count: terms.length,
+                },
+              ].map(({ tab, label, count }) => (
                 <button
                   key={tab}
                   type="button"
                   id={tab === "terms" ? DEMO_TERMS_TAB_ID : undefined}
-                  onClick={() =>
-                    setActiveTab(tab as "info" | "notes" | "terms")
-                  }
+                  onClick={() => setActiveTab(tab)}
                   className={`rounded-full px-2.5 py-1 text-[13px] font-semibold transition-colors sm:px-3 sm:py-1.5 ${
                     activeTab === tab
                       ? "bg-blue-600 text-[14px] font-extrabold text-white sm:text-[16px] dark:bg-blue-500"
                       : "text-[14px] font-bold text-neutral-700 hover:text-neutral-900 sm:text-[16px] dark:text-white/80 dark:hover:text-white"
                   }`}
                 >
-                  {label}
+                  <span className="inline-flex items-center gap-1.5">
+                    <span>{label}</span>
+                    {typeof count === "number" ? (
+                      <span
+                        className={`inline-flex min-w-[1.2rem] items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-black leading-none ${
+                          activeTab === tab
+                            ? "bg-white/20 text-white"
+                            : "bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-200"
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    ) : null}
+                  </span>
                 </button>
               ))}
             </div>
@@ -490,8 +548,8 @@ export default function DemoFullscreenDialog({
   const isTutorialMobile = useTutorialIsMobile();
   const { profileThemeName } = useMindThemePreference();
   const { resolvedTheme } = useTheme();
-  const [leftOpen, setLeftOpen] = useState(true);
-  const [editMode, setEditMode] = useState<"view" | "edit">("view");
+  const [leftOpen, setLeftOpen] = useState(false);
+  const editMode = "edit" as const;
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
   const [shareGuideOpen, setShareGuideOpen] = useState(false);
@@ -500,8 +558,14 @@ export default function DemoFullscreenDialog({
     profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME
   );
   const mindRef = useRef<ClientMindElixirHandle | null>(null);
+  const initialMapData = useMemo(
+    () =>
+      isTutorialMobile
+        ? getInitialFullyCollapsedMapData(mapData ?? null)
+        : getInitialCollapsedMapData(mapData ?? null),
+    [mapData, isTutorialMobile]
+  );
   const [mounted, setMounted] = useState(false);
-  const lastEditHintRef = useRef(0);
 
   const themeOptions = useMemo(
     () => [{ name: PROFILE_THEME_NAME }, { name: DEFAULT_THEME_NAME }, ...MIND_THEMES],
@@ -550,7 +614,6 @@ export default function DemoFullscreenDialog({
 
   useEffect(() => {
     if (isTutorialMobile) {
-      setEditMode("edit");
       setMobileToolbarCollapsed(false);
     }
   }, [isTutorialMobile]);
@@ -588,8 +651,8 @@ export default function DemoFullscreenDialog({
   const handleTutorialNext = () => {
     const steps = getMapTutorialSteps(tTutorial, {
       platform: isTutorialMobile ? "mobile" : "desktop",
-      editButtonId: DEMO_EDIT_BUTTON_ID,
       termsTabId: DEMO_TERMS_TAB_ID,
+      leftPanelButtonId: DEMO_LEFT_PANEL_BUTTON_ID,
     });
     if (tutorialStepIndex >= steps.length - 1) {
       setMapTutorialCompleted(true, isTutorialMobile ? "mobile" : "desktop");
@@ -647,6 +710,7 @@ export default function DemoFullscreenDialog({
           closeLabel={t("actions.closeMap")}
           left={
             <button
+              id={DEMO_LEFT_PANEL_BUTTON_ID}
               type="button"
               onClick={() => setLeftOpen((prev) => !prev)}
               className="inline-flex items-center p-1 text-neutral-800 hover:text-neutral-900 dark:text-white/85 dark:hover:text-white"
@@ -682,9 +746,7 @@ export default function DemoFullscreenDialog({
                   panMode={false}
                   themes={themeOptions}
                   currentThemeName={themeName}
-                  onToggleEdit={() =>
-                    setEditMode((mode) => (mode === "view" ? "edit" : "view"))
-                  }
+                  onToggleEdit={() => {}}
                   onTogglePanMode={() => {}}
                   onSelectTheme={(name) => setThemeName(name)}
                   onCollapseAll={() => mindRef.current?.collapseAll?.()}
@@ -700,13 +762,10 @@ export default function DemoFullscreenDialog({
                   onPublish={() => {}}
                   onShare={handleOpenDemoShareGuide}
                   onOpenTutorial={handleRestartTutorial}
-                  highlightEditToggle={tutorialOpen && tutorialStepIndex === 0}
-                  modeToggleTutorialId="demo-mode-toggle"
-                  editButtonTutorialId={DEMO_EDIT_BUTTON_ID}
-                  editButtonId={DEMO_EDIT_BUTTON_ID}
                   onExportPng={handleExportPng}
                   onCloseMap={handleGoHome}
                   placement="inline"
+                  hideEditToggle
                   hidePanToggle
                 />
               </div>
@@ -726,25 +785,14 @@ export default function DemoFullscreenDialog({
                 mode={resolvedTheme === "dark" ? "dark" : "light"}
                 editMode={editMode}
                 theme={appliedTheme}
-                data={mapData ?? undefined}
+                data={initialMapData ?? undefined}
                 loading={false}
                 placeholderData={loadingMindElixir}
-                onViewModeEditAttempt={() => {
-                  if (editMode !== "view") return;
-                  const now = Date.now();
-                  if (now - lastEditHintRef.current < 5000) return;
-                  lastEditHintRef.current = now;
-                  toast.message(t("toasts.editModeRequired"));
-                }}
+                openMenuOnClick={false}
+                disableDirectContextMenu
+                showSelectionContextMenuButton
               />
             </div>
-          </div>
-
-          <div className="absolute right-4 top-3 z-[15] hidden sm:block">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-400 bg-white/80 px-3 py-1 text-[14px] font-extrabold text-neutral-700 dark:border-white/20 dark:bg-[#0b1220]/60 dark:text-white/85">
-              <Icon icon="mdi:gesture-tap" className="h-4 w-4" />
-              {editMode === "edit" ? t("badges.editMode") : t("badges.viewMode")}
-            </span>
           </div>
 
           <button
@@ -805,6 +853,17 @@ export default function DemoFullscreenDialog({
                   </button>
                 ))
               : null}
+            {!mobileToolbarCollapsed ? (
+              <button
+                type="button"
+                onClick={handleRestartTutorial}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-400 bg-white/95 text-neutral-700 shadow-md dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80"
+                aria-label={t("actions.tutorial")}
+                title={t("actions.tutorial")}
+              >
+                <Icon icon="mdi:school-outline" className="h-4 w-4" />
+              </button>
+            ) : null}
           </div>
 
           <DemoLeftPanel
@@ -819,8 +878,8 @@ export default function DemoFullscreenDialog({
               stepIndex={tutorialStepIndex}
               steps={getMapTutorialSteps(tTutorial, {
                 platform: isTutorialMobile ? "mobile" : "desktop",
-                editButtonId: DEMO_EDIT_BUTTON_ID,
                 termsTabId: DEMO_TERMS_TAB_ID,
+                leftPanelButtonId: DEMO_LEFT_PANEL_BUTTON_ID,
               })}
               onNext={handleTutorialNext}
               onSkip={() => setTutorialOpen(false)}

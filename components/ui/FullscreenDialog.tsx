@@ -29,8 +29,8 @@ import {
 } from "@/app/lib/mapTutorialState";
 
 const PROFILE_THEME_NAME = "내설정테마";
-const FULLSCREEN_EDIT_BUTTON_ID = "fullscreen-map-edit-button";
 const FULLSCREEN_TERMS_TAB_ID = "fullscreen-map-terms-tab";
+const FULLSCREEN_LEFT_PANEL_BUTTON_ID = "fullscreen-map-left-panel-button";
 
 type MindNode = {
   children?: MindNode[];
@@ -46,12 +46,26 @@ function collapseToLevel(node: MindNode, level: number, depth = 0) {
   node.children?.forEach((child) => collapseToLevel(child, level, depth + 1));
 }
 
+function collapseAllDescendants(node: MindNode, depth = 0) {
+  node.expanded = depth === 0;
+  node.children?.forEach((child) => collapseAllDescendants(child, depth + 1));
+}
+
 function getInitialCollapsedMapData<T>(raw: T): T {
   if (!raw || typeof raw !== "object") return raw;
   const cloned = cloneJson(raw) as T & { nodeData?: MindNode };
   const root = cloned?.nodeData;
   if (!root) return cloned;
   collapseToLevel(root, 2);
+  return cloned;
+}
+
+function getInitialFullyCollapsedMapData<T>(raw: T): T {
+  if (!raw || typeof raw !== "object") return raw;
+  const cloned = cloneJson(raw) as T & { nodeData?: MindNode };
+  const root = cloned?.nodeData;
+  if (!root) return cloned;
+  collapseAllDescendants(root);
   return cloned;
 }
 
@@ -90,10 +104,10 @@ export default function FullscreenDialog({
 }) {
   // ✅ UI state
   const { profileThemeName } = useMindThemePreference();
-  const [leftOpen, setLeftOpen] = useState(true); // metadata
+  const [leftOpen, setLeftOpen] = useState(false); // metadata
   const [leftTab, setLeftTab] = useState<"info" | "notes" | "terms">("info");
-  const [editMode, setEditMode] = useState<"view" | "edit">("view");
-  const [panMode, setPanMode] = useState(false);
+  const editMode = "edit" as const;
+  const panMode = false;
   const [themeName, setThemeName] = useState<string>(
     profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME
   );
@@ -147,7 +161,7 @@ export default function FullscreenDialog({
 
   useEffect(() => {
     if (!open || !mounted) return;
-    setLeftOpen(true);
+    setLeftOpen(!isTutorialMobile);
     const tutorialCompleted = getMapTutorialCompleted(
       isTutorialMobile ? "mobile" : "desktop"
     );
@@ -157,8 +171,6 @@ export default function FullscreenDialog({
 
   useEffect(() => {
     if (isTutorialMobile) {
-      setEditMode("edit");
-      setPanMode(false);
       setMobileToolbarCollapsed(false);
     }
   }, [isTutorialMobile]);
@@ -201,13 +213,12 @@ export default function FullscreenDialog({
     }
   }, [searchQuery, searchOpen]);
 
-  useEffect(() => {
-    mindRef.current?.setPanMode(panMode);
-  }, [panMode]);
-
   const initialMapData = useMemo(
-    () => getInitialCollapsedMapData(mapData ?? null),
-    [mapData]
+    () =>
+      isTutorialMobile
+        ? getInitialFullyCollapsedMapData(mapData ?? null)
+        : getInitialCollapsedMapData(mapData ?? null),
+    [mapData, isTutorialMobile]
   );
 
   useEffect(() => {
@@ -242,8 +253,8 @@ export default function FullscreenDialog({
   const handleGoList = onGoList ?? onClose;
   const tutorialSteps = getMapTutorialSteps(tTutorial, {
     platform: isTutorialMobile ? "mobile" : "desktop",
-    editButtonId: FULLSCREEN_EDIT_BUTTON_ID,
     termsTabId: FULLSCREEN_TERMS_TAB_ID,
+    leftPanelButtonId: FULLSCREEN_LEFT_PANEL_BUTTON_ID,
   });
   const mapDraft = localDraft ?? draft;
   const tagEditDraft = mapDraft;
@@ -352,6 +363,7 @@ export default function FullscreenDialog({
           left={
             <>
               <button
+                id={FULLSCREEN_LEFT_PANEL_BUTTON_ID}
                 type="button"
                 onClick={openMeta}
                 className="
@@ -470,11 +482,8 @@ export default function FullscreenDialog({
                 panMode={panMode}
                 themes={themeOptions}
                 currentThemeName={themeName}
-                highlightEditToggle={tutorialOpen && tutorialStepIndex === 0}
-                onToggleEdit={() =>
-                  setEditMode((m) => (m === "view" ? "edit" : "view"))
-                }
-                onTogglePanMode={() => setPanMode((v) => !v)}
+                onToggleEdit={() => {}}
+                onTogglePanMode={() => {}}
                 onSelectTheme={(name) => setThemeName(name)}
                 onCollapseAll={() => mindRef.current?.collapseAll?.()}
                 onExpandAll={() => mindRef.current?.expandAll?.()}
@@ -489,8 +498,8 @@ export default function FullscreenDialog({
                 onExportPng={handleExportPng}
                 onCloseMap={onClose}
                 onOpenTutorial={handleRestartTutorial}
-                editButtonId={FULLSCREEN_EDIT_BUTTON_ID}
                 placement="inline"
+                hideEditToggle
                 hidePanToggle
               />
             </div>
@@ -548,6 +557,9 @@ export default function FullscreenDialog({
                 data={initialMapData ?? undefined}
                 loading={mapLoading}
                 placeholderData={loadingMindElixir}
+                openMenuOnClick={false}
+                disableDirectContextMenu
+                showSelectionContextMenuButton
               />
             </div>
           </div>
@@ -568,22 +580,6 @@ export default function FullscreenDialog({
             <Icon icon="mdi:format-list-bulleted" className="h-4 w-4" />
             {t("goList")}
           </button>
-
-          {/* ✅ 편집모드 힌트 (헤더 아래 우측 상단 근처로 이동) */}
-          <div className="absolute right-4 top-3 z-[15] hidden sm:block">
-            <span
-              className="
-                inline-flex items-center gap-1 rounded-full
-                border border-slate-400 bg-white/80 px-2.5 py-1 text-[11px] text-neutral-600
-                dark:border-white/20 dark:bg-[#0b1220]/60 dark:text-white/65
-              "
-            >
-              <Icon icon="mdi:gesture-tap" className="h-3.5 w-3.5" />
-              {editMode === "edit"
-                ? t("modeBadge.edit")
-                : t("modeBadge.view")}
-            </span>
-          </div>
 
           {mapError && (
             <div className="absolute left-4 top-3 z-[15]">
@@ -616,22 +612,22 @@ export default function FullscreenDialog({
                   {
                     icon: "mdi:crosshairs-gps",
                     onClick: () => mindRef.current?.centerMap?.(),
-                    label: "가운데로",
+                    label: t("actions.centerMap"),
                   },
                   {
                     icon: "mdi:plus",
                     onClick: () => mindRef.current?.zoomIn?.(),
-                    label: "확대",
+                    label: t("actions.zoomIn"),
                   },
                   {
                     icon: "mdi:minus",
                     onClick: () => mindRef.current?.zoomOut?.(),
-                    label: "축소",
+                    label: t("actions.zoomOut"),
                   },
                   {
                     icon: "mdi:unfold-less-horizontal",
                     onClick: () => mindRef.current?.collapseAll?.(),
-                    label: "전체 접기",
+                    label: t("actions.collapseAll"),
                   },
                 ].map((action) => (
                   <button
@@ -646,6 +642,17 @@ export default function FullscreenDialog({
                   </button>
                 ))
               : null}
+            {!mobileToolbarCollapsed ? (
+              <button
+                type="button"
+                onClick={handleRestartTutorial}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-400 bg-white/95 text-neutral-700 shadow-md dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80"
+                aria-label={t("actions.tutorial")}
+                title={t("actions.tutorial")}
+              >
+                <Icon icon="mdi:school-outline" className="h-4 w-4" />
+              </button>
+            ) : null}
           </div>
 
           {/* ✅ 좌측: 메타데이터 패널 */}

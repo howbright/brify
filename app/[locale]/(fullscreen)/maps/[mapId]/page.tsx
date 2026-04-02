@@ -48,12 +48,26 @@ function collapseToLevel(node: MindNode, level: number, depth = 0) {
   node.children?.forEach((child) => collapseToLevel(child, level, depth + 1));
 }
 
+function collapseAllDescendants(node: MindNode, depth = 0) {
+  node.expanded = depth === 0;
+  node.children?.forEach((child) => collapseAllDescendants(child, depth + 1));
+}
+
 function getInitialCollapsedMapData<T>(raw: T): T {
   if (!raw || typeof raw !== "object") return raw;
   const cloned = cloneJson(raw) as T & { nodeData?: MindNode };
   const root = cloned?.nodeData;
   if (!root) return cloned;
   collapseToLevel(root, 2);
+  return cloned;
+}
+
+function getInitialFullyCollapsedMapData<T>(raw: T): T {
+  if (!raw || typeof raw !== "object") return raw;
+  const cloned = cloneJson(raw) as T & { nodeData?: MindNode };
+  const root = cloned?.nodeData;
+  if (!root) return cloned;
+  collapseAllDescendants(root);
   return cloned;
 }
 
@@ -89,8 +103,8 @@ function toFileSafeName(value: string) {
   return value.replace(/[\\/:*?"<>|]+/g, "-").trim();
 }
 
-const FULLSCREEN_PAGE_EDIT_BUTTON_ID = "fullscreen-page-edit-button";
 const FULLSCREEN_PAGE_TERMS_TAB_ID = "fullscreen-page-terms-tab";
+const FULLSCREEN_PAGE_LEFT_PANEL_BUTTON_ID = "fullscreen-page-left-panel-button";
 
 function toDraft(row: MapRow): MapDraft {
   return {
@@ -129,7 +143,7 @@ export default function MapDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [leftOpen, setLeftOpen] = useState(true);
+  const [leftOpen, setLeftOpen] = useState(false);
   const [leftTab, setLeftTab] = useState<"info" | "notes" | "terms">("info");
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -138,8 +152,8 @@ export default function MapDetailPage() {
   const searchIndexRef = useRef(0);
   const lastStepAtRef = useRef(0);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
-  const [editMode, setEditMode] = useState<"view" | "edit">("view");
-  const [panMode, setPanMode] = useState(false);
+  const editMode = "edit" as const;
+  const panMode = false;
   const [themeName, setThemeName] = useState<string>(
     profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME
   );
@@ -159,16 +173,10 @@ export default function MapDetailPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [savedPulse, setSavedPulse] = useState(false);
-  const [editHintPulse, setEditHintPulse] = useState(false);
   const autoSaveTimerRef = useRef<number | null>(null);
   const lastSavedDraftRef = useRef<string | null>(null);
   const lastAutoSaveErrorRef = useRef<number>(0);
   const savedPulseTimerRef = useRef<number | null>(null);
-  const editHintTimerRef = useRef<number | null>(null);
-  const lastEditHintRef = useRef<number>(0);
-  const lastHighlightToastRef = useRef<number>(0);
-  const highlightSaveTimerRef = useRef<number | null>(null);
-  const lastSavedHighlightRef = useRef<string | null>(null);
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [shareLoading, setShareLoading] = useState(false);
@@ -273,7 +281,7 @@ export default function MapDetailPage() {
 
   useEffect(() => {
     if (loading || !draft) return;
-    setLeftOpen(true);
+    setLeftOpen(!isTutorialMobile);
     const tutorialCompleted = getMapTutorialCompleted(
       isTutorialMobile ? "mobile" : "desktop"
     );
@@ -322,21 +330,22 @@ export default function MapDetailPage() {
     () =>
       getMapTutorialSteps(tTutorial, {
         platform: isTutorialMobile ? "mobile" : "desktop",
-        editButtonId: FULLSCREEN_PAGE_EDIT_BUTTON_ID,
         termsTabId: FULLSCREEN_PAGE_TERMS_TAB_ID,
+        leftPanelButtonId: FULLSCREEN_PAGE_LEFT_PANEL_BUTTON_ID,
       }),
     [tTutorial, isTutorialMobile]
   );
   useEffect(() => {
     if (isTutorialMobile) {
-      setEditMode("edit");
-      setPanMode(false);
-      setMobileToolbarCollapsed(true);
+      setMobileToolbarCollapsed(false);
     }
   }, [isTutorialMobile]);
   const initialMapData = useMemo(
-    () => getInitialCollapsedMapData(mapData ?? null),
-    [mapData]
+    () =>
+      isTutorialMobile
+        ? getInitialFullyCollapsedMapData(mapData ?? null)
+        : getInitialCollapsedMapData(mapData ?? null),
+    [mapData, isTutorialMobile]
   );
 
   const openTab = (next: "info" | "notes" | "terms") => {
@@ -447,10 +456,6 @@ export default function MapDetailPage() {
   }, [searchQuery, searchOpen]);
 
   useEffect(() => {
-    mindRef.current?.setPanMode(panMode);
-  }, [panMode]);
-
-  useEffect(() => {
     if (!mapData || loading) return;
     if (centeredOnceRef.current) return;
     centeredOnceRef.current = true;
@@ -505,52 +510,13 @@ export default function MapDetailPage() {
     }, 1200);
   };
 
-  const scheduleHighlightSave = () => {
-    if (!mapId) return;
-    if (highlightSaveTimerRef.current) {
-      window.clearTimeout(highlightSaveTimerRef.current);
-    }
-    highlightSaveTimerRef.current = window.setTimeout(async () => {
-      const snapshot = mindRef.current?.getSnapshot?.();
-      if (!snapshot) return;
-      const payload = JSON.stringify(snapshot);
-      if (payload === lastSavedHighlightRef.current) return;
-
-      try {
-        await fetch(`/api/maps/${mapId}/mind`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mind_elixir: snapshot }),
-        });
-        lastSavedHighlightRef.current = payload;
-        const now = Date.now();
-        if (now - lastHighlightToastRef.current > 2000) {
-          lastHighlightToastRef.current = now;
-          toast.message("하이라이트 변경 저장했습니다.");
-        }
-      } catch {
-        const now = Date.now();
-        if (now - lastAutoSaveErrorRef.current > 10_000) {
-          lastAutoSaveErrorRef.current = now;
-          toast.message("하이라이트 저장에 실패했습니다.");
-        }
-      }
-    }, 600);
-  };
-
   useEffect(() => {
     return () => {
       if (autoSaveTimerRef.current) {
         window.clearTimeout(autoSaveTimerRef.current);
       }
-      if (highlightSaveTimerRef.current) {
-        window.clearTimeout(highlightSaveTimerRef.current);
-      }
       if (savedPulseTimerRef.current) {
         window.clearTimeout(savedPulseTimerRef.current);
-      }
-      if (editHintTimerRef.current) {
-        window.clearTimeout(editHintTimerRef.current);
       }
     };
   }, []);
@@ -904,6 +870,7 @@ export default function MapDetailPage() {
         left={
           <>
               <button
+                id={FULLSCREEN_PAGE_LEFT_PANEL_BUTTON_ID}
                 type="button"
                 onClick={() => (leftOpen ? setLeftOpen(false) : openTab(leftTab))}
                 className="
@@ -1023,13 +990,8 @@ export default function MapDetailPage() {
               panMode={panMode}
               themes={themeOptions}
               currentThemeName={themeName}
-              highlightEditToggle={
-                editHintPulse || (tutorialOpen && tutorialStepIndex === 0)
-              }
-              onToggleEdit={() =>
-                setEditMode((m) => (m === "view" ? "edit" : "view"))
-              }
-              onTogglePanMode={() => setPanMode((v) => !v)}
+              onToggleEdit={() => {}}
+              onTogglePanMode={() => {}}
               onSelectTheme={handleSelectTheme}
                   onCollapseAll={() => mindRef.current?.collapseAll()}
                   onExpandAll={() => mindRef.current?.expandAll()}
@@ -1043,13 +1005,18 @@ export default function MapDetailPage() {
                   onZoomIn={() => mindRef.current?.zoomIn?.()}
                   onZoomOut={() => mindRef.current?.zoomOut?.()}
                   onCloseMap={() => router.push(`/${locale}/maps`)}
-              editButtonId={FULLSCREEN_PAGE_EDIT_BUTTON_ID}
               onShare={() => {
                 setShareOpen(true);
                 void fetchShareStatus();
               }}
               onExportPng={handleExportPng}
+              onOpenTutorial={() => {
+                setTutorialStepIndex(0);
+                setTutorialOpen(true);
+              }}
               placement="inline"
+              hideEditToggle
+              hidePanToggle
             />
           </div>
         }
@@ -1286,6 +1253,23 @@ export default function MapDetailPage() {
                 <Icon icon="mdi:share-variant" className="h-4 w-4" />
               </button>
 
+              <button
+                type="button"
+                onClick={() => {
+                  setTutorialStepIndex(0);
+                  setTutorialOpen(true);
+                }}
+                className="
+                  inline-flex h-9 w-9 items-center justify-center rounded-2xl
+                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
+                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
+                "
+                aria-label={t("actions.tutorial")}
+                title={t("actions.tutorial")}
+              >
+                <Icon icon="mdi:school-outline" className="h-4 w-4" />
+              </button>
+
             </>
           ) : null}
         </div>
@@ -1304,11 +1288,7 @@ export default function MapDetailPage() {
               onChange={(op) => {
                 if (!op?.name) return;
                 if (op.name === "toggleHighlight") {
-                  if (editMode === "view") {
-                    scheduleHighlightSave();
-                  } else {
-                    scheduleAutoSave();
-                  }
+                  scheduleAutoSave();
                   return;
                 }
                 if (op.name === "updateNote") {
@@ -1317,37 +1297,11 @@ export default function MapDetailPage() {
                     lastHighlightToastRef.current = now;
                     toast.message("노트 변경을 저장 중...");
                   }
-                  if (editMode === "view") {
-                    scheduleHighlightSave();
-                  } else {
-                    scheduleAutoSave();
-                  }
+                  scheduleAutoSave();
                   return;
                 }
-                if (editMode !== "edit") return;
                 if (!MUTATING_OPS.has(op.name)) return;
                 scheduleAutoSave();
-              }}
-              onViewModeEditAttempt={() => {
-                if (editMode !== "view") return;
-                const now = Date.now();
-                if (now - lastEditHintRef.current < 5000) return;
-                lastEditHintRef.current = now;
-                toast.custom(
-                  () => (
-                    <div className="rounded-2xl bg-amber-500 px-4 py-2 text-xs font-semibold text-white shadow-lg">
-                      편집하려면 편집 모드로 전환해주세요.
-                    </div>
-                  ),
-                  { duration: 2600 }
-                );
-                setEditHintPulse(true);
-                if (editHintTimerRef.current) {
-                  window.clearTimeout(editHintTimerRef.current);
-                }
-                editHintTimerRef.current = window.setTimeout(() => {
-                  setEditHintPulse(false);
-                }, 1600);
               }}
               theme={
                 themeName === DEFAULT_THEME_NAME
@@ -1359,6 +1313,9 @@ export default function MapDetailPage() {
               data={initialMapData ?? undefined}
               loading={loading}
               placeholderData={loadingMindElixir}
+              openMenuOnClick={false}
+              disableDirectContextMenu
+              showSelectionContextMenuButton
             />
           </div>
         </div>
