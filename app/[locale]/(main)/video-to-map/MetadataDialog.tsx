@@ -606,7 +606,7 @@ export default function MetadataDialog({
                     {t("fields.thumbnail")}
                   </label>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 min-w-0">
+                  <div className="flex flex-col gap-3 min-w-0 sm:flex-row sm:items-center">
                     <div
                       className="
                         h-16 w-28 rounded-2xl overflow-hidden
@@ -646,18 +646,20 @@ export default function MetadataDialog({
                         "
                       />
 
-                      <div className="flex items-center gap-2 min-w-0">
+                      <div className="flex flex-col items-start gap-2 min-w-0 sm:flex-row sm:items-center">
                         <label
                           className="
-                            inline-flex items-center gap-2 cursor-pointer
+                            inline-flex max-w-full items-center gap-2 cursor-pointer
                             rounded-2xl px-3 py-2.5 text-[15px] font-bold
                             border border-slate-400 bg-white hover:bg-neutral-50
                             dark:border-white/30 dark:bg-white/6 dark:text-white dark:hover:bg-white/10
-                            whitespace-nowrap
+                            whitespace-normal break-words
                           "
                         >
                           <Icon icon="mdi:upload" className="h-4 w-4" />
-                          {t("buttons.uploadThumbnail")}
+                          <span className="min-w-0 break-words">
+                            {t("buttons.uploadThumbnail")}
+                          </span>
                           <input
                             type="file"
                             accept="image/*"
@@ -669,7 +671,7 @@ export default function MetadataDialog({
                         </label>
 
                         {isUploadingThumb && (
-                          <span className="text-[15px] font-medium text-neutral-500 dark:text-white/60">
+                          <span className="text-[15px] font-medium text-neutral-500 break-words dark:text-white/60">
                             {t("status.uploading")}
                           </span>
                         )}

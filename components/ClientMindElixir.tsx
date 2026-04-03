@@ -177,6 +177,15 @@ function normalizeNodeId(id: string) {
   return id.startsWith("me") ? id.slice(2) : id;
 }
 
+function nodeIdVariants(id: string) {
+  return id.startsWith("me") ? [id, id.slice(2)] : [id, `me${id}`];
+}
+
+function debugHighlightLog(label: string, payload: Record<string, unknown>) {
+  if (!DEBUG_HIGHLIGHT) return;
+  console.debug(`[highlight-debug] ${label}`, payload);
+}
+
 function escapeAttr(value: string) {
   if (typeof CSS !== "undefined" && typeof CSS.escape === "function") {
     return CSS.escape(value);
@@ -261,32 +270,72 @@ async function copyToClipboard(text: string) {
 const NOTE_BADGE_SVG =
   '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1.5V8h4.5L14 3.5zM7 12h10v1.5H7V12zm0 4h10v1.5H7V16zm0-8h6v1.5H7V8z"/></svg>';
 
-function findNodeById(node: AnyNode, id: string): AnyNode | null {
+function findNodePathByRef(
+  node: AnyNode | null | undefined,
+  target: AnyNode,
+  path: number[] = []
+): number[] | null {
   if (!isNodeLike(node)) return null;
-  if (node.id === id) return node;
-  if (!node.children) return null;
-  for (const child of node.children) {
-    const found = findNodeById(child, id);
+  if (node === target) return path;
+  if (!node.children || node.children.length === 0) return null;
+  for (let index = 0; index < node.children.length; index += 1) {
+    const found = findNodePathByRef(node.children[index], target, [...path, index]);
     if (found) return found;
   }
   return null;
 }
 
-function expandPathToId(
+function getNodeByPath(
+  node: AnyNode | null | undefined,
+  path: number[]
+): AnyNode | null {
+  if (!isNodeLike(node)) return null;
+  let current: AnyNode | null = node;
+  for (const index of path) {
+    if (!current?.children || !isNodeLike(current.children[index])) return null;
+    current = current.children[index];
+  }
+  return current;
+}
+
+function findNodeByIdExact(node: AnyNode, id: string): AnyNode | null {
+  if (!isNodeLike(node)) return null;
+  if (node.id === id) return node;
+  if (!node.children) return null;
+  for (const child of node.children) {
+    const found = findNodeByIdExact(child, id);
+    if (found) return found;
+  }
+  return null;
+}
+
+function findNodeById(node: AnyNode, id: string): AnyNode | null {
+  const exact = findNodeByIdExact(node, id);
+  if (exact) return exact;
+
+  const variants = nodeIdVariants(id);
+  for (const candidate of variants) {
+    if (candidate === id) continue;
+    const fallback = findNodeByIdExact(node, candidate);
+    if (fallback) return fallback;
+  }
+
+  return null;
+}
+
+function expandPathToIdExact(
   node: AnyNode | null | undefined,
   targetId: string
 ): boolean {
   if (!isNodeLike(node)) return false;
-  const nodeId = node.id ? normalizeNodeId(node.id) : "";
-  const target = normalizeNodeId(targetId);
-  if (nodeId === target) {
+  if (node.id === targetId) {
     node.expanded = true;
     return true;
   }
   if (!node.children || node.children.length === 0) return false;
   let found = false;
   for (const child of node.children) {
-    if (expandPathToId(child, targetId)) {
+    if (expandPathToIdExact(child, targetId)) {
       found = true;
     }
   }
@@ -294,6 +343,22 @@ function expandPathToId(
     node.expanded = true;
   }
   return found;
+}
+
+function expandPathToId(
+  node: AnyNode | null | undefined,
+  targetId: string
+): boolean {
+  const exact = expandPathToIdExact(node, targetId);
+  if (exact) return true;
+
+  for (const candidate of nodeIdVariants(targetId)) {
+    if (candidate === targetId) continue;
+    const fallback = expandPathToIdExact(node, candidate);
+    if (fallback) return true;
+  }
+
+  return false;
 }
 
 function centerMap(mind: any) {
@@ -321,6 +386,10 @@ const PAN_MODE_CLASS = "me-pan-mode";
 const DARK_CANVAS_CLASS = "me-dark-canvas";
 const DEFAULT_DARK_CANVAS_CLASS = "me-default-dark-canvas";
 const VIEW_MODE_CLASS = "me-view-mode";
+const MANUAL_SELECTION_PRIORITY_MS = 1200;
+const DEBUG_HIGHLIGHT =
+  process.env.NODE_ENV !== "production" &&
+  process.env.NEXT_PUBLIC_DEBUG_HIGHLIGHT === "1";
 const BLOCKED_OPS = [
   "addChild",
   "insertParent",
@@ -369,6 +438,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const elRef = useRef<HTMLDivElement>(null);
   const mindRef = useRef<any>(null);
   const currentLevelRef = useRef(0);
+  const latestMindDataRef = useRef<any>(null);
 
   const { resolvedTheme } = useTheme();
   const locale = useLocale();
@@ -420,6 +490,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const miniMapDrawRef = useRef<() => void>(() => {});
   const selectedNodeIdRef = useRef<string | null>(null);
   const selectedNodeElRef = useRef<HTMLElement | null>(null);
+  const lastClickedNodeRef = useRef<{ id: string | null; at: number }>({
+    id: null,
+    at: 0,
+  });
   const longPressTimerRef = useRef<number | null>(null);
   const longPressTriggeredRef = useRef(false);
   const touchDragMovedAtRef = useRef(0);
@@ -574,48 +648,98 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     selectedNodeElRef.current = null;
     setIsFocusMode(false);
   };
-  const handleHighlightClick = () => {
+
+  const syncLatestMindDataFromMind = () => {
     const mind = mindRef.current;
-    const selectedId = selectedNodeIdRef.current;
-    if (!mind || !selectedId) return;
-    const selectedEl = selectedNodeElRef.current as
-      | (HTMLElement & { nodeObj?: AnyNode })
-      | null;
-    if (selectedEl?.nodeObj) {
-      const node = selectedEl.nodeObj;
-      if (node.highlight?.variant) {
-        delete node.highlight;
-        selectedEl.removeAttribute("data-highlight");
-      } else {
-        node.highlight = { variant: highlightVariant };
-        selectedEl.setAttribute("data-highlight", highlightVariant);
-      }
-      onChangeRef.current?.({
-        name: "toggleHighlight",
-        id: normalizeNodeId(selectedId),
-        value: node.highlight ?? null,
-      });
-      return;
-    }
-    const raw = mind.getData?.() ?? mind.getAllData?.();
+    if (!mind) return null;
+    const raw = mind.getData?.() ?? mind.getAllData?.() ?? null;
     const normalized = normalizeMindData(raw);
+    if (!normalized) return null;
+    latestMindDataRef.current = cloneMindData(normalized.data);
+    return normalizeMindData(latestMindDataRef.current);
+  };
+
+  const handleHighlightClick = (targetNodeId?: string | null) => {
+    const mind = mindRef.current;
+    const selectedId = targetNodeId ?? selectedNodeIdRef.current;
+    if (!mind || !selectedId) return;
+    const exactSelectedEl =
+      selectedNodeElRef.current ??
+      elRef.current?.querySelector<HTMLElement>(
+        `me-tpc[data-nodeid="${escapeAttr(selectedId)}"]`
+      ) ??
+      elRef.current?.querySelector<HTMLElement>(
+        `[data-nodeid="${escapeAttr(selectedId)}"]`
+      ) ??
+      null;
+    const liveNode =
+      (exactSelectedEl as (HTMLElement & { nodeObj?: AnyNode }) | null)?.nodeObj ??
+      null;
+    const resolvedTargetId = liveNode?.id ?? selectedId;
+    const rawCurrent = mind.getData?.() ?? mind.getAllData?.() ?? null;
+    const currentNormalized = normalizeMindData(rawCurrent);
+    const pathByRef =
+      currentNormalized?.node && liveNode
+        ? findNodePathByRef(currentNormalized.node, liveNode)
+        : null;
+    const normalized =
+      currentNormalized ??
+      syncLatestMindDataFromMind() ??
+      normalizeMindData(latestMindDataRef.current);
     if (!normalized) return;
     const next = cloneMindData(normalized.data);
     const nextNode = normalizeMindData(next)?.node;
     if (!nextNode) return;
-    const targetId = normalizeNodeId(selectedId);
-    const target = findNodeById(nextNode, targetId);
+    const target =
+      (pathByRef ? getNodeByPath(nextNode, pathByRef) : null) ??
+      findNodeById(nextNode, resolvedTargetId);
+    debugHighlightLog("toggle-start", {
+      selectedId,
+      targetNodeId,
+      resolvedTargetId,
+      pathByRef: pathByRef?.join(".") ?? null,
+      exactSelectedNodeId: exactSelectedEl?.dataset.nodeid ?? null,
+      exactSelectedText: exactSelectedEl?.textContent?.trim()?.slice(0, 140) ?? "",
+      liveNodeId: liveNode?.id ?? null,
+      liveNodeText: liveNode?.topic?.slice(0, 140) ?? "",
+      foundTargetId: target?.id ?? null,
+      foundTargetText: target?.topic?.slice(0, 140) ?? "",
+    });
     if (!target) return;
-    if (target.highlight?.variant) {
-      delete target.highlight;
+    const nextHighlight = target.highlight?.variant
+      ? null
+      : { variant: highlightVariant };
+    if (nextHighlight) {
+      target.highlight = nextHighlight;
     } else {
-      target.highlight = { variant: highlightVariant };
+      delete target.highlight;
     }
-    mind.refresh?.(next);
+    if (liveNode) {
+      if (nextHighlight) {
+        liveNode.highlight = nextHighlight;
+      } else {
+        delete liveNode.highlight;
+      }
+    }
+    expandPathToId(nextNode, resolvedTargetId);
+    latestMindDataRef.current = next;
+    if (exactSelectedEl) {
+      if (nextHighlight?.variant) {
+        exactSelectedEl.setAttribute("data-highlight", nextHighlight.variant);
+      } else {
+        exactSelectedEl.removeAttribute("data-highlight");
+      }
+    }
     onChangeRef.current?.({
       name: "toggleHighlight",
-      id: targetId,
-      value: target.highlight ?? null,
+      id: target.id ?? resolvedTargetId,
+      value: nextHighlight,
+    });
+    debugHighlightLog("toggle-done", {
+      selectedId,
+      savedTargetId: target.id ?? resolvedTargetId,
+      highlight: nextHighlight,
+      latestSnapshotExists: Boolean(latestMindDataRef.current),
     });
     requestAnimationFrame(() => updateSelectedRect(selectedId));
   };
@@ -883,6 +1007,45 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     selectedNodeElRef.current = nodeEl;
   };
 
+  const applySelectionFromElement = (nodeEl: HTMLElement, nodeId: string) => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+    const rect = nodeEl.getBoundingClientRect();
+    const hostRect = wrapper.getBoundingClientRect();
+    const relativeRect = new DOMRect(
+      rect.left - hostRect.left,
+      rect.top - hostRect.top,
+      rect.width,
+      rect.height
+    );
+    const note =
+      (nodeEl as HTMLElement & { nodeObj?: AnyNode }).nodeObj?.note ?? null;
+
+    const normalizedLatest =
+      normalizeMindData(latestMindDataRef.current) ??
+      syncLatestMindDataFromMind();
+    if (normalizedLatest?.node) {
+      const latestNode = findNodeById(normalizedLatest.node, nodeId);
+      const latestNodeHighlight = latestNode?.highlight?.variant ?? null;
+      if (latestNodeHighlight) {
+        nodeEl.setAttribute("data-highlight", latestNodeHighlight);
+      } else {
+        nodeEl.removeAttribute("data-highlight");
+      }
+    }
+
+    lastClickedNodeRef.current = { id: nodeId, at: Date.now() };
+    selectedNodeIdRef.current = nodeId;
+    selectedNodeElRef.current = nodeEl;
+    setSelectedNodeId(nodeId);
+    setSelectedRect(relativeRect);
+    setSelectedNoteText(note && note.trim().length > 0 ? note : null);
+    setMobileActionNodeId(null);
+
+    requestAnimationFrame(() => updateSelectedRect(nodeId));
+    window.setTimeout(() => updateSelectedRect(nodeId), 80);
+  };
+
   const clearLongPressState = () => {
     if (longPressTimerRef.current) {
       window.clearTimeout(longPressTimerRef.current);
@@ -1046,6 +1209,20 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     const host = elRef.current;
     if (!host) return;
 
+    const handlePointerDown = (e: PointerEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (!el) return;
+      if (el.closest?.("[data-hover-actions='true']")) return;
+      const nodeEl =
+        el.closest?.("me-tpc[data-nodeid]") ??
+        el.closest?.("me-tpc") ??
+        el.closest?.("[data-nodeid]");
+      if (!nodeEl || !(nodeEl instanceof HTMLElement)) return;
+      const nodeId = nodeEl.getAttribute("data-nodeid");
+      if (!nodeId) return;
+      applySelectionFromElement(nodeEl, nodeId);
+    };
+
     const handleClick = (e: MouseEvent) => {
       if (Date.now() - touchDragMovedAtRef.current < 280) {
         touchDragMovedAtRef.current = 0;
@@ -1071,14 +1248,17 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       }
       const nodeId = nodeEl.getAttribute("data-nodeid");
       if (!nodeId) return;
-      setSelectedNodeId(nodeId);
-      selectedNodeElRef.current = nodeEl;
-      setMobileActionNodeId(null);
-      requestAnimationFrame(() => updateSelectedRect(nodeId));
+      debugHighlightLog("click", {
+        nodeId,
+        text: nodeEl.textContent?.trim()?.slice(0, 140) ?? "",
+      });
+      applySelectionFromElement(nodeEl, nodeId);
     };
 
+    host.addEventListener("pointerdown", handlePointerDown);
     host.addEventListener("click", handleClick);
     return () => {
+      host.removeEventListener("pointerdown", handlePointerDown);
       host.removeEventListener("click", handleClick);
     };
   }, []);
@@ -1526,9 +1706,16 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         centerMap(mind);
       },
       getSnapshot: () => {
+        if (latestMindDataRef.current) {
+          return cloneMindData(latestMindDataRef.current);
+        }
         const mind = mindRef.current;
         if (!mind) return null;
-        return mind.getData?.() ?? mind.getAllData?.() ?? null;
+        const raw = mind.getData?.() ?? mind.getAllData?.() ?? null;
+        if (raw) {
+          latestMindDataRef.current = raw;
+        }
+        return raw;
       },
       exportPng: async () => {
         const mind = mindRef.current;
@@ -1583,6 +1770,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         mindRef.current?.destroy?.();
       } catch {}
       mindRef.current = null;
+      latestMindDataRef.current = null;
       setReady(false);
       return;
     }
@@ -1594,6 +1782,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       mindRef.current?.destroy?.();
     } catch {}
     mindRef.current = null;
+    latestMindDataRef.current = cloneMindData(initialData);
 
     setReady(false);
 
@@ -1601,6 +1790,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     let handleResize: (() => void) | null = null;
     let handleMiniResize: (() => void) | null = null;
     let syncMiniMap: (() => void) | null = null;
+    let mutationObserver: MutationObserver | null = null;
 
     (async () => {
       const mod = await import("mind-elixir");
@@ -1712,15 +1902,21 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       const syncNodeDecorations = () => {
         const host = elRef.current;
         if (!host) return;
+        const latestNormalized = normalizeMindData(latestMindDataRef.current);
+        const latestRoot = latestNormalized?.node ?? null;
         host.querySelectorAll("me-tpc").forEach((node) => {
           const el = node as HTMLElement & { nodeObj?: AnyNode };
-          const variant = el.nodeObj?.highlight?.variant;
+          const nodeId = el.dataset.nodeid ?? "";
+          const latestNode =
+            latestRoot && nodeId ? findNodeById(latestRoot, nodeId) : null;
+          const variant =
+            latestNode?.highlight?.variant ?? el.nodeObj?.highlight?.variant;
           if (variant) {
             el.setAttribute("data-highlight", variant);
           } else {
             el.removeAttribute("data-highlight");
           }
-          const noteText = el.nodeObj?.note?.trim();
+          const noteText = (latestNode?.note ?? el.nodeObj?.note ?? "").trim();
           if (noteText) {
             el.setAttribute("data-note", "true");
             let dot = el.querySelector<HTMLElement>(".me-note-dot");
@@ -1746,6 +1942,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           mind.refresh = (data?: any) => {
             const originalRefresh =
               mind.__originalRefresh ?? ((_: any) => undefined);
+            if (data !== undefined) {
+              latestMindDataRef.current = cloneMindData(data);
+            }
             const res = originalRefresh(data);
             syncNodeDecorations();
             return res;
@@ -1754,9 +1953,21 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       }
 
       mind.init(initialData);
+      latestMindDataRef.current = cloneMindData(initialData);
       mindRef.current = mind;
       applyEditMode(mind, editMode === "edit");
       syncNodeDecorations();
+      if (elRef.current && typeof MutationObserver !== "undefined") {
+        mutationObserver = new MutationObserver(() => {
+          syncNodeDecorations();
+        });
+        mutationObserver.observe(elRef.current, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ["data-nodeid"],
+        });
+      }
 
       // Keep focus UI in sync even when focus is triggered from context menu
       if (!mind.__originalFocusNode) {
@@ -1810,9 +2021,24 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       }
 
       mind.bus?.addListener?.("selectNodes", (nodes: any[]) => {
+        if (
+          Date.now() - lastClickedNodeRef.current.at <
+          MANUAL_SELECTION_PRIORITY_MS
+        ) {
+          debugHighlightLog("selectNodes-skipped", {
+            clickedId: lastClickedNodeRef.current.id,
+            eventId: Array.isArray(nodes) ? nodes[nodes.length - 1]?.id : null,
+          });
+          return;
+        }
         const last = Array.isArray(nodes) ? nodes[nodes.length - 1] : null;
         const id = last?.id;
         if (!id) return;
+        debugHighlightLog("selectNodes", {
+          id,
+          topic: last?.topic ?? last?.nodeObj?.topic ?? "",
+        });
+        selectedNodeIdRef.current = id;
         setSelectedNodeId(id);
         try {
           selectedNodeElRef.current =
@@ -1878,9 +2104,25 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       });
 
       mind.bus?.addListener?.("operation", (op: any) => {
+      requestAnimationFrame(() => {
+        syncLatestMindDataFromMind();
+        syncNodeDecorations();
+      });
+
       if (op?.name === "selectNode") {
+        if (
+          Date.now() - lastClickedNodeRef.current.at <
+          MANUAL_SELECTION_PRIORITY_MS
+        ) {
+          debugHighlightLog("operation-selectNode-skipped", {
+            clickedId: lastClickedNodeRef.current.id,
+            opId: op?.data?.id ?? op?.obj?.id ?? op?.id ?? null,
+          });
+          return;
+        }
         const id = op?.data?.id ?? op?.obj?.id ?? op?.id;
         if (id) {
+          debugHighlightLog("operation-selectNode", { id });
           setSelectedNodeId(id);
           updateSelectedRect(id);
         }
@@ -1920,6 +2162,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
     return () => {
       cancelled = true;
+      if (mutationObserver) {
+        mutationObserver.disconnect();
+        mutationObserver = null;
+      }
       try {
         if (preserveViewState) {
           const mind = mindRef.current;
@@ -1998,13 +2244,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     applyPanInteraction(mindRef.current, Boolean(effectivePanMode), panModeButton);
   }, [effectivePanMode, panModeButton, ready]);
 
+  const isDarkCanvas = mounted && effectiveMode === "dark";
+
   return (
     <div
       ref={wrapperRef}
       className={`relative h-full w-full ${
-        effectiveMode === "dark" ? DARK_CANVAS_CLASS : ""
+        isDarkCanvas ? DARK_CANVAS_CLASS : ""
       } ${
-        effectiveMode === "dark" && !hasFixedTheme
+        isDarkCanvas && !hasFixedTheme
           ? DEFAULT_DARK_CANVAS_CLASS
           : ""
       }`}
@@ -2215,9 +2463,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
               <button
                 type="button"
                 className={`${hoverActionButtonClass} bg-yellow-400 text-black ring-1 ring-yellow-500/70`}
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleHighlightClick(selectedNodeIdRef.current);
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleHighlightClick();
+                  e.preventDefault();
                 }}
                 aria-label="하이라이트"
               >
