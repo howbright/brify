@@ -1514,4 +1514,242 @@
     "copyright": "All rights reserved.",
     "operatedBy": "Brify는 vision328이 운영하는 서비스입니다."
   }
+  ,
+  "MapsCommon": {
+    "status": {
+      "idle": "대기중",
+      "queued": "대기중",
+      "processing": "진행중",
+      "done": "완료",
+      "failed": "실패"
+    },
+    "source": {
+      "youtube": "유튜브",
+      "website": "웹",
+      "file": "파일",
+      "manual": "수동"
+    },
+    "datePreset": {
+      "7d": "최근 7일",
+      "30d": "최근 30일",
+      "90d": "최근 90일",
+      "1y": "최근 1년",
+      "all": "전체",
+      "customEmpty": "기간 선택",
+      "after": "이후",
+      "before": "이전"
+    },
+    "selectionBar": {
+      "selectedCount": "{count}개 선택됨",
+      "mergeMaps": "맵 합치기",
+      "deleting": "삭제 중...",
+      "deleteSelected": "선택 삭제",
+      "cancel": "취소"
+    },
+    "toolbar": {
+      "searchPlaceholder": "맵 제목이나 태그로 검색해 보세요",
+      "clearSearch": "검색어 지우기",
+      "summary": {
+        "status": "상태 {value}",
+        "source": "소스 {value}",
+        "tag": "태그 {value}"
+      },
+      "previewOn": "프리뷰 켜기",
+      "previewOff": "프리뷰 끄기",
+      "tagOrganize": "태그 정리 모드",
+      "tagOrganizeExit": "정리 모드 종료",
+      "selection": "선택",
+      "selectionExit": "선택 종료",
+      "card": "카드",
+      "table": "테이블",
+      "sortLabel": "정렬",
+      "sort": {
+        "createdDesc": "최신 생성순",
+        "createdAsc": "오래된 생성순",
+        "updatedDesc": "최근 수정순",
+        "titleAsc": "제목순"
+      },
+      "filterOpen": "필터 열기",
+      "filterClose": "필터 닫기",
+      "resetFilters": "필터 초기화"
+    },
+    "recent": {
+      "recentMaps": "최근 맵",
+      "recentInterestTags": "최근 관심 태그",
+      "expandAria": "최근 섹션 펼치기",
+      "expand": "펼치기",
+      "collapseAria": "최근 섹션 접기",
+      "collapse": "접기",
+      "emptyInterestTags": "최근 맵에서 태그가 아직 충분히 쌓이지 않았어요."
+    },
+    "filterPopover": {
+      "presets": {
+        "7d": "최근 7일",
+        "30d": "최근 30일",
+        "90d": "최근 90일",
+        "1y": "최근 1년",
+        "all": "전체"
+      },
+      "sections": {
+        "date": "기간",
+        "status": "상태",
+        "source": "소스 타입",
+        "tag": "태그"
+      },
+      "custom": "직접 선택",
+      "status": {
+        "processing": "진행중",
+        "done": "완료",
+        "failed": "실패"
+      },
+      "source": {
+        "youtube": "유튜브",
+        "website": "웹",
+        "file": "파일",
+        "manual": "수동"
+      },
+      "tagLoading": "태그 불러오는 중…",
+      "tagEmpty": "사용할 수 있는 태그가 없어요."
+    },
+    "tagPanel": {
+      "title": "태그",
+      "sortAria": "태그 정렬",
+      "sort": {
+        "recent": "최신",
+        "name": "이름순",
+        "countDesc": "많이 쓰인 순",
+        "countAsc": "적게 쓰인 순"
+      },
+      "selectedFilters": "선택된 필터",
+      "filterTitle": "태그 필터",
+      "noTag": "태그 없음",
+      "deselectTag": "{tag} 선택 해제",
+      "filterHint": "태그를 체크하면 아래 맵 목록이 해당 태그 기준으로 바로 필터링돼요.",
+      "selectedCount": "{count}개 선택됨",
+      "mergeTags": "태그합치기",
+      "searchPlaceholder": "태그 검색",
+      "clearSearch": "검색어 지우기",
+      "empty": "태그가 없습니다.",
+      "deleteTagAria": "태그 삭제"
+    },
+    "mobileTagSheet": {
+      "closeAria": "태그 정리 닫기",
+      "reopen": "태그 목록"
+    },
+    "listItem": {
+      "status": {
+        "failed": "실패",
+        "processing": "처리 중"
+      },
+      "source": {
+        "youtube": "유튜브",
+        "website": "웹",
+        "file": "파일",
+        "manual": "수동"
+      },
+      "selectAria": "{title} 선택",
+      "deleting": "삭제 중...",
+      "delete": "삭제",
+      "editTags": "태그 편집",
+      "noTag": "태그 없음",
+      "opening": "여는 중...",
+      "open": "열기"
+    },
+    "tableList": {
+      "status": {
+        "failed": "실패",
+        "processing": "진행중"
+      },
+      "select": "선택",
+      "selectAria": "{title} 선택",
+      "opening": "여는 중...",
+      "open": "열기",
+      "editTags": "태그 편집",
+      "columns": {
+        "title": "제목",
+        "source": "소스",
+        "tags": "태그",
+        "updatedAt": "수정일"
+      }
+    },
+    "previewPanel": {
+      "noSummary": "요약이 아직 없어요.",
+      "closedTitle": "미리보기 닫힘",
+      "closedDescription": "빠른 비교를 위해 필요하면 다시 열 수 있어요.",
+      "openPreview": "미리보기 열기",
+      "close": "닫기",
+      "open": "열기",
+      "loading": "미리보기 불러오는 중…",
+      "loadFailed": "미리보기를 불러오지 못했어요.",
+      "idle": "미리보기를 준비 중이에요."
+    }
+  },
+  "MapsPage": {
+    "title": "나의 맵",
+    "tagOrganizeExit": "종료",
+    "previewEmpty": {
+      "loading": "목록을 불러오는 중이에요.",
+      "noMaps": "아직 생성한 구조맵이 없어요.",
+      "noMapsInRange": "선택한 기간에 생성된 구조맵이 없어요.",
+      "noResults": "검색 결과가 없어요.",
+      "selectFromList": "좌측에서 맵을 선택해 주세요."
+    },
+    "toast": {
+      "previewTurnsOffSelection": "프리뷰 모드로 전환되어 선택 모드가 꺼졌어요.",
+      "previewTurnsOffTagOrganize": "프리뷰를 위해 태그 정리 모드를 껐어요.",
+      "tagOrganizeTurnsOffPreview": "태그 정리 모드로 전환되어 프리뷰가 꺼졌어요.",
+      "tagOrganizeTurnsOffSelection": "태그 정리 모드로 전환되어 선택 모드가 꺼졌어요.",
+      "selectionTurnsOffPreview": "선택 모드로 전환되어 프리뷰가 꺼졌어요.",
+      "selectionTurnsOffTagOrganize": "태그 정리 모드를 종료하고 선택 모드로 전환했어요."
+    },
+    "empty": {
+      "noMaps": "아직 생성한 구조맵이 없어요.",
+      "noMapsForFilters": "선택한 조건에 맞는 구조맵이 없어요.",
+      "noSearchResults": "검색 결과가 없습니다. 다른 키워드로 시도해 보세요.",
+      "noMapsForSelectedTags": "선택한 태그가 붙은 맵이 없어요."
+    },
+    "pagination": {
+      "totalCount": "총 {count}개",
+      "prev": "이전",
+      "next": "다음"
+    },
+    "dialogs": {
+      "deleteMap": {
+        "title": "구조맵을 삭제할까요?",
+        "description": "삭제하면 복구할 수 없어요. 계속 진행할까요?",
+        "action": "삭제"
+      },
+      "deleteSelected": {
+        "title": "선택한 구조맵을 삭제할까요?",
+        "description": "선택한 맵을 삭제하면 복구할 수 없어요.",
+        "action": "선택 삭제"
+      },
+      "deleteTag": {
+        "title": "태그를 삭제할까요?",
+        "descriptionSuffix": "태그가 모든 맵에서 삭제됩니다. 계속할까요?",
+        "description": "선택한 태그가 모든 맵에서 삭제됩니다. 계속할까요?",
+        "action": "삭제",
+        "actionLoading": "삭제 중..."
+      }
+    },
+    "fallback": {
+      "selectedMap": "선택한 맵"
+    },
+    "mergeDialog": {
+      "title": "맵 합치기",
+      "description": "새로운 루트를 기준으로 선택한 맵들을 자식으로 붙입니다.",
+      "rootTitle": "루트 노드 제목",
+      "required": "필수",
+      "placeholder": "예: 통합 마인드맵",
+      "validation": "루트 제목을 입력해야 합치기를 진행할 수 있어요.",
+      "help": "입력한 루트 아래에 선택한 맵들이 순서대로 배치됩니다.",
+      "orderTitle": "합칠 맵 순서",
+      "orderCount": "{count}개",
+      "dragReorderAria": "드래그로 순서 변경",
+      "empty": "선택된 맵이 없습니다.",
+      "submitting": "합치는 중...",
+      "confirm": "합치기"
+    },
+    "close": "닫기"
+  }
 }

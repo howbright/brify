@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { useLocale, useTranslations } from "next-intl";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 
 type SourceType = "youtube" | "website" | "file" | "manual";
@@ -16,6 +17,8 @@ type MapTableListProps = {
   onToggleSelect: (draft: MapDraft) => void;
   onEditTags: (draft: MapDraft) => void;
   onOpenDetail?: (draft: MapDraft) => void;
+  onPrefetchDetail?: (draft: MapDraft) => void;
+  openingDetailId?: string | null;
   showEditTags: boolean;
   showOpenDetail?: boolean;
   statusLabels: Record<MapJobStatus, string>;
@@ -39,21 +42,25 @@ export default function MapTableList({
   onToggleSelect,
   onEditTags,
   onOpenDetail,
+  onPrefetchDetail,
+  openingDetailId,
   showEditTags,
   showOpenDetail = false,
   statusLabels,
   sourceLabels,
 }: MapTableListProps) {
+  const locale = useLocale();
+  const t = useTranslations("MapsCommon.tableList");
   const renderStatusBadge = (draft: MapDraft) => {
     const statusBadge =
       draft.status === "failed"
         ? {
-            label: statusLabels[draft.status] ?? "실패",
+            label: statusLabels[draft.status] ?? t("status.failed"),
             cls: "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-400/25 dark:bg-rose-500/10 dark:text-rose-200",
           }
         : draft.status === "processing"
         ? {
-            label: statusLabels[draft.status] ?? "진행중",
+            label: statusLabels[draft.status] ?? t("status.processing"),
             cls: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-400/25 dark:bg-blue-500/10 dark:text-blue-200",
           }
         : null;
@@ -72,6 +79,7 @@ export default function MapTableList({
       <div className="mt-4 space-y-2 md:hidden">
         {drafts.map((draft) => {
           const isSelected = previewOpen && draft.id === selectedId;
+          const isOpeningDetail = openingDetailId === draft.id;
           const displayTitle = getDisplayTitle(draft);
           const tags = draft.tags ?? [];
           const visibleTags = tags.slice(0, 2);
@@ -107,7 +115,7 @@ export default function MapTableList({
                     onChange={() => onToggleSelect(draft)}
                     onClick={(event) => event.stopPropagation()}
                     className="mt-1 h-4 w-4 shrink-0 rounded border-neutral-300 text-neutral-900"
-                    aria-label={`${displayTitle} 선택`}
+                    aria-label={t("selectAria", { title: displayTitle })}
                   />
                 )}
                 <div className="min-w-0 flex-1">
@@ -124,7 +132,7 @@ export default function MapTableList({
                         <span>·</span>
                         <span>
                           {draft.updatedAt
-                            ? new Date(draft.updatedAt).toLocaleDateString("ko-KR", {
+                            ? new Date(draft.updatedAt).toLocaleDateString(locale, {
                                 year: "numeric",
                                 month: "2-digit",
                                 day: "2-digit",
@@ -138,12 +146,19 @@ export default function MapTableList({
                         type="button"
                         onClick={(event) => {
                           event.stopPropagation();
+                          if (isOpeningDetail) return;
                           onOpenDetail(draft);
                         }}
-                        className="inline-flex shrink-0 items-center gap-1 rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-700 dark:border-white/15 dark:bg-white/[0.06] dark:text-white/80"
+                        onMouseEnter={() => onPrefetchDetail?.(draft)}
+                        onFocus={() => onPrefetchDetail?.(draft)}
+                        disabled={isOpeningDetail}
+                        className="inline-flex shrink-0 items-center gap-1 rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-700 disabled:cursor-wait disabled:opacity-80 dark:border-white/15 dark:bg-white/[0.06] dark:text-white/80"
                       >
-                        <Icon icon="mdi:open-in-new" className="h-3.5 w-3.5" />
-                        열기
+                        <Icon
+                          icon={isOpeningDetail ? "mdi:loading" : "mdi:open-in-new"}
+                          className={`h-3.5 w-3.5 ${isOpeningDetail ? "animate-spin" : ""}`}
+                        />
+                        {isOpeningDetail ? t("opening") : t("open")}
                       </button>
                     )}
                   </div>
@@ -166,7 +181,7 @@ export default function MapTableList({
                         className="inline-flex shrink-0 items-center gap-1 rounded-md px-1 py-0.5 text-[11px] font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-200 dark:hover:bg-blue-500/10"
                       >
                         <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
-                        태그 편집
+                        {t("editTags")}
                       </button>
                     )}
                   </div>
@@ -190,24 +205,25 @@ export default function MapTableList({
           <tr className="border-b border-neutral-300 bg-neutral-50/80 dark:border-white/15 dark:bg-white/[0.04]">
             {selectionMode && !tagOrganizeMode && (
               <th className="w-6 min-w-[24px] max-w-[24px] px-[3px] py-1.5 border-r border-neutral-200 dark:border-white/10 text-center">
-                <span className="sr-only">선택</span>
+                <span className="sr-only">{t("select")}</span>
               </th>
             )}
             <th className="px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
-              제목
+              {t("columns.title")}
             </th>
             <th className="w-[64px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
-              소스
+              {t("columns.source")}
             </th>
             <th className="w-[230px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
-              태그
+              {t("columns.tags")}
             </th>
-            <th className="w-[110px] px-2 py-1.5">수정일</th>
+            <th className="w-[110px] px-2 py-1.5">{t("columns.updatedAt")}</th>
           </tr>
         </thead>
         <tbody>
           {drafts.map((draft) => {
             const isSelected = previewOpen && draft.id === selectedId;
+            const isOpeningDetail = openingDetailId === draft.id;
             const displayTitle = getDisplayTitle(draft);
             const tags = draft.tags ?? [];
             const visibleTags = tags.slice(0, 2);
@@ -241,7 +257,7 @@ export default function MapTableList({
                         onChange={() => onToggleSelect(draft)}
                         onClick={(event) => event.stopPropagation()}
                         className="h-4 w-4 rounded border-neutral-300 text-neutral-900"
-                        aria-label={`${displayTitle} 선택`}
+                        aria-label={t("selectAria", { title: displayTitle })}
                       />
                     </div>
                   </td>
@@ -259,12 +275,19 @@ export default function MapTableList({
                           type="button"
                           onClick={(event) => {
                             event.stopPropagation();
+                            if (isOpeningDetail) return;
                             onOpenDetail(draft);
                           }}
-                          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/15 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
+                          onMouseEnter={() => onPrefetchDetail?.(draft)}
+                          onFocus={() => onPrefetchDetail?.(draft)}
+                          disabled={isOpeningDetail}
+                          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm disabled:cursor-wait disabled:opacity-80 dark:border-white/15 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
                         >
-                          <Icon icon="mdi:open-in-new" className="h-3.5 w-3.5" />
-                          열기
+                          <Icon
+                            icon={isOpeningDetail ? "mdi:loading" : "mdi:open-in-new"}
+                            className={`h-3.5 w-3.5 ${isOpeningDetail ? "animate-spin" : ""}`}
+                          />
+                          {isOpeningDetail ? t("opening") : t("open")}
                         </button>
                     )}
                   </div>
@@ -291,14 +314,14 @@ export default function MapTableList({
                           className="inline-flex items-center gap-1 self-start rounded-md px-1 py-0.5 text-[11px] font-medium text-blue-700 hover:bg-blue-50 cursor-pointer dark:text-blue-200 dark:hover:bg-blue-500/10"
                         >
                           <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
-                          태그 편집
+                          {t("editTags")}
                         </button>
                     )}
                   </div>
                 </td>
                 <td className="w-[110px] px-2 py-1.5 text-[12px] font-medium text-neutral-600 dark:text-white/70 whitespace-nowrap">
                   {draft.updatedAt
-                    ? new Date(draft.updatedAt).toLocaleDateString("ko-KR", {
+                    ? new Date(draft.updatedAt).toLocaleDateString(locale, {
                         year: "numeric",
                         month: "2-digit",
                         day: "2-digit",

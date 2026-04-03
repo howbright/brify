@@ -319,6 +319,7 @@ function parseScale(transform: string | null) {
 
 const PAN_MODE_CLASS = "me-pan-mode";
 const DARK_CANVAS_CLASS = "me-dark-canvas";
+const DEFAULT_DARK_CANVAS_CLASS = "me-default-dark-canvas";
 const VIEW_MODE_CLASS = "me-view-mode";
 const BLOCKED_OPS = [
   "addChild",
@@ -694,12 +695,26 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         offsetY,
       };
 
+      const isDarkMiniMap = effectiveMode === "dark";
+      const miniMapBg = isDarkMiniMap
+        ? "rgba(255, 255, 255, 0.08)"
+        : "rgba(15, 23, 42, 0.06)";
+      const miniMapEdge = isDarkMiniMap
+        ? "rgba(226, 232, 240, 0.5)"
+        : "rgba(51, 65, 85, 0.35)";
+      const miniMapNode = isDarkMiniMap
+        ? "rgba(241, 245, 249, 0.92)"
+        : "rgba(51, 65, 85, 0.8)";
+      const miniMapViewport = isDarkMiniMap
+        ? "rgba(96, 165, 250, 0.95)"
+        : "rgba(37, 99, 235, 0.75)";
+
       // background
-      ctx.fillStyle = "rgba(15, 23, 42, 0.06)";
+      ctx.fillStyle = miniMapBg;
       ctx.fillRect(0, 0, rect.width, rect.height);
 
       // edges
-      ctx.strokeStyle = "rgba(51, 65, 85, 0.35)";
+      ctx.strokeStyle = miniMapEdge;
       ctx.lineWidth = 1;
       points.forEach((p) => {
         if (!p.parentId) return;
@@ -712,7 +727,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       });
 
       // nodes
-      ctx.fillStyle = "rgba(51, 65, 85, 0.8)";
+      ctx.fillStyle = miniMapNode;
       points.forEach((p) => {
         ctx.beginPath();
         ctx.arc(p.x * scale + offsetX, p.y * scale + offsetY, 2.2, 0, Math.PI * 2);
@@ -725,7 +740,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       const vy = view.top * scale + offsetY;
       const vw = view.width * scale;
       const vh = view.height * scale;
-      ctx.strokeStyle = "rgba(37, 99, 235, 0.75)";
+      ctx.strokeStyle = miniMapViewport;
       ctx.lineWidth = 1.5;
       ctx.strokeRect(vx, vy, vw, vh);
     };
@@ -1091,6 +1106,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     if (profileThemeName === DEFAULT_THEME_NAME) return null;
     return MIND_THEME_BY_NAME[profileThemeName] ?? null;
   }, [profileThemeName]);
+
+  const hasFixedTheme = Boolean(theme ?? profileTheme);
 
   const resolveThemeObj = useMemo(() => {
     return (
@@ -1977,7 +1994,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   return (
     <div
       ref={wrapperRef}
-      className={`relative h-full w-full ${effectiveMode === "dark" ? DARK_CANVAS_CLASS : ""}`}
+      className={`relative h-full w-full ${
+        effectiveMode === "dark" ? DARK_CANVAS_CLASS : ""
+      } ${
+        effectiveMode === "dark" && !hasFixedTheme
+          ? DEFAULT_DARK_CANVAS_CLASS
+          : ""
+      }`}
     >
       <style jsx global>{`
         .${PAN_MODE_CLASS} me-tpc,
@@ -2002,12 +2025,12 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           position: relative;
           overflow: visible;
         }
-        .${DARK_CANVAS_CLASS} me-tpc {
+        .${DEFAULT_DARK_CANVAS_CLASS} me-tpc {
           border: 1.5px solid rgba(255, 255, 255, 0.84) !important;
           box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
         }
-        .${DARK_CANVAS_CLASS} me-root me-tpc,
-        .${DARK_CANVAS_CLASS} me-tpc.root {
+        .${DEFAULT_DARK_CANVAS_CLASS} me-root me-tpc,
+        .${DEFAULT_DARK_CANVAS_CLASS} me-tpc.root {
           border-color: rgba(255, 255, 255, 0.97) !important;
         }
         me-root me-tpc,

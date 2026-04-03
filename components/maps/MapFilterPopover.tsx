@@ -1,16 +1,17 @@
 "use client";
 
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 import type { MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 
 type SourceType = "youtube" | "website" | "file" | "manual";
 
 const DATE_PRESETS = [
-  { id: "7d", label: "지난 7일" },
-  { id: "30d", label: "지난 30일" },
-  { id: "90d", label: "지난 90일" },
-  { id: "1y", label: "지난 1년" },
-  { id: "all", label: "전체" },
+  { id: "7d", labelKey: "presets.7d" },
+  { id: "30d", labelKey: "presets.30d" },
+  { id: "90d", labelKey: "presets.90d" },
+  { id: "1y", labelKey: "presets.1y" },
+  { id: "all", labelKey: "presets.all" },
 ] as const;
 
 type MapFilterPopoverProps = {
@@ -52,6 +53,7 @@ export default function MapFilterPopover({
   onClose,
   anchorRect,
 }: MapFilterPopoverProps) {
+  const t = useTranslations("MapsCommon.filterPopover");
   if (typeof document === "undefined") return null;
 
   const desktopWidth =
@@ -86,7 +88,7 @@ export default function MapFilterPopover({
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <div className="font-semibold text-neutral-800 dark:text-white">
-              기간
+              {t("sections.date")}
             </div>
             <div className="flex flex-wrap gap-2">
               {DATE_PRESETS.map((preset) => (
@@ -100,7 +102,7 @@ export default function MapFilterPopover({
                       : "border-slate-400 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.04] dark:text-white/70 dark:hover:bg-white/10"
                   }`}
                 >
-                  {preset.label}
+                  {t(preset.labelKey)}
                 </button>
               ))}
               <button
@@ -112,7 +114,7 @@ export default function MapFilterPopover({
                     : "border-slate-400 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.04] dark:text-white/70 dark:hover:bg-white/10"
                 }`}
               >
-                직접 선택
+                {t("custom")}
               </button>
             </div>
             <div className="flex flex-wrap items-center gap-2 justify-end">
@@ -134,14 +136,14 @@ export default function MapFilterPopover({
 
           <div className="flex flex-col gap-2">
             <div className="font-semibold text-neutral-800 dark:text-white">
-              상태
+              {t("sections.status")}
             </div>
             <div className="flex flex-wrap gap-2">
               {(
                 [
-                  { id: "processing", label: "진행중" },
-                  { id: "done", label: "완료" },
-                  { id: "failed", label: "실패" },
+                  { id: "processing", label: t("status.processing") },
+                  { id: "done", label: t("status.done") },
+                  { id: "failed", label: t("status.failed") },
                 ] as const
               ).map((item) => (
                 <label
@@ -161,15 +163,15 @@ export default function MapFilterPopover({
 
           <div className="flex flex-col gap-2">
             <div className="font-semibold text-neutral-800 dark:text-white">
-              소스 타입
+              {t("sections.source")}
             </div>
             <div className="flex flex-wrap gap-2">
               {(
                 [
-                  { id: "youtube", label: "유튜브" },
-                  { id: "website", label: "웹" },
-                  { id: "file", label: "파일" },
-                  { id: "manual", label: "수동" },
+                  { id: "youtube", label: t("source.youtube") },
+                  { id: "website", label: t("source.website") },
+                  { id: "file", label: t("source.file") },
+                  { id: "manual", label: t("source.manual") },
                 ] as const
               ).map((item) => (
                 <label
@@ -190,15 +192,15 @@ export default function MapFilterPopover({
           {showTagFilters && (
             <div className="flex flex-col gap-2">
               <div className="font-semibold text-neutral-800 dark:text-white">
-                태그
+                {t("sections.tag")}
               </div>
               {tagsLoading ? (
                 <div className="text-neutral-500 dark:text-white/60">
-                  태그 불러오는 중…
+                  {t("tagLoading")}
                 </div>
               ) : tagOptions.length === 0 ? (
                 <div className="text-neutral-500 dark:text-white/60">
-                  사용할 수 있는 태그가 없어요.
+                  {t("tagEmpty")}
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2">

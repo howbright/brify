@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Icon } from "@iconify/react";
+import { useTranslations } from "next-intl";
 import {
   closestCenter,
   DndContext,
@@ -50,20 +51,6 @@ const LIST_FIELDS =
   "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
 const PAGE_SIZE = 20;
 const NO_TAG_FILTER = "__NO_TAG__";
-
-const STATUS_LABELS: Record<MapJobStatus, string> = {
-  idle: "대기중",
-  queued: "대기중",
-  processing: "진행중",
-  done: "완료",
-  failed: "실패",
-};
-const SOURCE_LABELS: Record<SourceType, string> = {
-  youtube: "유튜브",
-  website: "웹",
-  file: "파일",
-  manual: "수동",
-};
 
 function coerceMapStatus(status?: string | null): MapJobStatus {
   if (status === "done" || status === "failed" || status === "processing") {
@@ -143,12 +130,24 @@ function MapTableListSkeleton() {
       <table className="w-full table-fixed text-left text-[12px] [table-layout:fixed]">
         <thead className="text-[11px] font-semibold text-neutral-600 dark:text-white/70">
           <tr className="border-b border-neutral-300 bg-neutral-50/80 dark:border-white/15 dark:bg-white/[0.04]">
-            <th className="px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">제목</th>
-            <th className="w-[64px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">상태</th>
-            <th className="w-[64px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">소스</th>
-            <th className="w-[120px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">태그</th>
-            <th className="w-[110px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">생성일</th>
-            <th className="w-[110px] px-2 py-1.5">수정일</th>
+            <th className="px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
+              <div className="h-3 w-10 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
+            </th>
+            <th className="w-[64px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
+              <div className="h-3 w-8 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
+            </th>
+            <th className="w-[64px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
+              <div className="h-3 w-8 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
+            </th>
+            <th className="w-[120px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
+              <div className="h-3 w-8 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
+            </th>
+            <th className="w-[110px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
+              <div className="h-3 w-10 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
+            </th>
+            <th className="w-[110px] px-2 py-1.5">
+              <div className="h-3 w-10 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -198,6 +197,7 @@ function SortableMergeItem({
 }: {
   draft: MapDraft;
 }) {
+  const tPage = useTranslations("MapsPage");
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: draft.id });
   const style = {
@@ -223,7 +223,7 @@ function SortableMergeItem({
       <button
         type="button"
         className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80 dark:hover:bg-white/10"
-        aria-label="드래그로 순서 변경"
+        aria-label={tPage("mergeDialog.dragReorderAria")}
         {...attributes}
         {...listeners}
       >
@@ -235,6 +235,8 @@ function SortableMergeItem({
 
 
 export default function MapsPage() {
+  const tPage = useTranslations("MapsPage");
+  const tCommon = useTranslations("MapsCommon");
   const listSectionRef = useRef<HTMLElement | null>(null);
   const toolbarShellRef = useRef<HTMLDivElement | null>(null);
   const toolbarInnerRef = useRef<HTMLDivElement | null>(null);
@@ -242,6 +244,7 @@ export default function MapsPage() {
   const tagPanelShellRef = useRef<HTMLElement | null>(null);
   const [viewMode, setViewMode] = useState<"card" | "table">("card");
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [openingDetailId, setOpeningDetailId] = useState<string | null>(null);
   const [mobileTagSheetOpen, setMobileTagSheetOpen] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState<boolean | null>(null);
   const [recentSectionsCollapsed, setRecentSectionsCollapsed] = useState(false);
@@ -251,6 +254,25 @@ export default function MapsPage() {
   const router = useRouter();
   const params = useParams();
   const locale = typeof params?.locale === "string" ? params.locale : null;
+  const statusLabels = useMemo<Record<MapJobStatus, string>>(
+    () => ({
+      idle: tCommon("status.idle"),
+      queued: tCommon("status.queued"),
+      processing: tCommon("status.processing"),
+      done: tCommon("status.done"),
+      failed: tCommon("status.failed"),
+    }),
+    [tCommon]
+  );
+  const sourceLabels = useMemo<Record<SourceType, string>>(
+    () => ({
+      youtube: tCommon("source.youtube"),
+      website: tCommon("source.website"),
+      file: tCommon("source.file"),
+      manual: tCommon("source.manual"),
+    }),
+    [tCommon]
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -285,7 +307,13 @@ export default function MapsPage() {
 
   const handleOpenDetail = (item: MapDraft) => {
     const nextUrl = locale ? `/${locale}/maps/${item.id}` : `/maps/${item.id}`;
+    setOpeningDetailId(item.id);
     router.push(nextUrl);
+  };
+
+  const handlePrefetchDetail = (item: MapDraft) => {
+    const nextUrl = locale ? `/${locale}/maps/${item.id}` : `/maps/${item.id}`;
+    router.prefetch(nextUrl);
   };
 
   const {
@@ -315,8 +343,18 @@ export default function MapsPage() {
     onSortChange,
     onResetFilters,
   } = useMapsListControls({
-    statusLabels: STATUS_LABELS,
-    sourceLabels: SOURCE_LABELS,
+    statusLabels,
+    sourceLabels,
+    datePresetLabels: {
+      "7d": tCommon("datePreset.7d"),
+      "30d": tCommon("datePreset.30d"),
+      "90d": tCommon("datePreset.90d"),
+      "1y": tCommon("datePreset.1y"),
+      all: tCommon("datePreset.all"),
+    },
+    customDateEmptyLabel: tCommon("datePreset.customEmpty"),
+    customDateFromLabelSuffix: tCommon("datePreset.after"),
+    customDateToLabelSuffix: tCommon("datePreset.before"),
   });
 
   const {
@@ -507,14 +545,14 @@ export default function MapsPage() {
   }, [page, setPage, totalPages]);
 
   const previewEmptyMessage = loading
-    ? "목록을 불러오는 중이에요."
+    ? tPage("previewEmpty.loading")
     : !hasDrafts && !isSearching
     ? datePreset === "all"
-      ? "아직 생성한 구조맵이 없어요."
-      : "선택한 기간에 생성된 구조맵이 없어요."
+      ? tPage("previewEmpty.noMaps")
+      : tPage("previewEmpty.noMapsInRange")
     : !hasResults && isSearching
-    ? "검색 결과가 없어요."
-    : "좌측에서 맵을 선택해 주세요.";
+    ? tPage("previewEmpty.noResults")
+    : tPage("previewEmpty.selectFromList");
   const showRecentSections =
     !error &&
     !isTagOrganizeActive &&
@@ -541,12 +579,12 @@ export default function MapsPage() {
   ) : null;
 
   return (
-    <main className="min-h-[70vh] bg-neutral-50 px-6 pt-24 pb-12 dark:bg-[#07111f]">
+    <main className="min-h-[70vh] bg-neutral-50 px-6 pt-22 pb-12 dark:bg-[#07111f]">
       <div className="mx-auto max-w-6xl">
-        <div className="flex items-center justify-between gap-3">
+        <div className="mb-2 flex items-center justify-between gap-3">
           <div>
             <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-              나의 맵
+              {tPage("title")}
             </h1>
           </div>
         </div>
@@ -571,7 +609,7 @@ export default function MapsPage() {
               <div
                 style={{
                   position: tagPanelPinned ? "fixed" : "absolute",
-                  top: tagPanelPinned ? 125 : undefined,
+                  top: tagPanelPinned ? 128 : undefined,
                   bottom: tagPanelPinned ? undefined : 0,
                   left: tagPanelPinned ? tagPanelMetrics.left : 0,
                   width: tagPanelPinned ? tagPanelMetrics.width : "100%",
@@ -605,7 +643,7 @@ export default function MapsPage() {
                       }}
                       className="inline-flex items-center rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-600 shadow-sm hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80 dark:hover:bg-white/10"
                     >
-                      종료
+                      {tPage("tagOrganizeExit")}
                     </button>
                   }
                 />
@@ -659,12 +697,12 @@ export default function MapsPage() {
                     const next = !previewOpen;
                     if (next && selectionMode) {
                       clearSelection();
-                      toast.message("프리뷰 모드로 전환되어 선택 모드가 꺼졌어요.");
+                      toast.message(tPage("toast.previewTurnsOffSelection"));
                     }
                     if (next && isTagOrganizeActive) {
                       setTagOrganizeMode(false);
                       setMobileTagSheetOpen(false);
-                      toast.message("프리뷰를 위해 태그 정리 모드를 껐어요.");
+                      toast.message(tPage("toast.previewTurnsOffTagOrganize"));
                     }
                     setPreviewOpen(next);
                     setMobilePreviewOpen(false);
@@ -685,11 +723,11 @@ export default function MapsPage() {
                     if (next && previewOpen) {
                       setPreviewOpen(false);
                       setMobilePreviewOpen(false);
-                      toast.message("태그 정리 모드로 전환되어 프리뷰가 꺼졌어요.");
+                      toast.message(tPage("toast.tagOrganizeTurnsOffPreview"));
                     }
                     if (next && selectionMode) {
                       clearSelection();
-                      toast.message("태그 정리 모드로 전환되어 선택 모드가 꺼졌어요.");
+                      toast.message(tPage("toast.tagOrganizeTurnsOffSelection"));
                     }
                     setMobileTagSheetOpen(next);
                     setTagOrganizeMode(next);
@@ -703,12 +741,12 @@ export default function MapsPage() {
                     if (previewOpen) {
                       setPreviewOpen(false);
                       setMobilePreviewOpen(false);
-                      toast.message("선택 모드로 전환되어 프리뷰가 꺼졌어요.");
+                      toast.message(tPage("toast.selectionTurnsOffPreview"));
                     }
                     if (isTagOrganizeActive) {
                       setTagOrganizeMode(false);
                       setMobileTagSheetOpen(false);
-                      toast.message("태그 정리 모드를 종료하고 선택 모드로 전환했어요.");
+                      toast.message(tPage("toast.selectionTurnsOffTagOrganize"));
                     }
                     setSelectionMode(true);
                   }}
@@ -789,14 +827,14 @@ export default function MapsPage() {
             {!loading && !error && !isSearching && !hasDrafts && (
               <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-6 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/5 dark:text-white/60">
                 {datePreset === "all" && !hasActiveFilters
-                  ? "아직 생성한 구조맵이 없어요."
-                  : "선택한 조건에 맞는 구조맵이 없어요."}
+                  ? tPage("empty.noMaps")
+                  : tPage("empty.noMapsForFilters")}
               </div>
             )}
 
             {!loading && !error && isSearching && !hasResults && (
               <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-6 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/5 dark:text-white/60">
-                검색 결과가 없습니다. 다른 키워드로 시도해 보세요.
+                {tPage("empty.noSearchResults")}
               </div>
             )}
 
@@ -806,7 +844,7 @@ export default function MapsPage() {
               selectedTagNames.length > 0 &&
               !hasFilteredDrafts && (
                 <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-6 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/5 dark:text-white/60">
-                  선택한 태그가 붙은 맵이 없어요.
+                  {tPage("empty.noMapsForSelectedTags")}
                 </div>
               )}
 
@@ -841,6 +879,8 @@ export default function MapsPage() {
                     onToggleSelect={toggleSelectedMap}
                     onEditTags={openTagEditor}
                     onOpenDetail={handleOpenDetail}
+                    onPrefetchDetail={handlePrefetchDetail}
+                    openingDetailId={openingDetailId}
                     showOpenDetail
                   />
                 ) : (
@@ -858,9 +898,11 @@ export default function MapsPage() {
                     onEditTags={openTagEditor}
                     showEditTags={isTagOrganizeActive}
                     onOpenDetail={handleOpenDetail}
+                    onPrefetchDetail={handlePrefetchDetail}
+                    openingDetailId={openingDetailId}
                     showOpenDetail
-                    statusLabels={STATUS_LABELS}
-                    sourceLabels={SOURCE_LABELS}
+                    statusLabels={statusLabels}
+                    sourceLabels={sourceLabels}
                   />
                 )}
               </div>
@@ -870,7 +912,7 @@ export default function MapsPage() {
               <div className="sticky bottom-0 z-10 mt-4 flex flex-col items-end gap-2">
                 <div className="inline-flex items-center gap-3 rounded-2xl border border-neutral-700 bg-neutral-800 px-3 py-2 shadow-md">
                   <div className="text-xs font-semibold text-white/90">
-                    총 {totalCount.toLocaleString()}개
+                    {tPage("pagination.totalCount", { count: totalCount })}
                   </div>
                   <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
                     <button
@@ -879,7 +921,7 @@ export default function MapsPage() {
                       disabled={page <= 1}
                       className="rounded-full px-2 py-1 hover:bg-white/15 disabled:opacity-40"
                     >
-                      이전
+                      {tPage("pagination.prev")}
                     </button>
                     <span className="min-w-[72px] text-center">
                       {page} / {totalPages}
@@ -890,7 +932,7 @@ export default function MapsPage() {
                       disabled={page >= totalPages}
                       className="rounded-full px-2 py-1 hover:bg-white/15 disabled:opacity-40"
                     >
-                      다음
+                      {tPage("pagination.next")}
                     </button>
                   </div>
                 </div>
@@ -987,18 +1029,18 @@ export default function MapsPage() {
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
         onConfirm={confirmSingleDelete}
-        title="구조맵을 삭제할까요?"
-        description="삭제하면 복구할 수 없어요. 계속 진행할까요?"
-        actionLabel="삭제"
+        title={tPage("dialogs.deleteMap.title")}
+        description={tPage("dialogs.deleteMap.description")}
+        actionLabel={tPage("dialogs.deleteMap.action")}
       />
 
       <ConfirmDialog
         open={confirmBulkOpen}
         onOpenChange={setConfirmBulkOpen}
         onConfirm={() => confirmBulkDelete([...selectedMapIds])}
-        title="선택한 구조맵을 삭제할까요?"
-        description="선택한 맵을 삭제하면 복구할 수 없어요."
-        actionLabel="선택 삭제"
+        title={tPage("dialogs.deleteSelected.title")}
+        description={tPage("dialogs.deleteSelected.description")}
+        actionLabel={tPage("dialogs.deleteSelected.action")}
       />
 
       <ConfirmDialog
@@ -1010,26 +1052,30 @@ export default function MapsPage() {
           handleTagDelete(tagDeleteTarget);
           setTagDeleteTarget(null);
         }}
-        title="태그를 삭제할까요?"
+        title={tPage("dialogs.deleteTag.title")}
         description={
           tagDeleteTarget ? (
             <span>
               <span className="font-semibold text-neutral-900 dark:text-white">
                 #{tagDeleteTarget}
               </span>{" "}
-              태그가 모든 맵에서 삭제됩니다. 계속할까요?
+              {tPage("dialogs.deleteTag.descriptionSuffix")}
             </span>
           ) : (
-            "선택한 태그가 모든 맵에서 삭제됩니다. 계속할까요?"
+            tPage("dialogs.deleteTag.description")
           )
         }
-        actionLabel={tagDeleteSubmitting ? "삭제 중..." : "삭제"}
+        actionLabel={
+          tagDeleteSubmitting
+            ? tPage("dialogs.deleteTag.actionLoading")
+            : tPage("dialogs.deleteTag.action")
+        }
       />
 
       <TagEditDialog
         open={tagEditOpen}
         onOpenChange={setTagEditOpen}
-        draftTitle={tagEditDraft?.title ?? "선택한 맵"}
+        draftTitle={tagEditDraft?.title ?? tPage("fallback.selectedMap")}
         initialTags={tagEditDraft?.tags ?? []}
         allTags={tagOptions.map((tag) => tag.name)}
         saving={tagEditSubmitting}
@@ -1050,23 +1096,23 @@ export default function MapsPage() {
               <div className="flex flex-col gap-4">
                 <div>
                   <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
-                    맵 합치기
+                    {tPage("mergeDialog.title")}
                   </h3>
                   <p className="mt-1 text-sm text-neutral-500 dark:text-white/60">
-                    새로운 루트를 기준으로 선택한 맵들을 자식으로 붙입니다.
+                    {tPage("mergeDialog.description")}
                   </p>
                 </div>
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
                     <label className="text-sm font-semibold text-neutral-800 dark:text-white">
-                      루트 노드 제목
+                      {tPage("mergeDialog.rootTitle")}
                     </label>
-                    <span className="text-xs font-semibold text-rose-600">필수</span>
+                    <span className="text-xs font-semibold text-rose-600">{tPage("mergeDialog.required")}</span>
                   </div>
                   <input
                     value={mergeRootTitle}
                     onChange={(event) => setMergeRootTitle(event.target.value)}
-                    placeholder="예: 통합 마인드맵"
+                    placeholder={tPage("mergeDialog.placeholder")}
                     className={`w-full rounded-2xl border bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/45 ${
                       mergeRootTitle.trim().length === 0
                         ? "border-rose-300 focus:border-rose-400 focus:ring-rose-200/60 dark:border-rose-400/40 dark:focus:border-rose-300 dark:focus:ring-rose-500/20"
@@ -1075,11 +1121,11 @@ export default function MapsPage() {
                   />
                   {mergeRootTitle.trim().length === 0 ? (
                     <p className="text-xs text-rose-600">
-                      루트 제목을 입력해야 합치기를 진행할 수 있어요.
+                      {tPage("mergeDialog.validation")}
                     </p>
                   ) : (
                     <p className="text-xs text-neutral-500 dark:text-white/60">
-                      입력한 루트 아래에 선택한 맵들이 순서대로 배치됩니다.
+                      {tPage("mergeDialog.help")}
                     </p>
                   )}
                 </div>
@@ -1087,15 +1133,15 @@ export default function MapsPage() {
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-semibold text-neutral-800 dark:text-white">
-                      합칠 맵 순서
+                      {tPage("mergeDialog.orderTitle")}
                     </h4>
                     <span className="text-xs text-neutral-500 dark:text-white/60">
-                      {mergeOrderDrafts.length}개
+                      {tPage("mergeDialog.orderCount", { count: mergeOrderDrafts.length })}
                     </span>
                   </div>
                   {mergeOrderDrafts.length === 0 ? (
                     <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 p-5 text-center text-sm text-neutral-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/60">
-                      선택된 맵이 없습니다.
+                      {tPage("mergeDialog.empty")}
                     </div>
                   ) : (
                     <DndContext
@@ -1127,7 +1173,7 @@ export default function MapsPage() {
                 onClick={() => setMergeDialogOpen(false)}
                 className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
               >
-                닫기
+                {tPage("close")}
               </button>
               <button
                 type="button"
@@ -1139,7 +1185,7 @@ export default function MapsPage() {
                     : "border-neutral-300 bg-neutral-200 text-neutral-500"
                 }`}
               >
-                {mergeSubmitting ? "합치는 중..." : "합치기"}
+                {mergeSubmitting ? tPage("mergeDialog.submitting") : tPage("mergeDialog.confirm")}
               </button>
             </div>
           </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useLocale, useTranslations } from "next-intl";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 
 type SourceBadge = {
@@ -20,41 +21,44 @@ function detectSourceType(draft: MapDraft): MapDraft["sourceType"] | undefined {
   return "website";
 }
 
-function getSourceBadge(draft: MapDraft): SourceBadge | null {
+function getSourceBadge(
+  draft: MapDraft,
+  labels: Record<NonNullable<MapDraft["sourceType"]>, string>
+): SourceBadge | null {
   const sourceType = detectSourceType(draft);
   if (!sourceType) return null;
   if (sourceType === "youtube") {
     return {
-      label: "YouTube",
+      label: labels.youtube,
       cls: "bg-red-50 text-red-600 border-red-200",
       darkCls: "dark:bg-rose-500/12 dark:text-rose-200 dark:border-rose-400/25",
     };
   }
   if (sourceType === "website") {
     return {
-      label: "Website",
+      label: labels.website,
       cls: "bg-sky-50 text-sky-700 border-sky-200",
       darkCls: "dark:bg-sky-500/12 dark:text-sky-200 dark:border-sky-400/25",
     };
   }
   if (sourceType === "file") {
     return {
-      label: "File",
+      label: labels.file,
       cls: "bg-amber-50 text-amber-700 border-amber-200",
       darkCls:
         "dark:bg-amber-500/12 dark:text-amber-200 dark:border-amber-400/25",
     };
   }
   return {
-    label: "Manual",
+    label: labels.manual,
     cls: "bg-neutral-100 text-neutral-600 border-neutral-200",
     darkCls: "dark:bg-white/10 dark:text-white/70 dark:border-white/15",
   };
 }
 
-function formatDate(draft: MapDraft) {
+function formatDate(draft: MapDraft, locale: string) {
   const value = draft.updatedAt ?? draft.createdAt;
-  return new Date(value).toLocaleDateString("ko-KR", {
+  return new Date(value).toLocaleDateString(locale, {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -79,6 +83,8 @@ export default function MapListItem({
   onEditTags,
   showEditTags = false,
   onOpenDetail,
+  onPrefetchDetail,
+  openingDetailId,
   showOpenDetail = false,
 }: {
   draft: MapDraft;
@@ -92,21 +98,34 @@ export default function MapListItem({
   onEditTags?: (draft: MapDraft) => void;
   showEditTags?: boolean;
   onOpenDetail?: (draft: MapDraft) => void;
+  onPrefetchDetail?: (draft: MapDraft) => void;
+  openingDetailId?: string | null;
   showOpenDetail?: boolean;
 }) {
+  const t = useTranslations("MapsCommon.listItem");
+  const locale = useLocale();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const sourceBadge = useMemo(() => getSourceBadge(draft), [draft]);
+  const sourceBadge = useMemo(
+    () =>
+      getSourceBadge(draft, {
+        youtube: t("source.youtube"),
+        website: t("source.website"),
+        file: t("source.file"),
+        manual: t("source.manual"),
+      }),
+    [draft, t]
+  );
   const statusBadge =
     draft.status === "failed"
       ? {
-          text: "실패",
+          text: t("status.failed"),
           dotCls: "bg-rose-500 dark:bg-rose-300",
           textCls: "text-rose-700 dark:text-rose-200",
         }
       : draft.status === "processing"
       ? {
-          text: "처리 중",
+          text: t("status.processing"),
           dotCls: "bg-blue-500 dark:bg-blue-300",
           textCls: "text-blue-700 dark:text-blue-200",
         }
@@ -116,6 +135,7 @@ export default function MapListItem({
   const visibleTags = draft.tags?.slice(0, 6) ?? [];
   const remainingTagCount = Math.max((draft.tags?.length ?? 0) - visibleTags.length, 0);
   const hasTopActionMenu = Boolean(onDelete);
+  const isOpeningDetail = openingDetailId === draft.id;
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -174,7 +194,7 @@ export default function MapListItem({
                 onChange={() => onToggleSelect?.(draft)}
                 onClick={(event) => event.stopPropagation()}
                 className="h-4 w-4 rounded border-neutral-300 text-neutral-900"
-                aria-label={`${displayTitle} 선택`}
+                aria-label={t("selectAria", { title: displayTitle })}
               />
             )}
             <h3 className="min-w-0 text-[14px] font-medium leading-5 text-neutral-800 line-clamp-2 dark:text-white/85 md:text-[16px] md:font-semibold md:leading-6 md:text-neutral-900 md:dark:text-white">
@@ -220,7 +240,7 @@ export default function MapListItem({
                         icon={isDeleting ? "mdi:loading" : "mdi:trash-outline"}
                         className={`h-4 w-4 ${isDeleting ? "animate-spin" : ""}`}
                       />
-                      {isDeleting ? "삭제 중..." : "삭제"}
+                      {isDeleting ? t("deleting") : t("delete")}
                     </span>
                   </button>
                 </div>
@@ -288,17 +308,17 @@ export default function MapListItem({
                         onEditTags(draft);
                       }}
                       className="inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-[11px] font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-200 dark:hover:bg-blue-500/10"
-                      aria-label="태그 편집"
+                      aria-label={t("editTags")}
                     >
                       <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
-                      <span>태그 편집</span>
+                      <span>{t("editTags")}</span>
                     </button>
                   )}
                 </>
               ) : (
                 <>
                   <span className="text-[11px] text-neutral-500 dark:text-white/50 md:text-[12px]">
-                    태그 없음
+                    {t("noTag")}
                   </span>
                   {showEditTags && onEditTags && (
                     <button
@@ -308,10 +328,10 @@ export default function MapListItem({
                         onEditTags(draft);
                       }}
                       className="inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-[11px] font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-200 dark:hover:bg-blue-500/10"
-                      aria-label="태그 편집"
+                      aria-label={t("editTags")}
                     >
                       <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
-                      <span>태그 편집</span>
+                      <span>{t("editTags")}</span>
                     </button>
                   )}
                 </>
@@ -322,18 +342,25 @@ export default function MapListItem({
       </div>
 
       <div className="mt-auto flex items-center justify-between gap-3 pt-2 text-[12px] font-medium text-neutral-500 dark:text-white/60 md:pt-3 md:text-[13px]">
-        <span>{formatDate(draft)}</span>
+        <span>{formatDate(draft, locale)}</span>
         {onOpenDetail && showOpenDetail && (
           <button
             type="button"
             onClick={(event) => {
               event.stopPropagation();
+              if (isOpeningDetail) return;
               onOpenDetail(draft);
             }}
-            className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-2.5 py-1 text-[10px] font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10 md:px-3 md:py-1.5 md:text-[11px]"
+            onMouseEnter={() => onPrefetchDetail?.(draft)}
+            onFocus={() => onPrefetchDetail?.(draft)}
+            disabled={isOpeningDetail}
+            className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-2.5 py-1 text-[10px] font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm disabled:cursor-wait disabled:opacity-80 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10 md:px-3 md:py-1.5 md:text-[11px]"
           >
-            <Icon icon="mdi:open-in-new" className="h-3.5 w-3.5" />
-            열기
+            <Icon
+              icon={isOpeningDetail ? "mdi:loading" : "mdi:open-in-new"}
+              className={`h-3.5 w-3.5 ${isOpeningDetail ? "animate-spin" : ""}`}
+            />
+            {isOpeningDetail ? t("opening") : t("open")}
           </button>
         )}
       </div>

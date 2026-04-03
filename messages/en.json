@@ -1514,4 +1514,242 @@
     "copyright": "All rights reserved.",
     "operatedBy": "Brify is operated by vision328."
   }
+  ,
+  "MapsCommon": {
+    "status": {
+      "idle": "Idle",
+      "queued": "Queued",
+      "processing": "Processing",
+      "done": "Done",
+      "failed": "Failed"
+    },
+    "source": {
+      "youtube": "YouTube",
+      "website": "Web",
+      "file": "File",
+      "manual": "Manual"
+    },
+    "datePreset": {
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days",
+      "1y": "Last 1 year",
+      "all": "All",
+      "customEmpty": "Select date range",
+      "after": "after",
+      "before": "before"
+    },
+    "selectionBar": {
+      "selectedCount": "{count} selected",
+      "mergeMaps": "Merge maps",
+      "deleting": "Deleting...",
+      "deleteSelected": "Delete selected",
+      "cancel": "Cancel"
+    },
+    "toolbar": {
+      "searchPlaceholder": "Search by map title or tag",
+      "clearSearch": "Clear search",
+      "summary": {
+        "status": "Status {value}",
+        "source": "Source {value}",
+        "tag": "Tag {value}"
+      },
+      "previewOn": "Preview on",
+      "previewOff": "Preview off",
+      "tagOrganize": "Organize tags",
+      "tagOrganizeExit": "Exit organize mode",
+      "selection": "Select",
+      "selectionExit": "Exit selection",
+      "card": "Card",
+      "table": "Table",
+      "sortLabel": "Sort",
+      "sort": {
+        "createdDesc": "Newest created",
+        "createdAsc": "Oldest created",
+        "updatedDesc": "Recently updated",
+        "titleAsc": "Title"
+      },
+      "filterOpen": "Open filters",
+      "filterClose": "Close filters",
+      "resetFilters": "Reset filters"
+    },
+    "recent": {
+      "recentMaps": "Recent maps",
+      "recentInterestTags": "Recent interest tags",
+      "expandAria": "Expand recent sections",
+      "expand": "Expand",
+      "collapseAria": "Collapse recent sections",
+      "collapse": "Collapse",
+      "emptyInterestTags": "There are not enough tags collected from recent maps yet."
+    },
+    "filterPopover": {
+      "presets": {
+        "7d": "Last 7 days",
+        "30d": "Last 30 days",
+        "90d": "Last 90 days",
+        "1y": "Last 1 year",
+        "all": "All"
+      },
+      "sections": {
+        "date": "Date",
+        "status": "Status",
+        "source": "Source type",
+        "tag": "Tag"
+      },
+      "custom": "Custom",
+      "status": {
+        "processing": "Processing",
+        "done": "Done",
+        "failed": "Failed"
+      },
+      "source": {
+        "youtube": "YouTube",
+        "website": "Web",
+        "file": "File",
+        "manual": "Manual"
+      },
+      "tagLoading": "Loading tags…",
+      "tagEmpty": "No tags available."
+    },
+    "tagPanel": {
+      "title": "Tags",
+      "sortAria": "Sort tags",
+      "sort": {
+        "recent": "Recent",
+        "name": "Name",
+        "countDesc": "Most used",
+        "countAsc": "Least used"
+      },
+      "selectedFilters": "Selected filters",
+      "filterTitle": "Tag filters",
+      "noTag": "No tag",
+      "deselectTag": "Remove {tag}",
+      "filterHint": "Checking tags will instantly filter the map list below by those tags.",
+      "selectedCount": "{count} selected",
+      "mergeTags": "Merge tags",
+      "searchPlaceholder": "Search tags",
+      "clearSearch": "Clear search",
+      "empty": "No tags found.",
+      "deleteTagAria": "Delete tag"
+    },
+    "mobileTagSheet": {
+      "closeAria": "Close tag organizer",
+      "reopen": "Tag list"
+    },
+    "listItem": {
+      "status": {
+        "failed": "Failed",
+        "processing": "Processing"
+      },
+      "source": {
+        "youtube": "YouTube",
+        "website": "Web",
+        "file": "File",
+        "manual": "Manual"
+      },
+      "selectAria": "Select {title}",
+      "deleting": "Deleting...",
+      "delete": "Delete",
+      "editTags": "Edit tags",
+      "noTag": "No tag",
+      "opening": "Opening...",
+      "open": "Open"
+    },
+    "tableList": {
+      "status": {
+        "failed": "Failed",
+        "processing": "Processing"
+      },
+      "select": "Select",
+      "selectAria": "Select {title}",
+      "opening": "Opening...",
+      "open": "Open",
+      "editTags": "Edit tags",
+      "columns": {
+        "title": "Title",
+        "source": "Source",
+        "tags": "Tags",
+        "updatedAt": "Updated"
+      }
+    },
+    "previewPanel": {
+      "noSummary": "No summary yet.",
+      "closedTitle": "Preview closed",
+      "closedDescription": "You can reopen it anytime for quick comparison.",
+      "openPreview": "Open preview",
+      "close": "Close",
+      "open": "Open",
+      "loading": "Loading preview…",
+      "loadFailed": "Failed to load the preview.",
+      "idle": "Preparing the preview."
+    }
+  },
+  "MapsPage": {
+    "title": "My Maps",
+    "tagOrganizeExit": "Exit",
+    "previewEmpty": {
+      "loading": "Loading the list.",
+      "noMaps": "You have not created any structure maps yet.",
+      "noMapsInRange": "No structure maps were created in the selected date range.",
+      "noResults": "No search results.",
+      "selectFromList": "Please select a map from the list."
+    },
+    "toast": {
+      "previewTurnsOffSelection": "Selection mode was turned off when preview mode was enabled.",
+      "previewTurnsOffTagOrganize": "Tag organize mode was turned off to open preview mode.",
+      "tagOrganizeTurnsOffPreview": "Preview mode was turned off when tag organize mode was enabled.",
+      "tagOrganizeTurnsOffSelection": "Selection mode was turned off when tag organize mode was enabled.",
+      "selectionTurnsOffPreview": "Preview mode was turned off when selection mode was enabled.",
+      "selectionTurnsOffTagOrganize": "Tag organize mode was turned off before entering selection mode."
+    },
+    "empty": {
+      "noMaps": "You have not created any structure maps yet.",
+      "noMapsForFilters": "No structure maps match the selected filters.",
+      "noSearchResults": "No results found. Try a different keyword.",
+      "noMapsForSelectedTags": "There are no maps with the selected tags."
+    },
+    "pagination": {
+      "totalCount": "{count} total",
+      "prev": "Prev",
+      "next": "Next"
+    },
+    "dialogs": {
+      "deleteMap": {
+        "title": "Delete this structure map?",
+        "description": "This cannot be undone. Do you want to continue?",
+        "action": "Delete"
+      },
+      "deleteSelected": {
+        "title": "Delete selected structure maps?",
+        "description": "Deleting selected maps cannot be undone.",
+        "action": "Delete selected"
+      },
+      "deleteTag": {
+        "title": "Delete this tag?",
+        "descriptionSuffix": "will be removed from all maps. Continue?",
+        "description": "The selected tag will be removed from all maps. Continue?",
+        "action": "Delete",
+        "actionLoading": "Deleting..."
+      }
+    },
+    "fallback": {
+      "selectedMap": "Selected map"
+    },
+    "mergeDialog": {
+      "title": "Merge maps",
+      "description": "Selected maps will be attached as children under a new root.",
+      "rootTitle": "Root node title",
+      "required": "Required",
+      "placeholder": "e.g. Unified mind map",
+      "validation": "Enter a root title to continue merging.",
+      "help": "Selected maps will be placed in order under the root title you enter.",
+      "orderTitle": "Merge order",
+      "orderCount": "{count}",
+      "dragReorderAria": "Drag to reorder",
+      "empty": "No selected maps.",
+      "submitting": "Merging...",
+      "confirm": "Merge"
+    },
+    "close": "Close"
+  }
 }

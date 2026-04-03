@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { useTranslations } from "next-intl";
 import TagPanel from "@/components/maps/TagPanel";
 
 type TagOption = {
@@ -41,6 +42,7 @@ export default function MobileTagSheet({
   onCloseSheet,
   onReopen,
 }: MobileTagSheetProps) {
+  const t = useTranslations("MapsCommon.mobileTagSheet");
   return (
     <>
       {open && (
@@ -78,7 +80,7 @@ export default function MobileTagSheet({
                       type="button"
                       onClick={onCloseSheet}
                       className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-600 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80"
-                      aria-label="태그 정리 닫기"
+                      aria-label={t("closeAria")}
                     >
                       ×
                     </button>
@@ -102,7 +104,7 @@ export default function MobileTagSheet({
               className="relative z-[1] inline-flex items-center gap-2 rounded-full border border-cyan-300 bg-[linear-gradient(135deg,#22d3ee,#2563eb)] px-5 py-3 text-sm font-extrabold tracking-[-0.01em] text-white shadow-[0_18px_36px_-18px_rgba(37,99,235,0.65)] transition-transform duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] dark:border-cyan-200/50 dark:bg-[linear-gradient(135deg,rgba(34,211,238,0.95),rgba(59,130,246,0.95))] dark:text-white"
             >
               <Icon icon="mdi:tag-outline" className="h-4.5 w-4.5" />
-              태그 목록
+              {t("reopen")}
             </button>
           </div>
         </div>

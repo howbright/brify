@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { useTranslations } from "next-intl";
 import {
   cloneElement,
   isValidElement,
@@ -61,7 +62,7 @@ export default function MapListToolbar({
   sourceSummary,
   tagSummary,
   dateLabel,
-  datePreset,
+  datePreset: _datePreset,
   previewOpen,
   onTogglePreview,
   tagOrganizeMode,
@@ -79,6 +80,7 @@ export default function MapListToolbar({
   hidePreviewToggle = false,
   hideViewModeToggle = false,
 }: MapListToolbarProps) {
+  const t = useTranslations("MapsCommon.toolbar");
   const filterButtonRef = useRef<HTMLButtonElement | null>(null);
   const [filterAnchorRect, setFilterAnchorRect] = useState<DOMRect | null>(null);
 
@@ -138,7 +140,7 @@ export default function MapListToolbar({
             <input
               value={query}
               onChange={(event) => onQueryChange(event.target.value)}
-              placeholder="맵 제목이나 태그로 검색해 보세요"
+              placeholder={t("searchPlaceholder")}
               className="
                 w-full rounded-[18px] border border-slate-600 bg-white shadow-sm
                 pl-8 pr-9 py-2 text-[14px] text-neutral-900
@@ -154,7 +156,7 @@ export default function MapListToolbar({
                 type="button"
                 onClick={onClearQuery}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 inline-flex h-5 w-5 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
-                aria-label="검색어 지우기"
+                aria-label={t("clearSearch")}
               >
                 <Icon icon="mdi:close-circle" className="h-4.5 w-4.5" />
               </button>
@@ -176,9 +178,9 @@ export default function MapListToolbar({
             previewOpen ? "md:flex-wrap" : "md:flex-nowrap md:overflow-hidden"
           }`}
         >
-          {statusSummary && <span>상태 {statusSummary}</span>}
-          {sourceSummary && <span>소스 {sourceSummary}</span>}
-          {tagSummary && <span>태그 {tagSummary}</span>}
+          {statusSummary && <span>{t("summary.status", { value: statusSummary })}</span>}
+          {sourceSummary && <span>{t("summary.source", { value: sourceSummary })}</span>}
+          {tagSummary && <span>{t("summary.tag", { value: tagSummary })}</span>}
         </div>
 
         <div
@@ -196,9 +198,7 @@ export default function MapListToolbar({
             }`}
           >
             <span className="inline-flex shrink-0 items-center rounded-full border border-slate-300 bg-neutral-50 px-2 py-0.5 text-[10px] font-semibold text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 md:border-0 md:bg-transparent md:px-0 md:py-0 md:text-[10px]">
-              {datePreset === "custom"
-                ? dateLabel
-                : dateLabel.replace("지난", "최근")}
+              {dateLabel}
             </span>
             <div
               className={`flex flex-1 flex-wrap items-center justify-end gap-1.5 ${
@@ -212,7 +212,7 @@ export default function MapListToolbar({
                 className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-neutral-700 bg-neutral-700 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/25 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:min-h-7 md:px-3 md:py-1 md:text-[10px]"
               >
                 <Icon icon="mdi:eye-outline" className="h-3.5 w-3.5" />
-                {previewOpen ? "프리뷰 끄기" : "프리뷰 켜기"}
+                {previewOpen ? t("previewOff") : t("previewOn")}
               </button>
             )}
             <button
@@ -221,7 +221,7 @@ export default function MapListToolbar({
               className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-neutral-700 bg-neutral-700 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/25 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:min-h-7 md:px-3 md:py-1 md:text-[10px]"
             >
               <Icon icon="mdi:tag-outline" className="h-3.5 w-3.5" />
-              {tagOrganizeMode ? "정리 모드 종료" : "태그 정리 모드"}
+              {tagOrganizeMode ? t("tagOrganizeExit") : t("tagOrganize")}
             </button>
             <button
               type="button"
@@ -253,7 +253,7 @@ export default function MapListToolbar({
                   strokeLinejoin="round"
                 />
               </svg>
-              {selectionMode ? "선택 종료" : "선택"}
+              {selectionMode ? t("selectionExit") : t("selection")}
             </button>
             </div>
           </div>
@@ -276,7 +276,7 @@ export default function MapListToolbar({
                       : "hover:bg-neutral-50 dark:hover:bg-white/10"
                   }`}
                 >
-                  카드
+                  {t("card")}
                 </button>
                 <button
                   type="button"
@@ -287,12 +287,12 @@ export default function MapListToolbar({
                       : "hover:bg-neutral-50 dark:hover:bg-white/10"
                   }`}
                 >
-                  테이블
+                  {t("table")}
                 </button>
               </div>
             )}
             <label className="sr-only" htmlFor="maps-sort">
-              정렬
+              {t("sortLabel")}
             </label>
             <select
               id="maps-sort"
@@ -300,17 +300,17 @@ export default function MapListToolbar({
               onChange={(event) => onSortChange(event.target.value as SortValue)}
               className="min-w-0 flex-1 rounded-full border border-slate-600 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-white/25 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10 md:flex-none md:px-3 md:py-1 md:text-[10px]"
             >
-              <option value="created_desc">최신 생성순</option>
-              <option value="created_asc">오래된 생성순</option>
-              <option value="updated_desc">최근 수정순</option>
-              <option value="title_asc">제목순</option>
+              <option value="created_desc">{t("sort.createdDesc")}</option>
+              <option value="created_asc">{t("sort.createdAsc")}</option>
+              <option value="updated_desc">{t("sort.updatedDesc")}</option>
+              <option value="title_asc">{t("sort.titleAsc")}</option>
             </select>
             <button
               ref={filterButtonRef}
               type="button"
               onClick={onToggleFilters}
               className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neutral-700 bg-neutral-700 text-white shadow-sm hover:bg-neutral-600 dark:border-white/25 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:h-7 md:w-7"
-              aria-label={filtersOpen ? "필터 닫기" : "필터 열기"}
+              aria-label={filtersOpen ? t("filterClose") : t("filterOpen")}
             >
               <Icon icon="mdi:filter-variant" className="h-4 w-4 md:h-3.5 md:w-3.5" />
             </button>
@@ -320,7 +320,7 @@ export default function MapListToolbar({
                 onClick={onResetFilters}
                 className="rounded-full border border-rose-400 bg-rose-50 px-2.5 py-1 text-[11px] font-semibold text-rose-700 shadow-sm hover:bg-rose-100 dark:border-rose-500/35 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20 md:px-3 md:py-1 md:text-[10px]"
               >
-                필터 초기화
+                {t("resetFilters")}
               </button>
             )}
             {filtersOpen &&

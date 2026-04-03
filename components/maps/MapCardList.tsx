@@ -15,6 +15,8 @@ type MapCardListProps = {
   onToggleSelect: (draft: MapDraft) => void;
   onEditTags: (draft: MapDraft) => void;
   onOpenDetail?: (draft: MapDraft) => void;
+  onPrefetchDetail?: (draft: MapDraft) => void;
+  openingDetailId?: string | null;
   showOpenDetail?: boolean;
 };
 
@@ -30,6 +32,8 @@ export default function MapCardList({
   onToggleSelect,
   onEditTags,
   onOpenDetail,
+  onPrefetchDetail,
+  openingDetailId,
   showOpenDetail = false,
 }: MapCardListProps) {
   return (
@@ -50,6 +54,8 @@ export default function MapCardList({
           onEditTags={onEditTags}
           showEditTags={tagOrganizeMode}
           onOpenDetail={onOpenDetail}
+          onPrefetchDetail={onPrefetchDetail}
+          openingDetailId={openingDetailId}
           showOpenDetail={showOpenDetail}
         />
       ))}

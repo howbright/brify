@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 type TagCount = { name: string; count: number };
@@ -38,6 +39,7 @@ export default function TagPanel({
   listClassName = "mt-3 max-h-[60vh] overflow-y-auto overflow-x-hidden pr-1",
   headerAccessory,
 }: TagPanelProps) {
+  const t = useTranslations("MapsCommon.tagPanel");
   const mergeSelectableCount = selectedTags.filter(
     (tag) => tag !== NO_TAG_FILTER
   ).length;
@@ -47,7 +49,7 @@ export default function TagPanel({
       <div className={panelClassName}>
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
-            태그
+            {t("title")}
           </h3>
           <div className="flex items-center gap-2">
             <select
@@ -62,19 +64,19 @@ export default function TagPanel({
                 )
               }
               className="rounded-full border border-slate-600 bg-neutral-50 px-3 py-1.5 text-[13px] font-semibold text-neutral-800 shadow-sm focus:border-blue-500 focus:outline-none dark:border-white/25 dark:bg-white/[0.08] dark:text-white"
-              aria-label="태그 정렬"
+              aria-label={t("sortAria")}
             >
-              <option value="recent">최신</option>
-              <option value="name">이름순</option>
-              <option value="count_desc">많이 쓰인 순</option>
-              <option value="count_asc">적게 쓰인 순</option>
+              <option value="recent">{t("sort.recent")}</option>
+              <option value="name">{t("sort.name")}</option>
+              <option value="count_desc">{t("sort.countDesc")}</option>
+              <option value="count_asc">{t("sort.countAsc")}</option>
             </select>
             {headerAccessory}
           </div>
         </div>
         <div className="mt-2 flex flex-col gap-2 rounded-xl border border-blue-200 bg-blue-50 px-2.5 py-2 text-xs text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200">
           <span className="text-[11px] font-semibold text-neutral-600 dark:text-white/70">
-            {selectedTags.length > 0 ? "선택된 필터" : "태그 필터"}
+            {selectedTags.length > 0 ? t("selectedFilters") : t("filterTitle")}
           </span>
           {selectedTags.length > 0 ? (
             <div className="flex flex-wrap gap-2">
@@ -83,12 +85,14 @@ export default function TagPanel({
                   key={tag}
                   className="inline-flex items-center gap-1 rounded-full border border-neutral-500 bg-neutral-600 px-2 py-1 text-[11px] font-semibold text-white shadow-sm dark:border-white/20 dark:bg-white/15 dark:text-white"
                 >
-                  {tag === NO_TAG_FILTER ? "태그 없음" : `#${tag}`}
+                  {tag === NO_TAG_FILTER ? t("noTag") : `#${tag}`}
                   <button
                     type="button"
                     onClick={() => onToggleSelect(tag)}
                     className="inline-flex h-4 w-4 items-center justify-center rounded-full text-white/70 hover:bg-white/15 hover:text-white"
-                    aria-label={`${tag === NO_TAG_FILTER ? "태그 없음" : tag} 선택 해제`}
+                    aria-label={t("deselectTag", {
+                      tag: tag === NO_TAG_FILTER ? t("noTag") : tag,
+                    })}
                   >
                     ×
                   </button>
@@ -97,11 +101,11 @@ export default function TagPanel({
             </div>
           ) : (
             <div className="rounded-lg border border-dashed border-blue-200/80 bg-white/70 px-3 py-2 text-[11px] text-blue-700/80 dark:border-blue-400/25 dark:bg-white/[0.04] dark:text-blue-100/75">
-              태그를 체크하면 아래 맵 목록이 해당 태그 기준으로 바로 필터링돼요.
+              {t("filterHint")}
             </div>
           )}
           <div className="flex items-center justify-between gap-2">
-            <span>{selectedTags.length}개 선택됨</span>
+            <span>{t("selectedCount", { count: selectedTags.length })}</span>
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -109,7 +113,7 @@ export default function TagPanel({
                 disabled={mergeSelectableCount < 2}
                 className="rounded-full border border-blue-500/70 bg-blue-600 px-2 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:border-blue-200 disabled:bg-blue-100 disabled:text-blue-300 dark:disabled:border-blue-500/20 dark:disabled:bg-blue-500/10 dark:disabled:text-blue-200/40"
               >
-                태그합치기
+                {t("mergeTags")}
               </button>
             </div>
           </div>
@@ -118,7 +122,7 @@ export default function TagPanel({
           <input
             value={tagListQuery}
             onChange={(event) => onTagListQueryChange(event.target.value)}
-            placeholder="태그 검색"
+            placeholder={t("searchPlaceholder")}
             className="w-full rounded-full border border-slate-600 bg-white px-3.5 py-2 pr-9 text-sm text-neutral-800 placeholder:text-neutral-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200/70 dark:border-white/25 dark:bg-white/[0.08] dark:text-white dark:placeholder:text-white/40 dark:focus:border-blue-300 dark:focus:ring-blue-500/20"
           />
           {tagListQuery.trim().length > 0 && (
@@ -126,7 +130,7 @@ export default function TagPanel({
               type="button"
               onClick={() => onTagListQueryChange("")}
               className="absolute right-2 inline-flex h-5 w-5 items-center justify-center rounded-full text-blue-400 hover:bg-blue-100 hover:text-blue-700 dark:text-blue-200/70 dark:hover:bg-blue-500/20"
-              aria-label="검색어 지우기"
+              aria-label={t("clearSearch")}
             >
               ×
             </button>
@@ -149,7 +153,7 @@ export default function TagPanel({
               onClick={(event) => event.stopPropagation()}
               className="h-3.5 w-3.5 rounded border-neutral-400 text-neutral-700"
             />
-            <span className="font-semibold">태그 없음</span>
+            <span className="font-semibold">{t("noTag")}</span>
           </div>
         </button>
         <div className={listClassName}>
@@ -167,7 +171,7 @@ export default function TagPanel({
             {!tagsLoading &&
               tagOptions.length === 0 && (
                 <div className="rounded-xl border border-dashed border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/60">
-                  태그가 없습니다.
+                  {t("empty")}
                 </div>
               )}
             {!tagsLoading && tagOptions.length > 0 && (
@@ -211,7 +215,7 @@ export default function TagPanel({
                             onDeleteTag(tag.name);
                           }}
                           className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-blue-200 text-blue-400 hover:bg-blue-100 hover:text-blue-700 dark:border-blue-500/30 dark:text-blue-200/70 dark:hover:bg-blue-500/20"
-                          aria-label="태그 삭제"
+                          aria-label={t("deleteTagAria")}
                         >
                           ×
                         </button>

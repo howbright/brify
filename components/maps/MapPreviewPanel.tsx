@@ -6,14 +6,31 @@ import MapMiniPreview, {
   type MapMiniPreviewHandle,
 } from "@/components/maps/MapMiniPreview";
 import { useEffect, useRef } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
-function formatDate(draft: MapDraft) {
+type MindNode = {
+  id?: string;
+  topic?: string;
+  expanded?: boolean;
+  children?: MindNode[];
+};
+
+type PreviewMindData =
+  | { nodeData?: MindNode; data?: { nodeData?: MindNode }; root?: { nodeData?: MindNode } }
+  | MindNode
+  | null;
+
+function formatDate(draft: MapDraft, locale: string) {
   const value = draft.updatedAt ?? draft.createdAt;
-  return new Date(value).toLocaleDateString("ko-KR", {
+  return new Date(value).toLocaleDateString(locale, {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   });
+}
+
+function getDisplayTitle(draft: MapDraft) {
+  return draft.shortTitle?.trim() || draft.title;
 }
 
 export default function MapPreviewPanel({
@@ -26,16 +43,18 @@ export default function MapPreviewPanel({
   onClose,
 }: {
   draft: MapDraft | null;
-  previewData: any | null;
+  previewData: PreviewMindData;
   previewStatus: "idle" | "loading" | "loaded" | "missing" | "error";
   emptyMessage: string;
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
 }) {
+  const locale = useLocale();
+  const t = useTranslations("MapsCommon.previewPanel");
   const miniRef = useRef<MapMiniPreviewHandle | null>(null);
   const autoZoomedMapIdRef = useRef<string | null>(null);
-  const summary = draft?.summary ?? draft?.description ?? "요약이 아직 없어요.";
+  const summary = draft?.summary ?? draft?.description ?? t("noSummary");
 
   useEffect(() => {
     if (previewStatus !== "loaded" || !draft?.id) return;
@@ -66,10 +85,10 @@ export default function MapPreviewPanel({
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
-              미리보기 닫힘
+              {t("closedTitle")}
             </h2>
             <p className="mt-1 text-sm text-neutral-600 dark:text-white/70">
-              빠른 비교를 위해 필요하면 다시 열 수 있어요.
+              {t("closedDescription")}
             </p>
           </div>
           <button
@@ -77,7 +96,7 @@ export default function MapPreviewPanel({
             onClick={onOpen}
             className="inline-flex items-center justify-center rounded-full border border-slate-400 bg-white px-3.5 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10"
           >
-            미리보기 열기
+            {t("openPreview")}
           </button>
         </div>
       </aside>
@@ -89,10 +108,10 @@ export default function MapPreviewPanel({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-lg font-semibold text-neutral-900 dark:text-white line-clamp-2">
-            {draft.title}
+            {getDisplayTitle(draft)}
           </h2>
           <div className="mt-1 text-sm text-neutral-600 dark:text-white/70">
-            {formatDate(draft)}
+            {formatDate(draft, locale)}
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -101,13 +120,13 @@ export default function MapPreviewPanel({
             onClick={onClose}
             className="inline-flex items-center justify-center rounded-full border border-slate-400 bg-white px-3.5 py-2 text-sm font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/85 dark:hover:border-white/40 dark:hover:bg-white/10"
           >
-            닫기
+            {t("close")}
           </button>
           <Link
             href={`/maps/${draft.id}`}
             className="inline-flex items-center justify-center rounded-full border border-slate-400 bg-white px-3.5 py-2 text-sm font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/85 dark:hover:border-white/40 dark:hover:bg-white/10"
           >
-            열기
+            {t("open")}
           </Link>
         </div>
       </div>
@@ -128,13 +147,13 @@ export default function MapPreviewPanel({
       <div className="mt-4 relative">
         {previewStatus === "loading" && (
           <div className="flex min-h-[180px] items-center justify-center rounded-2xl border border-slate-400 bg-neutral-50 text-sm text-neutral-600 dark:border-white/20 dark:bg-white/[0.04] dark:text-white/70">
-            미리보기 불러오는 중…
+            {t("loading")}
           </div>
         )}
 
         {previewStatus === "error" && (
           <div className="flex min-h-[180px] items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 text-sm font-medium text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
-            미리보기를 불러오지 못했어요.
+            {t("loadFailed")}
           </div>
         )}
 
@@ -148,7 +167,7 @@ export default function MapPreviewPanel({
 
         {previewStatus === "idle" && (
           <div className="flex min-h-[180px] items-center justify-center rounded-2xl border border-slate-400 bg-neutral-50 text-sm text-neutral-600 dark:border-white/20 dark:bg-white/[0.04] dark:text-white/70">
-            미리보기를 준비 중이에요.
+            {t("idle")}
           </div>
         )}
 

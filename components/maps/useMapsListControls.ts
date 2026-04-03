@@ -6,11 +6,11 @@ import type { MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 type SourceType = "youtube" | "website" | "file" | "manual";
 
 const DATE_PRESETS = [
-  { id: "7d", label: "지난 7일", days: 7 },
-  { id: "30d", label: "지난 30일", days: 30 },
-  { id: "90d", label: "지난 90일", days: 90 },
-  { id: "1y", label: "지난 1년", days: 365 },
-  { id: "all", label: "전체", days: null },
+  { id: "7d", days: 7 },
+  { id: "30d", days: 30 },
+  { id: "90d", days: 90 },
+  { id: "1y", days: 365 },
+  { id: "all", days: null },
 ] as const;
 
 type DatePresetId = (typeof DATE_PRESETS)[number]["id"] | "custom";
@@ -19,6 +19,10 @@ type SortValue = "created_desc" | "created_asc" | "updated_desc" | "title_asc";
 type UseMapsListControlsOptions = {
   statusLabels: Record<MapJobStatus, string>;
   sourceLabels: Record<SourceType, string>;
+  datePresetLabels: Record<Exclude<DatePresetId, "custom">, string>;
+  customDateEmptyLabel: string;
+  customDateFromLabelSuffix: string;
+  customDateToLabelSuffix: string;
 };
 
 function startOfDayIso(value: Date) {
@@ -43,6 +47,10 @@ function parseDateInput(value: string, endOfDay = false) {
 export default function useMapsListControls({
   statusLabels,
   sourceLabels,
+  datePresetLabels,
+  customDateEmptyLabel,
+  customDateFromLabelSuffix,
+  customDateToLabelSuffix,
 }: UseMapsListControlsOptions) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -76,13 +84,20 @@ export default function useMapsListControls({
   const dateLabel = useMemo(() => {
     if (datePreset === "custom") {
       if (customFrom && customTo) return `${customFrom} ~ ${customTo}`;
-      if (customFrom) return `${customFrom} 이후`;
-      if (customTo) return `${customTo} 이전`;
-      return "기간 선택";
+      if (customFrom) return `${customFrom} ${customDateFromLabelSuffix}`;
+      if (customTo) return `${customTo} ${customDateToLabelSuffix}`;
+      return customDateEmptyLabel;
     }
-    const preset = DATE_PRESETS.find((p) => p.id === datePreset);
-    return preset?.label ?? "기간 선택";
-  }, [datePreset, customFrom, customTo]);
+    return datePresetLabels[datePreset];
+  }, [
+    datePreset,
+    customFrom,
+    customTo,
+    customDateEmptyLabel,
+    customDateFromLabelSuffix,
+    customDateToLabelSuffix,
+    datePresetLabels,
+  ]);
 
   const hasActiveFilters =
     statusFilters.length > 0 ||
