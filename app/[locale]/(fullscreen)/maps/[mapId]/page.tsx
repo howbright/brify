@@ -490,11 +490,17 @@ export default function MapDetailPage() {
 
       setIsSavingDraft(true);
       try {
-        await fetch(`/api/maps/${mapId}/draft`, {
+        const res = await fetch(`/api/maps/${mapId}/draft`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mind_elixir_draft: snapshot }),
         });
+        if (!res.ok) {
+          const json = (await res.json().catch(() => null)) as
+            | { error?: string }
+            | null;
+          throw new Error(json?.error || `AUTO_SAVE_FAILED_${res.status}`);
+        }
         lastSavedDraftRef.current = payload;
         setHasDraft(true);
         setSavedPulse(true);
@@ -504,11 +510,15 @@ export default function MapDetailPage() {
         savedPulseTimerRef.current = window.setTimeout(() => {
           setSavedPulse(false);
         }, 1200);
-      } catch {
+      } catch (error) {
         const now = Date.now();
         if (now - lastAutoSaveErrorRef.current > 10_000) {
           lastAutoSaveErrorRef.current = now;
-          toast.message("자동 저장에 실패했습니다.");
+          const message =
+            error instanceof Error && error.message.trim()
+              ? error.message
+              : "자동 저장에 실패했습니다.";
+          toast.message(message);
         }
       } finally {
         setIsSavingDraft(false);
