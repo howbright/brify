@@ -16,6 +16,8 @@ type MapsRecentSectionsProps = {
   recentInterestTags: RecentInterestTag[];
   getDisplayTitle: (draft: MapDraft) => string;
   onOpenDetail: (draft: MapDraft) => void;
+  onPrefetchDetail?: (draft: MapDraft) => void;
+  openingDetailId?: string | null;
   onSelectInterestTag: (tagName: string) => void;
 };
 
@@ -26,6 +28,8 @@ export default function MapsRecentSections({
   recentInterestTags,
   getDisplayTitle,
   onOpenDetail,
+  onPrefetchDetail,
+  openingDetailId,
   onSelectInterestTag,
 }: MapsRecentSectionsProps) {
   const t = useTranslations("MapsCommon.recent");
@@ -60,7 +64,7 @@ export default function MapsRecentSections({
 
   return (
     <div className="mt-4 mb-3 grid gap-3 md:grid-cols-2">
-      <section className="overflow-hidden rounded-[22px] border border-blue-200 bg-white px-4 py-3 shadow-sm dark:border-sky-400/20 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.86),rgba(10,19,32,0.94))] dark:shadow-[0_22px_48px_-34px_rgba(2,6,23,0.95)]">
+      <section className="overflow-hidden rounded-[22px] border border-blue-200 bg-white px-4 py-3 shadow-sm dark:border-sky-400/12 dark:bg-[linear-gradient(180deg,rgba(20,31,46,0.78),rgba(15,24,38,0.86))] dark:shadow-[0_18px_38px_-30px_rgba(2,6,23,0.82)]">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
@@ -71,7 +75,7 @@ export default function MapsRecentSections({
             <button
               type="button"
               onClick={() => onToggleCollapsed(true)}
-              className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-600 transition hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.07] dark:text-white/75 dark:hover:bg-white/[0.11]"
+            className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-600 transition hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/72 dark:hover:bg-white/[0.09]"
               aria-label={t("collapseAria")}
             >
               <span>{t("collapse")}</span>
@@ -87,20 +91,28 @@ export default function MapsRecentSections({
               type="button"
               onClick={() => {
                 if (draft.status !== "done") return;
+                if (openingDetailId === draft.id) return;
                 onOpenDetail(draft);
               }}
-              disabled={draft.status !== "done"}
-              className="inline-flex min-w-0 max-w-full items-center rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/12 dark:bg-white/[0.08] dark:text-white/82 dark:hover:border-blue-400/25 dark:hover:bg-blue-500/14 dark:hover:text-blue-200"
+              onMouseEnter={() => onPrefetchDetail?.(draft)}
+              onFocus={() => onPrefetchDetail?.(draft)}
+              disabled={draft.status !== "done" || openingDetailId === draft.id}
+              className="inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/80 dark:hover:border-blue-400/20 dark:hover:bg-blue-500/12 dark:hover:text-blue-200"
             >
+              {openingDetailId === draft.id && (
+                <Icon icon="mdi:loading" className="h-3.5 w-3.5 animate-spin shrink-0" />
+              )}
               <span className="min-w-0 max-w-[min(62vw,220px)] truncate sm:max-w-[280px]">
-                {getDisplayTitle(draft)}
+                {openingDetailId === draft.id
+                  ? t("opening")
+                  : getDisplayTitle(draft)}
               </span>
             </button>
           ))}
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-[22px] border border-emerald-200 bg-white px-4 py-3 shadow-sm dark:border-emerald-400/20 dark:bg-[linear-gradient(180deg,rgba(13,24,29,0.88),rgba(10,20,25,0.95))] dark:shadow-[0_22px_48px_-34px_rgba(2,6,23,0.95)]">
+      <section className="overflow-hidden rounded-[22px] border border-emerald-200 bg-white px-4 py-3 shadow-sm dark:border-emerald-400/12 dark:bg-[linear-gradient(180deg,rgba(16,29,30,0.78),rgba(12,23,24,0.86))] dark:shadow-[0_18px_38px_-30px_rgba(2,6,23,0.82)]">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
@@ -111,7 +123,7 @@ export default function MapsRecentSections({
             <button
               type="button"
               onClick={() => onToggleCollapsed(true)}
-              className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-600 transition hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.07] dark:text-white/75 dark:hover:bg-white/[0.11]"
+            className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-600 transition hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/72 dark:hover:bg-white/[0.09]"
               aria-label={t("collapseAria")}
             >
               <span>{t("collapse")}</span>
@@ -127,7 +139,7 @@ export default function MapsRecentSections({
                 key={`interest-${tag.name}`}
                 type="button"
                 onClick={() => onSelectInterestTag(tag.name)}
-                className="inline-flex min-w-0 max-w-full items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[12px] font-semibold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 dark:border-emerald-400/24 dark:bg-emerald-500/12 dark:text-emerald-200 dark:hover:border-emerald-300/34 dark:hover:bg-emerald-500/22"
+                className="inline-flex min-w-0 max-w-full items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[12px] font-semibold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 dark:border-emerald-400/16 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:border-emerald-300/26 dark:hover:bg-emerald-500/18"
               >
                 <span className="min-w-0 max-w-[min(56vw,180px)] truncate sm:max-w-[220px]">
                   #{tag.name}

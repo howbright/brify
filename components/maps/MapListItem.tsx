@@ -134,6 +134,8 @@ export default function MapListItem({
   const displayTitle = getDisplayTitle(draft);
   const visibleTags = draft.tags?.slice(0, 6) ?? [];
   const remainingTagCount = Math.max((draft.tags?.length ?? 0) - visibleTags.length, 0);
+  const notesCount = draft.notesCount ?? 0;
+  const termsCount = draft.termsCount ?? 0;
   const hasTopActionMenu = Boolean(onDelete);
   const isOpeningDetail = openingDetailId === draft.id;
 
@@ -181,7 +183,7 @@ export default function MapListItem({
         ${
           isActive
             ? "border-blue-300 bg-blue-50/70 shadow-sm dark:border-blue-300/50 dark:bg-[rgba(37,99,235,0.18)] dark:shadow-[0_18px_36px_-24px_rgba(37,99,235,0.45)]"
-            : "border-slate-400 bg-white hover:bg-neutral-50 dark:border-slate-300/18 dark:bg-[linear-gradient(180deg,rgba(26,36,52,0.94),rgba(17,24,39,0.98))] dark:shadow-[0_24px_48px_-28px_rgba(2,6,23,0.96)] dark:hover:border-sky-300/18 dark:hover:bg-[linear-gradient(180deg,rgba(31,43,63,0.98),rgba(20,30,48,1))]"
+            : "border-slate-400 bg-white hover:bg-neutral-50 dark:border-sky-200/14 dark:bg-[linear-gradient(180deg,rgba(13,20,32,0.98),rgba(8,14,24,1))] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_26px_52px_-34px_rgba(2,6,23,0.96)] dark:hover:border-sky-300/24 dark:hover:bg-[linear-gradient(180deg,rgba(18,28,43,0.99),rgba(11,18,29,1))] dark:hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_30px_58px_-34px_rgba(2,6,23,0.98)]"
         }`}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2.5 md:gap-3">
@@ -197,7 +199,7 @@ export default function MapListItem({
                 aria-label={t("selectAria", { title: displayTitle })}
               />
             )}
-            <h3 className="min-w-0 text-[14px] font-medium leading-5 text-neutral-800 line-clamp-2 dark:text-white/85 md:text-[16px] md:font-semibold md:leading-6 md:text-neutral-900 md:dark:text-white">
+            <h3 className="min-w-0 text-[14px] font-medium leading-5 text-neutral-800 line-clamp-2 dark:text-white/92 md:text-[16px] md:font-semibold md:leading-6 md:text-neutral-900 md:dark:text-white/95">
               {displayTitle}
             </h3>
           </div>
@@ -212,7 +214,7 @@ export default function MapListItem({
                   event.stopPropagation();
                   setMenuOpen((v) => !v);
                 }}
-                className="inline-flex items-center justify-center rounded-full border border-slate-400 bg-white p-1.5 text-neutral-500 hover:bg-neutral-50 dark:border-white/16 dark:bg-white/[0.08] dark:text-white/70 dark:hover:bg-white/12"
+                className="inline-flex items-center justify-center rounded-full border border-slate-400 bg-white p-1.5 text-neutral-500 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/62 dark:hover:bg-white/[0.08]"
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
                 aria-label="More actions"
@@ -223,7 +225,7 @@ export default function MapListItem({
               {menuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 mt-2 min-w-[140px] rounded-2xl border border-slate-400 bg-white p-1 shadow-lg dark:border-white/16 dark:bg-[#111a2b]"
+                  className="absolute right-0 mt-2 min-w-[140px] rounded-2xl border border-slate-400 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0c1523]"
                   onClick={(event) => event.stopPropagation()}
                 >
                   <button
@@ -250,7 +252,7 @@ export default function MapListItem({
         ) : null}
 
         <div className="flex min-w-0 items-start gap-2.5 md:gap-3">
-          <div className="aspect-video w-20 shrink-0 overflow-hidden rounded-lg border border-slate-400 bg-neutral-50 dark:border-white/16 dark:bg-white/[0.06] md:w-24 md:rounded-xl">
+          <div className="aspect-video w-20 shrink-0 overflow-hidden rounded-lg border border-slate-400 bg-neutral-50 dark:border-white/12 dark:bg-white/[0.04] md:w-24 md:rounded-xl">
             {draft.thumbnailUrl ? (
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -336,6 +338,17 @@ export default function MapListItem({
                   )}
                 </>
               )}
+            </div>
+
+            <div className="mt-2 flex flex-wrap items-center gap-1.5 md:mt-2.5 md:gap-2">
+              <span className="inline-flex items-center gap-1 rounded-md border border-neutral-200/80 bg-neutral-50/90 px-1.5 py-0.5 text-[11px] font-medium text-neutral-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/68 md:px-2 md:py-1 md:text-[12px]">
+                <Icon icon="mdi:note-text-outline" className="h-3.5 w-3.5 shrink-0" />
+                <span>{t("notesCount", { count: notesCount })}</span>
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-md border border-neutral-200/80 bg-neutral-50/90 px-1.5 py-0.5 text-[11px] font-medium text-neutral-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/68 md:px-2 md:py-1 md:text-[12px]">
+                <Icon icon="mdi:book-outline" className="h-3.5 w-3.5 shrink-0" />
+                <span>{t("termsCount", { count: termsCount })}</span>
+              </span>
             </div>
           </div>
         </div>

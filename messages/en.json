@@ -1550,6 +1550,10 @@
   }
   ,
   "MapsCommon": {
+    "content": {
+      "notes": "Has notes",
+      "terms": "Has terms"
+    },
     "status": {
       "idle": "Idle",
       "queued": "Queued",
@@ -1564,10 +1568,12 @@
       "manual": "Manual"
     },
     "datePreset": {
+      "today": "Today",
       "7d": "Last 7 days",
       "30d": "Last 30 days",
       "90d": "Last 90 days",
       "1y": "Last 1 year",
+      "month": "This month",
       "all": "All",
       "customEmpty": "Select date range",
       "after": "after",
@@ -1586,6 +1592,7 @@
       "summary": {
         "status": "Status {value}",
         "source": "Source {value}",
+        "content": "Content {value}",
         "tag": "Tag {value}"
       },
       "previewOn": "Preview on",
@@ -1614,23 +1621,28 @@
       "expand": "Expand",
       "collapseAria": "Collapse recent sections",
       "collapse": "Collapse",
+      "opening": "Opening...",
       "emptyInterestTags": "There are not enough tags collected from recent maps yet."
     },
     "filterPopover": {
       "presets": {
+        "today": "Today",
         "7d": "Last 7 days",
         "30d": "Last 30 days",
         "90d": "Last 90 days",
         "1y": "Last 1 year",
+        "month": "This month",
         "all": "All"
       },
       "sections": {
         "date": "Date",
         "status": "Status",
         "source": "Source type",
+        "content": "Content",
         "tag": "Tag"
       },
       "custom": "Custom",
+      "clearDate": "Clear date",
       "status": {
         "processing": "Processing",
         "done": "Done",
@@ -1641,6 +1653,10 @@
         "website": "Web",
         "file": "File",
         "manual": "Manual"
+      },
+      "content": {
+        "notes": "Has notes",
+        "terms": "Has terms"
       },
       "tagLoading": "Loading tags…",
       "tagEmpty": "No tags available."
@@ -1686,6 +1702,8 @@
       "delete": "Delete",
       "editTags": "Edit tags",
       "noTag": "No tag",
+      "notesCount": "Notes {count}",
+      "termsCount": "Terms {count}",
       "opening": "Opening...",
       "open": "Open"
     },

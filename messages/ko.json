@@ -1550,6 +1550,10 @@
   }
   ,
   "MapsCommon": {
+    "content": {
+      "notes": "노트 있음",
+      "terms": "용어 있음"
+    },
     "status": {
       "idle": "대기중",
       "queued": "대기중",
@@ -1564,10 +1568,12 @@
       "manual": "수동"
     },
     "datePreset": {
+      "today": "오늘",
       "7d": "최근 7일",
       "30d": "최근 30일",
       "90d": "최근 90일",
       "1y": "최근 1년",
+      "month": "이번 달",
       "all": "전체",
       "customEmpty": "기간 선택",
       "after": "이후",
@@ -1586,6 +1592,7 @@
       "summary": {
         "status": "상태 {value}",
         "source": "소스 {value}",
+        "content": "내용 {value}",
         "tag": "태그 {value}"
       },
       "previewOn": "프리뷰 켜기",
@@ -1614,23 +1621,28 @@
       "expand": "펼치기",
       "collapseAria": "최근 섹션 접기",
       "collapse": "접기",
+      "opening": "이동 중...",
       "emptyInterestTags": "최근 맵에서 태그가 아직 충분히 쌓이지 않았어요."
     },
     "filterPopover": {
       "presets": {
+        "today": "오늘",
         "7d": "최근 7일",
         "30d": "최근 30일",
         "90d": "최근 90일",
         "1y": "최근 1년",
+        "month": "이번 달",
         "all": "전체"
       },
       "sections": {
         "date": "기간",
         "status": "상태",
         "source": "소스 타입",
+        "content": "내용",
         "tag": "태그"
       },
       "custom": "직접 선택",
+      "clearDate": "기간 지우기",
       "status": {
         "processing": "진행중",
         "done": "완료",
@@ -1641,6 +1653,10 @@
         "website": "웹",
         "file": "파일",
         "manual": "수동"
+      },
+      "content": {
+        "notes": "노트 있음",
+        "terms": "용어 있음"
       },
       "tagLoading": "태그 불러오는 중…",
       "tagEmpty": "사용할 수 있는 태그가 없어요."
@@ -1686,6 +1702,8 @@
       "delete": "삭제",
       "editTags": "태그 편집",
       "noTag": "태그 없음",
+      "notesCount": "노트 {count}",
+      "termsCount": "용어 {count}",
       "opening": "여는 중...",
       "open": "열기"
     },

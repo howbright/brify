@@ -5,12 +5,15 @@ import { useTranslations } from "next-intl";
 import type { MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 
 type SourceType = "youtube" | "website" | "file" | "manual";
+type ContentFilter = "notes" | "terms";
 
 const DATE_PRESETS = [
+  { id: "today", labelKey: "presets.today" },
   { id: "7d", labelKey: "presets.7d" },
   { id: "30d", labelKey: "presets.30d" },
   { id: "90d", labelKey: "presets.90d" },
   { id: "1y", labelKey: "presets.1y" },
+  { id: "month", labelKey: "presets.month" },
   { id: "all", labelKey: "presets.all" },
 ] as const;
 
@@ -21,10 +24,13 @@ type MapFilterPopoverProps = {
   customTo: string;
   onCustomFromChange: (value: string) => void;
   onCustomToChange: (value: string) => void;
+  onResetDateFilter: () => void;
   statusFilters: MapJobStatus[];
   onToggleStatus: (value: MapJobStatus) => void;
   sourceFilters: SourceType[];
   onToggleSource: (value: SourceType) => void;
+  contentFilters: ContentFilter[];
+  onToggleContent: (value: ContentFilter) => void;
   tagFilters: string[];
   tagOptions: Array<{ name: string; count: number }>;
   tagsLoading: boolean;
@@ -41,10 +47,13 @@ export default function MapFilterPopover({
   customTo,
   onCustomFromChange,
   onCustomToChange,
+  onResetDateFilter,
   statusFilters,
   onToggleStatus,
   sourceFilters,
   onToggleSource,
+  contentFilters,
+  onToggleContent,
   tagFilters,
   tagOptions,
   tagsLoading,
@@ -66,6 +75,10 @@ export default function MapFilterPopover({
         )
       : undefined;
   const desktopTop = anchorRect ? anchorRect.bottom + 8 : undefined;
+  const desktopMaxHeight =
+    anchorRect && typeof window !== "undefined"
+      ? Math.max(280, window.innerHeight - desktopTop! - 24)
+      : undefined;
 
   return createPortal(
     <>
@@ -81,6 +94,7 @@ export default function MapFilterPopover({
                 width: desktopWidth,
                 left: desktopLeft,
                 top: desktopTop,
+                maxHeight: desktopMaxHeight,
               }
             : undefined
         }
@@ -90,7 +104,7 @@ export default function MapFilterPopover({
             <div className="font-semibold text-neutral-800 dark:text-white">
               {t("sections.date")}
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {DATE_PRESETS.map((preset) => (
                 <button
                   key={preset.id}
@@ -117,20 +131,83 @@ export default function MapFilterPopover({
                 {t("custom")}
               </button>
             </div>
-            <div className="flex flex-wrap items-center gap-2 justify-end">
-              <input
-                type="date"
-                value={customFrom}
-                onChange={(event) => onCustomFromChange(event.target.value)}
-                className="rounded-full border border-slate-400 bg-white px-3 py-1 text-xs text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
-              />
-              <span className="text-neutral-400">~</span>
-              <input
-                type="date"
-                value={customTo}
-                onChange={(event) => onCustomToChange(event.target.value)}
-                className="rounded-full border border-slate-400 bg-white px-3 py-1 text-xs text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
-              />
+            {datePreset === "custom" && (
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  type="date"
+                  value={customFrom}
+                  max={customTo || undefined}
+                  onChange={(event) => onCustomFromChange(event.target.value)}
+                  className="rounded-full border border-slate-400 bg-white px-3 py-1 text-xs text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
+                />
+                <span className="text-neutral-400">~</span>
+                <input
+                  type="date"
+                  value={customTo}
+                  min={customFrom || undefined}
+                  onChange={(event) => onCustomToChange(event.target.value)}
+                  className="rounded-full border border-slate-400 bg-white px-3 py-1 text-xs text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
+                />
+                <button
+                  type="button"
+                  onClick={onResetDateFilter}
+                  className="rounded-full border border-slate-300 bg-neutral-50 px-3 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-100 dark:border-white/16 dark:bg-white/[0.04] dark:text-white/72 dark:hover:bg-white/[0.08]"
+                >
+                  {t("clearDate")}
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <div className="font-semibold text-neutral-800 dark:text-white">
+              {t("sections.source")}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(
+                [
+                  { id: "youtube", label: t("source.youtube") },
+                  { id: "manual", label: t("source.manual") },
+                ] as const
+              ).map((item) => (
+                <label
+                  key={item.id}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-400 bg-white px-3 py-1 text-xs text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
+                >
+                  <input
+                    type="checkbox"
+                    checked={sourceFilters.includes(item.id)}
+                    onChange={() => onToggleSource(item.id)}
+                  />
+                  {item.label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <div className="font-semibold text-neutral-800 dark:text-white">
+              {t("sections.content")}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(
+                [
+                  { id: "notes", label: t("content.notes") },
+                  { id: "terms", label: t("content.terms") },
+                ] as const
+              ).map((item) => (
+                <label
+                  key={item.id}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-400 bg-white px-3 py-1 text-xs text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
+                >
+                  <input
+                    type="checkbox"
+                    checked={contentFilters.includes(item.id)}
+                    onChange={() => onToggleContent(item.id)}
+                  />
+                  {item.label}
+                </label>
+              ))}
             </div>
           </div>
 
@@ -154,34 +231,6 @@ export default function MapFilterPopover({
                     type="checkbox"
                     checked={statusFilters.includes(item.id)}
                     onChange={() => onToggleStatus(item.id)}
-                  />
-                  {item.label}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <div className="font-semibold text-neutral-800 dark:text-white">
-              {t("sections.source")}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {(
-                [
-                  { id: "youtube", label: t("source.youtube") },
-                  { id: "website", label: t("source.website") },
-                  { id: "file", label: t("source.file") },
-                  { id: "manual", label: t("source.manual") },
-                ] as const
-              ).map((item) => (
-                <label
-                  key={item.id}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-400 bg-white px-3 py-1 text-xs text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
-                >
-                  <input
-                    type="checkbox"
-                    checked={sourceFilters.includes(item.id)}
-                    onChange={() => onToggleSource(item.id)}
                   />
                   {item.label}
                 </label>

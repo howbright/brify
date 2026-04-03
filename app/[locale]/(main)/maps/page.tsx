@@ -48,7 +48,7 @@ type MapRow = Database["public"]["Tables"]["maps"]["Row"];
 type SourceType = "youtube" | "website" | "file" | "manual";
 
 const LIST_FIELDS =
-  "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
+  "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,notes_count,terms_count";
 const PAGE_SIZE = 20;
 const NO_TAG_FILTER = "__NO_TAG__";
 
@@ -81,6 +81,8 @@ function toDraft(row: MapRow): MapDraft {
     channelName: row.channel_name ?? undefined,
     thumbnailUrl: row.thumbnail_url ? withCacheBuster(row.thumbnail_url) : undefined,
     tags: Array.isArray(row.tags) ? row.tags : [],
+    notesCount: typeof row.notes_count === "number" ? row.notes_count : 0,
+    termsCount: typeof row.terms_count === "number" ? row.terms_count : 0,
     description: row.description ?? undefined,
     summary: row.summary ?? undefined,
     status: coerceMapStatus(row.map_status),
@@ -273,6 +275,13 @@ export default function MapsPage() {
     }),
     [tCommon]
   );
+  const contentLabels = useMemo(
+    () => ({
+      notes: tCommon("content.notes"),
+      terms: tCommon("content.terms"),
+    }),
+    [tCommon]
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -346,23 +355,31 @@ export default function MapsPage() {
     setStatusFilters,
     sourceFilters,
     setSourceFilters,
+    contentFilters,
+    setContentFilters,
     dateRange,
     dateLabel,
+    hasActiveDateFilter,
     statusSummary,
     sourceSummary,
+    contentSummary,
     toggleArrayValue,
     onQueryChange,
     onClearQuery,
     onSortChange,
     onResetFilters,
+    onResetDateFilter,
   } = useMapsListControls({
     statusLabels,
     sourceLabels,
+    contentLabels,
     datePresetLabels: {
+      today: tCommon("datePreset.today"),
       "7d": tCommon("datePreset.7d"),
       "30d": tCommon("datePreset.30d"),
       "90d": tCommon("datePreset.90d"),
       "1y": tCommon("datePreset.1y"),
+      month: tCommon("datePreset.month"),
       all: tCommon("datePreset.all"),
     },
     customDateEmptyLabel: tCommon("datePreset.customEmpty"),
@@ -410,6 +427,7 @@ export default function MapsPage() {
     dateRange,
     statusFilters,
     sourceFilters,
+    contentFilters,
     updateDrafts: (updater) => setDrafts(updater),
     setPage,
     noTagFilter: NO_TAG_FILTER,
@@ -433,6 +451,7 @@ export default function MapsPage() {
     dateRange,
     statusFilters,
     sourceFilters,
+    contentFilters,
     locale,
     toDraft,
   });
@@ -535,8 +554,9 @@ export default function MapsPage() {
   const hasActiveFilters =
     statusFilters.length > 0 ||
     sourceFilters.length > 0 ||
+    contentFilters.length > 0 ||
     tagFilters.length > 0 ||
-    datePreset !== "30d";
+    hasActiveDateFilter;
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(totalCount / PAGE_SIZE)),
     [totalCount]
@@ -582,6 +602,8 @@ export default function MapsPage() {
       recentInterestTags={recentInterestTags}
       getDisplayTitle={getMapListDisplayTitle}
       onOpenDetail={handleOpenDetail}
+      onPrefetchDetail={handlePrefetchDetail}
+      openingDetailId={openingDetailId}
       onSelectInterestTag={(tagName) => {
         setTagFilters([tagName]);
         setSelectedTagNames([tagName]);
@@ -676,7 +698,7 @@ export default function MapsPage() {
             >
               <div
                 ref={toolbarInnerRef}
-                className="w-full rounded-2xl bg-neutral-50/95 backdrop-blur supports-[backdrop-filter]:bg-neutral-50/80 dark:border dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(10,18,32,0.95),rgba(7,17,31,0.98))] dark:shadow-[0_24px_50px_-36px_rgba(2,6,23,0.95)] dark:supports-[backdrop-filter]:bg-[linear-gradient(180deg,rgba(10,18,32,0.9),rgba(7,17,31,0.96))]"
+                className="w-full rounded-2xl bg-neutral-50/95 backdrop-blur supports-[backdrop-filter]:bg-neutral-50/80 dark:border-0 dark:bg-transparent dark:shadow-none dark:supports-[backdrop-filter]:bg-transparent"
                 style={
                   toolbarPinned
                     ? {
@@ -701,6 +723,7 @@ export default function MapsPage() {
                   bulkDeleting={bulkDeleting}
                   statusSummary={statusSummary}
                   sourceSummary={sourceSummary}
+                  contentSummary={contentSummary}
                   tagSummary={tagSummary}
                   dateLabel={dateLabel}
                   datePreset={datePreset}
@@ -773,8 +796,9 @@ export default function MapsPage() {
                   showResetFilters={
                     statusFilters.length > 0 ||
                     sourceFilters.length > 0 ||
+                    contentFilters.length > 0 ||
                     tagFilters.length > 0 ||
-                    datePreset !== "30d"
+                    hasActiveDateFilter
                   }
                   onResetFilters={() => {
                     onResetFilters();
@@ -798,14 +822,21 @@ export default function MapsPage() {
                       customTo={customTo}
                       onCustomFromChange={(value) => {
                         setCustomFrom(value);
+                        if (value && customTo && value > customTo) {
+                          setCustomTo(value);
+                        }
                         setDatePreset("custom");
                         setPage(1);
                       }}
                       onCustomToChange={(value) => {
                         setCustomTo(value);
+                        if (value && customFrom && value < customFrom) {
+                          setCustomFrom(value);
+                        }
                         setDatePreset("custom");
                         setPage(1);
                       }}
+                      onResetDateFilter={onResetDateFilter}
                       statusFilters={statusFilters}
                       onToggleStatus={(value) => {
                         toggleArrayValue(value, setStatusFilters);
@@ -814,6 +845,11 @@ export default function MapsPage() {
                       sourceFilters={sourceFilters}
                       onToggleSource={(value) => {
                         toggleArrayValue(value, setSourceFilters);
+                        setPage(1);
+                      }}
+                      contentFilters={contentFilters}
+                      onToggleContent={(value) => {
+                        toggleArrayValue(value, setContentFilters);
                         setPage(1);
                       }}
                       tagFilters={tagFilters}

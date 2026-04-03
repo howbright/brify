@@ -4,12 +4,15 @@ import { useMemo, useState } from "react";
 import type { MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 
 type SourceType = "youtube" | "website" | "file" | "manual";
+type ContentFilter = "notes" | "terms";
 
 const DATE_PRESETS = [
+  { id: "today", days: 1 },
   { id: "7d", days: 7 },
   { id: "30d", days: 30 },
   { id: "90d", days: 90 },
   { id: "1y", days: 365 },
+  { id: "month", days: null },
   { id: "all", days: null },
 ] as const;
 
@@ -19,6 +22,7 @@ type SortValue = "created_desc" | "created_asc" | "updated_desc" | "title_asc";
 type UseMapsListControlsOptions = {
   statusLabels: Record<MapJobStatus, string>;
   sourceLabels: Record<SourceType, string>;
+  contentLabels: Record<ContentFilter, string>;
   datePresetLabels: Record<Exclude<DatePresetId, "custom">, string>;
   customDateEmptyLabel: string;
   customDateFromLabelSuffix: string;
@@ -47,6 +51,7 @@ function parseDateInput(value: string, endOfDay = false) {
 export default function useMapsListControls({
   statusLabels,
   sourceLabels,
+  contentLabels,
   datePresetLabels,
   customDateEmptyLabel,
   customDateFromLabelSuffix,
@@ -61,6 +66,7 @@ export default function useMapsListControls({
   const [customTo, setCustomTo] = useState("");
   const [statusFilters, setStatusFilters] = useState<MapJobStatus[]>([]);
   const [sourceFilters, setSourceFilters] = useState<SourceType[]>([]);
+  const [contentFilters, setContentFilters] = useState<ContentFilter[]>([]);
 
   const dateRange = useMemo(() => {
     if (datePreset === "all") return { from: null, to: null };
@@ -68,6 +74,14 @@ export default function useMapsListControls({
       return {
         from: parseDateInput(customFrom, false),
         to: parseDateInput(customTo, true),
+      };
+    }
+    if (datePreset === "month") {
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      return {
+        from: startOfDayIso(monthStart),
+        to: endOfDayIso(now),
       };
     }
     const preset = DATE_PRESETS.find((p) => p.id === datePreset);
@@ -99,10 +113,15 @@ export default function useMapsListControls({
     datePresetLabels,
   ]);
 
+  const hasActiveDateFilter =
+    datePreset !== "30d" &&
+    !(datePreset === "custom" && !customFrom && !customTo);
+
   const hasActiveFilters =
     statusFilters.length > 0 ||
     sourceFilters.length > 0 ||
-    datePreset !== "30d";
+    contentFilters.length > 0 ||
+    hasActiveDateFilter;
 
   const statusSummary =
     statusFilters.length > 0
@@ -112,6 +131,11 @@ export default function useMapsListControls({
   const sourceSummary =
     sourceFilters.length > 0
       ? sourceFilters.map((value) => sourceLabels[value]).join(", ")
+      : null;
+
+  const contentSummary =
+    contentFilters.length > 0
+      ? contentFilters.map((value) => contentLabels[value]).join(", ")
       : null;
 
   const toggleArrayValue = <T,>(
@@ -145,6 +169,14 @@ export default function useMapsListControls({
     setCustomTo("");
     setStatusFilters([]);
     setSourceFilters([]);
+    setContentFilters([]);
+    setPage(1);
+  };
+
+  const onResetDateFilter = () => {
+    setDatePreset("30d");
+    setCustomFrom("");
+    setCustomTo("");
     setPage(1);
   };
 
@@ -167,15 +199,20 @@ export default function useMapsListControls({
     setStatusFilters,
     sourceFilters,
     setSourceFilters,
+    contentFilters,
+    setContentFilters,
     dateRange,
     dateLabel,
+    hasActiveDateFilter,
     hasActiveFilters,
     statusSummary,
     sourceSummary,
+    contentSummary,
     toggleArrayValue,
     onQueryChange,
     onClearQuery,
     onSortChange,
     onResetFilters,
+    onResetDateFilter,
   };
 }

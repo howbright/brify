@@ -17,6 +17,8 @@ export type MapDraft = {
   shortTitle?: string;
   channelName?: string;
   tags: string[];
+  notesCount?: number;
+  termsCount?: number;
   description?: string;
   summary?: string;
   sourceCharCount?: number;
