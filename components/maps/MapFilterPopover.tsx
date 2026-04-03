@@ -1,5 +1,6 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import type { MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 
 type SourceType = "youtube" | "website" | "file" | "manual";
@@ -29,6 +30,7 @@ type MapFilterPopoverProps = {
   onToggleTag: (value: string) => void;
   showTagFilters?: boolean;
   onClose: () => void;
+  anchorRect?: DOMRect | null;
 };
 
 export default function MapFilterPopover({
@@ -48,14 +50,39 @@ export default function MapFilterPopover({
   onToggleTag,
   showTagFilters = true,
   onClose,
+  anchorRect,
 }: MapFilterPopoverProps) {
-  return (
+  if (typeof document === "undefined") return null;
+
+  const desktopWidth =
+    typeof window !== "undefined" ? Math.min(560, window.innerWidth * 0.9) : 560;
+  const desktopLeft =
+    anchorRect && typeof window !== "undefined"
+      ? Math.max(
+          16,
+          Math.min(anchorRect.right - desktopWidth, window.innerWidth - desktopWidth - 16)
+        )
+      : undefined;
+  const desktopTop = anchorRect ? anchorRect.bottom + 8 : undefined;
+
+  return createPortal(
     <>
       <div
-        className="fixed inset-0 z-30 md:top-[140px]"
+        className="fixed inset-0 z-[80] md:top-[140px]"
         onClick={onClose}
       />
-      <div className="fixed inset-x-4 top-[140px] z-40 mt-2 w-auto max-h-[70vh] overflow-y-auto rounded-2xl border border-slate-400 bg-white p-4 text-xs text-neutral-700 shadow-lg dark:border-white/20 dark:bg-[#0b1220]/95 dark:text-white/80 md:absolute md:inset-auto md:right-0 md:top-full md:w-[min(560px,90vw)] md:max-h-[60vh]">
+      <div
+        className="fixed inset-x-4 top-[140px] z-[90] mt-2 w-auto max-h-[70vh] overflow-y-auto rounded-2xl border border-slate-400 bg-white p-4 text-xs text-neutral-700 shadow-lg dark:border-white/20 dark:bg-[#0b1220]/95 dark:text-white/80 md:inset-x-auto md:mt-0 md:max-h-[60vh]"
+        style={
+          typeof window !== "undefined" && window.innerWidth >= 768
+            ? {
+                width: desktopWidth,
+                left: desktopLeft,
+                top: desktopTop,
+              }
+            : undefined
+        }
+      >
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <div className="font-semibold text-neutral-800 dark:text-white">
@@ -197,6 +224,7 @@ export default function MapFilterPopover({
           )}
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 }

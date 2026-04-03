@@ -163,10 +163,10 @@ export default function MapTableList({
                           event.stopPropagation();
                           onEditTags(draft);
                         }}
-                        className="inline-flex shrink-0 items-center gap-1 rounded-full border border-blue-500/70 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700 dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200"
+                        className="inline-flex shrink-0 items-center gap-1 rounded-md px-1 py-0.5 text-[11px] font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-200 dark:hover:bg-blue-500/10"
                       >
                         <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
-                        편집
+                        태그 편집
                       </button>
                     )}
                   </div>
@@ -288,10 +288,10 @@ export default function MapTableList({
                             event.stopPropagation();
                             onEditTags(draft);
                           }}
-                          className="inline-flex items-center gap-1 self-center rounded-full border border-blue-500/70 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700 hover:bg-blue-100 cursor-pointer dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25"
+                          className="inline-flex items-center gap-1 self-start rounded-md px-1 py-0.5 text-[11px] font-medium text-blue-700 hover:bg-blue-50 cursor-pointer dark:text-blue-200 dark:hover:bg-blue-500/10"
                         >
                           <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
-                          편집
+                          태그 편집
                         </button>
                     )}
                   </div>

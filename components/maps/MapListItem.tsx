@@ -177,7 +177,7 @@ export default function MapListItem({
                 aria-label={`${displayTitle} 선택`}
               />
             )}
-            <h3 className="min-w-0 text-[14px] font-medium leading-5 text-neutral-800 line-clamp-2 dark:text-white/85 md:text-[17px] md:font-semibold md:leading-6 md:text-neutral-900 md:dark:text-white">
+            <h3 className="min-w-0 text-[14px] font-medium leading-5 text-neutral-800 line-clamp-2 dark:text-white/85 md:text-[16px] md:font-semibold md:leading-6 md:text-neutral-900 md:dark:text-white">
               {displayTitle}
             </h3>
           </div>
@@ -287,10 +287,11 @@ export default function MapListItem({
                         event.stopPropagation();
                         onEditTags(draft);
                       }}
-                      className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-blue-500/70 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25 md:h-8 md:w-8"
+                      className="inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-[11px] font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-200 dark:hover:bg-blue-500/10"
                       aria-label="태그 편집"
                     >
                       <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
+                      <span>태그 편집</span>
                     </button>
                   )}
                 </>
@@ -306,10 +307,11 @@ export default function MapListItem({
                         event.stopPropagation();
                         onEditTags(draft);
                       }}
-                      className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-blue-500/70 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200 dark:hover:bg-blue-500/25 md:h-8 md:w-8"
+                      className="inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-[11px] font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-200 dark:hover:bg-blue-500/10"
                       aria-label="태그 편집"
                     >
                       <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
+                      <span>태그 편집</span>
                     </button>
                   )}
                 </>

@@ -1,7 +1,14 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import type { ReactNode } from "react";
+import {
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import SelectionActionBar from "@/components/maps/SelectionActionBar";
 
 type SortValue = "created_desc" | "created_asc" | "updated_desc" | "title_asc";
@@ -72,41 +79,31 @@ export default function MapListToolbar({
   hidePreviewToggle = false,
   hideViewModeToggle = false,
 }: MapListToolbarProps) {
-  return (
-    <div className="md:sticky md:top-0 md:z-20 md:-mx-2 md:px-2 md:pb-2 md:pt-0 md: md:supports-[backdrop-filter]:bg-transparent dark:md:supports-[backdrop-filter]:bg-transparent">
-      {!tagOrganizeMode && (
-        <div className="relative">
-          <Icon
-            icon="mdi:magnify"
-            className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-neutral-900 dark:text-white"
-          />
-          <input
-            value={query}
-            onChange={(event) => onQueryChange(event.target.value)}
-            placeholder="맵 제목이나 태그로 검색해 보세요"
-            className="
-              w-full rounded-[18px] border border-slate-600 bg-white shadow-sm
-              pl-8 pr-9 py-2 text-[14px] text-neutral-900
-              placeholder:text-neutral-400
-              focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-300/70
-              dark:border-white/30 dark:bg-white/[0.10] dark:text-white dark:placeholder:text-white/45
-              dark:focus:border-white dark:focus:ring-white/20
-              md:py-1.5 md:text-[13px]
-            "
-          />
-          {query.trim().length > 0 && (
-            <button
-              type="button"
-              onClick={onClearQuery}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 inline-flex h-5 w-5 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
-              aria-label="검색어 지우기"
-            >
-              <Icon icon="mdi:close-circle" className="h-4.5 w-4.5" />
-            </button>
-          )}
-        </div>
-      )}
+  const filterButtonRef = useRef<HTMLButtonElement | null>(null);
+  const [filterAnchorRect, setFilterAnchorRect] = useState<DOMRect | null>(null);
 
+  useEffect(() => {
+    if (!filtersOpen) return;
+
+    const updateAnchor = () => {
+      setFilterAnchorRect(filterButtonRef.current?.getBoundingClientRect() ?? null);
+    };
+
+    updateAnchor();
+    window.addEventListener("resize", updateAnchor);
+    window.addEventListener("scroll", updateAnchor, true);
+    return () => {
+      window.removeEventListener("resize", updateAnchor);
+      window.removeEventListener("scroll", updateAnchor, true);
+    };
+  }, [filtersOpen]);
+
+  return (
+    <div
+      className={`md:sticky md:top-0 md:-mx-2 md:px-2 md:pt-0 md:supports-[backdrop-filter]:bg-transparent dark:md:supports-[backdrop-filter]:bg-transparent ${
+        filtersOpen ? "md:z-[120]" : "md:z-20"
+      }`}
+    >
       {selectionMode && (
         <SelectionActionBar
           selectedCount={selectedCount}
@@ -118,24 +115,96 @@ export default function MapListToolbar({
       )}
 
       <div
-        className={`mt-1 flex flex-col gap-1 rounded-[20px] border border-slate-400 bg-white px-2.5 py-1.5 md:mt-1.5 md:flex-row md:items-center md:justify-between dark:border-white/20 dark:bg-white/[0.08] md:px-3 md:py-1.5 md:gap-1.5 ${
+        className={`flex flex-col gap-1 ${
+          tagOrganizeMode ? "mt-0 md:mt-0" : "mt-1 md:mt-1.5"
+        } ${
+          previewOpen
+            ? "md:flex-col md:items-stretch md:gap-1.5"
+            : "md:flex-row md:items-center md:gap-3"
+        } ${
           filtersOpen ? "md:relative md:z-[60]" : ""
         }`}
       >
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-medium text-neutral-600 dark:text-white/65 md:text-[10px]">
+        {!tagOrganizeMode && (
+          <div
+            className={`relative ${
+              previewOpen ? "md:w-full" : "md:min-w-0 md:flex-1"
+            }`}
+          >
+            <Icon
+              icon="mdi:magnify"
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-neutral-900 dark:text-white"
+            />
+            <input
+              value={query}
+              onChange={(event) => onQueryChange(event.target.value)}
+              placeholder="맵 제목이나 태그로 검색해 보세요"
+              className="
+                w-full rounded-[18px] border border-slate-600 bg-white shadow-sm
+                pl-8 pr-9 py-2 text-[14px] text-neutral-900
+                placeholder:text-neutral-400
+                focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-300/70
+                dark:border-white/30 dark:bg-white/[0.10] dark:text-white dark:placeholder:text-white/45
+                dark:focus:border-white dark:focus:ring-white/20
+                md:py-1.5 md:text-[13px]
+              "
+            />
+            {query.trim().length > 0 && (
+              <button
+                type="button"
+                onClick={onClearQuery}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 inline-flex h-5 w-5 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
+                aria-label="검색어 지우기"
+              >
+                <Icon icon="mdi:close-circle" className="h-4.5 w-4.5" />
+              </button>
+            )}
+          </div>
+        )}
+
+        <div
+          className={`rounded-[20px] border border-neutral-200/80 bg-white px-2.5 py-1.5 dark:border-white/10 dark:bg-white/[0.08] md:px-3 md:py-1.5 ${
+          previewOpen
+            ? "md:w-full"
+            : "md:w-auto md:min-w-fit md:max-w-none"
+        } ${
+          filtersOpen ? "md:relative md:z-[60]" : ""
+        }`}
+      >
+        <div
+          className={`flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-medium text-neutral-600 dark:text-white/65 md:min-w-0 md:text-[10px] ${
+            previewOpen ? "md:flex-wrap" : "md:flex-nowrap md:overflow-hidden"
+          }`}
+        >
           {statusSummary && <span>상태 {statusSummary}</span>}
           {sourceSummary && <span>소스 {sourceSummary}</span>}
           {tagSummary && <span>태그 {tagSummary}</span>}
         </div>
 
-        <div className="flex flex-col gap-1.5 md:flex-row md:flex-wrap md:items-center md:justify-end md:gap-1.5">
-          <div className="flex w-full flex-col items-stretch gap-1 md:relative md:z-[60] md:w-auto md:flex-row md:flex-nowrap md:items-center md:justify-end md:gap-1.5">
-            <span className="text-[11px] font-semibold text-neutral-800 dark:text-white/85 md:shrink-0 md:text-[10px]">
+        <div
+          className={`flex flex-col gap-1.5 md:min-w-0 md:gap-1.5 ${
+            previewOpen
+              ? "md:flex-col md:items-stretch"
+              : "md:flex-row md:flex-nowrap md:items-center md:justify-end"
+          }`}
+        >
+          <div
+            className={`flex w-full flex-wrap items-center justify-end gap-1 md:relative md:z-[60] ${
+              previewOpen
+                ? "md:w-full md:justify-between"
+                : "md:w-auto md:flex-row md:flex-nowrap md:items-center md:justify-end md:gap-1.5"
+            }`}
+          >
+            <span className="inline-flex shrink-0 items-center rounded-full border border-slate-300 bg-neutral-50 px-2 py-0.5 text-[10px] font-semibold text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 md:border-0 md:bg-transparent md:px-0 md:py-0 md:text-[10px]">
               {datePreset === "custom"
                 ? dateLabel
                 : dateLabel.replace("지난", "최근")}
             </span>
-            <div className="flex flex-wrap items-center gap-1.5 md:flex-nowrap">
+            <div
+              className={`flex flex-1 flex-wrap items-center justify-end gap-1.5 ${
+                previewOpen ? "md:justify-end" : "md:flex-none md:flex-nowrap"
+              }`}
+            >
             {!hidePreviewToggle && (
               <button
                 type="button"
@@ -189,7 +258,13 @@ export default function MapListToolbar({
             </div>
           </div>
 
-          <div className="relative flex w-full items-center gap-1.5 md:w-auto md:flex-nowrap">
+          <div
+            className={`relative flex w-full items-center gap-1.5 ${
+              previewOpen
+                ? "md:flex-wrap md:justify-end"
+                : "md:w-auto md:flex-nowrap md:justify-end"
+            }`}
+          >
             {!hideViewModeToggle && (
               <div className="inline-flex min-w-0 shrink-0 overflow-hidden rounded-full border border-slate-600 bg-white text-[11px] font-semibold text-neutral-800 shadow-sm dark:border-white/25 dark:bg-white/[0.06] dark:text-white/85 md:text-[10px]">
                 <button
@@ -231,6 +306,7 @@ export default function MapListToolbar({
               <option value="title_asc">제목순</option>
             </select>
             <button
+              ref={filterButtonRef}
               type="button"
               onClick={onToggleFilters}
               className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neutral-700 bg-neutral-700 text-white shadow-sm hover:bg-neutral-600 dark:border-white/25 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:h-7 md:w-7"
@@ -247,9 +323,18 @@ export default function MapListToolbar({
                 필터 초기화
               </button>
             )}
-            {filtersOpen && filterPopover}
+            {filtersOpen &&
+              (isValidElement(filterPopover)
+                ? cloneElement(
+                    filterPopover as React.ReactElement<{ anchorRect?: DOMRect | null }>,
+                    {
+                      anchorRect: filterAnchorRect,
+                    }
+                  )
+                : filterPopover)}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

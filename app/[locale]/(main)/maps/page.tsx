@@ -541,7 +541,7 @@ export default function MapsPage() {
   ) : null;
 
   return (
-    <main className="min-h-[70vh] bg-neutral-50 px-6 pt-20 pb-12 dark:bg-[#07111f]">
+    <main className="min-h-[70vh] bg-neutral-50 px-6 pt-24 pb-12 dark:bg-[#07111f]">
       <div className="mx-auto max-w-6xl">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -554,7 +554,7 @@ export default function MapsPage() {
         {recentSections}
 
         <div
-          className={`mt-4 grid gap-6 ${
+          className={`${recentSectionsCollapsed ? "-mt-1" : "mt-4"} grid gap-6 ${
             isTagOrganizeActive
               ? "lg:grid-cols-[minmax(0,0.32fr)_minmax(0,0.68fr)]"
               : previewOpen
@@ -562,7 +562,7 @@ export default function MapsPage() {
               : "lg:grid-cols-[minmax(0,1fr)]"
           } lg:min-h-[calc(100vh-160px)]`}
         >
-          {tagOrganizeMode && (
+          {tagOrganizeMode && !isMobileViewport && (
             <section
               ref={tagPanelShellRef}
               className="relative"
@@ -571,7 +571,7 @@ export default function MapsPage() {
               <div
                 style={{
                   position: tagPanelPinned ? "fixed" : "absolute",
-                  top: tagPanelPinned ? 132 : undefined,
+                  top: tagPanelPinned ? 125 : undefined,
                   bottom: tagPanelPinned ? undefined : 0,
                   left: tagPanelPinned ? tagPanelMetrics.left : 0,
                   width: tagPanelPinned ? tagPanelMetrics.width : "100%",
@@ -596,6 +596,18 @@ export default function MapsPage() {
                   containerClassName="block h-full"
                   panelClassName="flex h-full flex-col overflow-hidden rounded-2xl border border-blue-200 bg-white p-4 shadow-sm dark:border-blue-500/20 dark:bg-white/[0.04]"
                   listClassName="mt-3 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-1"
+                  headerAccessory={
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTagOrganizeMode(false);
+                        setMobileTagSheetOpen(false);
+                      }}
+                      className="inline-flex items-center rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-600 shadow-sm hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80 dark:hover:bg-white/10"
+                    >
+                      종료
+                    </button>
+                  }
                 />
               </div>
             </section>
@@ -608,12 +620,12 @@ export default function MapsPage() {
           >
             <div
               ref={toolbarShellRef}
-              className="mb-3"
+              className={`${isTagOrganizeActive ? "mb-1" : "mb-3"} flex justify-end`}
               style={toolbarPinned ? { height: toolbarMetrics.height } : undefined}
             >
               <div
                 ref={toolbarInnerRef}
-                className="rounded-2xl bg-neutral-50/95 py-2 backdrop-blur supports-[backdrop-filter]:bg-neutral-50/80 dark:bg-[#07111f]/95 dark:supports-[backdrop-filter]:bg-[#07111f]/80"
+                className="w-full rounded-2xl bg-neutral-50/95 backdrop-blur supports-[backdrop-filter]:bg-neutral-50/80 dark:bg-[#07111f]/95 dark:supports-[backdrop-filter]:bg-[#07111f]/80"
                 style={
                   toolbarPinned
                     ? {
@@ -621,7 +633,7 @@ export default function MapsPage() {
                         top: 65,
                         left: toolbarMetrics.left,
                         width: toolbarMetrics.width,
-                        zIndex: 40,
+                        zIndex: filtersOpen ? 120 : 40,
                       }
                     : undefined
                 }
@@ -799,17 +811,21 @@ export default function MapsPage() {
               )}
 
             {isInitialLoading && (
-              <>
+              <div className={isTagOrganizeActive ? "-mt-2" : ""}>
                 {effectiveViewMode === "card" ? (
                   <MapCardListSkeleton />
                 ) : (
                   <MapTableListSkeleton />
                 )}
-              </>
+              </div>
             )}
 
             {!error && hasResults && !isInitialLoading && (
-              <div className={isRefreshing ? "opacity-75 transition-opacity" : "transition-opacity"}>
+              <div
+                className={`${
+                  isRefreshing ? "opacity-75 transition-opacity" : "transition-opacity"
+                } ${isTagOrganizeActive ? "-mt-2" : ""}`}
+              >
                 {effectiveViewMode === "card" ? (
                   <MapCardList
                     drafts={drafts}

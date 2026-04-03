@@ -29,9 +29,9 @@ export default function MapsRecentSections({
 }: MapsRecentSectionsProps) {
   if (collapsed) {
     return (
-      <div className="mt-4 mb-3">
-        <div className="ml-auto flex w-full max-w-[420px] items-center justify-between gap-3 rounded-[18px] border border-neutral-200 bg-white px-3 py-2 shadow-sm dark:border-white/10 dark:bg-white/[0.05]">
-          <div className="flex min-w-0 items-center gap-2 text-[13px] font-semibold text-neutral-800 dark:text-white/85">
+      <div className="mt-0 mb-0">
+        <div className="ml-auto flex w-full max-w-[420px] items-center justify-end gap-3 rounded-[18px] bg-transparent px-2 py-1.5">
+          <div className="flex min-w-0 items-center justify-end gap-2 text-[13px] font-semibold text-neutral-800 dark:text-white/85">
             <Icon icon="mdi:history" className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-300" />
             <span className="truncate">최근 맵</span>
             <span className="text-neutral-300 dark:text-white/20">·</span>
@@ -95,7 +95,7 @@ export default function MapsRecentSections({
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
-              최근 나의 관심 태그
+              최근 관심 태그
             </h2>
           </div>
           <div className="flex items-center gap-2">
