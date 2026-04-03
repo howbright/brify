@@ -181,11 +181,6 @@ function nodeIdVariants(id: string) {
   return id.startsWith("me") ? [id, id.slice(2)] : [id, `me${id}`];
 }
 
-function debugHighlightLog(label: string, payload: Record<string, unknown>) {
-  if (!DEBUG_HIGHLIGHT) return;
-  console.debug(`[highlight-debug] ${label}`, payload);
-}
-
 function escapeAttr(value: string) {
   if (typeof CSS !== "undefined" && typeof CSS.escape === "function") {
     return CSS.escape(value);
@@ -387,9 +382,6 @@ const DARK_CANVAS_CLASS = "me-dark-canvas";
 const DEFAULT_DARK_CANVAS_CLASS = "me-default-dark-canvas";
 const VIEW_MODE_CLASS = "me-view-mode";
 const MANUAL_SELECTION_PRIORITY_MS = 1200;
-const DEBUG_HIGHLIGHT =
-  process.env.NODE_ENV !== "production" &&
-  process.env.NEXT_PUBLIC_DEBUG_HIGHLIGHT === "1";
 const BLOCKED_OPS = [
   "addChild",
   "insertParent",
@@ -704,18 +696,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     const target =
       (pathByRef ? getNodeByPath(nextNode, pathByRef) : null) ??
       findNodeById(nextNode, resolvedTargetId);
-    debugHighlightLog("toggle-start", {
-      selectedId,
-      targetNodeId,
-      resolvedTargetId,
-      pathByRef: pathByRef?.join(".") ?? null,
-      exactSelectedNodeId: exactSelectedEl?.dataset.nodeid ?? null,
-      exactSelectedText: exactSelectedEl?.textContent?.trim()?.slice(0, 140) ?? "",
-      liveNodeId: liveNode?.id ?? null,
-      liveNodeText: liveNode?.topic?.slice(0, 140) ?? "",
-      foundTargetId: target?.id ?? null,
-      foundTargetText: target?.topic?.slice(0, 140) ?? "",
-    });
     if (!target) return;
     const nextHighlight = target.highlight?.variant
       ? null
@@ -745,12 +725,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       name: "toggleHighlight",
       id: target.id ?? resolvedTargetId,
       value: nextHighlight,
-    });
-    debugHighlightLog("toggle-done", {
-      selectedId,
-      savedTargetId: target.id ?? resolvedTargetId,
-      highlight: nextHighlight,
-      latestSnapshotExists: Boolean(latestMindDataRef.current),
     });
     requestAnimationFrame(() => updateSelectedRect(selectedId));
   };
@@ -1259,10 +1233,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       }
       const nodeId = nodeEl.getAttribute("data-nodeid");
       if (!nodeId) return;
-      debugHighlightLog("click", {
-        nodeId,
-        text: nodeEl.textContent?.trim()?.slice(0, 140) ?? "",
-      });
       applySelectionFromElement(nodeEl, nodeId);
     };
 
@@ -1917,7 +1887,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         subtree: true,
         attributes: true,
         attributeFilter: ["data-nodeid"],
-      } as const;
+      };
       const syncNodeDecorations = () => {
         const host = elRef.current;
         if (!host) return;
@@ -2048,19 +2018,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           Date.now() - lastClickedNodeRef.current.at <
           MANUAL_SELECTION_PRIORITY_MS
         ) {
-          debugHighlightLog("selectNodes-skipped", {
-            clickedId: lastClickedNodeRef.current.id,
-            eventId: Array.isArray(nodes) ? nodes[nodes.length - 1]?.id : null,
-          });
           return;
         }
         const last = Array.isArray(nodes) ? nodes[nodes.length - 1] : null;
         const id = last?.id;
         if (!id) return;
-        debugHighlightLog("selectNodes", {
-          id,
-          topic: last?.topic ?? last?.nodeObj?.topic ?? "",
-        });
         selectedNodeIdRef.current = id;
         setSelectedNodeId(id);
         try {
@@ -2137,15 +2099,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           Date.now() - lastClickedNodeRef.current.at <
           MANUAL_SELECTION_PRIORITY_MS
         ) {
-          debugHighlightLog("operation-selectNode-skipped", {
-            clickedId: lastClickedNodeRef.current.id,
-            opId: op?.data?.id ?? op?.obj?.id ?? op?.id ?? null,
-          });
           return;
         }
         const id = op?.data?.id ?? op?.obj?.id ?? op?.id;
         if (id) {
-          debugHighlightLog("operation-selectNode", { id });
           setSelectedNodeId(id);
           updateSelectedRect(id);
         }
