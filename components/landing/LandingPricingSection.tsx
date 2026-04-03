@@ -95,7 +95,7 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
           <h2 className="text-2xl md:text-3xl font-semibold text-[var(--color-text)]">
             {t("title")}
           </h2>
-          <p className="mt-3 text-[15px] font-medium text-slate-700 dark:text-slate-300 md:text-[17px]">
+          <p className="mt-3 text-[15px] font-normal text-slate-700 dark:text-slate-300 md:text-[17px]">
             {t("subtitle")}
           </p>
         </div>

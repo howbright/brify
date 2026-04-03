@@ -145,14 +145,23 @@ export default function SupportPage() {
   }
 
   return (
-    <main className="min-h-[calc(100vh-64px)] bg-background-soft dark:bg-background">
-      <div className="mx-auto flex max-w-5xl flex-col gap-8 px-4 pb-16 pt-20 sm:px-6 lg:px-8">
+    <main className="relative min-h-[calc(100vh-64px)] overflow-hidden bg-background-soft dark:bg-[#040816]">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 hidden dark:block"
+      >
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,#07101f_0%,#050b16_42%,#03060d_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(520px_260px_at_12%_8%,rgba(59,130,246,0.18),transparent_62%),radial-gradient(560px_280px_at_86%_10%,rgba(56,189,248,0.14),transparent_60%),radial-gradient(620px_320px_at_50%_100%,rgba(37,99,235,0.10),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:28px_28px] opacity-40" />
+      </div>
+
+      <div className="relative mx-auto flex max-w-5xl flex-col gap-8 px-4 pb-16 pt-20 sm:px-6 lg:px-8">
         {/* 상단 헤더 영역 */}
         <section className="flex flex-col gap-3">
-          <div className="inline-flex w-fit items-center rounded-full border border-border bg-[color:var(--glass)] px-3 py-1 text-xs font-medium text-muted-foreground">
+          <div className="inline-flex w-fit items-center rounded-full border border-border bg-[color:var(--glass)] px-3 py-1 text-xs font-medium text-muted-foreground dark:border-blue-300/20 dark:bg-white/[0.07] dark:text-blue-100/80">
             {t("badge")}
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground dark:text-white sm:text-3xl">
             {t("title")}
           </h1>
         </section>
@@ -160,11 +169,11 @@ export default function SupportPage() {
         {/* 메인 2열 레이아웃 */}
         <section className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
           {/* 문의 폼 */}
-          <div className="rounded-[var(--radius-lg)] border border-border bg-white p-5 shadow-sm dark:bg-card/95 sm:p-6">
+          <div className="rounded-[var(--radius-lg)] border border-border bg-white p-5 shadow-sm dark:border-white/12 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.92),rgba(10,18,32,0.98))] dark:shadow-[0_28px_70px_-42px_rgba(2,6,23,0.96)] sm:p-6">
             <h2 className="text-base font-semibold text-foreground">
               {t("form.title")}
             </h2>
-            <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
+            <p className="mt-1 text-xs text-muted-foreground dark:text-white/60 sm:text-sm">
               {t("form.subtitle")}
             </p>
 
@@ -191,8 +200,8 @@ export default function SupportPage() {
                           className={[
                             "inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium transition",
                             isActive
-                              ? "border-[color:var(--color-primary-300)] bg-[rgb(var(--primary-rgb)/0.06)] text-[color:var(--color-primary-600)]"
-                              : "border-border bg-background text-muted-foreground hover:bg-muted",
+                              ? "border-[color:var(--color-primary-300)] bg-[rgb(var(--primary-rgb)/0.06)] text-[color:var(--color-primary-600)] dark:border-blue-300/35 dark:bg-blue-500/12 dark:text-blue-100"
+                              : "border-border bg-background text-muted-foreground hover:bg-muted dark:border-white/10 dark:bg-white/[0.04] dark:text-white/65 dark:hover:bg-white/[0.08]",
                           ].join(" ")}
                         >
                           {categoryLabel[key]}
@@ -216,8 +225,8 @@ export default function SupportPage() {
                   type="text"
                   placeholder={t("form.field.titlePlaceholder")}
                   className={[
-                    "w-full rounded-[var(--radius-md)] border bg-white px-3 py-2 text-sm text-foreground outline-none ring-0 transition placeholder:text-muted-foreground/70 dark:bg-card",
-                    "focus:border-[color:var(--color-primary-500)] focus:ring-2 focus:ring-[rgba(37,99,235,0.12)]",
+                    "w-full rounded-[var(--radius-md)] border bg-white px-3 py-2 text-sm text-foreground outline-none ring-0 transition placeholder:text-muted-foreground/70 dark:border-white/12 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/40",
+                    "focus:border-[color:var(--color-primary-500)] focus:ring-2 focus:ring-[rgba(37,99,235,0.12)] dark:focus:border-blue-300/45 dark:focus:ring-blue-400/18",
                     errors.title
                       ? "border-red-300 focus:border-red-500 focus:ring-[rgba(239,68,68,0.12)]"
                       : "border-border",
@@ -244,8 +253,8 @@ export default function SupportPage() {
                   placeholder={t("form.field.messagePlaceholder")}
                   rows={7}
                   className={[
-                    "w-full rounded-[var(--radius-md)] border bg-white px-3 py-2 text-sm text-foreground outline-none ring-0 transition placeholder:text-muted-foreground/70 dark:bg-card",
-                    "focus:border-[color:var(--color-primary-500)] focus:ring-2 focus:ring-[rgba(37,99,235,0.12)]",
+                    "w-full rounded-[var(--radius-md)] border bg-white px-3 py-2 text-sm text-foreground outline-none ring-0 transition placeholder:text-muted-foreground/70 dark:border-white/12 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/40",
+                    "focus:border-[color:var(--color-primary-500)] focus:ring-2 focus:ring-[rgba(37,99,235,0.12)] dark:focus:border-blue-300/45 dark:focus:ring-blue-400/18",
                     errors.message
                       ? "border-red-300 focus:border-red-500 focus:ring-[rgba(239,68,68,0.12)]"
                       : "border-border",
@@ -272,8 +281,8 @@ export default function SupportPage() {
                   type="email"
                   placeholder={t("form.field.emailPlaceholder")}
                   className={[
-                    "w-full rounded-[var(--radius-md)] border bg-white px-3 py-2 text-sm text-foreground outline-none ring-0 transition placeholder:text-muted-foreground/70 dark:bg-card",
-                    "focus:border-[color:var(--color-primary-500)] focus:ring-2 focus:ring-[rgba(37,99,235,0.12)]",
+                    "w-full rounded-[var(--radius-md)] border bg-white px-3 py-2 text-sm text-foreground outline-none ring-0 transition placeholder:text-muted-foreground/70 dark:border-white/12 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/40",
+                    "focus:border-[color:var(--color-primary-500)] focus:ring-2 focus:ring-[rgba(37,99,235,0.12)] dark:focus:border-blue-300/45 dark:focus:ring-blue-400/18",
                     errors.email
                       ? "border-red-300 focus:border-red-500 focus:ring-[rgba(239,68,68,0.12)]"
                       : "border-border",
@@ -299,8 +308,8 @@ export default function SupportPage() {
                     className={[
                       "flex h-4 w-4 items-center justify-center rounded border text-[10px] leading-none transition",
                       needsReply ?? true
-                        ? "border-[color:var(--color-primary-500)] bg-[rgb(var(--primary-rgb)/0.08)] text-[color:var(--color-primary-600)]"
-                        : "border-border bg-background text-transparent",
+                        ? "border-[color:var(--color-primary-500)] bg-[rgb(var(--primary-rgb)/0.08)] text-[color:var(--color-primary-600)] dark:border-blue-300/45 dark:bg-blue-500/14 dark:text-blue-100"
+                        : "border-border bg-background text-transparent dark:border-white/15 dark:bg-white/[0.04]",
                     ].join(" ")}
                   >
                     ✓
@@ -333,8 +342,8 @@ export default function SupportPage() {
                   disabled={isSubmitting}
                   className={[
                     "inline-flex w-full items-center justify-center rounded-[var(--radius-md)] px-4 py-2.5 text-sm font-semibold transition",
-                    "bg-[color:var(--color-primary-500)] text-[color:var(--color-primary-foreground)]",
-                    "hover:bg-[color:var(--color-primary-hover)] hover:-translate-y-[1px] hover:shadow-md active:translate-y-0 active:shadow-sm",
+                    "bg-[color:var(--color-primary-500)] text-[color:var(--color-primary-foreground)] dark:bg-[linear-gradient(135deg,#2563eb_0%,#0ea5e9_100%)] dark:text-white",
+                    "hover:bg-[color:var(--color-primary-hover)] hover:-translate-y-[1px] hover:shadow-md active:translate-y-0 active:shadow-sm dark:hover:shadow-[0_18px_40px_-20px_rgba(14,165,233,0.55)]",
                     "disabled:cursor-not-allowed disabled:opacity-60",
                   ].join(" ")}
                 >
@@ -346,20 +355,20 @@ export default function SupportPage() {
 
           {/* 우측 안내 패널 */}
           <aside className="flex flex-col gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-border bg-white p-4 text-sm dark:bg-card/90">
+            <div className="rounded-[var(--radius-lg)] border border-border bg-white p-4 text-sm dark:border-blue-300/14 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.82),rgba(10,18,32,0.92))] dark:shadow-[0_20px_44px_-34px_rgba(2,6,23,0.9)]">
               <h2 className="text-sm font-semibold text-foreground">
                 {t("aside.speed.title")}
               </h2>
-              <p className="mt-2 whitespace-pre-line text-xs leading-relaxed text-muted-foreground">
+              <p className="mt-2 whitespace-pre-line text-xs leading-relaxed text-muted-foreground dark:text-white/62">
                 {t("aside.speed.descBefore")}
-                <span className="font-medium text-foreground">
+                <span className="font-medium text-foreground dark:text-white">
                   {t("aside.speed.descStrong")}
                 </span>
                 {t("aside.speed.descAfter")}
               </p>
             </div>
 
-            <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-white p-4 text-xs leading-relaxed text-muted-foreground dark:bg-muted/70">
+            <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-white p-4 text-xs leading-relaxed text-muted-foreground dark:border-white/14 dark:bg-white/[0.04] dark:text-white/60">
               <h3 className="text-sm font-semibold text-foreground">
                 {t("aside.tips.title")}
               </h3>
@@ -370,7 +379,7 @@ export default function SupportPage() {
               </ul>
             </div>
 
-            <div className="rounded-[var(--radius-lg)] border border-border bg-white p-4 text-xs text-muted-foreground dark:bg-card/90">
+            <div className="rounded-[var(--radius-lg)] border border-border bg-white p-4 text-xs text-muted-foreground dark:border-emerald-300/14 dark:bg-[linear-gradient(180deg,rgba(10,25,28,0.84),rgba(8,18,20,0.94))] dark:text-white/62 dark:shadow-[0_20px_44px_-34px_rgba(2,6,23,0.9)]">
               <h3 className="text-sm font-semibold text-foreground">
                 {t("aside.faq.title")}
               </h3>
@@ -378,7 +387,7 @@ export default function SupportPage() {
                 {t("aside.faq.descBefore")}
                 <Link
                   href="/pricing"
-                  className="font-medium text-[color:var(--color-primary-600)] underline-offset-2 hover:underline"
+                  className="font-medium text-[color:var(--color-primary-600)] underline-offset-2 hover:underline dark:text-sky-300"
                 >
                   {t("aside.faq.linkText")}
                 </Link>

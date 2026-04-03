@@ -306,12 +306,25 @@ export default function MapsPage() {
   );
 
   const handleOpenDetail = (item: MapDraft) => {
+    if (item.status !== "done") {
+      const blockedMessage =
+        locale === "ko"
+          ? item.status === "failed"
+            ? "실패한 맵은 열 수 없어요."
+            : "아직 생성 중인 맵이라 열 수 없어요."
+          : item.status === "failed"
+          ? "Failed maps can't be opened."
+          : "This map is still being generated and can't be opened yet.";
+      toast.message(blockedMessage);
+      return;
+    }
     const nextUrl = locale ? `/${locale}/maps/${item.id}` : `/maps/${item.id}`;
     setOpeningDetailId(item.id);
     router.push(nextUrl);
   };
 
   const handlePrefetchDetail = (item: MapDraft) => {
+    if (item.status !== "done") return;
     const nextUrl = locale ? `/${locale}/maps/${item.id}` : `/maps/${item.id}`;
     router.prefetch(nextUrl);
   };
@@ -663,7 +676,7 @@ export default function MapsPage() {
             >
               <div
                 ref={toolbarInnerRef}
-                className="w-full rounded-2xl bg-neutral-50/95 backdrop-blur supports-[backdrop-filter]:bg-neutral-50/80 dark:bg-[#07111f]/95 dark:supports-[backdrop-filter]:bg-[#07111f]/80"
+                className="w-full rounded-2xl bg-neutral-50/95 backdrop-blur supports-[backdrop-filter]:bg-neutral-50/80 dark:border dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(10,18,32,0.95),rgba(7,17,31,0.98))] dark:shadow-[0_24px_50px_-36px_rgba(2,6,23,0.95)] dark:supports-[backdrop-filter]:bg-[linear-gradient(180deg,rgba(10,18,32,0.9),rgba(7,17,31,0.96))]"
                 style={
                   toolbarPinned
                     ? {

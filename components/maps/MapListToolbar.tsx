@@ -146,8 +146,9 @@ export default function MapListToolbar({
                 pl-8 pr-9 py-2 text-[14px] text-neutral-900
                 placeholder:text-neutral-400
                 focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-300/70
-                dark:border-white/30 dark:bg-white/[0.10] dark:text-white dark:placeholder:text-white/45
-                dark:focus:border-white dark:focus:ring-white/20
+                dark:border-sky-300/22 dark:bg-[linear-gradient(180deg,rgba(30,41,59,0.92),rgba(20,30,48,0.98))] dark:text-white dark:placeholder:text-white/45
+                dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_12px_28px_-20px_rgba(2,6,23,0.9)]
+                dark:focus:border-sky-300/50 dark:focus:ring-sky-400/18
                 md:py-1.5 md:text-[13px]
               "
             />
@@ -165,7 +166,7 @@ export default function MapListToolbar({
         )}
 
         <div
-          className={`rounded-[20px] border border-neutral-200/80 bg-white px-2.5 py-1.5 dark:border-white/10 dark:bg-white/[0.08] md:px-3 md:py-1.5 ${
+          className={`rounded-[20px] border border-neutral-200/80 bg-white px-2.5 py-1.5 dark:border-white/12 dark:bg-[linear-gradient(180deg,rgba(16,24,39,0.9),rgba(12,19,32,0.96))] dark:shadow-[0_20px_40px_-30px_rgba(2,6,23,0.92)] md:px-3 md:py-1.5 ${
           previewOpen
             ? "md:w-full"
             : "md:w-auto md:min-w-fit md:max-w-none"
@@ -197,7 +198,7 @@ export default function MapListToolbar({
                 : "md:w-auto md:flex-row md:flex-nowrap md:items-center md:justify-end md:gap-1.5"
             }`}
           >
-            <span className="inline-flex shrink-0 items-center rounded-full border border-slate-300 bg-neutral-50 px-2 py-0.5 text-[10px] font-semibold text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 md:border-0 md:bg-transparent md:px-0 md:py-0 md:text-[10px]">
+            <span className="inline-flex shrink-0 items-center rounded-full border border-slate-300 bg-neutral-50 px-2 py-0.5 text-[10px] font-semibold text-neutral-700 dark:border-white/16 dark:bg-white/[0.08] dark:text-white/82 md:border-0 md:bg-transparent md:px-0 md:py-0 md:text-[10px]">
               {dateLabel}
             </span>
             <div
@@ -209,7 +210,7 @@ export default function MapListToolbar({
               <button
                 type="button"
                 onClick={onTogglePreview}
-                className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-neutral-700 bg-neutral-700 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/25 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:min-h-7 md:px-3 md:py-1 md:text-[10px]"
+                className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-neutral-700 bg-neutral-700 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/16 dark:bg-white/[0.08] dark:text-white dark:hover:bg-white/[0.14] md:min-h-7 md:px-3 md:py-1 md:text-[10px]"
               >
                 <Icon icon="mdi:eye-outline" className="h-3.5 w-3.5" />
                 {previewOpen ? t("previewOff") : t("previewOn")}
@@ -218,7 +219,7 @@ export default function MapListToolbar({
             <button
               type="button"
               onClick={onToggleTagOrganize}
-              className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-neutral-700 bg-neutral-700 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/25 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:min-h-7 md:px-3 md:py-1 md:text-[10px]"
+              className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-neutral-700 bg-neutral-700 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/16 dark:bg-white/[0.08] dark:text-white dark:hover:bg-white/[0.14] md:min-h-7 md:px-3 md:py-1 md:text-[10px]"
             >
               <Icon icon="mdi:tag-outline" className="h-3.5 w-3.5" />
               {tagOrganizeMode ? t("tagOrganizeExit") : t("tagOrganize")}
@@ -226,7 +227,7 @@ export default function MapListToolbar({
             <button
               type="button"
               onClick={onToggleSelection}
-              className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-neutral-700 bg-neutral-700 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/25 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:min-h-7 md:px-3 md:py-1 md:text-[10px]"
+              className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-neutral-700 bg-neutral-700 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-neutral-600 dark:border-white/16 dark:bg-white/[0.08] dark:text-white dark:hover:bg-white/[0.14] md:min-h-7 md:px-3 md:py-1 md:text-[10px]"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -266,7 +267,7 @@ export default function MapListToolbar({
             }`}
           >
             {!hideViewModeToggle && (
-              <div className="inline-flex min-w-0 shrink-0 overflow-hidden rounded-full border border-slate-600 bg-white text-[11px] font-semibold text-neutral-800 shadow-sm dark:border-white/25 dark:bg-white/[0.06] dark:text-white/85 md:text-[10px]">
+              <div className="inline-flex min-w-0 shrink-0 overflow-hidden rounded-full border border-slate-600 bg-white text-[11px] font-semibold text-neutral-800 shadow-sm dark:border-white/16 dark:bg-white/[0.08] dark:text-white/85 md:text-[10px]">
                 <button
                   type="button"
                   onClick={() => onViewModeChange("card")}
@@ -298,7 +299,7 @@ export default function MapListToolbar({
               id="maps-sort"
               value={sort}
               onChange={(event) => onSortChange(event.target.value as SortValue)}
-              className="min-w-0 flex-1 rounded-full border border-slate-600 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-white/25 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/10 md:flex-none md:px-3 md:py-1 md:text-[10px]"
+              className="min-w-0 flex-1 rounded-full border border-slate-600 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-white/16 dark:bg-white/[0.08] dark:text-white/85 dark:hover:bg-white/[0.12] md:flex-none md:px-3 md:py-1 md:text-[10px]"
             >
               <option value="created_desc">{t("sort.createdDesc")}</option>
               <option value="created_asc">{t("sort.createdAsc")}</option>
@@ -309,7 +310,7 @@ export default function MapListToolbar({
               ref={filterButtonRef}
               type="button"
               onClick={onToggleFilters}
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neutral-700 bg-neutral-700 text-white shadow-sm hover:bg-neutral-600 dark:border-white/25 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 md:h-7 md:w-7"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neutral-700 bg-neutral-700 text-white shadow-sm hover:bg-neutral-600 dark:border-white/16 dark:bg-white/[0.08] dark:text-white dark:hover:bg-white/[0.14] md:h-7 md:w-7"
               aria-label={filtersOpen ? t("filterClose") : t("filterOpen")}
             >
               <Icon icon="mdi:filter-variant" className="h-4 w-4 md:h-3.5 md:w-3.5" />

@@ -1082,9 +1082,9 @@
       "Keep the important details",
       "Automatically explain difficult terms",
       "Generate results in your language",
-      "See the flow as a Structure Map"
+      "Compare Structure Maps and spot differences at a glance"
     ],
-    "flowItems": ["Paste a script", "Create a Structure Map", "Read · Edit · Share"],
+    "flowItems": ["Paste a script", "Create a Structure Map", "Read · Edit · Compare"],
     "videoLabel": "See the workflow in 30 seconds",
     "visualAlt": "Structure Map preview"
   },

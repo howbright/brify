@@ -94,7 +94,7 @@ export default function FinalCTA({
               </span>
             </h2>
 
-            <p className="mt-4 text-base font-medium text-white/90">
+            <p className="mt-4 text-base font-normal text-white/90">
               {t.rich("body", {
                 highlight: (chunks) => (
                   <span className="font-bold text-[rgb(var(--hero-a))]">

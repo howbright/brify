@@ -168,7 +168,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
           "세부내용도 놓치지 않고 정리",
           "어려운 용어도 자동으로 정리",
           "원하는 언어로 결과 생성",
-          "구조맵으로 흐름까지 한눈에",
+          "구조맵끼리 비교하며 차이를 한눈에",
       ];
   })();
 
@@ -190,7 +190,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
               aria-hidden
               className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-gradient-to-br from-blue-600 via-sky-500 to-cyan-400 shadow-[0_0_0_5px_rgba(59,130,246,0.10)] dark:from-sky-300 dark:via-blue-300 dark:to-cyan-200 dark:shadow-[0_0_0_5px_rgba(125,211,252,0.10)]"
             />
-            <span className="text-[15px] font-semibold leading-6 text-neutral-900 dark:text-neutral-100 md:text-[17px] md:leading-7">
+            <span className="text-[15px] font-normal leading-6 text-neutral-900 dark:text-neutral-100 md:text-[17px] md:leading-7">
               {text}
             </span>
           </motion.div>
@@ -269,7 +269,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
       <section className="mx-auto grid max-w-7xl items-start gap-10 px-6 py-10 md:grid-cols-2 md:items-start md:gap-14 md:px-10 md:pt-[108px] md:pb-12 lg:pt-[116px] lg:pb-14">
         {/* LEFT */}
         <div>
-          <div className="text-sm md:text-base font-semibold text-neutral-700 dark:text-neutral-200">
+          <div className="text-sm md:text-base font-normal text-neutral-700 dark:text-neutral-200">
             {t("eyebrow")}
           </div>
 
@@ -333,7 +333,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
             </motion.button>
           </div>
 
-          <p className="mt-4 max-w-2xl text-[17px] font-semibold leading-7 text-slate-700 dark:text-slate-200 md:text-[19px] md:leading-8">
+          <p className="mt-4 max-w-2xl text-[17px] font-normal leading-7 text-slate-700 dark:text-slate-200 md:text-[19px] md:leading-8">
             {t("helper")}
           </p>
 

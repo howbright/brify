@@ -445,6 +445,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     el: HTMLElement | null;
   }>({ nodeId: null, startX: 0, startY: 0, el: null });
   const highlightVariant = "gold";
+  const hoverActionWrapClass = isTouchDevice
+    ? "flex items-center gap-1.5 rounded-full bg-white/94 px-1.5 py-1 shadow-md ring-1 ring-black/5 dark:bg-[#0b1220]/94 dark:ring-white/10"
+    : "flex items-center gap-1 rounded-full bg-white/90 px-1 py-0.5 shadow-sm ring-1 ring-black/5 dark:bg-[#0b1220]/90 dark:ring-white/10";
+  const hoverActionButtonClass = isTouchDevice
+    ? "group relative inline-flex h-8 w-8 items-center justify-center rounded-full text-[11px] shadow-sm"
+    : "group relative inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] shadow-sm";
+  const hoverActionIconClass = isTouchDevice ? "h-4 w-4" : "h-3 w-3";
   const searchHighlightIdsRef = useRef<Set<string>>(new Set());
   const searchActiveIdRef = useRef<string | null>(null);
   const openNodeContextMenu = (
@@ -2190,53 +2197,39 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
               transform: "translate(-100%, 0)",
             }}
           >
-            <div className="flex items-center gap-1 rounded-full bg-white/90 px-1 py-0.5 shadow-sm ring-1 ring-black/5 dark:bg-[#0b1220]/90 dark:ring-white/10">
+            <div className={hoverActionWrapClass}>
               <button
                 type="button"
-                className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white shadow-sm ring-1 ring-red-600/60"
+                className={`${hoverActionButtonClass} bg-red-500 text-white ring-1 ring-red-600/60`}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleNoteClick();
                 }}
                 aria-label="노트 추가"
               >
-                <Icon icon="mdi:note-text-outline" className="h-3 w-3" />
+                <Icon icon="mdi:note-text-outline" className={hoverActionIconClass} />
                 <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
                   노트 추가
                 </span>
               </button>
               <button
                 type="button"
-                className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-yellow-400 text-[10px] text-black shadow-sm ring-1 ring-yellow-500/70"
+                className={`${hoverActionButtonClass} bg-yellow-400 text-black ring-1 ring-yellow-500/70`}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleHighlightClick();
                 }}
                 aria-label="하이라이트"
               >
-                <Icon icon="mdi:marker" className="h-3 w-3" />
+                <Icon icon="mdi:marker" className={hoverActionIconClass} />
                 <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
                   하이라이트
-                </span>
-              </button>
-              <button
-                type="button"
-                className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-[10px] text-white shadow-sm ring-1 ring-green-600/70"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleFocusClick();
-                }}
-                aria-label="포커스 모드"
-              >
-                <Icon icon="mdi:target" className="h-3 w-3" />
-                <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-                  포커스 모드
                 </span>
               </button>
               {showMobileControls && editMode === "edit" ? (
                 <button
                   type="button"
-                  className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-800 text-[10px] text-white shadow-sm ring-1 ring-slate-900/70"
+                  className={`${hoverActionButtonClass} bg-slate-800 text-white ring-1 ring-slate-900/70`}
                   onClick={(e) => {
                     e.stopPropagation();
                     setMobileActionNodeId((prev) =>
@@ -2245,7 +2238,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
                   }}
                   aria-label={moreActionsLabel}
                 >
-                  <Icon icon="mdi:dots-horizontal" className="h-3 w-3" />
+                  <Icon icon="mdi:dots-horizontal" className={hoverActionIconClass} />
                   <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
                     {moreActionsLabel}
                   </span>
@@ -2253,7 +2246,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
               ) : showSelectionContextMenuButton && !isTouchDevice ? (
                 <button
                   type="button"
-                  className="group relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-800 text-[10px] text-white shadow-sm ring-1 ring-slate-900/70"
+                  className={`${hoverActionButtonClass} bg-slate-800 text-white ring-1 ring-slate-900/70`}
                   onClick={(e) => {
                     e.stopPropagation();
                     openNodeContextMenu(
@@ -2263,7 +2256,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
                   }}
                   aria-label={moreActionsLabel}
                 >
-                  <Icon icon="mdi:dots-horizontal" className="h-3 w-3" />
+                  <Icon icon="mdi:dots-horizontal" className={hoverActionIconClass} />
                   <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
                     {moreActionsLabel}
                   </span>

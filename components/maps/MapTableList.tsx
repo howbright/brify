@@ -80,6 +80,7 @@ export default function MapTableList({
         {drafts.map((draft) => {
           const isSelected = previewOpen && draft.id === selectedId;
           const isOpeningDetail = openingDetailId === draft.id;
+          const canOpenDetail = draft.status === "done";
           const displayTitle = getDisplayTitle(draft);
           const tags = draft.tags ?? [];
           const visibleTags = tags.slice(0, 2);
@@ -141,7 +142,7 @@ export default function MapTableList({
                         </span>
                       </div>
                     </div>
-                    {showOpenDetail && onOpenDetail && (
+                    {showOpenDetail && onOpenDetail && canOpenDetail && (
                       <button
                         type="button"
                         onClick={(event) => {
@@ -224,6 +225,7 @@ export default function MapTableList({
           {drafts.map((draft) => {
             const isSelected = previewOpen && draft.id === selectedId;
             const isOpeningDetail = openingDetailId === draft.id;
+            const canOpenDetail = draft.status === "done";
             const displayTitle = getDisplayTitle(draft);
             const tags = draft.tags ?? [];
             const visibleTags = tags.slice(0, 2);
@@ -270,7 +272,7 @@ export default function MapTableList({
                         {displayTitle}
                       </div>
                     </div>
-                    {showOpenDetail && onOpenDetail && (
+                    {showOpenDetail && onOpenDetail && canOpenDetail && (
                         <button
                           type="button"
                           onClick={(event) => {

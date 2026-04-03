@@ -27,11 +27,11 @@ function ReviewCard({
         <Icon icon="mdi:format-quote-open" className="h-5 w-5" />
       </div>
 
-      <p className="mt-5 text-[18px] font-semibold leading-8 tracking-tight text-[#172033] dark:text-[#f8fbff]">
+      <p className="mt-5 text-[18px] font-normal leading-8 tracking-tight text-[#172033] dark:text-[#f8fbff]">
         {quote}
       </p>
 
-      <div className="mt-6 text-sm font-bold text-[#64748b] dark:text-[#b8c6da]">
+      <div className="mt-6 text-sm font-medium text-[#64748b] dark:text-[#b8c6da]">
         — {role}
       </div>
     </motion.article>

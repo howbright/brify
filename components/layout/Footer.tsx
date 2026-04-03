@@ -81,7 +81,7 @@ export default function Footer() {
               </div>
             </div>
 
-            <p className="mt-5 max-w-md text-[15px] font-semibold leading-7 text-slate-700 dark:text-slate-200">
+            <p className="mt-5 max-w-md text-[15px] font-normal leading-7 text-slate-700 dark:text-slate-200">
               {t("description")}
             </p>
 

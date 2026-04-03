@@ -181,7 +181,7 @@ export default function MapListItem({
         ${
           isActive
             ? "border-blue-300 bg-blue-50/70 shadow-sm dark:border-blue-300/50 dark:bg-[rgba(37,99,235,0.18)] dark:shadow-[0_18px_36px_-24px_rgba(37,99,235,0.45)]"
-            : "border-slate-400 bg-white hover:bg-neutral-50 dark:border-white/16 dark:bg-[rgba(15,23,42,0.82)] dark:shadow-[0_18px_36px_-28px_rgba(2,6,23,0.85)] dark:hover:border-white/24 dark:hover:bg-[rgba(30,41,59,0.92)]"
+            : "border-slate-400 bg-white hover:bg-neutral-50 dark:border-slate-300/18 dark:bg-[linear-gradient(180deg,rgba(26,36,52,0.94),rgba(17,24,39,0.98))] dark:shadow-[0_24px_48px_-28px_rgba(2,6,23,0.96)] dark:hover:border-sky-300/18 dark:hover:bg-[linear-gradient(180deg,rgba(31,43,63,0.98),rgba(20,30,48,1))]"
         }`}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2.5 md:gap-3">
@@ -212,7 +212,7 @@ export default function MapListItem({
                   event.stopPropagation();
                   setMenuOpen((v) => !v);
                 }}
-                className="inline-flex items-center justify-center rounded-full border border-slate-400 bg-white p-1.5 text-neutral-500 hover:bg-neutral-50 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-full border border-slate-400 bg-white p-1.5 text-neutral-500 hover:bg-neutral-50 dark:border-white/16 dark:bg-white/[0.08] dark:text-white/70 dark:hover:bg-white/12"
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
                 aria-label="More actions"
@@ -223,7 +223,7 @@ export default function MapListItem({
               {menuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 mt-2 min-w-[140px] rounded-2xl border border-slate-400 bg-white p-1 shadow-lg dark:border-white/20 dark:bg-[#0f172a]"
+                  className="absolute right-0 mt-2 min-w-[140px] rounded-2xl border border-slate-400 bg-white p-1 shadow-lg dark:border-white/16 dark:bg-[#111a2b]"
                   onClick={(event) => event.stopPropagation()}
                 >
                   <button
@@ -250,7 +250,7 @@ export default function MapListItem({
         ) : null}
 
         <div className="flex min-w-0 items-start gap-2.5 md:gap-3">
-          <div className="aspect-video w-20 shrink-0 overflow-hidden rounded-lg border border-slate-400 bg-neutral-50 dark:border-white/20 dark:bg-white/[0.04] md:w-24 md:rounded-xl">
+          <div className="aspect-video w-20 shrink-0 overflow-hidden rounded-lg border border-slate-400 bg-neutral-50 dark:border-white/16 dark:bg-white/[0.06] md:w-24 md:rounded-xl">
             {draft.thumbnailUrl ? (
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -354,7 +354,7 @@ export default function MapListItem({
             onMouseEnter={() => onPrefetchDetail?.(draft)}
             onFocus={() => onPrefetchDetail?.(draft)}
             disabled={isOpeningDetail}
-            className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-2.5 py-1 text-[10px] font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm disabled:cursor-wait disabled:opacity-80 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10 md:px-3 md:py-1.5 md:text-[11px]"
+            className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-2.5 py-1 text-[10px] font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm disabled:cursor-wait disabled:opacity-80 dark:border-white/16 dark:bg-white/[0.08] dark:text-white/82 dark:hover:border-sky-300/26 dark:hover:bg-white/12 md:px-3 md:py-1.5 md:text-[11px]"
           >
             <Icon
               icon={isOpeningDetail ? "mdi:loading" : "mdi:open-in-new"}

@@ -55,6 +55,7 @@ export default function MapPreviewPanel({
   const miniRef = useRef<MapMiniPreviewHandle | null>(null);
   const autoZoomedMapIdRef = useRef<string | null>(null);
   const summary = draft?.summary ?? draft?.description ?? t("noSummary");
+  const canOpenDetail = draft?.status === "done";
 
   useEffect(() => {
     if (previewStatus !== "loaded" || !draft?.id) return;
@@ -122,12 +123,14 @@ export default function MapPreviewPanel({
           >
             {t("close")}
           </button>
-          <Link
-            href={`/maps/${draft.id}`}
-            className="inline-flex items-center justify-center rounded-full border border-slate-400 bg-white px-3.5 py-2 text-sm font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/85 dark:hover:border-white/40 dark:hover:bg-white/10"
-          >
-            {t("open")}
-          </Link>
+          {canOpenDetail && (
+            <Link
+              href={`/maps/${draft.id}`}
+              className="inline-flex items-center justify-center rounded-full border border-slate-400 bg-white px-3.5 py-2 text-sm font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/85 dark:hover:border-white/40 dark:hover:bg-white/10"
+            >
+              {t("open")}
+            </Link>
+          )}
         </div>
       </div>
 
