@@ -84,6 +84,7 @@ export default function LeftPanel({
   const [hasTermsRequest, setHasTermsRequest] = useState(false);
   const termsPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const termsHighlightRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const panelRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (tab) setInternalTab(tab);
@@ -120,6 +121,22 @@ export default function LeftPanel({
     fetchTermsStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, mapId]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (!target) return;
+      if (panelRef.current?.contains(target)) return;
+      onClose();
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [open, onClose]);
 
   const fetchNotes = async () => {
     if (!mapId) return;
@@ -573,6 +590,7 @@ export default function LeftPanel({
 
   return (
     <aside
+      ref={panelRef}
       className={`
         absolute top-0 left-0 z-[30]
         h-full w-[94vw] max-w-[550px]

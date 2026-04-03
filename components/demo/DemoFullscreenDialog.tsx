@@ -154,12 +154,29 @@ function DemoLeftPanel({
   const [noteText, setNoteText] = useState("");
   const [notes, setNotes] = useState<NoteItemData[]>(() => getDemoNotes(t));
   const [terms, setTerms] = useState<DemoTermItem[]>(() => getDemoTerms(t));
+  const panelRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     setNotes(getDemoNotes(t));
     setTerms(getDemoTerms(t));
     setActiveTab("info");
   }, [language, map.id, t]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (!target) return;
+      if (panelRef.current?.contains(target)) return;
+      onClose();
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [open, onClose]);
 
   const createdLabel = useMemo(
     () => safeDateLabel(map.createdAt, language),
@@ -234,6 +251,7 @@ function DemoLeftPanel({
 
   return (
     <aside
+      ref={panelRef}
       className={`
         absolute left-0 top-0 z-[18] h-full
         transition-transform duration-300
