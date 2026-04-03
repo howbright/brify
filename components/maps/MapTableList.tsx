@@ -193,7 +193,7 @@ export default function MapTableList({
         })}
       </div>
 
-      <div className="mt-4 hidden w-full min-w-0 overflow-x-auto rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#0b1220]/70 md:block">
+      <div className="mt-4 hidden w-full min-w-0 overflow-x-auto rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-sky-100/24 dark:bg-[linear-gradient(180deg,rgba(74,92,122,0.96)_0%,rgba(58,74,101,0.95)_100%)] dark:shadow-[0_22px_44px_-24px_rgba(8,15,30,0.48)] md:block">
       <table className="min-w-[760px] w-full table-fixed text-left text-[13px] [table-layout:fixed]">
         <colgroup>
           {selectionMode && !tagOrganizeMode && <col style={{ width: "24px" }} />}
@@ -202,20 +202,20 @@ export default function MapTableList({
           <col style={{ width: "230px" }} />
           <col style={{ width: "110px" }} />
         </colgroup>
-        <thead className="text-[12px] font-semibold text-neutral-700 dark:text-white/75">
-          <tr className="border-b border-neutral-300 bg-neutral-50/80 dark:border-white/15 dark:bg-white/[0.04]">
+        <thead className="text-[12px] font-semibold text-neutral-700 dark:text-white/88">
+          <tr className="border-b border-neutral-300 bg-neutral-50/80 dark:border-sky-50/20 dark:bg-[linear-gradient(180deg,rgba(219,234,254,0.22)_0%,rgba(186,230,253,0.12)_100%)]">
             {selectionMode && !tagOrganizeMode && (
-              <th className="w-6 min-w-[24px] max-w-[24px] px-[3px] py-1.5 border-r border-neutral-200 dark:border-white/10 text-center">
+              <th className="w-6 min-w-[24px] max-w-[24px] px-[3px] py-1.5 border-r border-neutral-200 dark:border-sky-50/12 text-center">
                 <span className="sr-only">{t("select")}</span>
               </th>
             )}
-            <th className="px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
+            <th className="px-2 py-1.5 border-r border-neutral-200 dark:border-sky-50/12">
               {t("columns.title")}
             </th>
-            <th className="w-[64px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
+            <th className="w-[64px] px-2 py-1.5 border-r border-neutral-200 dark:border-sky-50/12">
               {t("columns.source")}
             </th>
-            <th className="w-[230px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
+            <th className="w-[230px] px-2 py-1.5 border-r border-neutral-200 dark:border-sky-50/12">
               {t("columns.tags")}
             </th>
             <th className="w-[110px] px-2 py-1.5">{t("columns.updatedAt")}</th>
@@ -233,8 +233,10 @@ export default function MapTableList({
             return (
               <tr
                 key={draft.id}
-                className={`border-b border-neutral-200 hover:bg-neutral-50 dark:border-white/10 dark:hover:bg-white/[0.05] ${
-                  isSelected ? "bg-blue-50/60 dark:bg-blue-500/10" : ""
+                className={`border-b border-neutral-200 hover:bg-neutral-50 dark:border-sky-50/10 dark:hover:bg-sky-100/[0.16] ${
+                  isSelected
+                    ? "bg-blue-50/60 dark:bg-sky-100/[0.22]"
+                    : "dark:odd:bg-white/[0.09] dark:even:bg-sky-50/[0.14]"
                 }`}
                 onClick={() => {
                   if (tagOrganizeMode) return;
@@ -251,7 +253,7 @@ export default function MapTableList({
                 }}
               >
                 {selectionMode && !tagOrganizeMode && (
-                  <td className="w-6 min-w-[24px] max-w-[24px] px-[3px] py-1.5 border-r border-neutral-200 dark:border-white/10 text-center">
+                  <td className="w-6 min-w-[24px] max-w-[24px] px-[3px] py-1.5 border-r border-neutral-200 dark:border-sky-50/12 text-center">
                     <div className="flex items-center justify-center">
                       <input
                         type="checkbox"
@@ -264,11 +266,11 @@ export default function MapTableList({
                     </div>
                   </td>
                 )}
-                <td className="px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
+                <td className="px-2 py-1.5 border-r border-neutral-200 dark:border-sky-50/12">
                   <div className="flex items-center gap-2">
                     <div className="min-w-0 flex flex-1 items-center gap-2">
                       {renderStatusBadge(draft)}
-                      <div className="min-w-0 flex-1 truncate text-[14px] font-medium text-neutral-800 dark:text-white/85">
+                      <div className="min-w-0 flex-1 truncate text-[14px] font-medium text-neutral-800 dark:text-white/92">
                         {displayTitle}
                       </div>
                     </div>
@@ -283,7 +285,7 @@ export default function MapTableList({
                           onMouseEnter={() => onPrefetchDetail?.(draft)}
                           onFocus={() => onPrefetchDetail?.(draft)}
                           disabled={isOpeningDetail}
-                          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm disabled:cursor-wait disabled:opacity-80 dark:border-white/15 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/10"
+                          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm disabled:cursor-wait disabled:opacity-80 dark:border-sky-50/22 dark:bg-white/[0.22] dark:text-white/92 dark:hover:border-sky-50/40 dark:hover:bg-sky-50/[0.26]"
                         >
                           <Icon
                             icon={isOpeningDetail ? "mdi:loading" : "mdi:open-in-new"}
@@ -294,12 +296,12 @@ export default function MapTableList({
                     )}
                   </div>
                 </td>
-                <td className="w-[64px] px-2 py-1.5 text-[13px] text-neutral-700 dark:text-white/75 border-r border-neutral-200 dark:border-white/10">
+                <td className="w-[64px] px-2 py-1.5 text-[13px] text-neutral-700 dark:text-white/86 border-r border-neutral-200 dark:border-sky-50/12">
                   {draft.sourceType ? sourceLabels[draft.sourceType] : "-"}
                 </td>
-                <td className="w-[230px] px-2 py-1.5 text-neutral-600 dark:text-white/70 border-r border-neutral-200 dark:border-white/10">
+                <td className="w-[230px] px-2 py-1.5 text-neutral-600 dark:text-white/84 border-r border-neutral-200 dark:border-sky-50/12">
                   <div className="flex items-start justify-between gap-2">
-                    <span className="min-h-[36px] flex-1 text-[12px] leading-5 text-neutral-700 dark:text-white/75 line-clamp-2">
+                    <span className="min-h-[36px] flex-1 text-[12px] leading-5 text-neutral-700 dark:text-white/88 line-clamp-2">
                       {visibleTags.length > 0
                         ? `${visibleTags.map((tag) => `#${tag}`).join(" ")}${
                             remainingTags > 0 ? ` +${remainingTags}` : ""
@@ -313,7 +315,7 @@ export default function MapTableList({
                             event.stopPropagation();
                             onEditTags(draft);
                           }}
-                          className="inline-flex items-center gap-1 self-start rounded-md px-1 py-0.5 text-[11px] font-medium text-blue-700 hover:bg-blue-50 cursor-pointer dark:text-blue-200 dark:hover:bg-blue-500/10"
+                          className="inline-flex items-center gap-1 self-start rounded-md px-1 py-0.5 text-[11px] font-medium text-blue-700 hover:bg-blue-50 cursor-pointer dark:text-sky-50 dark:hover:bg-sky-50/[0.18]"
                         >
                           <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
                           {t("editTags")}
@@ -321,7 +323,7 @@ export default function MapTableList({
                     )}
                   </div>
                 </td>
-                <td className="w-[110px] px-2 py-1.5 text-[12px] font-medium text-neutral-600 dark:text-white/70 whitespace-nowrap">
+                <td className="w-[110px] px-2 py-1.5 text-[12px] font-medium text-neutral-600 dark:text-white/84 whitespace-nowrap">
                   {draft.updatedAt
                     ? new Date(draft.updatedAt).toLocaleDateString(locale, {
                         year: "numeric",

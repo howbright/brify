@@ -791,6 +791,7 @@ export default function DemoFullscreenDialog({
                 data={initialMapData ?? undefined}
                 loading={false}
                 placeholderData={loadingMindElixir}
+                showMiniMap={!isTutorialMobile}
                 openMenuOnClick={false}
                 disableDirectContextMenu
                 showSelectionContextMenuButton

@@ -1319,6 +1319,7 @@ export default function MapDetailPage() {
               data={initialMapData ?? undefined}
               loading={loading}
               placeholderData={loadingMindElixir}
+              showMiniMap={!isTutorialMobile}
               openMenuOnClick={false}
               disableDirectContextMenu
               showSelectionContextMenuButton

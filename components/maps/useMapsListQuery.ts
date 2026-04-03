@@ -24,6 +24,22 @@ type UseMapsListQueryParams = {
   toDraft: (row: MapRow) => MapDraft;
 };
 
+function expandStatusFilters(statusFilters: MapJobStatus[]) {
+  const expanded = new Set<MapJobStatus>();
+
+  statusFilters.forEach((status) => {
+    if (status === "processing") {
+      expanded.add("idle");
+      expanded.add("queued");
+      expanded.add("processing");
+      return;
+    }
+    expanded.add(status);
+  });
+
+  return Array.from(expanded);
+}
+
 export default function useMapsListQuery({
   listFields,
   page,
@@ -52,6 +68,7 @@ export default function useMapsListQuery({
         setLoading(true);
         setError(null);
         const supabase = createClient();
+        const effectiveStatusFilters = expandStatusFilters(statusFilters);
         const from = (page - 1) * pageSize;
         const to = from + pageSize - 1;
         const q = isTagOrganizeActive ? "" : query.trim();
@@ -91,8 +108,8 @@ export default function useMapsListQuery({
         if (dateRange.to) {
           request = request.lte("created_at", dateRange.to);
         }
-        if (statusFilters.length > 0) {
-          request = request.in("map_status", statusFilters);
+        if (effectiveStatusFilters.length > 0) {
+          request = request.in("map_status", effectiveStatusFilters);
         }
         if (sourceFilters.length > 0) {
           request = request.in("source_type", sourceFilters);

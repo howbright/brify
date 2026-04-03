@@ -9,6 +9,7 @@ function SectionCard({
   description,
   children,
   className,
+  visualClassName,
   index,
   featured = false,
 }: {
@@ -16,6 +17,7 @@ function SectionCard({
   description: string;
   children: React.ReactNode;
   className?: string;
+  visualClassName?: string;
   index?: number;
   featured?: boolean;
 }) {
@@ -40,10 +42,10 @@ function SectionCard({
             : "opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[radial-gradient(60%_100%_at_50%_0%,rgba(59,130,246,0.12),transparent_76%)] dark:bg-[radial-gradient(60%_100%_at_50%_0%,rgba(96,165,250,0.14),transparent_78%)]"
         }`}
       />
-      <div className="mb-5 flex h-[156px] items-center md:h-[164px] xl:h-[156px]">
+      <div className={`mb-5 flex min-h-[148px] items-center ${visualClassName ?? ""}`}>
         {children}
       </div>
-      <div className="mt-auto flex min-h-[104px] flex-col">
+      <div className="mt-auto">
         <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
           {title}
         </h3>
@@ -213,6 +215,7 @@ export default function MapLibrarySection() {
           <SectionCard
             title={t("cards.tags.title")}
             description={t("cards.tags.description")}
+            visualClassName="md:min-h-[172px] xl:min-h-[148px]"
             index={0}
           >
             <TagVisual />
