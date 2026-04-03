@@ -4,21 +4,10 @@ import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 import { Link } from "@/i18n/navigation";
 import MapMiniPreview, {
   type MapMiniPreviewHandle,
+  type MapMiniPreviewData,
 } from "@/components/maps/MapMiniPreview";
 import { useEffect, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
-
-type MindNode = {
-  id?: string;
-  topic?: string;
-  expanded?: boolean;
-  children?: MindNode[];
-};
-
-type PreviewMindData =
-  | { nodeData?: MindNode; data?: { nodeData?: MindNode }; root?: { nodeData?: MindNode } }
-  | MindNode
-  | null;
 
 function formatDate(draft: MapDraft, locale: string) {
   const value = draft.updatedAt ?? draft.createdAt;
@@ -43,7 +32,7 @@ export default function MapPreviewPanel({
   onClose,
 }: {
   draft: MapDraft | null;
-  previewData: PreviewMindData;
+  previewData: MapMiniPreviewData;
   previewStatus: "idle" | "loading" | "loaded" | "missing" | "error";
   emptyMessage: string;
   isOpen: boolean;

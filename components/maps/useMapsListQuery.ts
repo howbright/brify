@@ -123,7 +123,7 @@ export default function useMapsListQuery({
         if (cancelled) return;
         if (error) throw error;
 
-        const rows = (data ?? []) as MapRow[];
+        const rows = (data ?? []) as unknown as MapRow[];
 
         const filteredRows = includesNoTagFilter
           ? rows.filter((row) => {

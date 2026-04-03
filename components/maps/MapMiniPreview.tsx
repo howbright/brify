@@ -4,6 +4,9 @@ import { forwardRef, useImperativeHandle, useMemo, useRef } from "react";
 import ClientMindElixir, {
   type ClientMindElixirHandle,
 } from "@/components/ClientMindElixir";
+import type { Database } from "@/app/types/database.types";
+
+type JsonValue = Database["public"]["Tables"]["maps"]["Row"]["mind_elixir"];
 
 type MindNode = {
   id?: string;
@@ -12,21 +15,46 @@ type MindNode = {
   children?: MindNode[];
 };
 
-type MindData =
+export type MapMiniPreviewData =
   | { nodeData?: MindNode; data?: { nodeData?: MindNode }; root?: { nodeData?: MindNode } }
   | MindNode
+  | JsonValue
   | null
   | undefined;
 
-function getRootNode(data: MindData): MindNode | null {
+function getRootNode(data: MapMiniPreviewData): MindNode | null {
   if (!data) return null;
-  if (typeof data === "object" && "nodeData" in data && data.nodeData) {
+  if (
+    typeof data === "object" &&
+    !Array.isArray(data) &&
+    "nodeData" in data &&
+    data.nodeData &&
+    typeof data.nodeData === "object"
+  ) {
     return data.nodeData as MindNode;
   }
-  if (typeof data === "object" && "data" in data && data.data?.nodeData) {
+  if (
+    typeof data === "object" &&
+    !Array.isArray(data) &&
+    "data" in data &&
+    data.data &&
+    typeof data.data === "object" &&
+    "nodeData" in data.data &&
+    data.data.nodeData &&
+    typeof data.data.nodeData === "object"
+  ) {
     return data.data.nodeData as MindNode;
   }
-  if (typeof data === "object" && "root" in data && data.root?.nodeData) {
+  if (
+    typeof data === "object" &&
+    !Array.isArray(data) &&
+    "root" in data &&
+    data.root &&
+    typeof data.root === "object" &&
+    "nodeData" in data.root &&
+    data.root.nodeData &&
+    typeof data.root.nodeData === "object"
+  ) {
     return data.root.nodeData as MindNode;
   }
   if (typeof data === "object" && ("topic" in data || "children" in data)) {
@@ -46,7 +74,7 @@ function cloneData<T>(value: T): T {
   }
 }
 
-function collapseToLevel(data: MindData, level = 1) {
+function collapseToLevel(data: MapMiniPreviewData, level = 1) {
   const cloned = cloneData(data);
   const root = getRootNode(cloned);
   if (!root) return cloned;
@@ -67,7 +95,7 @@ export type MapMiniPreviewHandle = {
 };
 
 const MapMiniPreview = forwardRef<MapMiniPreviewHandle, {
-  data?: MindData;
+  data?: MapMiniPreviewData;
   emptyText?: string;
 }>(({ data, emptyText = "Preview unavailable" }, ref) => {
   const root = useMemo(() => getRootNode(data), [data]);

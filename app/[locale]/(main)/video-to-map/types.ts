@@ -28,7 +28,7 @@ export type MapDraft = {
   status: MapJobStatus;
 
   // 결과(가짜)
-  result?: any;
+  result?: unknown;
   error?: string;
 
   // 크레딧/정산

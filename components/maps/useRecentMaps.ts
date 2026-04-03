@@ -8,7 +8,7 @@ import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
 
 type UseRecentMapsOptions = {
-  locale?: string;
+  locale?: string | null;
   listFields: string;
   toDraft: (row: MapRow) => MapDraft;
 };
@@ -48,8 +48,8 @@ export default function useRecentMaps({
         if (createdError) throw createdError;
         if (updatedError) throw updatedError;
 
-        setRecentCreatedDrafts(((createdData ?? []) as MapRow[]).map(toDraft));
-        setRecentUpdatedDrafts(((updatedData ?? []) as MapRow[]).map(toDraft));
+        setRecentCreatedDrafts(((createdData ?? []) as unknown as MapRow[]).map(toDraft));
+        setRecentUpdatedDrafts(((updatedData ?? []) as unknown as MapRow[]).map(toDraft));
       } catch {
         if (cancelled) return;
         setRecentCreatedDrafts([]);
