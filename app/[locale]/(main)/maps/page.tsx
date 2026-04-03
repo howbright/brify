@@ -29,6 +29,8 @@ import MapCardList from "@/components/maps/MapCardList";
 import MapTableList from "@/components/maps/MapTableList";
 import MapsRecentSections from "@/components/maps/MapsRecentSections";
 import MobileTagSheet from "@/components/maps/MobileTagSheet";
+import MapNotesTab from "@/components/maps/MapNotesTab";
+import MapTermsTab from "@/components/maps/MapTermsTab";
 import useMapSelectionMerge from "@/components/maps/useMapSelectionMerge";
 import useMapPreview from "@/components/maps/useMapPreview";
 import useMapTags from "@/components/maps/useMapTags";
@@ -39,13 +41,14 @@ import useRecentMaps from "@/components/maps/useRecentMaps";
 import { usePinnedPanel, usePinnedToolbar } from "@/components/maps/usePinnedLayout";
 import MapFilterPopover from "@/components/maps/MapFilterPopover";
 import TagMergeDialog from "@/components/maps/TagMergeDialog";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 import type { Database } from "@/app/types/database.types";
 import { useRef } from "react";
 
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
 type SourceType = "youtube" | "website" | "file" | "manual";
+type MapsPageTab = "maps" | "notes" | "terms";
 
 const LIST_FIELDS =
   "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,notes_count,terms_count";
@@ -245,6 +248,7 @@ export default function MapsPage() {
   const previewShellRef = useRef<HTMLElement | null>(null);
   const tagPanelShellRef = useRef<HTMLElement | null>(null);
   const [viewMode, setViewMode] = useState<"card" | "table">("card");
+  const [activeTab, setActiveTab] = useState<MapsPageTab>("maps");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [openingDetailId, setOpeningDetailId] = useState<string | null>(null);
   const [mobileTagSheetOpen, setMobileTagSheetOpen] = useState(false);
@@ -254,6 +258,8 @@ export default function MapsPage() {
   const desktopDefaultsAppliedRef = useRef(false);
 
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const params = useParams();
   const locale = typeof params?.locale === "string" ? params.locale : null;
   const statusLabels = useMemo<Record<MapJobStatus, string>>(
@@ -587,6 +593,7 @@ export default function MapsPage() {
     ? tPage("previewEmpty.noResults")
     : tPage("previewEmpty.selectFromList");
   const showRecentSections =
+    activeTab === "maps" &&
     !error &&
     !isTagOrganizeActive &&
     !selectionMode &&
@@ -613,6 +620,39 @@ export default function MapsPage() {
     />
   ) : null;
 
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    const nextTab: MapsPageTab =
+      tabParam === "notes" || tabParam === "terms" ? tabParam : "maps";
+    if (nextTab !== activeTab) {
+      setActiveTab(nextTab);
+    }
+  }, [activeTab, searchParams]);
+
+  const handleChangeTab = (nextTab: MapsPageTab) => {
+    setActiveTab(nextTab);
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
+    if (nextTab === "maps") {
+      nextSearchParams.delete("tab");
+    } else {
+      nextSearchParams.set("tab", nextTab);
+    }
+    const nextQuery = nextSearchParams.toString();
+    if (typeof window !== "undefined") {
+      const nextUrl = nextQuery ? `${pathname}?${nextQuery}` : pathname;
+      window.history.pushState({}, "", nextUrl);
+    }
+    setFiltersOpen(false);
+    if (nextTab !== "maps") {
+      setPreviewOpen(false);
+      setMobilePreviewOpen(false);
+      setSelectionMode(false);
+      clearSelection();
+      setTagOrganizeMode(false);
+      setMobileTagSheetOpen(false);
+    }
+  };
+
   return (
     <main className="min-h-[70vh] bg-neutral-50 px-6 pt-22 pb-12 dark:bg-[#07111f]">
       <div className="mx-auto max-w-6xl">
@@ -624,17 +664,46 @@ export default function MapsPage() {
           </div>
         </div>
 
-        {recentSections}
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          {(
+            [
+              { id: "maps", label: tPage("tabs.maps") },
+              { id: "notes", label: tPage("tabs.notes") },
+              { id: "terms", label: tPage("tabs.terms") },
+            ] as const
+          ).map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => handleChangeTab(tab.id)}
+                aria-pressed={isActive}
+                className={`inline-flex items-center rounded-full border px-3 py-1.5 text-[13px] font-semibold transition ${
+                  isActive
+                    ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black"
+                    : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.04] dark:text-white/72 dark:hover:bg-white/[0.08]"
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
 
-        <div
-          className={`${recentSectionsCollapsed ? "-mt-1" : "mt-4"} grid gap-6 ${
-            isTagOrganizeActive
-              ? "lg:grid-cols-[minmax(0,0.32fr)_minmax(0,0.68fr)]"
-              : previewOpen
-              ? "lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]"
-              : "lg:grid-cols-[minmax(0,1fr)]"
-          } lg:min-h-[calc(100vh-160px)]`}
-        >
+        {activeTab === "maps" ? (
+          <>
+            {recentSections}
+
+            <div
+              className={`${recentSectionsCollapsed ? "-mt-1" : "mt-4"} grid gap-6 ${
+                isTagOrganizeActive
+                  ? "lg:grid-cols-[minmax(0,0.32fr)_minmax(0,0.68fr)]"
+                  : previewOpen
+                  ? "lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]"
+                  : "lg:grid-cols-[minmax(0,1fr)]"
+              } lg:min-h-[calc(100vh-160px)]`}
+            >
           {tagOrganizeMode && !isMobileViewport && (
             <section
               ref={tagPanelShellRef}
@@ -1020,7 +1089,31 @@ export default function MapsPage() {
                 </div>
               </section>
             ))}
-        </div>
+            </div>
+          </>
+        ) : activeTab === "notes" ? (
+          <MapNotesTab />
+        ) : activeTab === "terms" ? (
+          <MapTermsTab />
+        ) : (
+          <section className="mt-2 rounded-3xl border border-neutral-200 bg-white px-6 py-10 dark:border-white/10 dark:bg-white/[0.04]">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-[12px] font-semibold text-neutral-600 dark:border-white/12 dark:bg-white/[0.05] dark:text-white/72">
+                {activeTab === "notes" ? tPage("tabs.notes") : tPage("tabs.terms")}
+              </div>
+              <h2 className="mt-4 text-lg font-semibold text-neutral-900 dark:text-white/94">
+                {activeTab === "notes"
+                  ? tPage("comingSoon.notesTitle")
+                  : tPage("comingSoon.termsTitle")}
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-white/64">
+                {activeTab === "notes"
+                  ? tPage("comingSoon.notesDescription")
+                  : tPage("comingSoon.termsDescription")}
+              </p>
+            </div>
+          </section>
+        )}
       </div>
 
       <MobileTagSheet

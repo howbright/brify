@@ -188,12 +188,6 @@
     "createAnother": "Create another Structure Map",
     "openMap": "Open Structure Map"
   },
-  "NoteItem": {
-    "save": "Save",
-    "cancel": "Cancel",
-    "edit": "Edit",
-    "delete": "Delete"
-  },
   "ScriptHelpSection": {
     "badge": "Help",
     "headerTitle": "How to copy a YouTube transcript",
@@ -201,19 +195,16 @@
       "title": "Getting a transcript from YouTube on desktop",
       "description": "Follow these steps to copy the full transcript in about 1–2 minutes."
     },
-
     "step1": {
       "title": "Click the \"···\" or \"More\" button below the video.",
       "body": "Look under the video title, next to the Like/Share buttons, for the three dots (···) or a \"More\" button.",
       "imageAlt": "Location of the More (···) button on the YouTube watch page."
     },
-
     "step2": {
       "title": "In the menu, choose \"Show transcript\" or \"Transcript\".",
       "body": "In the menu that opens, click the item named \"Show transcript\", \"Captions\", or \"Transcript\".",
       "imageAlt": "YouTube menu showing the Show transcript option."
     },
-
     "step3": {
       "title": "Select the entire transcript on the right and copy it.",
       "tip1": "1. Click once on the first line of the transcript.",
@@ -224,33 +215,27 @@
       "tipNote": "※ Using Ctrl + A selects the whole page, so we don’t recommend it when you only want the transcript.",
       "imageAlt": "Selecting the entire transcript in the YouTube transcript panel."
     },
-
     "step4": {
       "title": "Paste it into the input box on the left of this page.",
       "body": "Click the \"Paste video script\" input area, then press Ctrl + V (or ⌘ + V on Mac) to paste. Now you’re ready.",
       "imageAlt": "Pasting text into the video script input field."
     },
-
     "sectionB": {
       "title": "Want to use subtitles or an editing tool instead?",
       "description": "If you already have a project in progress, you can simply copy the text and paste it here."
     },
-
     "case1": {
       "title": "Copying subtitles or script from an editor (Premiere, CapCut, etc.)",
       "body": "Select all subtitle text from the timeline, copy it, and paste it into the input on the left."
     },
-
     "case2": {
       "title": "Opening subtitle files (srt, vtt, etc.) as text",
       "body": "Open the srt/vtt file in a text editor like Notepad. It will contain timestamps with dialogue. Copy the lines you need and paste them here."
     },
-
     "case3": {
       "title": "Using a script document you’ve already written",
       "body": "It doesn’t matter where your script lives—blog, Word, Notion, etc. Just copy the full text and paste it as-is."
     },
-
     "faq": {
       "title": "Q. I don’t see a \"Show transcript\" / \"Transcript\" menu.",
       "item1": "Some videos may hide the transcript at the creator’s choice.",
@@ -343,7 +328,6 @@
       "link": "Log in"
     }
   },
-
   "signupPage": {
     "brand": "Brify",
     "tagline": "Create a new account and start organizing summaries and Structure Maps."
@@ -370,217 +354,6 @@
       "success": "Your sample Structure Map is ready.",
       "autoOpen": "Your Structure Map is ready. Opening it now.",
       "readOnly": "You can't edit the sample text on the demo page."
-    }
-  },
-  "DemoFullscreenDialog": {
-    "dialog": {
-      "title": "Structure Map Preview"
-    },
-    "actions": {
-      "close": "Close",
-      "closeMap": "Close map",
-      "infoPanel": "Info panel",
-      "startService": "Start using Brify",
-      "centerMap": "Center",
-      "collapseAll": "Collapse all",
-      "zoomIn": "Zoom in",
-      "zoomOut": "Zoom out",
-      "tutorial": "Tutorial"
-    },
-    "badges": {
-      "editMode": "Edit mode",
-      "viewMode": "View mode"
-    },
-    "toasts": {
-      "demoFinished": "The demo is over. Returning to the home page.",
-      "editModeRequired": "Switch to Edit mode to modify nodes."
-    },
-    "shareDialog": {
-      "title": "This Structure Map is for demo only",
-      "description": "In the full service, you can share your Structure Map by link and view it together with others. Start using Brify to create a share link for your own map.",
-      "action": "Start Using Brify",
-      "cancel": "Close"
-    },
-    "tabs": {
-      "info": "Info",
-      "notes": "Notes",
-      "terms": "Terms"
-    },
-    "sourceTypes": {
-      "youtube": "YouTube",
-      "website": "Website",
-      "file": "File",
-      "manual": "Manual"
-    },
-    "info": {
-      "created": "Created",
-      "updated": "Updated",
-      "credits": "Credits",
-      "summary": "One-paragraph summary",
-      "source": "Source",
-      "thumbnail": "Thumbnail",
-      "sourceType": "Source Type",
-      "channel": "Channel",
-      "originalLink": "Original Link",
-      "tags": "Tags",
-      "description": "Description"
-    },
-    "notes": {
-      "justNow": "Just now",
-      "helper": "You can jot down quick thoughts while reading important nodes.",
-      "placeholder": "Write down what comes to mind from this node.",
-      "add": "Add note",
-      "empty": "There are no notes yet.",
-      "items": [
-        {
-          "text": "The meal timing makes the daily fasting rhythm easy to follow at a glance.",
-          "createdAtLabel": "Just now"
-        },
-        {
-          "text": "A key takeaway is that he avoids OMAD to maintain weight, not because of hunger.",
-          "createdAtLabel": "Just now"
-        }
-      ]
-    },
-    "terms": {
-      "autoAddedXylitol": "Mentioned in the video as the sweetener added to coffee.",
-      "customAdded": "A custom term added in the demo view.",
-      "helper": "AI automatically extracts key terms to make the content easier to understand.",
-      "items": [
-        {
-          "term": "OMAD",
-          "meaning": "A one-meal-a-day eating pattern."
-        },
-        {
-          "term": "grass-fed",
-          "meaning": "Used as a quality standard for animal-based foods in the video."
-        },
-        {
-          "term": "pasture-raised",
-          "meaning": "A sourcing standard for eggs and livestock that is emphasized throughout the routine."
-        }
-      ]
-    }
-  },
-  "MapTutorial": {
-    "overlay": {
-      "label": "TUTORIAL",
-      "skip": "Skip",
-      "next": "Next",
-      "start": "Start"
-    },
-    "illustrations": {
-      "mode": {
-        "view": "View",
-        "edit": "Edit"
-      },
-      "mouse": {
-        "alt": "Right click mouse guide",
-        "label": "Right click + drag"
-      },
-      "trackpad": {
-        "alt": "Two-finger trackpad guide",
-        "label": "Two-finger move"
-      },
-      "context": {
-        "alt": "Context menu guide"
-      },
-      "expand": {
-        "label": "Expand / Collapse",
-        "description": "Use the + button to open child nodes"
-      }
-    },
-    "steps": {
-      "edit": {
-        "title": "Switch to Edit mode before editing",
-        "description": "You're currently in View mode. Switch to Edit mode at the top before changing nodes or structure.",
-        "calloutTitle": "View / Edit mode",
-        "calloutDescription": "Start here when you want to edit the map."
-      },
-      "mouse": {
-        "title": "Move the map by right-dragging",
-        "description": "When you're using a mouse, hold right click and drag to move around the map smoothly.",
-        "calloutTitle": "Mouse move",
-        "calloutDescription": "Hold right click and drag the map."
-      },
-      "trackpad": {
-        "title": "Use two fingers on a trackpad to move the map",
-        "description": "On a laptop trackpad, slide with two fingers to pan across the map naturally.",
-        "calloutTitle": "Trackpad move",
-        "calloutDescription": "Use a two-finger gesture to move around."
-      },
-      "context": {
-        "title": "Select a node, then right click",
-        "description": "Select a node first, then right click to open a context menu with the available actions.",
-        "calloutTitle": "Context menu",
-        "calloutDescription": "The menu opens after selecting a node."
-      },
-      "highlight": {
-        "title": "Use highlight to mark important parts",
-        "description": "Click the middle icon to highlight a node. Mark important parts so they are much easier to revisit later.",
-        "calloutTitle": "Highlight",
-        "calloutDescription": "Highlight key parts while you read."
-      },
-      "expand": {
-        "title": "Expand and collapse nodes to read more comfortably",
-        "description": "Click the + button inside the circle to reveal child content. You can collapse it again and follow only what you need, which makes the Structure Map much easier to read.",
-        "calloutTitle": "Expand / Collapse",
-        "calloutDescription": "Click the + button to reveal child content."
-      },
-      "terms": {
-        "title": "AI organizes difficult terms for you",
-        "description": "In the Terms tab on the left panel, AI can gather unfamiliar words from the content and explain them clearly.",
-        "calloutTitle": "Terms",
-        "calloutDescription": "AI finds difficult terms and organizes them for you."
-      },
-      "shortcuts": {
-        "title": "It gets much easier once you remember the shortcuts",
-        "description": "Once you remember the most useful shortcuts, working with a Structure Map becomes much faster. You can always open this again from More > Shortcuts."
-      }
-    },
-    "mobile": {
-      "edit": {
-        "title": "Editing is ready on mobile by default",
-        "description": "On mobile, the Structure Map opens in an editable state from the start.",
-        "calloutTitle": "Edit mode",
-        "calloutDescription": "You can start editing right away on mobile."
-      },
-      "move": {
-        "title": "You can drag the map directly on mobile",
-        "description": "On mobile, you do not need a separate move mode. Just drag with one finger on empty space or away from the node controls to pan the map.",
-        "calloutTitle": "Move the map",
-        "calloutDescription": "Try dragging with one finger to move the map."
-      },
-      "select": {
-        "title": "Tap a node to select it, and long-press to open the edit menu",
-        "description": "On mobile, a single tap selects a node. The small quick actions next to the node are available right away, and in Edit mode the bottom edit bar opens when you long-press.",
-        "calloutTitle": "Select a node",
-        "calloutDescription": "Tap a node to select it, then long-press when you want the edit menu."
-      },
-      "highlight": {
-        "title": "Highlight important nodes as you read",
-        "description": "When a node is selected, small quick-action buttons appear next to it. Use the highlight button there to mark important parts.",
-        "calloutTitle": "Highlight",
-        "calloutDescription": "Select a node, then tap the highlight button."
-      },
-      "expand": {
-        "title": "Expand and collapse nodes to read more comfortably",
-        "description": "Tap the + button inside the circle to reveal child content. You can collapse it again and follow only what you need, which makes the Structure Map much easier to read.",
-        "calloutTitle": "Expand / Collapse",
-        "calloutDescription": "Tap the + button to reveal child content."
-      },
-      "panel": {
-        "title": "Open the left panel for more context",
-        "description": "Tap the left panel button to open the Info, Notes, and Terms tabs. While reading the Structure Map, you can quickly check whatever you need there.",
-        "calloutTitle": "Left panel",
-        "calloutDescription": "This button opens the Info, Notes, and Terms tabs."
-      },
-      "terms": {
-        "title": "AI organizes difficult terms for you",
-        "description": "In the Terms tab on the left panel, AI can gather unfamiliar words from the content and explain them clearly.",
-        "calloutTitle": "Terms",
-        "calloutDescription": "You can review difficult terms here."
-      }
     }
   },
   "CreatorSection": {
@@ -661,7 +434,6 @@
     "positioningText": "No subscription — pay only for what you use.",
     "refundText": "Unused credits are eligible for a full refund within 7 days of purchase.",
     "seeDetails": "View pricing details",
-
     "packs": {
       "50": {
         "badgeText": "Starter",
@@ -676,7 +448,6 @@
         "tagline": "A generous pack for study and projects."
       }
     },
-
     "creditRule": {
       "title": "Most content uses only 1 credit",
       "desc": "Only very large texts require 2 credits",
@@ -691,12 +462,10 @@
         "blocked": "Not supported"
       }
     },
-
     "toggles": {
       "details": "Details",
       "collapse": "Collapse"
     },
-
     "paymentToggle": {
       "krw": "Pay in KRW (Toss Payments)",
       "usd": "Pay in USD (LemonSqueezy)"
@@ -797,82 +566,6 @@
       "myMaps": "My Maps"
     }
   },
-  "MapControls": {
-    "mode": {
-      "view": "View",
-      "viewAria": "View mode",
-      "edit": "Edit",
-      "editAria": "Edit mode"
-    },
-    "pan": {
-      "select": "Select",
-      "selectAria": "Select mode",
-      "move": "Pan",
-      "moveAria": "Pan mode"
-    },
-    "menus": {
-      "mapActions": "Map actions",
-      "theme": "Theme",
-      "more": "More"
-    },
-    "actions": {
-      "center": "Center",
-      "zoomIn": "Zoom in",
-      "zoomOut": "Zoom out",
-      "collapseAll": "Collapse all",
-      "expandAll": "Expand all",
-      "expandLevel": "Expand one level",
-      "collapseLevel": "Collapse one level",
-      "alignLeft": "Align left",
-      "alignRight": "Align right",
-      "alignCenter": "Center layout",
-      "exportPng": "Save as image (PNG)",
-      "share": "Share",
-      "shortcuts": "Shortcuts",
-      "tutorial": "Tutorial",
-      "closeMap": "Close map"
-    }
-  },
-  "ShortcutsDialog": {
-    "title": "Keyboard Shortcuts",
-    "description": "Default Mind Elixir keyboard shortcuts.",
-    "close": "Close",
-    "columns": {
-      "shortcut": "Shortcut",
-      "action": "Action"
-    },
-    "items": [
-      { "key": "Enter", "description": "Insert sibling node" },
-      { "key": "Shift + Enter", "description": "Insert sibling node before" },
-      { "key": "Tab", "description": "Insert child node" },
-      { "key": "Ctrl + Enter", "description": "Insert parent node" },
-      { "key": "F1", "description": "Center the map" },
-      { "key": "F2", "description": "Edit current node" },
-      { "key": "↑", "description": "Select previous node" },
-      { "key": "↓", "description": "Select next node" },
-      { "key": "← / →", "description": "Select left/right node" },
-      { "key": "PageUp / Alt + ↑", "description": "Move up" },
-      { "key": "PageDown / Alt + ↓", "description": "Move down" },
-      { "key": "Ctrl + ↑", "description": "Both-side layout" },
-      { "key": "Ctrl + ←", "description": "Left-side layout" },
-      { "key": "Ctrl + →", "description": "Right-side layout" },
-      { "key": "Ctrl + C", "description": "Copy" },
-      { "key": "Ctrl + X", "description": "Cut" },
-      { "key": "Ctrl + V", "description": "Paste" },
-      { "key": "Delete / Backspace", "description": "Delete node/edge/summary" },
-      { "key": "Ctrl + +", "description": "Zoom in" },
-      { "key": "Ctrl + -", "description": "Zoom out" },
-      { "key": "Ctrl + 0", "description": "Reset zoom" },
-      { "key": "Ctrl + K, Ctrl + 0", "description": "Collapse all" },
-      { "key": "Ctrl + K, Ctrl + =", "description": "Expand all" },
-      { "key": "Ctrl + K, Ctrl + 1-9", "description": "Expand to level N" }
-    ]
-  },
-  "ConfirmShareDialog": {
-    "title": "Publish before sharing",
-    "description": "Publish the current changes and generate a share link?",
-    "actionLabel": "Publish and share"
-  },
   "ThemeToggle": {
     "label": {
       "light": "Light mode",
@@ -895,7 +588,6 @@
       "paidLabel": "Paid credits",
       "freeLabel": "Reward credits"
     },
-
     "packs": {
       "title": "Choose a credit pack",
       "info": {
@@ -903,7 +595,6 @@
         "refundPolicy": "View refund policy"
       }
     },
-
     "faq": {
       "title": "FAQ",
       "q2": "How many credits does a video use?",
@@ -913,7 +604,6 @@
       "q4": "Will I receive a payment receipt?",
       "a4": "Yes. LemonSqueezy sends a receipt email after payment. If you can’t find it or need help with a billing issue, contact us and we’ll help you check the order details."
     },
-
     "card": {
       "badge": {
         "popular": "Most popular",
@@ -1071,7 +761,10 @@
   },
   "LandingBlueHero": {
     "eyebrow": "The more information there is, the more you need a standard of your own.",
-    "titles": ["Turn YouTube transcripts", "Turn any long text"],
+    "titles": [
+      "Turn YouTube transcripts",
+      "Turn any long text"
+    ],
     "titleHighlight": "into a Structure Map",
     "titleSuffix": "!",
     "helper": "Don’t follow someone else’s conclusion. Compare different perspectives and build your own standard.",
@@ -1084,7 +777,11 @@
       "Generate results in your language",
       "Compare Structure Maps and spot differences at a glance"
     ],
-    "flowItems": ["Paste a script", "Create a Structure Map", "Read · Edit · Compare"],
+    "flowItems": [
+      "Paste a script",
+      "Create a Structure Map",
+      "Read · Edit · Compare"
+    ],
     "videoLabel": "See the workflow in 30 seconds",
     "visualAlt": "Structure Map preview"
   },
@@ -1096,11 +793,9 @@
   "Support": {
     "badge": "Support / Feedback",
     "title": "Send a note to Brify",
-
     "form": {
       "title": "Write your message",
       "subtitle": "The more details you provide, the faster and more accurately we can help.",
-
       "categoryLabel": "Category",
       "category": {
         "bug": "Bug report",
@@ -1108,7 +803,6 @@
         "billing": "Billing / Credits",
         "other": "Other"
       },
-
       "field": {
         "titleLabel": "Title",
         "titlePlaceholder": "e.g., I can’t see the summary result",
@@ -1118,13 +812,11 @@
         "emailPlaceholder": "We’ll reply to your account email. Enter a different email if you prefer.",
         "needsReply": "I would like a reply to this request"
       },
-
       "validation": {
         "titleRequired": "Please enter a title.",
         "messageRequired": "Please enter details.",
         "emailInvalid": "Please enter a valid email."
       },
-
       "status": {
         "success": "Your request has been received. We’ll review it and reply as soon as possible.",
         "warnFallback": "Your request was received, but there was an issue enqueueing the email sending job. We’ll investigate soon.",
@@ -1132,13 +824,11 @@
         "warnPrefix": "Your request was received, but failed to enqueue the email sending job.",
         "warnWithError": "Your request was received, but failed to enqueue the email sending job. ({error})"
       },
-
       "button": {
         "submitting": "Sending...",
         "submit": "Send"
       }
     },
-
     "aside": {
       "speed": {
         "title": "Response time",
@@ -1217,27 +907,24 @@
     "billing": "Billing",
     "system": "System"
   },
-  "common": { "credits": "credits" },
+  "common": {
+    "credits": "credits"
+  },
   "signupComplete": {
     "loading": "Getting things ready...",
     "checking": "Checking...",
-
     "title": "Almost there 🙌",
     "subtitle": "One last step—please review and agree to the terms to get started.",
-
     "agree": {
       "terms": "I agree to the Terms of Service",
       "privacy": "I agree to the Privacy Policy",
       "view": "(View)"
     },
-
     "helper": "You can always review these policies later using the links above.",
-
     "button": {
       "submit": "Agree & Get Started",
       "submitting": "Working on it..."
     },
-
     "messages": {
       "needAllAgreements": "Please check both boxes 🙂",
       "missingFlow": "We couldn't verify this step. Please start again from the beginning.",
@@ -1245,280 +932,6 @@
       "successMove": "Awesome—taking you in 🚀",
       "failed": "Something went wrong. ({error})",
       "network": "Network error. ({message})"
-    }
-  },
-  "LeftPanel": {
-    "title": "Details",
-    "infoTab": "Info",
-    "edit": "Edit",
-    "delete": "Delete",
-    "close": "Close",
-    "untitled": "Untitled",
-    "created": "Created",
-    "updated": "Updated",
-    "credits": "Credits used",
-    "summarySection": "One-paragraph summary",
-    "sourceSection": "Source",
-    "thumbnailPlaceholder": "Thumbnail",
-    "sourceType": "Source Type",
-    "sourceTitle": "Original Title",
-    "channel": "Channel/Author",
-    "none": "None",
-    "sourceLink": "Original Link",
-    "tagsSection": "Tags",
-    "noTags": "No tags",
-    "descriptionSection": "Description",
-    "noDescription": "No description",
-    "termsIntro": "AI automatically extracts key terms to help you understand the content.",
-    "requestFailed": "Request failed"
-  },
-  "RightPanel": {
-    "tabs": {
-      "notes": "Notes",
-      "terms": "Terms"
-    },
-    "closeAria": "Close panel",
-    "closeTitle": "Close",
-    "notes": {
-      "helper": "Write down what stands out to you.",
-      "placeholder": "Write a note… (Press Enter to add)",
-      "add": "Add",
-      "loading": "Loading notes…",
-      "empty": "No notes yet."
-    },
-    "errors": {
-      "notes": {
-        "fetch": "Failed to load notes.",
-        "add": "Failed to add note.",
-        "delete": "Failed to delete note.",
-        "update": "Failed to update note."
-      },
-      "terms": {
-        "fetch": "Failed to load terms.",
-        "statusFetch": "Failed to fetch term status.",
-        "generateFail": "Failed to generate term explanations.",
-        "statusFail": "Couldn't check term status.",
-        "autoStartFail": "Failed to start term extraction.",
-        "customStartFail": "Failed to start term explanations.",
-        "requestFail": "Failed to request term explanations.",
-        "deleteFail": "Failed to delete term."
-      },
-      "auth": {
-        "session": "Failed to get session: {message}",
-        "login": "Please log in first."
-      },
-      "env": {
-        "missingApiBase": "Missing NEXT_PUBLIC_API_BASE_URL."
-      }
-    }
-  },
-  "TermsBlock": {
-    "helper": "",
-    "loading": "Generating term explanations…",
-    "delete": "Delete",
-    "cta": "Get AI term explanations",
-    "usedCount": "Used {count} times in this session.",
-    "customInline": {
-      "toggle": "Add more terms to explain",
-      "title": "Explain only the terms you want",
-      "description": "Separate terms with commas to explain only those terms.",
-      "placeholder": "e.g., JWT, CORS, OAuth",
-      "submit": "Get explanations"
-    },
-    "picker": {
-      "title": "How would you like to get explanations?",
-      "auto": {
-        "title": "Explain all terms",
-        "description": "AI automatically extracts terms and summarizes the essentials."
-      },
-      "custom": {
-        "title": "Only the terms I choose",
-        "description": "Enter terms separated by commas.",
-        "placeholder": "e.g., JWT, CORS, OAuth"
-      },
-      "cancel": "Cancel",
-      "submit": "Start"
-    }
-  },
-  "TagEditDialog": {
-    "title": "Edit tags",
-    "description": "Type a tag and press Enter to add it.",
-    "removeTagAria": "Remove tag",
-    "addTagPlaceholder": "Add a tag",
-    "addFromExisting": "Add from existing tags",
-    "selectedCount": "{count} selected",
-    "searchPlaceholder": "Search tags",
-    "noTagsToAdd": "No tags to add.",
-    "cancel": "Cancel",
-    "save": "Save",
-    "saving": "Saving..."
-  },
-  "FullscreenMapPage": {
-    "fallbackTitle": "Structure Map",
-    "backToList": "Back",
-    "mode": {
-      "editing": "Editing",
-      "view": "View"
-    },
-    "tabs": {
-      "info": "Info",
-      "notes": "Notes",
-      "terms": "Terms"
-    },
-    "status": {
-      "loading": "Loading",
-      "loadFailed": "Load failed",
-      "fetchError": "We couldn't load the structure map."
-    },
-    "modeBadge": {
-      "edit": "Edit mode: you can edit/add nodes",
-      "view": "View mode: focus on the flow"
-    },
-    "actions": {
-      "delete": "Delete",
-      "tutorial": "Tutorial",
-      "closeMap": "Close map",
-      "discardDraft": "Discard draft",
-      "publish": "Done / Publish"
-    },
-    "draftStatus": {
-      "autoSaving": "Auto-saving…",
-      "saved": "Saved",
-      "hasDraft": "Unsaved changes"
-    },
-    "share": {
-      "statusLoadFailed": "We couldn't load the share status.",
-      "enableFailed": "We couldn't create the share link.",
-      "enabled": "Share link created.",
-      "disableFailed": "We couldn't turn off sharing.",
-      "disabled": "Sharing turned off.",
-      "copied": "Link copied.",
-      "copyFailed": "We couldn't copy the link."
-    },
-    "publishToast": {
-      "success": "Published successfully.",
-      "failed": "Publishing failed."
-    },
-    "discardToast": {
-      "success": "Draft changes were discarded.",
-      "failed": "We couldn't discard draft changes."
-    },
-    "selectedMap": "Selected map",
-    "export": {
-      "failed": "We couldn't save the image."
-    },
-    "deleteConfirm": {
-      "title": "Delete this structure map?",
-      "description": "This action can’t be undone. Do you want to continue?",
-      "action": "Delete",
-      "actionDeleting": "Deleting..."
-    }
-  },
-  "DiscardDraftDialog": {
-    "title": "Discard draft changes",
-    "description": "Discard all draft changes and return to the last published version?",
-    "actionLabel": "Discard"
-  },
-  "FullscreenDialog": {
-    "fallbackTitle": "Structure Map",
-    "title": "Structure Map Preview",
-    "close": "Close",
-    "goList": "My maps",
-    "mode": {
-      "editing": "Editing",
-      "view": "View"
-    },
-    "tabs": {
-      "info": "Info",
-      "notes": "Notes",
-      "terms": "Terms"
-    },
-    "actions": {
-      "centerMap": "Center",
-      "collapseAll": "Collapse all",
-      "zoomIn": "Zoom in",
-      "zoomOut": "Zoom out",
-      "tutorial": "Tutorial"
-    },
-    "status": {
-      "fetchError": "We couldn't load the structure map."
-    },
-    "modeBadge": {
-      "edit": "Edit mode: you can edit/add nodes",
-      "view": "View mode: focus on the flow"
-    }
-  },
-  "MetadataDialog": {
-    "title": "Content Details",
-    "subtitle": "Title is required; everything else is optional.",
-    "fields": {
-      "sourceQuestion": "Is this the YouTube transcript you entered?",
-      "sourceTypeYes": "Yes",
-      "sourceTypeNo": "No",
-      "url": "URL (optional)",
-      "title": "Title",
-      "channel": "Channel/Source (optional)",
-      "thumbnail": "Thumbnail (optional)",
-      "tags": "Tags (optional)",
-      "description": "Description (optional)"
-    },
-    "placeholders": {
-      "url": "https://youtube.com/watch?v=...",
-      "title": "e.g., Enter a content title",
-      "channel": "Channel / Author / Source",
-      "thumbnailUrl": "(optional) Thumbnail URL",
-      "tags": "meeting, marketing, planning, OKR (comma-separated)",
-      "description": "Add notes, summary, or description for this structure map."
-    },
-    "buttons": {
-      "youtubeAutofill": "Autofill from YouTube",
-      "youtubeLoading": "Loading...",
-      "uploadThumbnail": "Upload thumbnail",
-      "close": "Close",
-      "save": "Save and continue"
-    },
-    "hints": {
-      "youtubeUrl": "If this is a YouTube URL, we can autofill title/channel/thumbnail.",
-      "nonYoutubeUrl": "If it's not a YouTube URL, please fill in the fields below.",
-      "tags": "Separate tags with commas to save them."
-    },
-    "tags": {
-      "removeTagAria": "Remove tag",
-      "addTagPlaceholder": "Add a tag",
-      "enterHint": "Type a tag and press Enter to add it.",
-      "addFromExisting": "Add from existing tags",
-      "selectedCount": "{count} selected",
-      "searchPlaceholder": "Search tags",
-      "noTagsToAdd": "No tags to add."
-    },
-    "thumbnail": {
-      "empty": "No image",
-      "uploadHint": "Selected image will upload on save. (<=5MB, webp conversion)"
-    },
-    "status": {
-      "uploading": "Uploading..."
-    },
-    "footerHint": "After entering a title and saving, you can manage it in your maps list.",
-    "errors": {
-      "youtubeUrlRequired": "Please enter a YouTube URL.",
-      "sessionFailed": "Failed to get session: {message}",
-      "loginRequired": "Login required.",
-      "missingApiBase": "Missing NEXT_PUBLIC_API_BASE_URL.",
-      "youtubeFetchFailed": "Failed to fetch YouTube metadata.",
-      "requestFailed": "Request failed.",
-      "invalidImage": "The image file is invalid.",
-      "titleRequired": "Title is required. Please enter a title.",
-      "missingMapId": "Missing mapId. Can't upload thumbnail.",
-      "thumbnailUploadFailed": "Failed to upload thumbnail."
-    }
-  },
-  "MapMetadataEditDialog": {
-    "title": "Edit metadata",
-    "subtitle": "Update the current Structure Map title, source, tags, and description directly.",
-    "footerHint": "Saving will update this Structure Map metadata immediately.",
-    "buttons": {
-      "save": "Save",
-      "closeTagPicker": "Close tag list"
     }
   },
   "Footer": {
@@ -1547,321 +960,5 @@
     },
     "copyright": "All rights reserved.",
     "operatedBy": "Brify is operated by vision328."
-  }
-  ,
-  "MapsCommon": {
-    "untitled": "Untitled",
-    "content": {
-      "notes": "Has notes",
-      "terms": "Has terms"
-    },
-    "status": {
-      "idle": "Idle",
-      "queued": "Queued",
-      "processing": "Processing",
-      "done": "Done",
-      "failed": "Failed"
-    },
-    "source": {
-      "youtube": "YouTube",
-      "website": "Web",
-      "file": "File",
-      "manual": "Manual"
-    },
-    "datePreset": {
-      "today": "Today",
-      "7d": "Last 7 days",
-      "30d": "Last 30 days",
-      "90d": "Last 90 days",
-      "1y": "Last 1 year",
-      "month": "This month",
-      "all": "All",
-      "customEmpty": "Select date range",
-      "after": "after",
-      "before": "before"
-    },
-    "selectionBar": {
-      "selectedCount": "{count} selected",
-      "mergeMaps": "Merge maps",
-      "deleting": "Deleting...",
-      "deleteSelected": "Delete selected",
-      "cancel": "Cancel"
-    },
-    "toolbar": {
-      "searchPlaceholder": "Search by map title or tag",
-      "clearSearch": "Clear search",
-      "summary": {
-        "status": "Status {value}",
-        "source": "Source {value}",
-        "content": "Content {value}",
-        "tag": "Tag {value}"
-      },
-      "previewOn": "Preview on",
-      "previewOff": "Preview off",
-      "tagOrganize": "Organize tags",
-      "tagOrganizeExit": "Exit organize mode",
-      "selection": "Select",
-      "selectionExit": "Exit selection",
-      "card": "Card",
-      "table": "Table",
-      "sortLabel": "Sort",
-      "sort": {
-        "createdDesc": "Newest created",
-        "createdAsc": "Oldest created",
-        "updatedDesc": "Recently updated",
-        "titleAsc": "Title"
-      },
-      "filterOpen": "Open filters",
-      "filterClose": "Close filters",
-      "resetFilters": "Reset filters"
-    },
-    "recent": {
-      "recentMaps": "Recent maps",
-      "recentInterestTags": "Recent interest tags",
-      "expandAria": "Expand recent sections",
-      "expand": "Expand",
-      "collapseAria": "Collapse recent sections",
-      "collapse": "Collapse",
-      "opening": "Opening...",
-      "emptyInterestTags": "There are not enough tags collected from recent maps yet."
-    },
-    "filterPopover": {
-      "presets": {
-        "today": "Today",
-        "7d": "Last 7 days",
-        "30d": "Last 30 days",
-        "90d": "Last 90 days",
-        "1y": "Last 1 year",
-        "month": "This month",
-        "all": "All"
-      },
-      "sections": {
-        "date": "Date",
-        "status": "Status",
-        "source": "Source type",
-        "content": "Content",
-        "tag": "Tag"
-      },
-      "custom": "Custom",
-      "clearDate": "Clear date",
-      "status": {
-        "processing": "Processing",
-        "done": "Done",
-        "failed": "Failed"
-      },
-      "source": {
-        "youtube": "YouTube",
-        "website": "Web",
-        "file": "File",
-        "manual": "Manual"
-      },
-      "content": {
-        "notes": "Has notes",
-        "terms": "Has terms"
-      },
-      "tagLoading": "Loading tags…",
-      "tagEmpty": "No tags available."
-    },
-    "tagPanel": {
-      "title": "Tags",
-      "sortAria": "Sort tags",
-      "sort": {
-        "recent": "Recent",
-        "name": "Name",
-        "countDesc": "Most used",
-        "countAsc": "Least used"
-      },
-      "selectedFilters": "Selected filters",
-      "filterTitle": "Tag filters",
-      "noTag": "No tag",
-      "deselectTag": "Remove {tag}",
-      "filterHint": "Checking tags will instantly filter the map list below by those tags.",
-      "selectedCount": "{count} selected",
-      "mergeTags": "Merge tags",
-      "searchPlaceholder": "Search tags",
-      "clearSearch": "Clear search",
-      "empty": "No tags found.",
-      "deleteTagAria": "Delete tag"
-    },
-    "mobileTagSheet": {
-      "closeAria": "Close tag organizer",
-      "reopen": "Tag list"
-    },
-    "listItem": {
-      "status": {
-        "failed": "Failed",
-        "processing": "Processing"
-      },
-      "source": {
-        "youtube": "YouTube",
-        "website": "Web",
-        "file": "File",
-        "manual": "Manual"
-      },
-      "selectAria": "Select {title}",
-      "deleting": "Deleting...",
-      "delete": "Delete",
-      "editTags": "Edit tags",
-      "noTag": "No tag",
-      "notesCount": "Notes {count}",
-      "termsCount": "Terms {count}",
-      "opening": "Opening...",
-      "open": "Open"
-    },
-    "tableList": {
-      "status": {
-        "failed": "Failed",
-        "processing": "Processing"
-      },
-      "select": "Select",
-      "selectAria": "Select {title}",
-      "opening": "Opening...",
-      "open": "Open",
-      "editTags": "Edit tags",
-      "columns": {
-        "title": "Title",
-        "source": "Source",
-        "tags": "Tags",
-        "updatedAt": "Updated"
-      }
-    },
-    "previewPanel": {
-      "noSummary": "No summary yet.",
-      "closedTitle": "Preview closed",
-      "closedDescription": "You can reopen it anytime for quick comparison.",
-      "openPreview": "Open preview",
-      "close": "Close",
-      "open": "Open",
-      "loading": "Loading preview…",
-      "loadFailed": "Failed to load the preview.",
-      "idle": "Preparing the preview."
-    }
-  },
-  "MapsPage": {
-    "title": "My Maps",
-    "tabs": {
-      "maps": "Maps",
-      "notes": "Notes",
-      "terms": "Terms"
-    },
-    "notesTab": {
-      "title": "Maps with notes",
-      "leftDescription": "Quickly revisit only the maps that already have saved memos.",
-      "rightDescription": "Read the selected map's memo, annotations, and highlights in one place.",
-      "searchPlaceholder": "Search by map title or channel",
-      "noSearchResults": "No note maps match your search.",
-      "sort": {
-        "updatedDesc": "Recently updated",
-        "titleAsc": "Title"
-      },
-      "empty": "There are no maps with saved memos yet.",
-      "sections": {
-        "memo": "Notes",
-        "annotations": "Annotations",
-        "highlights": "Highlights"
-      },
-      "memoLabel": "Note content",
-      "nodeLabel": "Related node",
-      "meta": {
-        "memoLabel": "Note content",
-        "nodeLabel": "Related node"
-      },
-      "emptySections": {
-        "memo": "No saved notes yet.",
-        "annotations": "No annotations attached to nodes yet.",
-        "highlights": "No highlighted nodes yet."
-      },
-      "errors": {
-        "load": "Couldn't load the note content."
-      }
-    },
-    "termsTab": {
-      "title": "Maps with terms",
-      "leftDescription": "Quickly revisit only the maps that already have organized terms.",
-      "rightDescription": "Read the selected map's terms and explanations in one place.",
-      "searchPlaceholder": "Search by map title or channel",
-      "noSearchResults": "No term maps match your search.",
-      "sort": {
-        "updatedDesc": "Recently updated",
-        "titleAsc": "Title"
-      },
-      "summary": "Terms",
-      "empty": "There are no maps with organized terms yet.",
-      "emptyTerms": "This map doesn't have any organized terms yet.",
-      "errors": {
-        "load": "Couldn't load the terms."
-      }
-    },
-    "comingSoon": {
-      "notesTitle": "The Notes tab is coming next.",
-      "notesDescription": "In the next step, you'll be able to view only maps that contain notes and read memo, annotation, and highlight content for the selected map in one place.",
-      "termsTitle": "The Terms tab is coming next.",
-      "termsDescription": "In the next step, you'll be able to view only maps that contain terms and review term explanations for the selected map in one place."
-    },
-    "tagOrganizeExit": "Exit",
-    "previewEmpty": {
-      "loading": "Loading the list.",
-      "noMaps": "You have not created any structure maps yet.",
-      "noMapsInRange": "No structure maps were created in the selected date range.",
-      "noResults": "No search results.",
-      "selectFromList": "Please select a map from the list."
-    },
-    "toast": {
-      "previewTurnsOffSelection": "Selection mode was turned off when preview mode was enabled.",
-      "previewTurnsOffTagOrganize": "Tag organize mode was turned off to open preview mode.",
-      "tagOrganizeTurnsOffPreview": "Preview mode was turned off when tag organize mode was enabled.",
-      "tagOrganizeTurnsOffSelection": "Selection mode was turned off when tag organize mode was enabled.",
-      "selectionTurnsOffPreview": "Preview mode was turned off when selection mode was enabled.",
-      "selectionTurnsOffTagOrganize": "Tag organize mode was turned off before entering selection mode."
-    },
-    "empty": {
-      "noMaps": "You have not created any structure maps yet.",
-      "noMapsForFilters": "No structure maps match the selected filters.",
-      "noSearchResults": "No results found. Try a different keyword.",
-      "noMapsForSelectedTags": "There are no maps with the selected tags."
-    },
-    "pagination": {
-      "totalCount": "{count} total",
-      "prev": "Prev",
-      "next": "Next"
-    },
-    "dialogs": {
-      "deleteMap": {
-        "title": "Delete this structure map?",
-        "description": "This cannot be undone. Do you want to continue?",
-        "action": "Delete"
-      },
-      "deleteSelected": {
-        "title": "Delete selected structure maps?",
-        "description": "Deleting selected maps cannot be undone.",
-        "action": "Delete selected"
-      },
-      "deleteTag": {
-        "title": "Delete this tag?",
-        "descriptionSuffix": "will be removed from all maps. Continue?",
-        "description": "The selected tag will be removed from all maps. Continue?",
-        "action": "Delete",
-        "actionLoading": "Deleting..."
-      }
-    },
-    "fallback": {
-      "selectedMap": "Selected map"
-    },
-    "mergeDialog": {
-      "title": "Merge maps",
-      "description": "Selected maps will be attached as children under a new root.",
-      "rootTitle": "Root node title",
-      "required": "Required",
-      "placeholder": "e.g. Unified mind map",
-      "validation": "Enter a root title to continue merging.",
-      "help": "Selected maps will be placed in order under the root title you enter.",
-      "orderTitle": "Merge order",
-      "orderCount": "{count}",
-      "dragReorderAria": "Drag to reorder",
-      "empty": "No selected maps.",
-      "submitting": "Merging...",
-      "confirm": "Merge"
-    },
-    "close": "Close"
   }
 }
