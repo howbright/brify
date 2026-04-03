@@ -528,6 +528,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const hoverActionIconClass = isTouchDevice ? "h-4 w-4" : "h-3 w-3";
   const searchHighlightIdsRef = useRef<Set<string>>(new Set());
   const searchActiveIdRef = useRef<string | null>(null);
+  const isDecoratingRef = useRef(false);
   const openNodeContextMenu = (
     nodeId?: string | null,
     anchorEl?: HTMLElement | null
@@ -572,8 +573,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       return;
     }
     const trimmed = noteDraft.trim();
+    const normalizedLatest = normalizeMindData(latestMindDataRef.current);
+    const latestRoot = normalizedLatest?.node ?? null;
+    const latestNode =
+      latestRoot && selectedId ? findNodeById(latestRoot, selectedId) : null;
     if (trimmed.length === 0) {
       delete selectedEl.nodeObj.note;
+      if (latestNode) {
+        delete latestNode.note;
+      }
       selectedEl.removeAttribute("data-note");
       const dot = selectedEl.querySelector<HTMLElement>(".me-note-dot");
       if (dot) dot.remove();
@@ -588,6 +596,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     }
     const clipped = trimmed.slice(0, 500);
     selectedEl.nodeObj.note = clipped;
+    if (latestNode) {
+      latestNode.note = clipped;
+    }
     let dot = selectedEl.querySelector<HTMLElement>(".me-note-dot");
     if (!dot) {
       dot = document.createElement("span");
@@ -1706,16 +1717,18 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         centerMap(mind);
       },
       getSnapshot: () => {
-        if (latestMindDataRef.current) {
-          return cloneMindData(latestMindDataRef.current);
-        }
         const mind = mindRef.current;
         if (!mind) return null;
         const raw = mind.getData?.() ?? mind.getAllData?.() ?? null;
         if (raw) {
-          latestMindDataRef.current = raw;
+          const cloned = cloneMindData(raw);
+          latestMindDataRef.current = cloned;
+          return cloned;
         }
-        return raw;
+        if (latestMindDataRef.current) {
+          return cloneMindData(latestMindDataRef.current);
+        }
+        return null;
       },
       exportPng: async () => {
         const mind = mindRef.current;
@@ -1899,9 +1912,20 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         theme: resolvedThemeObj,
       }) as PatchedMindInstance;
 
+      const observerOptions = {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["data-nodeid"],
+      } as const;
       const syncNodeDecorations = () => {
         const host = elRef.current;
         if (!host) return;
+        if (isDecoratingRef.current) return;
+        isDecoratingRef.current = true;
+        if (mutationObserver) {
+          mutationObserver.disconnect();
+        }
         const latestNormalized = normalizeMindData(latestMindDataRef.current);
         const latestRoot = latestNormalized?.node ?? null;
         host.querySelectorAll("me-tpc").forEach((node) => {
@@ -1934,6 +1958,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             if (dot) dot.remove();
           }
         });
+        if (mutationObserver && elRef.current) {
+          mutationObserver.observe(elRef.current, observerOptions);
+        }
+        isDecoratingRef.current = false;
       };
 
       if (!mind.__originalRefresh) {
@@ -1961,12 +1989,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         mutationObserver = new MutationObserver(() => {
           syncNodeDecorations();
         });
-        mutationObserver.observe(elRef.current, {
-          childList: true,
-          subtree: true,
-          attributes: true,
-          attributeFilter: ["data-nodeid"],
-        });
+        mutationObserver.observe(elRef.current, observerOptions);
       }
 
       // Keep focus UI in sync even when focus is triggered from context menu
