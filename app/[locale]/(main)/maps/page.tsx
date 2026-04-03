@@ -8,19 +8,16 @@ import {
   DndContext,
   KeyboardSensor,
   PointerSensor,
-  type DragEndEvent,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import MapListItem from "@/components/maps/MapListItem";
 import MapPreviewPanel from "@/components/maps/MapPreviewPanel";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -29,11 +26,20 @@ import TagPanel from "@/components/maps/TagPanel";
 import MapListToolbar from "@/components/maps/MapListToolbar";
 import MapCardList from "@/components/maps/MapCardList";
 import MapTableList from "@/components/maps/MapTableList";
+import MapsRecentSections from "@/components/maps/MapsRecentSections";
+import MobileTagSheet from "@/components/maps/MobileTagSheet";
+import useMapSelectionMerge from "@/components/maps/useMapSelectionMerge";
+import useMapPreview from "@/components/maps/useMapPreview";
+import useMapTags from "@/components/maps/useMapTags";
+import useMapsListControls from "@/components/maps/useMapsListControls";
+import useMapDeletion from "@/components/maps/useMapDeletion";
+import useMapsListQuery from "@/components/maps/useMapsListQuery";
+import useRecentMaps from "@/components/maps/useRecentMaps";
+import { usePinnedPanel, usePinnedToolbar } from "@/components/maps/usePinnedLayout";
 import MapFilterPopover from "@/components/maps/MapFilterPopover";
 import TagMergeDialog from "@/components/maps/TagMergeDialog";
 import { useParams, useRouter } from "next/navigation";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
-import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/app/types/database.types";
 import { useRef } from "react";
 
@@ -43,19 +49,8 @@ type SourceType = "youtube" | "website" | "file" | "manual";
 const LIST_FIELDS =
   "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
 const PAGE_SIZE = 20;
-const TAG_LIMIT = 24;
 const NO_TAG_FILTER = "__NO_TAG__";
-type TagSort = "recent" | "name" | "count_desc" | "count_asc";
 
-const DATE_PRESETS = [
-  { id: "7d", label: "지난 7일", days: 7 },
-  { id: "30d", label: "지난 30일", days: 30 },
-  { id: "90d", label: "지난 90일", days: 90 },
-  { id: "1y", label: "지난 1년", days: 365 },
-  { id: "all", label: "전체", days: null },
-] as const;
-
-type DatePresetId = (typeof DATE_PRESETS)[number]["id"] | "custom";
 const STATUS_LABELS: Record<MapJobStatus, string> = {
   idle: "대기중",
   queued: "대기중",
@@ -111,25 +106,6 @@ function getMapListDisplayTitle(draft: MapDraft) {
   const baseTitle = draft.shortTitle?.trim() || draft.title;
   const channel = draft.channelName?.trim();
   return channel ? `${baseTitle} [${channel}]` : baseTitle;
-}
-
-function startOfDayIso(value: Date) {
-  const next = new Date(value);
-  next.setHours(0, 0, 0, 0);
-  return next.toISOString();
-}
-
-function endOfDayIso(value: Date) {
-  const next = new Date(value);
-  next.setHours(23, 59, 59, 999);
-  return next.toISOString();
-}
-
-function parseDateInput(value: string, endOfDay = false) {
-  if (!value) return null;
-  const parsed = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(parsed.getTime())) return null;
-  return endOfDay ? endOfDayIso(parsed) : startOfDayIso(parsed);
 }
 
 function MapCardListSkeleton() {
@@ -204,29 +180,6 @@ function MapTableListSkeleton() {
   );
 }
 
-function TagPanelSkeleton() {
-  return (
-    <section className="hidden lg:block lg:sticky lg:top-24 lg:h-[calc(100vh-160px)]">
-      <div className="rounded-2xl border border-blue-200 bg-white p-4 shadow-sm dark:border-blue-500/20 dark:bg-white/[0.04]">
-        <div className="flex items-center justify-between">
-          <div className="h-4 w-12 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
-          <div className="h-7 w-24 animate-pulse rounded-full bg-neutral-100 dark:bg-white/5" />
-        </div>
-        <div className="mt-3 h-9 w-full animate-pulse rounded-full bg-neutral-100 dark:bg-white/5" />
-        <div className="mt-2 h-10 w-full animate-pulse rounded-xl bg-neutral-100 dark:bg-white/5" />
-        <div className="mt-3 flex flex-col gap-2">
-          {Array.from({ length: 8 }).map((_, index) => (
-            <div
-              key={index}
-              className="h-10 w-full animate-pulse rounded-xl bg-blue-50 dark:bg-blue-500/10"
-            />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function MapPreviewSkeleton() {
   return (
     <section className="hidden lg:block lg:sticky lg:top-24 lg:h-[calc(100vh-160px)]">
@@ -287,132 +240,13 @@ export default function MapsPage() {
   const toolbarInnerRef = useRef<HTMLDivElement | null>(null);
   const previewShellRef = useRef<HTMLElement | null>(null);
   const tagPanelShellRef = useRef<HTMLElement | null>(null);
-  const [drafts, setDrafts] = useState<MapDraft[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [confirmBulkOpen, setConfirmBulkOpen] = useState(false);
-  const [pendingDelete, setPendingDelete] = useState<MapDraft | null>(null);
-  const [query, setQuery] = useState("");
-  const [page, setPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
-  const [sort, setSort] = useState<
-    "created_desc" | "created_asc" | "updated_desc" | "title_asc"
-  >("created_desc");
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const [selectionMode, setSelectionMode] = useState(false);
-  const [selectedMapIds, setSelectedMapIds] = useState<string[]>([]);
-  const [mergeDialogOpen, setMergeDialogOpen] = useState(false);
-  const [mergeRootTitle, setMergeRootTitle] = useState("");
-  const [mergeOrderIds, setMergeOrderIds] = useState<string[]>([]);
-  const [mergeSubmitting, setMergeSubmitting] = useState(false);
-  const [bulkDeleting, setBulkDeleting] = useState(false);
   const [viewMode, setViewMode] = useState<"card" | "table">("card");
-  const [tagOrganizeMode, setTagOrganizeMode] = useState(false);
-  const [recentCreatedDrafts, setRecentCreatedDrafts] = useState<MapDraft[]>([]);
-  const [recentUpdatedDrafts, setRecentUpdatedDrafts] = useState<MapDraft[]>([]);
-  const [datePreset, setDatePreset] = useState<DatePresetId>("30d");
-  const [customFrom, setCustomFrom] = useState("");
-  const [customTo, setCustomTo] = useState("");
-  const [statusFilters, setStatusFilters] = useState<MapJobStatus[]>([]);
-  const [sourceFilters, setSourceFilters] = useState<SourceType[]>([]);
-  const [tagFilters, setTagFilters] = useState<string[]>([]);
-  const [tagOptions, setTagOptions] = useState<
-    Array<{ name: string; count: number }>
-  >([]);
-  const [recentTagOptions, setRecentTagOptions] = useState<
-    Array<{ name: string; count: number }>
-  >([]);
-  const [tagsLoading, setTagsLoading] = useState(false);
-  const [tagListQuery, setTagListQuery] = useState("");
-  const [tagSort, setTagSort] = useState<TagSort>("recent");
-  const [tagDeleteTarget, setTagDeleteTarget] = useState<string | null>(null);
-  const [tagDeleteOpen, setTagDeleteOpen] = useState(false);
-  const [tagDeleteSubmitting, setTagDeleteSubmitting] = useState(false);
-  const [tagEditOpen, setTagEditOpen] = useState(false);
-  const [tagEditDraft, setTagEditDraft] = useState<MapDraft | null>(null);
-  const [tagEditSubmitting, setTagEditSubmitting] = useState(false);
-  const [tagMergeOpen, setTagMergeOpen] = useState(false);
-  const [selectedTagNames, setSelectedTagNames] = useState<string[]>([]);
-  const [tagRefreshKey, setTagRefreshKey] = useState(0);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const [mobileTagSheetOpen, setMobileTagSheetOpen] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState<boolean | null>(null);
   const [recentSectionsCollapsed, setRecentSectionsCollapsed] = useState(false);
-  const [toolbarPinned, setToolbarPinned] = useState(false);
-  const [toolbarMetrics, setToolbarMetrics] = useState({
-    left: 0,
-    width: 0,
-    height: 0,
-  });
-  const [previewMetrics, setPreviewMetrics] = useState({
-    left: 0,
-    width: 0,
-    height: 0,
-  });
-  const [previewPinned, setPreviewPinned] = useState(false);
-  const [tagPanelMetrics, setTagPanelMetrics] = useState({
-    left: 0,
-    width: 0,
-    height: 0,
-  });
-  const [tagPanelPinned, setTagPanelPinned] = useState(false);
-  const [previewById, setPreviewById] = useState<
-    Record<string, { status: "idle" | "loading" | "loaded" | "missing" | "error"; data: any | null }>
-  >({});
   const effectiveViewMode = viewMode;
-  const isTagOrganizeActive = tagOrganizeMode || mobileTagSheetOpen;
   const desktopDefaultsAppliedRef = useRef(false);
-
-  const dateRange = useMemo(() => {
-    if (datePreset === "all") return { from: null, to: null };
-    if (datePreset === "custom") {
-      return {
-        from: parseDateInput(customFrom, false),
-        to: parseDateInput(customTo, true),
-      };
-    }
-    const preset = DATE_PRESETS.find((p) => p.id === datePreset);
-    if (!preset || !preset.days) return { from: null, to: null };
-    const now = new Date();
-    const fromDate = new Date(now);
-    fromDate.setDate(fromDate.getDate() - (preset.days - 1));
-    return {
-      from: startOfDayIso(fromDate),
-      to: endOfDayIso(now),
-    };
-  }, [datePreset, customFrom, customTo]);
-
-  const dateLabel = useMemo(() => {
-    if (datePreset === "custom") {
-      if (customFrom && customTo) return `${customFrom} ~ ${customTo}`;
-      if (customFrom) return `${customFrom} 이후`;
-      if (customTo) return `${customTo} 이전`;
-      return "기간 선택";
-    }
-    const preset = DATE_PRESETS.find((p) => p.id === datePreset);
-    return preset?.label ?? "기간 선택";
-  }, [datePreset, customFrom, customTo]);
-
-  const toggleArrayValue = <T,>(
-    value: T,
-    setter: (updater: (prev: T[]) => T[]) => void
-  ) => {
-    setter((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
-  };
-
-  const toggleSelectedMap = (draft: MapDraft) => {
-    setSelectedMapIds((prev) =>
-      prev.includes(draft.id)
-        ? prev.filter((id) => id !== draft.id)
-        : [...prev, draft.id]
-    );
-  };
 
   const router = useRouter();
   const params = useParams();
@@ -431,103 +265,11 @@ export default function MapsPage() {
     return () => mediaQuery.removeEventListener("change", syncViewport);
   }, []);
 
-  const recentDrafts = useMemo(() => {
-    const byId = new Map<string, MapDraft>();
-    [...recentUpdatedDrafts, ...recentCreatedDrafts].forEach((draft) => {
-      const existing = byId.get(draft.id);
-      if (!existing) {
-        byId.set(draft.id, draft);
-        return;
-      }
-      const existingTs = existing.updatedAt ?? existing.createdAt ?? 0;
-      const nextTs = draft.updatedAt ?? draft.createdAt ?? 0;
-      if (nextTs > existingTs) {
-        byId.set(draft.id, draft);
-      }
-    });
-
-    return Array.from(byId.values())
-      .sort((a, b) => {
-        const aTs = a.updatedAt ?? a.createdAt ?? 0;
-        const bTs = b.updatedAt ?? b.createdAt ?? 0;
-        return bTs - aTs;
-      })
-      .slice(0, 5);
-  }, [recentCreatedDrafts, recentUpdatedDrafts]);
-
-  useEffect(() => {
-    if (isMobileViewport !== true) return;
-    if (previewOpen) setPreviewOpen(false);
-    if (mobilePreviewOpen) setMobilePreviewOpen(false);
-  }, [
-    isMobileViewport,
-    mobilePreviewOpen,
-    mobileTagSheetOpen,
-    previewOpen,
-    tagOrganizeMode,
-  ]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!previewOpen || tagOrganizeMode || isMobileViewport) return;
-    const topOffset = 128;
-    const bottomGap = 24;
-
-    const updatePreviewPosition = () => {
-      const shellEl = previewShellRef.current;
-      if (!shellEl) return;
-      const rect = shellEl.getBoundingClientRect();
-      const panelHeight = Math.max(320, window.innerHeight - topOffset - bottomGap);
-      const shouldPin = rect.bottom > topOffset + panelHeight;
-
-      setPreviewPinned(shouldPin);
-      setPreviewMetrics({
-        left: rect.left,
-        width: rect.width,
-        height: panelHeight,
-      });
-    };
-
-    updatePreviewPosition();
-    window.addEventListener("resize", updatePreviewPosition);
-    window.addEventListener("scroll", updatePreviewPosition, { passive: true });
-
-    return () => {
-      window.removeEventListener("resize", updatePreviewPosition);
-      window.removeEventListener("scroll", updatePreviewPosition);
-    };
-  }, [previewOpen, tagOrganizeMode, isMobileViewport, selectedId]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!tagOrganizeMode || isMobileViewport) return;
-    const topOffset = 132;
-    const bottomGap = 24;
-
-    const updateTagPanelPosition = () => {
-      const shellEl = tagPanelShellRef.current;
-      if (!shellEl) return;
-      const rect = shellEl.getBoundingClientRect();
-      const panelHeight = Math.max(320, window.innerHeight - topOffset - bottomGap);
-      const shouldPin = rect.bottom > topOffset + panelHeight;
-
-      setTagPanelPinned(shouldPin);
-      setTagPanelMetrics({
-        left: rect.left,
-        width: rect.width,
-        height: panelHeight,
-      });
-    };
-
-    updateTagPanelPosition();
-    window.addEventListener("resize", updateTagPanelPosition);
-    window.addEventListener("scroll", updateTagPanelPosition, { passive: true });
-
-    return () => {
-      window.removeEventListener("resize", updateTagPanelPosition);
-      window.removeEventListener("scroll", updateTagPanelPosition);
-    };
-  }, [tagOrganizeMode, isMobileViewport]);
+  const { recentDrafts, recentInterestTags } = useRecentMaps({
+    locale,
+    listFields: LIST_FIELDS,
+    toDraft,
+  });
 
   useEffect(() => {
     if (isMobileViewport === null || isMobileViewport || desktopDefaultsAppliedRef.current) return;
@@ -536,457 +278,207 @@ export default function MapsPage() {
     setPreviewOpen(false);
   }, [isMobileViewport]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const threshold = 65;
-
-    const updateToolbarPosition = () => {
-      const sectionEl = listSectionRef.current;
-      const shellEl = toolbarShellRef.current;
-      const innerEl = toolbarInnerRef.current;
-      if (!sectionEl || !shellEl || !innerEl) return;
-
-      const sectionRect = sectionEl.getBoundingClientRect();
-      const shellRect = shellEl.getBoundingClientRect();
-      const height = innerEl.offsetHeight;
-      const shouldPin =
-        sectionRect.top <= threshold &&
-        sectionRect.bottom > threshold + height + 12;
-
-      setToolbarPinned(shouldPin);
-      setToolbarMetrics({
-        left: shellRect.left,
-        width: shellRect.width,
-        height,
-      });
-    };
-
-    updateToolbarPosition();
-    window.addEventListener("scroll", updateToolbarPosition, { passive: true });
-    window.addEventListener("resize", updateToolbarPosition);
-
-    return () => {
-      window.removeEventListener("scroll", updateToolbarPosition);
-      window.removeEventListener("resize", updateToolbarPosition);
-    };
-  }, [
-    isMobileViewport,
-    previewOpen,
-    query,
-    page,
-    totalCount,
-    loading,
-    filtersOpen,
-    selectionMode,
-    tagOrganizeMode,
-    viewMode,
-  ]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const supabase = createClient();
-
-        const [{ data: createdData, error: createdError }, { data: updatedData, error: updatedError }] =
-          await Promise.all([
-            supabase
-              .from("maps")
-              .select(LIST_FIELDS)
-              .order("created_at", { ascending: false })
-              .range(0, 4),
-            supabase
-              .from("maps")
-              .select(LIST_FIELDS)
-              .order("updated_at", { ascending: false, nullsFirst: false })
-              .range(0, 4),
-          ]);
-
-        if (cancelled) return;
-        if (createdError) throw createdError;
-        if (updatedError) throw updatedError;
-
-        setRecentCreatedDrafts(((createdData ?? []) as MapRow[]).map(toDraft));
-        setRecentUpdatedDrafts(((updatedData ?? []) as MapRow[]).map(toDraft));
-      } catch {
-        if (cancelled) return;
-        setRecentCreatedDrafts([]);
-        setRecentUpdatedDrafts([]);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
-
-  const handleMergeDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    setMergeOrderIds((prev) => {
-      const oldIndex = prev.indexOf(String(active.id));
-      const newIndex = prev.indexOf(String(over.id));
-      if (oldIndex === -1 || newIndex === -1) return prev;
-      return arrayMove(prev, oldIndex, newIndex);
-    });
-  };
-
-  useEffect(() => {
-    if (!mergeDialogOpen) return;
-    setMergeOrderIds(selectedMapIds);
-  }, [mergeDialogOpen, selectedMapIds]);
-
-  const selectedDrafts = useMemo(
-    () =>
-      selectedMapIds
-        .map((id) => drafts.find((draft) => draft.id === id))
-        .filter((draft): draft is MapDraft => Boolean(draft)),
-    [drafts, selectedMapIds]
-  );
-
-  const mergeOrderDrafts = useMemo(
-    () =>
-      mergeOrderIds
-        .map((id) => selectedDrafts.find((draft) => draft.id === id))
-        .filter((draft): draft is MapDraft => Boolean(draft)),
-    [mergeOrderIds, selectedDrafts]
-  );
-  const tagQuery = tagListQuery.trim().toLowerCase();
-  const recentTagOptionsFiltered = useMemo(() => {
-    if (!tagQuery) return recentTagOptions;
-    return recentTagOptions.filter((tag) =>
-      tag.name.toLowerCase().includes(tagQuery)
-    );
-  }, [recentTagOptions, tagQuery]);
-  const mergedTagOptions = useMemo(() => {
-    const byName = new Map<string, { name: string; count: number; recentIndex: number | null }>();
-
-    recentTagOptions.forEach((tag, index) => {
-      byName.set(tag.name, {
-        name: tag.name,
-        count: tag.count,
-        recentIndex: index,
-      });
-    });
-
-    tagOptions.forEach((tag) => {
-      const existing = byName.get(tag.name);
-      byName.set(tag.name, {
-        name: tag.name,
-        count: tag.count,
-        recentIndex: existing?.recentIndex ?? null,
-      });
-    });
-
-    const items = Array.from(byName.values()).filter((tag) =>
-      tagQuery ? tag.name.toLowerCase().includes(tagQuery) : true
-    );
-
-    if (tagSort === "name") {
-      const collator = new Intl.Collator(locale ?? "en", {
-        numeric: true,
-        sensitivity: "base",
-      });
-      return items.sort((a, b) => collator.compare(a.name, b.name));
-    }
-
-    if (tagSort === "count_desc") {
-      return items.sort((a, b) => {
-        if (b.count !== a.count) return b.count - a.count;
-        return a.name.localeCompare(b.name, locale ?? "en");
-      });
-    }
-
-    if (tagSort === "count_asc") {
-      return items.sort((a, b) => {
-        if (a.count !== b.count) return a.count - b.count;
-        return a.name.localeCompare(b.name, locale ?? "en");
-      });
-    }
-
-    return items.sort((a, b) => {
-      const aIndex = a.recentIndex ?? Number.MAX_SAFE_INTEGER;
-      const bIndex = b.recentIndex ?? Number.MAX_SAFE_INTEGER;
-      if (aIndex !== bIndex) return aIndex - bIndex;
-      return a.name.localeCompare(b.name, locale ?? "en");
-    });
-  }, [recentTagOptions, tagOptions, tagQuery, tagSort, locale]);
-
-  const recentInterestTags = useMemo(() => {
-    const counts = new Map<string, number>();
-    const seenMapIds = new Set<string>();
-
-    recentDrafts.forEach((draft) => {
-      if (seenMapIds.has(draft.id)) return;
-      seenMapIds.add(draft.id);
-
-      (draft.tags ?? []).forEach((tag) => {
-        const normalized = tag.trim();
-        if (!normalized) return;
-        counts.set(normalized, (counts.get(normalized) ?? 0) + 1);
-      });
-    });
-
-    return Array.from(counts.entries())
-      .sort((a, b) => {
-        if (b[1] !== a[1]) return b[1] - a[1];
-        return a[0].localeCompare(b[0], locale ?? "en");
-      })
-      .slice(0, 8)
-      .map(([name, count]) => ({ name, count }));
-  }, [recentDrafts, locale]);
-  const filteredDrafts = useMemo(() => drafts, [drafts]);
-  const effectiveTagFilters = useMemo(
-    () =>
-      isTagOrganizeActive
-        ? selectedTagNames.filter((tag) => tag !== NO_TAG_FILTER)
-        : tagFilters,
-    [selectedTagNames, isTagOrganizeActive, tagFilters]
-  );
-  const includesNoTagFilter =
-    isTagOrganizeActive && selectedTagNames.includes(NO_TAG_FILTER);
-  const mergeReady =
-    mergeRootTitle.trim().length > 0 && mergeOrderDrafts.length >= 2;
-  const handleMergeSubmit = async () => {
-    if (!mergeReady || mergeSubmitting) return;
-    try {
-      setMergeSubmitting(true);
-      const res = await fetch("/api/maps/merge", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          rootTitle: mergeRootTitle.trim(),
-          orderedMapIds: mergeOrderIds,
-        }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(json?.error || "merge_failed");
-      }
-      toast.success("맵을 합쳤어요.");
-      setMergeDialogOpen(false);
-      setSelectionMode(false);
-      setSelectedMapIds([]);
-      setMergeRootTitle("");
-      if (json?.id) {
-        const nextUrl = locale ? `/${locale}/maps/${json.id}` : `/maps/${json.id}`;
-        router.push(nextUrl);
-      }
-    } catch (error: any) {
-      toast.error(
-        error?.message === "merge_failed"
-          ? "맵 합치기에 실패했어요."
-          : "맵 합치기에 실패했어요."
-      );
-    } finally {
-      setMergeSubmitting(false);
-    }
-  };
-
-  const handleItemSelect = (item: MapDraft) => {
-    if (selectionMode) {
-      toggleSelectedMap(item);
-      return;
-    }
-    if (!previewOpen) {
-      setSelectedId(item.id);
-      return;
-    }
-    setSelectedId(item.id);
-    setMobilePreviewOpen(true);
-  };
 
   const handleOpenDetail = (item: MapDraft) => {
     const nextUrl = locale ? `/${locale}/maps/${item.id}` : `/maps/${item.id}`;
     router.push(nextUrl);
   };
 
-
-  useEffect(() => {
-    if (!filtersOpen && !isTagOrganizeActive) return;
-    let cancelled = false;
-
-    (async () => {
-      try {
-        setTagsLoading(true);
-        const params = new URLSearchParams();
-        if (dateRange.from) params.set("from", dateRange.from);
-        if (dateRange.to) params.set("to", dateRange.to);
-        if (statusFilters.length > 0) {
-          statusFilters.forEach((status) => params.append("status", status));
-        }
-        if (sourceFilters.length > 0) {
-          sourceFilters.forEach((source) => params.append("source", source));
-        }
-        params.set("limit", String(TAG_LIMIT));
-        const res = await fetch(`/api/maps/tags?${params.toString()}`);
-        if (!res.ok) throw new Error("태그를 불러오지 못했습니다.");
-        const json = (await res.json()) as {
-          tags?: Array<{ name: string; count: number }>;
-          recent?: Array<{ name: string; count: number }>;
-        };
-        if (cancelled) return;
-        setTagOptions(json.tags ?? []);
-        setRecentTagOptions(json.recent ?? []);
-      } catch {
-        if (cancelled) return;
-        setTagOptions([]);
-        setRecentTagOptions([]);
-      } finally {
-        if (!cancelled) setTagsLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    filtersOpen,
-    isTagOrganizeActive,
-    mobileTagSheetOpen,
-    dateRange.from,
-    dateRange.to,
-    statusFilters,
-    sourceFilters,
-    tagRefreshKey,
-  ]);
-
-  useEffect(() => {
-    if (!isTagOrganizeActive) {
-      setSelectedTagNames([]);
-    }
-  }, [isTagOrganizeActive]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const supabase = createClient();
-        const from = (page - 1) * PAGE_SIZE;
-        const to = from + PAGE_SIZE - 1;
-        const q = isTagOrganizeActive ? "" : query.trim();
-
-        let request = supabase.from("maps").select(LIST_FIELDS, { count: "exact" });
-
-        if (sort === "created_desc") {
-          if (!includesNoTagFilter) request = request.range(from, to);
-          request = request.order("created_at", { ascending: false });
-        } else if (sort === "created_asc") {
-          if (!includesNoTagFilter) request = request.range(from, to);
-          request = request.order("created_at", { ascending: true });
-        } else if (sort === "updated_desc") {
-          if (!includesNoTagFilter) request = request.range(from, to);
-          request = request.order("updated_at", {
-            ascending: false,
-            nullsFirst: false,
-          });
-        } else if (sort === "title_asc" && !includesNoTagFilter) {
-          // title sort is handled on the client below
-        } else if (includesNoTagFilter) {
-          // keep full result set for client-side OR filtering with the empty-tag pseudo filter
-        }
-
-        if (q) {
-          const safeQuery = q.replace(/[(),{}"'\\]/g, " ").trim();
-          if (safeQuery) {
-            const tagToken = safeQuery.split(/\s+/)[0];
-            request = request.or(
-              `title.ilike.%${safeQuery}%,description.ilike.%${safeQuery}%,tags.cs.{${tagToken}}`
-            );
-          }
-        }
-        if (dateRange.from) {
-          request = request.gte("created_at", dateRange.from);
-        }
-        if (dateRange.to) {
-          request = request.lte("created_at", dateRange.to);
-        }
-        if (statusFilters.length > 0) {
-          request = request.in("map_status", statusFilters);
-        }
-        if (sourceFilters.length > 0) {
-          request = request.in("source_type", sourceFilters);
-        }
-        if (!includesNoTagFilter && effectiveTagFilters.length > 0) {
-          request = request.overlaps("tags", effectiveTagFilters);
-        }
-
-        const { data, error, count } = await request;
-
-        if (cancelled) return;
-        if (error) throw error;
-
-        const rows = (data ?? []) as MapRow[];
-
-        const filteredRows = includesNoTagFilter
-          ? rows.filter((row) => {
-              const tags = Array.isArray(row.tags) ? row.tags : [];
-              const hasNoTags = tags.length === 0;
-              const matchesNamedTag =
-                effectiveTagFilters.length > 0
-                  ? tags.some((tag) => effectiveTagFilters.includes(tag))
-                  : false;
-              return hasNoTags || matchesNamedTag;
-            })
-          : rows;
-
-        if (sort === "title_asc") {
-          const collator = new Intl.Collator(locale ?? "en", {
-            numeric: true,
-            sensitivity: "base",
-          });
-          const sortedRows = [...filteredRows].sort((a, b) => {
-            const compared = collator.compare(a.title ?? "", b.title ?? "");
-            if (compared !== 0) return compared;
-            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-          });
-          const pagedRows = sortedRows.slice(from, to + 1);
-          setDrafts(pagedRows.map(toDraft));
-          setTotalCount(sortedRows.length);
-        } else if (includesNoTagFilter) {
-          const pagedRows = filteredRows.slice(from, to + 1);
-          setDrafts(pagedRows.map(toDraft));
-          setTotalCount(filteredRows.length);
-        } else {
-          setDrafts(rows.map(toDraft));
-          setTotalCount(count ?? 0);
-        }
-      } catch (e: any) {
-        if (cancelled) return;
-        setError(e?.message ?? "목록을 불러오지 못했습니다.");
-        setDrafts([]);
-        setTotalCount(0);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    page,
+  const {
     query,
+    page,
+    setPage,
     sort,
-    dateRange.from,
-    dateRange.to,
+    filtersOpen,
+    setFiltersOpen,
+    datePreset,
+    setDatePreset,
+    customFrom,
+    setCustomFrom,
+    customTo,
+    setCustomTo,
+    statusFilters,
+    setStatusFilters,
+    sourceFilters,
+    setSourceFilters,
+    dateRange,
+    dateLabel,
+    statusSummary,
+    sourceSummary,
+    toggleArrayValue,
+    onQueryChange,
+    onClearQuery,
+    onSortChange,
+    onResetFilters,
+  } = useMapsListControls({
+    statusLabels: STATUS_LABELS,
+    sourceLabels: SOURCE_LABELS,
+  });
+
+  const {
+    tagOrganizeMode,
+    setTagOrganizeMode,
+    tagFilters,
+    setTagFilters,
+    tagOptions,
+    tagsLoading,
+    tagListQuery,
+    setTagListQuery,
+    tagSort,
+    setTagSort,
+    tagDeleteTarget,
+    setTagDeleteTarget,
+    tagDeleteOpen,
+    setTagDeleteOpen,
+    tagDeleteSubmitting,
+    tagEditOpen,
+    setTagEditOpen,
+    tagEditDraft,
+    tagEditSubmitting,
+    tagMergeOpen,
+    setTagMergeOpen,
+    selectedTagNames,
+    setSelectedTagNames,
+    mergedTagOptions,
+    effectiveTagFilters,
+    includesNoTagFilter,
+    isTagOrganizeActive,
+    toggleSelectedTag,
+    handleTagDelete,
+    handleTagMerge,
+    openTagEditor,
+    handleTagEditSave,
+  } = useMapTags({
+    locale,
+    filtersOpen,
+    mobileTagSheetOpen,
+    dateRange,
     statusFilters,
     sourceFilters,
-    effectiveTagFilters,
+    updateDrafts: (updater) => setDrafts(updater),
+    setPage,
+    noTagFilter: NO_TAG_FILTER,
+  });
+
+  const {
+    drafts,
+    setDrafts,
+    totalCount,
+    loading,
+    error,
+  } = useMapsListQuery({
+    listFields: LIST_FIELDS,
+    page,
+    pageSize: PAGE_SIZE,
+    query,
     isTagOrganizeActive,
-    locale,
+    sort,
     includesNoTagFilter,
+    effectiveTagFilters,
+    dateRange,
+    statusFilters,
+    sourceFilters,
+    locale,
+    toDraft,
+  });
+
+  const {
+    selectionMode,
+    setSelectionMode,
+    selectedMapIds,
+    clearSelection,
+    toggleSelectedMap,
+    mergeDialogOpen,
+    setMergeDialogOpen,
+    mergeRootTitle,
+    setMergeRootTitle,
+    mergeOrderIds,
+    mergeOrderDrafts,
+    mergeSubmitting,
+    mergeReady,
+    handleMergeDragEnd,
+    handleMergeSubmit,
+  } = useMapSelectionMerge({
+    drafts,
+    onMerged: (mergedId) => {
+      const nextUrl = locale ? `/${locale}/maps/${mergedId}` : `/maps/${mergedId}`;
+      router.push(nextUrl);
+    },
+  });
+
+  const {
+    confirmOpen,
+    setConfirmOpen,
+    confirmBulkOpen,
+    setConfirmBulkOpen,
+    bulkDeleting,
+    confirmSingleDelete,
+    confirmBulkDelete,
+  } = useMapDeletion({
+    updateDrafts: setDrafts,
+    onAfterBulkDelete: clearSelection,
+  });
+
+  const {
+    selectedId,
+    selectedDraft,
+    previewStatus,
+    previewData,
+    mobilePreviewOpen,
+    setMobilePreviewOpen,
+    handleItemSelect,
+  } = useMapPreview({
+    drafts,
+    previewOpen,
+  });
+
+  useEffect(() => {
+    if (isMobileViewport !== true) return;
+    if (previewOpen) setPreviewOpen(false);
+    if (mobilePreviewOpen) setMobilePreviewOpen(false);
+  }, [
+    isMobileViewport,
+    mobilePreviewOpen,
+    previewOpen,
+    setMobilePreviewOpen,
   ]);
+
+  const { pinned: previewPinned, metrics: previewMetrics } = usePinnedPanel({
+    shellRef: previewShellRef,
+    enabled: Boolean(previewOpen && !tagOrganizeMode && !isMobileViewport),
+    topOffset: 128,
+    refreshKey: selectedId,
+  });
+
+  const { pinned: tagPanelPinned, metrics: tagPanelMetrics } = usePinnedPanel({
+    shellRef: tagPanelShellRef,
+    enabled: Boolean(tagOrganizeMode && !isMobileViewport),
+    topOffset: 132,
+  });
+
+  const { pinned: toolbarPinned, metrics: toolbarMetrics } = usePinnedToolbar({
+    sectionRef: listSectionRef,
+    shellRef: toolbarShellRef,
+    innerRef: toolbarInnerRef,
+    enabled: true,
+    threshold: 65,
+    refreshKey: [
+      isMobileViewport,
+      previewOpen,
+      query,
+      page,
+      totalCount,
+      loading,
+      filtersOpen,
+      selectionMode,
+      tagOrganizeMode,
+      viewMode,
+    ].join("|"),
+  });
 
   const isSearching = !isTagOrganizeActive && query.trim().length > 0;
   const hasActiveFilters =
@@ -999,299 +491,20 @@ export default function MapsPage() {
     [totalCount]
   );
   const hasDrafts = totalCount > 0;
-  const hasFilteredDrafts = filteredDrafts.length > 0;
+  const hasFilteredDrafts = drafts.length > 0;
   const hasResults = totalCount > 0;
   const isInitialLoading = loading && drafts.length === 0;
   const isRefreshing = loading && drafts.length > 0;
-  const statusSummary =
-    statusFilters.length > 0
-      ? statusFilters.map((value) => STATUS_LABELS[value]).join(", ")
-      : null;
-  const sourceSummary =
-    sourceFilters.length > 0
-      ? sourceFilters.map((value) => SOURCE_LABELS[value]).join(", ")
-      : null;
   const tagSummary =
     !tagOrganizeMode && effectiveTagFilters.length > 0
       ? effectiveTagFilters.join(", ")
       : null;
 
   useEffect(() => {
-    if (drafts.length === 0) {
-      if (selectedId !== null) setSelectedId(null);
-      if (mobilePreviewOpen) setMobilePreviewOpen(false);
-      return;
-    }
-    if (!selectedId || !drafts.some((draft) => draft.id === selectedId)) {
-      setSelectedId(drafts[0].id);
-    }
-  }, [drafts, selectedId]);
-
-  const selectedDraft = useMemo(
-    () => (selectedId ? drafts.find((draft) => draft.id === selectedId) ?? null : null),
-    [drafts, selectedId]
-  );
-
-  useEffect(() => {
     if (page > totalPages) {
       setPage(totalPages);
     }
-  }, [page, totalPages]);
-
-  useEffect(() => {
-    if (!selectedId) return;
-    const existing = previewById[selectedId];
-    if (existing && existing.status !== "idle") return;
-
-    let cancelled = false;
-
-    (async () => {
-      try {
-        setPreviewById((prev) => ({
-          ...prev,
-          [selectedId]: { status: "loading", data: existing?.data ?? null },
-        }));
-
-        const supabase = createClient();
-        const { data, error } = await supabase
-          .from("maps")
-          .select("id,mind_elixir,mind_elixir_draft")
-          .eq("id", selectedId)
-          .single();
-
-        if (cancelled) return;
-        if (error) throw error;
-
-        const effectiveMind = data?.mind_elixir_draft ?? data?.mind_elixir ?? null;
-        if (!effectiveMind) {
-          setPreviewById((prev) => ({
-            ...prev,
-            [selectedId]: { status: "missing", data: null },
-          }));
-          return;
-        }
-
-        setPreviewById((prev) => ({
-          ...prev,
-          [selectedId]: { status: "loaded", data: effectiveMind },
-        }));
-      } catch {
-        if (cancelled) return;
-        setPreviewById((prev) => ({
-          ...prev,
-          [selectedId]: { status: "error", data: null },
-        }));
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedId]);
-
-  const handleDelete = async (draft: MapDraft) => {
-    if (!draft?.id) return;
-    try {
-      setDeletingId(draft.id);
-      const supabase = createClient();
-      const { data: sessionData, error: sessionErr } =
-        await supabase.auth.getSession();
-
-      if (sessionErr) {
-        throw new Error("세션을 가져오지 못했습니다: " + sessionErr.message);
-      }
-
-      const accessToken = sessionData.session?.access_token;
-      if (!accessToken) {
-        throw new Error("로그인이 필요합니다.");
-      }
-
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
-      if (!base) {
-        throw new Error("환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.");
-      }
-
-      const res = await fetch(`${base}/maps/${draft.id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        const msg = json?.message || json?.error || "요청 실패";
-        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
-      }
-
-      setDrafts((prev) => prev.filter((d) => d.id !== draft.id));
-    } catch (e: any) {
-      const msg = e?.message ?? "삭제에 실패했습니다.";
-      toast.error(msg);
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  const handleBulkDelete = async (ids: string[]) => {
-    if (ids.length === 0) return;
-    try {
-      setBulkDeleting(true);
-      const res = await fetch("/api/maps/bulk-delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(json?.error || "요청 실패");
-      }
-
-      const deletedIds: string[] = Array.isArray(json?.deleted)
-        ? json.deleted
-        : [];
-
-      if (deletedIds.length > 0) {
-        setDrafts((prev) => prev.filter((d) => !deletedIds.includes(d.id)));
-      }
-
-      const failed = ids.length - deletedIds.length;
-      if (failed === 0) {
-        toast.success(`${deletedIds.length}개 삭제했습니다.`);
-      } else {
-        toast.error(`${deletedIds.length}개 삭제, ${failed}개는 실패했습니다.`);
-      }
-    } catch (e: any) {
-      const msg = e?.message ?? "삭제에 실패했습니다.";
-      toast.error(msg);
-    } finally {
-      setBulkDeleting(false);
-    }
-  };
-
-  const handleTagDelete = async (tagName: string) => {
-    if (!tagName || tagDeleteSubmitting) return;
-    try {
-      setTagDeleteSubmitting(true);
-      const res = await fetch("/api/maps/tags/remove", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tag: tagName }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(json?.error || "요청 실패");
-      }
-
-      setDrafts((prev) =>
-        prev.map((draft) => ({
-          ...draft,
-          tags: (draft.tags ?? []).filter((t) => t !== tagName),
-        }))
-      );
-      setTagOptions((prev) => prev.filter((tag) => tag.name !== tagName));
-      setRecentTagOptions((prev) => prev.filter((tag) => tag.name !== tagName));
-      setSelectedTagNames((prev) => prev.filter((name) => name !== tagName));
-      toast.success(`#${tagName} 태그를 삭제했어요.`);
-    } catch (e: any) {
-      const msg = e?.message ?? "태그 삭제에 실패했습니다.";
-      toast.error(msg);
-    } finally {
-      setTagDeleteSubmitting(false);
-    }
-  };
-
-  const handleTagMerge = async (targetTag: string) => {
-    const sources = selectedTagNames.filter(
-      (tag) => Boolean(tag) && tag !== NO_TAG_FILTER
-    );
-    if (!targetTag || sources.length < 2) return;
-    try {
-      const res = await fetch("/api/maps/tags/merge", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ targetTag, sourceTags: sources }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(json?.error || "요청 실패");
-      }
-      setDrafts((prev) =>
-        prev.map((draft) => {
-          const tags = Array.isArray(draft.tags) ? draft.tags : [];
-          const next = tags.map((tag) =>
-            sources.includes(tag) ? targetTag : tag
-          );
-          const seen = new Set<string>();
-          const deduped = next.filter((tag) => {
-            const key = tag.toLowerCase();
-            if (seen.has(key)) return false;
-            seen.add(key);
-            return true;
-          });
-          return { ...draft, tags: deduped };
-        })
-      );
-      setSelectedTagNames([targetTag]);
-      setTagMergeOpen(false);
-      setTagRefreshKey((prev) => prev + 1);
-      toast.success("태그를 합쳤어요.");
-    } catch (e: any) {
-      const msg = e?.message ?? "태그 합치기에 실패했습니다.";
-      toast.error(msg);
-    }
-  };
-  const openTagEditor = (draft: MapDraft) => {
-    setTagEditDraft(draft);
-    setTagEditOpen(true);
-  };
-
-  const handleTagEditSave = async (tags: string[]) => {
-    if (!tagEditDraft || tagEditSubmitting) return;
-    const normalized = tags.map((tag) => tag.trim()).filter(Boolean);
-    const unique = Array.from(new Set(normalized));
-    try {
-      setTagEditSubmitting(true);
-      const res = await fetch("/api/maps/tags/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ mapId: tagEditDraft.id, tags: unique }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(json?.error || "요청 실패");
-      }
-      const nextTags: string[] = Array.isArray(json?.tags) ? json.tags : unique;
-      setDrafts((prev) =>
-        prev.map((draft) =>
-          draft.id === tagEditDraft.id ? { ...draft, tags: nextTags } : draft
-        )
-      );
-      setTagRefreshKey((prev) => prev + 1);
-      setTagEditOpen(false);
-      setTagEditDraft(null);
-      toast.success("태그를 업데이트했어요.");
-    } catch (e: any) {
-      const msg = e?.message ?? "태그 업데이트에 실패했습니다.";
-      toast.error(msg);
-    } finally {
-      setTagEditSubmitting(false);
-    }
-  };
-
-
-  const requestDelete = (draft: MapDraft) => {
-    setPendingDelete(draft);
-    setConfirmOpen(true);
-  };
-
-  const previewState = selectedId ? previewById[selectedId] : null;
-  const previewStatus = selectedId
-    ? previewState?.status ?? "loading"
-    : "idle";
-  const previewData = previewState?.data ?? null;
+  }, [page, setPage, totalPages]);
 
   const previewEmptyMessage = loading
     ? "목록을 불러오는 중이에요."
@@ -1311,115 +524,20 @@ export default function MapsPage() {
     (hasDrafts || recentDrafts.length > 0 || recentInterestTags.length > 0);
 
   const recentSections = showRecentSections ? (
-    recentSectionsCollapsed ? (
-      <div className="mt-4 mb-3">
-        <div className="ml-auto flex w-full max-w-[420px] items-center justify-between gap-3 rounded-[18px] border border-neutral-200 bg-white px-3 py-2 shadow-sm dark:border-white/10 dark:bg-white/[0.05]">
-          <div className="flex min-w-0 items-center gap-2 text-[13px] font-semibold text-neutral-800 dark:text-white/85">
-            <Icon icon="mdi:history" className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-300" />
-            <span className="truncate">최근 맵</span>
-            <span className="text-neutral-300 dark:text-white/20">·</span>
-            <Icon
-              icon="mdi:tag-heart-outline"
-              className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-300"
-            />
-            <span className="truncate">최근 관심 태그</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setRecentSectionsCollapsed(false)}
-            className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-neutral-600 transition hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/75 dark:hover:bg-white/[0.08]"
-            aria-label="최근 섹션 펼치기"
-          >
-            <span>펼치기</span>
-            <Icon icon="mdi:chevron-down" className="h-3 w-3" />
-          </button>
-        </div>
-      </div>
-    ) : (
-      <div className="mt-4 mb-3 grid gap-3 md:grid-cols-2">
-        <section className="rounded-[22px] border border-blue-200 bg-white px-4 py-3 shadow-sm dark:border-blue-500/20 dark:bg-white/[0.05]">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
-                최근 맵
-              </h2>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setRecentSectionsCollapsed(true)}
-                className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-600 transition hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/75 dark:hover:bg-white/[0.08]"
-                aria-label="최근 섹션 접기"
-              >
-                <span>접기</span>
-                <Icon icon="mdi:chevron-up" className="h-3.5 w-3.5" />
-              </button>
-              <Icon icon="mdi:history" className="h-5 w-5 text-blue-600 dark:text-blue-300" />
-            </div>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {recentDrafts.map((draft) => (
-              <button
-                key={`recent-${draft.id}`}
-                type="button"
-                onClick={() => handleOpenDetail(draft)}
-                className="inline-flex max-w-full items-center rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/80 dark:hover:border-blue-400/20 dark:hover:bg-blue-500/10 dark:hover:text-blue-200"
-              >
-                <span className="truncate">{getMapListDisplayTitle(draft)}</span>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="rounded-[22px] border border-emerald-200 bg-white px-4 py-3 shadow-sm dark:border-emerald-500/20 dark:bg-white/[0.05]">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-[14px] font-extrabold text-neutral-900 dark:text-white">
-                최근 나의 관심 태그
-              </h2>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setRecentSectionsCollapsed(true)}
-                className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-600 transition hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/75 dark:hover:bg-white/[0.08]"
-                aria-label="최근 섹션 접기"
-              >
-                <span>접기</span>
-                <Icon icon="mdi:chevron-up" className="h-3.5 w-3.5" />
-              </button>
-              <Icon icon="mdi:tag-heart-outline" className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
-            </div>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {recentInterestTags.length > 0 ? (
-              recentInterestTags.map((tag) => (
-                <button
-                  key={`interest-${tag.name}`}
-                  type="button"
-                  onClick={() => {
-                    setTagFilters([tag.name]);
-                    setSelectedTagNames([tag.name]);
-                    setTagOrganizeMode(false);
-                    setPage(1);
-                  }}
-                  className="inline-flex max-w-full items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[12px] font-semibold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:border-emerald-300/30 dark:hover:bg-emerald-500/20"
-                >
-                  <span className="truncate">#{tag.name}</span>
-                  <span className="text-[11px] text-emerald-600/80 dark:text-emerald-200/70">
-                    {tag.count}
-                  </span>
-                </button>
-              ))
-            ) : (
-              <div className="text-[12px] text-neutral-500 dark:text-white/55">
-                최근 맵에서 태그가 아직 충분히 쌓이지 않았어요.
-              </div>
-            )}
-          </div>
-        </section>
-      </div>
-    )
+    <MapsRecentSections
+      collapsed={recentSectionsCollapsed}
+      onToggleCollapsed={setRecentSectionsCollapsed}
+      recentDrafts={recentDrafts}
+      recentInterestTags={recentInterestTags}
+      getDisplayTitle={getMapListDisplayTitle}
+      onOpenDetail={handleOpenDetail}
+      onSelectInterestTag={(tagName) => {
+        setTagFilters([tagName]);
+        setSelectedTagNames([tagName]);
+        setTagOrganizeMode(false);
+        setPage(1);
+      }}
+    />
   ) : null;
 
   return (
@@ -1473,14 +591,7 @@ export default function MapsPage() {
                     setTagDeleteOpen(true);
                   }}
                   selectedTags={selectedTagNames}
-                  onToggleSelect={(tag) => {
-                    setSelectedTagNames((prev) =>
-                      prev.includes(tag)
-                        ? prev.filter((name) => name !== tag)
-                        : [...prev, tag]
-                    );
-                    setPage(1);
-                  }}
+                  onToggleSelect={toggleSelectedTag}
                   onOpenMerge={() => setTagMergeOpen(true)}
                   containerClassName="block h-full"
                   panelClassName="flex h-full flex-col overflow-hidden rounded-2xl border border-blue-200 bg-white p-4 shadow-sm dark:border-blue-500/20 dark:bg-white/[0.04]"
@@ -1517,22 +628,13 @@ export default function MapsPage() {
               >
                 <MapListToolbar
                   query={query}
-                  onQueryChange={(value) => {
-                    setQuery(value);
-                    setPage(1);
-                  }}
-                  onClearQuery={() => {
-                    setQuery("");
-                    setPage(1);
-                  }}
+                  onQueryChange={onQueryChange}
+                  onClearQuery={onClearQuery}
                   selectionMode={selectionMode}
                   selectedCount={selectedMapIds.length}
                   onOpenMerge={() => setMergeDialogOpen(true)}
                   onOpenBulkDelete={() => setConfirmBulkOpen(true)}
-                  onCancelSelection={() => {
-                    setSelectionMode(false);
-                    setSelectedMapIds([]);
-                  }}
+                  onCancelSelection={clearSelection}
                   bulkDeleting={bulkDeleting}
                   statusSummary={statusSummary}
                   sourceSummary={sourceSummary}
@@ -1544,8 +646,7 @@ export default function MapsPage() {
                     if (isMobileViewport) return;
                     const next = !previewOpen;
                     if (next && selectionMode) {
-                      setSelectionMode(false);
-                      setSelectedMapIds([]);
+                      clearSelection();
                       toast.message("프리뷰 모드로 전환되어 선택 모드가 꺼졌어요.");
                     }
                     if (next && isTagOrganizeActive) {
@@ -1575,8 +676,7 @@ export default function MapsPage() {
                       toast.message("태그 정리 모드로 전환되어 프리뷰가 꺼졌어요.");
                     }
                     if (next && selectionMode) {
-                      setSelectionMode(false);
-                      setSelectedMapIds([]);
+                      clearSelection();
                       toast.message("태그 정리 모드로 전환되어 선택 모드가 꺼졌어요.");
                     }
                     setMobileTagSheetOpen(next);
@@ -1585,8 +685,7 @@ export default function MapsPage() {
                   onToggleSelection={() => {
                     const next = !selectionMode;
                     if (!next) {
-                      setSelectionMode(false);
-                      setSelectedMapIds([]);
+                      clearSelection();
                       return;
                     }
                     if (previewOpen) {
@@ -1605,10 +704,7 @@ export default function MapsPage() {
                   onViewModeChange={setViewMode}
                   hidePreviewToggle={Boolean(isMobileViewport)}
                   sort={sort}
-                  onSortChange={(value) => {
-                    setSort(value);
-                    setPage(1);
-                  }}
+                  onSortChange={onSortChange}
                   filtersOpen={filtersOpen}
                   onToggleFilters={() => setFiltersOpen((prev) => !prev)}
                   showResetFilters={
@@ -1618,13 +714,8 @@ export default function MapsPage() {
                     datePreset !== "30d"
                   }
                   onResetFilters={() => {
-                    setDatePreset("30d");
-                    setCustomFrom("");
-                    setCustomTo("");
-                    setStatusFilters([]);
-                    setSourceFilters([]);
+                    onResetFilters();
                     setTagFilters([]);
-                    setPage(1);
                   }}
                   filterPopover={
                     <MapFilterPopover
@@ -1721,14 +812,16 @@ export default function MapsPage() {
               <div className={isRefreshing ? "opacity-75 transition-opacity" : "transition-opacity"}>
                 {effectiveViewMode === "card" ? (
                   <MapCardList
-                    drafts={filteredDrafts}
+                    drafts={drafts}
                     selectedId={selectedId}
                     previewOpen={previewOpen}
                     selectionMode={selectionMode}
                     tagOrganizeMode={isTagOrganizeActive}
                     compactLayout={previewOpen || isTagOrganizeActive}
                     selectedMapIds={selectedMapIds}
-                    onSelect={handleItemSelect}
+                    onSelect={(item) =>
+                      handleItemSelect(item, selectionMode, toggleSelectedMap)
+                    }
                     onToggleSelect={toggleSelectedMap}
                     onEditTags={openTagEditor}
                     onOpenDetail={handleOpenDetail}
@@ -1736,13 +829,15 @@ export default function MapsPage() {
                   />
                 ) : (
                   <MapTableList
-                    drafts={filteredDrafts}
+                    drafts={drafts}
                     selectedId={selectedId}
                     previewOpen={previewOpen}
                     selectionMode={selectionMode}
                     tagOrganizeMode={isTagOrganizeActive}
                     selectedMapIds={selectedMapIds}
-                    onSelect={handleItemSelect}
+                    onSelect={(item) =>
+                      handleItemSelect(item, selectionMode, toggleSelectedMap)
+                    }
                     onToggleSelect={toggleSelectedMap}
                     onEditTags={openTagEditor}
                     showEditTags={isTagOrganizeActive}
@@ -1821,87 +916,28 @@ export default function MapsPage() {
         </div>
       </div>
 
-      {mobileTagSheetOpen && (
-        <div className="lg:hidden">
-          <div
-            className={`fixed inset-0 z-40 bg-black/25 transition-opacity ${
-              mobileTagSheetOpen ? "opacity-100" : "pointer-events-none opacity-0"
-            }`}
-            onClick={() => {
-              setMobileTagSheetOpen(false);
-            }}
-          />
-          <div
-            className={`fixed inset-x-0 bottom-0 z-50 max-h-[82vh] transform transition-transform ${
-              mobileTagSheetOpen ? "translate-y-0" : "translate-y-full"
-            }`}
-          >
-            <div className="mx-auto w-full max-w-2xl px-4 pb-4 pt-3">
-              <div className="rounded-[28px] bg-white shadow-2xl dark:bg-[#0b1220]">
-                <div className="mx-auto mb-3 mt-2 h-1.5 w-10 rounded-full bg-neutral-300/70 dark:bg-white/20" />
-                <TagPanel
-                  tagListQuery={tagListQuery}
-                  onTagListQueryChange={setTagListQuery}
-                  tagsLoading={tagsLoading}
-                  tagOptions={mergedTagOptions}
-                  tagSort={tagSort}
-                  onTagSortChange={setTagSort}
-                  onDeleteTag={(tag) => {
-                    setTagDeleteTarget(tag);
-                    setTagDeleteOpen(true);
-                  }}
-                  selectedTags={selectedTagNames}
-                  onToggleSelect={(tag) => {
-                    setSelectedTagNames((prev) =>
-                      prev.includes(tag)
-                        ? prev.filter((name) => name !== tag)
-                        : [...prev, tag]
-                    );
-                    setPage(1);
-                  }}
-                  onOpenMerge={() => setTagMergeOpen(true)}
-                  containerClassName="block"
-                  panelClassName="rounded-[28px] border-0 bg-transparent px-4 pb-4 pt-0 shadow-none"
-                  listClassName="mt-3 max-h-[56vh] overflow-y-auto overflow-x-hidden pr-1"
-                  headerAccessory={
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMobileTagSheetOpen(false);
-                      }}
-                      className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-600 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/80"
-                      aria-label="태그 정리 닫기"
-                    >
-                      ×
-                    </button>
-                  }
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {!mobileTagSheetOpen && tagOrganizeMode && (
-        <div className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-4 lg:hidden">
-          <div className="relative inline-flex">
-            <span className="pointer-events-none absolute inset-[-8px] rounded-full border-4 border-cyan-300/80 shadow-[0_0_0_8px_rgba(34,211,238,0.18)] dark:border-cyan-200/65 dark:shadow-[0_0_0_8px_rgba(34,211,238,0.14)]" />
-            <span className="pointer-events-none absolute inset-[-8px] animate-ping rounded-full border-4 border-cyan-200/70 [animation-duration:2.2s] dark:border-cyan-100/55" />
-            <span className="pointer-events-none absolute inset-[-15px] rounded-full border-2 border-blue-400/35 dark:border-blue-300/25" />
-            <button
-              type="button"
-              onClick={() => {
-                setMobileTagSheetOpen(true);
-                setTagOrganizeMode(true);
-              }}
-              className="relative z-[1] inline-flex items-center gap-2 rounded-full border border-cyan-300 bg-[linear-gradient(135deg,#22d3ee,#2563eb)] px-5 py-3 text-sm font-extrabold tracking-[-0.01em] text-white shadow-[0_18px_36px_-18px_rgba(37,99,235,0.65)] transition-transform duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] dark:border-cyan-200/50 dark:bg-[linear-gradient(135deg,rgba(34,211,238,0.95),rgba(59,130,246,0.95))] dark:text-white"
-            >
-              <Icon icon="mdi:tag-outline" className="h-4.5 w-4.5" />
-              태그 목록
-            </button>
-          </div>
-        </div>
-      )}
+      <MobileTagSheet
+        open={mobileTagSheetOpen}
+        tagOrganizeMode={tagOrganizeMode}
+        tagListQuery={tagListQuery}
+        onTagListQueryChange={setTagListQuery}
+        tagsLoading={tagsLoading}
+        tagOptions={mergedTagOptions}
+        tagSort={tagSort}
+        onTagSortChange={setTagSort}
+        selectedTags={selectedTagNames}
+        onToggleSelect={toggleSelectedTag}
+        onDeleteTag={(tag) => {
+          setTagDeleteTarget(tag);
+          setTagDeleteOpen(true);
+        }}
+        onOpenMerge={() => setTagMergeOpen(true)}
+        onCloseSheet={() => setMobileTagSheetOpen(false)}
+        onReopen={() => {
+          setMobileTagSheetOpen(true);
+          setTagOrganizeMode(true);
+        }}
+      />
 
       {/* Mobile bottom sheet preview */}
       <div className={`lg:hidden ${previewOpen && !isMobileViewport ? "" : "hidden"}`}>
@@ -1934,12 +970,7 @@ export default function MapsPage() {
       <ConfirmDialog
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
-        onConfirm={() => {
-          if (!pendingDelete) return;
-          setConfirmOpen(false);
-          handleDelete(pendingDelete);
-          setPendingDelete(null);
-        }}
+        onConfirm={confirmSingleDelete}
         title="구조맵을 삭제할까요?"
         description="삭제하면 복구할 수 없어요. 계속 진행할까요?"
         actionLabel="삭제"
@@ -1948,13 +979,7 @@ export default function MapsPage() {
       <ConfirmDialog
         open={confirmBulkOpen}
         onOpenChange={setConfirmBulkOpen}
-        onConfirm={() => {
-          const ids = [...selectedMapIds];
-          setConfirmBulkOpen(false);
-          handleBulkDelete(ids);
-          setSelectionMode(false);
-          setSelectedMapIds([]);
-        }}
+        onConfirm={() => confirmBulkDelete([...selectedMapIds])}
         title="선택한 구조맵을 삭제할까요?"
         description="선택한 맵을 삭제하면 복구할 수 없어요."
         actionLabel="선택 삭제"

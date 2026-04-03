@@ -83,12 +83,12 @@ export default function TagPanel({
                   key={tag}
                   className="inline-flex items-center gap-1 rounded-full border border-neutral-500 bg-neutral-600 px-2 py-1 text-[11px] font-semibold text-white shadow-sm dark:border-white/20 dark:bg-white/15 dark:text-white"
                 >
-                  {tag === NO_TAG_FILTER ? "특별한 태그없음" : `#${tag}`}
+                  {tag === NO_TAG_FILTER ? "태그 없음" : `#${tag}`}
                   <button
                     type="button"
                     onClick={() => onToggleSelect(tag)}
                     className="inline-flex h-4 w-4 items-center justify-center rounded-full text-white/70 hover:bg-white/15 hover:text-white"
-                    aria-label={`${tag === NO_TAG_FILTER ? "특별한 태그없음" : tag} 선택 해제`}
+                    aria-label={`${tag === NO_TAG_FILTER ? "태그 없음" : tag} 선택 해제`}
                   >
                     ×
                   </button>
@@ -149,7 +149,7 @@ export default function TagPanel({
               onClick={(event) => event.stopPropagation()}
               className="h-3.5 w-3.5 rounded border-neutral-400 text-neutral-700"
             />
-            <span className="font-semibold">특별한 태그없음</span>
+            <span className="font-semibold">태그 없음</span>
           </div>
         </button>
         <div className={listClassName}>
