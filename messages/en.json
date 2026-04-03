@@ -1376,7 +1376,36 @@
     },
     "actions": {
       "delete": "Delete",
-      "tutorial": "Tutorial"
+      "tutorial": "Tutorial",
+      "closeMap": "Close map",
+      "discardDraft": "Discard draft",
+      "publish": "Done / Publish"
+    },
+    "draftStatus": {
+      "autoSaving": "Auto-saving…",
+      "saved": "Saved",
+      "hasDraft": "Unsaved changes"
+    },
+    "share": {
+      "statusLoadFailed": "We couldn't load the share status.",
+      "enableFailed": "We couldn't create the share link.",
+      "enabled": "Share link created.",
+      "disableFailed": "We couldn't turn off sharing.",
+      "disabled": "Sharing turned off.",
+      "copied": "Link copied.",
+      "copyFailed": "We couldn't copy the link."
+    },
+    "publishToast": {
+      "success": "Published successfully.",
+      "failed": "Publishing failed."
+    },
+    "discardToast": {
+      "success": "Draft changes were discarded.",
+      "failed": "We couldn't discard draft changes."
+    },
+    "selectedMap": "Selected map",
+    "export": {
+      "failed": "We couldn't save the image."
     },
     "deleteConfirm": {
       "title": "Delete this structure map?",
@@ -1384,6 +1413,11 @@
       "action": "Delete",
       "actionDeleting": "Deleting..."
     }
+  },
+  "DiscardDraftDialog": {
+    "title": "Discard draft changes",
+    "description": "Discard all draft changes and return to the last published version?",
+    "actionLabel": "Discard"
   },
   "FullscreenDialog": {
     "fallbackTitle": "Structure Map",

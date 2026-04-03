@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 export default function DiscardDraftDialog({
@@ -11,6 +12,8 @@ export default function DiscardDraftDialog({
   onClose: () => void;
   onConfirm: () => void;
 }) {
+  const t = useTranslations("DiscardDraftDialog");
+
   return (
     <ConfirmDialog
       open={open}
@@ -18,9 +21,9 @@ export default function DiscardDraftDialog({
         if (!next) onClose();
       }}
       onConfirm={onConfirm}
-      title="임시 변경 버리기"
-      description="임시 변경사항을 모두 삭제하고 마지막 발행본으로 돌아갈까요?"
-      actionLabel="버리기"
+      title={t("title")}
+      description={t("description")}
+      actionLabel={t("actionLabel")}
       tone="danger"
     />
   );

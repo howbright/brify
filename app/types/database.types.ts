@@ -378,6 +378,7 @@ export type Database = {
           mind_elixir: Json | null
           mind_elixir_draft: Json | null
           mind_theme_override: string | null
+          notes_count: number
           output_language: string | null
           required_credits: number
           schema_version: number
@@ -389,6 +390,7 @@ export type Database = {
           source_url: string | null
           summary: string | null
           tags: string[]
+          terms_count: number
           thumbnail_url: string | null
           title: string
           updated_at: string
@@ -410,6 +412,7 @@ export type Database = {
           mind_elixir?: Json | null
           mind_elixir_draft?: Json | null
           mind_theme_override?: string | null
+          notes_count?: number
           output_language?: string | null
           required_credits?: number
           schema_version?: number
@@ -421,6 +424,7 @@ export type Database = {
           source_url?: string | null
           summary?: string | null
           tags?: string[]
+          terms_count?: number
           thumbnail_url?: string | null
           title: string
           updated_at?: string
@@ -442,6 +446,7 @@ export type Database = {
           mind_elixir?: Json | null
           mind_elixir_draft?: Json | null
           mind_theme_override?: string | null
+          notes_count?: number
           output_language?: string | null
           required_credits?: number
           schema_version?: number
@@ -453,6 +458,7 @@ export type Database = {
           source_url?: string | null
           summary?: string | null
           tags?: string[]
+          terms_count?: number
           thumbnail_url?: string | null
           title?: string
           updated_at?: string

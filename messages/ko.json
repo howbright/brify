@@ -1280,18 +1280,18 @@
     "closeAria": "패널 닫기",
     "closeTitle": "닫기",
     "notes": {
-      "helper": "떠오르는 생각을 적으세요.",
-      "placeholder": "노트를 적어주세요… (Enter로 추가)",
+      "helper": "떠오르는 생각을 메모해 보세요.",
+      "placeholder": "메모를 적어주세요… (Enter로 추가)",
       "add": "추가",
-      "loading": "노트를 불러오는 중…",
-      "empty": "아직 노트가 없어요."
+      "loading": "메모를 불러오는 중…",
+      "empty": "아직 메모가 없어요."
     },
     "errors": {
       "notes": {
-        "fetch": "노트를 불러오지 못했습니다.",
-        "add": "노트를 추가하지 못했습니다.",
-        "delete": "노트를 삭제하지 못했습니다.",
-        "update": "노트를 수정하지 못했습니다."
+        "fetch": "메모를 불러오지 못했습니다.",
+        "add": "메모를 추가하지 못했습니다.",
+        "delete": "메모를 삭제하지 못했습니다.",
+        "update": "메모를 수정하지 못했습니다."
       },
       "terms": {
         "fetch": "용어를 불러오지 못했습니다.",
@@ -1376,7 +1376,36 @@
     },
     "actions": {
       "delete": "삭제",
-      "tutorial": "튜토리얼"
+      "tutorial": "튜토리얼",
+      "closeMap": "맵 닫기",
+      "discardDraft": "임시 변경 버리기",
+      "publish": "완료/발행"
+    },
+    "draftStatus": {
+      "autoSaving": "자동 저장 중…",
+      "saved": "저장됨",
+      "hasDraft": "임시 변경 있음"
+    },
+    "share": {
+      "statusLoadFailed": "공유 상태를 불러오지 못했습니다.",
+      "enableFailed": "공유 링크 생성에 실패했습니다.",
+      "enabled": "공유 링크를 만들었어요.",
+      "disableFailed": "공유 링크 끄기에 실패했습니다.",
+      "disabled": "공유 링크를 끄었습니다.",
+      "copied": "링크를 복사했어요.",
+      "copyFailed": "복사에 실패했습니다."
+    },
+    "publishToast": {
+      "success": "발행이 완료되었습니다.",
+      "failed": "발행에 실패했습니다."
+    },
+    "discardToast": {
+      "success": "임시 변경을 버렸습니다.",
+      "failed": "임시 변경 버리기에 실패했습니다."
+    },
+    "selectedMap": "선택한 맵",
+    "export": {
+      "failed": "이미지 저장에 실패했습니다."
     },
     "deleteConfirm": {
       "title": "구조맵을 삭제할까요?",
@@ -1384,6 +1413,11 @@
       "action": "삭제",
       "actionDeleting": "삭제 중..."
     }
+  },
+  "DiscardDraftDialog": {
+    "title": "임시 변경 버리기",
+    "description": "임시 변경사항을 모두 삭제하고 마지막 발행본으로 돌아갈까요?",
+    "actionLabel": "버리기"
   },
   "FullscreenDialog": {
     "fallbackTitle": "구조맵",

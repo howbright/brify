@@ -109,6 +109,7 @@ function getErrorMessage(error: unknown, fallback: string) {
 
 const FULLSCREEN_PAGE_TERMS_TAB_ID = "fullscreen-page-terms-tab";
 const FULLSCREEN_PAGE_LEFT_PANEL_BUTTON_ID = "fullscreen-page-left-panel-button";
+const LEFT_PANEL_FOCUS_INSET = 560;
 
 function toDraft(row: MapRow): MapDraft {
   return {
@@ -117,7 +118,7 @@ function toDraft(row: MapRow): MapDraft {
     updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : undefined,
     sourceUrl: row.source_url ?? undefined,
     sourceType: row.source_type ?? undefined,
-    title: row.title ?? "제목없음",
+    title: row.title ?? "Untitled",
     shortTitle: row.short_title ?? undefined,
     channelName: row.channel_name ?? undefined,
     thumbnailUrl: row.thumbnail_url ? withCacheBuster(row.thumbnail_url) : undefined,
@@ -392,6 +393,16 @@ export default function MapDetailPage() {
       mindRef.current?.setSearchActive?.(id);
       mindRef.current?.focusNodeById?.(id);
     }
+  };
+
+  const handleSelectNodeNote = (nodeId: string) => {
+    setLeftTab("notes");
+    setLeftOpen(true);
+    mindRef.current?.setSearchActive?.(nodeId);
+    mindRef.current?.focusNodeById?.(nodeId);
+    window.setTimeout(() => {
+      mindRef.current?.setSearchActive?.(null);
+    }, 1800);
   };
 
   useEffect(() => {
@@ -697,7 +708,7 @@ export default function MapDetailPage() {
         const res = await fetch(`/api/maps/${mapId}/publish`, {
           method: "POST",
         });
-        if (!res.ok) throw new Error("발행 실패");
+        if (!res.ok) throw new Error(t("publishToast.failed"));
         setHasDraft(false);
         lastSavedDraftRef.current = null;
         // 발행된 원본을 다시 동기화
@@ -714,9 +725,9 @@ export default function MapDetailPage() {
         } catch {
           // ignore
         }
-        toast.message("발행이 완료되었습니다.");
+        toast.message(t("publishToast.success"));
       } catch {
-        toast.message("발행에 실패했습니다.");
+        toast.message(t("publishToast.failed"));
       }
     })();
   };
@@ -728,7 +739,7 @@ export default function MapDetailPage() {
         const res = await fetch(`/api/maps/${mapId}/draft`, {
           method: "DELETE",
         });
-        if (!res.ok) throw new Error("삭제 실패");
+        if (!res.ok) throw new Error(t("discardToast.failed"));
         setHasDraft(false);
         lastSavedDraftRef.current = null;
         // 원본 맵으로 즉시 되돌리기
@@ -745,9 +756,9 @@ export default function MapDetailPage() {
         } catch {
           // ignore
         }
-        toast.message("임시 변경을 버렸습니다.");
+        toast.message(t("discardToast.success"));
       } catch {
-        toast.message("임시 변경 버리기에 실패했습니다.");
+        toast.message(t("discardToast.failed"));
       }
     })();
   };
@@ -773,7 +784,7 @@ export default function MapDetailPage() {
   const handleExportPng = async () => {
     const blob = await mindRef.current?.exportPng?.();
     if (!blob) {
-      toast.message("이미지 저장에 실패했습니다.");
+      toast.message(t("export.failed"));
       return;
     }
     const safeTitle = toFileSafeName(title || "map") || "map";
@@ -801,12 +812,12 @@ export default function MapDetailPage() {
       const res = await fetch(`/api/maps/${mapId}/share`);
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(json?.error || "공유 상태를 불러오지 못했습니다.");
+        throw new Error(json?.error || t("share.statusLoadFailed"));
       }
       setShareEnabled(Boolean(json?.share_enabled));
       setShareToken(json?.share_token ?? null);
     } catch (e: unknown) {
-      toast.message(getErrorMessage(e, "공유 상태를 불러오지 못했습니다."));
+      toast.message(getErrorMessage(e, t("share.statusLoadFailed")));
     } finally {
       setShareLoading(false);
     }
@@ -819,13 +830,13 @@ export default function MapDetailPage() {
       const res = await fetch(`/api/maps/${mapId}/share`, { method: "POST" });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(json?.error || "공유 링크 생성에 실패했습니다.");
+        throw new Error(json?.error || t("share.enableFailed"));
       }
       setShareEnabled(Boolean(json?.share_enabled));
       setShareToken(json?.share_token ?? null);
-      toast.message("공유 링크를 만들었어요.");
+      toast.message(t("share.enabled"));
     } catch (e: unknown) {
-      toast.message(getErrorMessage(e, "공유 링크 생성에 실패했습니다."));
+      toast.message(getErrorMessage(e, t("share.enableFailed")));
     } finally {
       setShareLoading(false);
     }
@@ -838,13 +849,13 @@ export default function MapDetailPage() {
       const res = await fetch(`/api/maps/${mapId}/share`, { method: "DELETE" });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(json?.error || "공유 링크 끄기에 실패했습니다.");
+        throw new Error(json?.error || t("share.disableFailed"));
       }
       setShareEnabled(false);
       setShareToken(null);
-      toast.message("공유 링크를 끄었습니다.");
+      toast.message(t("share.disabled"));
     } catch (e: unknown) {
-      toast.message(getErrorMessage(e, "공유 링크 끄기에 실패했습니다."));
+      toast.message(getErrorMessage(e, t("share.disableFailed")));
     } finally {
       setShareLoading(false);
     }
@@ -855,9 +866,9 @@ export default function MapDetailPage() {
     if (!url) return;
     try {
       await navigator.clipboard.writeText(url);
-      toast.message("링크를 복사했어요.");
+      toast.message(t("share.copied"));
     } catch {
-      toast.message("복사에 실패했습니다.");
+      toast.message(t("share.copyFailed"));
     }
   };
 
@@ -869,11 +880,11 @@ export default function MapDetailPage() {
   }, [shareToken, locale]);
 
   const statusLabel = isSavingDraft
-    ? "자동 저장 중…"
+    ? t("draftStatus.autoSaving")
     : savedPulse
-    ? "저장됨"
+    ? t("draftStatus.saved")
     : hasDraft
-    ? "임시 변경 있음"
+    ? t("draftStatus.hasDraft")
     : undefined;
   const statusTone = isSavingDraft ? "warning" : savedPulse ? "success" : "neutral";
 
@@ -882,7 +893,7 @@ export default function MapDetailPage() {
       <FullscreenHeader
         title={title}
         onClose={() => router.push(`/${locale}/maps`)}
-        closeLabel="맵 닫기"
+        closeLabel={t("actions.closeMap")}
         left={
           <>
               <button
@@ -1330,6 +1341,7 @@ export default function MapDetailPage() {
               loading={loading}
               placeholderData={loadingMindElixir}
               showMiniMap={!isTutorialMobile}
+              focusInsetLeft={leftOpen ? LEFT_PANEL_FOCUS_INSET : 0}
               openMenuOnClick={false}
               disableDirectContextMenu
               showSelectionContextMenuButton
@@ -1368,7 +1380,7 @@ export default function MapDetailPage() {
                   "
                 >
                   <Icon icon="mdi:undo-variant" className="h-3.5 w-3.5" />
-                  임시 변경 버리기
+                  {t("actions.discardDraft")}
                 </button>
                 <button
                   type="button"
@@ -1382,7 +1394,7 @@ export default function MapDetailPage() {
                   "
                 >
                   <Icon icon="mdi:check-circle-outline" className="h-4.5 w-4.5" />
-                  완료/발행
+                  {t("actions.publish")}
                 </button>
               </>
             )}
@@ -1408,6 +1420,8 @@ export default function MapDetailPage() {
             deleteLabel={t("actions.delete")}
             map={draft}
             mapId={mapId}
+            mindData={mapData}
+            onSelectNodeNote={handleSelectNodeNote}
             tab={leftTab}
             onTabChange={setLeftTab}
             termsTabId={FULLSCREEN_PAGE_TERMS_TAB_ID}
@@ -1427,7 +1441,7 @@ export default function MapDetailPage() {
           <TagEditDialog
             open={tagEditOpen}
             onOpenChange={setTagEditOpen}
-            draftTitle={draft.title ?? "선택한 맵"}
+            draftTitle={draft.shortTitle ?? draft.title ?? t("selectedMap")}
             initialTags={draft.tags ?? []}
             allTags={allTagNames}
             saving={tagEditSubmitting}

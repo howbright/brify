@@ -31,6 +31,7 @@ import {
 const PROFILE_THEME_NAME = "내설정테마";
 const FULLSCREEN_TERMS_TAB_ID = "fullscreen-map-terms-tab";
 const FULLSCREEN_LEFT_PANEL_BUTTON_ID = "fullscreen-map-left-panel-button";
+const LEFT_PANEL_FOCUS_INSET = 560;
 
 type MindNode = {
   children?: MindNode[];
@@ -345,6 +346,16 @@ export default function FullscreenDialog({
     }
   };
 
+  const handleSelectNodeNote = (nodeId: string) => {
+    setLeftTab("notes");
+    setLeftOpen(true);
+    mindRef.current?.setSearchActive?.(nodeId);
+    mindRef.current?.focusNodeById?.(nodeId);
+    window.setTimeout(() => {
+      mindRef.current?.setSearchActive?.(null);
+    }, 1800);
+  };
+
   const content = (
     <div
       className="
@@ -559,6 +570,7 @@ export default function FullscreenDialog({
                 loading={mapLoading}
                 placeholderData={loadingMindElixir}
                 showMiniMap={!isTutorialMobile}
+                focusInsetLeft={leftOpen ? LEFT_PANEL_FOCUS_INSET : 0}
                 openMenuOnClick={false}
                 disableDirectContextMenu
                 showSelectionContextMenuButton
@@ -663,6 +675,8 @@ export default function FullscreenDialog({
             onClose={() => setLeftOpen(false)}
             map={mapDraft}
             mapId={mapDraft.id}
+            mindData={mapData}
+            onSelectNodeNote={handleSelectNodeNote}
             tab={leftTab}
             onTabChange={setLeftTab}
             onEditTags={() => setTagEditOpen(true)}

@@ -43,6 +43,7 @@ type ClientMindElixirProps = {
   showSelectionContextMenuButton?: boolean;
   showMiniMap?: boolean;
   showToolbar?: boolean;
+  focusInsetLeft?: number;
   panMode?: boolean;
   panModeButton?: 0 | 2;
   preferPanModeOnTouch?: boolean;
@@ -420,6 +421,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       showSelectionContextMenuButton = false,
       showMiniMap = true,
       showToolbar = false,
+      focusInsetLeft = 0,
       panMode,
       panModeButton = 2,
       showMobileEditControls = true,
@@ -429,6 +431,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const wrapperRef = useRef<HTMLDivElement>(null);
   const elRef = useRef<HTMLDivElement>(null);
   const mindRef = useRef<any>(null);
+  const focusInsetLeftRef = useRef(0);
   const currentLevelRef = useRef(0);
   const latestMindDataRef = useRef<any>(null);
 
@@ -454,6 +457,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     panMode,
     showMobileEditControls,
   });
+
+  useEffect(() => {
+    focusInsetLeftRef.current = focusInsetLeft;
+  }, [focusInsetLeft]);
 
   const [ready, setReady] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -1461,10 +1468,34 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
   const focusNodeById = (id: string) => {
     const el = getNodeElById(id);
-    if (!el) return;
+    if (!el) {
+      return;
+    }
     setSelectedNodeId(id);
     selectedNodeElRef.current = el;
     requestAnimationFrame(() => updateSelectedRect(id));
+    const host = elRef.current;
+    const mind = mindRef.current;
+    if (host && mind?.move) {
+      const rect = el.getBoundingClientRect();
+      const hostRect = host.getBoundingClientRect();
+      const targetX = rect.left + rect.width / 2;
+      const targetY = rect.top + rect.height / 2;
+      const insetLeft = Math.max(
+        0,
+        Math.min(focusInsetLeftRef.current, hostRect.width * 0.8)
+      );
+      const visibleWidth = Math.max(0, hostRect.width - insetLeft);
+      const centerX =
+        hostRect.left +
+        insetLeft +
+        (visibleWidth > 0 ? visibleWidth / 2 : hostRect.width / 2);
+      const centerY = hostRect.top + hostRect.height / 2;
+      const dx = centerX - targetX;
+      const dy = centerY - targetY;
+      mind.move(dx, dy);
+      return;
+    }
     el.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
   };
 

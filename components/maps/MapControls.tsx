@@ -210,7 +210,7 @@ export default function MapControls({
           zoomOut: "Ctrl + -",
           collapseAll: "Ctrl + K, Ctrl + 0",
           expandAll: "Ctrl + K, Ctrl + =",
-          expandLevel: "Ctrl + K, Ctrl + 1-9",
+          expandLevel: "Ctrl + K",
           alignLeft: "Ctrl + ←",
           alignRight: "Ctrl + →",
           alignCenter: "Ctrl + ↑",
@@ -221,7 +221,7 @@ export default function MapControls({
           zoomOut: "Ctrl + -",
           collapseAll: "Ctrl + K, Ctrl + 0",
           expandAll: "Ctrl + K, Ctrl + =",
-          expandLevel: "Ctrl + K, Ctrl + 1-9",
+          expandLevel: "Ctrl + K",
           alignLeft: "Ctrl + ←",
           alignRight: "Ctrl + →",
           alignCenter: "Ctrl + ↑",
@@ -235,6 +235,7 @@ export default function MapControls({
   const mapActionsRef = useRef<HTMLDivElement>(null);
   const moreRef = useRef<HTMLDivElement>(null);
   const themeRef = useRef<HTMLDivElement>(null);
+  const shortcutHintRef = useRef<HTMLDivElement>(null);
   const shortcutHintItems =
     locale === "ko"
       ? [
@@ -250,11 +251,15 @@ export default function MapControls({
   const shortcutHintLabel = locale === "ko" ? "힌트" : "Hint";
 
   useEffect(() => {
-    if (!mapActionsOpen && !moreOpen && !themeOpen) return;
+    if (!mapActionsOpen && !moreOpen && !themeOpen && !shortcutHintOpen) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node | null;
       if (!target) return;
+
+      if (shortcutHintOpen && shortcutHintRef.current?.contains(target)) {
+        return;
+      }
 
       if (mapActionsOpen && mapActionsRef.current?.contains(target)) {
         return;
@@ -269,11 +274,12 @@ export default function MapControls({
       setMapActionsOpen(false);
       setMoreOpen(false);
       setThemeOpen(false);
+      setShortcutHintOpen(false);
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [mapActionsOpen, moreOpen, themeOpen]);
+  }, [mapActionsOpen, moreOpen, themeOpen, shortcutHintOpen]);
 
   return (
     <>
@@ -284,14 +290,14 @@ export default function MapControls({
             : "absolute right-4 top-3 z-[16] flex items-center gap-2 max-[738px]:top-2"
         }
       >
-        <div className="flex flex-col gap-2">
-            <div
-              className="
-                flex items-center gap-2
-                text-base font-extrabold text-neutral-700
-                dark:text-white/80
-              "
-            >
+        <div className="relative flex items-center gap-2">
+          <div
+            className="
+              flex items-center gap-2
+              text-base font-extrabold text-neutral-700
+              dark:text-white/80
+            "
+          >
             {/* Left: Mode + Status */}
             <div className="flex items-center gap-2">
               {!hideEditToggle && (
@@ -385,22 +391,45 @@ export default function MapControls({
             {/* Right: Map actions + More */}
             <div className="flex items-center gap-2">
               <div className="inline-flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setShortcutHintOpen((open) => !open)}
-                  className="
-                    hidden min-[760px]:inline-flex items-center rounded-full
-                    border border-blue-200 bg-blue-50 px-2 py-0.5
-                    text-[10px] font-bold
-                    text-blue-700 transition-colors hover:bg-blue-100
-                    dark:border-blue-400/20 dark:bg-blue-500/10
-                    dark:text-blue-200 dark:hover:bg-blue-500/20
-                  "
-                  aria-expanded={shortcutHintOpen}
-                  aria-label={locale === "ko" ? "단축키 힌트 토글" : "Toggle shortcut hint"}
+                <div
+                  ref={shortcutHintRef}
+                  className="relative hidden min-[760px]:inline-flex"
                 >
-                  ({shortcutHintLabel})
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => setShortcutHintOpen((open) => !open)}
+                    className="
+                      inline-flex items-center rounded-full
+                      border border-cyan-300 bg-[#22f0ff] px-2 py-0.5
+                      text-[10px] font-extrabold text-[#062033] transition-colors
+                      shadow-[0_0_0_1px_rgba(34,240,255,0.35),0_8px_22px_-12px_rgba(34,240,255,0.9)]
+                      hover:bg-[#5af5ff]
+                      dark:border-cyan-200 dark:bg-[#39ff9c]
+                      dark:text-[#062312] dark:shadow-[0_0_0_1px_rgba(57,255,156,0.4),0_10px_24px_-12px_rgba(57,255,156,0.95)]
+                      dark:hover:bg-[#63ffae]
+                    "
+                    aria-expanded={shortcutHintOpen}
+                    aria-label={locale === "ko" ? "단축키 힌트 토글" : "Toggle shortcut hint"}
+                  >
+                    {shortcutHintLabel}
+                  </button>
+                  {shortcutHintOpen ? (
+                    <div className="absolute left-1/2 top-full z-20 mt-2 flex w-max max-w-[280px] -translate-x-1/2 items-start gap-2 rounded-2xl border border-amber-200 bg-amber-50/95 px-3 py-2.5 text-[11px] font-medium text-amber-950 shadow-[0_14px_28px_-18px_rgba(245,158,11,0.65)] dark:border-amber-300/20 dark:bg-[#2a1905]/95 dark:text-amber-50">
+                      <span className="pointer-events-none absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 rounded-[2px] border-l border-t border-amber-200 bg-amber-50/95 dark:border-amber-300/20 dark:bg-[#2a1905]/95" />
+                      <Icon
+                        icon="mdi:keyboard-outline"
+                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-700 dark:text-amber-200"
+                      />
+                      <div className="flex min-w-0 flex-col items-start gap-0.5">
+                        {shortcutHintItems.map((item) => (
+                          <span key={item.label} className="whitespace-nowrap leading-4">
+                            {item.label} <strong>{item.value}</strong>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
                 {onCenterMap && (
                   <MapControlButton
                     icon="mdi:crosshairs-gps"
@@ -566,7 +595,7 @@ export default function MapControls({
                   />
 
                   {moreOpen && (
-                    <div className="absolute right-0 mt-2 w-[180px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
+                    <div className="absolute right-0 mt-2 w-[240px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
                       {onExportPng && (
                         <MenuButton
                           icon="mdi:image-outline"
@@ -626,23 +655,8 @@ export default function MapControls({
                 </div>
               </div>
             </div>
-            </div>
-            {shortcutHintOpen ? (
-              <div className="hidden min-[760px]:flex items-start gap-2 rounded-2xl border border-blue-200 bg-blue-50/90 px-2.5 py-2 text-[11px] font-medium text-blue-900 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-100/90">
-                <Icon
-                  icon="mdi:keyboard-outline"
-                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-700 dark:text-blue-200"
-                />
-                <div className="flex min-w-0 flex-col items-start gap-0.5">
-                  {shortcutHintItems.map((item) => (
-                    <span key={item.label} className="whitespace-nowrap leading-4">
-                      {item.label} <strong>{item.value}</strong>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
           </div>
+        </div>
       </div>
 
       <ShortcutsDialog
@@ -734,7 +748,7 @@ function MenuButton({
       type="button"
       onClick={onClick}
       className={`
-        inline-flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-base font-semibold
+        inline-flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-[13px] font-medium
         ${
           danger
             ? "text-rose-600 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/10"
@@ -745,7 +759,7 @@ function MenuButton({
       {icon ? <Icon icon={icon} className="h-5 w-5" /> : null}
       <span className="whitespace-nowrap">{label}</span>
       {shortcut ? (
-        <span className="ml-auto whitespace-nowrap rounded-md bg-neutral-100 px-2 py-0.5 text-[11px] font-bold text-neutral-500 dark:bg-white/10 dark:text-white/55">
+        <span className="ml-auto whitespace-nowrap rounded-md bg-neutral-100 px-2 py-0.5 text-[10px] font-semibold text-neutral-500 dark:bg-white/10 dark:text-white/55">
           {shortcut}
         </span>
       ) : null}

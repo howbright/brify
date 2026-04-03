@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 import NoteItem, { type NoteItemData } from "@/components/maps/NoteItem";
@@ -9,6 +9,7 @@ import TermsBlock from "@/components/maps/TermsBlock";
 import { createClient } from "@/utils/supabase/client";
 
 type LeftPanelTab = "info" | "notes" | "terms";
+type NotesSubtab = "memo" | "node" | "highlight";
 type TermItem = {
   term: string;
   meaning: string;
@@ -16,6 +17,22 @@ type TermItem = {
   isNew?: boolean;
 };
 type NoteItem = NoteItemData;
+type MindNode = {
+  id?: string;
+  topic?: string;
+  note?: string | null;
+  highlight?: { variant?: string } | null;
+  children?: MindNode[];
+};
+type NodeNoteItem = {
+  id: string;
+  topic: string;
+  note: string;
+};
+type HighlightItem = {
+  id: string;
+  topic: string;
+};
 
 export default function LeftPanel({
   open,
@@ -26,6 +43,8 @@ export default function LeftPanel({
   deleteLabel,
   map,
   mapId,
+  mindData,
+  onSelectNodeNote,
   tab,
   onTabChange,
   termsTabId,
@@ -38,12 +57,15 @@ export default function LeftPanel({
   deleteLabel?: string;
   map: MapDraft;
   mapId?: string;
+  mindData?: unknown | null;
+  onSelectNodeNote?: (nodeId: string) => void;
   tab?: LeftPanelTab;
   onTabChange?: (next: LeftPanelTab) => void;
   termsTabId?: string;
 }) {
   const t = useTranslations("LeftPanel");
   const tRight = useTranslations("RightPanel");
+  const locale = useLocale();
   const createdLabel = useMemo(
     () => safeDateLabel(map.createdAt),
     [map.createdAt]
@@ -64,6 +86,7 @@ export default function LeftPanel({
   );
 
   const [internalTab, setInternalTab] = useState<LeftPanelTab>(tab ?? "info");
+  const [notesSubtab, setNotesSubtab] = useState<NotesSubtab>("memo");
   const activeTab = tab ?? internalTab;
   const setActiveTab = onTabChange ?? setInternalTab;
   const panelTitle =
@@ -86,9 +109,66 @@ export default function LeftPanel({
   const termsHighlightRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelRef = useRef<HTMLElement | null>(null);
 
+  const nodeNotes = useMemo(() => {
+    const root =
+      mindData &&
+      typeof mindData === "object" &&
+      "nodeData" in (mindData as Record<string, unknown>)
+        ? ((mindData as { nodeData?: MindNode | null }).nodeData ?? null)
+        : (mindData as MindNode | null);
+    if (!root || typeof root !== "object") return [] as NodeNoteItem[];
+
+    const collected: NodeNoteItem[] = [];
+    const visit = (node: MindNode | null | undefined) => {
+      if (!node || typeof node !== "object") return;
+      const note = typeof node.note === "string" ? node.note.trim() : "";
+      if (node.id && note) {
+        collected.push({
+          id: node.id,
+          topic: node.topic?.trim() || t("untitled"),
+          note,
+        });
+      }
+      node.children?.forEach((child) => visit(child));
+    };
+
+    visit(root);
+    return collected;
+  }, [mindData, t]);
+  const highlightItems = useMemo(() => {
+    const root =
+      mindData &&
+      typeof mindData === "object" &&
+      "nodeData" in (mindData as Record<string, unknown>)
+        ? ((mindData as { nodeData?: MindNode | null }).nodeData ?? null)
+        : (mindData as MindNode | null);
+    if (!root || typeof root !== "object") return [] as HighlightItem[];
+
+    const collected: HighlightItem[] = [];
+    const visit = (node: MindNode | null | undefined) => {
+      if (!node || typeof node !== "object") return;
+      if (node.id && node.highlight?.variant) {
+        collected.push({
+          id: node.id,
+          topic: node.topic?.trim() || t("untitled"),
+        });
+      }
+      node.children?.forEach((child) => visit(child));
+    };
+
+    visit(root);
+    return collected;
+  }, [mindData, t]);
+  const totalNotesCount = notes.length + nodeNotes.length + highlightItems.length;
+
   useEffect(() => {
     if (tab) setInternalTab(tab);
   }, [tab]);
+
+  useEffect(() => {
+    if (activeTab !== "notes") return;
+    setNotesSubtab("memo");
+  }, [activeTab]);
 
   useEffect(() => {
     if (!open || !mapId) return;
@@ -631,7 +711,7 @@ export default function LeftPanel({
                 <TabButton
                   active={activeTab === "notes"}
                   label={tRight("tabs.notes")}
-                  count={notes.length}
+                  count={totalNotesCount}
                   onClick={() => setActiveTab("notes")}
                 />
                 <TabButton
@@ -895,15 +975,20 @@ export default function LeftPanel({
             </>
           ) : activeTab === "notes" ? (
             <NotesBlock
+              subtab={notesSubtab}
+              onSubtabChange={setNotesSubtab}
               noteText={noteText}
               setNoteText={setNoteText}
               onAdd={addNote}
               notes={notes}
+              nodeNotes={nodeNotes}
+              highlights={highlightItems}
               loading={notesLoading}
               submitting={noteSubmitting}
               error={notesError}
               onDelete={deleteNote}
               onUpdate={updateNote}
+              onSelectNodeNote={onSelectNodeNote}
               helperText={tRight("notes.helper")}
               placeholder={tRight("notes.placeholder")}
               addLabel={tRight("notes.add")}
@@ -1095,40 +1180,111 @@ function TabButton({
 }
 
 function NotesBlock({
+  subtab,
+  onSubtabChange,
   noteText,
   setNoteText,
   onAdd,
   notes,
+  nodeNotes,
+  highlights,
   loading,
   submitting,
   error,
   onDelete,
   onUpdate,
+  onSelectNodeNote,
   helperText,
   placeholder,
   addLabel,
   loadingLabel,
   emptyLabel,
 }: {
+  subtab: NotesSubtab;
+  onSubtabChange: (next: NotesSubtab) => void;
   noteText: string;
   setNoteText: (v: string) => void;
   onAdd: () => void;
   notes: NoteItem[];
+  nodeNotes: NodeNoteItem[];
+  highlights: HighlightItem[];
   loading: boolean;
   submitting: boolean;
   error: string | null;
   onDelete: (id: string) => void;
   onUpdate: (id: string, text: string) => void;
+  onSelectNodeNote?: (nodeId: string) => void;
   helperText: string;
   placeholder: string;
   addLabel: string;
   loadingLabel: string;
   emptyLabel: string;
 }) {
+  const locale = useLocale();
+  const memoTitle = locale === "ko" ? "메모" : "Notes";
+  const nodeNotesTitle = locale === "ko" ? "주석" : "Annotations";
+  const highlightsTitle = locale === "ko" ? "하이라이트" : "Highlights";
+  const nodeNotesEmpty =
+    locale === "ko"
+      ? "작성된 주석이 아직 없어요."
+      : "No annotations yet.";
+  const nodeNotesHelper =
+    locale === "ko"
+      ? "노드에 직접 달아둔 주석을 모아보고, 클릭해서 해당 노드로 바로 이동할 수 있어요."
+      : "Browse annotations attached to nodes and jump to that node with one click.";
+  const highlightsEmpty =
+    locale === "ko"
+      ? "하이라이트한 노드가 아직 없어요."
+      : "No highlighted nodes yet.";
+  const highlightsHelper =
+    locale === "ko"
+      ? "하이라이트한 노드를 모아보고, 클릭해서 해당 노드로 바로 이동할 수 있어요."
+      : "Browse highlighted nodes and jump to them with one click.";
+
   return (
     <div className="flex flex-col gap-3">
+      <div className="inline-flex w-fit items-center rounded-full border border-slate-300 bg-neutral-100 p-1 dark:border-white/15 dark:bg-white/[0.06]">
+        {[
+          { id: "memo" as const, label: memoTitle, count: notes.length },
+          { id: "node" as const, label: nodeNotesTitle, count: nodeNotes.length },
+          {
+            id: "highlight" as const,
+            label: highlightsTitle,
+            count: highlights.length,
+          },
+        ].map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => onSubtabChange(item.id)}
+            className={`rounded-full px-3 py-1.5 text-[13px] font-semibold transition-colors ${
+              subtab === item.id
+                ? "bg-white text-neutral-900 shadow-sm dark:bg-white/14 dark:text-white"
+                : "text-neutral-500 hover:text-neutral-800 dark:text-white/60 dark:hover:text-white/85"
+            }`}
+          >
+            <span className="inline-flex items-center gap-1.5">
+              <span>{item.label}</span>
+              <span
+                className={`inline-flex min-w-[1.2rem] items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-bold leading-none ${
+                  subtab === item.id
+                    ? "bg-neutral-900/8 text-neutral-700 dark:bg-white/14 dark:text-white"
+                    : "bg-neutral-200 text-neutral-500 dark:bg-white/10 dark:text-white/65"
+                }`}
+              >
+                {item.count}
+              </span>
+            </span>
+          </button>
+        ))}
+      </div>
+
       <div className="text-[16px] font-medium leading-7 text-neutral-600 dark:text-white/70">
-        {helperText}
+        {subtab === "memo"
+          ? helperText
+          : subtab === "node"
+          ? nodeNotesHelper
+          : highlightsHelper}
       </div>
 
       {error ? (
@@ -1137,50 +1293,52 @@ function NotesBlock({
         </div>
       ) : null}
 
-      <div className="flex gap-2">
-        <input
-          value={noteText}
-          onChange={(e) => setNoteText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey && !submitting) {
-              e.preventDefault();
-              onAdd();
-            }
-          }}
-          placeholder={placeholder}
-          className="
-            flex-1 rounded-2xl border border-slate-400 bg-blue-50/40 px-4 py-3 text-[15px]
-            outline-none focus:ring-2 focus:ring-blue-200
-            dark:border-white/20 dark:bg-white/[0.06] dark:text-white
-            dark:focus:ring-blue-500/20
-          "
-        />
-        <button
-          type="button"
-          onClick={onAdd}
-          disabled={submitting}
-          className="
-            rounded-2xl border border-blue-700 bg-blue-700 px-4 py-3
-            text-[15px] font-semibold text-white hover:bg-blue-800
-            disabled:cursor-not-allowed disabled:opacity-60
-            dark:border-blue-400 dark:bg-blue-500
-            dark:text-white dark:hover:bg-blue-400
-          "
-        >
-          {addLabel}
-        </button>
-      </div>
+      {subtab === "memo" ? (
+        <div className="flex gap-2">
+          <input
+            value={noteText}
+            onChange={(e) => setNoteText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey && !submitting) {
+                e.preventDefault();
+                onAdd();
+              }
+            }}
+            placeholder={placeholder}
+            className="
+              flex-1 rounded-2xl border border-slate-400 bg-blue-50/40 px-4 py-3 text-[15px]
+              outline-none focus:ring-2 focus:ring-blue-200
+              dark:border-white/20 dark:bg-white/[0.06] dark:text-white
+              dark:focus:ring-blue-500/20
+            "
+          />
+          <button
+            type="button"
+            onClick={onAdd}
+            disabled={submitting}
+            className="
+              rounded-2xl border border-blue-700 bg-blue-700 px-4 py-3
+              text-[15px] font-semibold text-white hover:bg-blue-800
+              disabled:cursor-not-allowed disabled:opacity-60
+              dark:border-blue-400 dark:bg-blue-500
+              dark:text-white dark:hover:bg-blue-400
+            "
+          >
+            {addLabel}
+          </button>
+        </div>
+      ) : null}
 
       <div className="flex flex-col gap-2">
-        {loading ? (
+        {subtab === "memo" && loading ? (
           <div className="rounded-2xl border border-slate-400 bg-blue-50/50 p-4 text-[15px] leading-6 text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/75">
             {loadingLabel}
           </div>
-        ) : notes.length === 0 ? (
+        ) : subtab === "memo" && notes.length === 0 ? (
           <div className="rounded-2xl border border-slate-400 bg-blue-50/50 p-4 text-[17px] font-medium leading-7 text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80">
             {emptyLabel}
           </div>
-        ) : (
+        ) : subtab === "memo" ? (
           notes.map((n) => (
             <NoteItem
               key={n.id}
@@ -1188,6 +1346,61 @@ function NotesBlock({
               onDelete={onDelete}
               onUpdate={onUpdate}
             />
+          ))
+        ) : subtab === "node" && nodeNotes.length === 0 ? (
+          <div className="rounded-2xl border border-slate-400 bg-amber-50/60 p-4 text-[16px] font-medium leading-7 text-neutral-700 dark:border-white/20 dark:bg-amber-500/10 dark:text-white/80">
+            {nodeNotesEmpty}
+          </div>
+        ) : subtab === "node" ? (
+          nodeNotes.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onSelectNodeNote?.(item.id)}
+              className="rounded-2xl border border-slate-400 bg-white p-3 text-left transition-colors hover:bg-amber-50/60 dark:border-white/20 dark:bg-white/[0.08] dark:hover:bg-amber-500/10"
+            >
+              <div className="mb-1 flex items-center gap-2">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-400/15 dark:text-amber-200">
+                  <Icon icon="mdi:note-text-outline" className="h-3.5 w-3.5" />
+                </span>
+                <div className="min-w-0 flex-1 whitespace-pre-wrap break-words text-[14px] font-semibold leading-6 text-neutral-900 dark:text-white/90">
+                  {item.topic}
+                </div>
+                <Icon
+                  icon="mdi:arrow-top-right"
+                  className="h-4 w-4 shrink-0 text-neutral-400 dark:text-white/45"
+                />
+              </div>
+              <div className="pl-8 text-[14px] leading-6 text-neutral-600 dark:text-white/70">
+                {item.note}
+              </div>
+            </button>
+          ))
+        ) : highlights.length === 0 ? (
+          <div className="rounded-2xl border border-slate-400 bg-yellow-50/60 p-4 text-[16px] font-medium leading-7 text-neutral-700 dark:border-white/20 dark:bg-yellow-500/10 dark:text-white/80">
+            {highlightsEmpty}
+          </div>
+        ) : (
+          highlights.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onSelectNodeNote?.(item.id)}
+              className="rounded-2xl border border-slate-400 bg-white p-3 text-left transition-colors hover:bg-yellow-50/60 dark:border-white/20 dark:bg-white/[0.08] dark:hover:bg-yellow-500/10"
+            >
+              <div className="flex items-center gap-2">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-400/15 dark:text-yellow-200">
+                  <Icon icon="mdi:marker" className="h-3.5 w-3.5" />
+                </span>
+                <div className="min-w-0 flex-1 whitespace-pre-wrap break-words text-[14px] font-semibold leading-6 text-neutral-900 dark:text-white/90">
+                  {item.topic}
+                </div>
+                <Icon
+                  icon="mdi:arrow-top-right"
+                  className="h-4 w-4 shrink-0 text-neutral-400 dark:text-white/45"
+                />
+              </div>
+            </button>
           ))
         )}
       </div>
