@@ -27,6 +27,8 @@ type MindElixirMobileLayerProps = {
   hoverActionWrapClass: string;
   hoverActionButtonClass: string;
   hoverActionIconClass: string;
+  noteActionLabel: string;
+  highlightActionLabel: string;
   handleNoteClick: () => void;
   handleHighlightClick: (id?: string | null) => void;
   showSelectionContextMenuButton: boolean;
@@ -58,6 +60,8 @@ export default function MindElixirMobileLayer({
   hoverActionWrapClass,
   hoverActionButtonClass,
   hoverActionIconClass,
+  noteActionLabel,
+  highlightActionLabel,
   handleNoteClick,
   handleHighlightClick,
   showSelectionContextMenuButton,
@@ -128,14 +132,14 @@ export default function MindElixirMobileLayer({
                   e.stopPropagation();
                   handleNoteClick();
                 }}
-                aria-label="노트 추가"
+                aria-label={noteActionLabel}
               >
                 <Icon
                   icon="mdi:note-text-outline"
                   className={hoverActionIconClass}
                 />
                 <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-                  노트 추가
+                  {noteActionLabel}
                 </span>
               </button>
               <button
@@ -150,11 +154,11 @@ export default function MindElixirMobileLayer({
                   e.stopPropagation();
                   e.preventDefault();
                 }}
-                aria-label="하이라이트"
+                aria-label={highlightActionLabel}
               >
                 <Icon icon="mdi:marker" className={hoverActionIconClass} />
                 <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-                  하이라이트
+                  {highlightActionLabel}
                 </span>
               </button>
               {showMobileControls && editMode === "edit" ? (

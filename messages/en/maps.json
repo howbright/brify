@@ -250,6 +250,26 @@
       "shortcuts": "Shortcuts",
       "tutorial": "Tutorial",
       "closeMap": "Close map"
+    },
+    "nodeActions": {
+      "editNode": "Edit node",
+      "addNote": "Add note",
+      "highlight": "Highlight",
+      "more": "More"
+    },
+    "focusMode": {
+      "label": "Focus Mode",
+      "exit": "Exit"
+    }
+  },
+  "ClientMindElixir": {
+    "loading": "Loading structure map…",
+    "noteDialog": {
+      "title": "Note",
+      "placeholder": "Write a note",
+      "delete": "Delete note",
+      "cancel": "Cancel",
+      "save": "Save"
     }
   },
   "ShortcutsDialog": {
@@ -387,7 +407,16 @@
     "descriptionSection": "Description",
     "noDescription": "No description",
     "termsIntro": "AI automatically extracts key terms to help you understand the content.",
-    "requestFailed": "Request failed"
+    "requestFailed": "Request failed",
+    "notesBlock": {
+      "memo": "Memo",
+      "annotations": "Annotations",
+      "highlights": "Highlights",
+      "annotationsEmpty": "No annotations yet.",
+      "annotationsHelper": "Browse annotations attached to nodes and jump to that node with one click.",
+      "highlightsEmpty": "No highlighted nodes yet.",
+      "highlightsHelper": "Browse highlighted nodes and jump to them with one click."
+    }
   },
   "RightPanel": {
     "tabs": {
@@ -702,7 +731,9 @@
       },
       "filterOpen": "Open filters",
       "filterClose": "Close filters",
-      "resetFilters": "Reset filters"
+      "resetFilters": "Reset filters",
+      "refresh": "Refresh",
+      "refreshing": "Refreshing..."
     },
     "recent": {
       "recentMaps": "Recent maps",
@@ -896,6 +927,7 @@
       "selectFromList": "Please select a map from the list."
     },
     "toast": {
+      "savingNoteChanges": "Saving note changes...",
       "previewTurnsOffSelection": "Selection mode was turned off when preview mode was enabled.",
       "previewTurnsOffTagOrganize": "Tag organize mode was turned off to open preview mode.",
       "tagOrganizeTurnsOffPreview": "Preview mode was turned off when tag organize mode was enabled.",

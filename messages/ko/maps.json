@@ -250,6 +250,26 @@
       "shortcuts": "단축키",
       "tutorial": "튜토리얼",
       "closeMap": "맵 닫기"
+    },
+    "nodeActions": {
+      "editNode": "노드 편집",
+      "addNote": "노트 추가",
+      "highlight": "하이라이트",
+      "more": "더보기"
+    },
+    "focusMode": {
+      "label": "포커스 모드",
+      "exit": "나가기"
+    }
+  },
+  "ClientMindElixir": {
+    "loading": "구조맵 불러오는 중…",
+    "noteDialog": {
+      "title": "노트",
+      "placeholder": "노트를 입력하세요",
+      "delete": "노트 삭제",
+      "cancel": "취소",
+      "save": "저장"
     }
   },
   "ShortcutsDialog": {
@@ -387,7 +407,16 @@
     "descriptionSection": "설명",
     "noDescription": "설명 없음",
     "termsIntro": "AI가 핵심 용어를 자동으로 추출해 이해를 돕습니다.",
-    "requestFailed": "요청 실패"
+    "requestFailed": "요청 실패",
+    "notesBlock": {
+      "memo": "메모",
+      "annotations": "주석",
+      "highlights": "하이라이트",
+      "annotationsEmpty": "작성된 주석이 아직 없어요.",
+      "annotationsHelper": "노드에 직접 달아둔 주석을 모아보고, 클릭해서 해당 노드로 바로 이동할 수 있어요.",
+      "highlightsEmpty": "하이라이트한 노드가 아직 없어요.",
+      "highlightsHelper": "하이라이트한 노드를 모아보고, 클릭해서 해당 노드로 바로 이동할 수 있어요."
+    }
   },
   "RightPanel": {
     "tabs": {
@@ -702,7 +731,9 @@
       },
       "filterOpen": "필터 열기",
       "filterClose": "필터 닫기",
-      "resetFilters": "필터 초기화"
+      "resetFilters": "필터 초기화",
+      "refresh": "새로고침",
+      "refreshing": "새로고침 중..."
     },
     "recent": {
       "recentMaps": "최근 맵",
@@ -896,6 +927,7 @@
       "selectFromList": "좌측에서 맵을 선택해 주세요."
     },
     "toast": {
+      "savingNoteChanges": "노트 변경을 저장 중...",
       "previewTurnsOffSelection": "프리뷰 모드로 전환되어 선택 모드가 꺼졌어요.",
       "previewTurnsOffTagOrganize": "프리뷰를 위해 태그 정리 모드를 껐어요.",
       "tagOrganizeTurnsOffPreview": "태그 정리 모드로 전환되어 프리뷰가 꺼졌어요.",

@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 import type { Database } from "@/app/types/database.types";
 import { createClient } from "@/utils/supabase/client";
@@ -149,6 +149,7 @@ export default function MapNotesTab() {
   const tPage = useTranslations("MapsPage");
   const tCommon = useTranslations("MapsCommon");
   const untitled = tCommon("untitled");
+  const stickyRef = useRef<HTMLDivElement | null>(null);
   const [notesDrafts, setNotesDrafts] = useState<MapDraft[]>([]);
   const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -309,9 +310,50 @@ export default function MapNotesTab() {
     };
   }, [selectedMapId, tPage, untitled]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const isDesktop = window.innerWidth >= 1024;
+    if (!isDesktop) return;
+    const el = stickyRef.current;
+    if (!el) return;
+    let lastLogAt = 0;
+    const findScrollBlocker = (node: HTMLElement | null) => {
+      let current: HTMLElement | null = node;
+      while (current) {
+        const style = window.getComputedStyle(current);
+        const overflow =
+          style.overflowY !== "visible" || style.overflowX !== "visible";
+        if (overflow) return current;
+        current = current.parentElement;
+      }
+      return null;
+    };
+    const logMetrics = (label: string) => {
+      const now = Date.now();
+      if (now - lastLogAt < 500) return;
+      lastLogAt = now;
+      const rect = el.getBoundingClientRect();
+      const style = window.getComputedStyle(el);
+      const blocker = findScrollBlocker(el.parentElement);
+      const blockerStyle = blocker ? window.getComputedStyle(blocker) : null;
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({runId:'notes-sticky-1',hypothesisId:'H1',location:'MapNotesTab.tsx:sticky',message:label,data:{rect,position:style.position,top:style.top,overflowY:style.overflowY,blockerTag:blocker?.tagName ?? null,blockerOverflowY:blockerStyle?.overflowY ?? null,blockerOverflowX:blockerStyle?.overflowX ?? null},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+    };
+    const onScroll = () => logMetrics("scroll");
+    const onResize = () => logMetrics("resize");
+    logMetrics("init");
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
+
   if (listLoading) {
     return (
-      <section className="grid gap-5 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)]">
+      <section className="grid gap-5 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)] lg:items-start">
         <aside className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
           <div className="h-5 w-28 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
           <div className="mt-4 flex flex-col gap-2">
@@ -356,8 +398,12 @@ export default function MapNotesTab() {
   }
 
   return (
-    <section className="grid gap-5 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)]">
-      <aside className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04] lg:sticky lg:top-28 lg:self-start">
+    <section className="grid gap-5 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)] lg:items-start">
+      <aside className="relative lg:self-start">
+        <div
+          ref={stickyRef}
+          className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04] lg:sticky lg:top-28"
+        >
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
@@ -441,6 +487,7 @@ export default function MapNotesTab() {
               </button>
             );
           }))}
+        </div>
         </div>
       </aside>
 

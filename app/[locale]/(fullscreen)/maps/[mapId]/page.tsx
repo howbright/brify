@@ -1322,7 +1322,7 @@ export default function MapDetailPage() {
                   const now = Date.now();
                   if (now - lastHighlightToastRef.current > 2000) {
                     lastHighlightToastRef.current = now;
-                    toast.message("노트 변경을 저장 중...");
+                    toast.message(t("toast.savingNoteChanges"));
                   }
                   scheduleAutoSave();
                   return;

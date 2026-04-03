@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/app/types/database.types";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
@@ -10,6 +10,7 @@ type SourceType = "youtube" | "website" | "file" | "manual";
 type ContentFilter = "notes" | "terms";
 
 type UseMapsListQueryParams = {
+  enabled?: boolean;
   listFields: string;
   page: number;
   pageSize: number;
@@ -43,6 +44,7 @@ function expandStatusFilters(statusFilters: MapJobStatus[]) {
 }
 
 export default function useMapsListQuery({
+  enabled = true,
   listFields,
   page,
   pageSize,
@@ -62,8 +64,20 @@ export default function useMapsListQuery({
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshNonce, setRefreshNonce] = useState(0);
+
+  const refresh = useCallback(() => {
+    setRefreshNonce((value) => value + 1);
+  }, []);
+
+  const hasInFlightMaps = drafts.some((draft) => draft.status === "processing");
 
   useEffect(() => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
+
     let cancelled = false;
 
     (async () => {
@@ -181,6 +195,7 @@ export default function useMapsListQuery({
       cancelled = true;
     };
   }, [
+    enabled,
     listFields,
     page,
     pageSize,
@@ -196,7 +211,22 @@ export default function useMapsListQuery({
     contentFilters,
     locale,
     toDraft,
+    refreshNonce,
   ]);
+
+  useEffect(() => {
+    if (!enabled || !hasInFlightMaps) return;
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState !== "visible") return;
+      if (typeof document.hasFocus === "function" && !document.hasFocus()) return;
+      refresh();
+    }, 12000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [enabled, hasInFlightMaps, refresh]);
 
   return {
     drafts,
@@ -205,5 +235,7 @@ export default function useMapsListQuery({
     setTotalCount,
     loading,
     error,
+    hasInFlightMaps,
+    refresh,
   };
 }

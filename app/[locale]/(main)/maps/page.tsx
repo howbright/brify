@@ -445,7 +445,9 @@ export default function MapsPage() {
     totalCount,
     loading,
     error,
+    refresh,
   } = useMapsListQuery({
+    enabled: activeTab === "maps",
     listFields: LIST_FIELDS,
     page,
     pageSize: PAGE_SIZE,
@@ -461,6 +463,8 @@ export default function MapsPage() {
     locale,
     toDraft,
   });
+
+  const isRefreshingList = loading && drafts.length > 0;
 
   const {
     selectionMode,
@@ -784,6 +788,8 @@ export default function MapsPage() {
                   query={query}
                   onQueryChange={onQueryChange}
                   onClearQuery={onClearQuery}
+                  onRefresh={refresh}
+                  refreshing={isRefreshingList}
                   selectionMode={selectionMode}
                   selectedCount={selectedMapIds.length}
                   onOpenMerge={() => setMergeDialogOpen(true)}
@@ -1174,6 +1180,7 @@ export default function MapsPage() {
         title={tPage("dialogs.deleteMap.title")}
         description={tPage("dialogs.deleteMap.description")}
         actionLabel={tPage("dialogs.deleteMap.action")}
+        cancelLabel={tCommon("selectionBar.cancel")}
       />
 
       <ConfirmDialog
@@ -1183,6 +1190,7 @@ export default function MapsPage() {
         title={tPage("dialogs.deleteSelected.title")}
         description={tPage("dialogs.deleteSelected.description")}
         actionLabel={tPage("dialogs.deleteSelected.action")}
+        cancelLabel={tCommon("selectionBar.cancel")}
       />
 
       <ConfirmDialog
@@ -1212,6 +1220,7 @@ export default function MapsPage() {
             ? tPage("dialogs.deleteTag.actionLoading")
             : tPage("dialogs.deleteTag.action")
         }
+        cancelLabel={tCommon("selectionBar.cancel")}
       />
 
       <TagEditDialog

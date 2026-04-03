@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 import NoteItem, { type NoteItemData } from "@/components/maps/NoteItem";
@@ -65,7 +65,6 @@ export default function LeftPanel({
 }) {
   const t = useTranslations("LeftPanel");
   const tRight = useTranslations("RightPanel");
-  const locale = useLocale();
   const createdLabel = useMemo(
     () => safeDateLabel(map.createdAt),
     [map.createdAt]
@@ -1220,26 +1219,14 @@ function NotesBlock({
   loadingLabel: string;
   emptyLabel: string;
 }) {
-  const locale = useLocale();
-  const memoTitle = locale === "ko" ? "메모" : "Notes";
-  const nodeNotesTitle = locale === "ko" ? "주석" : "Annotations";
-  const highlightsTitle = locale === "ko" ? "하이라이트" : "Highlights";
-  const nodeNotesEmpty =
-    locale === "ko"
-      ? "작성된 주석이 아직 없어요."
-      : "No annotations yet.";
-  const nodeNotesHelper =
-    locale === "ko"
-      ? "노드에 직접 달아둔 주석을 모아보고, 클릭해서 해당 노드로 바로 이동할 수 있어요."
-      : "Browse annotations attached to nodes and jump to that node with one click.";
-  const highlightsEmpty =
-    locale === "ko"
-      ? "하이라이트한 노드가 아직 없어요."
-      : "No highlighted nodes yet.";
-  const highlightsHelper =
-    locale === "ko"
-      ? "하이라이트한 노드를 모아보고, 클릭해서 해당 노드로 바로 이동할 수 있어요."
-      : "Browse highlighted nodes and jump to them with one click.";
+  const t = useTranslations("LeftPanel.notesBlock");
+  const memoTitle = t("memo");
+  const nodeNotesTitle = t("annotations");
+  const highlightsTitle = t("highlights");
+  const nodeNotesEmpty = t("annotationsEmpty");
+  const nodeNotesHelper = t("annotationsHelper");
+  const highlightsEmpty = t("highlightsEmpty");
+  const highlightsHelper = t("highlightsHelper");
 
   return (
     <div className="flex flex-col gap-3">

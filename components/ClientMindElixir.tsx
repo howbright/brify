@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import { useTheme } from "next-themes";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { sampled } from "@/app/lib/mind-elixir/sampleData";
 import {
   DEFAULT_THEME_NAME,
@@ -425,11 +425,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
   const { resolvedTheme } = useTheme();
   const locale = useLocale();
+  const tControls = useTranslations("MapControls");
+  const tMind = useTranslations("ClientMindElixir");
   const miniMapLabel = locale === "ko" ? "미니맵" : "Mini map";
-  const mobileEditMenuTitle = locale === "ko" ? "노드 편집" : "Edit node";
-  const moreActionsLabel = locale === "ko" ? "더보기" : "More";
-  const focusModeLabel = locale === "ko" ? "포커스 모드" : "Focus Mode";
-  const focusModeExitLabel = locale === "ko" ? "나가기" : "Exit";
+  const mobileEditMenuTitle = tControls("nodeActions.editNode");
+  const noteActionLabel = tControls("nodeActions.addNote");
+  const highlightActionLabel = tControls("nodeActions.highlight");
+  const moreActionsLabel = tControls("nodeActions.more");
+  const focusModeLabel = tControls("focusMode.label");
+  const focusModeExitLabel = tControls("focusMode.exit");
   const {
     mounted,
     isTouchDevice,
@@ -1298,6 +1302,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         hoverActionWrapClass={hoverActionWrapClass}
         hoverActionButtonClass={hoverActionButtonClass}
         hoverActionIconClass={hoverActionIconClass}
+        noteActionLabel={noteActionLabel}
+        highlightActionLabel={highlightActionLabel}
         handleNoteClick={handleNoteClick}
         handleHighlightClick={handleHighlightClick}
         showSelectionContextMenuButton={showSelectionContextMenuButton}
@@ -1320,13 +1326,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-200">
-                노트
+                {tMind("noteDialog.title")}
               </h3>
             </div>
 
             <textarea
               className="min-h-[120px] w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200/60 dark:border-white/10 dark:bg-[#0b1220] dark:text-white/85 dark:focus:border-blue-300 dark:focus:ring-blue-500/30"
-              placeholder="노트를 입력하세요"
+              placeholder={tMind("noteDialog.placeholder")}
               value={noteDraft}
               onChange={(e) => setNoteDraft(e.target.value.slice(0, 500))}
               maxLength={500}
@@ -1343,21 +1349,21 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
                     handleNoteSave();
                   }}
                 >
-                  노트 삭제
+                  {tMind("noteDialog.delete")}
                 </button>
                 <button
                   type="button"
                   className="rounded-full border border-neutral-200 bg-white px-3 py-1 text-[11px] font-semibold text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/10"
                   onClick={() => setNoteEditorOpen(false)}
                 >
-                  취소
+                  {tMind("noteDialog.cancel")}
                 </button>
                 <button
                   type="button"
                   className="rounded-full bg-blue-600 px-3 py-1 text-[11px] font-semibold text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
                   onClick={handleNoteSave}
                 >
-                  저장
+                  {tMind("noteDialog.save")}
                 </button>
               </div>
             </div>
@@ -1368,7 +1374,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       {loading && (
         <div className="pointer-events-none absolute left-4 top-4 z-10">
           <span className="rounded-full bg-white/85 px-2.5 py-1 text-[11px] text-neutral-600 shadow-sm dark:bg-[#0b1220]/80 dark:text-white/70">
-            구조맵 불러오는 중…
+            {tMind("loading")}
           </span>
         </div>
       )}
