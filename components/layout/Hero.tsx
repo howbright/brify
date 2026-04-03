@@ -36,7 +36,7 @@ function Highlight({ children }: { children: React.ReactNode }) {
   return (
     <span
       className="
-        whitespace-nowrap
+        break-words md:whitespace-nowrap
         bg-gradient-to-r from-blue-700 via-indigo-600 to-sky-600
         dark:from-indigo-400 dark:via-sky-400 dark:to-cyan-300
         bg-clip-text text-transparent
@@ -185,12 +185,12 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
         animate="show"
       >
         {features.map((text, i) => (
-          <motion.div key={i} variants={itemV} className="flex items-center gap-3">
+          <motion.div key={i} variants={itemV} className="flex min-w-0 items-start gap-3">
             <span
               aria-hidden
               className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-gradient-to-br from-blue-600 via-sky-500 to-cyan-400 shadow-[0_0_0_5px_rgba(59,130,246,0.10)] dark:from-sky-300 dark:via-blue-300 dark:to-cyan-200 dark:shadow-[0_0_0_5px_rgba(125,211,252,0.10)]"
             />
-            <span className="text-[15px] font-normal leading-6 text-neutral-900 dark:text-neutral-100 md:text-[17px] md:leading-7">
+            <span className="min-w-0 text-[15px] font-normal leading-6 text-neutral-900 [overflow-wrap:anywhere] dark:text-neutral-100 md:text-[17px] md:leading-7">
               {text}
             </span>
           </motion.div>
@@ -268,8 +268,8 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
 
       <section className="mx-auto grid max-w-7xl items-start gap-10 px-6 py-10 md:grid-cols-2 md:items-start md:gap-14 md:px-10 md:pt-[108px] md:pb-12 lg:pt-[116px] lg:pb-14">
         {/* LEFT */}
-        <div>
-          <div className="text-sm md:text-base font-normal text-neutral-700 dark:text-neutral-200">
+        <div className="min-w-0">
+          <div className="max-w-full text-sm font-normal text-neutral-700 [overflow-wrap:anywhere] dark:text-neutral-200 md:text-base">
             {t("eyebrow")}
           </div>
 
@@ -286,7 +286,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
                   className="
                     text-3xl sm:text-4xl md:text-5xl
                     font-extrabold leading-[1.1]
-                    text-neutral-900 dark:text-white
+                    text-neutral-900 [overflow-wrap:anywhere] dark:text-white
                     dark:[text-shadow:0_1px_14px_rgba(0,0,0,0.55)]
                   "
                 >
@@ -333,7 +333,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
             </motion.button>
           </div>
 
-          <p className="mt-4 max-w-2xl text-[17px] font-normal leading-7 text-slate-700 dark:text-slate-200 md:text-[19px] md:leading-8">
+          <p className="mt-4 max-w-2xl text-[17px] font-normal leading-7 text-slate-700 [overflow-wrap:anywhere] dark:text-slate-200 md:text-[19px] md:leading-8">
             {t("helper")}
           </p>
 
