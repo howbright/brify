@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {
   forwardRef,
@@ -8,8 +9,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { Icon } from "@iconify/react";
-import { toast } from "sonner";
 import { useTheme } from "next-themes";
 import { useLocale } from "next-intl";
 import { sampled } from "@/app/lib/mind-elixir/sampleData";
@@ -17,9 +16,14 @@ import {
   DEFAULT_THEME_NAME,
   MIND_THEME_BY_NAME,
 } from "@/components/maps/themes";
+import MindElixirMobileLayer from "@/components/MindElixirMobileLayer";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
-import MindElixirMobileControls from "@/components/MindElixirMobileControls";
 import MindElixirMiniMap from "@/components/MindElixirMiniMap";
+import { useMindElixirContextMenu } from "@/components/useMindElixirContextMenu";
+import { useMindElixirCore } from "@/components/useMindElixirCore";
+import { useMindElixirFocusSearch } from "@/components/useMindElixirFocusSearch";
+import { useMindElixirMiniMap } from "@/components/useMindElixirMiniMap";
+import { useMindElixirThemeStyles } from "@/components/useMindElixirThemeStyles";
 import { useMindElixirResponsiveState } from "@/components/useMindElixirResponsiveState";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
@@ -85,16 +89,6 @@ type AnyNode = {
   note?: string | null;
   children?: AnyNode[];
   expanded?: boolean;
-};
-
-type PatchedMindInstance = {
-  refresh?: (data?: any) => any;
-  focusNode?: (...args: any[]) => any;
-  cancelFocus?: () => any;
-  __originalRefresh?: ((data?: any) => any) | undefined;
-  __originalFocusNode?: ((...args: any[]) => any) | undefined;
-  __originalCancelFocus?: (() => any) | undefined;
-  [key: string]: any;
 };
 
 function normalizeMindData(raw: any): { data: any; node: AnyNode } | null {
@@ -205,10 +199,6 @@ function collectMatches(
   node.children?.forEach((child) =>
     collectMatches(child, query, includeNotes, out)
   );
-}
-
-function escapeRegExp(value: string) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function nodeToMarkdown(
@@ -379,8 +369,6 @@ function parseScale(transform: string | null) {
 }
 
 const PAN_MODE_CLASS = "me-pan-mode";
-const DARK_CANVAS_CLASS = "me-dark-canvas";
-const DEFAULT_DARK_CANVAS_CLASS = "me-default-dark-canvas";
 const VIEW_MODE_CLASS = "me-view-mode";
 const MANUAL_SELECTION_PRIORITY_MS = 1200;
 const BLOCKED_OPS = [
@@ -463,36 +451,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   }, [focusInsetLeft]);
 
   const [ready, setReady] = useState(false);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [selectedRect, setSelectedRect] = useState<DOMRect | null>(null);
-  const [isFocusMode, setIsFocusMode] = useState(false);
-  const [selectedNoteText, setSelectedNoteText] = useState<string | null>(null);
   const [noteEditorOpen, setNoteEditorOpen] = useState(false);
   const [noteDraft, setNoteDraft] = useState("");
   const [noteTargetId, setNoteTargetId] = useState<string | null>(null);
   const [mobileActionNodeId, setMobileActionNodeId] = useState<string | null>(null);
-  const miniMapRef = useRef<HTMLCanvasElement>(null);
-  const miniMapBoundsRef = useRef<{
-    minX: number;
-    minY: number;
-    scale: number;
-    offsetX: number;
-    offsetY: number;
-  } | null>(null);
-  const miniMapDragRef = useRef<{
-    dragging: boolean;
-    lastX: number;
-    lastY: number;
-    pointerType: string | null;
-  }>({ dragging: false, lastX: 0, lastY: 0, pointerType: null });
-  const miniMapRafRef = useRef<number | null>(null);
-  const miniMapDrawRef = useRef<() => void>(() => {});
-  const selectedNodeIdRef = useRef<string | null>(null);
-  const selectedNodeElRef = useRef<HTMLElement | null>(null);
-  const lastClickedNodeRef = useRef<{ id: string | null; at: number }>({
-    id: null,
-    at: 0,
-  });
   const longPressTimerRef = useRef<number | null>(null);
   const longPressTriggeredRef = useRef(false);
   const touchDragMovedAtRef = useRef(0);
@@ -525,30 +487,72 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     ? "group relative inline-flex h-8 w-8 items-center justify-center rounded-full text-[11px] shadow-sm"
     : "group relative inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] shadow-sm";
   const hoverActionIconClass = isTouchDevice ? "h-4 w-4" : "h-3 w-3";
-  const searchHighlightIdsRef = useRef<Set<string>>(new Set());
-  const searchActiveIdRef = useRef<string | null>(null);
   const isDecoratingRef = useRef(false);
-  const openNodeContextMenu = (
-    nodeId?: string | null,
-    anchorEl?: HTMLElement | null
-  ) => {
-    const targetId = nodeId ?? selectedNodeIdRef.current;
-    if (!targetId) return;
-    const nodeEl = getNodeElById(targetId) ?? selectedNodeElRef.current ?? null;
-    if (!nodeEl) return;
-    const triggerRect = (anchorEl ?? nodeEl).getBoundingClientRect();
-    nodeEl.dispatchEvent(
-      new MouseEvent("contextmenu", {
-        bubbles: true,
-        cancelable: true,
-        button: 2,
-        buttons: 2,
-        clientX: triggerRect.right + 8,
-        clientY: triggerRect.top + triggerRect.height / 2,
-        view: window,
-      })
-    );
+  const onChangeRef = useRef<typeof onChange | null>(null);
+
+  const syncLatestMindDataFromMind = () => {
+    const mind = mindRef.current;
+    if (!mind) return null;
+    const raw = mind.getData?.() ?? mind.getAllData?.() ?? null;
+    const normalized = normalizeMindData(raw);
+    if (!normalized) return null;
+    latestMindDataRef.current = cloneMindData(normalized.data);
+    return normalizeMindData(latestMindDataRef.current);
   };
+
+  const {
+    selectedNodeId,
+    setSelectedNodeId,
+    selectedRect,
+    setSelectedRect,
+    selectedNoteText,
+    setSelectedNoteText,
+    isFocusMode,
+    setIsFocusMode,
+    selectedNodeIdRef,
+    selectedNodeElRef,
+    lastClickedNodeRef,
+    getNodeElById,
+    updateSelectedRect,
+    applySelectionFromElement,
+    clearSearchHighlights,
+    setSearchHighlights,
+    setSearchActive,
+    focusNodeById,
+    handleExitFocus,
+    handleHighlightClick,
+    selectedNodeIsRoot,
+  } = useMindElixirFocusSearch({
+    wrapperRef,
+    elRef,
+    mindRef,
+    latestMindDataRef,
+    onChangeRef,
+    focusInsetLeftRef,
+    syncLatestMindDataFromMind,
+    setMobileActionNodeId,
+    normalizeMindData,
+    cloneMindData,
+    findNodeById,
+    findNodePathByRef,
+    getNodeByPath,
+    expandPathToId,
+    escapeAttr,
+    highlightVariant,
+  });
+
+  const { miniMapRef, scheduleMiniMapDraw } = useMindElixirMiniMap({
+    elRef,
+    mindRef,
+    effectiveMode,
+  });
+  const { openNodeContextMenu } = useMindElixirContextMenu({
+    elRef,
+    selectedNodeIdRef,
+    selectedNodeElRef,
+    getNodeElById,
+    disableDirectContextMenu,
+  });
   const handleNoteClick = () => {
     const mind = mindRef.current;
     const selectedId = selectedNodeIdRef.current;
@@ -615,336 +619,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     setSelectedNoteText(clipped);
     setNoteEditorOpen(false);
   };
-  const handleFocusClick = () => {
-    const mind = mindRef.current;
-    const nodeId = selectedNodeIdRef.current;
-    if (!mind || !nodeId) return;
-    let el = selectedNodeElRef.current;
-    if (!el) {
-      try {
-        el =
-          mind.findEle?.(nodeId) ||
-          elRef.current?.querySelector<HTMLElement>(
-            `me-tpc[data-nodeid="${nodeId}"]`
-          ) ||
-          elRef.current?.querySelector<HTMLElement>(
-            `[data-nodeid="${nodeId}"]`
-          ) ||
-          null;
-      } catch {
-        el = null;
-      }
-    }
-    if (!el) return;
-    if (mind.isFocusMode) {
-      mind.cancelFocus?.();
-      setIsFocusMode(false);
-      return;
-    }
-    mind.focusNode?.(el);
-    setSelectedNodeId(null);
-    setSelectedRect(null);
-    setSelectedNoteText(null);
-    selectedNodeElRef.current = null;
-    setIsFocusMode(true);
-  };
-  const handleExitFocus = () => {
-    const mind = mindRef.current;
-    if (!mind) return;
-    mind.cancelFocus?.();
-    setSelectedNodeId(null);
-    setSelectedRect(null);
-    setSelectedNoteText(null);
-    selectedNodeElRef.current = null;
-    setIsFocusMode(false);
-  };
-
-  const syncLatestMindDataFromMind = () => {
-    const mind = mindRef.current;
-    if (!mind) return null;
-    const raw = mind.getData?.() ?? mind.getAllData?.() ?? null;
-    const normalized = normalizeMindData(raw);
-    if (!normalized) return null;
-    latestMindDataRef.current = cloneMindData(normalized.data);
-    return normalizeMindData(latestMindDataRef.current);
-  };
-
-  const handleHighlightClick = (targetNodeId?: string | null) => {
-    const mind = mindRef.current;
-    const selectedId = targetNodeId ?? selectedNodeIdRef.current;
-    if (!mind || !selectedId) return;
-    const exactSelectedEl =
-      selectedNodeElRef.current ??
-      elRef.current?.querySelector<HTMLElement>(
-        `me-tpc[data-nodeid="${escapeAttr(selectedId)}"]`
-      ) ??
-      elRef.current?.querySelector<HTMLElement>(
-        `[data-nodeid="${escapeAttr(selectedId)}"]`
-      ) ??
-      null;
-    const liveNode =
-      (exactSelectedEl as (HTMLElement & { nodeObj?: AnyNode }) | null)?.nodeObj ??
-      null;
-    const resolvedTargetId = liveNode?.id ?? selectedId;
-    const rawCurrent = mind.getData?.() ?? mind.getAllData?.() ?? null;
-    const currentNormalized = normalizeMindData(rawCurrent);
-    const pathByRef =
-      currentNormalized?.node && liveNode
-        ? findNodePathByRef(currentNormalized.node, liveNode)
-        : null;
-    const normalized =
-      currentNormalized ??
-      syncLatestMindDataFromMind() ??
-      normalizeMindData(latestMindDataRef.current);
-    if (!normalized) return;
-    const next = cloneMindData(normalized.data);
-    const nextNode = normalizeMindData(next)?.node;
-    if (!nextNode) return;
-    const target =
-      (pathByRef ? getNodeByPath(nextNode, pathByRef) : null) ??
-      findNodeById(nextNode, resolvedTargetId);
-    if (!target) return;
-    const nextHighlight = target.highlight?.variant
-      ? null
-      : { variant: highlightVariant };
-    if (nextHighlight) {
-      target.highlight = nextHighlight;
-    } else {
-      delete target.highlight;
-    }
-    if (liveNode) {
-      if (nextHighlight) {
-        liveNode.highlight = nextHighlight;
-      } else {
-        delete liveNode.highlight;
-      }
-    }
-    expandPathToId(nextNode, resolvedTargetId);
-    latestMindDataRef.current = next;
-    if (exactSelectedEl) {
-      if (nextHighlight?.variant) {
-        exactSelectedEl.setAttribute("data-highlight", nextHighlight.variant);
-      } else {
-        exactSelectedEl.removeAttribute("data-highlight");
-      }
-    }
-    onChangeRef.current?.({
-      name: "toggleHighlight",
-      id: target.id ?? resolvedTargetId,
-      value: nextHighlight,
-    });
-    requestAnimationFrame(() => updateSelectedRect(selectedId));
-  };
-
-  const initTokenRef = useRef(0);
   const defaultThemeRef = useRef<{ light: any; dark: any } | null>(null);
-  const onChangeRef = useRef<typeof onChange | null>(null);
 
   useEffect(() => {
     onChangeRef.current = onChange ?? null;
   }, [onChange]);
-
-  const scheduleMiniMapDraw = () => {
-    if (miniMapRafRef.current) {
-      cancelAnimationFrame(miniMapRafRef.current);
-    }
-    miniMapRafRef.current = requestAnimationFrame(() => {
-      miniMapDrawRef.current();
-    });
-  };
-
-  useEffect(() => {
-    miniMapDrawRef.current = () => {
-      const canvas = miniMapRef.current;
-      const host = elRef.current;
-      if (!canvas || !host) return;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      const rect = canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      const width = Math.max(1, Math.floor(rect.width * dpr));
-      const height = Math.max(1, Math.floor(rect.height * dpr));
-      if (canvas.width !== width || canvas.height !== height) {
-        canvas.width = width;
-        canvas.height = height;
-      }
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, rect.width, rect.height);
-
-      const nodes = Array.from(host.querySelectorAll<HTMLElement>("me-tpc"));
-      if (nodes.length === 0) return;
-
-      type MiniNode = { x: number; y: number; parentId?: string | null };
-      const points = new Map<string, MiniNode>();
-
-      let minX = Infinity;
-      let minY = Infinity;
-      let maxX = -Infinity;
-      let maxY = -Infinity;
-
-      nodes.forEach((node) => {
-        const r = node.getBoundingClientRect();
-        const x = r.left + r.width / 2;
-        const y = r.top + r.height / 2;
-        const obj = (node as HTMLElement & { nodeObj?: AnyNode }).nodeObj;
-        const rawId =
-          obj?.id ??
-          node.dataset.nodeid?.replace(/^me/, "") ??
-          node.dataset.nodeid ??
-          "";
-        const parentId = obj?.parent?.id ?? null;
-        points.set(String(rawId), { x, y, parentId });
-        minX = Math.min(minX, x);
-        minY = Math.min(minY, y);
-        maxX = Math.max(maxX, x);
-        maxY = Math.max(maxY, y);
-      });
-
-      const pad = 12;
-      const boundsW = Math.max(1, maxX - minX);
-      const boundsH = Math.max(1, maxY - minY);
-      const scale = Math.min(
-        (rect.width - pad * 2) / boundsW,
-        (rect.height - pad * 2) / boundsH
-      );
-      const offsetX = (rect.width - boundsW * scale) / 2 - minX * scale;
-      const offsetY = (rect.height - boundsH * scale) / 2 - minY * scale;
-      miniMapBoundsRef.current = {
-        minX,
-        minY,
-        scale,
-        offsetX,
-        offsetY,
-      };
-
-      const isDarkMiniMap = effectiveMode === "dark";
-      const miniMapBg = isDarkMiniMap
-        ? "rgba(255, 255, 255, 0.08)"
-        : "rgba(15, 23, 42, 0.06)";
-      const miniMapEdge = isDarkMiniMap
-        ? "rgba(226, 232, 240, 0.5)"
-        : "rgba(51, 65, 85, 0.35)";
-      const miniMapNode = isDarkMiniMap
-        ? "rgba(241, 245, 249, 0.92)"
-        : "rgba(51, 65, 85, 0.8)";
-      const miniMapViewport = isDarkMiniMap
-        ? "rgba(96, 165, 250, 0.95)"
-        : "rgba(37, 99, 235, 0.75)";
-
-      // background
-      ctx.fillStyle = miniMapBg;
-      ctx.fillRect(0, 0, rect.width, rect.height);
-
-      // edges
-      ctx.strokeStyle = miniMapEdge;
-      ctx.lineWidth = 1;
-      points.forEach((p) => {
-        if (!p.parentId) return;
-        const parent = points.get(String(p.parentId));
-        if (!parent) return;
-        ctx.beginPath();
-        ctx.moveTo(p.x * scale + offsetX, p.y * scale + offsetY);
-        ctx.lineTo(parent.x * scale + offsetX, parent.y * scale + offsetY);
-        ctx.stroke();
-      });
-
-      // nodes
-      ctx.fillStyle = miniMapNode;
-      points.forEach((p) => {
-        ctx.beginPath();
-        ctx.arc(p.x * scale + offsetX, p.y * scale + offsetY, 2.2, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // viewport
-      const view = host.getBoundingClientRect();
-      const vx = view.left * scale + offsetX;
-      const vy = view.top * scale + offsetY;
-      const vw = view.width * scale;
-      const vh = view.height * scale;
-      ctx.strokeStyle = miniMapViewport;
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(vx, vy, vw, vh);
-    };
-  });
-
-  useEffect(() => {
-    const canvas = miniMapRef.current;
-    if (!canvas) return;
-
-    const moveViewportToMiniMapPoint = (clientX: number, clientY: number) => {
-      const mind = mindRef.current;
-      const bounds = miniMapBoundsRef.current;
-      const host = elRef.current;
-      if (!mind || !bounds || !host) return;
-
-      const canvasRect = canvas.getBoundingClientRect();
-      const miniX = clientX - canvasRect.left;
-      const miniY = clientY - canvasRect.top;
-      const hostRect = host.getBoundingClientRect();
-      const viewCenterX = hostRect.left + hostRect.width / 2;
-      const viewCenterY = hostRect.top + hostRect.height / 2;
-      const targetX = (miniX - bounds.offsetX) / bounds.scale;
-      const targetY = (miniY - bounds.offsetY) / bounds.scale;
-
-      mind.move(viewCenterX - targetX, viewCenterY - targetY);
-    };
-
-    const handlePointerDown = (e: PointerEvent) => {
-      miniMapDragRef.current.dragging = true;
-      miniMapDragRef.current.lastX = e.clientX;
-      miniMapDragRef.current.lastY = e.clientY;
-       miniMapDragRef.current.pointerType = e.pointerType;
-      canvas.setPointerCapture(e.pointerId);
-      if (e.pointerType === "touch") {
-        moveViewportToMiniMapPoint(e.clientX, e.clientY);
-      }
-    };
-
-    const handlePointerMove = (e: PointerEvent) => {
-      if (!miniMapDragRef.current.dragging) return;
-      if (miniMapDragRef.current.pointerType === "touch") {
-        moveViewportToMiniMapPoint(e.clientX, e.clientY);
-        miniMapDragRef.current.lastX = e.clientX;
-        miniMapDragRef.current.lastY = e.clientY;
-        return;
-      }
-      const mind = mindRef.current;
-      const bounds = miniMapBoundsRef.current;
-      if (!mind || !bounds) return;
-      const dx = e.clientX - miniMapDragRef.current.lastX;
-      const dy = e.clientY - miniMapDragRef.current.lastY;
-      miniMapDragRef.current.lastX = e.clientX;
-      miniMapDragRef.current.lastY = e.clientY;
-      // Dragging inside minimap should move the main map proportionally
-      const moveX = -(dx / bounds.scale);
-      const moveY = -(dy / bounds.scale);
-      mind.move(moveX, moveY);
-    };
-
-    const handlePointerUp = (e: PointerEvent) => {
-      miniMapDragRef.current.dragging = false;
-      miniMapDragRef.current.pointerType = null;
-      canvas.releasePointerCapture(e.pointerId);
-    };
-
-    canvas.addEventListener("pointerdown", handlePointerDown);
-    canvas.addEventListener("pointermove", handlePointerMove);
-    canvas.addEventListener("pointerup", handlePointerUp);
-    canvas.addEventListener("pointercancel", handlePointerUp);
-
-    return () => {
-      canvas.removeEventListener("pointerdown", handlePointerDown);
-      canvas.removeEventListener("pointermove", handlePointerMove);
-      canvas.removeEventListener("pointerup", handlePointerUp);
-      canvas.removeEventListener("pointercancel", handlePointerUp);
-    };
-  }, []);
-
-  useEffect(() => {
-    selectedNodeIdRef.current = selectedNodeId;
-  }, [selectedNodeId]);
 
   useEffect(() => {
     const wrapper = wrapperRef.current;
@@ -967,77 +646,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     };
   }, [editMode, onViewModeEditAttempt]);
 
-  const updateSelectedRect = (nodeId: string | null) => {
-    const wrapper = wrapperRef.current;
-    const host = elRef.current;
-    if (!wrapper || !host || !nodeId) {
-      setSelectedRect(null);
-      setSelectedNoteText(null);
-      return;
-    }
-    const nodeEl =
-      host.querySelector<HTMLElement>(`me-tpc[data-nodeid="${nodeId}"]`) ||
-      host.querySelector<HTMLElement>(`[data-nodeid="${nodeId}"]`);
-    if (!nodeEl) {
-      setSelectedRect(null);
-      setSelectedNoteText(null);
-      selectedNodeElRef.current = null;
-      return;
-    }
-    const rect = nodeEl.getBoundingClientRect();
-    const hostRect = wrapper.getBoundingClientRect();
-    const relativeRect = new DOMRect(
-      rect.left - hostRect.left,
-      rect.top - hostRect.top,
-      rect.width,
-      rect.height
-    );
-    setSelectedRect(relativeRect);
-    const note =
-      (nodeEl as HTMLElement & { nodeObj?: AnyNode }).nodeObj?.note ?? null;
-    setSelectedNoteText(note && note.trim().length > 0 ? note : null);
-    selectedNodeElRef.current = nodeEl;
-  };
-
-  const applySelectionFromElement = (nodeEl: HTMLElement, nodeId: string) => {
-    const wrapper = wrapperRef.current;
-    if (!wrapper) return;
-    const rect = nodeEl.getBoundingClientRect();
-    const hostRect = wrapper.getBoundingClientRect();
-    const relativeRect = new DOMRect(
-      rect.left - hostRect.left,
-      rect.top - hostRect.top,
-      rect.width,
-      rect.height
-    );
-    const note =
-      (nodeEl as HTMLElement & { nodeObj?: AnyNode }).nodeObj?.note ?? null;
-
-    const normalizedLatest =
-      normalizeMindData(latestMindDataRef.current) ??
-      syncLatestMindDataFromMind();
-    if (normalizedLatest?.node) {
-      const latestNode = findNodeById(normalizedLatest.node, nodeId);
-      const latestNodeHighlight = latestNode?.highlight?.variant ?? null;
-      if (latestNodeHighlight) {
-        nodeEl.setAttribute("data-highlight", latestNodeHighlight);
-      } else {
-        nodeEl.removeAttribute("data-highlight");
-      }
-    }
-
-    lastClickedNodeRef.current = { id: nodeId, at: Date.now() };
-    selectedNodeIdRef.current = nodeId;
-    selectedNodeElRef.current = nodeEl;
-    setSelectedNodeId(nodeId);
-    setSelectedRect(relativeRect);
-    setSelectedNoteText(note && note.trim().length > 0 ? note : null);
-    setMobileActionNodeId(null);
-
-    requestAnimationFrame(() => updateSelectedRect(nodeId));
-    window.setTimeout(() => updateSelectedRect(nodeId), 80);
-  };
-
   const clearLongPressState = () => {
     if (longPressTimerRef.current) {
       window.clearTimeout(longPressTimerRef.current);
@@ -1055,6 +663,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     const host = elRef.current;
     if (!host) return;
     if (!isTouchDevice) return;
+    const activeTouchPoints = activeTouchPointsRef.current;
 
     const getPinchDistance = () => {
       const points = Array.from(activeTouchPointsRef.current.values());
@@ -1075,11 +684,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
     const handlePointerDown = (e: PointerEvent) => {
       if (e.pointerType !== "touch") return;
-      activeTouchPointsRef.current.set(e.pointerId, {
+      activeTouchPoints.set(e.pointerId, {
         x: e.clientX,
         y: e.clientY,
       });
-      if (activeTouchPointsRef.current.size >= 2) {
+      if (activeTouchPoints.size >= 2) {
         const distance = getPinchDistance();
         pinchRef.current = {
           active: Boolean(distance),
@@ -1110,14 +719,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
     const handlePointerMove = (e: PointerEvent) => {
       if (e.pointerType !== "touch") return;
-      if (activeTouchPointsRef.current.has(e.pointerId)) {
-        activeTouchPointsRef.current.set(e.pointerId, {
+      if (activeTouchPoints.has(e.pointerId)) {
+        activeTouchPoints.set(e.pointerId, {
           x: e.clientX,
           y: e.clientY,
         });
       }
 
-      if (activeTouchPointsRef.current.size >= 2 && pinchRef.current.active) {
+      if (activeTouchPoints.size >= 2 && pinchRef.current.active) {
         const distance = getPinchDistance();
         const center = getPinchCenter();
         const mind = mindRef.current;
@@ -1153,8 +762,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     const handlePointerEnd = (e: PointerEvent) => {
       if (e.pointerType !== "touch") return;
       const state = touchPanRef.current;
-      activeTouchPointsRef.current.delete(e.pointerId);
-      if (activeTouchPointsRef.current.size < 2) {
+      activeTouchPoints.delete(e.pointerId);
+      if (activeTouchPoints.size < 2) {
         pinchRef.current = {
           active: false,
           startDistance: 0,
@@ -1167,7 +776,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       if (state.pointerId === e.pointerId && state.moved) {
         touchDragMovedAtRef.current = Date.now();
       }
-      if (state.pointerId === e.pointerId || activeTouchPointsRef.current.size === 0) {
+      if (state.pointerId === e.pointerId || activeTouchPoints.size === 0) {
         touchPanRef.current = {
           active: false,
           pointerId: null,
@@ -1188,7 +797,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       host.removeEventListener("pointermove", handlePointerMove);
       host.removeEventListener("pointerup", handlePointerEnd);
       host.removeEventListener("pointercancel", handlePointerEnd);
-      activeTouchPointsRef.current.clear();
+      activeTouchPoints.clear();
       pinchRef.current = {
         active: false,
         startDistance: 0,
@@ -1249,24 +858,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       host.removeEventListener("pointerdown", handlePointerDown);
       host.removeEventListener("click", handleClick);
     };
-  }, []);
-
-  useEffect(() => {
-    if (!disableDirectContextMenu) return;
-    const host = elRef.current;
-    if (!host) return;
-
-    const handleContextMenuCapture = (event: MouseEvent) => {
-      if (!event.isTrusted) return;
-      event.preventDefault();
-      event.stopPropagation();
-    };
-
-    host.addEventListener("contextmenu", handleContextMenuCapture, true);
-    return () => {
-      host.removeEventListener("contextmenu", handleContextMenuCapture, true);
-    };
-  }, [disableDirectContextMenu]);
+  }, [
+    applySelectionFromElement,
+    selectedNodeElRef,
+    setSelectedNodeId,
+    setSelectedNoteText,
+    setSelectedRect,
+  ]);
 
   useEffect(() => {
     clearLongPressState();
@@ -1326,179 +924,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     [mindLocale]
   );
 
-  const getNodeElById = (id: string) => {
-    const host = elRef.current;
-    if (!host) return null;
-    const mind = mindRef.current;
-    if (typeof mind?.findEle === "function") {
-      try {
-        const direct = mind.findEle(id);
-        if (direct) return direct as HTMLElement;
-        if (id.startsWith("me")) {
-          const stripped = mind.findEle(id.slice(2));
-          if (stripped) return stripped as HTMLElement;
-        } else {
-          const withPrefix = mind.findEle(`me${id}`);
-          if (withPrefix) return withPrefix as HTMLElement;
-        }
-      } catch {
-        // findEle can throw when node is collapsed or missing
-      }
-    }
-
-    const expandToNode = (nodeId: string) => {
-      const raw = mind?.getData?.() ?? mind?.getAllData?.();
-      const normalized = normalizeMindData(raw);
-      if (!normalized) return false;
-      const next = cloneMindData(normalized.data);
-      const nextNode = normalizeMindData(next)?.node;
-      if (!nextNode) return false;
-      const found = expandPathToId(nextNode, nodeId);
-      if (!found) return false;
-      mind?.refresh?.(next);
-      return true;
-    };
-
-    if (expandToNode(id)) {
-      try {
-        if (typeof mind?.findEle === "function") {
-          const direct = mind.findEle(id);
-          if (direct) return direct as HTMLElement;
-        }
-      } catch {}
-      const el =
-        host.querySelector<HTMLElement>(
-          `me-tpc[data-nodeid="${escapeAttr(id)}"]`
-        ) ?? null;
-      if (el) return el;
-    }
-
-    const tryIds = [id];
-    if (id.startsWith("me")) {
-      tryIds.push(id.slice(2));
-    } else {
-      tryIds.push(`me${id}`);
-    }
-    for (const candidate of tryIds) {
-      const el = host.querySelector(
-        `me-tpc[data-nodeid="${escapeAttr(candidate)}"]`
-      ) as HTMLElement | null;
-      if (el) return el;
-    }
-    return null;
-  };
-
-  const getNodeTextEl = (el: HTMLElement | null) => {
-    if (!el) return null;
-    return el.querySelector<HTMLElement>(".text");
-  };
-
-  const restoreSearchMark = (el: HTMLElement | null) => {
-    const textEl = getNodeTextEl(el);
-    if (!textEl) return;
-    const original = textEl.getAttribute("data-search-original");
-    if (original !== null) {
-      textEl.innerText = original;
-      textEl.removeAttribute("data-search-original");
-    }
-  };
-
-  const applySearchMark = (el: HTMLElement | null, query: string) => {
-    const textEl = getNodeTextEl(el);
-    if (!textEl) return;
-    const original = textEl.getAttribute("data-search-original");
-    if (original === null) {
-      textEl.setAttribute("data-search-original", textEl.innerText ?? "");
-    }
-    const base = textEl.getAttribute("data-search-original") ?? "";
-    if (!query.trim()) {
-      textEl.innerText = base;
-      return;
-    }
-    const re = new RegExp(escapeRegExp(query), "ig");
-    const html = base.replace(
-      re,
-      (match) => `<mark class="me-search-mark">${match}</mark>`
-    );
-    textEl.innerHTML = html;
-  };
-
-  const clearSearchHighlights = () => {
-    const prev = Array.from(searchHighlightIdsRef.current);
-    prev.forEach((id) => {
-      const el = getNodeElById(id);
-      if (el) el.removeAttribute("data-search");
-      restoreSearchMark(el);
-    });
-    searchHighlightIdsRef.current.clear();
-    if (searchActiveIdRef.current) {
-      const activeEl = getNodeElById(searchActiveIdRef.current);
-      if (activeEl) activeEl.removeAttribute("data-search-active");
-      searchActiveIdRef.current = null;
-    }
-  };
-
-  const setSearchHighlights = (ids: string[], query = "") => {
-    clearSearchHighlights();
-    ids.forEach((id) => {
-      const el = getNodeElById(id);
-      if (el) {
-        el.setAttribute("data-search", "true");
-        searchHighlightIdsRef.current.add(id);
-        applySearchMark(el, query);
-      }
-    });
-  };
-
-  const setSearchActive = (id?: string | null) => {
-    if (searchActiveIdRef.current) {
-      const prev = getNodeElById(searchActiveIdRef.current);
-      if (prev) prev.removeAttribute("data-search-active");
-    }
-    if (!id) {
-      searchActiveIdRef.current = null;
-      return;
-    }
-    const el = getNodeElById(id);
-    if (el) {
-      el.setAttribute("data-search-active", "true");
-      searchActiveIdRef.current = id;
-    }
-  };
-
-  const focusNodeById = (id: string) => {
-    const el = getNodeElById(id);
-    if (!el) {
-      return;
-    }
-    setSelectedNodeId(id);
-    selectedNodeElRef.current = el;
-    requestAnimationFrame(() => updateSelectedRect(id));
-    const host = elRef.current;
-    const mind = mindRef.current;
-    if (host && mind?.move) {
-      const rect = el.getBoundingClientRect();
-      const hostRect = host.getBoundingClientRect();
-      const targetX = rect.left + rect.width / 2;
-      const targetY = rect.top + rect.height / 2;
-      const insetLeft = Math.max(
-        0,
-        Math.min(focusInsetLeftRef.current, hostRect.width * 0.8)
-      );
-      const visibleWidth = Math.max(0, hostRect.width - insetLeft);
-      const centerX =
-        hostRect.left +
-        insetLeft +
-        (visibleWidth > 0 ? visibleWidth / 2 : hostRect.width / 2);
-      const centerY = hostRect.top + hostRect.height / 2;
-      const dx = centerX - targetX;
-      const dy = centerY - targetY;
-      mind.move(dx, dy);
-      return;
-    }
-    el.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
-  };
-
   const runMobileNodeAction = async (
     action: "addChild" | "addSibling" | "rename" | "remove"
   ) => {
@@ -1532,13 +957,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       console.error("[ME] mobile action failed:", action, error);
     }
   };
-
-  const selectedNodeObj =
-    (selectedNodeElRef.current as (HTMLElement & { nodeObj?: AnyNode }) | null)
-      ?.nodeObj ?? null;
-  const selectedNodeIsRoot = Boolean(
-    selectedNodeObj?.root || !selectedNodeObj?.parent?.id
-  );
 
   useEffect(() => {
     if (!showMobileControls || editMode !== "edit") {
@@ -1580,28 +998,28 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     }
   }
 
-  function applyPanInteraction(
-    mind: any,
-    enabled: boolean,
-    button: 0 | 2 = panModeButton
-  ) {
-    if (wrapperRef.current) {
-      wrapperRef.current.classList.toggle(PAN_MODE_CLASS, enabled);
-    }
-    if (elRef.current) {
-      elRef.current.classList.toggle(PAN_MODE_CLASS, enabled);
-      elRef.current.style.touchAction = enabled ? "none" : "";
-    }
+  const applyPanInteraction = useMemo(
+    () =>
+      (mind: any, enabled: boolean, button: 0 | 2 = panModeButton) => {
+        if (wrapperRef.current) {
+          wrapperRef.current.classList.toggle(PAN_MODE_CLASS, enabled);
+        }
+        if (elRef.current) {
+          elRef.current.classList.toggle(PAN_MODE_CLASS, enabled);
+          elRef.current.style.touchAction = enabled ? "none" : "";
+        }
 
-    if (!mind) return;
-    mind.mouseSelectionButton = enabled ? button : 0;
-    if (enabled) {
-      mind.selection?.cancel?.();
-      mind.selection?.disable?.();
-    } else {
-      mind.selection?.enable?.();
-    }
-  }
+        if (!mind) return;
+        mind.mouseSelectionButton = enabled ? button : 0;
+        if (enabled) {
+          mind.selection?.cancel?.();
+          mind.selection?.disable?.();
+        } else {
+          mind.selection?.enable?.();
+        }
+      },
+    [panModeButton]
+  );
 
   useImperativeHandle(
     ref,
@@ -1771,479 +1189,64 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       clearSearchHighlights,
       focusNodeById,
     }),
-    []
+    [
+      applyPanInteraction,
+      clearSearchHighlights,
+      focusNodeById,
+      latestMindDataRef,
+      setSearchActive,
+      setSearchHighlights,
+    ]
   );
 
 
-  useEffect(() => {
-    if (!mounted) return;
-    if (!elRef.current) return;
-
-    if (!initialData) {
-      try {
-        mindRef.current?.destroy?.();
-      } catch {}
-      mindRef.current = null;
-      latestMindDataRef.current = null;
-      setReady(false);
-      return;
-    }
-
-    let cancelled = false;
-    const myToken = ++initTokenRef.current;
-
-    try {
-      mindRef.current?.destroy?.();
-    } catch {}
-    mindRef.current = null;
-    latestMindDataRef.current = cloneMindData(initialData);
-
-    setReady(false);
-
-    let syncSelectedRect: (() => void) | null = null;
-    let handleResize: (() => void) | null = null;
-    let handleMiniResize: (() => void) | null = null;
-    let syncMiniMap: (() => void) | null = null;
-    let mutationObserver: MutationObserver | null = null;
-
-    (async () => {
-      const mod = await import("mind-elixir");
-      const MindElixir = mod.default;
-
-      if (cancelled || myToken !== initTokenRef.current) return;
-      if (!elRef.current) return;
-
-      defaultThemeRef.current = {
-        light: MindElixir.THEME,
-        dark: MindElixir.DARK_THEME,
-      };
-
-      const resolvedThemeObj = resolveThemeObj(
-        defaultThemeRef.current,
-        effectiveMode
-      );
-
-      const handleWheel = (event: WheelEvent) => {
-        const mind = mindRef.current;
-        if (!mind) return;
-
-        event.stopPropagation();
-        event.preventDefault();
-
-        if (event.ctrlKey || event.metaKey) {
-          const intensity = Math.min(
-            0.03,
-            Math.max(0.001, zoomSensitivity * 0.02)
-          );
-          const zoomFactor = Math.exp(-event.deltaY * intensity);
-          const nextScale = mind.scaleVal * zoomFactor;
-          const clamped = Math.min(
-            mind.scaleMax ?? 1.4,
-            Math.max(mind.scaleMin ?? 0.2, nextScale)
-          );
-          if (clamped !== mind.scaleVal) {
-            mind.scale(clamped, { x: event.clientX, y: event.clientY });
-          }
-          return;
-        }
-
-        const normalizePanDelta = (delta: number) => {
-          const scaled = delta * 0.35;
-          if (scaled === 0) return 0;
-          return Math.sign(scaled) * Math.min(Math.abs(scaled), 42);
-        };
-
-        if (event.shiftKey) {
-          mind.move(-normalizePanDelta(event.deltaY), 0);
-        } else {
-          mind.move(
-            -normalizePanDelta(event.deltaX),
-            -normalizePanDelta(event.deltaY)
-          );
-        }
-      };
-
-      const mind = new MindElixir({
-        el: elRef.current,
-        direction: MindElixir.RIGHT,
-        toolBar: showToolbar,
-        keypress: true,
-        draggable: true,
-        editable: true,
-        contextMenu: {
-          focus: true,
-          link: true,
-          extend: [
-            {
-              name: contextMenuText.copyMarkdown,
-              onclick: async () => {
-                const current = mind.currentNode?.nodeObj as AnyNode | undefined;
-                if (!current) return;
-                const markdown = nodeToMarkdown(current);
-                if (!markdown.trim()) return;
-                const ok = await copyToClipboard(markdown);
-                if (ok) {
-                  toast.message(contextMenuText.copySuccess);
-                } else {
-                  toast.message(contextMenuText.copyFail);
-                }
-              },
-            },
-            {
-              name: contextMenuText.copyExpandedMarkdown,
-              onclick: async () => {
-                const current = mind.currentNode?.nodeObj as AnyNode | undefined;
-                if (!current) return;
-                const markdown = nodeToMarkdown(current, 0, true);
-                if (!markdown.trim()) return;
-                const ok = await copyToClipboard(markdown);
-                if (ok) {
-                  toast.message(contextMenuText.copySuccess);
-                } else {
-                  toast.message(contextMenuText.copyFail);
-                }
-              },
-            },
-          ],
-        },
-        locale: mindLocale,
-        scaleSensitivity: zoomSensitivity,
-        mouseSelectionButton: dragButton,
-        handleWheel,
-        theme: resolvedThemeObj,
-      }) as PatchedMindInstance;
-
-      const observerOptions = {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ["data-nodeid"],
-      };
-      const syncNodeDecorations = () => {
-        const host = elRef.current;
-        if (!host) return;
-        if (isDecoratingRef.current) return;
-        isDecoratingRef.current = true;
-        if (mutationObserver) {
-          mutationObserver.disconnect();
-        }
-        const latestNormalized = normalizeMindData(latestMindDataRef.current);
-        const latestRoot = latestNormalized?.node ?? null;
-        host.querySelectorAll("me-tpc").forEach((node) => {
-          const el = node as HTMLElement & { nodeObj?: AnyNode };
-          const nodeId = el.dataset.nodeid ?? "";
-          const latestNode =
-            latestRoot && nodeId ? findNodeById(latestRoot, nodeId) : null;
-          const variant =
-            latestNode?.highlight?.variant ?? el.nodeObj?.highlight?.variant;
-          if (variant) {
-            el.setAttribute("data-highlight", variant);
-          } else {
-            el.removeAttribute("data-highlight");
-          }
-          const noteText = (latestNode?.note ?? el.nodeObj?.note ?? "").trim();
-          if (noteText) {
-            el.setAttribute("data-note", "true");
-            let dot = el.querySelector<HTMLElement>(".me-note-dot");
-            if (!dot) {
-              dot = document.createElement("span");
-              dot.className = "me-note-dot";
-              dot.setAttribute("data-note-dot", "true");
-              dot.innerHTML = NOTE_BADGE_SVG;
-              el.appendChild(dot);
-            }
-            dot.setAttribute("data-nodeid", el.dataset.nodeid ?? "");
-          } else {
-            el.removeAttribute("data-note");
-            const dot = el.querySelector<HTMLElement>(".me-note-dot");
-            if (dot) dot.remove();
-          }
-        });
-        if (mutationObserver && elRef.current) {
-          mutationObserver.observe(elRef.current, observerOptions);
-        }
-        isDecoratingRef.current = false;
-      };
-
-      if (!mind.__originalRefresh) {
-        mind.__originalRefresh = mind.refresh?.bind(mind);
-        if (mind.__originalRefresh) {
-          mind.refresh = (data?: any) => {
-            const originalRefresh =
-              mind.__originalRefresh ?? ((_: any) => undefined);
-            if (data !== undefined) {
-              latestMindDataRef.current = cloneMindData(data);
-            }
-            const res = originalRefresh(data);
-            syncNodeDecorations();
-            return res;
-          };
-        }
-      }
-
-      mind.init(initialData);
-      latestMindDataRef.current = cloneMindData(initialData);
-      mindRef.current = mind;
-      applyEditMode(mind, editMode === "edit");
-      syncNodeDecorations();
-      if (elRef.current && typeof MutationObserver !== "undefined") {
-        mutationObserver = new MutationObserver(() => {
-          syncNodeDecorations();
-        });
-        mutationObserver.observe(elRef.current, observerOptions);
-      }
-
-      // Keep focus UI in sync even when focus is triggered from context menu
-      if (!mind.__originalFocusNode) {
-        mind.__originalFocusNode = mind.focusNode?.bind(mind);
-      }
-      if (!mind.__originalCancelFocus) {
-        mind.__originalCancelFocus = mind.cancelFocus?.bind(mind);
-      }
-      if (typeof mind.__originalFocusNode === "function") {
-        mind.focusNode = (...args: any[]) => {
-          const originalFocusNode =
-            mind.__originalFocusNode ?? ((..._args: any[]) => undefined);
-          const result = originalFocusNode(...args);
-          setIsFocusMode(true);
-          return result;
-        };
-      }
-      if (typeof mind.__originalCancelFocus === "function") {
-        mind.cancelFocus = () => {
-          const originalCancelFocus =
-            mind.__originalCancelFocus ?? (() => undefined);
-          const result = originalCancelFocus();
-          setSelectedNodeId(null);
-          setSelectedRect(null);
-          setSelectedNoteText(null);
-          selectedNodeElRef.current = null;
-          setIsFocusMode(false);
-          return result;
-        };
-      }
-
-      // Hook undo/redo to trigger autosave listeners
-      if (typeof mind.undo === "function") {
-        const originalUndo = mind.undo.bind(mind);
-        mind.undo = () => {
-          originalUndo();
-          onChangeRef.current?.({ name: "undo" });
-        };
-      }
-      if (typeof mind.redo === "function") {
-        const originalRedo = mind.redo.bind(mind);
-        mind.redo = () => {
-          originalRedo();
-          onChangeRef.current?.({ name: "redo" });
-        };
-      }
-
-      const initialNode = normalizeMindData(initialData)?.node;
-      if (initialNode) {
-        currentLevelRef.current = getMaxExpandedDepth(initialNode);
-      }
-
-      mind.bus?.addListener?.("selectNodes", (nodes: any[]) => {
-        if (
-          Date.now() - lastClickedNodeRef.current.at <
-          MANUAL_SELECTION_PRIORITY_MS
-        ) {
-          return;
-        }
-        const last = Array.isArray(nodes) ? nodes[nodes.length - 1] : null;
-        const id = last?.id;
-        if (!id) return;
-        selectedNodeIdRef.current = id;
-        setSelectedNodeId(id);
-        try {
-          selectedNodeElRef.current =
-            mind.findEle?.(id) ||
-            elRef.current?.querySelector<HTMLElement>(
-              `me-tpc[data-nodeid="${id}"]`
-            ) ||
-            elRef.current?.querySelector<HTMLElement>(
-              `[data-nodeid="${id}"]`
-            ) ||
-            null;
-        } catch {
-          selectedNodeElRef.current = null;
-        }
-        requestAnimationFrame(() => updateSelectedRect(id));
-      });
-
-      mind.bus?.addListener?.("unselectNodes", () => {
-        setSelectedNodeId(null);
-        setSelectedRect(null);
-        selectedNodeElRef.current = null;
-        setSelectedNoteText(null);
-      });
-
-      syncSelectedRect = () => {
-        const id = selectedNodeIdRef.current;
-        if (!id) return;
-        updateSelectedRect(id);
-      };
-
-      mind.bus?.addListener?.("move", syncSelectedRect);
-      mind.bus?.addListener?.("scale", syncSelectedRect);
-      syncMiniMap = () => scheduleMiniMapDraw();
-      mind.bus?.addListener?.("move", syncMiniMap);
-      mind.bus?.addListener?.("scale", syncMiniMap);
-      mind.bus?.addListener?.("refresh", syncMiniMap);
-      handleResize = () => syncSelectedRect?.();
-      handleMiniResize = () => scheduleMiniMapDraw();
-      window.addEventListener("resize", handleResize);
-      window.addEventListener("resize", handleMiniResize);
-
-      // ✅ 초기 뷰 세팅
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (cancelled || myToken !== initTokenRef.current) return;
-          if (!elRef.current) return;
-
-          if (preserveViewState && lastTransformRef.current) {
-            mind.map.style.transform = lastTransformRef.current;
-            if (lastScaleRef.current) {
-              mind.scaleVal = lastScaleRef.current;
-            } else {
-              const parsed = parseScale(lastTransformRef.current);
-              if (parsed) mind.scaleVal = parsed;
-            }
-          } else if (fitOnInit) {
-            mind.scaleFit?.();
-            mind.toCenter?.();
-          }
-          scheduleMiniMapDraw();
-          setReady(true);
-        });
-      });
-
-      mind.bus?.addListener?.("operation", (op: any) => {
-      requestAnimationFrame(() => {
-        syncLatestMindDataFromMind();
-        syncNodeDecorations();
-      });
-
-      if (op?.name === "selectNode") {
-        if (
-          Date.now() - lastClickedNodeRef.current.at <
-          MANUAL_SELECTION_PRIORITY_MS
-        ) {
-          return;
-        }
-        const id = op?.data?.id ?? op?.obj?.id ?? op?.id;
-        if (id) {
-          setSelectedNodeId(id);
-          updateSelectedRect(id);
-        }
-      }
-
-        if (
-          op?.name === "unselectNodes" ||
-          op?.name === "clearSelection" ||
-          op?.name === "removeNodes"
-        ) {
-          setSelectedNodeId(null);
-          setSelectedRect(null);
-        }
-
-        if (op?.name !== "selectNode") {
-          onChangeRef.current?.(op);
-          return;
-        }
-
-        if (!openMenuOnClick) return;
-
-          const id = op?.data?.id ?? op?.obj?.id;
-          if (!id) return;
-
-          const host = elRef.current;
-          const nodeEl =
-            host?.querySelector<HTMLElement>(`me-tpc[data-nodeid="${id}"]`) ||
-            host?.querySelector<HTMLElement>(`[data-nodeid="${id}"]`);
-
-          if (!nodeEl) return;
-
-          openNodeContextMenu(id);
-      });
-    })().catch((e) => {
-      console.error("[ME] init failed:", e);
-    });
-
-    return () => {
-      cancelled = true;
-      if (mutationObserver) {
-        mutationObserver.disconnect();
-        mutationObserver = null;
-      }
-      try {
-        if (preserveViewState) {
-          const mind = mindRef.current;
-          const transform = mind?.map?.style?.transform ?? null;
-          lastTransformRef.current = transform || null;
-          lastScaleRef.current =
-            typeof mind?.scaleVal === "number" ? mind.scaleVal : null;
-        } else {
-          lastTransformRef.current = null;
-          lastScaleRef.current = null;
-        }
-      } catch {}
-      try {
-        const mind = mindRef.current;
-        if (mind?.bus?.removeListener && syncSelectedRect) {
-          mind.bus.removeListener("move", syncSelectedRect);
-          mind.bus.removeListener("scale", syncSelectedRect);
-        }
-        if (mind?.bus?.removeListener && syncMiniMap) {
-          mind.bus.removeListener("move", syncMiniMap);
-          mind.bus.removeListener("scale", syncMiniMap);
-          mind.bus.removeListener("refresh", syncMiniMap);
-        }
-      } catch {}
-      try {
-        if (handleResize) {
-          window.removeEventListener("resize", handleResize);
-        }
-        if (handleMiniResize) {
-          window.removeEventListener("resize", handleMiniResize);
-        }
-      } catch {}
-      try {
-        mindRef.current?.destroy?.();
-      } catch {}
-      mindRef.current = null;
-    };
-  }, [
+  useMindElixirCore({
     mounted,
+    elRef,
+    mindRef,
+    latestMindDataRef,
+    defaultThemeRef,
+    lastTransformRef,
+    lastScaleRef,
+    currentLevelRef,
+    isDecoratingRef,
+    onChangeRef,
+    selectedNodeIdRef,
+    selectedNodeElRef,
+    lastClickedNodeRef,
+    setSelectedNodeId,
+    setSelectedRect,
+    setSelectedNoteText,
+    setIsFocusMode,
+    setReady,
+    normalizeMindData,
+    cloneMindData,
+    resolveThemeObj,
+    nodeToMarkdown,
+    copyToClipboard,
+    applyEditMode,
+    getMaxExpandedDepth,
+    parseScale,
+    findNodeById,
+    clearAutoBranchColors,
+    scheduleMiniMapDraw,
+    openNodeContextMenu,
+    syncLatestMindDataFromMind,
+    updateSelectedRect,
+    initialData,
+    effectiveMode,
     zoomSensitivity,
     dragButton,
     fitOnInit,
     preserveViewState,
     openMenuOnClick,
     showToolbar,
-    initialData,
     mindLocale,
     contextMenuText,
-  ]);
-
-  useEffect(() => {
-    const mind = mindRef.current;
-    if (!mind) return;
-    const defaults = defaultThemeRef.current;
-    if (!defaults) return;
-    const nextTheme = resolveThemeObj(defaults, effectiveMode);
-    if (nextTheme) {
-      const prevPalette = Array.isArray(mind.theme?.palette)
-        ? mind.theme.palette
-        : null;
-      const root = mind.nodeData as AnyNode | undefined;
-      if (root && prevPalette) {
-        clearAutoBranchColors(root, prevPalette);
-      }
-      mind.changeTheme?.(nextTheme, true);
-    }
-  }, [effectiveMode, resolveThemeObj]);
+    editMode,
+    noteBadgeSvg: NOTE_BADGE_SVG,
+    manualSelectionPriorityMs: MANUAL_SELECTION_PRIORITY_MS,
+  });
 
   useEffect(() => {
     const mind = mindRef.current;
@@ -2253,173 +1256,23 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
   useEffect(() => {
     applyPanInteraction(mindRef.current, Boolean(effectivePanMode), panModeButton);
-  }, [effectivePanMode, panModeButton, ready]);
+  }, [applyPanInteraction, effectivePanMode, panModeButton, ready]);
 
-  const isDarkCanvas = mounted && effectiveMode === "dark";
+  const { wrapperClassName, globalStyles } = useMindElixirThemeStyles({
+    mounted,
+    effectiveMode,
+    hasFixedTheme,
+    panModeClass: PAN_MODE_CLASS,
+    viewModeClass: VIEW_MODE_CLASS,
+  });
 
   return (
-    <div
-      ref={wrapperRef}
-      className={`relative h-full w-full ${
-        isDarkCanvas ? DARK_CANVAS_CLASS : ""
-      } ${
-        isDarkCanvas && !hasFixedTheme
-          ? DEFAULT_DARK_CANVAS_CLASS
-          : ""
-      }`}
-    >
-      <style jsx global>{`
-        .${PAN_MODE_CLASS} me-tpc,
-        .${PAN_MODE_CLASS} [data-nodeid],
-        .${PAN_MODE_CLASS} .node,
-        .${PAN_MODE_CLASS} .node-box,
-        .${PAN_MODE_CLASS} .topic {
-          pointer-events: none;
-        }
-        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-add_child,
-        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-add_parent,
-        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-add_sibling,
-        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-remove_child,
-        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-up,
-        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-down,
-        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-link,
-        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-link-bidirectional,
-        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-summary {
-          display: none;
-        }
-        me-tpc {
-          position: relative;
-          overflow: visible;
-        }
-        .${DEFAULT_DARK_CANVAS_CLASS} me-tpc {
-          border: 1.5px solid rgba(255, 255, 255, 0.84) !important;
-          box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
-        }
-        .${DEFAULT_DARK_CANVAS_CLASS} me-root me-tpc,
-        .${DEFAULT_DARK_CANVAS_CLASS} me-tpc.root {
-          border-color: rgba(255, 255, 255, 0.97) !important;
-        }
-        me-root me-tpc,
-        me-tpc.root {
-          max-width: 12.5em !important;
-        }
-        me-root me-tpc .text,
-        me-tpc.root .text,
-        me-root me-tpc .topic,
-        me-tpc.root .topic {
-          display: block;
-          max-width: 12.5em !important;
-          font-size: 1rem !important;
-          line-height: 1.3 !important;
-          white-space: normal !important;
-          overflow-wrap: anywhere !important;
-          word-break: break-word !important;
-          text-wrap: wrap !important;
-        }
-        @media (max-width: 639px) {
-          me-parent me-tpc:not(.root) {
-            max-width: 21em !important;
-          }
-          me-parent me-tpc:not(.root) .text,
-          me-parent me-tpc:not(.root) .topic {
-            display: block;
-            max-width: 21em !important;
-            white-space: normal !important;
-            overflow-wrap: anywhere !important;
-            word-break: break-word !important;
-            text-wrap: wrap !important;
-          }
-          #input-box {
-            box-sizing: border-box !important;
-            width: auto !important;
-            max-width: 21em !important;
-            min-width: min(21em, calc(100vw - 40px)) !important;
-            white-space: normal !important;
-            overflow-wrap: anywhere !important;
-            word-break: break-word !important;
-            text-wrap: wrap !important;
-            line-height: 1.4 !important;
-          }
-        }
-        .me-note-dot {
-          position: absolute;
-          right: -6px;
-          top: -6px;
-          width: 16px;
-          height: 16px;
-          border-radius: 999px;
-          background: #2563eb;
-          color: #ffffff;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow:
-            0 0 0 2px rgba(255, 255, 255, 0.95),
-            0 6px 12px rgba(37, 99, 235, 0.35);
-          cursor: pointer;
-          pointer-events: auto;
-        }
-        .me-note-dot svg,
-        .me-note-dot svg * {
-          width: 10px;
-          height: 10px;
-          pointer-events: none;
-        }
-        .${VIEW_MODE_CLASS} .me-note-dot {
-          cursor: pointer;
-        }
-        me-tpc[data-highlight="gold"] {
-          background-color: #fde68a !important;
-          color: #7c2d12 !important;
-          border: 1px solid #f59e0b !important;
-          box-shadow:
-            0 6px 16px rgba(245, 158, 11, 0.35),
-            0 0 0 2px rgba(253, 230, 138, 0.5);
-        }
-        me-tpc[data-highlight="gold"] .text {
-          color: #7c2d12 !important;
-          font-weight: 600;
-        }
-        me-tpc[data-search="true"] {
-          outline: 2px solid rgba(59, 130, 246, 0.35);
-          outline-offset: 2px;
-          box-shadow: 0 6px 16px rgba(59, 130, 246, 0.18);
-        }
-        me-tpc[data-search-active="true"] {
-          outline: 2px solid rgba(59, 130, 246, 0.75);
-          outline-offset: 2px;
-          box-shadow: 0 8px 20px rgba(59, 130, 246, 0.28);
-        }
-        me-tpc .text .me-search-mark {
-          background: rgba(250, 204, 21, 0.45);
-          color: inherit;
-          padding: 0 2px;
-          border-radius: 4px;
-        }
-      `}</style>
+    <div ref={wrapperRef} className={wrapperClassName}>
+      <style jsx global>{globalStyles}</style>
       <div
         ref={elRef}
         className="relative h-full w-full"
         style={{ touchAction: effectivePanMode ? "none" : undefined }}
-      />
-
-      <MindElixirMobileControls
-        showActionBar={
-          showMobileControls &&
-          editMode === "edit" &&
-          !!selectedNodeId &&
-          mobileActionNodeId === selectedNodeId
-        }
-        title={mobileEditMenuTitle}
-        labels={mobileEditLabels}
-        disableAddSibling={selectedNodeIsRoot}
-        disableRename={!selectedNodeId}
-        disableRemove={selectedNodeIsRoot}
-        onClose={() => setMobileActionNodeId(null)}
-        onAddChild={() => void runMobileNodeAction("addChild")}
-        onAddSibling={() => void runMobileNodeAction("addSibling")}
-        onRename={() => void runMobileNodeAction("rename")}
-        onRemove={() => void runMobileNodeAction("remove")}
       />
 
       <MindElixirMiniMap
@@ -2427,138 +1280,40 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         label={miniMapLabel}
         canvasRef={miniMapRef}
       />
-      {!isFocusMode && selectedNodeId && selectedRect && (
-        <>
-          <div
-            className="pointer-events-none absolute z-[19] rounded-md ring-2 ring-blue-500/80 shadow-[0_0_0_3px_rgba(255,255,255,0.92),0_10px_24px_rgba(37,99,235,0.22)] dark:shadow-[0_0_0_3px_rgba(11,18,32,0.9),0_10px_24px_rgba(59,130,246,0.28)]"
-            style={{
-              left: selectedRect.left - 4,
-              top: selectedRect.top - 4,
-              width: selectedRect.width + 8,
-              height: selectedRect.height + 8,
-            }}
-          />
-          <div
-            className="absolute z-20"
-            data-hover-actions="true"
-            onPointerDown={(e) => {
-              e.stopPropagation();
-            }}
-            onPointerUp={(e) => {
-              e.stopPropagation();
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-            style={{
-              left: selectedRect.left + selectedRect.width - 8,
-              top: selectedRect.top + selectedRect.height + 8,
-              transform: "translate(-100%, 0)",
-            }}
-          >
-            <div className={hoverActionWrapClass}>
-              <button
-                type="button"
-                className={`${hoverActionButtonClass} bg-red-500 text-white ring-1 ring-red-600/60`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleNoteClick();
-                }}
-                aria-label="노트 추가"
-              >
-                <Icon icon="mdi:note-text-outline" className={hoverActionIconClass} />
-                <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-                  노트 추가
-                </span>
-              </button>
-              <button
-                type="button"
-                className={`${hoverActionButtonClass} bg-yellow-400 text-black ring-1 ring-yellow-500/70`}
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleHighlightClick(selectedNodeIdRef.current);
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }}
-                aria-label="하이라이트"
-              >
-                <Icon icon="mdi:marker" className={hoverActionIconClass} />
-                <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-                  하이라이트
-                </span>
-              </button>
-              {showMobileControls && editMode === "edit" ? (
-                <button
-                  type="button"
-                  className={`${hoverActionButtonClass} bg-slate-800 text-white ring-1 ring-slate-900/70`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMobileActionNodeId((prev) =>
-                      prev === selectedNodeId ? null : selectedNodeId
-                    );
-                  }}
-                  aria-label={moreActionsLabel}
-                >
-                  <Icon icon="mdi:dots-horizontal" className={hoverActionIconClass} />
-                  <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-                    {moreActionsLabel}
-                  </span>
-                </button>
-              ) : showSelectionContextMenuButton && !isTouchDevice ? (
-                <button
-                  type="button"
-                  className={`${hoverActionButtonClass} bg-slate-800 text-white ring-1 ring-slate-900/70`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openNodeContextMenu(
-                      selectedNodeIdRef.current,
-                      e.currentTarget
-                    );
-                  }}
-                  aria-label={moreActionsLabel}
-                >
-                  <Icon icon="mdi:dots-horizontal" className={hoverActionIconClass} />
-                  <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-                    {moreActionsLabel}
-                  </span>
-                </button>
-              ) : null}
-            </div>
-          </div>
-        </>
-      )}
-
-      {isFocusMode && (
-        <div className="pointer-events-auto absolute right-4 top-16 z-30">
-          <div className="flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-[11px] text-white shadow-sm">
-            <span className="font-medium">{focusModeLabel}</span>
-            <button
-              type="button"
-              className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] text-white hover:bg-white/25"
-              onClick={handleExitFocus}
-            >
-              {focusModeExitLabel}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {!isFocusMode && selectedRect && selectedNoteText && (
-        <div
-          className="pointer-events-none absolute z-20"
-          style={{
-            left: selectedRect.left + selectedRect.width + 10,
-            top: selectedRect.top,
-          }}
-        >
-          <div className="max-w-[260px] rounded-xl border border-blue-200 bg-white/95 px-3 py-2 text-xs text-neutral-700 shadow-lg dark:border-white/10 dark:bg-[#0b1220]/95 dark:text-white/85">
-            {selectedNoteText}
-          </div>
-        </div>
-      )}
+      <MindElixirMobileLayer
+        showMobileControls={showMobileControls}
+        editMode={editMode}
+        selectedNodeId={selectedNodeId}
+        mobileActionNodeId={mobileActionNodeId}
+        mobileEditMenuTitle={mobileEditMenuTitle}
+        mobileEditLabels={mobileEditLabels}
+        selectedNodeIsRoot={selectedNodeIsRoot}
+        onCloseMobileActions={() => setMobileActionNodeId(null)}
+        onAddChild={() => void runMobileNodeAction("addChild")}
+        onAddSibling={() => void runMobileNodeAction("addSibling")}
+        onRename={() => void runMobileNodeAction("rename")}
+        onRemove={() => void runMobileNodeAction("remove")}
+        isFocusMode={isFocusMode}
+        selectedRect={selectedRect}
+        hoverActionWrapClass={hoverActionWrapClass}
+        hoverActionButtonClass={hoverActionButtonClass}
+        hoverActionIconClass={hoverActionIconClass}
+        handleNoteClick={handleNoteClick}
+        handleHighlightClick={handleHighlightClick}
+        showSelectionContextMenuButton={showSelectionContextMenuButton}
+        isTouchDevice={isTouchDevice}
+        moreActionsLabel={moreActionsLabel}
+        openNodeContextMenu={openNodeContextMenu}
+        onToggleMobileActionNode={() =>
+          setMobileActionNodeId((prev) =>
+            prev === selectedNodeId ? null : selectedNodeId
+          )
+        }
+        focusModeLabel={focusModeLabel}
+        focusModeExitLabel={focusModeExitLabel}
+        onExitFocus={handleExitFocus}
+        selectedNoteText={selectedNoteText}
+      />
 
       <Dialog open={noteEditorOpen} onOpenChange={setNoteEditorOpen}>
         <DialogContent className="max-w-[420px]">
