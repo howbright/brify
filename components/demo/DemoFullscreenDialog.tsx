@@ -573,6 +573,7 @@ export default function DemoFullscreenDialog({
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
   const [shareGuideOpen, setShareGuideOpen] = useState(false);
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(false);
+  const initializedDraftIdRef = useRef<string | null>(null);
   const [themeName, setThemeName] = useState<string>(
     profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME
   );
@@ -597,6 +598,8 @@ export default function DemoFullscreenDialog({
 
   useEffect(() => {
     if (!open || !mounted) return;
+    if (initializedDraftIdRef.current === draft?.id) return;
+    initializedDraftIdRef.current = draft?.id ?? null;
     setLeftOpen(!isTutorialMobile);
     const tutorialCompleted = getMapTutorialCompleted(
       isTutorialMobile ? "mobile" : "desktop"
@@ -630,6 +633,11 @@ export default function DemoFullscreenDialog({
       }
     };
   }, [open, mounted, draft?.id, language, isTutorialMobile]);
+
+  useEffect(() => {
+    if (open) return;
+    initializedDraftIdRef.current = null;
+  }, [open]);
 
   useEffect(() => {
     if (isTutorialMobile) {

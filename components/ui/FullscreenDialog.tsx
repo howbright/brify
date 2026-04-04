@@ -124,19 +124,12 @@ export default function FullscreenDialog({
   const headerTitle = draft?.shortTitle ?? title ?? draft?.title ?? t("fallbackTitle");
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
+  const initializedDraftIdRef = useRef<string | null>(null);
 
 
   // ✅ 좌측 패널(메타) 토글
-  const openTab = (next: "info" | "notes" | "terms") => {
-    setLeftTab(next);
-    setLeftOpen(true);
-  };
-  const openMeta = () => {
-    if (leftOpen) {
-      setLeftOpen(false);
-      return;
-    }
-    openTab(leftTab);
+  const toggleLeftPanel = () => {
+    setLeftOpen((prev) => !prev);
   };
 
   const [searchOpen, setSearchOpen] = useState(false);
@@ -163,6 +156,8 @@ export default function FullscreenDialog({
 
   useEffect(() => {
     if (!open || !mounted) return;
+    if (initializedDraftIdRef.current === draft?.id) return;
+    initializedDraftIdRef.current = draft?.id ?? null;
     setLeftOpen(!isTutorialMobile);
     const tutorialCompleted = getMapTutorialCompleted(
       isTutorialMobile ? "mobile" : "desktop"
@@ -170,6 +165,11 @@ export default function FullscreenDialog({
     setTutorialOpen(!tutorialCompleted);
     setTutorialStepIndex(0);
   }, [open, mounted, draft?.id, isTutorialMobile]);
+
+  useEffect(() => {
+    if (open) return;
+    initializedDraftIdRef.current = null;
+  }, [open]);
 
   useEffect(() => {
     if (isTutorialMobile) {
@@ -377,7 +377,7 @@ export default function FullscreenDialog({
               <button
                 id={FULLSCREEN_LEFT_PANEL_BUTTON_ID}
                 type="button"
-                onClick={openMeta}
+                onClick={toggleLeftPanel}
                 className="
                   inline-flex items-center
                   p-1

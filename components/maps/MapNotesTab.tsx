@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 import type { Database } from "@/app/types/database.types";
 import { createClient } from "@/utils/supabase/client";
@@ -25,6 +25,7 @@ type HighlightItem = {
   id: string;
   topic: string;
 };
+
 const NOTES_LIST_FIELDS =
   "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,notes_count,terms_count";
 
@@ -121,15 +122,6 @@ function extractHighlights(root: unknown, untitled: string) {
   return collected;
 }
 
-function formatDate(ts?: string | null) {
-  if (!ts) return "";
-  try {
-    return new Date(ts).toLocaleString();
-  } catch {
-    return "";
-  }
-}
-
 function formatTimestamp(ts?: number) {
   if (!ts) return "";
   try {
@@ -149,7 +141,7 @@ export default function MapNotesTab() {
   const tPage = useTranslations("MapsPage");
   const tCommon = useTranslations("MapsCommon");
   const untitled = tCommon("untitled");
-  const stickyRef = useRef<HTMLDivElement | null>(null);
+
   const [notesDrafts, setNotesDrafts] = useState<MapDraft[]>([]);
   const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -209,10 +201,7 @@ export default function MapNotesTab() {
           .order("updated_at", { ascending: false, nullsFirst: false })
           .limit(200);
 
-        if (listError) {
-          throw new Error(tPage("notesTab.errors.load"));
-        }
-
+        if (listError) throw new Error(tPage("notesTab.errors.load"));
         if (cancelled) return;
         setNotesDrafts(Array.isArray(data) ? data.map((row) => rowToDraft(row as MapRow)) : []);
       } catch (e) {
@@ -223,9 +212,7 @@ export default function MapNotesTab() {
             : tPage("notesTab.errors.load")
         );
       } finally {
-        if (!cancelled) {
-          setListLoading(false);
-        }
+        if (!cancelled) setListLoading(false);
       }
     };
 
@@ -240,10 +227,7 @@ export default function MapNotesTab() {
       setSelectedMapId(null);
       return;
     }
-    if (
-      !selectedMapId ||
-      !filteredDrafts.some((draft) => draft.id === selectedMapId)
-    ) {
+    if (!selectedMapId || !filteredDrafts.some((draft) => draft.id === selectedMapId)) {
       setSelectedMapId(filteredDrafts[0].id);
     }
   }, [filteredDrafts, selectedMapId]);
@@ -274,9 +258,7 @@ export default function MapNotesTab() {
           }),
         ]);
 
-        if (mapResult.error) {
-          throw new Error(tPage("notesTab.errors.load"));
-        }
+        if (mapResult.error) throw new Error(tPage("notesTab.errors.load"));
 
         const notesJson = await notesResult.json().catch(() => ({}));
         if (!notesResult.ok || !notesJson?.ok) {
@@ -284,12 +266,9 @@ export default function MapNotesTab() {
         }
 
         if (cancelled) return;
-
         setMemoNotes(Array.isArray(notesJson.items) ? notesJson.items : []);
         setNodeNotes(extractNodeNotes(mapResult.data?.mind_elixir ?? null, untitled));
-        setHighlightItems(
-          extractHighlights(mapResult.data?.mind_elixir ?? null, untitled)
-        );
+        setHighlightItems(extractHighlights(mapResult.data?.mind_elixir ?? null, untitled));
       } catch (e) {
         if (cancelled) return;
         setError(
@@ -298,9 +277,7 @@ export default function MapNotesTab() {
             : tPage("notesTab.errors.load")
         );
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
       }
     };
 
@@ -310,50 +287,9 @@ export default function MapNotesTab() {
     };
   }, [selectedMapId, tPage, untitled]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const isDesktop = window.innerWidth >= 1024;
-    if (!isDesktop) return;
-    const el = stickyRef.current;
-    if (!el) return;
-    let lastLogAt = 0;
-    const findScrollBlocker = (node: HTMLElement | null) => {
-      let current: HTMLElement | null = node;
-      while (current) {
-        const style = window.getComputedStyle(current);
-        const overflow =
-          style.overflowY !== "visible" || style.overflowX !== "visible";
-        if (overflow) return current;
-        current = current.parentElement;
-      }
-      return null;
-    };
-    const logMetrics = (label: string) => {
-      const now = Date.now();
-      if (now - lastLogAt < 500) return;
-      lastLogAt = now;
-      const rect = el.getBoundingClientRect();
-      const style = window.getComputedStyle(el);
-      const blocker = findScrollBlocker(el.parentElement);
-      const blockerStyle = blocker ? window.getComputedStyle(blocker) : null;
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({runId:'notes-sticky-1',hypothesisId:'H1',location:'MapNotesTab.tsx:sticky',message:label,data:{rect,position:style.position,top:style.top,overflowY:style.overflowY,blockerTag:blocker?.tagName ?? null,blockerOverflowY:blockerStyle?.overflowY ?? null,blockerOverflowX:blockerStyle?.overflowX ?? null},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
-    };
-    const onScroll = () => logMetrics("scroll");
-    const onResize = () => logMetrics("resize");
-    logMetrics("init");
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onResize);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onResize);
-    };
-  }, []);
-
   if (listLoading) {
     return (
-      <section className="grid gap-5 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)] lg:items-start">
+      <section className="grid gap-5 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)]">
         <aside className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
           <div className="h-5 w-28 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
           <div className="mt-4 flex flex-col gap-2">
@@ -378,6 +314,7 @@ export default function MapNotesTab() {
               >
                 <div className="h-4 w-24 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
                 <div className="mt-3 h-3 w-5/6 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
+                <div className="mt-2 h-3 w-2/3 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
               </div>
             ))}
           </div>
@@ -397,56 +334,51 @@ export default function MapNotesTab() {
     );
   }
 
-  return (
-    <section className="grid gap-5 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)] lg:items-start">
-      <aside className="relative lg:self-start">
-        <div
-          ref={stickyRef}
-          className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04] lg:sticky lg:top-28"
+  const panelInner = (
+    <>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+            {tPage("notesTab.title")}
+          </h2>
+          <p className="mt-1 text-[13px] text-neutral-500 dark:text-white/55">
+            {tPage("notesTab.leftDescription")}
+          </p>
+        </div>
+        <span className="inline-flex items-center rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-[12px] font-semibold text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70">
+          {notesDrafts.length}
+        </span>
+      </div>
+
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+        <div className="relative flex-1">
+          <Icon
+            icon="mdi:magnify"
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 dark:text-white/40"
+          />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={tPage("notesTab.searchPlaceholder")}
+            className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 py-2.5 pl-9 pr-3 text-[14px] text-neutral-800 outline-none transition focus:border-neutral-300 focus:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/85 dark:focus:border-white/20 dark:focus:bg-white/[0.07]"
+          />
+        </div>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value as "updatedDesc" | "titleAsc")}
+          className="rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-[14px] font-medium text-neutral-700 outline-none transition focus:border-neutral-300 focus:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/80 dark:focus:border-white/20 dark:focus:bg-white/[0.07]"
         >
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
-              {tPage("notesTab.title")}
-            </h2>
-            <p className="mt-1 text-[13px] text-neutral-500 dark:text-white/55">
-              {tPage("notesTab.leftDescription")}
-            </p>
-          </div>
-          <span className="inline-flex items-center rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-[12px] font-semibold text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70">
-            {notesDrafts.length}
-          </span>
-        </div>
+          <option value="updatedDesc">{tPage("notesTab.sort.updatedDesc")}</option>
+          <option value="titleAsc">{tPage("notesTab.sort.titleAsc")}</option>
+        </select>
+      </div>
 
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-          <div className="relative flex-1">
-            <Icon
-              icon="mdi:magnify"
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 dark:text-white/40"
-            />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={tPage("notesTab.searchPlaceholder")}
-              className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 pl-9 pr-3 py-2.5 text-[14px] text-neutral-800 outline-none transition focus:border-neutral-300 focus:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/85 dark:focus:border-white/20 dark:focus:bg-white/[0.07]"
-            />
+      <div className="mt-4 flex flex-col gap-2">
+        {filteredDrafts.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50/70 p-4 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/[0.02] dark:text-white/50">
+            {tPage("notesTab.noSearchResults")}
           </div>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as "updatedDesc" | "titleAsc")}
-            className="rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-[14px] font-medium text-neutral-700 outline-none transition focus:border-neutral-300 focus:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/80 dark:focus:border-white/20 dark:focus:bg-white/[0.07]"
-          >
-            <option value="updatedDesc">{tPage("notesTab.sort.updatedDesc")}</option>
-            <option value="titleAsc">{tPage("notesTab.sort.titleAsc")}</option>
-          </select>
-        </div>
-
-        <div className="mt-4 flex flex-col gap-2">
-          {filteredDrafts.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50/70 p-4 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/[0.02] dark:text-white/50">
-              {tPage("notesTab.noSearchResults")}
-            </div>
-          ) : (
+        ) : (
           filteredDrafts.map((draft) => {
             const isSelected = draft.id === selectedMapId;
             return (
@@ -486,131 +418,137 @@ export default function MapNotesTab() {
                 </div>
               </button>
             );
-          }))}
-        </div>
-        </div>
+          })
+        )}
+      </div>
+    </>
+  );
+
+  return (
+    <section className="grid gap-5 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)]">
+      <aside className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04] lg:h-[calc(100vh-240px)] lg:overflow-hidden">
+        <div className="lg:h-full lg:overflow-y-auto">{panelInner}</div>
       </aside>
 
-      <section className="rounded-3xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
-        <div className="border-b border-neutral-200 pb-4 dark:border-white/10">
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
-            {selectedDraft
-              ? getDisplayTitle(selectedDraft, untitled)
-              : tPage("fallback.selectedMap")}
-          </h2>
-          <p className="mt-1 text-[13px] text-neutral-500 dark:text-white/55">
-            {tPage("notesTab.rightDescription")}
-          </p>
-          {!loading && !error ? (
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px]">
-              <SummaryPill
-                icon="mdi:note-text-outline"
-                label={tPage("notesTab.sections.memo")}
-                count={memoNotes.length}
-              />
-              <SummaryPill
-                icon="mdi:comment-text-outline"
-                label={tPage("notesTab.sections.annotations")}
-                count={nodeNotes.length}
-              />
-              <SummaryPill
-                icon="mdi:marker"
-                label={tPage("notesTab.sections.highlights")}
-                count={highlightItems.length}
-              />
-            </div>
-          ) : null}
-        </div>
-
-        {loading ? (
-          <div className="mt-5 flex flex-col gap-4">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div
-                key={index}
-                className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4 dark:border-white/10 dark:bg-white/[0.03]"
-              >
-                <div className="h-4 w-24 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
-                <div className="mt-3 h-3 w-5/6 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
-                <div className="mt-2 h-3 w-2/3 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
+      <section className="rounded-3xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.04] lg:h-[calc(100vh-240px)] lg:overflow-hidden">
+        <div className="lg:h-full lg:overflow-y-auto">
+          <div className="border-b border-neutral-200 pb-4 dark:border-white/10">
+            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+              {selectedDraft
+                ? getDisplayTitle(selectedDraft, untitled)
+                : tPage("fallback.selectedMap")}
+            </h2>
+            <p className="mt-1 text-[13px] text-neutral-500 dark:text-white/55">
+              {tPage("notesTab.rightDescription")}
+            </p>
+            {!loading && !error ? (
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px]">
+                <SummaryPill
+                  icon="mdi:note-text-outline"
+                  label={tPage("notesTab.sections.memo")}
+                  count={memoNotes.length}
+                />
+                <SummaryPill
+                  icon="mdi:comment-text-outline"
+                  label={tPage("notesTab.sections.annotations")}
+                  count={nodeNotes.length}
+                />
+                <SummaryPill
+                  icon="mdi:marker"
+                  label={tPage("notesTab.sections.highlights")}
+                  count={highlightItems.length}
+                />
               </div>
-            ))}
+            ) : null}
           </div>
-        ) : error ? (
-          <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
-            {error}
-          </div>
-        ) : (
-          <div className="mt-5 flex flex-col gap-5">
-            <NotesSection
-              icon="mdi:note-text-outline"
-              title={tPage("notesTab.sections.memo")}
-              count={memoNotes.length}
-              emptyLabel={tPage("notesTab.emptySections.memo")}
-            >
-              {memoNotes.map((note) => (
-                <div
-                  key={note.id}
-                  className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4 dark:border-white/10 dark:bg-white/[0.03]"
-                >
-                  <div className="mb-2 text-[12px] font-medium text-neutral-500 dark:text-white/45">
-                    {tPage("notesTab.memoLabel")}
-                  </div>
-                  <div className="text-[14px] leading-7 text-neutral-800 dark:text-white/85">
-                    {note.text}
-                  </div>
-                  <div className="mt-2 text-[12px] text-neutral-500 dark:text-white/45">
-                    {formatDate(note.updated_at ?? note.created_at)}
-                  </div>
-                </div>
-              ))}
-            </NotesSection>
 
-            <NotesSection
-              icon="mdi:comment-text-outline"
-              title={tPage("notesTab.sections.annotations")}
-              count={nodeNotes.length}
-              emptyLabel={tPage("notesTab.emptySections.annotations")}
-            >
-              {nodeNotes.map((item) => (
+          {loading ? (
+            <div className="mt-5 flex flex-col gap-4">
+              {Array.from({ length: 3 }).map((_, index) => (
                 <div
-                  key={item.id}
+                  key={index}
                   className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4 dark:border-white/10 dark:bg-white/[0.03]"
                 >
-                  <div className="mb-1 text-[12px] font-medium text-neutral-500 dark:text-white/45">
-                    {tPage("notesTab.nodeLabel")}
-                  </div>
-                  <div className="text-[13px] font-semibold text-neutral-900 dark:text-white">
-                    {item.topic}
-                  </div>
-                  <div className="mt-2 text-[14px] leading-7 text-neutral-700 dark:text-white/75">
-                    {item.note}
-                  </div>
+                  <div className="h-4 w-24 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
+                  <div className="mt-3 h-3 w-5/6 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
+                  <div className="mt-2 h-3 w-2/3 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
                 </div>
               ))}
-            </NotesSection>
+            </div>
+          ) : error ? (
+            <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
+              {error}
+            </div>
+          ) : (
+            <div className="mt-5 flex flex-col gap-5">
+              <NotesSection
+                icon="mdi:note-text-outline"
+                title={tPage("notesTab.sections.memo")}
+                count={memoNotes.length}
+                emptyLabel={tPage("notesTab.emptySections.memo")}
+              >
+                {memoNotes.map((note) => (
+                  <div
+                    key={note.id}
+                    className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4 dark:border-white/10 dark:bg-white/[0.03]"
+                  >
+                    <div className="mb-2 text-[12px] font-medium text-neutral-500 dark:text-white/45">
+                      {tPage("notesTab.memoLabel")}
+                    </div>
+                    <div className="text-[14px] leading-7 text-neutral-800 dark:text-white/85">
+                      {note.text}
+                    </div>
+                  </div>
+                ))}
+              </NotesSection>
 
-            <NotesSection
-              icon="mdi:marker"
-              title={tPage("notesTab.sections.highlights")}
-              count={highlightItems.length}
-              emptyLabel={tPage("notesTab.emptySections.highlights")}
-            >
-              {highlightItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4 dark:border-white/10 dark:bg-white/[0.03]"
-                >
-                  <div className="mb-1 text-[12px] font-medium text-neutral-500 dark:text-white/45">
-                    {tPage("notesTab.nodeLabel")}
+              <NotesSection
+                icon="mdi:comment-text-outline"
+                title={tPage("notesTab.sections.annotations")}
+                count={nodeNotes.length}
+                emptyLabel={tPage("notesTab.emptySections.annotations")}
+              >
+                {nodeNotes.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4 dark:border-white/10 dark:bg-white/[0.03]"
+                  >
+                    <div className="mb-2 text-[12px] font-medium text-neutral-500 dark:text-white/45">
+                      {tPage("notesTab.nodeLabel")}
+                    </div>
+                    <div className="text-[14px] font-semibold leading-6 text-neutral-900 dark:text-white">
+                      {item.topic}
+                    </div>
+                    <div className="mt-3 text-[14px] leading-7 text-neutral-700 dark:text-white/75">
+                      {item.note}
+                    </div>
                   </div>
-                  <div className="text-[14px] font-semibold leading-6 text-neutral-800 dark:text-white/85">
-                    {item.topic}
+                ))}
+              </NotesSection>
+
+              <NotesSection
+                icon="mdi:marker"
+                title={tPage("notesTab.sections.highlights")}
+                count={highlightItems.length}
+                emptyLabel={tPage("notesTab.emptySections.highlights")}
+              >
+                {highlightItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4 dark:border-white/10 dark:bg-white/[0.03]"
+                  >
+                    <div className="mb-2 text-[12px] font-medium text-neutral-500 dark:text-white/45">
+                      {tPage("notesTab.nodeLabel")}
+                    </div>
+                    <div className="text-[14px] font-semibold leading-6 text-neutral-800 dark:text-white/85">
+                      {item.topic}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </NotesSection>
-          </div>
-        )}
+                ))}
+              </NotesSection>
+            </div>
+          )}
+        </div>
       </section>
     </section>
   );
@@ -645,7 +583,7 @@ function NotesSection({
   title: string;
   count: number;
   emptyLabel: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <section>

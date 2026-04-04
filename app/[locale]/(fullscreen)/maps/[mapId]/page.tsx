@@ -196,6 +196,7 @@ export default function MapDetailPage() {
   const mobileThemeRef = useRef<HTMLDivElement | null>(null);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
+  const initializedMapIdRef = useRef<string | null>(null);
 
   const MUTATING_OPS = useMemo(
     () =>
@@ -285,6 +286,8 @@ export default function MapDetailPage() {
 
   useEffect(() => {
     if (loading || !draft) return;
+    if (initializedMapIdRef.current === draft.id) return;
+    initializedMapIdRef.current = draft.id;
     setLeftOpen(!isTutorialMobile);
     const tutorialCompleted = getMapTutorialCompleted(
       isTutorialMobile ? "mobile" : "desktop"
@@ -355,9 +358,8 @@ export default function MapDetailPage() {
     [mapData, isTutorialMobile]
   );
 
-  const openTab = (next: "info" | "notes" | "terms") => {
-    setLeftTab(next);
-    setLeftOpen(true);
+  const toggleLeftPanel = () => {
+    setLeftOpen((prev) => !prev);
   };
 
   const closeSearch = () => {
@@ -899,7 +901,7 @@ export default function MapDetailPage() {
               <button
                 id={FULLSCREEN_PAGE_LEFT_PANEL_BUTTON_ID}
                 type="button"
-                onClick={() => (leftOpen ? setLeftOpen(false) : openTab(leftTab))}
+                onClick={toggleLeftPanel}
                 className="
                   inline-flex items-center
                   p-1

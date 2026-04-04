@@ -1762,6 +1762,7 @@
       },
       "memoLabel": "메모 내용",
       "nodeLabel": "관련 노드",
+      "emptyMemo": "작성된 메모가 아직 없어요.",
       "meta": {
         "memoLabel": "메모 내용",
         "nodeLabel": "관련 노드"

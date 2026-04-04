@@ -660,39 +660,37 @@ export default function MapsPage() {
   return (
     <main className="min-h-[70vh] bg-neutral-50 px-6 pt-22 pb-12 dark:bg-[#07111f]">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-2 flex items-center justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-              {tPage("title")}
-            </h1>
-          </div>
-        </div>
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+            {tPage("title")}
+          </h1>
 
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          {(
-            [
-              { id: "maps", label: tPage("tabs.maps") },
-              { id: "notes", label: tPage("tabs.notes") },
-              { id: "terms", label: tPage("tabs.terms") },
-            ] as const
-          ).map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => handleChangeTab(tab.id)}
-                aria-pressed={isActive}
-                className={`inline-flex items-center rounded-full border px-3 py-1.5 text-[13px] font-semibold transition ${
-                  isActive
-                    ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black"
-                    : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.04] dark:text-white/72 dark:hover:bg-white/[0.08]"
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
+          <div className="flex flex-wrap items-center gap-2">
+            {(
+              [
+                { id: "maps", label: tPage("tabs.maps") },
+                { id: "notes", label: tPage("tabs.notes") },
+                { id: "terms", label: tPage("tabs.terms") },
+              ] as const
+            ).map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => handleChangeTab(tab.id)}
+                  aria-pressed={isActive}
+                  className={`inline-flex items-center rounded-full border px-3 py-1.5 text-[13px] font-semibold transition ${
+                    isActive
+                      ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black"
+                      : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.04] dark:text-white/72 dark:hover:bg-white/[0.08]"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {activeTab === "maps" ? (

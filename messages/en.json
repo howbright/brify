@@ -1762,6 +1762,7 @@
       },
       "memoLabel": "Note content",
       "nodeLabel": "Related node",
+      "emptyMemo": "No saved notes yet.",
       "meta": {
         "memoLabel": "Note content",
         "nodeLabel": "Related node"
