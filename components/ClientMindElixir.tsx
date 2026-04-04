@@ -650,6 +650,22 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     };
   }, [editMode, onViewModeEditAttempt]);
 
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverscrollX = html.style.overscrollBehaviorX;
+    const prevBodyOverscrollX = body.style.overscrollBehaviorX;
+
+    html.style.overscrollBehaviorX = "none";
+    body.style.overscrollBehaviorX = "none";
+
+    return () => {
+      html.style.overscrollBehaviorX = prevHtmlOverscrollX;
+      body.style.overscrollBehaviorX = prevBodyOverscrollX;
+    };
+  }, []);
+
   const clearLongPressState = () => {
     if (longPressTimerRef.current) {
       window.clearTimeout(longPressTimerRef.current);
@@ -1271,11 +1287,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   });
 
   return (
-    <div ref={wrapperRef} className={wrapperClassName}>
+    <div ref={wrapperRef} className={`${wrapperClassName} overscroll-x-none`}>
       <style jsx global>{globalStyles}</style>
       <div
         ref={elRef}
-        className="relative h-full w-full"
+        className="relative h-full w-full overscroll-x-none"
         style={{ touchAction: effectivePanMode ? "none" : undefined }}
       />
 
