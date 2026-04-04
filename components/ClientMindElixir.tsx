@@ -492,7 +492,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     : "group relative inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] shadow-sm";
   const hoverActionIconClass = isTouchDevice ? "h-4 w-4" : "h-3 w-3";
   const isDecoratingRef = useRef(false);
-  const onChangeRef = useRef<typeof onChange | null>(null);
+  const onChangeRef = useRef<((op: any) => void) | null>(null);
 
   const syncLatestMindDataFromMind = () => {
     const mind = mindRef.current;

@@ -7,6 +7,7 @@ type Labels = {
   addSibling: string;
   rename: string;
   remove: string;
+  close: string;
 };
 
 type Params = {
@@ -62,18 +63,20 @@ export function useMindElixirResponsiveState({
 
   const mobileEditLabels: Labels =
     locale === "ko"
-      ? {
-          addChild: "자식 추가",
-          addSibling: "형제 추가",
-          rename: "이름 수정",
-          remove: "삭제",
-        }
-      : {
-          addChild: "Add child",
-          addSibling: "Add sibling",
-          rename: "Rename",
-          remove: "Delete",
-        };
+        ? {
+            addChild: "자식 추가",
+            addSibling: "형제 추가",
+            rename: "이름 수정",
+            remove: "삭제",
+            close: "닫기",
+          }
+        : {
+            addChild: "Add child",
+            addSibling: "Add sibling",
+            rename: "Rename",
+            remove: "Delete",
+            close: "Close",
+          };
 
   return {
     mounted,

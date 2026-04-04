@@ -6,6 +6,7 @@ import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/
 
 type SourceType = "youtube" | "website" | "file" | "manual";
 type TagSort = "recent" | "name" | "count_desc" | "count_asc";
+type ContentFilter = "notes" | "terms";
 
 type DateRange = {
   from: string | null;
@@ -19,6 +20,7 @@ type UseMapTagsOptions = {
   dateRange: DateRange;
   statusFilters: MapJobStatus[];
   sourceFilters: SourceType[];
+  contentFilters: ContentFilter[];
   updateDrafts: React.Dispatch<React.SetStateAction<MapDraft[]>>;
   setPage: React.Dispatch<React.SetStateAction<number>>;
   noTagFilter: string;
@@ -36,6 +38,7 @@ export default function useMapTags({
   dateRange,
   statusFilters,
   sourceFilters,
+  contentFilters,
   updateDrafts,
   setPage,
   noTagFilter,
@@ -143,6 +146,9 @@ export default function useMapTags({
         if (sourceFilters.length > 0) {
           sourceFilters.forEach((source) => params.append("source", source));
         }
+        if (contentFilters.length > 0) {
+          contentFilters.forEach((content) => params.append("content", content));
+        }
         params.set("limit", "24");
         const res = await fetch(`/api/maps/tags?${params.toString()}`);
         if (!res.ok) throw new Error("태그를 불러오지 못했습니다.");
@@ -172,6 +178,7 @@ export default function useMapTags({
     dateRange.to,
     statusFilters,
     sourceFilters,
+    contentFilters,
     tagRefreshKey,
   ]);
 

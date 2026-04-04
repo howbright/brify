@@ -14,6 +14,19 @@ type TermItem = {
   isNew?: boolean;
 };
 type NoteItem = NoteItemData;
+type NoteApiRow = {
+  id?: string | number | null;
+  text?: string | null;
+  created_at?: string | null;
+};
+type TermsApiRow = {
+  term?: string | null;
+  meaning?: string | null;
+  updated_at?: string | null;
+  updatedAt?: string | null;
+  created_at?: string | null;
+  createdAt?: string | null;
+};
 
 export type RightPanelTab = "notes" | "terms";
 
@@ -43,7 +56,7 @@ export default function RightPanel({
     "idle" | "queued" | "processing" | "done" | "failed"
   >("idle");
   const [termsRequestedInSession, setTermsRequestedInSession] = useState(false);
-  const [hasTermsRequest, setHasTermsRequest] = useState(false);
+  const [, setHasTermsRequest] = useState(false);
   const termsPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const termsHighlightRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -82,8 +95,10 @@ export default function RightPanel({
         throw new Error(json?.error || t("errors.notes.fetch"));
       }
       const items: NoteItem[] = Array.isArray(json.items)
-        ? json.items.map((row: any) => {
-            const createdAt = new Date(row.created_at).getTime();
+        ? json.items.map((row: NoteApiRow) => {
+            const createdAt = row.created_at
+              ? new Date(row.created_at).getTime()
+              : Date.now();
             return {
               id: String(row.id),
               text: String(row.text ?? ""),
@@ -93,8 +108,8 @@ export default function RightPanel({
           })
         : [];
       setNotes(items);
-    } catch (e: any) {
-      setNotesError(e?.message ?? t("errors.notes.fetch"));
+    } catch (e: unknown) {
+      setNotesError(e instanceof Error ? e.message : t("errors.notes.fetch"));
     } finally {
       setNotesLoading(false);
     }
@@ -124,7 +139,9 @@ export default function RightPanel({
         throw new Error(json?.error || t("errors.notes.add"));
       }
       const row = json.item ?? {};
-      const createdAt = new Date(row.created_at).getTime();
+      const createdAt = row.created_at
+        ? new Date(row.created_at).getTime()
+        : Date.now();
       const item: NoteItem = {
         id: String(row.id),
         text: String(row.text ?? ""),
@@ -133,8 +150,8 @@ export default function RightPanel({
       };
       setNotes((prev) => [item, ...prev]);
       setNoteText("");
-    } catch (e: any) {
-      setNotesError(e?.message ?? t("errors.notes.add"));
+    } catch (e: unknown) {
+      setNotesError(e instanceof Error ? e.message : t("errors.notes.add"));
     }
   };
 
@@ -148,8 +165,8 @@ export default function RightPanel({
         throw new Error(json?.error || t("errors.notes.delete"));
       }
       setNotes((prev) => prev.filter((n) => n.id !== id));
-    } catch (e: any) {
-      setNotesError(e?.message ?? t("errors.notes.delete"));
+    } catch (e: unknown) {
+      setNotesError(e instanceof Error ? e.message : t("errors.notes.delete"));
     }
   };
 
@@ -169,7 +186,9 @@ export default function RightPanel({
         throw new Error(json?.error || t("errors.notes.update"));
       }
       const row = json.item ?? {};
-      const createdAt = new Date(row.created_at).getTime();
+      const createdAt = row.created_at
+        ? new Date(row.created_at).getTime()
+        : Date.now();
       const updated: NoteItem = {
         id: String(row.id),
         text: String(row.text ?? ""),
@@ -177,8 +196,8 @@ export default function RightPanel({
         createdAtLabel: new Date(createdAt).toLocaleString(),
       };
       setNotes((prev) => prev.map((n) => (n.id === id ? updated : n)));
-    } catch (e: any) {
-      setNotesError(e?.message ?? t("errors.notes.update"));
+    } catch (e: unknown) {
+      setNotesError(e instanceof Error ? e.message : t("errors.notes.update"));
     }
   };
 
@@ -265,7 +284,7 @@ export default function RightPanel({
         ? json
         : [];
 
-      const items: TermItem[] = rows.map((row: any) => {
+      const items: TermItem[] = rows.map((row: TermsApiRow) => {
         const rawTs =
           row.updated_at ?? row.updatedAt ?? row.created_at ?? row.createdAt;
         const updatedAt = rawTs ? new Date(rawTs).getTime() : 0;

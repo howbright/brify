@@ -52,20 +52,20 @@ type UseMindElixirCoreParams = {
   setSelectedNoteText: React.Dispatch<React.SetStateAction<string | null>>;
   setIsFocusMode: React.Dispatch<React.SetStateAction<boolean>>;
   setReady: React.Dispatch<React.SetStateAction<boolean>>;
-  normalizeMindData: (raw: any) => { data: any; node: AnyNode } | null;
+  normalizeMindData: (raw: any) => { data: any; node: any } | null;
   cloneMindData: <T>(data: T) => T;
   resolveThemeObj: (
     defaults: { light: unknown; dark: unknown } | null,
     modeValue: "light" | "dark"
   ) => unknown;
-  nodeToMarkdown: (node: AnyNode, depth?: number, onlyExpanded?: boolean) => string;
+  nodeToMarkdown: (node: any, depth?: number, onlyExpanded?: boolean) => string;
   copyToClipboard: (text: string) => Promise<boolean>;
   applyEditMode: (mind: any, enabled: boolean) => void;
-  getMaxExpandedDepth: (node: AnyNode | null | undefined, depth?: number) => number;
+  getMaxExpandedDepth: (node: any, depth?: number) => number;
   parseScale: (transform: string | null) => number | null;
-  findNodeById: (node: AnyNode, id: string) => AnyNode | null;
+  findNodeById: (node: any, id: string) => any | null;
   clearAutoBranchColors: (
-    node: AnyNode | null | undefined,
+    node: any,
     palette: string[] | null
   ) => void;
   scheduleMiniMapDraw: () => void;
@@ -259,11 +259,11 @@ export function useMindElixirCore({
             },
           ],
         },
-        locale: mindLocale,
+        locale: mindLocale as any,
         scaleSensitivity: zoomSensitivity,
         mouseSelectionButton: dragButton,
         handleWheel,
-        theme: resolvedThemeObj,
+        theme: resolvedThemeObj as any,
       }) as PatchedMindInstance;
 
       const observerOptions = {
