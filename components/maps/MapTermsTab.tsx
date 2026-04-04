@@ -1,7 +1,9 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 import type { Database } from "@/app/types/database.types";
@@ -72,12 +74,15 @@ function formatTimestamp(ts?: number) {
 }
 
 export default function MapTermsTab() {
+  const router = useRouter();
+  const locale = useLocale();
   const tPage = useTranslations("MapsPage");
   const tCommon = useTranslations("MapsCommon");
   const untitled = tCommon("untitled");
 
   const [termsDrafts, setTermsDrafts] = useState<MapDraft[]>([]);
   const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
+  const [openingDetailId, setOpeningDetailId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<"updatedDesc" | "titleAsc">("updatedDesc");
   const [listLoading, setListLoading] = useState(true);
@@ -118,6 +123,23 @@ export default function MapTermsTab() {
     () => filteredDrafts.find((draft) => draft.id === selectedMapId) ?? null,
     [filteredDrafts, selectedMapId]
   );
+
+  const handleOpenDetail = () => {
+    if (!selectedDraft || selectedDraft.status !== "done") return;
+    const nextUrl = locale
+      ? `/${locale}/maps/${selectedDraft.id}`
+      : `/maps/${selectedDraft.id}`;
+    setOpeningDetailId(selectedDraft.id);
+    router.push(nextUrl);
+  };
+
+  const handlePrefetchDetail = () => {
+    if (!selectedDraft || selectedDraft.status !== "done") return;
+    const nextUrl = locale
+      ? `/${locale}/maps/${selectedDraft.id}`
+      : `/maps/${selectedDraft.id}`;
+    router.prefetch(nextUrl);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -375,14 +397,36 @@ export default function MapTermsTab() {
       <section className="rounded-3xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.04] lg:h-[calc(100vh-240px)] lg:overflow-hidden">
         <div className="lg:h-full lg:overflow-y-auto">
           <div className="border-b border-neutral-200 pb-4 dark:border-white/10">
-            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
-              {selectedDraft
-                ? getDisplayTitle(selectedDraft, untitled)
-                : tPage("fallback.selectedMap")}
-            </h2>
-            <p className="mt-1 text-[13px] text-neutral-500 dark:text-white/55">
-              {tPage("termsTab.rightDescription")}
-            </p>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                  {selectedDraft
+                    ? getDisplayTitle(selectedDraft, untitled)
+                    : tPage("fallback.selectedMap")}
+                </h2>
+                <p className="mt-1 text-[13px] text-neutral-500 dark:text-white/55">
+                  {tPage("termsTab.rightDescription")}
+                </p>
+              </div>
+              {selectedDraft?.status === "done" ? (
+                <button
+                  type="button"
+                  onClick={handleOpenDetail}
+                  onMouseEnter={handlePrefetchDetail}
+                  onFocus={handlePrefetchDetail}
+                  disabled={openingDetailId === selectedDraft.id}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2 text-[13px] font-medium text-neutral-700 transition hover:bg-white disabled:cursor-wait disabled:opacity-70 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/80 dark:hover:bg-white/[0.08]"
+                >
+                  <Icon
+                    icon={openingDetailId === selectedDraft.id ? "mdi:loading" : "mdi:open-in-new"}
+                    className={`h-3.5 w-3.5 ${openingDetailId === selectedDraft.id ? "animate-spin" : ""}`}
+                  />
+                  {openingDetailId === selectedDraft.id
+                    ? tCommon("listItem.opening")
+                    : tCommon("listItem.open")}
+                </button>
+              ) : null}
+            </div>
             {!loading && !error ? (
               <div className="mt-3">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-[12px] text-neutral-600 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/70">

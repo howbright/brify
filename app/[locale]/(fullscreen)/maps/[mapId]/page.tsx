@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
@@ -137,11 +137,17 @@ export default function MapDetailPage() {
   const isTutorialMobile = useTutorialIsMobile();
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { resolvedTheme } = useTheme();
   const { profileThemeName } = useMindThemePreference();
 
   const mapId = String(params?.mapId ?? "");
   const locale = String(params?.locale ?? "ko");
+  const sourceTab = searchParams.get("tab");
+  const backToMapsUrl =
+    sourceTab === "notes" || sourceTab === "terms"
+      ? `/${locale}/maps?tab=${sourceTab}`
+      : `/${locale}/maps`;
 
   const [draft, setDraft] = useState<MapDraft | null>(null);
   const [mapData, setMapData] = useState<MapRow["mind_elixir"] | null>(null);
@@ -588,7 +594,7 @@ export default function MapDetailPage() {
 
       toast.success("삭제 완료");
       window.setTimeout(() => {
-        router.push("/maps");
+        router.push(backToMapsUrl);
       }, 700);
     } catch (e: unknown) {
       const msg = getErrorMessage(e, "삭제에 실패했습니다.");
@@ -894,7 +900,7 @@ export default function MapDetailPage() {
     <div className="fixed inset-0 z-[120] bg-white dark:bg-[#0b1220] [--header-h:68px]">
       <FullscreenHeader
         title={title}
-        onClose={() => router.push(`/${locale}/maps`)}
+        onClose={() => router.push(backToMapsUrl)}
         closeLabel={t("actions.closeMap")}
         left={
           <>
@@ -1033,7 +1039,7 @@ export default function MapDetailPage() {
                   onCenterMap={() => mindRef.current?.centerMap?.()}
                   onZoomIn={() => mindRef.current?.zoomIn?.()}
                   onZoomOut={() => mindRef.current?.zoomOut?.()}
-                  onCloseMap={() => router.push(`/${locale}/maps`)}
+                  onCloseMap={() => router.push(backToMapsUrl)}
               onShare={() => {
                 setShareOpen(true);
                 void fetchShareStatus();
