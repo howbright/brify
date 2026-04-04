@@ -1350,17 +1350,19 @@ export default function MapDetailPage() {
         </div>
 
         {(statusLabel || hasDraft) && (
-          <div className="pointer-events-auto absolute right-4 top-3 z-[15] flex items-center gap-2">
+          <div className="pointer-events-auto absolute right-3 top-2 z-[15] flex items-center gap-1.5 sm:right-4 sm:top-3 sm:gap-2">
             {statusLabel && (
               <span
                 className={`
-                  inline-flex items-center px-1 text-[11px] font-semibold
+                  inline-flex items-center rounded-full border border-transparent bg-white/70 px-1.5 py-0.5 text-[10px] font-medium backdrop-blur-sm
+                  dark:bg-[#0b1220]/55
+                  sm:bg-transparent sm:px-1 sm:py-0 sm:text-[11px] sm:font-semibold sm:backdrop-blur-0
                   ${
                     statusTone === "success"
-                      ? "text-emerald-600 dark:text-emerald-300"
+                      ? "text-emerald-700 dark:text-emerald-300"
                       : statusTone === "warning"
-                      ? "text-amber-600 dark:text-amber-300"
-                      : "text-neutral-500 dark:text-white/70"
+                      ? "text-amber-700 dark:text-amber-300"
+                      : "text-neutral-600 dark:text-white/70"
                   }
                 `}
               >
@@ -1373,27 +1375,28 @@ export default function MapDetailPage() {
                   type="button"
                   onClick={() => setConfirmDiscardOpen(true)}
                   className="
-                    inline-flex items-center gap-1.5 rounded-full border border-neutral-200/70
-                    bg-white/90 px-2 py-0.5 text-[11px] font-semibold text-neutral-600
-                    shadow-sm hover:text-neutral-900
-                    dark:border-white/10 dark:bg-[#0b1220]/80 dark:text-white/70 dark:hover:text-white
+                    inline-flex h-7 items-center gap-1 rounded-full border border-neutral-200/70
+                    bg-white/88 px-2.5 text-[10px] font-medium text-neutral-600
+                    shadow-sm backdrop-blur-sm hover:text-neutral-900
+                    dark:border-white/10 dark:bg-[#0b1220]/78 dark:text-white/70 dark:hover:text-white
+                    sm:h-auto sm:gap-1.5 sm:px-2 sm:py-0.5 sm:text-[11px] sm:font-semibold sm:backdrop-blur-0
                   "
                 >
-                  <Icon icon="mdi:undo-variant" className="h-3.5 w-3.5" />
+                  <Icon icon="mdi:undo-variant" className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                   {t("actions.discardDraft")}
                 </button>
                 <button
                   type="button"
                   onClick={handlePublish}
                   className="
-                    inline-flex items-center gap-1.5
-                    rounded-full
-                    bg-blue-600 px-4 py-1.5 text-[13px] font-semibold text-white shadow-md
-                    hover:bg-blue-700
+                    inline-flex h-7 items-center gap-1 rounded-full
+                    bg-blue-600/95 px-2.5 text-[10px] font-semibold text-white shadow-md
+                    backdrop-blur-sm hover:bg-blue-700
                     dark:bg-blue-500 dark:hover:bg-blue-400
+                    sm:h-auto sm:gap-1.5 sm:px-4 sm:py-1.5 sm:text-[13px] sm:backdrop-blur-0
                   "
                 >
-                  <Icon icon="mdi:check-circle-outline" className="h-4.5 w-4.5" />
+                  <Icon icon="mdi:check-circle-outline" className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5" />
                   {t("actions.publish")}
                 </button>
               </>
