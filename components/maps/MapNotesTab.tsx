@@ -28,6 +28,8 @@ type HighlightItem = {
   topic: string;
 };
 
+type NotesTone = "blue" | "indigo" | "sky";
+
 const NOTES_LIST_FIELDS =
   "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,notes_count,terms_count";
 
@@ -367,13 +369,13 @@ export default function MapNotesTab() {
             {tPage("notesTab.leftDescription")}
           </p>
         </div>
-        <span className="inline-flex items-center rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-[12px] font-semibold text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70">
+        <span className="inline-flex items-center rounded-full border border-blue-200/80 bg-blue-50 px-2.5 py-1 text-[12px] font-semibold text-blue-700 dark:border-blue-300/18 dark:bg-blue-400/10 dark:text-blue-200">
           {notesDrafts.length}
         </span>
       </div>
 
-      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-        <div className="relative flex-1">
+      <div className="mt-4 flex flex-col gap-2">
+        <div className="relative">
           <Icon
             icon="mdi:magnify"
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 dark:text-white/40"
@@ -382,17 +384,25 @@ export default function MapNotesTab() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={tPage("notesTab.searchPlaceholder")}
-            className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 py-2.5 pl-9 pr-3 text-[14px] text-neutral-800 outline-none transition focus:border-neutral-300 focus:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/85 dark:focus:border-white/20 dark:focus:bg-white/[0.07]"
+            className="w-full rounded-2xl border border-slate-400 bg-neutral-50 py-2.5 pl-9 pr-3 text-[14px] text-neutral-800 outline-none transition focus:border-slate-500 focus:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/85 dark:focus:border-white/20 dark:focus:bg-white/[0.07]"
           />
         </div>
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value as "updatedDesc" | "titleAsc")}
-          className="rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-[14px] font-medium text-neutral-700 outline-none transition focus:border-neutral-300 focus:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/80 dark:focus:border-white/20 dark:focus:bg-white/[0.07]"
-        >
-          <option value="updatedDesc">{tPage("notesTab.sort.updatedDesc")}</option>
-          <option value="titleAsc">{tPage("notesTab.sort.titleAsc")}</option>
-        </select>
+        <div className="flex justify-end">
+          <div className="relative w-full sm:w-auto sm:min-w-[148px]">
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as "updatedDesc" | "titleAsc")}
+              className="w-full appearance-none rounded-2xl border border-neutral-200 bg-neutral-50 pl-2 pr-10 py-1 text-[14px] font-medium text-neutral-700 outline-none transition focus:border-neutral-300 focus:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/80 dark:focus:border-white/20 dark:focus:bg-white/[0.07]"
+            >
+              <option value="updatedDesc">{tPage("notesTab.sort.updatedDesc")}</option>
+              <option value="titleAsc">{tPage("notesTab.sort.titleAsc")}</option>
+            </select>
+            <Icon
+              icon="mdi:chevron-down"
+              className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500 dark:text-white/55"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="mt-4 flex flex-col gap-2">
@@ -410,8 +420,8 @@ export default function MapNotesTab() {
                 onClick={() => setSelectedMapId(draft.id)}
                 className={`rounded-2xl border px-3 py-3 text-left transition ${
                   isSelected
-                    ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black"
-                    : "border-neutral-200 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white/85 dark:hover:bg-white/[0.06]"
+                    ? "border-[color:var(--color-primary-600)] bg-[rgba(37,99,235,0.08)] text-neutral-900 shadow-[0_16px_32px_-28px_rgba(37,99,235,0.28)] dark:border-[color:var(--color-primary-400)] dark:bg-[rgba(96,165,250,0.12)] dark:text-white"
+                    : "border-neutral-200 bg-white text-neutral-800 hover:border-[rgba(59,130,246,0.28)] hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white/85 dark:hover:border-[rgba(96,165,250,0.26)] dark:hover:bg-white/[0.06]"
                 }`}
               >
                 <div className="line-clamp-2 text-[14px] font-semibold leading-6">
@@ -420,7 +430,7 @@ export default function MapNotesTab() {
                 <div
                   className={`mt-1 text-[12px] ${
                     isSelected
-                      ? "text-white/70 dark:text-black/65"
+                      ? "text-neutral-600 dark:text-white/68"
                       : "text-neutral-500 dark:text-white/45"
                   }`}
                 >
@@ -429,11 +439,15 @@ export default function MapNotesTab() {
                 <div
                   className={`mt-2 flex flex-wrap items-center gap-1.5 text-[12px] ${
                     isSelected
-                      ? "text-white/80 dark:text-black/70"
+                      ? "text-neutral-700 dark:text-white/78"
                       : "text-neutral-500 dark:text-white/55"
                   }`}
                 >
-                  <span className="inline-flex items-center gap-1 rounded-full bg-black/5 px-2 py-1 dark:bg-white/10">
+                  <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 ${
+                    isSelected
+                      ? "bg-[rgba(37,99,235,0.1)] text-[color:var(--color-primary-700)] dark:bg-[rgba(96,165,250,0.14)] dark:text-sky-200"
+                      : "bg-neutral-100 text-[color:var(--color-primary-700)] dark:bg-white/10 dark:text-sky-200/80"
+                  }`}>
                     <Icon icon="mdi:note-text-outline" className="h-3.5 w-3.5" />
                     {tCommon("content.notes")} {draft.notesCount ?? 0}
                   </span>
@@ -491,16 +505,19 @@ export default function MapNotesTab() {
                   icon="mdi:note-text-outline"
                   label={tPage("notesTab.sections.memo")}
                   count={memoNotes.length}
+                  tone="blue"
                 />
                 <SummaryPill
                   icon="mdi:comment-text-outline"
                   label={tPage("notesTab.sections.annotations")}
                   count={nodeNotes.length}
+                  tone="indigo"
                 />
                 <SummaryPill
                   icon="mdi:marker"
                   label={tPage("notesTab.sections.highlights")}
                   count={highlightItems.length}
+                  tone="sky"
                 />
               </div>
             ) : null}
@@ -530,6 +547,7 @@ export default function MapNotesTab() {
                 title={tPage("notesTab.sections.memo")}
                 count={memoNotes.length}
                 emptyLabel={tPage("notesTab.emptySections.memo")}
+                tone="blue"
               >
                 {memoNotes.map((note) => (
                   <div
@@ -551,6 +569,7 @@ export default function MapNotesTab() {
                 title={tPage("notesTab.sections.annotations")}
                 count={nodeNotes.length}
                 emptyLabel={tPage("notesTab.emptySections.annotations")}
+                tone="indigo"
               >
                 {nodeNotes.map((item) => (
                   <div
@@ -575,6 +594,7 @@ export default function MapNotesTab() {
                 title={tPage("notesTab.sections.highlights")}
                 count={highlightItems.length}
                 emptyLabel={tPage("notesTab.emptySections.highlights")}
+                tone="sky"
               >
                 {highlightItems.map((item) => (
                   <div
@@ -602,13 +622,21 @@ function SummaryPill({
   icon,
   label,
   count,
+  tone = "blue",
 }: {
   icon: string;
   label: string;
   count: number;
+  tone?: NotesTone;
 }) {
+  const toneClass =
+    tone === "indigo"
+      ? "border-indigo-200/80 text-indigo-700 dark:border-indigo-300/14 dark:text-indigo-200"
+      : tone === "sky"
+        ? "border-sky-200/80 text-sky-700 dark:border-sky-300/14 dark:text-sky-200"
+        : "border-blue-200/80 text-blue-700 dark:border-blue-300/14 dark:text-blue-200";
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-neutral-600 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/70">
+    <span className={`inline-flex items-center gap-1.5 rounded-full border bg-neutral-50 px-2.5 py-1 dark:bg-white/[0.05] ${toneClass}`}>
       <Icon icon={icon} className="h-3.5 w-3.5" />
       <span className="font-medium">{label}</span>
       <span className="font-semibold">{count}</span>
@@ -622,23 +650,47 @@ function NotesSection({
   count,
   emptyLabel,
   children,
+  tone = "blue",
 }: {
   icon: string;
   title: string;
   count: number;
   emptyLabel: string;
   children: ReactNode;
+  tone?: NotesTone;
 }) {
+  const toneClass =
+    tone === "indigo"
+      ? {
+          icon: "bg-indigo-100 text-indigo-700 dark:bg-indigo-400/15 dark:text-indigo-200",
+          title: "text-neutral-900 dark:text-white",
+          dot: "bg-indigo-500 dark:bg-indigo-300",
+          count: "border-indigo-200/80 text-indigo-700 dark:border-indigo-300/14 dark:text-indigo-200",
+        }
+      : tone === "sky"
+        ? {
+            icon: "bg-sky-100 text-sky-700 dark:bg-sky-400/15 dark:text-sky-200",
+            title: "text-neutral-900 dark:text-white",
+            dot: "bg-sky-500 dark:bg-sky-300",
+            count: "border-sky-200/80 text-sky-700 dark:border-sky-300/14 dark:text-sky-200",
+          }
+        : {
+            icon: "bg-blue-100 text-blue-700 dark:bg-blue-400/15 dark:text-blue-200",
+            title: "text-neutral-900 dark:text-white",
+            dot: "bg-blue-500 dark:bg-blue-300",
+            count: "border-blue-200/80 text-blue-700 dark:border-blue-300/14 dark:text-blue-200",
+          };
   return (
     <section>
       <div className="mb-3 flex items-center gap-2">
-        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-neutral-700 dark:bg-white/10 dark:text-white/80">
+        <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${toneClass.icon}`}>
           <Icon icon={icon} className="h-4 w-4" />
         </span>
-        <div className="text-[15px] font-semibold text-neutral-900 dark:text-white">
+        <span className={`h-2 w-2 rounded-full ${toneClass.dot}`} />
+        <div className={`text-[15px] font-semibold ${toneClass.title}`}>
           {title}
         </div>
-        <span className="inline-flex min-w-[1.4rem] items-center justify-center rounded-full border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 text-[11px] font-bold text-neutral-600 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/70">
+        <span className={`inline-flex min-w-[1.4rem] items-center justify-center rounded-full border bg-neutral-50 px-1.5 py-0.5 text-[11px] font-bold dark:bg-white/[0.05] ${toneClass.count}`}>
           {count}
         </span>
       </div>

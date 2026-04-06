@@ -309,13 +309,13 @@ export default function MapTermsTab() {
             {tPage("termsTab.leftDescription")}
           </p>
         </div>
-        <span className="inline-flex items-center rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-[12px] font-semibold text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70">
+        <span className="inline-flex items-center rounded-full border border-blue-200/80 bg-blue-50 px-2.5 py-1 text-[12px] font-semibold text-blue-700 dark:border-blue-300/18 dark:bg-blue-400/10 dark:text-blue-200">
           {termsDrafts.length}
         </span>
       </div>
 
-      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-        <div className="relative flex-1">
+      <div className="mt-4 flex flex-col gap-2">
+        <div className="relative">
           <Icon
             icon="mdi:magnify"
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 dark:text-white/40"
@@ -324,17 +324,25 @@ export default function MapTermsTab() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={tPage("termsTab.searchPlaceholder")}
-            className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 py-2.5 pl-9 pr-3 text-[14px] text-neutral-800 outline-none transition focus:border-neutral-300 focus:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/85 dark:focus:border-white/20 dark:focus:bg-white/[0.07]"
+            className="w-full rounded-2xl border border-slate-400 bg-neutral-50 py-2.5 pl-9 pr-3 text-[14px] text-neutral-800 outline-none transition focus:border-slate-500 focus:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/85 dark:focus:border-white/20 dark:focus:bg-white/[0.07]"
           />
         </div>
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value as "updatedDesc" | "titleAsc")}
-          className="rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-[14px] font-medium text-neutral-700 outline-none transition focus:border-neutral-300 focus:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/80 dark:focus:border-white/20 dark:focus:bg-white/[0.07]"
-        >
-          <option value="updatedDesc">{tPage("termsTab.sort.updatedDesc")}</option>
-          <option value="titleAsc">{tPage("termsTab.sort.titleAsc")}</option>
-        </select>
+        <div className="flex justify-end">
+          <div className="relative w-full sm:w-auto sm:min-w-[148px]">
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as "updatedDesc" | "titleAsc")}
+              className="w-full appearance-none rounded-2xl border border-neutral-200 bg-neutral-50 pl-2 pr-10 py-1 text-[14px] font-medium text-neutral-700 outline-none transition focus:border-neutral-300 focus:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/80 dark:focus:border-white/20 dark:focus:bg-white/[0.07]"
+            >
+              <option value="updatedDesc">{tPage("termsTab.sort.updatedDesc")}</option>
+              <option value="titleAsc">{tPage("termsTab.sort.titleAsc")}</option>
+            </select>
+            <Icon
+              icon="mdi:chevron-down"
+              className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500 dark:text-white/55"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="mt-4 flex flex-col gap-2">
@@ -352,8 +360,8 @@ export default function MapTermsTab() {
                 onClick={() => setSelectedMapId(draft.id)}
                 className={`rounded-2xl border px-3 py-3 text-left transition ${
                   isSelected
-                    ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black"
-                    : "border-neutral-200 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white/85 dark:hover:bg-white/[0.06]"
+                    ? "border-[color:var(--color-primary-600)] bg-[rgba(37,99,235,0.08)] text-neutral-900 shadow-[0_16px_32px_-28px_rgba(37,99,235,0.28)] dark:border-[color:var(--color-primary-400)] dark:bg-[rgba(96,165,250,0.12)] dark:text-white"
+                    : "border-neutral-200 bg-white text-neutral-800 hover:border-[rgba(59,130,246,0.28)] hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-white/85 dark:hover:border-[rgba(96,165,250,0.26)] dark:hover:bg-white/[0.06]"
                 }`}
               >
                 <div className="line-clamp-2 text-[14px] font-semibold leading-6">
@@ -362,7 +370,7 @@ export default function MapTermsTab() {
                 <div
                   className={`mt-1 text-[12px] ${
                     isSelected
-                      ? "text-white/70 dark:text-black/65"
+                      ? "text-neutral-600 dark:text-white/68"
                       : "text-neutral-500 dark:text-white/45"
                   }`}
                 >
@@ -371,11 +379,15 @@ export default function MapTermsTab() {
                 <div
                   className={`mt-2 flex flex-wrap items-center gap-1.5 text-[12px] ${
                     isSelected
-                      ? "text-white/80 dark:text-black/70"
+                      ? "text-neutral-700 dark:text-white/78"
                       : "text-neutral-500 dark:text-white/55"
                   }`}
                 >
-                  <span className="inline-flex items-center gap-1 rounded-full bg-black/5 px-2 py-1 dark:bg-white/10">
+                  <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 ${
+                    isSelected
+                      ? "bg-[rgba(37,99,235,0.1)] text-[color:var(--color-primary-700)] dark:bg-[rgba(96,165,250,0.14)] dark:text-sky-200"
+                      : "bg-neutral-100 text-[color:var(--color-primary-700)] dark:bg-white/10 dark:text-sky-200/80"
+                  }`}>
                     <Icon icon="mdi:book-education-outline" className="h-3.5 w-3.5" />
                     {tCommon("content.terms")} {draft.termsCount ?? 0}
                   </span>
@@ -429,7 +441,7 @@ export default function MapTermsTab() {
             </div>
             {!loading && !error ? (
               <div className="mt-3">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-[12px] text-neutral-600 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/70">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/80 bg-neutral-50 px-2.5 py-1 text-[12px] text-blue-700 dark:border-blue-300/14 dark:bg-white/[0.05] dark:text-blue-200">
                   <Icon icon="mdi:book-education-outline" className="h-3.5 w-3.5" />
                   <span className="font-medium">{tPage("termsTab.summary")}</span>
                   <span className="font-semibold">{terms.length}</span>
@@ -463,7 +475,7 @@ export default function MapTermsTab() {
               {terms.map((item, index) => (
                 <div
                   key={`${item.term}-${index}`}
-                  className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4 dark:border-white/10 dark:bg-white/[0.03]"
+                  className="rounded-2xl border border-blue-200/55 bg-neutral-50/80 p-4 dark:border-blue-300/12 dark:bg-white/[0.03]"
                 >
                   <div className="text-[14px] font-semibold leading-6 text-neutral-900 dark:text-white">
                     {item.term}
