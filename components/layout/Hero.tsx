@@ -185,10 +185,10 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
         animate="show"
       >
         {features.map((text, i) => (
-          <motion.div key={i} variants={itemV} className="flex min-w-0 items-start gap-3">
+          <motion.div key={i} variants={itemV} className="flex min-w-0 items-center gap-3">
             <span
               aria-hidden
-              className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-gradient-to-br from-blue-600 via-sky-500 to-cyan-400 shadow-[0_0_0_5px_rgba(59,130,246,0.10)] dark:from-sky-300 dark:via-blue-300 dark:to-cyan-200 dark:shadow-[0_0_0_5px_rgba(125,211,252,0.10)]"
+              className="h-2.5 w-2.5 shrink-0 self-center rounded-full bg-gradient-to-br from-blue-600 via-sky-500 to-cyan-400 shadow-[0_0_0_5px_rgba(59,130,246,0.10)] dark:from-sky-300 dark:via-blue-300 dark:to-cyan-200 dark:shadow-[0_0_0_5px_rgba(125,211,252,0.10)]"
             />
             <span className="min-w-0 text-[15px] font-normal leading-6 text-neutral-900 [overflow-wrap:anywhere] dark:text-neutral-100 md:text-[17px] md:leading-7">
               {text}
