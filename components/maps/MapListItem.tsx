@@ -182,7 +182,7 @@ export default function MapListItem({
       className={`relative flex h-full w-full max-w-full min-w-0 box-border flex-col rounded-2xl border px-3 py-2.5 transition md:px-4 md:py-3
         ${
           isActive
-            ? "border-blue-300 bg-blue-50/70 shadow-sm dark:border-blue-300/50 dark:bg-[rgba(37,99,235,0.18)] dark:shadow-[0_18px_36px_-24px_rgba(37,99,235,0.45)]"
+            ? "border-[color:var(--color-primary-600)] bg-[rgba(37,99,235,0.08)] shadow-[0_16px_32px_-28px_rgba(37,99,235,0.24)] dark:border-[color:var(--color-primary-400)] dark:bg-[rgba(96,165,250,0.12)] dark:shadow-[0_18px_36px_-24px_rgba(37,99,235,0.28)]"
             : "border-slate-400 bg-white hover:bg-neutral-50 dark:border-sky-200/14 dark:bg-[linear-gradient(180deg,rgba(13,20,32,0.98),rgba(8,14,24,1))] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_26px_52px_-34px_rgba(2,6,23,0.96)] dark:hover:border-sky-300/24 dark:hover:bg-[linear-gradient(180deg,rgba(18,28,43,0.99),rgba(11,18,29,1))] dark:hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_30px_58px_-34px_rgba(2,6,23,0.98)]"
         }`}
     >
@@ -341,11 +341,11 @@ export default function MapListItem({
             </div>
 
             <div className="mt-2 flex flex-wrap items-center gap-1.5 md:mt-2.5 md:gap-2">
-              <span className="inline-flex items-center gap-1 rounded-md border border-neutral-200/80 bg-neutral-50/90 px-1.5 py-0.5 text-[11px] font-medium text-neutral-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/68 md:px-2 md:py-1 md:text-[12px]">
+              <span className="inline-flex items-center gap-1 rounded-md border border-blue-200/70 bg-blue-50/80 px-1.5 py-0.5 text-[11px] font-medium text-blue-700 dark:border-blue-300/14 dark:bg-blue-400/10 dark:text-blue-200/88 md:px-2 md:py-1 md:text-[12px]">
                 <Icon icon="mdi:note-text-outline" className="h-3.5 w-3.5 shrink-0" />
                 <span>{t("notesCount", { count: notesCount })}</span>
               </span>
-              <span className="inline-flex items-center gap-1 rounded-md border border-neutral-200/80 bg-neutral-50/90 px-1.5 py-0.5 text-[11px] font-medium text-neutral-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/68 md:px-2 md:py-1 md:text-[12px]">
+              <span className="inline-flex items-center gap-1 rounded-md border border-sky-200/70 bg-sky-50/80 px-1.5 py-0.5 text-[11px] font-medium text-sky-700 dark:border-sky-300/14 dark:bg-sky-400/10 dark:text-sky-200/88 md:px-2 md:py-1 md:text-[12px]">
                 <Icon icon="mdi:book-outline" className="h-3.5 w-3.5 shrink-0" />
                 <span>{t("termsCount", { count: termsCount })}</span>
               </span>
@@ -367,7 +367,7 @@ export default function MapListItem({
             onMouseEnter={() => onPrefetchDetail?.(draft)}
             onFocus={() => onPrefetchDetail?.(draft)}
             disabled={isOpeningDetail}
-            className="inline-flex items-center gap-1 rounded-full border border-slate-400 bg-white px-2.5 py-1 text-[10px] font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm disabled:cursor-wait disabled:opacity-80 dark:border-white/16 dark:bg-white/[0.08] dark:text-white/82 dark:hover:border-sky-300/26 dark:hover:bg-white/12 md:px-3 md:py-1.5 md:text-[11px]"
+            className="inline-flex items-center gap-1 rounded-full border border-blue-200/80 bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-700 hover:border-blue-300 hover:bg-blue-100 hover:text-blue-800 hover:shadow-sm disabled:cursor-wait disabled:opacity-80 dark:border-blue-300/18 dark:bg-blue-400/10 dark:text-blue-200 dark:hover:border-sky-300/26 dark:hover:bg-blue-400/16 md:px-3 md:py-1.5 md:text-[11px]"
           >
             <Icon
               icon={isOpeningDetail ? "mdi:loading" : "mdi:open-in-new"}

@@ -91,7 +91,7 @@ export default function MapTableList({
               key={draft.id}
               className={`rounded-2xl border px-3 py-3 shadow-sm transition ${
                 isSelected
-                  ? "border-blue-300 bg-blue-50/70 dark:border-blue-300/40 dark:bg-blue-500/10"
+                  ? "border-[color:var(--color-primary-600)] bg-[rgba(37,99,235,0.08)] dark:border-[color:var(--color-primary-400)] dark:bg-[rgba(96,165,250,0.12)]"
                   : "border-neutral-200 bg-white dark:border-white/10 dark:bg-[#0f1724]"
               }`}
               onClick={() => {
@@ -193,7 +193,7 @@ export default function MapTableList({
         })}
       </div>
 
-      <div className="mt-4 hidden w-full min-w-0 overflow-x-auto rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#0f1724] dark:shadow-[0_20px_40px_-28px_rgba(2,6,23,0.82)] md:block">
+      <div className="mt-4 hidden w-full min-w-0 overflow-x-auto rounded-2xl border border-blue-200/50 bg-white shadow-sm dark:border-blue-300/10 dark:bg-[#0f1724] dark:shadow-[0_20px_40px_-28px_rgba(2,6,23,0.82)] md:block">
       <table className="min-w-[760px] w-full table-fixed text-left text-[13px] [table-layout:fixed]">
         <colgroup>
           {selectionMode && !tagOrganizeMode && <col style={{ width: "24px" }} />}
@@ -203,7 +203,7 @@ export default function MapTableList({
           <col style={{ width: "110px" }} />
         </colgroup>
         <thead className="text-[12px] font-semibold text-neutral-700 dark:text-white/82">
-          <tr className="border-b border-neutral-300 bg-neutral-50/80 dark:border-white/10 dark:bg-[#111b2b]">
+          <tr className="border-b border-neutral-300 bg-blue-50/50 dark:border-white/10 dark:bg-[#111b2b]">
             {selectionMode && !tagOrganizeMode && (
               <th className="w-6 min-w-[24px] max-w-[24px] px-[3px] py-1.5 border-r border-neutral-200 dark:border-white/8 text-center">
                 <span className="sr-only">{t("select")}</span>
@@ -235,7 +235,7 @@ export default function MapTableList({
                 key={draft.id}
                 className={`border-b border-neutral-200 hover:bg-neutral-50 dark:border-white/6 dark:hover:bg-white/[0.04] ${
                   isSelected
-                    ? "bg-blue-50/60 dark:bg-sky-400/10"
+                    ? "bg-[rgba(37,99,235,0.08)] dark:bg-[rgba(96,165,250,0.12)]"
                     : "dark:odd:bg-white/[0.02] dark:even:bg-transparent"
                 }`}
                 onClick={() => {
@@ -285,7 +285,7 @@ export default function MapTableList({
                           onMouseEnter={() => onPrefetchDetail?.(draft)}
                           onFocus={() => onPrefetchDetail?.(draft)}
                           disabled={isOpeningDetail}
-                          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm disabled:cursor-wait disabled:opacity-80 dark:border-white/12 dark:bg-white/[0.05] dark:text-white/84 dark:hover:border-white/18 dark:hover:bg-white/[0.09]"
+                          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-blue-200/80 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700 hover:border-blue-300 hover:bg-blue-100 hover:text-blue-800 hover:shadow-sm disabled:cursor-wait disabled:opacity-80 dark:border-blue-300/18 dark:bg-blue-400/10 dark:text-blue-200 dark:hover:border-sky-300/24 dark:hover:bg-blue-400/16"
                         >
                           <Icon
                             icon={isOpeningDetail ? "mdi:loading" : "mdi:open-in-new"}

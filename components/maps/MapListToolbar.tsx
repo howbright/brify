@@ -306,7 +306,7 @@ export default function MapListToolbar({
               id="maps-sort"
               value={sort}
               onChange={(event) => onSortChange(event.target.value as SortValue)}
-              className="min-w-0 flex-1 rounded-full border border-slate-600 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/[0.1] md:flex-none md:px-3 md:py-1 md:text-[10px]"
+              className="min-w-0 flex-1 rounded-full border border-slate-500 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/85 dark:hover:bg-white/[0.1] md:flex-none md:px-3 md:py-1 md:text-[10px]"
             >
               <option value="created_desc">{t("sort.createdDesc")}</option>
               <option value="created_asc">{t("sort.createdAsc")}</option>
@@ -317,7 +317,7 @@ export default function MapListToolbar({
               type="button"
               onClick={onRefresh}
               disabled={refreshing}
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neutral-700 bg-neutral-700 text-white shadow-sm hover:bg-neutral-600 disabled:cursor-not-allowed disabled:opacity-70 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/88 dark:hover:bg-white/[0.1] md:h-7 md:w-7"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-blue-200/80 bg-blue-50 text-blue-700 shadow-sm hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-70 dark:border-blue-300/18 dark:bg-blue-400/10 dark:text-blue-200 dark:hover:bg-blue-400/16 md:h-7 md:w-7"
               aria-label={refreshing ? t("refreshing") : t("refresh")}
             >
               <Icon
@@ -329,7 +329,7 @@ export default function MapListToolbar({
               ref={filterButtonRef}
               type="button"
               onClick={onToggleFilters}
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neutral-700 bg-neutral-700 text-white shadow-sm hover:bg-neutral-600 dark:border-white/12 dark:bg-white/[0.06] dark:text-white/88 dark:hover:bg-white/[0.1] md:h-7 md:w-7"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-blue-200/80 bg-blue-50 text-blue-700 shadow-sm hover:bg-blue-100 dark:border-blue-300/18 dark:bg-blue-400/10 dark:text-blue-200 dark:hover:bg-blue-400/16 md:h-7 md:w-7"
               aria-label={filtersOpen ? t("filterClose") : t("filterOpen")}
             >
               <Icon icon="mdi:filter-variant" className="h-4 w-4 md:h-3.5 md:w-3.5" />
