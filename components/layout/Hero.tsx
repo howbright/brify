@@ -64,14 +64,6 @@ function HeroDiagramImage({
       <div
         aria-hidden
         className="
-          pointer-events-none absolute inset-0 z-10
-          rounded-3xl ring-1 ring-inset ring-white/50
-          dark:ring-white/8
-        "
-      />
-      <div
-        aria-hidden
-        className="
           pointer-events-none absolute inset-x-10 top-0 z-10 h-20
           bg-[radial-gradient(50%_100%_at_50%_0%,rgba(255,255,255,0.70),transparent_78%)]
           opacity-80

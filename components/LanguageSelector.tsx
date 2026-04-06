@@ -16,7 +16,7 @@ const locales = [
   { code: "ko", label: "한국어" },
 ];
 
-export default function LanguageSelector() {
+export default function LanguageSelector({ compact = false }: { compact?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
   const currentLocale = useLocale();
@@ -56,9 +56,9 @@ export default function LanguageSelector() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-white/8 dark:hover:text-white">
+        <button className={`inline-flex items-center rounded-full px-2 py-1 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-white/8 dark:hover:text-white ${compact ? "gap-0.5" : "gap-1.5"}`}>
           <Icon icon="ic:baseline-language" className="text-base opacity-80" />
-          {current?.label || currentLocale}
+          {!compact ? current?.label || currentLocale : null}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

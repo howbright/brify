@@ -58,7 +58,7 @@ export default function ClientMobileUserMenu({
     "dark:via-white/20";
 
   return (
-    <div className="flex items-center gap-2 md:flex lg:hidden">
+    <div className="flex items-center gap-2">
       {/* 햄버거 버튼 */}
       <button
         className="inline-flex items-center rounded-lg border border-slate-400 p-2 text-sm text-gray-500 hover:bg-gray-100 dark:border-white/20 dark:text-gray-300 dark:hover:bg-gray-800"

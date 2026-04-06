@@ -18,6 +18,8 @@ type Props = {
 export default function ClientHeaderShell({ isAuthed, email }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const t = useTranslations("Header");
+  const desktopHeaderClass = "hidden min-[971px]:flex";
+  const mobileHeaderClass = "hidden max-[970px]:flex";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -61,7 +63,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
           </Link>
 
           {/* 가운데 내비 — md 이상에서만 표시 */}
-          <nav className="hidden md:flex items-center gap-2">
+          <nav className={`${desktopHeaderClass} items-center gap-2`}>
             <Link
               href="/demo"
               className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 border border-slate-400 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
@@ -89,7 +91,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
           </nav>
 
           {/* 우측 액션 – 데스크탑 (md 이상) */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className={`${desktopHeaderClass} items-center gap-2`}>
             {!isAuthed && (
               <div className="flex items-center gap-0.5 text-sm">
                 <LanguageSelector />
@@ -98,7 +100,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
             )}
 
             {!isAuthed ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <Link
                   href="/login?next=%2Fmaps"
                   className="
@@ -125,7 +127,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                 </Link>
               </div>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 {/* ✚ 새 구조맵 버튼 (데스크탑) */}
                 <Link
                   href="/video-to-map"
@@ -173,7 +175,25 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
           </div>
 
           {/* 모바일 – 새 구조맵 버튼 + 모바일 메뉴 (md 미만) */}
-          <div className="md:hidden flex items-center gap-2">
+          <div className={`${mobileHeaderClass} items-center gap-2`}>
+            {!isAuthed && <LanguageSelector compact />}
+            {!isAuthed && (
+              <>
+                <Link
+                  href="/signup?next=%2Fvideo-to-map"
+                  className="
+                    inline-flex items-center rounded-full
+                    bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white
+                    shadow-[0_8px_22px_rgba(37,99,235,0.32)]
+                    transition-colors hover:bg-blue-700
+                    dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+                  "
+                >
+                  {t("auth.signup")}
+                </Link>
+              </>
+            )}
+
             {isAuthed && (
               <Link
                 href="/video-to-map"

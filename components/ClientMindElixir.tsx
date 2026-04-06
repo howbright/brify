@@ -666,6 +666,27 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     };
   }, []);
 
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    const host = elRef.current;
+    if (!wrapper || !host) return;
+
+    const handleWheelCapture = (event: WheelEvent) => {
+      if (!host.contains(event.target as Node | null)) return;
+      if (Math.abs(event.deltaX) < 1 && !event.shiftKey) return;
+      event.preventDefault();
+    };
+
+    wrapper.addEventListener("wheel", handleWheelCapture, {
+      passive: false,
+      capture: true,
+    });
+
+    return () => {
+      wrapper.removeEventListener("wheel", handleWheelCapture, true);
+    };
+  }, []);
+
   const clearLongPressState = () => {
     if (longPressTimerRef.current) {
       window.clearTimeout(longPressTimerRef.current);
