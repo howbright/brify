@@ -1462,6 +1462,7 @@ export default function MapDetailPage() {
         {draft && (
           <LeftPanel
             open={leftOpen}
+            onOpen={() => setLeftOpen(true)}
             onClose={() => setLeftOpen(false)}
             onEdit={() => setShowMetadataDialog(true)}
             onEditTags={() => setTagEditOpen(true)}

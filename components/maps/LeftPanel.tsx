@@ -36,6 +36,7 @@ type HighlightItem = {
 
 export default function LeftPanel({
   open,
+  onOpen,
   onClose,
   onEdit,
   onEditTags,
@@ -50,6 +51,7 @@ export default function LeftPanel({
   termsTabId,
 }: {
   open: boolean;
+  onOpen?: () => void;
   onClose: () => void;
   onEdit?: () => void;
   onEditTags?: () => void;
@@ -668,17 +670,18 @@ export default function LeftPanel({
   }, []);
 
   return (
-    <aside
-      ref={panelRef}
-      className={`
-        absolute top-0 left-0 z-[30]
-        h-full w-[94vw] max-w-[550px]
-        transition-transform duration-200 ease-out
-        ${open ? "translate-x-0" : "-translate-x-full"}
-      `}
-      aria-hidden={!open}
-    >
-      <div
+    <>
+      <aside
+        ref={panelRef}
+        className={`
+          absolute top-0 left-0 z-[30]
+          h-full w-[94vw] max-w-[550px]
+          transition-transform duration-200 ease-out
+          ${open ? "translate-x-0" : "-translate-x-full"}
+        `}
+        aria-hidden={!open}
+      >
+        <div
         className="
           relative h-full flex flex-col
           border-r border-slate-400 bg-white
@@ -1024,8 +1027,31 @@ export default function LeftPanel({
           )}
         </div>
 
-      </div>
-    </aside>
+        </div>
+      </aside>
+      {!open ? (
+        <button
+          type="button"
+          onClick={() => {
+            setActiveTab("info");
+            onOpen?.();
+          }}
+          className="
+            absolute left-0 top-3 z-[31]
+            inline-flex items-center justify-center
+            h-8 w-6
+            rounded-r-full
+            bg-blue-600 text-white
+            shadow-sm hover:bg-blue-700
+            dark:bg-blue-500/70 dark:text-white dark:hover:bg-blue-500
+          "
+          aria-label={panelTitle}
+          title={panelTitle}
+        >
+          <Icon icon="mdi:chevron-right" className="h-5 w-5" />
+        </button>
+      ) : null}
+    </>
   );
 }
 

@@ -710,6 +710,7 @@ export default function FullscreenDialog({
           {/* ✅ 좌측: 메타데이터 패널 */}
           <LeftPanel
             open={leftOpen}
+            onOpen={() => setLeftOpen(true)}
             onClose={() => setLeftOpen(false)}
             map={mapDraft}
             mapId={mapDraft.id}
