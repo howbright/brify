@@ -480,6 +480,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     id: null,
     at: 0,
   });
+  const debugRunIdRef = useRef(`prod-mobile-${Date.now()}`);
   const activeTouchPointsRef = useRef<Map<number, { x: number; y: number }>>(
     new Map()
   );
@@ -1119,17 +1120,76 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
   useEffect(() => {
     if (!showMobileControls || editMode !== "edit") {
+      // #region agent log
+      fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          runId: debugRunIdRef.current,
+          hypothesisId: "H2",
+          location: "components/ClientMindElixir.tsx:1122",
+          message: "mobileActionNodeId cleared by showMobileControls/editMode gate",
+          data: {
+            showMobileControls,
+            editMode,
+            mobileActionNodeId,
+            selectedNodeId,
+            isTouchDevice,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       setMobileActionNodeId(null);
     }
   }, [showMobileControls, editMode]);
 
   useEffect(() => {
     if (!selectedNodeId) {
+      // #region agent log
+      fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          runId: debugRunIdRef.current,
+          hypothesisId: "H1",
+          location: "components/ClientMindElixir.tsx:1128",
+          message: "mobileActionNodeId cleared by selectedNodeId null",
+          data: {
+            selectedNodeId,
+            mobileActionNodeId,
+            isTouchDevice,
+            showMobileControls,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       setMobileActionNodeId(null);
     }
   }, [selectedNodeId]);
 
   const handleToggleMobileActionNode = useCallback(() => {
+    // #region agent log
+    fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runId: debugRunIdRef.current,
+        hypothesisId: "H3",
+        location: "components/ClientMindElixir.tsx:1167",
+        message: "toggle mobile action pressed",
+        data: {
+          selectedNodeId,
+          mobileActionNodeId,
+          showMobileControls,
+          editMode,
+          isTouchDevice,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
     setMobileActionNodeId((prev) =>
       normalizeNodeId(prev ?? "") === normalizeNodeId(selectedNodeId ?? "")
         ? null
