@@ -479,6 +479,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const longPressTimerRef = useRef<number | null>(null);
   const longPressTriggeredRef = useRef(false);
   const touchDragMovedAtRef = useRef(0);
+  const lastStableSelectionRef = useRef<{ id: string | null; at: number }>({
+    id: null,
+    at: 0,
+  });
   const activeTouchPointsRef = useRef<Map<number, { x: number; y: number }>>(
     new Map()
   );
@@ -670,6 +674,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   }, [editMode, onViewModeEditAttempt]);
 
   useEffect(() => {
+    if (isTouchDevice) return;
     if (typeof document === "undefined") return;
     const html = document.documentElement;
     const body = document.body;
@@ -683,7 +688,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       html.style.overscrollBehaviorX = prevHtmlOverscrollX;
       body.style.overscrollBehaviorX = prevBodyOverscrollX;
     };
-  }, []);
+  }, [isTouchDevice]);
 
   useEffect(() => {
     const wrapper = wrapperRef.current;
@@ -1139,6 +1144,47 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   }, [selectedNodeId]);
 
   useEffect(() => {
+    if (!selectedNodeId) return;
+    lastStableSelectionRef.current = {
+      id: selectedNodeId,
+      at: Date.now(),
+    };
+  }, [selectedNodeId]);
+
+  useEffect(() => {
+    if (!isTouchDevice) return;
+    if (isFocusMode) return;
+    if (selectedNodeId) return;
+
+    const last = lastStableSelectionRef.current;
+    if (!last.id) return;
+
+    const elapsedSinceStable = Date.now() - last.at;
+    if (elapsedSinceStable > 650) return;
+
+    const elapsedSinceTouchMove = Date.now() - touchDragMovedAtRef.current;
+    if (elapsedSinceTouchMove < 220) return;
+
+    const restoreId = last.id;
+    logMindElixirDebug("selection_restored_after_touch_flap", {
+      restoreId: normalizeNodeId(restoreId),
+      elapsedSinceStable,
+      elapsedSinceTouchMove,
+    });
+    selectedNodeIdRef.current = restoreId;
+    setSelectedNodeId(restoreId);
+    requestAnimationFrame(() => updateSelectedRect(restoreId));
+    window.setTimeout(() => updateSelectedRect(restoreId), 80);
+  }, [
+    isFocusMode,
+    isTouchDevice,
+    selectedNodeId,
+    selectedNodeIdRef,
+    setSelectedNodeId,
+    updateSelectedRect,
+  ]);
+
+  useEffect(() => {
     if (!isMindElixirDebugEnabled()) return;
     logMindElixirDebug("mindelixir_debug_enabled", {
       isTouchDevice,
@@ -1483,13 +1529,17 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     panModeClass: PAN_MODE_CLASS,
     viewModeClass: VIEW_MODE_CLASS,
   });
+  const horizontalOverscrollClass = isTouchDevice ? "" : "overscroll-x-none";
 
   return (
-    <div ref={wrapperRef} className={`${wrapperClassName} overscroll-x-none`}>
+    <div
+      ref={wrapperRef}
+      className={`${wrapperClassName} ${horizontalOverscrollClass}`.trim()}
+    >
       <style jsx global>{globalStyles}</style>
       <div
         ref={elRef}
-        className="relative h-full w-full overscroll-x-none"
+        className={`relative h-full w-full ${horizontalOverscrollClass}`.trim()}
         style={{ touchAction: effectivePanMode ? "none" : undefined }}
       />
 
