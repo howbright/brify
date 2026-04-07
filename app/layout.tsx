@@ -1,7 +1,8 @@
 // app/layout.tsx
 import type { ReactNode } from "react";
 import { cookies } from "next/headers";
-import { Geist, Geist_Mono, Inter, Noto_Sans_KR } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,17 +14,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+const pretendard = localFont({
+  src: "../node_modules/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
   display: "swap",
-});
-
-const notoSansKr = Noto_Sans_KR({
-  variable: "--font-noto-sans-kr",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-pretendard",
+  weight: "45 920",
 });
 
 export default async function RootLayout({
@@ -40,7 +35,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${notoSansKr.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${pretendard.variable} antialiased`}
       >
         {children}
       </body>

@@ -19,6 +19,7 @@ import {
 import MindElixirMobileLayer from "@/components/MindElixirMobileLayer";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 import MindElixirMiniMap from "@/components/MindElixirMiniMap";
+import { logMindElixirDebug } from "@/components/mindElixirDebugLogger";
 import { useMindElixirContextMenu } from "@/components/useMindElixirContextMenu";
 import { useMindElixirCore } from "@/components/useMindElixirCore";
 import { useMindElixirFocusSearch } from "@/components/useMindElixirFocusSearch";
@@ -496,6 +497,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     startY: number;
     el: HTMLElement | null;
   }>({ nodeId: null, startX: 0, startY: 0, el: null });
+  const selectedMissingSinceRef = useRef<number | null>(null);
+  const selectedMissingLoggedAtRef = useRef<number>(0);
   const highlightVariant = "gold";
   const hoverActionWrapClass = isTouchDevice
     ? "flex items-center gap-1.5 rounded-full bg-white/94 px-1.5 py-1 shadow-md ring-1 ring-black/5 dark:bg-[#0b1220]/94 dark:ring-white/10"
@@ -1110,6 +1113,45 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     }
   }, [selectedNodeId]);
 
+  useEffect(() => {
+    if (!isTouchDevice) return;
+    if (isFocusMode || !selectedNodeId) {
+      selectedMissingSinceRef.current = null;
+      return;
+    }
+    if (selectedRect) {
+      selectedMissingSinceRef.current = null;
+      return;
+    }
+    const now = Date.now();
+    if (selectedMissingSinceRef.current === null) {
+      selectedMissingSinceRef.current = now;
+      return;
+    }
+    const missingForMs = now - selectedMissingSinceRef.current;
+    const sinceLastLogMs = now - selectedMissingLoggedAtRef.current;
+    if (missingForMs >= 700 && sinceLastLogMs >= 3000) {
+      selectedMissingLoggedAtRef.current = now;
+      logMindElixirDebug("mobile_selected_without_rect", {
+        selectedNodeId: normalizeNodeId(selectedNodeId),
+        mobileActionNodeId: mobileActionNodeId
+          ? normalizeNodeId(mobileActionNodeId)
+          : null,
+        showMobileControls,
+        editMode,
+        missingForMs,
+      });
+    }
+  }, [
+    editMode,
+    isFocusMode,
+    isTouchDevice,
+    mobileActionNodeId,
+    selectedNodeId,
+    selectedRect,
+    showMobileControls,
+  ]);
+
   function applyEditMode(mind: any, enabled: boolean) {
     if (!mind) return;
 
@@ -1449,7 +1491,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         openNodeContextMenu={openNodeContextMenu}
         onToggleMobileActionNode={() =>
           setMobileActionNodeId((prev) =>
-            prev === selectedNodeId ? null : selectedNodeId
+            normalizeNodeId(prev ?? "") === normalizeNodeId(selectedNodeId ?? "")
+              ? null
+              : selectedNodeId
           )
         }
         focusModeLabel={focusModeLabel}

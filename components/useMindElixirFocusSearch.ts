@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { logMindElixirDebug } from "@/components/mindElixirDebugLogger";
 
 type AnyNode = {
   id: string;
@@ -12,6 +13,15 @@ type AnyNode = {
   note?: string | null;
   children?: AnyNode[];
 };
+
+function normalizeNodeId(id: string) {
+  return id.startsWith("me") ? id.slice(2) : id;
+}
+
+function nodeIdCandidates(id: string) {
+  const normalized = normalizeNodeId(id);
+  return [normalized, `me${normalized}`];
+}
 
 type UseMindElixirFocusSearchParams = {
   wrapperRef: React.RefObject<HTMLDivElement | null>;
@@ -73,10 +83,30 @@ export function useMindElixirFocusSearch({
   });
   const searchHighlightIdsRef = useRef<Set<string>>(new Set());
   const searchActiveIdRef = useRef<string | null>(null);
+  const rectRetryRafRef = useRef<number | null>(null);
+  const rectRetryTimerRef = useRef<number | null>(null);
+  const rectRetryNodeIdRef = useRef<string | null>(null);
+  const missingRectCountRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
     selectedNodeIdRef.current = selectedNodeId;
   }, [selectedNodeId]);
+
+  useEffect(
+    () => () => {
+      if (rectRetryRafRef.current !== null) {
+        window.cancelAnimationFrame(rectRetryRafRef.current);
+        rectRetryRafRef.current = null;
+      }
+      if (rectRetryTimerRef.current !== null) {
+        window.clearTimeout(rectRetryTimerRef.current);
+        rectRetryTimerRef.current = null;
+      }
+      rectRetryNodeIdRef.current = null;
+      missingRectCountRef.current = {};
+    },
+    []
+  );
 
   const getNodeElById = useCallback(
     (id: string) => {
@@ -191,18 +221,99 @@ export function useMindElixirFocusSearch({
       const wrapper = wrapperRef.current;
       const host = elRef.current;
       if (!wrapper || !host || !nodeId) {
+        if (rectRetryRafRef.current !== null) {
+          window.cancelAnimationFrame(rectRetryRafRef.current);
+          rectRetryRafRef.current = null;
+        }
+        if (rectRetryTimerRef.current !== null) {
+          window.clearTimeout(rectRetryTimerRef.current);
+          rectRetryTimerRef.current = null;
+        }
+        rectRetryNodeIdRef.current = null;
+        missingRectCountRef.current = {};
         setSelectedRect(null);
         setSelectedNoteText(null);
         return;
       }
-      const nodeEl =
-        host.querySelector<HTMLElement>(`me-tpc[data-nodeid="${nodeId}"]`) ||
-        host.querySelector<HTMLElement>(`[data-nodeid="${nodeId}"]`);
+      const normalizedNodeId = normalizeNodeId(nodeId);
+      const candidates = nodeIdCandidates(normalizedNodeId);
+      let nodeEl: HTMLElement | null = null;
+      for (const candidate of candidates) {
+        const escaped = escapeAttr(candidate);
+        nodeEl =
+          host.querySelector<HTMLElement>(`me-tpc[data-nodeid="${escaped}"]`) ||
+          host.querySelector<HTMLElement>(`[data-nodeid="${escaped}"]`);
+        if (nodeEl) break;
+      }
       if (!nodeEl) {
+        const selectedNormalized = selectedNodeIdRef.current
+          ? normalizeNodeId(selectedNodeIdRef.current)
+          : null;
+        const isStillSelected = selectedNormalized === normalizedNodeId;
+        const missCount = (missingRectCountRef.current[normalizedNodeId] ?? 0) + 1;
+        missingRectCountRef.current[normalizedNodeId] = missCount;
+        if (missCount === 1 || missCount === 4) {
+          logMindElixirDebug("selected_rect_missing_node", {
+            nodeId: normalizedNodeId,
+            missCount,
+            selectedNodeId: selectedNodeIdRef.current,
+            isStillSelected,
+          });
+        }
+        if (isStillSelected && missCount <= 4) {
+          if (rectRetryNodeIdRef.current !== normalizedNodeId) {
+            if (rectRetryRafRef.current !== null) {
+              window.cancelAnimationFrame(rectRetryRafRef.current);
+              rectRetryRafRef.current = null;
+            }
+            if (rectRetryTimerRef.current !== null) {
+              window.clearTimeout(rectRetryTimerRef.current);
+              rectRetryTimerRef.current = null;
+            }
+            rectRetryNodeIdRef.current = normalizedNodeId;
+            rectRetryRafRef.current = window.requestAnimationFrame(() => {
+              rectRetryRafRef.current = null;
+              rectRetryNodeIdRef.current = null;
+              updateSelectedRect(normalizedNodeId);
+            });
+            rectRetryTimerRef.current = window.setTimeout(() => {
+              rectRetryTimerRef.current = null;
+              rectRetryNodeIdRef.current = null;
+              updateSelectedRect(normalizedNodeId);
+            }, 96);
+          }
+          return;
+        }
+        delete missingRectCountRef.current[normalizedNodeId];
+        if (!isStillSelected) return;
+        logMindElixirDebug("selected_rect_cleared_after_retries", {
+          nodeId: normalizedNodeId,
+          missCount,
+          selectedNodeId: selectedNodeIdRef.current,
+        });
         setSelectedRect(null);
         setSelectedNoteText(null);
         selectedNodeElRef.current = null;
         return;
+      }
+      const recoveredMissCount = missingRectCountRef.current[normalizedNodeId] ?? 0;
+      if (recoveredMissCount > 0) {
+        logMindElixirDebug("selected_rect_recovered", {
+          nodeId: normalizedNodeId,
+          recoveredFromMissCount: recoveredMissCount,
+        });
+      }
+      delete missingRectCountRef.current[normalizedNodeId];
+      if (rectRetryNodeIdRef.current === normalizedNodeId) {
+        if (rectRetryRafRef.current !== null) {
+          window.cancelAnimationFrame(rectRetryRafRef.current);
+          rectRetryRafRef.current = null;
+        }
+        if (rectRetryTimerRef.current !== null) {
+          window.clearTimeout(rectRetryTimerRef.current);
+          rectRetryTimerRef.current = null;
+        }
+        rectRetryNodeIdRef.current = null;
       }
       const rect = nodeEl.getBoundingClientRect();
       const hostRect = wrapper.getBoundingClientRect();
@@ -219,13 +330,14 @@ export function useMindElixirFocusSearch({
       setSelectedNoteText(note && note.trim().length > 0 ? note : null);
       selectedNodeElRef.current = nodeEl;
     },
-    [elRef, wrapperRef]
+    [elRef, escapeAttr, wrapperRef]
   );
 
   const applySelectionFromElement = useCallback(
     (nodeEl: HTMLElement, nodeId: string) => {
       const wrapper = wrapperRef.current;
       if (!wrapper) return;
+      const normalizedNodeId = normalizeNodeId(nodeId);
       const rect = nodeEl.getBoundingClientRect();
       const hostRect = wrapper.getBoundingClientRect();
       const note =
@@ -244,10 +356,10 @@ export function useMindElixirFocusSearch({
         }
       }
 
-      lastClickedNodeRef.current = { id: nodeId, at: Date.now() };
-      selectedNodeIdRef.current = nodeId;
+      lastClickedNodeRef.current = { id: normalizedNodeId, at: Date.now() };
+      selectedNodeIdRef.current = normalizedNodeId;
       selectedNodeElRef.current = nodeEl;
-      setSelectedNodeId(nodeId);
+      setSelectedNodeId(normalizedNodeId);
       setSelectedRect(
         new DOMRect(
           rect.left - hostRect.left,
@@ -258,8 +370,8 @@ export function useMindElixirFocusSearch({
       );
       setSelectedNoteText(note && note.trim().length > 0 ? note : null);
       setMobileActionNodeId(null);
-      requestAnimationFrame(() => updateSelectedRect(nodeId));
-      window.setTimeout(() => updateSelectedRect(nodeId), 80);
+      requestAnimationFrame(() => updateSelectedRect(normalizedNodeId));
+      window.setTimeout(() => updateSelectedRect(normalizedNodeId), 80);
     },
     [
       findNodeById,
@@ -325,9 +437,11 @@ export function useMindElixirFocusSearch({
     (id: string) => {
       const el = getNodeElById(id);
       if (!el) return;
-      setSelectedNodeId(id);
+      const normalizedNodeId = normalizeNodeId(id);
+      selectedNodeIdRef.current = normalizedNodeId;
+      setSelectedNodeId(normalizedNodeId);
       selectedNodeElRef.current = el;
-      requestAnimationFrame(() => updateSelectedRect(id));
+      requestAnimationFrame(() => updateSelectedRect(normalizedNodeId));
       const host = elRef.current;
       const mind = mindRef.current;
       if (host && mind?.move) {
@@ -367,16 +481,15 @@ export function useMindElixirFocusSearch({
   const handleHighlightClick = useCallback(
     (targetNodeId?: string | null) => {
       const mind = mindRef.current;
-      const selectedId = targetNodeId ?? selectedNodeIdRef.current;
+      const selectedId = targetNodeId
+        ? normalizeNodeId(targetNodeId)
+        : selectedNodeIdRef.current
+          ? normalizeNodeId(selectedNodeIdRef.current)
+          : null;
       if (!mind || !selectedId) return;
       const exactSelectedEl =
         selectedNodeElRef.current ??
-        elRef.current?.querySelector<HTMLElement>(
-          `me-tpc[data-nodeid="${escapeAttr(selectedId)}"]`
-        ) ??
-        elRef.current?.querySelector<HTMLElement>(
-          `[data-nodeid="${escapeAttr(selectedId)}"]`
-        ) ??
+        getNodeElById(selectedId) ??
         null;
       const liveNode =
         (exactSelectedEl as (HTMLElement & { nodeObj?: AnyNode }) | null)
@@ -433,11 +546,10 @@ export function useMindElixirFocusSearch({
     },
     [
       cloneMindData,
-      elRef,
-      escapeAttr,
       expandPathToId,
       findNodeById,
       findNodePathByRef,
+      getNodeElById,
       getNodeByPath,
       highlightVariant,
       latestMindDataRef,

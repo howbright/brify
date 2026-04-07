@@ -34,6 +34,10 @@ type ContextMenuText = {
   copyFail: string;
 };
 
+function normalizeNodeId(id: string) {
+  return id.startsWith("me") ? id.slice(2) : id;
+}
+
 type UseMindElixirCoreParams = {
   mounted: boolean;
   elRef: React.RefObject<HTMLDivElement | null>;
@@ -463,20 +467,25 @@ export function useMindElixirCore({
         const last = Array.isArray(nodes) ? nodes[nodes.length - 1] : null;
         const id = last?.id;
         if (!id) return;
-        selectedNodeIdRef.current = id;
-        setSelectedNodeId(id);
+        const normalizedId = normalizeNodeId(String(id));
+        selectedNodeIdRef.current = normalizedId;
+        setSelectedNodeId(normalizedId);
         try {
           selectedNodeElRef.current =
-            mind.findEle?.(id) ||
+            mind.findEle?.(normalizedId) ||
+            mind.findEle?.(`me${normalizedId}`) ||
             elRef.current?.querySelector<HTMLElement>(
-              `me-tpc[data-nodeid="${id}"]`
+              `me-tpc[data-nodeid="${normalizedId}"]`
+            ) ||
+            elRef.current?.querySelector<HTMLElement>(
+              `me-tpc[data-nodeid="me${normalizedId}"]`
             ) ||
             elRef.current?.querySelector<HTMLElement>(`[data-nodeid="${id}"]`) ||
             null;
         } catch {
           selectedNodeElRef.current = null;
         }
-        requestAnimationFrame(() => updateSelectedRect(id));
+        requestAnimationFrame(() => updateSelectedRect(normalizedId));
       });
 
       mind.bus?.addListener?.("unselectNodes", () => {
@@ -540,8 +549,10 @@ export function useMindElixirCore({
           }
           const id = op?.data?.id ?? op?.obj?.id ?? op?.id;
           if (id) {
-            setSelectedNodeId(id);
-            updateSelectedRect(id);
+            const normalizedId = normalizeNodeId(String(id));
+            selectedNodeIdRef.current = normalizedId;
+            setSelectedNodeId(normalizedId);
+            updateSelectedRect(normalizedId);
           }
         }
 

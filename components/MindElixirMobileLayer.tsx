@@ -3,6 +3,11 @@
 import { Icon } from "@iconify/react";
 import MindElixirMobileControls from "@/components/MindElixirMobileControls";
 
+function normalizeNodeId(id: string | null) {
+  if (!id) return null;
+  return id.startsWith("me") ? id.slice(2) : id;
+}
+
 type MindElixirMobileLayerProps = {
   showMobileControls: boolean;
   editMode: "view" | "edit";
@@ -74,6 +79,9 @@ export default function MindElixirMobileLayer({
   onExitFocus,
   selectedNoteText,
 }: MindElixirMobileLayerProps) {
+  const selectedNormalized = normalizeNodeId(selectedNodeId);
+  const mobileActionNormalized = normalizeNodeId(mobileActionNodeId);
+
   return (
     <>
       <MindElixirMobileControls
@@ -81,7 +89,7 @@ export default function MindElixirMobileLayer({
           showMobileControls &&
           editMode === "edit" &&
           !!selectedNodeId &&
-          mobileActionNodeId === selectedNodeId
+          mobileActionNormalized === selectedNormalized
         }
         title={mobileEditMenuTitle}
         labels={mobileEditLabels}

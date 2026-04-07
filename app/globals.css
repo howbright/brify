@@ -8,8 +8,8 @@
 
 @theme {
   /* font */
-  --font-global: var(--font-inter), var(--font-noto-sans-kr), "Segoe UI",
-    "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR",
+  --font-global: var(--font-pretendard), "Pretendard Variable", "Pretendard",
+    "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR",
     "Noto Sans", "Helvetica Neue", Arial, sans-serif;
 
   /* base */
