@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {
+  useCallback,
   forwardRef,
   useEffect,
   useImperativeHandle,
@@ -1128,6 +1129,20 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     }
   }, [selectedNodeId]);
 
+  const handleToggleMobileActionNode = useCallback(() => {
+    setMobileActionNodeId((prev) =>
+      normalizeNodeId(prev ?? "") === normalizeNodeId(selectedNodeId ?? "")
+        ? null
+        : selectedNodeId
+    );
+  }, [
+    editMode,
+    isTouchDevice,
+    mobileActionNodeId,
+    selectedNodeId,
+    showMobileControls,
+  ]);
+
   useEffect(() => {
     if (!selectedNodeId) return;
     lastStableSelectionRef.current = {
@@ -1506,13 +1521,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         isTouchDevice={isTouchDevice}
         moreActionsLabel={moreActionsLabel}
         openNodeContextMenu={openNodeContextMenu}
-        onToggleMobileActionNode={() =>
-          setMobileActionNodeId((prev) =>
-            normalizeNodeId(prev ?? "") === normalizeNodeId(selectedNodeId ?? "")
-              ? null
-              : selectedNodeId
-          )
-        }
+        onToggleMobileActionNode={handleToggleMobileActionNode}
         focusModeLabel={focusModeLabel}
         focusModeExitLabel={focusModeExitLabel}
         onExitFocus={handleExitFocus}
