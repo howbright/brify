@@ -94,7 +94,7 @@ function HeroDiagramImage({
         ) : (
           <div className="relative h-full w-full">
             <Image
-              src="/images/hero/hero3.png"
+              src="/images/hero/hero4.png"
               alt={alt}
               fill
               priority
