@@ -88,7 +88,8 @@ export default function MindElixirMobileLayer({
     editMode === "edit" &&
     !!selectedNodeId &&
     mobileActionNormalized === selectedNormalized;
-  const showHoverActions = !isFocusMode && Boolean(selectedNodeId && selectedRect);
+  const hoverRect = !isFocusMode && selectedNodeId && selectedRect ? selectedRect : null;
+  const showHoverActions = Boolean(hoverRect);
 
   useEffect(() => {
     if (!isTouchDevice) return;
@@ -130,15 +131,15 @@ export default function MindElixirMobileLayer({
         onRemove={onRemove}
       />
 
-      {showHoverActions && (
+      {hoverRect && (
         <>
           <div
             className="pointer-events-none absolute z-[19] rounded-md ring-2 ring-blue-500/80 shadow-[0_0_0_3px_rgba(255,255,255,0.92),0_10px_24px_rgba(37,99,235,0.22)] dark:shadow-[0_0_0_3px_rgba(11,18,32,0.9),0_10px_24px_rgba(59,130,246,0.28)]"
             style={{
-              left: selectedRect.left - 4,
-              top: selectedRect.top - 4,
-              width: selectedRect.width + 8,
-              height: selectedRect.height + 8,
+              left: hoverRect.left - 4,
+              top: hoverRect.top - 4,
+              width: hoverRect.width + 8,
+              height: hoverRect.height + 8,
             }}
           />
           <div
@@ -154,8 +155,8 @@ export default function MindElixirMobileLayer({
               e.stopPropagation();
             }}
             style={{
-              left: selectedRect.left + selectedRect.width - 8,
-              top: selectedRect.top + selectedRect.height + 8,
+              left: hoverRect.left + hoverRect.width - 8,
+              top: hoverRect.top + hoverRect.height + 8,
               transform: "translate(-100%, 0)",
             }}
           >
