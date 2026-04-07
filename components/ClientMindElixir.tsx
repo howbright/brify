@@ -186,6 +186,8 @@ function escapeAttr(value: string) {
   return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
+const MOBILE_DEBUG_BUILD_TAG = "2026-04-07-rename-v2";
+
 function collectMatches(
   node: AnyNode | null | undefined,
   query: string,
@@ -467,6 +469,27 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     const event = new Event("mind-elixir-refresh-decorations");
     host.dispatchEvent(event);
   }, [showTimestamps]);
+
+  useEffect(() => {
+    // #region agent log
+    fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runId: debugRunIdRef.current,
+        hypothesisId: "H9",
+        location: "components/ClientMindElixir.tsx:mount",
+        message: "client bundle build tag",
+        data: {
+          buildTag: MOBILE_DEBUG_BUILD_TAG,
+          path:
+            typeof window !== "undefined" ? window.location.pathname : "unknown",
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+  }, []);
 
   const [ready, setReady] = useState(false);
   const [noteEditorOpen, setNoteEditorOpen] = useState(false);
