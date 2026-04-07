@@ -1200,7 +1200,67 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         return;
       }
       if (action === "rename") {
+        const currentNodeEl = currentNode as
+          | (HTMLElement & { nodeObj?: AnyNode })
+          | null;
+        const renameTargetId =
+          currentNodeEl?.nodeObj?.id ??
+          currentNodeEl?.getAttribute?.("data-nodeid") ??
+          actionTargetNodeId ??
+          null;
+        if (currentNodeEl && renameTargetId) {
+          applySelectionFromElement(currentNodeEl, renameTargetId);
+        } else if (renameTargetId) {
+          const normalizedRenameId = normalizeNodeId(renameTargetId);
+          selectedNodeIdRef.current = normalizedRenameId;
+          setSelectedNodeId(normalizedRenameId);
+          requestAnimationFrame(() => updateSelectedRect(normalizedRenameId));
+        }
+        // #region agent log
+        fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            runId: debugRunIdRef.current,
+            hypothesisId: "H8",
+            location: "components/ClientMindElixir.tsx:1206",
+            message: "rename preparing selection before beginEdit",
+            data: {
+              actionTargetNodeId,
+              renameTargetId,
+              selectedNodeIdBefore: selectedNodeIdRef.current,
+              hasCurrentNodeEl: Boolean(currentNodeEl),
+            },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
         await mind.beginEdit(currentNode);
+        requestAnimationFrame(() => {
+          const host = elRef.current;
+          const hasEditor = Boolean(
+            host?.querySelector("input,textarea,[contenteditable='true']")
+          );
+          // #region agent log
+          fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              runId: debugRunIdRef.current,
+              hypothesisId: "H8",
+              location: "components/ClientMindElixir.tsx:1236",
+              message: "rename beginEdit post-check",
+              data: {
+                actionTargetNodeId,
+                renameTargetId,
+                selectedNodeIdAfter: selectedNodeIdRef.current,
+                hasEditor,
+              },
+              timestamp: Date.now(),
+            }),
+          }).catch(() => {});
+          // #endregion
+        });
         // #region agent log
         fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
           method: "POST",
