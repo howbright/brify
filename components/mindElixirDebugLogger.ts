@@ -68,11 +68,6 @@ export function logMindElixirDebug(event: string, payload: DebugPayload = {}) {
 
   const url = "/api/debug/mind-elixir";
   const raw = JSON.stringify(body);
-  if (typeof navigator.sendBeacon === "function") {
-    const blob = new Blob([raw], { type: "application/json" });
-    navigator.sendBeacon(url, blob);
-    return;
-  }
   void fetch(url, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -80,6 +75,9 @@ export function logMindElixirDebug(event: string, payload: DebugPayload = {}) {
     keepalive: true,
     cache: "no-store",
   }).catch(() => {
-    // ignore
+    if (typeof navigator.sendBeacon === "function") {
+      const blob = new Blob([raw], { type: "application/json" });
+      navigator.sendBeacon(url, blob);
+    }
   });
 }

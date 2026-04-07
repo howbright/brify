@@ -19,7 +19,10 @@ import {
 import MindElixirMobileLayer from "@/components/MindElixirMobileLayer";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 import MindElixirMiniMap from "@/components/MindElixirMiniMap";
-import { logMindElixirDebug } from "@/components/mindElixirDebugLogger";
+import {
+  isMindElixirDebugEnabled,
+  logMindElixirDebug,
+} from "@/components/mindElixirDebugLogger";
 import { useMindElixirContextMenu } from "@/components/useMindElixirContextMenu";
 import { useMindElixirCore } from "@/components/useMindElixirCore";
 import { useMindElixirFocusSearch } from "@/components/useMindElixirFocusSearch";
@@ -1112,6 +1115,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       setMobileActionNodeId(null);
     }
   }, [selectedNodeId]);
+
+  useEffect(() => {
+    if (!isMindElixirDebugEnabled()) return;
+    logMindElixirDebug("mindelixir_debug_enabled", {
+      isTouchDevice,
+      showMobileControls,
+      editMode,
+    });
+  }, [editMode, isTouchDevice, showMobileControls]);
 
   useEffect(() => {
     if (!isTouchDevice) return;
