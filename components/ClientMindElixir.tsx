@@ -1095,11 +1095,77 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   ) => {
     const mind = mindRef.current;
     const currentNode = mind?.currentNode;
-    if (!mind || !currentNode) return;
+    // #region agent log
+    fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runId: debugRunIdRef.current,
+        hypothesisId: "H5",
+        location: "components/ClientMindElixir.tsx:1098",
+        message: "runMobileNodeAction entered",
+        data: {
+          action,
+          selectedNodeId,
+          mobileActionNodeId,
+          hasMind: Boolean(mind),
+          hasCurrentNode: Boolean(currentNode),
+          currentNodeId:
+            (currentNode as { nodeObj?: { id?: string } } | null)?.nodeObj?.id ??
+            null,
+          hasSelectedNodeEl: Boolean(selectedNodeElRef.current),
+          selectedNodeElId:
+            (
+              selectedNodeElRef.current as
+                | (HTMLElement & { nodeObj?: { id?: string } })
+                | null
+            )?.nodeObj?.id ?? null,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+    if (!mind || !currentNode) {
+      // #region agent log
+      fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          runId: debugRunIdRef.current,
+          hypothesisId: "H5",
+          location: "components/ClientMindElixir.tsx:1107",
+          message: "runMobileNodeAction early return: missing mind/currentNode",
+          data: {
+            action,
+            selectedNodeId,
+            mobileActionNodeId,
+            hasMind: Boolean(mind),
+            hasCurrentNode: Boolean(currentNode),
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+      return;
+    }
 
     try {
       if (action === "addChild") {
         await mind.addChild(currentNode);
+        // #region agent log
+        fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            runId: debugRunIdRef.current,
+            hypothesisId: "H5",
+            location: "components/ClientMindElixir.tsx:1115",
+            message: "runMobileNodeAction addChild success",
+            data: { action, selectedNodeId, mobileActionNodeId },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
         setMobileActionNodeId(null);
         return;
       }
@@ -1110,6 +1176,20 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       }
       if (action === "rename") {
         await mind.beginEdit(currentNode);
+        // #region agent log
+        fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            runId: debugRunIdRef.current,
+            hypothesisId: "H5",
+            location: "components/ClientMindElixir.tsx:1133",
+            message: "runMobileNodeAction rename success",
+            data: { action, selectedNodeId, mobileActionNodeId },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
         setMobileActionNodeId(null);
         return;
       }
@@ -1218,6 +1298,40 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     mobileActionNodeId,
     selectedNodeId,
     showMobileControls,
+  ]);
+
+  useEffect(() => {
+    if (!mobileActionNodeId) return;
+    // #region agent log
+    fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runId: debugRunIdRef.current,
+        hypothesisId: "H6",
+        location: "components/ClientMindElixir.tsx:1266",
+        message: "mobile action sheet state snapshot",
+        data: {
+          selectedNodeId,
+          mobileActionNodeId,
+          selectedNodeIsRoot,
+          hasSelectedNodeEl: Boolean(selectedNodeElRef.current),
+          selectedNodeElId:
+            (
+              selectedNodeElRef.current as
+                | (HTMLElement & { nodeObj?: { id?: string } })
+                | null
+            )?.nodeObj?.id ?? null,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+  }, [
+    mobileActionNodeId,
+    selectedNodeId,
+    selectedNodeElRef,
+    selectedNodeIsRoot,
   ]);
 
   useEffect(() => {

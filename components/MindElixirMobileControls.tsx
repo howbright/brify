@@ -38,6 +38,22 @@ export default function MindElixirMobileControls({
 }: Props) {
   const baseItemClassName =
     "flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3.5 text-left text-[15px] font-semibold transition-colors";
+  const emitActionLog = (action: string, disabled: boolean) => {
+    // #region agent log
+    fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runId: "mobile-controls",
+        hypothesisId: "H7",
+        location: "components/MindElixirMobileControls.tsx:42",
+        message: "mobile sheet action button pressed",
+        data: { action, disabled, showActionBar },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+  };
 
   return (
     <>
@@ -67,7 +83,10 @@ export default function MindElixirMobileControls({
             <div className="flex flex-col gap-2">
             <button
               type="button"
-              onClick={onAddChild}
+              onClick={() => {
+                emitActionLog("addChild", false);
+                onAddChild();
+              }}
               className={`${baseItemClassName} bg-neutral-50 text-neutral-950 hover:bg-neutral-100`}
             >
               <span className="inline-flex items-center gap-3">
@@ -84,7 +103,10 @@ export default function MindElixirMobileControls({
             </button>
             <button
               type="button"
-              onClick={onAddSibling}
+              onClick={() => {
+                emitActionLog("addSibling", disableAddSibling);
+                onAddSibling();
+              }}
               disabled={disableAddSibling}
               className={[
                 baseItemClassName,
@@ -110,7 +132,10 @@ export default function MindElixirMobileControls({
             </button>
             <button
               type="button"
-              onClick={onRename}
+              onClick={() => {
+                emitActionLog("rename", disableRename);
+                onRename();
+              }}
               disabled={disableRename}
               className={[
                 baseItemClassName,
@@ -136,7 +161,10 @@ export default function MindElixirMobileControls({
             </button>
             <button
               type="button"
-              onClick={onRemove}
+              onClick={() => {
+                emitActionLog("remove", disableRemove);
+                onRemove();
+              }}
               disabled={disableRemove}
               className={[
                 baseItemClassName,
