@@ -1116,9 +1116,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       (selectedNodeElRef.current as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
       (mind?.currentNode as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
       null;
-    if (mind && currentNode) {
-      mind.currentNode = currentNode;
-    }
     // #region agent log
     fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
       method: "POST",
