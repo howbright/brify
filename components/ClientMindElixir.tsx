@@ -956,15 +956,31 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     const host = elRef.current;
     if (!host) return;
 
+    const getNodeElementFromEvent = (e: PointerEvent | MouseEvent) => {
+      const targetEl = e.target as HTMLElement | null;
+      if (targetEl?.closest?.("[data-hover-actions='true']")) return null;
+      const direct =
+        targetEl?.closest?.("me-tpc[data-nodeid]") ??
+        targetEl?.closest?.("me-tpc") ??
+        targetEl?.closest?.("[data-nodeid]");
+      if (direct && direct instanceof HTMLElement) return direct;
+
+      const path =
+        typeof e.composedPath === "function"
+          ? (e.composedPath() as EventTarget[])
+          : [];
+      for (const entry of path) {
+        if (!(entry instanceof HTMLElement)) continue;
+        if (entry.matches?.("me-tpc[data-nodeid], me-tpc, [data-nodeid]")) {
+          return entry;
+        }
+      }
+      return null;
+    };
+
     const handlePointerDown = (e: PointerEvent) => {
-      const el = e.target as HTMLElement | null;
-      if (!el) return;
-      if (el.closest?.("[data-hover-actions='true']")) return;
-      const nodeEl =
-        el.closest?.("me-tpc[data-nodeid]") ??
-        el.closest?.("me-tpc") ??
-        el.closest?.("[data-nodeid]");
-      if (!nodeEl || !(nodeEl instanceof HTMLElement)) return;
+      const nodeEl = getNodeElementFromEvent(e);
+      if (!nodeEl) return;
       const nodeId = nodeEl.getAttribute("data-nodeid");
       if (!nodeId) return;
       applySelectionFromElement(nodeEl, nodeId);
@@ -979,13 +995,17 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         longPressTriggeredRef.current = false;
         return;
       }
-      const el = e.target as HTMLElement | null;
-      if (!el) return;
-      const nodeEl =
-        el.closest?.("me-tpc[data-nodeid]") ??
-        el.closest?.("me-tpc") ??
-        el.closest?.("[data-nodeid]");
-      if (!nodeEl || !(nodeEl instanceof HTMLElement)) {
+      const nodeEl = getNodeElementFromEvent(e);
+      if (!nodeEl) {
+        if (isTouchDevice) {
+          // On mobile, click retargeting can transiently miss node elements.
+          // Avoid clearing selection on these false negatives.
+          logMindElixirDebug("selection_clear_skipped_touch_click_no_node");
+          return;
+        }
+        logMindElixirDebug("selection_cleared_click_no_node", {
+          selectedNodeId: selectedNodeIdRef.current,
+        });
         setSelectedNodeId(null);
         setSelectedRect(null);
         selectedNodeElRef.current = null;
@@ -1006,6 +1026,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     };
   }, [
     applySelectionFromElement,
+    isTouchDevice,
     selectedNodeElRef,
     setSelectedNodeId,
     setSelectedNoteText,
