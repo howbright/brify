@@ -987,6 +987,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     };
 
     const handleClick = (e: MouseEvent) => {
+      if (isTouchDevice) return;
       if (Date.now() - touchDragMovedAtRef.current < 280) {
         touchDragMovedAtRef.current = 0;
         return;
