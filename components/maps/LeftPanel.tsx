@@ -673,6 +673,7 @@ export default function LeftPanel({
     <>
       <aside
         ref={panelRef}
+      data-map-panel="true"
         className={`
           absolute top-0 left-0 z-[30]
           h-full w-[94vw] max-w-[550px]

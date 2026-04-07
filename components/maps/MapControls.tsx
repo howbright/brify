@@ -294,6 +294,7 @@ export default function MapControls({
   return (
     <>
       <div
+        data-map-toolbar="true"
         className={
           placement === "inline"
             ? "flex items-center gap-2"
