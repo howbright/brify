@@ -1460,6 +1460,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     mindLocale,
     contextMenuText,
     editMode,
+    isTouchDevice,
     noteBadgeSvg: NOTE_BADGE_SVG,
     showTimestampsRef,
     manualSelectionPriorityMs: MANUAL_SELECTION_PRIORITY_MS,

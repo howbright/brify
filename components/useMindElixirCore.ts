@@ -3,6 +3,7 @@
 
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { logMindElixirDebug } from "@/components/mindElixirDebugLogger";
 
 type AnyNode = {
   id: string;
@@ -88,6 +89,7 @@ type UseMindElixirCoreParams = {
   mindLocale: string;
   contextMenuText: ContextMenuText;
   editMode: "view" | "edit";
+  isTouchDevice: boolean;
   noteBadgeSvg: string;
   showTimestampsRef: React.RefObject<boolean>;
   manualSelectionPriorityMs: number;
@@ -137,6 +139,7 @@ export function useMindElixirCore({
   mindLocale,
   contextMenuText,
   editMode,
+  isTouchDevice,
   noteBadgeSvg,
   showTimestampsRef,
   manualSelectionPriorityMs,
@@ -489,6 +492,17 @@ export function useMindElixirCore({
       });
 
       mind.bus?.addListener?.("unselectNodes", () => {
+        if (
+          isTouchDevice &&
+          Date.now() - lastClickedNodeRef.current.at < manualSelectionPriorityMs
+        ) {
+          logMindElixirDebug("unselect_ignored_recent_touch_selection", {
+            source: "bus.unselectNodes",
+            selectedNodeId: selectedNodeIdRef.current,
+            elapsedMs: Date.now() - lastClickedNodeRef.current.at,
+          });
+          return;
+        }
         setSelectedNodeId(null);
         setSelectedRect(null);
         selectedNodeElRef.current = null;
@@ -561,6 +575,17 @@ export function useMindElixirCore({
           op?.name === "clearSelection" ||
           op?.name === "removeNodes"
         ) {
+          if (
+            isTouchDevice &&
+            Date.now() - lastClickedNodeRef.current.at < manualSelectionPriorityMs
+          ) {
+            logMindElixirDebug("unselect_ignored_recent_touch_selection", {
+              source: `operation.${String(op?.name ?? "unknown")}`,
+              selectedNodeId: selectedNodeIdRef.current,
+              elapsedMs: Date.now() - lastClickedNodeRef.current.at,
+            });
+            return;
+          }
           setSelectedNodeId(null);
           setSelectedRect(null);
         }
