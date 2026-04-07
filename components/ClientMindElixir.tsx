@@ -476,6 +476,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const [mobileActionNodeIsRoot, setMobileActionNodeIsRoot] = useState<
     boolean | null
   >(null);
+  const mobileActionNodeIdRef = useRef<string | null>(null);
+  const showMobileControlsRef = useRef(false);
   const isTouchDeviceRef = useRef(false);
   const lastMobileActionOpenAtRef = useRef(0);
   const longPressTimerRef = useRef<number | null>(null);
@@ -521,6 +523,12 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   useEffect(() => {
     isTouchDeviceRef.current = isTouchDevice;
   }, [isTouchDevice]);
+  useEffect(() => {
+    mobileActionNodeIdRef.current = mobileActionNodeId;
+  }, [mobileActionNodeId]);
+  useEffect(() => {
+    showMobileControlsRef.current = showMobileControls;
+  }, [showMobileControls]);
 
   const syncLatestMindDataFromMind = () => {
     const mind = mindRef.current;
@@ -1099,7 +1107,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   ) => {
     const mind = mindRef.current;
     const actionTargetNodeId = mobileActionNodeId ?? selectedNodeId;
-    let currentNode =
+    const currentNode =
       (actionTargetNodeId
         ? (getNodeElById(actionTargetNodeId) as
             | (HTMLElement & { nodeObj?: AnyNode })
@@ -1240,9 +1248,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           data: {
             showMobileControls,
             editMode,
-            mobileActionNodeId,
-            selectedNodeId,
-            isTouchDevice,
+            mobileActionNodeId: mobileActionNodeIdRef.current,
+            selectedNodeId: selectedNodeIdRef.current,
+            isTouchDevice: isTouchDeviceRef.current,
           },
           timestamp: Date.now(),
         }),
@@ -1270,10 +1278,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           location: "components/ClientMindElixir.tsx:1128",
           message: "mobileActionNodeId cleared by selectedNodeId null",
           data: {
-            selectedNodeId,
-            mobileActionNodeId,
-            isTouchDevice,
-            showMobileControls,
+            selectedNodeId: selectedNodeIdRef.current,
+            mobileActionNodeId: mobileActionNodeIdRef.current,
+            isTouchDevice: isTouchDeviceRef.current,
+            showMobileControls: showMobileControlsRef.current,
           },
           timestamp: Date.now(),
         }),

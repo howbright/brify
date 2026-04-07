@@ -33,6 +33,19 @@ type HighlightItem = {
   id: string;
   topic: string;
 };
+type NoteApiRow = {
+  id?: unknown;
+  text?: unknown;
+  created_at?: unknown;
+};
+type TermApiRow = {
+  term?: unknown;
+  meaning?: unknown;
+  updated_at?: unknown;
+  updatedAt?: unknown;
+  created_at?: unknown;
+  createdAt?: unknown;
+};
 
 export default function LeftPanel({
   open,
@@ -105,7 +118,7 @@ export default function LeftPanel({
     "idle" | "queued" | "processing" | "done" | "failed"
   >("idle");
   const [termsRequestedInSession, setTermsRequestedInSession] = useState(false);
-  const [hasTermsRequest, setHasTermsRequest] = useState(false);
+  const [_hasTermsRequest, setHasTermsRequest] = useState(false);
   const termsPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const termsHighlightRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelRef = useRef<HTMLElement | null>(null);
@@ -233,8 +246,9 @@ export default function LeftPanel({
         throw new Error(json?.error || tRight("errors.notes.fetch"));
       }
       const items: NoteItem[] = Array.isArray(json.items)
-        ? json.items.map((row: any) => {
-            const createdAt = new Date(row.created_at).getTime();
+        ? json.items.map((rawRow: unknown) => {
+            const row = (rawRow ?? {}) as NoteApiRow;
+            const createdAt = new Date(String(row.created_at ?? "")).getTime();
             return {
               id: String(row.id),
               text: String(row.text ?? ""),
@@ -244,8 +258,10 @@ export default function LeftPanel({
           })
         : [];
       setNotes(items);
-    } catch (e: any) {
-      setNotesError(e?.message ?? tRight("errors.notes.fetch"));
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : tRight("errors.notes.fetch");
+      setNotesError(message);
     } finally {
       setNotesLoading(false);
     }
@@ -276,8 +292,10 @@ export default function LeftPanel({
       };
       setNotes((prev) => [item, ...prev]);
       setNoteText("");
-    } catch (e: any) {
-      setNotesError(e?.message ?? tRight("errors.notes.add"));
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : tRight("errors.notes.add");
+      setNotesError(message);
     } finally {
       setNoteSubmitting(false);
     }
@@ -293,8 +311,10 @@ export default function LeftPanel({
         throw new Error(json?.error || tRight("errors.notes.delete"));
       }
       setNotes((prev) => prev.filter((n) => n.id !== id));
-    } catch (e: any) {
-      setNotesError(e?.message ?? tRight("errors.notes.delete"));
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : tRight("errors.notes.delete");
+      setNotesError(message);
     }
   };
 
@@ -322,8 +342,10 @@ export default function LeftPanel({
         createdAtLabel: new Date(createdAt).toLocaleString(),
       };
       setNotes((prev) => prev.map((n) => (n.id === id ? updated : n)));
-    } catch (e: any) {
-      setNotesError(e?.message ?? tRight("errors.notes.update"));
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : tRight("errors.notes.update");
+      setNotesError(message);
     }
   };
 
@@ -414,10 +436,11 @@ export default function LeftPanel({
         ? json
         : [];
 
-      const items: TermItem[] = rows.map((row: any) => {
+      const items: TermItem[] = rows.map((rawRow: unknown) => {
+        const row = (rawRow ?? {}) as TermApiRow;
         const rawTs =
           row.updated_at ?? row.updatedAt ?? row.created_at ?? row.createdAt;
-        const updatedAt = rawTs ? new Date(rawTs).getTime() : 0;
+        const updatedAt = rawTs ? new Date(String(rawTs)).getTime() : 0;
         return {
           term: String(row.term ?? ""),
           meaning: String(row.meaning ?? ""),

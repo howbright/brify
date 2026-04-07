@@ -149,6 +149,7 @@ export function useMindElixirCore({
   useEffect(() => {
     if (!mounted) return;
     if (!elRef.current) return;
+    const hostEl = elRef.current;
 
     if (!initialData) {
       try {
@@ -183,7 +184,7 @@ export function useMindElixirCore({
       const MindElixir = mod.default;
 
       if (cancelled || myToken !== initTokenRef.current) return;
-      if (!elRef.current) return;
+      if (!hostEl) return;
 
       defaultThemeRef.current = {
         light: MindElixir.THEME,
@@ -236,7 +237,7 @@ export function useMindElixirCore({
       };
 
       const mind = new MindElixir({
-        el: elRef.current,
+        el: hostEl,
         direction: MindElixir.RIGHT,
         toolBar: showToolbar,
         keypress: true,
@@ -400,15 +401,15 @@ export function useMindElixirCore({
       handleRefreshDecorations = () => {
         syncNodeDecorations();
       };
-      elRef.current?.addEventListener(
+      hostEl.addEventListener(
         "mind-elixir-refresh-decorations",
         handleRefreshDecorations
       );
-      if (elRef.current && typeof MutationObserver !== "undefined") {
+      if (typeof MutationObserver !== "undefined") {
         mutationObserver = new MutationObserver(() => {
           syncNodeDecorations();
         });
-        mutationObserver.observe(elRef.current, observerOptions);
+        mutationObserver.observe(hostEl, observerOptions);
       }
 
       if (!mind.__originalFocusNode) {
@@ -649,8 +650,8 @@ export function useMindElixirCore({
         mutationObserver = null;
       }
       try {
-        if (handleRefreshDecorations && elRef.current) {
-          elRef.current.removeEventListener(
+        if (handleRefreshDecorations) {
+          hostEl.removeEventListener(
             "mind-elixir-refresh-decorations",
             handleRefreshDecorations
           );

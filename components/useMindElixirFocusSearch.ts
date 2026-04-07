@@ -290,7 +290,6 @@ export function useMindElixirFocusSearch({
         selectedNodeElRef.current = null;
         return;
       }
-      const recoveredMissCount = missingRectCountRef.current[normalizedNodeId] ?? 0;
       delete missingRectCountRef.current[normalizedNodeId];
       if (rectRetryNodeIdRef.current === normalizedNodeId) {
         if (rectRetryRafRef.current !== null) {

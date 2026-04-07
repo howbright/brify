@@ -120,8 +120,10 @@ export default function MindElixirMobileLayer({
     }).catch(() => {});
     // #endregion
   }, [
+    actionTargetNodeId,
     editMode,
     isFocusMode,
+    selectedNodeIsRoot,
     mobileActionNormalized,
     selectedNormalized,
     selectedRect,
