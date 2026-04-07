@@ -46,6 +46,7 @@ type ClientMindElixirProps = {
   disableDirectContextMenu?: boolean;
   showSelectionContextMenuButton?: boolean;
   showMiniMap?: boolean;
+  showTimestamps?: boolean;
   showToolbar?: boolean;
   focusInsetLeft?: number;
   panMode?: boolean;
@@ -82,6 +83,7 @@ export type ClientMindElixirHandle = {
 type AnyNode = {
   id: string;
   topic: string;
+  ts?: unknown;
   root?: boolean;
   parent?: { id?: string } | null;
   branchColor?: string;
@@ -408,6 +410,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       disableDirectContextMenu = false,
       showSelectionContextMenuButton = false,
       showMiniMap = true,
+      showTimestamps = true,
       showToolbar = false,
       focusInsetLeft = 0,
       panMode,
@@ -420,6 +423,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const elRef = useRef<HTMLDivElement>(null);
   const mindRef = useRef<any>(null);
   const focusInsetLeftRef = useRef(0);
+  const showTimestampsRef = useRef(showTimestamps);
   const currentLevelRef = useRef(0);
   const latestMindDataRef = useRef<any>(null);
 
@@ -453,6 +457,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   useEffect(() => {
     focusInsetLeftRef.current = focusInsetLeft;
   }, [focusInsetLeft]);
+
+  useEffect(() => {
+    showTimestampsRef.current = showTimestamps;
+    // Re-run decoration sync without re-initializing the map instance.
+    const host = elRef.current;
+    if (!host) return;
+    const event = new Event("mind-elixir-refresh-decorations");
+    host.dispatchEvent(event);
+  }, [showTimestamps]);
 
   const [ready, setReady] = useState(false);
   const [noteEditorOpen, setNoteEditorOpen] = useState(false);
@@ -705,6 +718,27 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     if (!host) return;
     if (!isTouchDevice) return;
     const activeTouchPoints = activeTouchPointsRef.current;
+    const capturedPointerIds = new Set<number>();
+
+    const resetTouchGestureState = () => {
+      activeTouchPoints.clear();
+      touchPanRef.current = {
+        active: false,
+        pointerId: null,
+        x: 0,
+        y: 0,
+        moved: false,
+      };
+      pinchRef.current = {
+        active: false,
+        startDistance: 0,
+        startScale:
+          typeof mindRef.current?.scaleVal === "number"
+            ? mindRef.current.scaleVal
+            : 1,
+      };
+      clearLongPressState();
+    };
 
     const getPinchDistance = () => {
       const points = Array.from(activeTouchPointsRef.current.values());
@@ -725,6 +759,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
     const handlePointerDown = (e: PointerEvent) => {
       if (e.pointerType !== "touch") return;
+      if (typeof host.setPointerCapture === "function") {
+        try {
+          host.setPointerCapture(e.pointerId);
+          capturedPointerIds.add(e.pointerId);
+        } catch {
+          // Ignore capture errors from browser quirks.
+        }
+      }
       activeTouchPoints.set(e.pointerId, {
         x: e.clientX,
         y: e.clientY,
@@ -800,10 +842,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       }
     };
 
-    const handlePointerEnd = (e: PointerEvent) => {
-      if (e.pointerType !== "touch") return;
+    const handlePointerEndById = (pointerId: number) => {
       const state = touchPanRef.current;
-      activeTouchPoints.delete(e.pointerId);
+      activeTouchPoints.delete(pointerId);
+      capturedPointerIds.delete(pointerId);
       if (activeTouchPoints.size < 2) {
         pinchRef.current = {
           active: false,
@@ -814,10 +856,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
               : 1,
         };
       }
-      if (state.pointerId === e.pointerId && state.moved) {
+      if (state.pointerId === pointerId && state.moved) {
         touchDragMovedAtRef.current = Date.now();
       }
-      if (state.pointerId === e.pointerId || activeTouchPoints.size === 0) {
+      if (state.pointerId === pointerId || activeTouchPoints.size === 0) {
         touchPanRef.current = {
           active: false,
           pointerId: null,
@@ -828,22 +870,79 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       }
     };
 
+    const handlePointerEnd = (e: PointerEvent) => {
+      if (e.pointerType !== "touch") return;
+      handlePointerEndById(e.pointerId);
+      if (
+        typeof host.hasPointerCapture === "function" &&
+        typeof host.releasePointerCapture === "function"
+      ) {
+        try {
+          if (host.hasPointerCapture(e.pointerId)) {
+            host.releasePointerCapture(e.pointerId);
+          }
+        } catch {
+          // Ignore release errors from browser quirks.
+        }
+      }
+    };
+
+    const handleLostPointerCapture = (e: PointerEvent) => {
+      handlePointerEndById(e.pointerId);
+    };
+
+    const handleWindowPointerEnd = (e: PointerEvent) => {
+      if (e.pointerType !== "touch") return;
+      handlePointerEndById(e.pointerId);
+    };
+
+    const handleWindowBlur = () => {
+      resetTouchGestureState();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState !== "visible") {
+        resetTouchGestureState();
+      }
+    };
+
     host.addEventListener("pointerdown", handlePointerDown, { passive: true });
     host.addEventListener("pointermove", handlePointerMove, { passive: true });
     host.addEventListener("pointerup", handlePointerEnd, { passive: true });
     host.addEventListener("pointercancel", handlePointerEnd, { passive: true });
+    host.addEventListener("lostpointercapture", handleLostPointerCapture, {
+      passive: true,
+    });
+    window.addEventListener("pointerup", handleWindowPointerEnd, true);
+    window.addEventListener("pointercancel", handleWindowPointerEnd, true);
+    window.addEventListener("blur", handleWindowBlur);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       host.removeEventListener("pointerdown", handlePointerDown);
       host.removeEventListener("pointermove", handlePointerMove);
       host.removeEventListener("pointerup", handlePointerEnd);
       host.removeEventListener("pointercancel", handlePointerEnd);
-      activeTouchPoints.clear();
-      pinchRef.current = {
-        active: false,
-        startDistance: 0,
-        startScale: 1,
-      };
+      host.removeEventListener("lostpointercapture", handleLostPointerCapture);
+      window.removeEventListener("pointerup", handleWindowPointerEnd, true);
+      window.removeEventListener("pointercancel", handleWindowPointerEnd, true);
+      window.removeEventListener("blur", handleWindowBlur);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      capturedPointerIds.forEach((pointerId) => {
+        if (
+          typeof host.hasPointerCapture === "function" &&
+          typeof host.releasePointerCapture === "function"
+        ) {
+          try {
+            if (host.hasPointerCapture(pointerId)) {
+              host.releasePointerCapture(pointerId);
+            }
+          } catch {
+            // Ignore release errors during cleanup.
+          }
+        }
+      });
+      resetTouchGestureState();
     };
   }, [isTouchDevice]);
 
@@ -1286,6 +1385,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     contextMenuText,
     editMode,
     noteBadgeSvg: NOTE_BADGE_SVG,
+    showTimestampsRef,
     manualSelectionPriorityMs: MANUAL_SELECTION_PRIORITY_MS,
   });
 

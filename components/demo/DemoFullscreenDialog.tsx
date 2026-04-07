@@ -61,7 +61,33 @@ const DEMO_LEFT_PANEL_BUTTON_ID = "demo-left-panel-button";
 type DemoMindNode = {
   expanded?: boolean;
   children?: DemoMindNode[];
+  ts?: unknown;
 };
+
+function hasValidTimestampInMindData(raw: unknown): boolean {
+  if (!raw || typeof raw !== "object") return false;
+  const maybeRoot = raw as { nodeData?: DemoMindNode };
+  const root = maybeRoot.nodeData ?? (raw as DemoMindNode);
+  const stack: DemoMindNode[] = [root];
+  while (stack.length > 0) {
+    const node = stack.pop();
+    if (!node || typeof node !== "object") continue;
+    const value = node.ts;
+    if (typeof value === "number" && Number.isFinite(value) && value >= 0) {
+      return true;
+    }
+    if (typeof value === "string") {
+      const parsed = Number(value.trim());
+      if (Number.isFinite(parsed) && parsed >= 0) {
+        return true;
+      }
+    }
+    if (Array.isArray(node.children) && node.children.length > 0) {
+      for (const child of node.children) stack.push(child);
+    }
+  }
+  return false;
+}
 
 function cloneJson<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -573,6 +599,7 @@ export default function DemoFullscreenDialog({
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
   const [shareGuideOpen, setShareGuideOpen] = useState(false);
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(false);
+  const [showTimestamps, setShowTimestamps] = useState(true);
   const initializedDraftIdRef = useRef<string | null>(null);
   const [themeName, setThemeName] = useState<string>(
     profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME
@@ -584,6 +611,10 @@ export default function DemoFullscreenDialog({
         ? getInitialFullyCollapsedMapData(mapData ?? null)
         : getInitialCollapsedMapData(mapData ?? null),
     [mapData, isTutorialMobile]
+  );
+  const hasTimestampNodes = useMemo(
+    () => hasValidTimestampInMindData(mapData ?? null),
+    [mapData]
   );
   const [mounted, setMounted] = useState(false);
 
@@ -788,6 +819,12 @@ export default function DemoFullscreenDialog({
                   onCenterMap={() => mindRef.current?.centerMap?.()}
                   onZoomIn={() => mindRef.current?.zoomIn?.()}
                   onZoomOut={() => mindRef.current?.zoomOut?.()}
+                  showTimestamps={showTimestamps}
+                  onToggleTimestamps={
+                    hasTimestampNodes
+                      ? () => setShowTimestamps((prev) => !prev)
+                      : undefined
+                  }
                   onPublish={() => {}}
                   onShare={handleOpenDemoShareGuide}
                   onOpenTutorial={handleRestartTutorial}
@@ -818,6 +855,7 @@ export default function DemoFullscreenDialog({
                 loading={false}
                 placeholderData={loadingMindElixir}
                 showMiniMap={!isTutorialMobile}
+                showTimestamps={showTimestamps}
                 openMenuOnClick={false}
                 disableDirectContextMenu
                 showSelectionContextMenuButton

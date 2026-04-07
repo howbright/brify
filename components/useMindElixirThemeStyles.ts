@@ -129,6 +129,36 @@ export function useMindElixirThemeStyles({
         height: 10px;
         pointer-events: none;
       }
+      .me-ts-badge {
+        position: absolute;
+        right: -6px;
+        bottom: -8px;
+        min-width: 34px;
+        height: 16px;
+        padding: 0 5px;
+        border-radius: 999px;
+        border: 1px solid rgba(37, 99, 235, 0.3);
+        background: rgba(255, 255, 255, 0.96);
+        color: #1d4ed8;
+        font-size: 10px;
+        font-weight: 800;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.7),
+          0 6px 14px rgba(37, 99, 235, 0.2);
+        pointer-events: none;
+      }
+      .${DARK_CANVAS_CLASS} .me-ts-badge {
+        border-color: rgba(125, 211, 252, 0.35);
+        background: rgba(11, 18, 32, 0.92);
+        color: rgba(186, 230, 253, 0.95);
+        box-shadow:
+          0 0 0 1px rgba(15, 23, 42, 0.55),
+          0 10px 18px rgba(2, 6, 23, 0.45);
+      }
       .${viewModeClass} .me-note-dot {
         cursor: pointer;
       }

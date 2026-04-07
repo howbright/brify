@@ -36,7 +36,33 @@ const LEFT_PANEL_FOCUS_INSET = 560;
 type MindNode = {
   children?: MindNode[];
   expanded?: boolean;
+  ts?: unknown;
 };
+
+function hasValidTimestampInMindData(raw: unknown): boolean {
+  if (!raw || typeof raw !== "object") return false;
+  const maybeRoot = raw as { nodeData?: MindNode };
+  const root = maybeRoot.nodeData ?? (raw as MindNode);
+  const stack: MindNode[] = [root];
+  while (stack.length > 0) {
+    const node = stack.pop();
+    if (!node || typeof node !== "object") continue;
+    const value = node.ts;
+    if (typeof value === "number" && Number.isFinite(value) && value >= 0) {
+      return true;
+    }
+    if (typeof value === "string") {
+      const parsed = Number(value.trim());
+      if (Number.isFinite(parsed) && parsed >= 0) {
+        return true;
+      }
+    }
+    if (Array.isArray(node.children) && node.children.length > 0) {
+      for (const child of node.children) stack.push(child);
+    }
+  }
+  return false;
+}
 
 function cloneJson<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -140,6 +166,7 @@ export default function FullscreenDialog({
   const lastStepAtRef = useRef(0);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(false);
+  const [showTimestamps, setShowTimestamps] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [localDraft, setLocalDraft] = useState<MapDraft | null>(draft ?? null);
   const [tagEditOpen, setTagEditOpen] = useState(false);
@@ -221,6 +248,10 @@ export default function FullscreenDialog({
         ? getInitialFullyCollapsedMapData(mapData ?? null)
         : getInitialCollapsedMapData(mapData ?? null),
     [mapData, isTutorialMobile]
+  );
+  const hasTimestampNodes = useMemo(
+    () => hasValidTimestampInMindData(mapData ?? null),
+    [mapData]
   );
 
   useEffect(() => {
@@ -507,6 +538,12 @@ export default function FullscreenDialog({
                 onCenterMap={() => mindRef.current?.centerMap?.()}
                 onZoomIn={() => mindRef.current?.zoomIn?.()}
                 onZoomOut={() => mindRef.current?.zoomOut?.()}
+                showTimestamps={showTimestamps}
+                onToggleTimestamps={
+                  hasTimestampNodes
+                    ? () => setShowTimestamps((prev) => !prev)
+                    : undefined
+                }
                 onExportPng={handleExportPng}
                 onCloseMap={onClose}
                 onOpenTutorial={handleRestartTutorial}
@@ -570,6 +607,7 @@ export default function FullscreenDialog({
                 loading={mapLoading}
                 placeholderData={loadingMindElixir}
                 showMiniMap={!isTutorialMobile}
+                showTimestamps={showTimestamps}
                 focusInsetLeft={leftOpen ? LEFT_PANEL_FOCUS_INSET : 0}
                 openMenuOnClick={false}
                 disableDirectContextMenu

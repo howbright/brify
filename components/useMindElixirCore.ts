@@ -7,6 +7,7 @@ import { toast } from "sonner";
 type AnyNode = {
   id: string;
   topic?: string;
+  ts?: unknown;
   root?: boolean;
   parent?: { id?: string } | null;
   branchColor?: string;
@@ -84,6 +85,7 @@ type UseMindElixirCoreParams = {
   contextMenuText: ContextMenuText;
   editMode: "view" | "edit";
   noteBadgeSvg: string;
+  showTimestampsRef: React.RefObject<boolean>;
   manualSelectionPriorityMs: number;
 };
 
@@ -132,6 +134,7 @@ export function useMindElixirCore({
   contextMenuText,
   editMode,
   noteBadgeSvg,
+  showTimestampsRef,
   manualSelectionPriorityMs,
 }: UseMindElixirCoreParams) {
   const initTokenRef = useRef(0);
@@ -165,6 +168,7 @@ export function useMindElixirCore({
     let handleResize: (() => void) | null = null;
     let handleMiniResize: (() => void) | null = null;
     let syncMiniMap: (() => void) | null = null;
+    let handleRefreshDecorations: (() => void) | null = null;
     let mutationObserver: MutationObserver | null = null;
 
     (async () => {
@@ -272,6 +276,36 @@ export function useMindElixirCore({
         attributes: true,
         attributeFilter: ["data-nodeid"],
       };
+      const parseTimestampSeconds = (raw: unknown): number | null => {
+        if (typeof raw === "number" && Number.isFinite(raw) && raw >= 0) {
+          return Math.floor(raw);
+        }
+        if (typeof raw === "string") {
+          const parsed = Number(raw.trim());
+          if (Number.isFinite(parsed) && parsed >= 0) {
+            return Math.floor(parsed);
+          }
+        }
+        return null;
+      };
+      const formatTimestamp = (seconds: number): string => {
+        const total = Math.max(0, Math.floor(seconds));
+        const hh = Math.floor(total / 3600);
+        const mm = Math.floor((total % 3600) / 60);
+        const ss = total % 60;
+        const isKo = mindLocale === "ko";
+        if (isKo) {
+          const totalMinutes = Math.floor(total / 60);
+          return `${totalMinutes}분 ${ss}초`;
+        }
+        if (hh > 0) {
+          return `${hh}h ${mm}m ${ss}s`;
+        }
+        if (mm > 0) {
+          return `${mm}m ${ss}s`;
+        }
+        return `${ss}s`;
+      };
       const syncNodeDecorations = () => {
         const host = elRef.current;
         if (!host) return;
@@ -309,6 +343,25 @@ export function useMindElixirCore({
             const dot = el.querySelector<HTMLElement>(".me-note-dot");
             if (dot) dot.remove();
           }
+          const shouldShowTimestamps = showTimestampsRef.current !== false;
+          const tsSeconds = parseTimestampSeconds(latestNode?.ts ?? el.nodeObj?.ts);
+          const tsBadge = el.querySelector<HTMLElement>(".me-ts-badge");
+          if (shouldShowTimestamps && tsSeconds !== null) {
+            const label = formatTimestamp(tsSeconds);
+            el.setAttribute("data-ts", String(tsSeconds));
+            if (tsBadge) {
+              tsBadge.textContent = label;
+            } else {
+              const badge = document.createElement("span");
+              badge.className = "me-ts-badge";
+              badge.setAttribute("data-ts-badge", "true");
+              badge.textContent = label;
+              el.appendChild(badge);
+            }
+          } else {
+            el.removeAttribute("data-ts");
+            if (tsBadge) tsBadge.remove();
+          }
         });
         if (mutationObserver && elRef.current) {
           mutationObserver.observe(elRef.current, observerOptions);
@@ -337,6 +390,13 @@ export function useMindElixirCore({
       mindRef.current = mind;
       applyEditMode(mind, editMode === "edit");
       syncNodeDecorations();
+      handleRefreshDecorations = () => {
+        syncNodeDecorations();
+      };
+      elRef.current?.addEventListener(
+        "mind-elixir-refresh-decorations",
+        handleRefreshDecorations
+      );
       if (elRef.current && typeof MutationObserver !== "undefined") {
         mutationObserver = new MutationObserver(() => {
           syncNodeDecorations();
@@ -523,6 +583,14 @@ export function useMindElixirCore({
         mutationObserver.disconnect();
         mutationObserver = null;
       }
+      try {
+        if (handleRefreshDecorations && elRef.current) {
+          elRef.current.removeEventListener(
+            "mind-elixir-refresh-decorations",
+            handleRefreshDecorations
+          );
+        }
+      } catch {}
       try {
         if (preserveViewState) {
           const mind = mindRef.current;
