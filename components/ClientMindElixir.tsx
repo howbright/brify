@@ -473,6 +473,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const [noteDraft, setNoteDraft] = useState("");
   const [noteTargetId, setNoteTargetId] = useState<string | null>(null);
   const [mobileActionNodeId, setMobileActionNodeId] = useState<string | null>(null);
+  const [mobileActionNodeIsRoot, setMobileActionNodeIsRoot] = useState<
+    boolean | null
+  >(null);
   const isTouchDeviceRef = useRef(false);
   const lastMobileActionOpenAtRef = useRef(0);
   const longPressTimerRef = useRef<number | null>(null);
@@ -1010,6 +1013,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         selectedNodeElRef.current = null;
         setSelectedNoteText(null);
         setMobileActionNodeId(null);
+        setMobileActionNodeIsRoot(null);
         return;
       }
       const nodeId = nodeEl.getAttribute("data-nodeid");
@@ -1094,7 +1098,19 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     action: "addChild" | "addSibling" | "rename" | "remove"
   ) => {
     const mind = mindRef.current;
-    const currentNode = mind?.currentNode;
+    const actionTargetNodeId = mobileActionNodeId ?? selectedNodeId;
+    let currentNode =
+      (actionTargetNodeId
+        ? (getNodeElById(actionTargetNodeId) as
+            | (HTMLElement & { nodeObj?: AnyNode })
+            | null)
+        : null) ??
+      (selectedNodeElRef.current as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
+      (mind?.currentNode as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
+      null;
+    if (mind && currentNode) {
+      mind.currentNode = currentNode;
+    }
     // #region agent log
     fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
       method: "POST",
@@ -1108,6 +1124,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           action,
           selectedNodeId,
           mobileActionNodeId,
+          actionTargetNodeId,
           hasMind: Boolean(mind),
           hasCurrentNode: Boolean(currentNode),
           currentNodeId:
@@ -1139,6 +1156,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             action,
             selectedNodeId,
             mobileActionNodeId,
+            actionTargetNodeId,
             hasMind: Boolean(mind),
             hasCurrentNode: Boolean(currentNode),
           },
@@ -1167,11 +1185,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         }).catch(() => {});
         // #endregion
         setMobileActionNodeId(null);
+        setMobileActionNodeIsRoot(null);
         return;
       }
       if (action === "addSibling") {
         await mind.insertSibling("after", currentNode);
         setMobileActionNodeId(null);
+        setMobileActionNodeIsRoot(null);
         return;
       }
       if (action === "rename") {
@@ -1191,6 +1211,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         }).catch(() => {});
         // #endregion
         setMobileActionNodeId(null);
+        setMobileActionNodeIsRoot(null);
         return;
       }
       const isRoot =
@@ -1199,6 +1220,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       if (isRoot) return;
       await mind.removeNodes([currentNode]);
       setMobileActionNodeId(null);
+      setMobileActionNodeIsRoot(null);
     } catch (error) {
       console.error("[ME] mobile action failed:", action, error);
     }
@@ -1227,6 +1249,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       }).catch(() => {});
       // #endregion
       setMobileActionNodeId(null);
+      setMobileActionNodeIsRoot(null);
     }
   }, [showMobileControls, editMode]);
 
@@ -1257,6 +1280,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       }).catch(() => {});
       // #endregion
       setMobileActionNodeId(null);
+      setMobileActionNodeIsRoot(null);
     }
   }, [mobileActionNodeId, selectedNodeId]);
 
@@ -1287,15 +1311,21 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       }),
     }).catch(() => {});
     // #endregion
-    setMobileActionNodeId((prev) =>
-      normalizeNodeId(prev ?? "") === normalizeNodeId(selectedNodeId ?? "")
-        ? null
-        : selectedNodeId
-    );
+    setMobileActionNodeId((prev) => {
+      const nextOpen =
+        normalizeNodeId(prev ?? "") !== normalizeNodeId(selectedNodeId ?? "");
+      if (nextOpen) {
+        setMobileActionNodeIsRoot(selectedNodeIsRoot);
+        return selectedNodeId;
+      }
+      setMobileActionNodeIsRoot(null);
+      return null;
+    });
   }, [
     editMode,
     isTouchDevice,
     mobileActionNodeId,
+    selectedNodeIsRoot,
     selectedNodeId,
     showMobileControls,
   ]);
@@ -1333,6 +1363,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     selectedNodeElRef,
     selectedNodeIsRoot,
   ]);
+
+  const actionMenuNodeIsRoot = mobileActionNodeId
+    ? (mobileActionNodeIsRoot ?? selectedNodeIsRoot)
+    : selectedNodeIsRoot;
 
   useEffect(() => {
     if (!selectedNodeId) return;
@@ -1693,8 +1727,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         mobileActionNodeId={mobileActionNodeId}
         mobileEditMenuTitle={mobileEditMenuTitle}
         mobileEditLabels={mobileEditLabels}
-        selectedNodeIsRoot={selectedNodeIsRoot}
-        onCloseMobileActions={() => setMobileActionNodeId(null)}
+        selectedNodeIsRoot={actionMenuNodeIsRoot}
+        onCloseMobileActions={() => {
+          setMobileActionNodeId(null);
+          setMobileActionNodeIsRoot(null);
+        }}
         onAddChild={() => void runMobileNodeAction("addChild")}
         onAddSibling={() => void runMobileNodeAction("addSibling")}
         onRename={() => void runMobileNodeAction("rename")}
