@@ -82,11 +82,12 @@ export default function MindElixirMobileLayer({
 }: MindElixirMobileLayerProps) {
   const selectedNormalized = normalizeNodeId(selectedNodeId);
   const mobileActionNormalized = normalizeNodeId(mobileActionNodeId);
+  const actionTargetNodeId = mobileActionNodeId ?? selectedNodeId;
   const showActionBar =
     showMobileControls &&
     editMode === "edit" &&
-    !!selectedNodeId &&
-    mobileActionNormalized === selectedNormalized;
+    !!mobileActionNodeId &&
+    (!!selectedNodeId ? mobileActionNormalized === selectedNormalized : true);
   const hoverRect = !isFocusMode && selectedNodeId && selectedRect ? selectedRect : null;
   const showHoverActions = Boolean(hoverRect);
 
@@ -132,7 +133,7 @@ export default function MindElixirMobileLayer({
         title={mobileEditMenuTitle}
         labels={mobileEditLabels}
         disableAddSibling={selectedNodeIsRoot}
-        disableRename={!selectedNodeId}
+        disableRename={!actionTargetNodeId}
         disableRemove={selectedNodeIsRoot}
         onClose={onCloseMobileActions}
         onAddChild={onAddChild}

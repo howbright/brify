@@ -473,6 +473,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const [noteDraft, setNoteDraft] = useState("");
   const [noteTargetId, setNoteTargetId] = useState<string | null>(null);
   const [mobileActionNodeId, setMobileActionNodeId] = useState<string | null>(null);
+  const isTouchDeviceRef = useRef(false);
+  const lastMobileActionOpenAtRef = useRef(0);
   const longPressTimerRef = useRef<number | null>(null);
   const longPressTriggeredRef = useRef(false);
   const touchDragMovedAtRef = useRef(0);
@@ -512,6 +514,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const hoverActionIconClass = isTouchDevice ? "h-3 w-3" : "h-3 w-3";
   const isDecoratingRef = useRef(false);
   const onChangeRef = useRef<((op: any) => void) | null>(null);
+
+  useEffect(() => {
+    isTouchDeviceRef.current = isTouchDevice;
+  }, [isTouchDevice]);
 
   const syncLatestMindDataFromMind = () => {
     const mind = mindRef.current;
@@ -1146,6 +1152,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
   useEffect(() => {
     if (!selectedNodeId) {
+      const elapsedSinceActionOpen = Date.now() - lastMobileActionOpenAtRef.current;
+      if (mobileActionNodeId && elapsedSinceActionOpen < 1400) {
+        // Keep action sheet stable across transient selection flaps.
+        return;
+      }
       // #region agent log
       fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
         method: "POST",
@@ -1167,9 +1178,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       // #endregion
       setMobileActionNodeId(null);
     }
-  }, [selectedNodeId]);
+  }, [mobileActionNodeId, selectedNodeId]);
 
   const handleToggleMobileActionNode = useCallback(() => {
+    const willOpen =
+      normalizeNodeId(mobileActionNodeId ?? "") !==
+      normalizeNodeId(selectedNodeId ?? "");
+    if (willOpen) {
+      lastMobileActionOpenAtRef.current = Date.now();
+    }
     // #region agent log
     fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
       method: "POST",
@@ -1513,7 +1530,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     mindLocale,
     contextMenuText,
     editMode,
-    isTouchDevice,
+    isTouchDeviceRef,
     noteBadgeSvg: NOTE_BADGE_SVG,
     showTimestampsRef,
     manualSelectionPriorityMs: MANUAL_SELECTION_PRIORITY_MS,
