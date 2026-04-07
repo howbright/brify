@@ -370,6 +370,11 @@ export function useMindElixirFocusSearch({
       );
       setSelectedNoteText(note && note.trim().length > 0 ? note : null);
       setMobileActionNodeId(null);
+      logMindElixirDebug("selection_applied", {
+        nodeId: normalizedNodeId,
+        width: Math.round(rect.width),
+        height: Math.round(rect.height),
+      });
       requestAnimationFrame(() => updateSelectedRect(normalizedNodeId));
       window.setTimeout(() => updateSelectedRect(normalizedNodeId), 80);
     },
@@ -476,6 +481,7 @@ export function useMindElixirFocusSearch({
     setSelectedNoteText(null);
     selectedNodeElRef.current = null;
     setIsFocusMode(false);
+    logMindElixirDebug("selection_cleared_by_focus_exit");
   }, [mindRef]);
 
   const handleHighlightClick = useCallback(

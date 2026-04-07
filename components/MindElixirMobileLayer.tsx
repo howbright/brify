@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { Icon } from "@iconify/react";
+import { logMindElixirDebug } from "@/components/mindElixirDebugLogger";
 import MindElixirMobileControls from "@/components/MindElixirMobileControls";
 
 function normalizeNodeId(id: string | null) {
@@ -81,16 +83,41 @@ export default function MindElixirMobileLayer({
 }: MindElixirMobileLayerProps) {
   const selectedNormalized = normalizeNodeId(selectedNodeId);
   const mobileActionNormalized = normalizeNodeId(mobileActionNodeId);
+  const showActionBar =
+    showMobileControls &&
+    editMode === "edit" &&
+    !!selectedNodeId &&
+    mobileActionNormalized === selectedNormalized;
+  const showHoverActions = !isFocusMode && Boolean(selectedNodeId && selectedRect);
+
+  useEffect(() => {
+    if (!isTouchDevice) return;
+    logMindElixirDebug("mobile_layer_state", {
+      selectedNodeId: selectedNormalized,
+      mobileActionNodeId: mobileActionNormalized,
+      hasSelectedRect: Boolean(selectedRect),
+      showHoverActions,
+      showActionBar,
+      showMobileControls,
+      editMode,
+      isFocusMode,
+    });
+  }, [
+    editMode,
+    isFocusMode,
+    isTouchDevice,
+    mobileActionNormalized,
+    selectedNormalized,
+    selectedRect,
+    showActionBar,
+    showHoverActions,
+    showMobileControls,
+  ]);
 
   return (
     <>
       <MindElixirMobileControls
-        showActionBar={
-          showMobileControls &&
-          editMode === "edit" &&
-          !!selectedNodeId &&
-          mobileActionNormalized === selectedNormalized
-        }
+        showActionBar={showActionBar}
         title={mobileEditMenuTitle}
         labels={mobileEditLabels}
         disableAddSibling={selectedNodeIsRoot}
@@ -103,7 +130,7 @@ export default function MindElixirMobileLayer({
         onRemove={onRemove}
       />
 
-      {!isFocusMode && selectedNodeId && selectedRect && (
+      {showHoverActions && (
         <>
           <div
             className="pointer-events-none absolute z-[19] rounded-md ring-2 ring-blue-500/80 shadow-[0_0_0_3px_rgba(255,255,255,0.92),0_10px_24px_rgba(37,99,235,0.22)] dark:shadow-[0_0_0_3px_rgba(11,18,32,0.9),0_10px_24px_rgba(59,130,246,0.28)]"
