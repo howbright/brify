@@ -163,16 +163,21 @@ export function useMindElixirThemeStyles({
         cursor: pointer;
       }
       me-tpc[data-highlight="gold"] {
-        background-color: #fde68a !important;
-        color: #7c2d12 !important;
-        border: 1px solid #f59e0b !important;
+        background-image: linear-gradient(
+          135deg,
+          rgba(251, 146, 60, 0.95) 0%,
+          rgba(253, 186, 116, 0.95) 42%,
+          rgba(250, 204, 21, 0.95) 100%
+        ) !important;
+        color: #111827 !important;
+        border: 1px solid #ef4444 !important;
         box-shadow:
-          0 6px 16px rgba(245, 158, 11, 0.35),
-          0 0 0 2px rgba(253, 230, 138, 0.5);
+          0 8px 20px rgba(249, 115, 22, 0.35),
+          0 0 0 2px rgba(239, 68, 68, 0.35);
       }
       me-tpc[data-highlight="gold"] .text {
-        color: #7c2d12 !important;
-        font-weight: 600;
+        color: #111827 !important;
+        font-weight: 700;
       }
       me-tpc[data-search="true"] {
         outline: 2px solid rgba(59, 130, 246, 0.35);
