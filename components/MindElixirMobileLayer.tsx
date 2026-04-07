@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
 import { Icon } from "@iconify/react";
-import { logMindElixirDebug } from "@/components/mindElixirDebugLogger";
 import MindElixirMobileControls from "@/components/MindElixirMobileControls";
 
 function normalizeNodeId(id: string | null) {
@@ -90,34 +88,6 @@ export default function MindElixirMobileLayer({
     mobileActionNormalized === selectedNormalized;
   const hoverRect = !isFocusMode && selectedNodeId && selectedRect ? selectedRect : null;
   const showHoverActions = Boolean(hoverRect);
-
-  useEffect(() => {
-    if (!isTouchDevice) return;
-    logMindElixirDebug("mobile_layer_state", {
-      selectedNodeId: selectedNormalized,
-      mobileActionNodeId: mobileActionNormalized,
-      hasSelectedRect: Boolean(selectedRect),
-      rectLeft: selectedRect ? Math.round(selectedRect.left) : null,
-      rectTop: selectedRect ? Math.round(selectedRect.top) : null,
-      rectWidth: selectedRect ? Math.round(selectedRect.width) : null,
-      rectHeight: selectedRect ? Math.round(selectedRect.height) : null,
-      showHoverActions,
-      showActionBar,
-      showMobileControls,
-      editMode,
-      isFocusMode,
-    });
-  }, [
-    editMode,
-    isFocusMode,
-    isTouchDevice,
-    mobileActionNormalized,
-    selectedNormalized,
-    selectedRect,
-    showActionBar,
-    showHoverActions,
-    showMobileControls,
-  ]);
 
   return (
     <>

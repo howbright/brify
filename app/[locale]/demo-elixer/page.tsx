@@ -20,7 +20,12 @@ export default function Page() {
   return (
     <div className="p-6 space-y-4 h-[100vh]">
       <h1 className="text-2xl font-semibold">Mind-Elixir Demo (damo-elixir)</h1>
-      <ClientMindElixir  mode="light" />
+      <ClientMindElixir
+        mode="light"
+        openMenuOnClick={false}
+        disableDirectContextMenu
+        showSelectionContextMenuButton
+      />
       {/* <p className="text-sm text-slate-600">
         - 더 필요하면 여기서 버튼/툴바/메뉴 플러그인 추가 가능. 노드
         더블클릭/F2로 인라인 편집, Enter/Shift+Enter/Tab로 형제/자식 추가 등

@@ -19,10 +19,6 @@ import {
 import MindElixirMobileLayer from "@/components/MindElixirMobileLayer";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 import MindElixirMiniMap from "@/components/MindElixirMiniMap";
-import {
-  isMindElixirDebugEnabled,
-  logMindElixirDebug,
-} from "@/components/mindElixirDebugLogger";
 import { useMindElixirContextMenu } from "@/components/useMindElixirContextMenu";
 import { useMindElixirCore } from "@/components/useMindElixirCore";
 import { useMindElixirFocusSearch } from "@/components/useMindElixirFocusSearch";
@@ -504,16 +500,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     startY: number;
     el: HTMLElement | null;
   }>({ nodeId: null, startX: 0, startY: 0, el: null });
-  const selectedMissingSinceRef = useRef<number | null>(null);
-  const selectedMissingLoggedAtRef = useRef<number>(0);
   const highlightVariant = "gold";
   const hoverActionWrapClass = isTouchDevice
-    ? "flex items-center gap-1.5 rounded-full bg-white/94 px-1.5 py-1 shadow-md ring-1 ring-black/5 dark:bg-[#0b1220]/94 dark:ring-white/10"
+    ? "flex items-center gap-1 rounded-full bg-white/94 px-1 py-0.5 shadow-md ring-1 ring-black/5 dark:bg-[#0b1220]/94 dark:ring-white/10"
     : "flex items-center gap-1 rounded-full bg-white/90 px-1 py-0.5 shadow-sm ring-1 ring-black/5 dark:bg-[#0b1220]/90 dark:ring-white/10";
   const hoverActionButtonClass = isTouchDevice
-    ? "group relative inline-flex h-8 w-8 items-center justify-center rounded-full text-[11px] shadow-sm"
+    ? "group relative inline-flex h-6 w-6 items-center justify-center rounded-full text-[9px] shadow-sm"
     : "group relative inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] shadow-sm";
-  const hoverActionIconClass = isTouchDevice ? "h-4 w-4" : "h-3 w-3";
+  const hoverActionIconClass = isTouchDevice ? "h-3 w-3" : "h-3 w-3";
   const isDecoratingRef = useRef(false);
   const onChangeRef = useRef<((op: any) => void) | null>(null);
 
@@ -1003,15 +997,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       }
       const nodeEl = getNodeElementFromEvent(e);
       if (!nodeEl) {
-        if (isTouchDevice) {
-          // On mobile, click retargeting can transiently miss node elements.
-          // Avoid clearing selection on these false negatives.
-          logMindElixirDebug("selection_clear_skipped_touch_click_no_node");
-          return;
-        }
-        logMindElixirDebug("selection_cleared_click_no_node", {
-          selectedNodeId: selectedNodeIdRef.current,
-        });
         setSelectedNodeId(null);
         setSelectedRect(null);
         selectedNodeElRef.current = null;
@@ -1166,11 +1151,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     if (elapsedSinceTouchMove < 220) return;
 
     const restoreId = last.id;
-    logMindElixirDebug("selection_restored_after_touch_flap", {
-      restoreId: normalizeNodeId(restoreId),
-      elapsedSinceStable,
-      elapsedSinceTouchMove,
-    });
     selectedNodeIdRef.current = restoreId;
     setSelectedNodeId(restoreId);
     requestAnimationFrame(() => updateSelectedRect(restoreId));
@@ -1182,54 +1162,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     selectedNodeIdRef,
     setSelectedNodeId,
     updateSelectedRect,
-  ]);
-
-  useEffect(() => {
-    if (!isMindElixirDebugEnabled()) return;
-    logMindElixirDebug("mindelixir_debug_enabled", {
-      isTouchDevice,
-      showMobileControls,
-      editMode,
-    });
-  }, [editMode, isTouchDevice, showMobileControls]);
-
-  useEffect(() => {
-    if (!isTouchDevice) return;
-    if (isFocusMode || !selectedNodeId) {
-      selectedMissingSinceRef.current = null;
-      return;
-    }
-    if (selectedRect) {
-      selectedMissingSinceRef.current = null;
-      return;
-    }
-    const now = Date.now();
-    if (selectedMissingSinceRef.current === null) {
-      selectedMissingSinceRef.current = now;
-      return;
-    }
-    const missingForMs = now - selectedMissingSinceRef.current;
-    const sinceLastLogMs = now - selectedMissingLoggedAtRef.current;
-    if (missingForMs >= 700 && sinceLastLogMs >= 3000) {
-      selectedMissingLoggedAtRef.current = now;
-      logMindElixirDebug("mobile_selected_without_rect", {
-        selectedNodeId: normalizeNodeId(selectedNodeId),
-        mobileActionNodeId: mobileActionNodeId
-          ? normalizeNodeId(mobileActionNodeId)
-          : null,
-        showMobileControls,
-        editMode,
-        missingForMs,
-      });
-    }
-  }, [
-    editMode,
-    isFocusMode,
-    isTouchDevice,
-    mobileActionNodeId,
-    selectedNodeId,
-    selectedRect,
-    showMobileControls,
   ]);
 
   function applyEditMode(mind: any, enabled: boolean) {

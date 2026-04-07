@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { logMindElixirDebug } from "@/components/mindElixirDebugLogger";
 
 type AnyNode = {
   id: string;
@@ -236,6 +235,17 @@ export function useMindElixirFocusSearch({
         return;
       }
       const normalizedNodeId = normalizeNodeId(nodeId);
+      const selectedNormalized = selectedNodeIdRef.current
+        ? normalizeNodeId(selectedNodeIdRef.current)
+        : null;
+      if (!selectedNormalized) {
+        // Ignore stale async rect updates after selection was already cleared.
+        return;
+      }
+      if (selectedNormalized !== normalizedNodeId) {
+        // Ignore stale async rect updates for previously selected nodes.
+        return;
+      }
       const candidates = nodeIdCandidates(normalizedNodeId);
       let nodeEl: HTMLElement | null = null;
       for (const candidate of candidates) {
@@ -246,20 +256,9 @@ export function useMindElixirFocusSearch({
         if (nodeEl) break;
       }
       if (!nodeEl) {
-        const selectedNormalized = selectedNodeIdRef.current
-          ? normalizeNodeId(selectedNodeIdRef.current)
-          : null;
-        const isStillSelected = selectedNormalized === normalizedNodeId;
+        const isStillSelected = true;
         const missCount = (missingRectCountRef.current[normalizedNodeId] ?? 0) + 1;
         missingRectCountRef.current[normalizedNodeId] = missCount;
-        if (missCount === 1 || missCount === 4) {
-          logMindElixirDebug("selected_rect_missing_node", {
-            nodeId: normalizedNodeId,
-            missCount,
-            selectedNodeId: selectedNodeIdRef.current,
-            isStillSelected,
-          });
-        }
         if (isStillSelected && missCount <= 4) {
           if (rectRetryNodeIdRef.current !== normalizedNodeId) {
             if (rectRetryRafRef.current !== null) {
@@ -286,23 +285,12 @@ export function useMindElixirFocusSearch({
         }
         delete missingRectCountRef.current[normalizedNodeId];
         if (!isStillSelected) return;
-        logMindElixirDebug("selected_rect_cleared_after_retries", {
-          nodeId: normalizedNodeId,
-          missCount,
-          selectedNodeId: selectedNodeIdRef.current,
-        });
         setSelectedRect(null);
         setSelectedNoteText(null);
         selectedNodeElRef.current = null;
         return;
       }
       const recoveredMissCount = missingRectCountRef.current[normalizedNodeId] ?? 0;
-      if (recoveredMissCount > 0) {
-        logMindElixirDebug("selected_rect_recovered", {
-          nodeId: normalizedNodeId,
-          recoveredFromMissCount: recoveredMissCount,
-        });
-      }
       delete missingRectCountRef.current[normalizedNodeId];
       if (rectRetryNodeIdRef.current === normalizedNodeId) {
         if (rectRetryRafRef.current !== null) {
@@ -370,11 +358,6 @@ export function useMindElixirFocusSearch({
       );
       setSelectedNoteText(note && note.trim().length > 0 ? note : null);
       setMobileActionNodeId(null);
-      logMindElixirDebug("selection_applied", {
-        nodeId: normalizedNodeId,
-        width: Math.round(rect.width),
-        height: Math.round(rect.height),
-      });
       requestAnimationFrame(() => updateSelectedRect(normalizedNodeId));
       window.setTimeout(() => updateSelectedRect(normalizedNodeId), 80);
     },
@@ -481,7 +464,6 @@ export function useMindElixirFocusSearch({
     setSelectedNoteText(null);
     selectedNodeElRef.current = null;
     setIsFocusMode(false);
-    logMindElixirDebug("selection_cleared_by_focus_exit");
   }, [mindRef]);
 
   const handleHighlightClick = useCallback(
