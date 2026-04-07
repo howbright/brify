@@ -13,7 +13,7 @@
 - 버튼을 더 연하게/작게 요청 -> 텍스트 제거, 연한 테두리 작은 아이콘 버튼 적용
 - 삭제 아이콘을 X로 변경 요청 -> `mdi:close` 아이콘 적용
 
-파일 변경 요약
+파일 변경 구조화
 - `components/maps/NoteItem.tsx` 신규 및 스타일/기능 개선
 - `components/maps/RightPanel.tsx` 노트 상태/CRUD 연동
 - `app/api/notes/route.ts` 노트 목록/생성 API

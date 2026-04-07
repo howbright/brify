@@ -339,7 +339,7 @@ export default function BillingReceiptPage({
           </section>
         ) : (
           <>
-            {/* 상단 요약 카드 */}
+            {/* 상단 구조화 카드 */}
             <section className="mt-8">
               <div
                 className="

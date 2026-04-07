@@ -297,7 +297,7 @@ export default function BillingHistoryPage() {
         </header>
 
         <main className="mx-auto max-w-5xl px-6 md:px-10 pb-24">
-          {/* ✅ 상단 요약 카드: 총 충전 크레딧 vs 남은 크레딧 */}
+          {/* ✅ 상단 구조화 카드: 총 충전 크레딧 vs 남은 크레딧 */}
 	          <section className="mt-8">
 	            <div className="mb-5">
 	              <h2 className="flex items-center gap-3 text-[18px] md:text-[22px] font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">

@@ -44,7 +44,7 @@ export function getShortcutCopy(
             { key: "Ctrl + C", description: "복사" },
             { key: "Ctrl + X", description: "잘라내기" },
             { key: "Ctrl + V", description: "붙여넣기" },
-            { key: "Delete / Backspace", description: "노드/화살표/요약 삭제" },
+            { key: "Delete / Backspace", description: "노드/화살표/구조화 삭제" },
             { key: "Ctrl + +", description: "확대" },
             { key: "Ctrl + -", description: "축소" },
             { key: "Ctrl + 0", description: "확대/축소 초기화" },

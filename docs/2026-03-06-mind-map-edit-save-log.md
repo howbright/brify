@@ -74,7 +74,7 @@
 
 ---
 
-## 현재 구조 요약
+## 현재 구조 구조화
 - 전역 기본 테마: `profiles.mind_theme_preference`
 - 개별 맵 테마: `maps.mind_theme_override`
 - 자동저장: `maps.mind_elixir_draft`

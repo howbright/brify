@@ -36,7 +36,7 @@ export function useSummarizeMutation() {
       const result = await res.json();
 
       if (!res.ok) {
-        throw new Error(result?.error || "요약 요청 실패");
+        throw new Error(result?.error || "구조화 요청 실패");
       }
 
       return result;

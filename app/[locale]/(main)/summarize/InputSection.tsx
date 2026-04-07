@@ -335,7 +335,7 @@ export default function InputSection({
 
             {type === SourceType.WEBSITE && (
               <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                대부분의 웹사이트는 요약이 가능하지만, 일부 로그인 필요하거나
+                대부분의 웹사이트는 구조화이 가능하지만, 일부 로그인 필요하거나
                 보안 설정된 사이트는 지원되지 않을 수 있어요.
               </p>
             )}

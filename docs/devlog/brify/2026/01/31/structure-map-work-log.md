@@ -2,7 +2,7 @@
 ## docs/devlog/brify/2026/01/31/structure-map-work-log.md
 ## 구조맵 작업 로그 (2026-01-26)
 
-### 요약 흐름
+### 구조화 흐름
 - NestJS에서 구조맵 생성 플로우 구현, Next.js에서 호출 연결
 - 구조맵 생성과 메타데이터 업데이트를 2단계로 분리
 - YouTube 공식 API(googleapis)로 메타데이터 자동 채우기 구현

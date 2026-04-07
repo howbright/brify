@@ -92,7 +92,7 @@ export default function SummarizePage() {
       setTextSummary(summaryStatus.data.detailedSummaryText ?? "");
       setHasSummarized(true);
     } else if (summaryStatus.data.status === "failed") {
-      toast.error(summaryStatus.data.errorMessage || "요약에 실패했습니다.");
+      toast.error(summaryStatus.data.errorMessage || "구조화에 실패했습니다.");
     }
   }, [summaryStatus.data]);
 
@@ -236,7 +236,7 @@ export default function SummarizePage() {
                   setTags(newTags); // optimistic update
 
                   if (!summaryId) {
-                    toast.error("요약 ID가 없습니다.");
+                    toast.error("구조화 ID가 없습니다.");
                     return;
                   }
                   updateKeywords(
@@ -252,7 +252,7 @@ export default function SummarizePage() {
             </div>
 
             <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-white mb-4 text-center">
-              이제 요약 결과를 나만의 정리 스타일로 완성해보세요.
+              이제 구조화 결과를 나만의 정리 스타일로 완성해보세요.
             </h3>
 
             <div className="w-full">
@@ -263,7 +263,7 @@ export default function SummarizePage() {
               mode="text"
               text={textSummary}
               onHighlight={() => console.log("하이라이트")}
-              onRegenerate={(level) => console.log("다시 요약:", level)}
+              onRegenerate={(level) => console.log("다시 구조화:", level)}
               onExplainTerms={() => console.log("전문 용어 정리")}
               onExportPDF={() => console.log("PDF 저장")}
               onAskGPT={() => console.log("GPT 질문")}

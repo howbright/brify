@@ -19,7 +19,7 @@ RightPanel 컴포넌트를 새로 만드는 게 맞는지 고민했다.
 - `maps.Row` 구조를 기준으로 `MapRow` 타입 정의
 - 상세 패널을 섹션 단위로 분리
   - 출처 / 태그 / 시간 / 크레딧 / 상태 / 데이터
-- 긴 텍스트(JSON, extracted_text)는 요약 미리보기 형태로 표시
+- 긴 텍스트(JSON, extracted_text)는 구조화 미리보기 형태로 표시
 - DraftMapCard의 디자인 감성을 유지한 패널 UI 구현
 
 ---

@@ -829,7 +829,7 @@ export default function FeedbackMissionPanel() {
                   value={title}
                   disabled={submitCapReached}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="예: YouTube 링크 입력 후 요약이 멈춰요"
+                  placeholder="예: YouTube 링크 입력 후 구조화이 멈춰요"
                   className={cn(
                     "mt-1 w-full rounded-2xl px-3 py-2 text-sm outline-none",
                     "border border-neutral-200/80 dark:border-white/15",

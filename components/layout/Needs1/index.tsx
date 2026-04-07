@@ -85,7 +85,7 @@ const Needs1 = () => {
             type="button"
             className="w-full sm:w-auto px-6 py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition"
           >
-            영상 핵심요약하기
+            영상 핵심구조화하기
           </button>
         </div>
       </div>

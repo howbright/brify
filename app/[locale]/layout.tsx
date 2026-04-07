@@ -22,12 +22,12 @@ export const revalidate = 0;
 export const metadata: Metadata = {
   title: "Brify – 긴 글을 한눈에 정리하세요",
   description:
-    "Brify는 긴 글을 빠르게 요약하고, 다이어그램으로 시각화하며, 태그로 정리해주는 AI 요약 서비스입니다. 텍스트, 웹페이지, YouTube 영상까지 간편하게 정리하세요.",
+    "Brify는 긴 글을 빠르게 구조화하고, 다이어그램으로 시각화하며, 태그로 정리해주는 AI 구조화 서비스입니다. 텍스트, 웹페이지, YouTube 영상까지 간편하게 정리하세요.",
   metadataBase: new URL("https://brify.ai"),
   openGraph: {
     title: "Brify – 긴 글을 한눈에 정리하세요",
     description:
-      "AI가 긴 글을 요약하고 시각화해줍니다. YouTube 영상, 웹페이지, 문서까지 Brify 하나로 정리하세요.",
+      "AI가 긴 글을 구조화하고 시각화해줍니다. YouTube 영상, 웹페이지, 문서까지 Brify 하나로 정리하세요.",
     url: "https://brify.ai",
     siteName: "Brify",
     images: [
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Brify – 긴 글을 한눈에 정리하세요",
     description:
-      "긴 글 요약, 다이어그램 시각화, 태그 정리까지 Brify로 한 번에!",
+      "긴 글 구조화, 다이어그램 시각화, 태그 정리까지 Brify로 한 번에!",
     images: ["https://brify.ai/images/og-image.png"],
   },
 };

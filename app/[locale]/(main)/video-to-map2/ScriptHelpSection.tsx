@@ -31,7 +31,7 @@ export default function ScriptHelpSection({
         ${isHelpOpen ? "p-4 md:p-5" : "p-3 md:p-3.5"}
       `}
     >
-      {/* 헤더: 항상 보이는 영역 (뱃지 + 타이틀 + 한 줄 요약 + 아이콘) */}
+      {/* 헤더: 항상 보이는 영역 (뱃지 + 타이틀 + 한 줄 구조화 + 아이콘) */}
       <button
         type="button"
         onClick={onToggle}

@@ -88,7 +88,7 @@ export default function EditableTitle({
           />
         ) : (
           <h1 className="text-xl font-bold whitespace-pre-wrap">
-            {title || "제목 없는 요약"}
+            {title || "제목 없는 구조화"}
           </h1>
         )}
 

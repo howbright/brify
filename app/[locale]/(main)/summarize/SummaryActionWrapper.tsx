@@ -10,13 +10,13 @@ export default function SummaryActionsWrapper({
   ...actions
 }: SummaryActionsProps) {
   const { ref, inView } = useInView({
-    threshold: 0.1, // 텍스트 요약 영역이 30% 보이면 inView = true
+    threshold: 0.1, // 텍스트 구조화 영역이 30% 보이면 inView = true
     triggerOnce: false,
   });
 
   return (
     <>
-      {/* 감지할 대상 (텍스트 요약 끝나는 부분에 배치) */}
+      {/* 감지할 대상 (텍스트 구조화 끝나는 부분에 배치) */}
       <div ref={ref} className="h-10" />
 
       {/* SummaryActions: 뷰포트 조건 만족할 때만 표시 */}

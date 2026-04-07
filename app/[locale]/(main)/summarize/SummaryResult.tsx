@@ -55,7 +55,7 @@ export default function SummaryResult({ text }: Props) {
             },
           }}
         >
-          {text || "요약 결과가 여기에 표시됩니다."}
+          {text || "구조화 결과가 여기에 표시됩니다."}
         </ReactMarkdown>
       </div>
     </div>

@@ -30,7 +30,7 @@
     },
     "processing": {
       "title": "영상을 구조맵로 정리하는 중이에요...",
-      "bullet1": "요약이 아니라, 흐름 · 단계 · 분기를 먼저 분석하고 있어요.",
+      "bullet1": "구조화이 아니라, 흐름 · 단계 · 분기를 먼저 분석하고 있어요.",
       "bullet2": "영상 길이에 따라 수십 초 이상 걸릴 수 있어요.",
       "bullet3": "창을 닫지만 않으시면, 작업은 자동으로 이어져요."
     },
@@ -346,7 +346,7 @@
 
   "signupPage": {
     "brand": "Brify",
-    "tagline": "새 계정을 만들고 요약과 구조맵 작업을 시작해요."
+    "tagline": "새 계정을 만들고 구조화과 구조맵 작업을 시작해요."
   },
   "loginPage": {
     "brand": "Brify",
@@ -416,7 +416,7 @@
       "created": "생성",
       "updated": "수정",
       "credits": "크레딧",
-      "summary": "한문단요약",
+      "summary": "한문단구조화",
       "source": "출처",
       "thumbnail": "thumbnail",
       "sourceType": "출처 타입",
@@ -669,7 +669,7 @@
       },
       "150": {
         "badgeText": "가장 많이 선택",
-        "tagline": "자주 요약하는 분들을 위한 표준 크레딧 팩이에요."
+        "tagline": "자주 구조화하는 분들을 위한 표준 크레딧 팩이에요."
       },
       "300": {
         "badgeText": "대용량 패키지",
@@ -860,7 +860,7 @@
       { "key": "Ctrl + C", "description": "복사" },
       { "key": "Ctrl + X", "description": "잘라내기" },
       { "key": "Ctrl + V", "description": "붙여넣기" },
-      { "key": "Delete / Backspace", "description": "노드/화살표/요약 삭제" },
+      { "key": "Delete / Backspace", "description": "노드/화살표/구조화 삭제" },
       { "key": "Ctrl + +", "description": "확대" },
       { "key": "Ctrl + -", "description": "축소" },
       { "key": "Ctrl + 0", "description": "확대/축소 초기화" },
@@ -937,7 +937,7 @@
     "title": "결제 내역",
     "subtitle": "크레딧 충전 내역과 영수증을 한 곳에서 확인할 수 있어요.",
     "summary": {
-      "title": "유료 크레딧 요약",
+      "title": "유료 크레딧 구조화",
       "totalCharged": "총 충전한 유료 크레딧",
       "currentBalance": "현재 남은 유료 크레딧",
       "used": "지금까지 사용한 유료 크레딧",
@@ -1086,7 +1086,7 @@
     ],
     "flowItems": ["스크립트 입력", "구조맵 생성", "읽기 · 편집 · 비교"],
     "videoLabel": "30초 안에 보는 사용 흐름",
-    "visualAlt": "요약 다이어그램 미리보기"
+    "visualAlt": "구조화 다이어그램 미리보기"
   },
   "WelcomePage": {
     "subtitle": "welcome to brify",
@@ -1111,7 +1111,7 @@
 
       "field": {
         "titleLabel": "제목",
-        "titlePlaceholder": "예: 요약 결과가 보이지 않는 문제가 있습니다",
+        "titlePlaceholder": "예: 구조화 결과가 보이지 않는 문제가 있습니다",
         "messageLabel": "상세 내용",
         "messagePlaceholder": "어떤 상황에서 문제가 발생했는지,\n사용 중인 브라우저·OS, 오류 화면이 있었다면 메시지를 적어 주세요.\n기능 제안이라면 어떤 작업을 더 쉽게 하고 싶은지도 알려주시면 좋습니다.",
         "emailLabel": "답변을 받을 이메일 (선택)",
@@ -1257,7 +1257,7 @@
     "created": "생성",
     "updated": "수정",
     "credits": "소요 크레딧",
-    "summarySection": "한문단요약",
+    "summarySection": "한문단구조화",
     "sourceSection": "출처",
     "thumbnailPlaceholder": "thumbnail",
     "sourceType": "출처 유형",
@@ -1468,7 +1468,7 @@
       "channel": "채널명 / 작성자 / 출처",
       "thumbnailUrl": "(선택) 썸네일 URL",
       "tags": "회의, 마케팅, 기획, OKR (쉼표로 구분)",
-      "description": "이 구조맵에 대한 메모/요약/설명 등을 입력해 주세요."
+      "description": "이 구조맵에 대한 메모/구조화/설명 등을 입력해 주세요."
     },
     "buttons": {
       "youtubeAutofill": "유튜브로 자동 채우기",
@@ -1726,7 +1726,7 @@
       }
     },
     "previewPanel": {
-      "noSummary": "요약이 아직 없어요.",
+      "noSummary": "구조화이 아직 없어요.",
       "closedTitle": "미리보기 닫힘",
       "closedDescription": "빠른 비교를 위해 필요하면 다시 열 수 있어요.",
       "openPreview": "미리보기 열기",

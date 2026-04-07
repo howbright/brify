@@ -26,7 +26,7 @@ export default function SummarizeButton({ onSummarize, loading, disabled }: Prop
         {loading ? (
           <>
             <Icon icon="lucide:loader" className="animate-spin" width={18} />
-            요약 중...
+            구조화 중...
           </>
         ) : (
           <>

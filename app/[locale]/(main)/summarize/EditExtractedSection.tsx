@@ -45,7 +45,7 @@ export default function EditExtractedSection({
       <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-6 text-center">
         {isManual ? (
           <>
-            요약할 내용을 입력하거나 붙여넣어 보세요.
+            구조화할 내용을 입력하거나 붙여넣어 보세요.
             <br className="hidden sm:block" />
             내용이 준비되면 핵심정리를 진행하세요.
           </>
@@ -53,7 +53,7 @@ export default function EditExtractedSection({
           <>
             내용이 준비됐어요.
             <br className="hidden sm:block" />
-            요약하기 전에 편집이 필요하다면 수정해보세요.
+            구조화하기 전에 편집이 필요하다면 수정해보세요.
           </>
         )}
       </h3>
@@ -79,11 +79,11 @@ export default function EditExtractedSection({
         />
 
         <p className="text-xs text-gray-400 text-right mt-2">
-          요약 결과를 위해 입력한 원문은 하루 동안 임시 보관되며 이후 자동 삭제돼요.
+          구조화 결과를 위해 입력한 원문은 하루 동안 임시 보관되며 이후 자동 삭제돼요.
         </p>
         {isTooShort && (
           <p className="text-xs text-red-500 text-right">
-            요약을 위해 최소 300자 이상의 내용을 입력해주세요.
+            구조화을 위해 최소 300자 이상의 내용을 입력해주세요.
           </p>
         )}
       </div>

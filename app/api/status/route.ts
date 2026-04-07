@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
 
   if (!data) {
     return NextResponse.json(
-      { error: "해당 요약을 찾을 수 없습니다." },
+      { error: "해당 구조화을 찾을 수 없습니다." },
       { status: 404 }
     );
   }

@@ -49,7 +49,7 @@
       "created": "생성",
       "updated": "수정",
       "credits": "크레딧",
-      "summary": "한문단요약",
+      "summary": "한문단구조화",
       "source": "출처",
       "thumbnail": "thumbnail",
       "sourceType": "출처 타입",
@@ -351,7 +351,7 @@
       },
       {
         "key": "Delete / Backspace",
-        "description": "노드/화살표/요약 삭제"
+        "description": "노드/화살표/구조화 삭제"
       },
       {
         "key": "Ctrl + +",
@@ -394,7 +394,7 @@
     "created": "생성",
     "updated": "수정",
     "credits": "소요 크레딧",
-    "summarySection": "한문단요약",
+    "summarySection": "한문단구조화",
     "sourceSection": "출처",
     "thumbnailPlaceholder": "thumbnail",
     "sourceType": "출처 유형",
@@ -614,7 +614,7 @@
       "channel": "채널명 / 작성자 / 출처",
       "thumbnailUrl": "(선택) 썸네일 URL",
       "tags": "회의, 마케팅, 기획, OKR (쉼표로 구분)",
-      "description": "이 구조맵에 대한 메모/요약/설명 등을 입력해 주세요."
+      "description": "이 구조맵에 대한 메모/구조화/설명 등을 입력해 주세요."
     },
     "buttons": {
       "youtubeAutofill": "유튜브로 자동 채우기",
@@ -846,7 +846,7 @@
       }
     },
     "previewPanel": {
-      "noSummary": "요약이 아직 없어요.",
+      "noSummary": "구조화이 아직 없어요.",
       "closedTitle": "미리보기 닫힘",
       "closedDescription": "빠른 비교를 위해 필요하면 다시 열 수 있어요.",
       "openPreview": "미리보기 열기",

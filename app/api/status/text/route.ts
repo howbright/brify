@@ -8,7 +8,7 @@ export async function GET(req: Request) {
   const summaryId = searchParams.get("summaryId");
   if (!summaryId) {
     return NextResponse.json(
-      { error: "요약 ID가 필요합니다." },
+      { error: "구조화 ID가 필요합니다." },
       { status: 400 }
     );
   }
@@ -23,7 +23,7 @@ export async function GET(req: Request) {
 
   if (error || !data) {
     return NextResponse.json(
-      { error: error?.message || "요약을 찾을 수 없습니다." },
+      { error: error?.message || "구조화을 찾을 수 없습니다." },
       { status: 404 }
     );
   }

@@ -35,12 +35,12 @@ export default function SummaryActions({
               onClick={onHighlight}
             />
             <ActionButton
-              label="더 간단하게 요약"
+              label="더 간단하게 구조화"
               icon="lucide:sparkles"
               onClick={() => onRegenerate?.("short")}
             />
             <ActionButton
-              label="더 자세히 요약"
+              label="더 자세히 구조화"
               icon="lucide:scan-line"
               onClick={() => onRegenerate?.("detailed")}
             />

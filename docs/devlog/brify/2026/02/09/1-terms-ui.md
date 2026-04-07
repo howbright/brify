@@ -15,7 +15,7 @@
 - sticky가 겹쳐 보임 -> RightPanel 패딩 재조정 (`pt-0`)
 - 버튼 클릭 시 바텀시트가 너무 멀리 보임 -> 버튼 바로 아래 인라인 입력 토글로 변경
 
-파일 변경 요약
+파일 변경 구조화
 - `components/maps/TermsBlock.tsx` 용어 UI 재구성, 삭제 아이콘, 인라인 입력 토글
 - `components/maps/RightPanel.tsx` 탭 간격/패딩 조정 및 TermsBlock 연결
 - `app/[locale]/(fullscreen)/maps/[mapId]/page.tsx` mock terms/로딩 연결

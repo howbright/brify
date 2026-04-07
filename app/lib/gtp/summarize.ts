@@ -1,7 +1,7 @@
 export async function summarizeTextOnly(userText: string): Promise<string> {
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(`이 영상은 **정신건강의학과 의사와 범죄 프로파일러**가 함께 **소시오패스와 사이코패스에 대한 실질적인 사례와 특징, 대응 방법** 등을 대화 형식으로 설명한 콘텐츠입니다. 주요 내용을 핵심 요점으로 요약하면 다음과 같습니다:
+      resolve(`이 영상은 **정신건강의학과 의사와 범죄 프로파일러**가 함께 **소시오패스와 사이코패스에 대한 실질적인 사례와 특징, 대응 방법** 등을 대화 형식으로 설명한 콘텐츠입니다. 주요 내용을 핵심 요점으로 구조화하면 다음과 같습니다:
 
 ---
 
@@ -54,7 +54,7 @@ export async function summarizeTextOnly(userText: string): Promise<string> {
 
 ---
 
-필요하다면, “간단한 카드 뉴스 형식 요약”이나 “10문장 요약”도 도와줄게요.
+필요하다면, “간단한 카드 뉴스 형식 구조화”이나 “10문장 구조화”도 도와줄게요.
 `);
     }, 1500); // 1.5초 지연
   });
