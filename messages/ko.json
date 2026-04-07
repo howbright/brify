@@ -188,6 +188,12 @@
     "createAnother": "다른 구조맵 생성하기",
     "openMap": "구조맵 열기"
   },
+  "NoteItem": {
+    "save": "저장",
+    "cancel": "취소",
+    "edit": "수정",
+    "delete": "삭제"
+  },
   "ScriptHelpSection": {
     "badge": "도움말",
     "headerTitle": "YouTube 스크립트 가져오는 방법",
@@ -195,16 +201,19 @@
       "title": "YouTube에서 스크립트 가져오기 (PC 기준)",
       "description": "아래 순서를 천천히 따라오시면 1–2분 안에 스크립트를 가져오실 수 있어요."
     },
+
     "step1": {
       "title": "영상 아래의 \"···\" 또는 \"더보기\" 버튼을 눌러 주세요.",
       "body": "영상 제목 아래, 좋아요/공유 버튼 옆에 있는 점 세 개(···) 버튼 또는 \"더보기\" 버튼을 찾으시면 돼요.",
       "imageAlt": "YouTube 재생 화면에서 더보기(···) 버튼 위치 안내"
     },
+
     "step2": {
       "title": "메뉴에서 \"대본 보기\" 또는 \"Transcript\"를 선택해 주세요.",
       "body": "펼쳐진 메뉴 안에서 \"대본 보기\", \"자막\", \"Transcript\"와 같은 이름의 항목을 눌러 주세요.",
       "imageAlt": "YouTube 메뉴에서 대본 보기(Transcript) 선택 화면"
     },
+
     "step3": {
       "title": "오른쪽에 열린 대본을 전체 선택해서 복사해 주세요.",
       "tip1": "1. 대본 첫 줄을 한 번 클릭합니다.",
@@ -215,27 +224,33 @@
       "tipNote": "※ Ctrl + A는 페이지 전체를 선택해 버려서, 대본만 복사할 때는 사용하지 않는 걸 추천드려요.",
       "imageAlt": "YouTube Transcript 패널 전체 선택 화면"
     },
+
     "step4": {
       "title": "이 페이지의 왼쪽 입력창에 붙여넣어 주세요.",
       "body": "\"영상 스크립트 붙여넣기\" 입력창을 클릭하신 뒤, Ctrl + V (Mac은 ⌘ + V)로 붙여넣어 주시면 준비가 완료돼요.",
       "imageAlt": "영상 스크립트 붙여넣기 입력창에 텍스트를 붙여넣는 화면"
     },
+
     "sectionB": {
       "title": "자막 파일이나 편집툴에서 가져오고 싶으신가요?",
       "description": "이미 작업 중인 프로젝트가 있어도, 텍스트만 복사해서 그대로 붙여넣으시면 괜찮아요."
     },
+
     "case1": {
       "title": "편집툴(프리미어, 캡컷 등)에서 자막·대본 복사",
       "body": "타임라인에 있는 자막 텍스트를 전체 선택해서 복사한 뒤, 왼쪽 입력창에 붙여넣어 주세요."
     },
+
     "case2": {
       "title": "자막 파일(srt, vtt 등)을 텍스트로 열기",
       "body": "srt·vtt 파일을 메모장/텍스트 편집기로 열면 시간 정보와 함께 대사가 들어 있어요. 필요한 부분의 대사 텍스트를 복사해서 붙여넣어 주시면 돼요."
     },
+
     "case3": {
       "title": "이미 정리해 두신 스크립트 문서 사용",
       "body": "블로그, 워드, 노션 등 어디에 적어 두신 스크립트든 상관없어요. 전체 텍스트를 복사해서 그대로 붙여넣어 주시면 됩니다."
     },
+
     "faq": {
       "title": "Q. \"대본 보기\" / \"Transcript\" 메뉴가 안 보여요.",
       "item1": "일부 영상은 제작자가 대본 노출을 막아 둔 경우일 수 있어요.",
@@ -328,6 +343,7 @@
       "link": "로그인 하기"
     }
   },
+
   "signupPage": {
     "brand": "Brify",
     "tagline": "새 계정을 만들고 요약과 구조맵 작업을 시작해요."
@@ -354,6 +370,217 @@
       "success": "샘플 구조맵 생성이 완료됐어요.",
       "autoOpen": "구조맵이 준비되었습니다. 구조맵 페이지로 이동합니다.",
       "readOnly": "체험 페이지에서는 샘플 원문을 수정할 수 없어요."
+    }
+  },
+  "DemoFullscreenDialog": {
+    "dialog": {
+      "title": "구조맵 미리보기"
+    },
+    "actions": {
+      "close": "닫기",
+      "closeMap": "맵 닫기",
+      "infoPanel": "정보 패널",
+      "startService": "서비스 시작하기",
+      "centerMap": "가운데로",
+      "collapseAll": "전체 접기",
+      "zoomIn": "확대",
+      "zoomOut": "축소",
+      "tutorial": "튜토리얼"
+    },
+    "badges": {
+      "editMode": "편집 모드",
+      "viewMode": "보기 모드"
+    },
+    "toasts": {
+      "demoFinished": "체험이 끝났습니다. 홈으로 돌아갑니다.",
+      "editModeRequired": "노드를 수정하려면 편집 모드를 눌러주세요."
+    },
+    "shareDialog": {
+      "title": "이 구조맵은 체험용입니다",
+      "description": "실제 서비스에서는 구조맵을 링크로 공유하고 다른 사람과 함께 볼 수 있어요. 서비스를 시작하면 내 구조맵의 공유 링크를 바로 만들 수 있습니다.",
+      "action": "서비스 시작하기",
+      "cancel": "닫기"
+    },
+    "tabs": {
+      "info": "정보",
+      "notes": "노트",
+      "terms": "용어"
+    },
+    "sourceTypes": {
+      "youtube": "youtube",
+      "website": "website",
+      "file": "file",
+      "manual": "manual"
+    },
+    "info": {
+      "created": "생성",
+      "updated": "수정",
+      "credits": "크레딧",
+      "summary": "한문단요약",
+      "source": "출처",
+      "thumbnail": "thumbnail",
+      "sourceType": "출처 타입",
+      "channel": "채널",
+      "originalLink": "원본 링크",
+      "tags": "태그",
+      "description": "설명"
+    },
+    "notes": {
+      "justNow": "방금 전",
+      "helper": "중요한 노드를 읽으면서 떠오른 생각을 바로 남길 수 있어요.",
+      "placeholder": "이 노드에서 떠오른 생각을 적어보세요.",
+      "add": "노트 추가",
+      "empty": "아직 노트가 없습니다.",
+      "items": [
+        {
+          "text": "첫 번째 식사와 두 번째 식사의 시간대가 명확해서 하루 흐름이 한눈에 들어온다.",
+          "createdAtLabel": "방금 전"
+        },
+        {
+          "text": "OMAD를 하지 않는 이유가 체중 유지라는 점이 핵심 포인트다.",
+          "createdAtLabel": "방금 전"
+        }
+      ]
+    },
+    "terms": {
+      "autoAddedXylitol": "영상에서 커피에 넣는 감미료로 언급된다.",
+      "customAdded": "체험용으로 추가된 사용자 지정 용어입니다.",
+      "helper": "AI가 핵심 용어를 자동으로 추출해 이해를 돕습니다.",
+      "items": [
+        {
+          "term": "OMAD",
+          "meaning": "하루 한 끼만 먹는 식사 방식이다."
+        },
+        {
+          "term": "grass-fed",
+          "meaning": "곡물보다 목초 위주로 사육된 재료를 뜻하며, 영상에서는 품질 기준으로 반복해서 언급된다."
+        },
+        {
+          "term": "pasture-raised",
+          "meaning": "방목 환경에서 키운 달걀이나 가축을 뜻하며, 식재료 선택 기준으로 강조된다."
+        }
+      ]
+    }
+  },
+  "MapTutorial": {
+    "overlay": {
+      "label": "튜토리얼",
+      "skip": "건너뛰기",
+      "next": "확인",
+      "start": "시작하기"
+    },
+    "illustrations": {
+      "mode": {
+        "view": "보기",
+        "edit": "편집"
+      },
+      "mouse": {
+        "alt": "우클릭 마우스 안내",
+        "label": "우클릭 + 드래그"
+      },
+      "trackpad": {
+        "alt": "두 손가락 트랙패드 안내",
+        "label": "두 손가락으로 이동"
+      },
+      "context": {
+        "alt": "컨텍스트 메뉴 안내"
+      },
+      "expand": {
+        "label": "접기 / 펼치기",
+        "description": "+ 버튼으로 하위 내용을 열 수 있어요"
+      }
+    },
+    "steps": {
+      "edit": {
+        "title": "편집하려면 편집 모드로 전환하세요",
+        "description": "지금은 보기 모드예요. 노드를 수정하거나 구조를 바꾸려면 상단의 편집 모드로 전환해야 해요.",
+        "calloutTitle": "보기 / 편집 모드",
+        "calloutDescription": "먼저 여기서 작업 모드를 바꿔 주세요."
+      },
+      "mouse": {
+        "title": "맵 이동은 우클릭 드래그하세요",
+        "description": "마우스를 쓸 때는 우클릭을 누른 채 드래그하면 화면 안에서 맵을 부드럽게 이동할 수 있어요.",
+        "calloutTitle": "마우스 이동",
+        "calloutDescription": "우클릭을 누른 채 끌어서 맵을 이동해요."
+      },
+      "trackpad": {
+        "title": "트랙패드는 두 손가락으로 맵을 이동하세요",
+        "description": "노트북 트랙패드에서는 두 손가락으로 밀면 맵 위치를 자연스럽게 이동할 수 있어요.",
+        "calloutTitle": "트랙패드 이동",
+        "calloutDescription": "두 손가락으로 밀어서 화면을 움직여 보세요."
+      },
+      "context": {
+        "title": "노드를 선택한 뒤 우클릭하세요",
+        "description": "노드를 먼저 선택한 다음 우클릭하면 관련 작업이 담긴 컨텍스트 메뉴를 열 수 있어요.",
+        "calloutTitle": "컨텍스트 메뉴",
+        "calloutDescription": "선택 후 우클릭하면 여기처럼 메뉴가 열려요."
+      },
+      "highlight": {
+        "title": "하이라이트로 중요한 흐름을 표시해 보세요",
+        "description": "중요내용의 노드는 하이라이트로 강조하며 읽으세요.",
+        "calloutTitle": "하이라이트",
+        "calloutDescription": "중요내용의 노드는 하이라이트로 강조하며 읽으세요."
+      },
+      "expand": {
+        "title": "노드를 접고 펴며 더 편하게 읽으세요",
+        "description": "동그라미 안의 + 버튼을 누르면 하위 내용을 펼칠 수 있어요. 다시 접으면서 필요한 부분만 따라가면 구조맵을 훨씬 편하게 읽을 수 있어요.",
+        "calloutTitle": "접기 / 펼치기",
+        "calloutDescription": "+ 버튼으로 하위 내용을 펼쳐보세요."
+      },
+      "terms": {
+        "title": "AI가 어려운 용어를 찾아서 정리해드려요",
+        "description": "왼쪽 패널의 용어 탭에서는 영상 속 낯선 표현이나 어려운 용어를 자동으로 정리해서 더 쉽게 이해할 수 있어요.",
+        "calloutTitle": "용어",
+        "calloutDescription": "AI가 어려운 용어를 찾아서 정리해드려요."
+      },
+      "shortcuts": {
+        "title": "단축키를 기억하면, 훨씬 더 편리합니다",
+        "description": "자주 쓰는 단축키를 기억해두면 구조맵을 훨씬 빠르게 다룰 수 있어요. 이 내용은 상단 더보기 > 단축키 메뉴에서 언제든 다시 볼 수 있어요."
+      }
+    },
+    "mobile": {
+      "edit": {
+        "title": "모바일에서는 바로 편집할 수 있어요",
+        "description": "모바일 구조맵은 처음부터 편집 가능한 상태로 열려요.",
+        "calloutTitle": "편집 모드",
+        "calloutDescription": "모바일에서는 바로 편집을 시작할 수 있어요."
+      },
+      "move": {
+        "title": "모바일에서는 손가락으로 바로 맵을 움직일 수 있어요",
+        "description": "모바일에서는 별도 이동 모드 없이, 빈 곳이나 노드 바깥에서 손가락으로 드래그해서 맵을 움직이면 돼요.",
+        "calloutTitle": "맵 이동",
+        "calloutDescription": "손가락으로 드래그해서 맵을 움직여 보세요."
+      },
+      "select": {
+        "title": "노드를 누르면 선택되고, 길게 누르면 편집 메뉴가 열려요",
+        "description": "모바일에서는 노드를 한 번 눌러 선택할 수 있어요. 노드 옆 작은 버튼은 바로 쓸 수 있고, 편집 모드에서는 길게 눌렀을 때 아래 편집 메뉴가 열려요.",
+        "calloutTitle": "노드 선택",
+        "calloutDescription": "노드는 한 번 눌러 선택하고, 편집 메뉴가 필요할 때는 길게 눌러보세요."
+      },
+      "highlight": {
+        "title": "중요한 노드는 하이라이트하며 읽으세요",
+        "description": "노드를 선택하면 옆에 작은 버튼들이 떠요. 그중 하이라이트 버튼으로 중요한 내용을 바로 표시할 수 있어요.",
+        "calloutTitle": "하이라이트",
+        "calloutDescription": "노드를 선택한 뒤 하이라이트 버튼을 눌러보세요."
+      },
+      "expand": {
+        "title": "노드를 접고 펴며 더 편하게 읽으세요",
+        "description": "동그라미 안의 + 버튼을 누르면 하위 내용을 펼칠 수 있어요. 다시 접으면서 필요한 부분만 따라가면 구조맵을 훨씬 편하게 읽을 수 있어요.",
+        "calloutTitle": "접기 / 펼치기",
+        "calloutDescription": "+ 버튼으로 하위 내용을 펼쳐보세요."
+      },
+      "panel": {
+        "title": "왼쪽 패널에서 더 많은 정보를 확인하세요",
+        "description": "왼쪽 패널 버튼을 누르면 정보, 노트, 용어 탭을 열 수 있어요. 구조맵을 읽다가 필요한 정보를 바로 확인해보세요.",
+        "calloutTitle": "왼쪽 패널",
+        "calloutDescription": "이 버튼을 누르면 정보, 노트, 용어 탭을 열 수 있어요."
+      },
+      "terms": {
+        "title": "AI가 어려운 용어를 찾아서 정리해드려요",
+        "description": "왼쪽 패널의 용어 탭에서는 영상 속 낯선 표현이나 어려운 용어를 자동으로 정리해서 더 쉽게 이해할 수 있어요.",
+        "calloutTitle": "용어",
+        "calloutDescription": "어려운 용어는 여기서 바로 확인할 수 있어요."
+      }
     }
   },
   "CreatorSection": {
@@ -434,6 +661,7 @@
     "positioningText": "구독 없이, 사용한 만큼만 결제하세요.",
     "refundText": "구매 후 7일 이내, 미사용 크레딧은 전액 환불 가능합니다.",
     "seeDetails": "요금 자세히 보기",
+
     "packs": {
       "50": {
         "badgeText": "입문용",
@@ -448,6 +676,7 @@
         "tagline": "학습·프로젝트에 넉넉하게 쓰기 좋은 대용량 팩이에요."
       }
     },
+
     "creditRule": {
       "title": "대부분의 콘텐츠는 1크레딧만 사용돼요",
       "desc": "아주 큰 분량의 텍스트만 2크레딧이 필요해요",
@@ -462,15 +691,18 @@
         "blocked": "처리 불가"
       }
     },
+
     "toggles": {
       "details": "자세히",
       "collapse": "접기"
     },
+
     "paymentToggle": {
       "krw": "원화 결제 (토스페이먼츠)",
       "usd": "USD 결제 (LemonSqueezy)"
     }
   },
+
   "PricingGrid": {
     "cta": {
       "signedIn": "구매하기",
@@ -552,7 +784,7 @@
       "logout": "로그아웃"
     },
     "nav": {
-      "samples": "체험",
+      "samples": "예시보기",
       "about": "소개",
       "pricing": "요금제",
       "contactFeedback": "문의/피드백"
@@ -565,6 +797,82 @@
       "newMap": "새 구조맵",
       "myMaps": "나의 맵"
     }
+  },
+  "MapControls": {
+    "mode": {
+      "view": "보기",
+      "viewAria": "보기 모드",
+      "edit": "편집",
+      "editAria": "편집 모드"
+    },
+    "pan": {
+      "select": "선택",
+      "selectAria": "선택 모드",
+      "move": "이동",
+      "moveAria": "이동 모드"
+    },
+    "menus": {
+      "mapActions": "맵 조작",
+      "theme": "테마",
+      "more": "더보기"
+    },
+    "actions": {
+      "center": "가운데로",
+      "zoomIn": "확대",
+      "zoomOut": "축소",
+      "collapseAll": "전체 접기",
+      "expandAll": "전체 펴기",
+      "expandLevel": "한단계 펴기",
+      "collapseLevel": "한단계 접기",
+      "alignLeft": "왼쪽 정렬",
+      "alignRight": "오른쪽 정렬",
+      "alignCenter": "가운데 정렬",
+      "exportPng": "이미지로 저장 (PNG)",
+      "share": "공유",
+      "shortcuts": "단축키",
+      "tutorial": "튜토리얼",
+      "closeMap": "맵 닫기"
+    }
+  },
+  "ShortcutsDialog": {
+    "title": "단축키 안내",
+    "description": "Mind Elixir 기본 단축키 목록입니다.",
+    "close": "닫기",
+    "columns": {
+      "shortcut": "단축키",
+      "action": "기능"
+    },
+    "items": [
+      { "key": "Enter", "description": "형제 노드 삽입" },
+      { "key": "Shift + Enter", "description": "앞쪽에 형제 노드 삽입" },
+      { "key": "Tab", "description": "자식 노드 삽입" },
+      { "key": "Ctrl + Enter", "description": "부모 노드 삽입" },
+      { "key": "F1", "description": "맵 중앙 정렬" },
+      { "key": "F2", "description": "현재 노드 편집" },
+      { "key": "↑", "description": "이전 노드 선택" },
+      { "key": "↓", "description": "다음 노드 선택" },
+      { "key": "← / →", "description": "좌/우 노드 선택" },
+      { "key": "PageUp / Alt + ↑", "description": "위로 이동" },
+      { "key": "PageDown / Alt + ↓", "description": "아래로 이동" },
+      { "key": "Ctrl + ↑", "description": "양쪽 레이아웃" },
+      { "key": "Ctrl + ←", "description": "좌측 레이아웃" },
+      { "key": "Ctrl + →", "description": "우측 레이아웃" },
+      { "key": "Ctrl + C", "description": "복사" },
+      { "key": "Ctrl + X", "description": "잘라내기" },
+      { "key": "Ctrl + V", "description": "붙여넣기" },
+      { "key": "Delete / Backspace", "description": "노드/화살표/요약 삭제" },
+      { "key": "Ctrl + +", "description": "확대" },
+      { "key": "Ctrl + -", "description": "축소" },
+      { "key": "Ctrl + 0", "description": "확대/축소 초기화" },
+      { "key": "Ctrl + K, Ctrl + 0", "description": "전체 접기" },
+      { "key": "Ctrl + K, Ctrl + =", "description": "전체 펼치기" },
+      { "key": "Ctrl + K, Ctrl + 1-9", "description": "N단계까지 펼치기" }
+    ]
+  },
+  "ConfirmShareDialog": {
+    "title": "발행 후 공유",
+    "description": "현재 변경사항을 발행하고 공유 링크를 생성할까요?",
+    "actionLabel": "발행 후 공유"
   },
   "ThemeToggle": {
     "label": {
@@ -595,6 +903,7 @@
         "refundPolicy": "환불정책 보기"
       }
     },
+
     "faq": {
       "title": "자주 묻는 질문",
       "q2": "영상 길이에 따라 몇 크레딧이 사용되나요?",
@@ -604,6 +913,7 @@
       "q4": "세금계산서는 어떻게 요청하나요?",
       "a4": "세금계산서 발급이 필요하시면 사업자등록번호, 이메일, 결제일, 결제 금액, 주문번호를 적고, 사업자등록증 사본을 함께 첨부해 hello@brify.app 으로 보내주세요."
     },
+
     "card": {
       "badge": {
         "popular": "가장 많이 선택해요",
@@ -761,10 +1071,7 @@
   },
   "LandingBlueHero": {
     "eyebrow": "정보가 넘칠수록, 나만의 기준이 필요합니다",
-    "titles": [
-      "유튜브 스크립트를",
-      "어떤 긴 글도"
-    ],
+    "titles": ["유튜브 스크립트를", "어떤 긴 글도"],
     "titleHighlight": "구조맵",
     "titleSuffix": "으로!",
     "helper": "남의 결론을 따라가지 말고, 여러 관점을 비교해 내 기준을 만드세요.",
@@ -777,12 +1084,7 @@
       "원하는 언어로 결과 생성",
       "구조맵끼리 비교하며 차이를 한눈에"
     ],
-    "flowItems": [
-      "스크립트 입력",
-      "구조맵 생성",
-      "읽기 · 편집 · 비교",
-      "나만의 기준 세우기"
-    ],
+    "flowItems": ["스크립트 입력", "구조맵 생성", "읽기 · 편집 · 비교"],
     "videoLabel": "30초 안에 보는 사용 흐름",
     "visualAlt": "요약 다이어그램 미리보기"
   },
@@ -794,9 +1096,11 @@
   "Support": {
     "badge": "문의 / 피드백",
     "title": "브리피에게 한마디",
+
     "form": {
       "title": "문의 내용 작성",
       "subtitle": "최대한 구체적으로 작성해 주시면 더 빠르고 정확하게 도와드릴 수 있습니다.",
+
       "categoryLabel": "문의 유형",
       "category": {
         "bug": "버그 제보",
@@ -804,6 +1108,7 @@
         "billing": "결제·크레딧",
         "other": "기타 문의"
       },
+
       "field": {
         "titleLabel": "제목",
         "titlePlaceholder": "예: 요약 결과가 보이지 않는 문제가 있습니다",
@@ -813,11 +1118,13 @@
         "emailPlaceholder": "회원 이메일로 답장 드립니다. 다른 이메일로 받고 싶으시면 입력해 주세요.",
         "needsReply": "이 문의에 대한 답변이 필요합니다"
       },
+
       "validation": {
         "titleRequired": "제목을 입력해 주세요.",
         "messageRequired": "상세 내용을 입력해 주세요.",
         "emailInvalid": "이메일 형식이 올바르지 않습니다."
       },
+
       "status": {
         "success": "문의가 정상적으로 접수되었습니다. 빠르게 확인 후 답변드리겠습니다.",
         "warnFallback": "문의는 정상적으로 접수되었지만, 메일 발송 처리에 문제가 발생했습니다. 곧 확인 후 조치하겠습니다.",
@@ -825,11 +1132,13 @@
         "warnPrefix": "문의는 정상적으로 접수되었지만, 메일 발송 큐 처리에 실패했습니다.",
         "warnWithError": "문의는 정상적으로 접수되었지만, 메일 발송 큐 처리에 실패했습니다. ({error})"
       },
+
       "button": {
         "submitting": "전송 중...",
         "submit": "문의 보내기"
       }
     },
+
     "aside": {
       "speed": {
         "title": "응답 속도 안내",
@@ -908,24 +1217,27 @@
     "billing": "결제",
     "system": "시스템"
   },
-  "common": {
-    "credits": "크레딧"
-  },
+  "common": { "credits": "크레딧" },
   "signupComplete": {
     "loading": "준비 중이에요...",
     "checking": "확인 중입니다...",
+
     "title": "거의 다 됐어요 🙌",
     "subtitle": "마지막으로 약관만 확인하면 바로 시작할 수 있어요.",
+
     "agree": {
       "terms": "이용약관에 동의해요",
       "privacy": "개인정보 처리방침에 동의해요",
       "view": "(보기)"
     },
+
     "helper": "체크한 내용은 언제든지 약관 페이지에서 다시 볼 수 있어요.",
+
     "button": {
       "submit": "동의하고 시작하기",
       "submitting": "진행 중..."
     },
+
     "messages": {
       "needAllAgreements": "두 가지 모두 체크해 주세요 🙂",
       "missingFlow": "진행 정보를 확인할 수 없어요. 다시 처음부터 시도해 주세요.",
@@ -935,13 +1247,286 @@
       "network": "네트워크 오류가 발생했어요. ({message})"
     }
   },
+  "LeftPanel": {
+    "title": "상세 정보",
+    "infoTab": "정보",
+    "edit": "편집",
+    "delete": "삭제",
+    "close": "닫기",
+    "untitled": "제목없음",
+    "created": "생성",
+    "updated": "수정",
+    "credits": "소요 크레딧",
+    "summarySection": "한문단요약",
+    "sourceSection": "출처",
+    "thumbnailPlaceholder": "thumbnail",
+    "sourceType": "출처 유형",
+    "sourceTitle": "원본 제목",
+    "channel": "채널/작성자",
+    "none": "없음",
+    "sourceLink": "원본 링크",
+    "tagsSection": "태그",
+    "noTags": "태그 없음",
+    "descriptionSection": "설명",
+    "noDescription": "설명 없음",
+    "termsIntro": "AI가 핵심 용어를 자동으로 추출해 이해를 돕습니다.",
+    "requestFailed": "요청 실패"
+  },
+  "RightPanel": {
+    "tabs": {
+      "notes": "노트",
+      "terms": "용어"
+    },
+    "closeAria": "패널 닫기",
+    "closeTitle": "닫기",
+    "notes": {
+      "helper": "떠오르는 생각을 메모해 보세요.",
+      "placeholder": "메모를 적어주세요… (Enter로 추가)",
+      "add": "추가",
+      "loading": "메모를 불러오는 중…",
+      "empty": "아직 메모가 없어요."
+    },
+    "errors": {
+      "notes": {
+        "fetch": "메모를 불러오지 못했습니다.",
+        "add": "메모를 추가하지 못했습니다.",
+        "delete": "메모를 삭제하지 못했습니다.",
+        "update": "메모를 수정하지 못했습니다."
+      },
+      "terms": {
+        "fetch": "용어를 불러오지 못했습니다.",
+        "statusFetch": "용어 상태 조회에 실패했습니다.",
+        "generateFail": "용어 해설 생성에 실패했어요.",
+        "statusFail": "용어 상태를 확인하지 못했습니다.",
+        "autoStartFail": "용어 추출을 시작하지 못했습니다.",
+        "customStartFail": "용어 해설을 시작하지 못했습니다.",
+        "requestFail": "용어 해설 요청에 실패했어요.",
+        "deleteFail": "용어를 삭제하지 못했습니다."
+      },
+      "auth": {
+        "session": "세션을 가져오지 못했습니다: {message}",
+        "login": "로그인이 필요합니다."
+      },
+      "env": {
+        "missingApiBase": "환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다."
+      }
+    }
+  },
+  "TermsBlock": {
+    "helper": "",
+    "loading": "용어 해설 생성 중…",
+    "delete": "삭제",
+    "cta": "AI 용어 해설 받기",
+    "usedCount": "이 세션에서 {count}회 사용했어요.",
+    "customInline": {
+      "toggle": "추가로 해설 받을 용어 입력",
+      "title": "원하는 용어만 해설받기",
+      "description": "쉼표로 구분해 입력하면 해당 용어만 해설해줘요.",
+      "placeholder": "예: JWT, CORS, OAuth",
+      "submit": "용어 해설 받기"
+    },
+    "picker": {
+      "title": "어떤 방식으로 해설을 받을까요?",
+      "auto": {
+        "title": "전체 용어 해설",
+        "description": "AI가 용어를 자동으로 추출해서 핵심만 정리해줘요."
+      },
+      "custom": {
+        "title": "내가 원하는 용어만",
+        "description": "원하는 용어를 쉼표로 구분해 입력해요.",
+        "placeholder": "예: JWT, CORS, OAuth"
+      },
+      "cancel": "취소",
+      "submit": "시작하기"
+    }
+  },
+  "TagEditDialog": {
+    "title": "태그 편집",
+    "description": "태그를 입력하고 엔터로 추가하세요.",
+    "removeTagAria": "태그 삭제",
+    "addTagPlaceholder": "태그 추가",
+    "addFromExisting": "기존 태그에서 추가",
+    "selectedCount": "{count}개 선택됨",
+    "searchPlaceholder": "태그 검색",
+    "noTagsToAdd": "추가할 태그가 없어요.",
+    "cancel": "취소",
+    "save": "저장",
+    "saving": "저장 중..."
+  },
+  "FullscreenMapPage": {
+    "fallbackTitle": "구조맵",
+    "backToList": "목록",
+    "mode": {
+      "editing": "편집중",
+      "view": "보기"
+    },
+    "tabs": {
+      "info": "정보",
+      "notes": "노트",
+      "terms": "용어"
+    },
+    "status": {
+      "loading": "불러오는 중",
+      "loadFailed": "불러오기 실패",
+      "fetchError": "구조맵을 불러오지 못했어요"
+    },
+    "modeBadge": {
+      "edit": "편집모드: 노드 수정/추가 가능",
+      "view": "보기모드: 흐름을 집중해서 확인"
+    },
+    "actions": {
+      "delete": "삭제",
+      "tutorial": "튜토리얼",
+      "closeMap": "맵 닫기",
+      "discardDraft": "임시 변경 버리기",
+      "publish": "완료/발행"
+    },
+    "draftStatus": {
+      "autoSaving": "자동 저장 중…",
+      "saved": "저장됨",
+      "hasDraft": "임시 변경 있음"
+    },
+    "share": {
+      "statusLoadFailed": "공유 상태를 불러오지 못했습니다.",
+      "enableFailed": "공유 링크 생성에 실패했습니다.",
+      "enabled": "공유 링크를 만들었어요.",
+      "disableFailed": "공유 링크 끄기에 실패했습니다.",
+      "disabled": "공유 링크를 끄었습니다.",
+      "copied": "링크를 복사했어요.",
+      "copyFailed": "복사에 실패했습니다."
+    },
+    "publishToast": {
+      "success": "발행이 완료되었습니다.",
+      "failed": "발행에 실패했습니다."
+    },
+    "discardToast": {
+      "success": "임시 변경을 버렸습니다.",
+      "failed": "임시 변경 버리기에 실패했습니다."
+    },
+    "selectedMap": "선택한 맵",
+    "export": {
+      "failed": "이미지 저장에 실패했습니다."
+    },
+    "deleteConfirm": {
+      "title": "구조맵을 삭제할까요?",
+      "description": "삭제하면 복구할 수 없어요. 계속 진행할까요?",
+      "action": "삭제",
+      "actionDeleting": "삭제 중..."
+    }
+  },
+  "DiscardDraftDialog": {
+    "title": "임시 변경 버리기",
+    "description": "임시 변경사항을 모두 삭제하고 마지막 발행본으로 돌아갈까요?",
+    "actionLabel": "버리기"
+  },
+  "FullscreenDialog": {
+    "fallbackTitle": "구조맵",
+    "title": "구조맵 미리보기",
+    "close": "닫기",
+    "goList": "내 맵",
+    "mode": {
+      "editing": "편집중",
+      "view": "보기"
+    },
+    "tabs": {
+      "info": "정보",
+      "notes": "노트",
+      "terms": "용어"
+    },
+    "actions": {
+      "centerMap": "가운데로",
+      "collapseAll": "전체 접기",
+      "zoomIn": "확대",
+      "zoomOut": "축소",
+      "tutorial": "튜토리얼"
+    },
+    "status": {
+      "fetchError": "구조맵을 불러오지 못했어요"
+    },
+    "modeBadge": {
+      "edit": "편집모드: 노드 수정/추가 가능",
+      "view": "보기모드: 흐름을 집중해서 확인"
+    }
+  },
+  "MetadataDialog": {
+    "title": "콘텐츠 정보 입력",
+    "subtitle": "제목은 필수이며, 나머지는 선택입니다.",
+    "fields": {
+      "sourceQuestion": "입력하신 유튜브 스크립트인가요?",
+      "sourceTypeYes": "네",
+      "sourceTypeNo": "아니오",
+      "url": "URL (선택)",
+      "title": "제목",
+    "channel": "채널/출처",
+    "thumbnail": "썸네일",
+    "tags": "태그 (쉼표로 구분)",
+    "description": "설명"
+    },
+    "placeholders": {
+      "url": "https://youtube.com/watch?v=...",
+      "title": "예: 콘텐츠 제목을 입력해 주세요",
+      "channel": "채널명 / 작성자 / 출처",
+      "thumbnailUrl": "(선택) 썸네일 URL",
+      "tags": "회의, 마케팅, 기획, OKR (쉼표로 구분)",
+      "description": "이 구조맵에 대한 메모/요약/설명 등을 입력해 주세요."
+    },
+    "buttons": {
+      "youtubeAutofill": "유튜브로 자동 채우기",
+      "youtubeLoading": "불러오는 중...",
+      "uploadThumbnail": "썸네일 업로드",
+      "close": "닫기",
+      "save": "저장하고 계속하기"
+    },
+    "hints": {
+      "youtubeUrl": "유튜브 URL이라면 제목/채널/썸네일을 자동으로 채울 수 있습니다.",
+      "nonYoutubeUrl": "유튜브 URL이 아니라면 아래 항목을 직접 입력해 주세요.",
+      "tags": ""
+    },
+    "tags": {
+      "removeTagAria": "태그 삭제",
+      "addTagPlaceholder": "태그 추가",
+      "enterHint": "태그를 입력한 뒤 Enter를 누르면 추가됩니다.",
+      "addFromExisting": "기존 태그에서 추가",
+      "selectedCount": "{count}개 선택됨",
+      "searchPlaceholder": "태그 검색",
+      "noTagsToAdd": "추가할 태그가 없어요."
+    },
+    "thumbnail": {
+      "empty": "no image",
+      "uploadHint": "선택한 이미지는 저장 시 자동 업로드됩니다. (5MB 이하, webp 변환)"
+    },
+    "status": {
+      "uploading": "업로드 중..."
+    },
+    "footerHint": "제목 입력 후 저장하시면 구조맵 목록에서 관리하실 수 있습니다.",
+    "errors": {
+      "youtubeUrlRequired": "유튜브 URL을 입력해 주세요.",
+      "sessionFailed": "세션을 가져오지 못했습니다: {message}",
+      "loginRequired": "로그인이 필요합니다.",
+      "missingApiBase": "환경변수 NEXT_PUBLIC_API_BASE_URL이 없습니다.",
+      "youtubeFetchFailed": "유튜브 정보를 가져오지 못했습니다.",
+      "requestFailed": "요청에 실패했습니다.",
+      "invalidImage": "이미지 파일이 올바르지 않습니다.",
+      "titleRequired": "제목은 필수 항목입니다. 제목을 입력해 주세요.",
+      "missingMapId": "mapId가 없어 썸네일을 업로드할 수 없습니다.",
+      "thumbnailUploadFailed": "썸네일 업로드에 실패했습니다."
+    }
+  },
+  "MapMetadataEditDialog": {
+    "title": "메타데이터 수정",
+    "subtitle": "현재 구조맵의 제목, 출처, 태그, 설명을 바로 수정할 수 있어요.",
+    "footerHint": "저장하면 이 구조맵의 메타데이터가 바로 업데이트됩니다.",
+    "buttons": {
+      "save": "저장",
+      "closeTagPicker": "태그 목록 닫기"
+    }
+  },
   "Footer": {
     "description": "서로 다른 의견과 정보를 구조화해, 빠르게 비교하고 나만의 기준을 만들도록 돕는 서비스.",
     "contactEmail": "이메일",
     "contactPhone": "전화",
     "contactAddress": "주소",
     "company": {
-      "companyName": "상호명: 비전328",
       "representative": "대표: 이나현",
       "businessNumber": "사업자등록번호: 726-22-01928",
       "mailOrderNumber": "통신판매업신고: 2026-성남분당A-0280"
@@ -962,5 +1547,322 @@
     },
     "copyright": "All rights reserved.",
     "operatedBy": "Brify는 vision328이 운영하는 서비스입니다."
+  }
+  ,
+  "MapsCommon": {
+    "untitled": "제목없음",
+    "content": {
+      "notes": "노트 있음",
+      "terms": "용어 있음"
+    },
+    "status": {
+      "idle": "대기중",
+      "queued": "대기중",
+      "processing": "진행중",
+      "done": "완료",
+      "failed": "실패"
+    },
+    "source": {
+      "youtube": "유튜브",
+      "website": "웹",
+      "file": "파일",
+      "manual": "수동"
+    },
+    "datePreset": {
+      "today": "오늘",
+      "7d": "최근 7일",
+      "30d": "최근 30일",
+      "90d": "최근 90일",
+      "1y": "최근 1년",
+      "month": "이번 달",
+      "all": "전체",
+      "customEmpty": "기간 선택",
+      "after": "이후",
+      "before": "이전"
+    },
+    "selectionBar": {
+      "selectedCount": "{count}개 선택됨",
+      "mergeMaps": "맵 합치기",
+      "deleting": "삭제 중...",
+      "deleteSelected": "선택 삭제",
+      "cancel": "취소"
+    },
+    "toolbar": {
+      "searchPlaceholder": "맵 제목이나 태그로 검색해 보세요",
+      "clearSearch": "검색어 지우기",
+      "summary": {
+        "status": "상태 {value}",
+        "source": "소스 {value}",
+        "content": "내용 {value}",
+        "tag": "태그 {value}"
+      },
+      "previewOn": "프리뷰 켜기",
+      "previewOff": "프리뷰 끄기",
+      "tagOrganize": "태그 정리 모드",
+      "tagOrganizeExit": "정리 모드 종료",
+      "selection": "선택",
+      "selectionExit": "선택 종료",
+      "card": "카드",
+      "table": "테이블",
+      "sortLabel": "정렬",
+      "sort": {
+        "createdDesc": "최신 생성순",
+        "createdAsc": "오래된 생성순",
+        "updatedDesc": "최근 수정순",
+        "titleAsc": "제목순"
+      },
+      "filterOpen": "필터 열기",
+      "filterClose": "필터 닫기",
+      "resetFilters": "필터 초기화"
+    },
+    "recent": {
+      "recentMaps": "최근 맵",
+      "recentInterestTags": "최근 관심 태그",
+      "expandAria": "최근 섹션 펼치기",
+      "expand": "펼치기",
+      "collapseAria": "최근 섹션 접기",
+      "collapse": "접기",
+      "opening": "이동 중...",
+      "emptyInterestTags": "최근 맵에서 태그가 아직 충분히 쌓이지 않았어요."
+    },
+    "filterPopover": {
+      "presets": {
+        "today": "오늘",
+        "7d": "최근 7일",
+        "30d": "최근 30일",
+        "90d": "최근 90일",
+        "1y": "최근 1년",
+        "month": "이번 달",
+        "all": "전체"
+      },
+      "sections": {
+        "date": "기간",
+        "status": "상태",
+        "source": "소스 타입",
+        "content": "내용",
+        "tag": "태그"
+      },
+      "custom": "직접 선택",
+      "clearDate": "기간 지우기",
+      "status": {
+        "processing": "진행중",
+        "done": "완료",
+        "failed": "실패"
+      },
+      "source": {
+        "youtube": "유튜브",
+        "website": "웹",
+        "file": "파일",
+        "manual": "수동"
+      },
+      "content": {
+        "notes": "노트 있음",
+        "terms": "용어 있음"
+      },
+      "tagLoading": "태그 불러오는 중…",
+      "tagEmpty": "사용할 수 있는 태그가 없어요."
+    },
+    "tagPanel": {
+      "title": "태그",
+      "sortAria": "태그 정렬",
+      "sort": {
+        "recent": "최신",
+        "name": "이름순",
+        "countDesc": "많이 쓰인 순",
+        "countAsc": "적게 쓰인 순"
+      },
+      "selectedFilters": "선택된 필터",
+      "filterTitle": "태그 필터",
+      "noTag": "태그 없음",
+      "deselectTag": "{tag} 선택 해제",
+      "filterHint": "태그를 체크하면 아래 맵 목록이 해당 태그 기준으로 바로 필터링돼요.",
+      "selectedCount": "{count}개 선택됨",
+      "mergeTags": "태그합치기",
+      "searchPlaceholder": "태그 검색",
+      "clearSearch": "검색어 지우기",
+      "empty": "태그가 없습니다.",
+      "deleteTagAria": "태그 삭제"
+    },
+    "mobileTagSheet": {
+      "closeAria": "태그 정리 닫기",
+      "reopen": "태그 목록"
+    },
+    "listItem": {
+      "status": {
+        "failed": "실패",
+        "processing": "처리 중"
+      },
+      "source": {
+        "youtube": "유튜브",
+        "website": "웹",
+        "file": "파일",
+        "manual": "수동"
+      },
+      "selectAria": "{title} 선택",
+      "deleting": "삭제 중...",
+      "delete": "삭제",
+      "editTags": "태그 편집",
+      "noTag": "태그 없음",
+      "notesCount": "노트 {count}",
+      "termsCount": "용어 {count}",
+      "opening": "여는 중...",
+      "open": "열기"
+    },
+    "tableList": {
+      "status": {
+        "failed": "실패",
+        "processing": "진행중"
+      },
+      "select": "선택",
+      "selectAria": "{title} 선택",
+      "opening": "여는 중...",
+      "open": "열기",
+      "editTags": "태그 편집",
+      "columns": {
+        "title": "제목",
+        "source": "소스",
+        "tags": "태그",
+        "updatedAt": "수정일"
+      }
+    },
+    "previewPanel": {
+      "noSummary": "요약이 아직 없어요.",
+      "closedTitle": "미리보기 닫힘",
+      "closedDescription": "빠른 비교를 위해 필요하면 다시 열 수 있어요.",
+      "openPreview": "미리보기 열기",
+      "close": "닫기",
+      "open": "열기",
+      "loading": "미리보기 불러오는 중…",
+      "loadFailed": "미리보기를 불러오지 못했어요.",
+      "idle": "미리보기를 준비 중이에요."
+    }
+  },
+  "MapsPage": {
+    "title": "나의 맵",
+    "tabs": {
+      "maps": "맵",
+      "notes": "노트",
+      "terms": "용어"
+    },
+    "notesTab": {
+      "title": "노트가 있는 맵",
+      "leftDescription": "메모가 저장된 맵만 모아 빠르게 다시 볼 수 있어요.",
+      "rightDescription": "선택한 맵의 메모, 주석, 하이라이트를 한곳에서 읽어보세요.",
+      "searchPlaceholder": "맵 제목이나 채널명으로 검색",
+      "noSearchResults": "검색 조건에 맞는 노트 맵이 없어요.",
+      "sort": {
+        "updatedDesc": "최근 수정순",
+        "titleAsc": "제목순"
+      },
+      "empty": "아직 메모가 있는 맵이 없어요.",
+      "sections": {
+        "memo": "메모",
+        "annotations": "주석",
+        "highlights": "하이라이트"
+      },
+      "memoLabel": "메모 내용",
+      "nodeLabel": "관련 노드",
+      "emptyMemo": "작성된 메모가 아직 없어요.",
+      "meta": {
+        "memoLabel": "메모 내용",
+        "nodeLabel": "관련 노드"
+      },
+      "emptySections": {
+        "memo": "작성된 메모가 아직 없어요.",
+        "annotations": "노드에 남겨둔 주석이 아직 없어요.",
+        "highlights": "하이라이트한 노드가 아직 없어요."
+      },
+      "errors": {
+        "load": "노트 내용을 불러오지 못했어요."
+      }
+    },
+    "termsTab": {
+      "title": "용어가 있는 맵",
+      "leftDescription": "용어 설명이 정리된 맵만 따로 모아 빠르게 다시 볼 수 있어요.",
+      "rightDescription": "선택한 맵의 용어와 설명을 한곳에서 읽어보세요.",
+      "searchPlaceholder": "맵 제목이나 채널명으로 검색",
+      "noSearchResults": "검색 조건에 맞는 용어 맵이 없어요.",
+      "sort": {
+        "updatedDesc": "최근 수정순",
+        "titleAsc": "제목순"
+      },
+      "summary": "용어",
+      "empty": "아직 용어가 있는 맵이 없어요.",
+      "emptyTerms": "이 맵에는 아직 정리된 용어가 없어요.",
+      "errors": {
+        "load": "용어 내용을 불러오지 못했어요."
+      }
+    },
+    "comingSoon": {
+      "notesTitle": "노트 탭을 준비하고 있어요.",
+      "notesDescription": "다음 단계에서는 노트가 있는 맵만 따로 보고, 선택한 맵의 메모, 주석, 하이라이트를 한곳에서 읽을 수 있게 정리할 예정이에요.",
+      "termsTitle": "용어 탭을 준비하고 있어요.",
+      "termsDescription": "다음 단계에서는 용어가 있는 맵만 따로 보고, 선택한 맵의 용어 설명을 한곳에서 확인할 수 있게 정리할 예정이에요."
+    },
+    "tagOrganizeExit": "종료",
+    "previewEmpty": {
+      "loading": "목록을 불러오는 중이에요.",
+      "noMaps": "아직 생성한 구조맵이 없어요.",
+      "noMapsInRange": "선택한 기간에 생성된 구조맵이 없어요.",
+      "noResults": "검색 결과가 없어요.",
+      "selectFromList": "좌측에서 맵을 선택해 주세요."
+    },
+    "toast": {
+      "previewTurnsOffSelection": "프리뷰 모드로 전환되어 선택 모드가 꺼졌어요.",
+      "previewTurnsOffTagOrganize": "프리뷰를 위해 태그 정리 모드를 껐어요.",
+      "tagOrganizeTurnsOffPreview": "태그 정리 모드로 전환되어 프리뷰가 꺼졌어요.",
+      "tagOrganizeTurnsOffSelection": "태그 정리 모드로 전환되어 선택 모드가 꺼졌어요.",
+      "selectionTurnsOffPreview": "선택 모드로 전환되어 프리뷰가 꺼졌어요.",
+      "selectionTurnsOffTagOrganize": "태그 정리 모드를 종료하고 선택 모드로 전환했어요."
+    },
+    "empty": {
+      "noMaps": "아직 생성한 구조맵이 없어요.",
+      "noMapsForFilters": "선택한 조건에 맞는 구조맵이 없어요.",
+      "noSearchResults": "검색 결과가 없습니다. 다른 키워드로 시도해 보세요.",
+      "noMapsForSelectedTags": "선택한 태그가 붙은 맵이 없어요."
+    },
+    "pagination": {
+      "totalCount": "총 {count}개",
+      "prev": "이전",
+      "next": "다음"
+    },
+    "dialogs": {
+      "deleteMap": {
+        "title": "구조맵을 삭제할까요?",
+        "description": "삭제하면 복구할 수 없어요. 계속 진행할까요?",
+        "action": "삭제"
+      },
+      "deleteSelected": {
+        "title": "선택한 구조맵을 삭제할까요?",
+        "description": "선택한 맵을 삭제하면 복구할 수 없어요.",
+        "action": "선택 삭제"
+      },
+      "deleteTag": {
+        "title": "태그를 삭제할까요?",
+        "descriptionSuffix": "태그가 모든 맵에서 삭제됩니다. 계속할까요?",
+        "description": "선택한 태그가 모든 맵에서 삭제됩니다. 계속할까요?",
+        "action": "삭제",
+        "actionLoading": "삭제 중..."
+      }
+    },
+    "fallback": {
+      "selectedMap": "선택한 맵"
+    },
+    "mergeDialog": {
+      "title": "맵 합치기",
+      "description": "새로운 루트를 기준으로 선택한 맵들을 자식으로 붙입니다.",
+      "rootTitle": "루트 노드 제목",
+      "required": "필수",
+      "placeholder": "예: 통합 마인드맵",
+      "validation": "루트 제목을 입력해야 합치기를 진행할 수 있어요.",
+      "help": "입력한 루트 아래에 선택한 맵들이 순서대로 배치됩니다.",
+      "orderTitle": "합칠 맵 순서",
+      "orderCount": "{count}개",
+      "dragReorderAria": "드래그로 순서 변경",
+      "empty": "선택된 맵이 없습니다.",
+      "submitting": "합치는 중...",
+      "confirm": "합치기"
+    },
+    "close": "닫기"
   }
 }
