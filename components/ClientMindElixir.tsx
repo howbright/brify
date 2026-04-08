@@ -1258,7 +1258,29 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           }),
         }).catch(() => {});
         // #endregion
-        await mind.beginEdit(currentNode);
+        const editTarget =
+          currentNodeEl?.nodeObj ??
+          (currentNode as { nodeObj?: AnyNode } | null)?.nodeObj ??
+          currentNode;
+        // #region agent log
+        fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            runId: debugRunIdRef.current,
+            hypothesisId: "H8",
+            location: "components/ClientMindElixir.tsx:1261",
+            message: "rename beginEdit target shape",
+            data: {
+              actionTargetNodeId,
+              renameTargetId,
+              usesNodeObj: Boolean((editTarget as AnyNode | null)?.id),
+            },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
+        await mind.beginEdit(editTarget);
         requestAnimationFrame(() => {
           const host = elRef.current;
           const hasEditor = Boolean(
