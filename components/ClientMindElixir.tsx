@@ -1258,10 +1258,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           }),
         }).catch(() => {});
         // #endregion
-        const editTarget =
-          currentNodeEl?.nodeObj ??
-          (currentNode as { nodeObj?: AnyNode } | null)?.nodeObj ??
-          currentNode;
+        if (renameTargetId) {
+          focusNodeById(renameTargetId);
+        }
         // #region agent log
         fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
           method: "POST",
@@ -1274,13 +1273,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             data: {
               actionTargetNodeId,
               renameTargetId,
-              usesNodeObj: Boolean((editTarget as AnyNode | null)?.id),
+              usedFocusNodeById: Boolean(renameTargetId),
             },
             timestamp: Date.now(),
           }),
         }).catch(() => {});
         // #endregion
-        await mind.beginEdit(editTarget);
+        await mind.beginEdit(currentNode);
         requestAnimationFrame(() => {
           const host = elRef.current;
           const hasEditor = Boolean(
