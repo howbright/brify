@@ -1279,19 +1279,51 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           }),
         }).catch(() => {});
         // #endregion
-        const fallbackEl =
-          currentNodeEl ??
+        const dispatchDoubleClick = (el: HTMLElement) => {
+          el.dispatchEvent(
+            new MouseEvent("click", {
+              bubbles: true,
+              cancelable: true,
+              view: window,
+            })
+          );
+          el.dispatchEvent(
+            new MouseEvent("click", {
+              bubbles: true,
+              cancelable: true,
+              view: window,
+            })
+          );
+          el.dispatchEvent(
+            new MouseEvent("dblclick", {
+              bubbles: true,
+              cancelable: true,
+              view: window,
+            })
+          );
+        };
+
+        if (renameTargetId) {
+          focusNodeById(renameTargetId);
+        }
+        await new Promise<void>((resolve) => {
+          requestAnimationFrame(() => resolve());
+        });
+
+        const latestNodeEl =
           (renameTargetId
             ? (getNodeElById(renameTargetId) as
                 | (HTMLElement & { nodeObj?: AnyNode })
                 | null)
-            : null);
-        let renameTrigger:
-          | "beginEdit"
-          | "dblclick-fallback"
-          | "touch-dblclick-direct" = "beginEdit";
-        if (isTouchDeviceRef.current && fallbackEl) {
-          renameTrigger = "touch-dblclick-direct";
+            : null) ??
+          currentNodeEl ??
+          (selectedNodeElRef.current as (HTMLElement & { nodeObj?: AnyNode }) | null);
+
+        let renameTrigger: "beginEdit-latest-node" | "dblclick-fallback" =
+          "beginEdit-latest-node";
+        try {
+          await mind.beginEdit(latestNodeEl ?? currentNode);
+        } catch (error) {
           // #region agent log
           fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
             method: "POST",
@@ -1300,54 +1332,24 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
               runId: debugRunIdRef.current,
               hypothesisId: "H10",
               location: "components/ClientMindElixir.tsx:1282",
-              message: "rename using touch dblclick direct path",
-              data: { actionTargetNodeId, renameTargetId },
+              message:
+                "rename beginEdit(late node) threw, trying dblclick sequence fallback",
+              data: {
+                actionTargetNodeId,
+                renameTargetId,
+                hasLatestNodeEl: Boolean(latestNodeEl),
+                errorMessage:
+                  error instanceof Error ? error.message : String(error),
+              },
               timestamp: Date.now(),
             }),
           }).catch(() => {});
           // #endregion
-          fallbackEl.dispatchEvent(
-            new MouseEvent("dblclick", {
-              bubbles: true,
-              cancelable: true,
-              view: window,
-            })
-          );
-        } else {
-          try {
-            await mind.beginEdit(currentNode);
-          } catch (error) {
-            // #region agent log
-            fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                runId: debugRunIdRef.current,
-                hypothesisId: "H10",
-                location: "components/ClientMindElixir.tsx:1282",
-                message: "rename beginEdit threw, trying dblclick fallback",
-                data: {
-                  actionTargetNodeId,
-                  renameTargetId,
-                  errorMessage:
-                    error instanceof Error ? error.message : String(error),
-                },
-                timestamp: Date.now(),
-              }),
-            }).catch(() => {});
-            // #endregion
-            if (fallbackEl) {
-              renameTrigger = "dblclick-fallback";
-              fallbackEl.dispatchEvent(
-                new MouseEvent("dblclick", {
-                  bubbles: true,
-                  cancelable: true,
-                  view: window,
-                })
-              );
-            } else {
-              throw error;
-            }
+          if (latestNodeEl) {
+            renameTrigger = "dblclick-fallback";
+            dispatchDoubleClick(latestNodeEl);
+          } else {
+            throw error;
           }
         }
         requestAnimationFrame(() => {
