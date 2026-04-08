@@ -1345,12 +1345,33 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             }),
           }).catch(() => {});
           // #endregion
-          if (latestNodeEl) {
-            renameTrigger = "dblclick-fallback";
-            dispatchDoubleClick(latestNodeEl);
-          } else {
-            throw error;
-          }
+        }
+
+        const hasEditorImmediately = Boolean(
+          elRef.current?.querySelector("input,textarea,[contenteditable='true']")
+        );
+        if (!hasEditorImmediately && latestNodeEl) {
+          renameTrigger = "dblclick-fallback";
+          // #region agent log
+          fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              runId: debugRunIdRef.current,
+              hypothesisId: "H10",
+              location: "components/ClientMindElixir.tsx:1318",
+              message:
+                "rename no editor after beginEdit, forcing dblclick sequence fallback",
+              data: {
+                actionTargetNodeId,
+                renameTargetId,
+                hasLatestNodeEl: Boolean(latestNodeEl),
+              },
+              timestamp: Date.now(),
+            }),
+          }).catch(() => {});
+          // #endregion
+          dispatchDoubleClick(latestNodeEl);
         }
         requestAnimationFrame(() => {
           const host = elRef.current;
