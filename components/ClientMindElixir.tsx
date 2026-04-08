@@ -1373,10 +1373,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             })
           );
         };
-
-        if (renameTargetId) {
-          focusNodeById(renameTargetId);
-        }
         await new Promise<void>((resolve) => {
           requestAnimationFrame(() => resolve());
         });
@@ -1427,9 +1423,19 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           // #endregion
         }
 
-        const hasEditorImmediately = Boolean(
-          elRef.current?.querySelector("input,textarea,[contenteditable='true']")
-        );
+        const findEditorElement = () =>
+          (document.querySelector(
+            "input,textarea,[contenteditable='true']"
+          ) as HTMLElement | null);
+        let editorEl = findEditorElement();
+        let hasEditorImmediately = Boolean(editorEl);
+        if (!hasEditorImmediately) {
+          await new Promise<void>((resolve) => {
+            requestAnimationFrame(() => resolve());
+          });
+          editorEl = findEditorElement();
+          hasEditorImmediately = Boolean(editorEl);
+        }
         // #region agent log
         postAgentLog({
           runId: debugRunIdRef.current,
@@ -1440,15 +1446,60 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             renameTargetId,
             hasEditorImmediately,
             hasLatestNodeEl: Boolean(latestNodeEl),
+            isTouchDevice,
           },
           timestamp: Date.now(),
         });
         // #endregion
-        if (!hasEditorImmediately && latestNodeEl) {
+        let editorActivated = hasEditorImmediately;
+        if (!editorActivated && latestNodeEl && !isTouchDevice) {
           dispatchDoubleClick(latestNodeEl);
+          await new Promise<void>((resolve) => {
+            requestAnimationFrame(() => resolve());
+          });
+          editorEl = findEditorElement();
+          editorActivated = Boolean(editorEl);
+          // #region agent log
+          postAgentLog({
+            runId: debugRunIdRef.current,
+            hypothesisId: "H15",
+            location: "components/ClientMindElixir.tsx:renameDesktopDblclickFallback",
+            message: "rename desktop dblclick fallback result",
+            data: {
+              renameTargetId,
+              editorActivated,
+            },
+            timestamp: Date.now(),
+          });
+          // #endregion
         }
-        setMobileActionNodeId(null);
-        setMobileActionNodeIsRoot(null);
+        if (editorActivated) {
+          try {
+            editorEl?.focus();
+          } catch {
+            // ignore focus failures from browser quirks
+          }
+          setMobileActionNodeId(null);
+          setMobileActionNodeIsRoot(null);
+        } else {
+          // #region agent log
+          postAgentLog({
+            runId: debugRunIdRef.current,
+            hypothesisId: "H15",
+            location: "components/ClientMindElixir.tsx:renameEditorNotActivated",
+            message: "rename editor did not activate; keeping mobile action open on touch",
+            data: {
+              renameTargetId,
+              isTouchDevice,
+            },
+            timestamp: Date.now(),
+          });
+          // #endregion
+          if (!isTouchDevice) {
+            setMobileActionNodeId(null);
+            setMobileActionNodeIsRoot(null);
+          }
+        }
         return;
       }
       const isRoot =
