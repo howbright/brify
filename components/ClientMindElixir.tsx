@@ -1075,6 +1075,20 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       }
       const nodeEl = getNodeElementFromEvent(e);
       if (!nodeEl) {
+        // #region agent log
+        postAgentLog({
+          runId: debugRunIdRef.current,
+          hypothesisId: "H8",
+          location: "components/ClientMindElixir.tsx:handleClickClear",
+          message: "desktop click cleared selection (no node target)",
+          data: {
+            isTouchDevice,
+            selectedNodeIdBeforeClear: selectedNodeIdRef.current,
+            targetTag: (e.target as HTMLElement | null)?.tagName ?? null,
+          },
+          timestamp: Date.now(),
+        });
+        // #endregion
         setSelectedNodeId(null);
         setSelectedRect(null);
         selectedNodeElRef.current = null;

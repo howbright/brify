@@ -529,6 +529,8 @@ export function useMindElixirCore({
 
       mind.bus?.addListener?.("unselectNodes", () => {
         const elapsedMs = Date.now() - lastClickedNodeRef.current.at;
+        const hasSelected = Boolean(selectedNodeIdRef.current);
+        const willSkipClear = elapsedMs < UNSELECT_GRACE_MS && hasSelected;
         // #region agent log
         postAgentLog({
           runId: "core-selection",
@@ -538,13 +540,28 @@ export function useMindElixirCore({
           data: {
             elapsedMs,
             selectedNodeId: selectedNodeIdRef.current,
+            hasSelected,
+            willSkipClear,
           },
           timestamp: Date.now(),
         });
         // #endregion
-        if (elapsedMs < UNSELECT_GRACE_MS && selectedNodeIdRef.current) {
+        if (willSkipClear) {
           return;
         }
+        // #region agent log
+        postAgentLog({
+          runId: "core-selection",
+          hypothesisId: "H8",
+          location: "components/useMindElixirCore.ts:unselectNodesClear",
+          message: "bus.unselectNodes performs clear",
+          data: {
+            elapsedMs,
+            selectedNodeIdBeforeClear: selectedNodeIdRef.current,
+          },
+          timestamp: Date.now(),
+        });
+        // #endregion
         setSelectedNodeId(null);
         setSelectedRect(null);
         selectedNodeElRef.current = null;
@@ -618,6 +635,8 @@ export function useMindElixirCore({
           op?.name === "removeNodes"
         ) {
           const elapsedMs = Date.now() - lastClickedNodeRef.current.at;
+          const hasSelected = Boolean(selectedNodeIdRef.current);
+          const willSkipClear = elapsedMs < UNSELECT_GRACE_MS && hasSelected;
           // #region agent log
           postAgentLog({
             runId: "core-selection",
@@ -628,13 +647,29 @@ export function useMindElixirCore({
               opName: op?.name ?? "unknown",
               elapsedMs,
               selectedNodeId: selectedNodeIdRef.current,
+              hasSelected,
+              willSkipClear,
             },
             timestamp: Date.now(),
           });
           // #endregion
-          if (elapsedMs < UNSELECT_GRACE_MS && selectedNodeIdRef.current) {
+          if (willSkipClear) {
             return;
           }
+          // #region agent log
+          postAgentLog({
+            runId: "core-selection",
+            hypothesisId: "H8",
+            location: "components/useMindElixirCore.ts:operationUnselectLikeClear",
+            message: "operation unselect-like performs clear",
+            data: {
+              opName: op?.name ?? "unknown",
+              elapsedMs,
+              selectedNodeIdBeforeClear: selectedNodeIdRef.current,
+            },
+            timestamp: Date.now(),
+          });
+          // #endregion
           setSelectedNodeId(null);
           setSelectedRect(null);
         }
