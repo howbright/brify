@@ -143,6 +143,24 @@ export function useMindElixirCore({
   manualSelectionPriorityMs,
 }: UseMindElixirCoreParams) {
   const initTokenRef = useRef(0);
+  const debugEndpointBlockedRef = useRef(false);
+  const postAgentLog = (payload: Record<string, unknown>) => {
+    if (debugEndpointBlockedRef.current) {
+      console.info("[ME_DEBUG]", payload);
+      return;
+    }
+    fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).catch((error) => {
+      debugEndpointBlockedRef.current = true;
+      console.info("[ME_DEBUG_BLOCKED]", {
+        ...payload,
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
+    });
+  };
 
   useEffect(() => {
     if (!mounted) return;
@@ -493,21 +511,17 @@ export function useMindElixirCore({
       mind.bus?.addListener?.("unselectNodes", () => {
         const elapsedMs = Date.now() - lastClickedNodeRef.current.at;
         // #region agent log
-        fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            runId: "core-selection",
-            hypothesisId: "H2",
-            location: "components/useMindElixirCore.ts:unselectNodes",
-            message: "bus.unselectNodes fired",
-            data: {
-              elapsedMs,
-              selectedNodeId: selectedNodeIdRef.current,
-            },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {});
+        postAgentLog({
+          runId: "core-selection",
+          hypothesisId: "H2",
+          location: "components/useMindElixirCore.ts:unselectNodes",
+          message: "bus.unselectNodes fired",
+          data: {
+            elapsedMs,
+            selectedNodeId: selectedNodeIdRef.current,
+          },
+          timestamp: Date.now(),
+        });
         // #endregion
         if (elapsedMs < UNSELECT_GRACE_MS && selectedNodeIdRef.current) {
           return;
@@ -586,22 +600,18 @@ export function useMindElixirCore({
         ) {
           const elapsedMs = Date.now() - lastClickedNodeRef.current.at;
           // #region agent log
-          fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              runId: "core-selection",
-              hypothesisId: "H2",
-              location: "components/useMindElixirCore.ts:operationUnselectLike",
-              message: "operation unselect-like fired",
-              data: {
-                opName: op?.name ?? "unknown",
-                elapsedMs,
-                selectedNodeId: selectedNodeIdRef.current,
-              },
-              timestamp: Date.now(),
-            }),
-          }).catch(() => {});
+          postAgentLog({
+            runId: "core-selection",
+            hypothesisId: "H2",
+            location: "components/useMindElixirCore.ts:operationUnselectLike",
+            message: "operation unselect-like fired",
+            data: {
+              opName: op?.name ?? "unknown",
+              elapsedMs,
+              selectedNodeId: selectedNodeIdRef.current,
+            },
+            timestamp: Date.now(),
+          });
           // #endregion
           if (elapsedMs < UNSELECT_GRACE_MS && selectedNodeIdRef.current) {
             return;

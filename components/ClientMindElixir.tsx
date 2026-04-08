@@ -486,6 +486,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     at: 0,
   });
   const debugRunIdRef = useRef(`prod-dbledit-${Date.now()}`);
+  const debugEndpointBlockedRef = useRef(false);
   const activeTouchPointsRef = useRef<Map<number, { x: number; y: number }>>(
     new Map()
   );
@@ -517,26 +518,39 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const hoverActionIconClass = isTouchDevice ? "h-3 w-3" : "h-3 w-3";
   const isDecoratingRef = useRef(false);
   const onChangeRef = useRef<((op: any) => void) | null>(null);
-
-  useEffect(() => {
-    // #region agent log
+  const postAgentLog = useCallback((payload: Record<string, unknown>) => {
+    if (debugEndpointBlockedRef.current) {
+      console.info("[ME_DEBUG]", payload);
+      return;
+    }
     fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        runId: debugRunIdRef.current,
-        hypothesisId: "H1",
-        location: "components/ClientMindElixir.tsx:mount",
-        message: "client bundle build tag",
-        data: {
-          buildTag: MOBILE_DEBUG_BUILD_TAG,
-          path: typeof window !== "undefined" ? window.location.pathname : "unknown",
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
+      body: JSON.stringify(payload),
+    }).catch((error) => {
+      debugEndpointBlockedRef.current = true;
+      console.info("[ME_DEBUG_BLOCKED]", {
+        ...payload,
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
+    });
   }, []);
+
+  useEffect(() => {
+    // #region agent log
+    postAgentLog({
+      runId: debugRunIdRef.current,
+      hypothesisId: "H1",
+      location: "components/ClientMindElixir.tsx:mount",
+      message: "client bundle build tag",
+      data: {
+        buildTag: MOBILE_DEBUG_BUILD_TAG,
+        path: typeof window !== "undefined" ? window.location.pathname : "unknown",
+      },
+      timestamp: Date.now(),
+    });
+    // #endregion
+  }, [postAgentLog]);
 
   const syncLatestMindDataFromMind = () => {
     const mind = mindRef.current;
@@ -685,22 +699,18 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         target?.closest?.("[data-nodeid]")?.getAttribute("data-nodeid") ??
         null;
       // #region agent log
-      fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          runId: debugRunIdRef.current,
-          hypothesisId: "H3",
-          location: "components/ClientMindElixir.tsx:handleDblClick",
-          message: "host dblclick observed",
-          data: {
-            editMode,
-            nodeId,
-            isTouchDevice,
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
+      postAgentLog({
+        runId: debugRunIdRef.current,
+        hypothesisId: "H3",
+        location: "components/ClientMindElixir.tsx:handleDblClick",
+        message: "host dblclick observed",
+        data: {
+          editMode,
+          nodeId,
+          isTouchDevice,
+        },
+        timestamp: Date.now(),
+      });
       // #endregion
       if (editMode !== "view") return;
       if (!target) return;
@@ -714,7 +724,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     return () => {
       host.removeEventListener("dblclick", handleDblClick);
     };
-  }, [editMode, isTouchDevice, onViewModeEditAttempt]);
+  }, [editMode, isTouchDevice, onViewModeEditAttempt, postAgentLog]);
 
   useEffect(() => {
     if (isTouchDevice) return;
@@ -1147,24 +1157,20 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       (mind?.currentNode as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
       null;
     // #region agent log
-    fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        runId: debugRunIdRef.current,
-        hypothesisId: "H4",
-        location: "components/ClientMindElixir.tsx:runMobileNodeAction",
-        message: "mobile action invoked",
-        data: {
-          action,
-          selectedNodeId,
-          mobileActionNodeId,
-          actionTargetNodeId,
-          hasCurrentNode: Boolean(currentNode),
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
+    postAgentLog({
+      runId: debugRunIdRef.current,
+      hypothesisId: "H4",
+      location: "components/ClientMindElixir.tsx:runMobileNodeAction",
+      message: "mobile action invoked",
+      data: {
+        action,
+        selectedNodeId,
+        mobileActionNodeId,
+        actionTargetNodeId,
+        hasCurrentNode: Boolean(currentNode),
+      },
+      timestamp: Date.now(),
+    });
     // #endregion
     if (!mind || !currentNode) {
       return;
@@ -1247,21 +1253,17 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           await mind.beginEdit(latestNodeEl ?? currentNode);
         } catch (error) {
           // #region agent log
-          fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              runId: debugRunIdRef.current,
-              hypothesisId: "H5",
-              location: "components/ClientMindElixir.tsx:renameBeginEditCatch",
-              message: "mind.beginEdit threw",
-              data: {
-                renameTargetId,
-                errorMessage: error instanceof Error ? error.message : String(error),
-              },
-              timestamp: Date.now(),
-            }),
-          }).catch(() => {});
+          postAgentLog({
+            runId: debugRunIdRef.current,
+            hypothesisId: "H5",
+            location: "components/ClientMindElixir.tsx:renameBeginEditCatch",
+            message: "mind.beginEdit threw",
+            data: {
+              renameTargetId,
+              errorMessage: error instanceof Error ? error.message : String(error),
+            },
+            timestamp: Date.now(),
+          });
           // #endregion
         }
 
@@ -1269,22 +1271,18 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           elRef.current?.querySelector("input,textarea,[contenteditable='true']")
         );
         // #region agent log
-        fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            runId: debugRunIdRef.current,
-            hypothesisId: "H3",
-            location: "components/ClientMindElixir.tsx:renamePostBeginEdit",
-            message: "rename post beginEdit editor check",
-            data: {
-              renameTargetId,
-              hasEditorImmediately,
-              hasLatestNodeEl: Boolean(latestNodeEl),
-            },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {});
+        postAgentLog({
+          runId: debugRunIdRef.current,
+          hypothesisId: "H3",
+          location: "components/ClientMindElixir.tsx:renamePostBeginEdit",
+          message: "rename post beginEdit editor check",
+          data: {
+            renameTargetId,
+            hasEditorImmediately,
+            hasLatestNodeEl: Boolean(latestNodeEl),
+          },
+          timestamp: Date.now(),
+        });
         // #endregion
         if (!hasEditorImmediately && latestNodeEl) {
           dispatchDoubleClick(latestNodeEl);
@@ -1320,23 +1318,19 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         return;
       }
       // #region agent log
-      fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          runId: debugRunIdRef.current,
-          hypothesisId: "H4",
-          location: "components/ClientMindElixir.tsx:clearMobileActionBySelectionNull",
-          message: "clearing mobile action due to null selection",
-          data: {
-            selectedNodeId,
-            mobileActionNodeId,
-            elapsedSinceActionOpen,
-            isTouchDevice,
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
+      postAgentLog({
+        runId: debugRunIdRef.current,
+        hypothesisId: "H4",
+        location: "components/ClientMindElixir.tsx:clearMobileActionBySelectionNull",
+        message: "clearing mobile action due to null selection",
+        data: {
+          selectedNodeId,
+          mobileActionNodeId,
+          elapsedSinceActionOpen,
+          isTouchDevice,
+        },
+        timestamp: Date.now(),
+      });
       // #endregion
       setMobileActionNodeId(null);
       setMobileActionNodeIsRoot(null);
@@ -1351,24 +1345,20 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       lastMobileActionOpenAtRef.current = Date.now();
     }
     // #region agent log
-    fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        runId: debugRunIdRef.current,
-        hypothesisId: "H4",
-        location: "components/ClientMindElixir.tsx:toggleMobileActionNode",
-        message: "mobile action toggle pressed",
-        data: {
-          selectedNodeId,
-          mobileActionNodeId,
-          willOpen,
-          showMobileControls,
-          editMode,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
+    postAgentLog({
+      runId: debugRunIdRef.current,
+      hypothesisId: "H4",
+      location: "components/ClientMindElixir.tsx:toggleMobileActionNode",
+      message: "mobile action toggle pressed",
+      data: {
+        selectedNodeId,
+        mobileActionNodeId,
+        willOpen,
+        showMobileControls,
+        editMode,
+      },
+      timestamp: Date.now(),
+    });
     // #endregion
     setMobileActionNodeId((prev) => {
       const nextOpen =
@@ -1384,6 +1374,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     editMode,
     isTouchDevice,
     mobileActionNodeId,
+    postAgentLog,
     selectedNodeIsRoot,
     selectedNodeId,
     showMobileControls,

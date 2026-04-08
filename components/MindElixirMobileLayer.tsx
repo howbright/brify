@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Icon } from "@iconify/react";
 import MindElixirMobileControls from "@/components/MindElixirMobileControls";
 
@@ -83,6 +83,7 @@ export default function MindElixirMobileLayer({
   const selectedNormalized = normalizeNodeId(selectedNodeId);
   const mobileActionNormalized = normalizeNodeId(mobileActionNodeId);
   const actionTargetNodeId = mobileActionNodeId ?? selectedNodeId;
+  const debugEndpointBlockedRef = useRef(false);
   const showActionBar =
     showMobileControls &&
     editMode === "edit" &&
@@ -91,27 +92,38 @@ export default function MindElixirMobileLayer({
   const hoverRect = !isFocusMode && selectedNodeId && selectedRect ? selectedRect : null;
 
   useEffect(() => {
+    const payload = {
+      runId: "mobile-layer",
+      hypothesisId: "H4",
+      location: "components/MindElixirMobileLayer.tsx:state",
+      message: "mobile layer computed state",
+      data: {
+        selectedNodeId: selectedNormalized,
+        mobileActionNodeId: mobileActionNormalized,
+        showActionBar,
+        hasHoverRect: Boolean(hoverRect),
+        showMobileControls,
+        editMode,
+        isFocusMode,
+      },
+      timestamp: Date.now(),
+    };
     // #region agent log
+    if (debugEndpointBlockedRef.current) {
+      console.info("[ME_DEBUG]", payload);
+      return;
+    }
     fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        runId: "mobile-layer",
-        hypothesisId: "H4",
-        location: "components/MindElixirMobileLayer.tsx:state",
-        message: "mobile layer computed state",
-        data: {
-          selectedNodeId: selectedNormalized,
-          mobileActionNodeId: mobileActionNormalized,
-          showActionBar,
-          hasHoverRect: Boolean(hoverRect),
-          showMobileControls,
-          editMode,
-          isFocusMode,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
+      body: JSON.stringify(payload),
+    }).catch((error) => {
+      debugEndpointBlockedRef.current = true;
+      console.info("[ME_DEBUG_BLOCKED]", {
+        ...payload,
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
+    });
     // #endregion
   }, [
     editMode,
