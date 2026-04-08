@@ -374,7 +374,7 @@ function parseScale(transform: string | null) {
 const PAN_MODE_CLASS = "me-pan-mode";
 const VIEW_MODE_CLASS = "me-view-mode";
 const MANUAL_SELECTION_PRIORITY_MS = 1200;
-const MOBILE_DEBUG_BUILD_TAG = "2026-04-08-prod-dbledit-v1";
+const MOBILE_DEBUG_BUILD_TAG = "2026-04-08-prod-dbledit-v3";
 const BLOCKED_OPS = [
   "addChild",
   "insertParent",
@@ -570,6 +570,34 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     });
     // #endregion
   }, [postAgentLog]);
+
+  useEffect(() => {
+    const coarsePointer =
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(pointer: coarse)").matches;
+    const touchPoints =
+      typeof navigator !== "undefined" ? navigator.maxTouchPoints : null;
+    // #region agent log
+    postAgentLog({
+      runId: debugRunIdRef.current,
+      hypothesisId: "H11",
+      location: "components/ClientMindElixir.tsx:responsiveState",
+      message: "responsive state snapshot",
+      data: {
+        isTouchDevice,
+        showMobileControls,
+        showMobileEditControlsProp: showMobileEditControls,
+        editMode,
+        coarsePointer,
+        touchPoints,
+        userAgent:
+          typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+      },
+      timestamp: Date.now(),
+    });
+    // #endregion
+  }, [editMode, isTouchDevice, postAgentLog, showMobileControls, showMobileEditControls]);
 
   const syncLatestMindDataFromMind = () => {
     const mind = mindRef.current;
@@ -1281,6 +1309,25 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             : null) ??
           currentNodeEl ??
           (selectedNodeElRef.current as (HTMLElement & { nodeObj?: AnyNode }) | null);
+
+        // #region agent log
+        postAgentLog({
+          runId: debugRunIdRef.current,
+          hypothesisId: "H12",
+          location: "components/ClientMindElixir.tsx:renameBeginEditInput",
+          message: "rename beginEdit input snapshot",
+          data: {
+            renameTargetId,
+            latestNodeDatasetId: latestNodeEl?.dataset?.nodeid ?? null,
+            latestNodeTag: latestNodeEl?.tagName ?? null,
+            latestNodeHasNodeObj: Boolean(latestNodeEl?.nodeObj),
+            currentNodeDatasetId: currentNodeEl?.dataset?.nodeid ?? null,
+            currentNodeTag: currentNodeEl?.tagName ?? null,
+            currentNodeHasNodeObj: Boolean(currentNodeEl?.nodeObj),
+          },
+          timestamp: Date.now(),
+        });
+        // #endregion
 
         try {
           await mind.beginEdit(latestNodeEl ?? currentNode);

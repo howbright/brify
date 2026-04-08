@@ -613,6 +613,22 @@ export function useMindElixirCore({
           syncNodeDecorations();
         });
 
+        if (op?.name === "beginEdit") {
+          // #region agent log
+          postAgentLog({
+            runId: "core-selection",
+            hypothesisId: "H12",
+            location: "components/useMindElixirCore.ts:operationBeginEdit",
+            message: "operation beginEdit fired",
+            data: {
+              opId: op?.id ?? op?.data?.id ?? op?.obj?.id ?? null,
+              selectedNodeId: selectedNodeIdRef.current,
+            },
+            timestamp: Date.now(),
+          });
+          // #endregion
+        }
+
         if (op?.name === "selectNode") {
           if (
             Date.now() - lastClickedNodeRef.current.at <
