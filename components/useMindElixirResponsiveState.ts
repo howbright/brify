@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type Labels = {
   addChild: string;
@@ -29,6 +29,40 @@ export function useMindElixirResponsiveState({
 }: Params) {
   const [mounted, setMounted] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const debugRunIdRef = useRef(`responsive-${Date.now()}`);
+  const debugEndpointBlockedRef = useRef(false);
+
+  const postAgentLog = (payload: Record<string, unknown>) => {
+    if (typeof window !== "undefined") {
+      const bag = (
+        window as typeof window & { __ME_DEBUG_EVENTS?: Array<Record<string, unknown>> }
+      ).__ME_DEBUG_EVENTS;
+      if (Array.isArray(bag)) {
+        bag.push(payload);
+      } else {
+        (
+          window as typeof window & {
+            __ME_DEBUG_EVENTS?: Array<Record<string, unknown>>;
+          }
+        ).__ME_DEBUG_EVENTS = [payload];
+      }
+    }
+    if (debugEndpointBlockedRef.current) {
+      console.warn("[ME_DEBUG]", payload);
+      return;
+    }
+    fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).catch((error) => {
+      debugEndpointBlockedRef.current = true;
+      console.warn("[ME_DEBUG_BLOCKED]", {
+        ...payload,
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
+    });
+  };
 
   useEffect(() => setMounted(true), []);
 
@@ -41,7 +75,27 @@ export function useMindElixirResponsiveState({
         window.matchMedia("(pointer: coarse)").matches;
       const hasTouchPoints =
         typeof navigator !== "undefined" && navigator.maxTouchPoints > 0;
-      setIsTouchDevice(hasCoarsePointer || hasTouchPoints);
+      const detected = hasCoarsePointer || hasTouchPoints;
+      // #region agent log
+      postAgentLog({
+        runId: debugRunIdRef.current,
+        hypothesisId: "H13",
+        location: "components/useMindElixirResponsiveState.ts:detectTouchDevice",
+        message: "touch capability detection",
+        data: {
+          hasCoarsePointer,
+          hasTouchPoints,
+          maxTouchPoints:
+            typeof navigator !== "undefined" ? navigator.maxTouchPoints : null,
+          innerWidth: typeof window !== "undefined" ? window.innerWidth : null,
+          userAgent:
+            typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+          detected,
+        },
+        timestamp: Date.now(),
+      });
+      // #endregion
+      setIsTouchDevice(detected);
     };
 
     detectTouchDevice();
@@ -60,6 +114,24 @@ export function useMindElixirResponsiveState({
   const effectivePanMode = isTouchDevice ? false : (panMode ?? false);
   const showMobileControls =
     showMobileEditControls && isTouchDevice && editMode === "edit";
+
+  useEffect(() => {
+    // #region agent log
+    postAgentLog({
+      runId: debugRunIdRef.current,
+      hypothesisId: "H14",
+      location: "components/useMindElixirResponsiveState.ts:showMobileControls",
+      message: "showMobileControls computed",
+      data: {
+        showMobileEditControls,
+        isTouchDevice,
+        editMode,
+        showMobileControls,
+      },
+      timestamp: Date.now(),
+    });
+    // #endregion
+  }, [editMode, isTouchDevice, showMobileControls, showMobileEditControls]);
 
   const mobileEditLabels: Labels =
     locale === "ko"
