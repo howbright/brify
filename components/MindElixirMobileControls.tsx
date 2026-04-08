@@ -38,22 +38,6 @@ export default function MindElixirMobileControls({
 }: Props) {
   const baseItemClassName =
     "flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3.5 text-left text-[15px] font-semibold transition-colors";
-  const emitActionLog = (action: string, disabled: boolean) => {
-    // #region agent log
-    fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        runId: "mobile-controls",
-        hypothesisId: "H7",
-        location: "components/MindElixirMobileControls.tsx:42",
-        message: "mobile sheet action button pressed",
-        data: { action, disabled, showActionBar },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
-  };
 
   return (
     <>
@@ -84,7 +68,6 @@ export default function MindElixirMobileControls({
             <button
               type="button"
               onClick={() => {
-                emitActionLog("addChild", false);
                 onAddChild();
               }}
               className={`${baseItemClassName} bg-neutral-50 text-neutral-950 hover:bg-neutral-100`}
@@ -104,7 +87,6 @@ export default function MindElixirMobileControls({
             <button
               type="button"
               onClick={() => {
-                emitActionLog("addSibling", disableAddSibling);
                 onAddSibling();
               }}
               disabled={disableAddSibling}
@@ -133,7 +115,6 @@ export default function MindElixirMobileControls({
             <button
               type="button"
               onClick={() => {
-                emitActionLog("rename", disableRename);
                 onRename();
               }}
               disabled={disableRename}
@@ -162,7 +143,6 @@ export default function MindElixirMobileControls({
             <button
               type="button"
               onClick={() => {
-                emitActionLog("remove", disableRemove);
                 onRemove();
               }}
               disabled={disableRemove}

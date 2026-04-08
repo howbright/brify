@@ -89,7 +89,6 @@ type UseMindElixirCoreParams = {
   mindLocale: string;
   contextMenuText: ContextMenuText;
   editMode: "view" | "edit";
-  isTouchDeviceRef: React.RefObject<boolean>;
   noteBadgeSvg: string;
   showTimestampsRef: React.RefObject<boolean>;
   manualSelectionPriorityMs: number;
@@ -139,7 +138,6 @@ export function useMindElixirCore({
   mindLocale,
   contextMenuText,
   editMode,
-  isTouchDeviceRef,
   noteBadgeSvg,
   showTimestampsRef,
   manualSelectionPriorityMs,
@@ -494,26 +492,7 @@ export function useMindElixirCore({
 
       mind.bus?.addListener?.("unselectNodes", () => {
         const elapsedMs = Date.now() - lastClickedNodeRef.current.at;
-        const isTouchRuntime = Boolean(isTouchDeviceRef.current);
-        // #region agent log
-        fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            runId: "core-unselect",
-            hypothesisId: "H1",
-            location: "components/useMindElixirCore.ts:495",
-            message: "bus.unselectNodes observed",
-            data: {
-              elapsedMs,
-              selectedNodeId: selectedNodeIdRef.current,
-              isTouchDevice: isTouchRuntime,
-            },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {});
-        // #endregion
-        if (isTouchRuntime && elapsedMs < UNSELECT_GRACE_MS && selectedNodeIdRef.current) {
+        if (elapsedMs < UNSELECT_GRACE_MS && selectedNodeIdRef.current) {
           return;
         }
         setSelectedNodeId(null);
@@ -589,31 +568,7 @@ export function useMindElixirCore({
           op?.name === "removeNodes"
         ) {
           const elapsedMs = Date.now() - lastClickedNodeRef.current.at;
-          const isTouchRuntime = Boolean(isTouchDeviceRef.current);
-          // #region agent log
-          fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              runId: "core-operation",
-              hypothesisId: "H1",
-              location: "components/useMindElixirCore.ts:571",
-              message: "operation unselect-like observed",
-              data: {
-                opName: String(op?.name ?? "unknown"),
-                elapsedMs,
-                selectedNodeId: selectedNodeIdRef.current,
-                isTouchDevice: isTouchRuntime,
-              },
-              timestamp: Date.now(),
-            }),
-          }).catch(() => {});
-          // #endregion
-          if (
-            isTouchRuntime &&
-            elapsedMs < UNSELECT_GRACE_MS &&
-            selectedNodeIdRef.current
-          ) {
+          if (elapsedMs < UNSELECT_GRACE_MS && selectedNodeIdRef.current) {
             return;
           }
           setSelectedNodeId(null);
