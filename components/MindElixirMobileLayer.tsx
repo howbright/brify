@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Icon } from "@iconify/react";
 import MindElixirMobileControls from "@/components/MindElixirMobileControls";
 
@@ -88,6 +89,39 @@ export default function MindElixirMobileLayer({
     !!mobileActionNodeId &&
     (!!selectedNodeId ? mobileActionNormalized === selectedNormalized : true);
   const hoverRect = !isFocusMode && selectedNodeId && selectedRect ? selectedRect : null;
+
+  useEffect(() => {
+    // #region agent log
+    fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runId: "mobile-layer",
+        hypothesisId: "H4",
+        location: "components/MindElixirMobileLayer.tsx:state",
+        message: "mobile layer computed state",
+        data: {
+          selectedNodeId: selectedNormalized,
+          mobileActionNodeId: mobileActionNormalized,
+          showActionBar,
+          hasHoverRect: Boolean(hoverRect),
+          showMobileControls,
+          editMode,
+          isFocusMode,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+  }, [
+    editMode,
+    hoverRect,
+    isFocusMode,
+    mobileActionNormalized,
+    selectedNormalized,
+    showActionBar,
+    showMobileControls,
+  ]);
 
   return (
     <>
