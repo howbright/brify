@@ -519,8 +519,27 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const isDecoratingRef = useRef(false);
   const onChangeRef = useRef<((op: any) => void) | null>(null);
   const postAgentLog = useCallback((payload: Record<string, unknown>) => {
+    if (typeof window !== "undefined") {
+      const host = window.location.hostname;
+      const isLocalHost = host === "localhost" || host === "127.0.0.1";
+      if (!isLocalHost) {
+        debugEndpointBlockedRef.current = true;
+      }
+      const bag = (
+        window as typeof window & { __ME_DEBUG_EVENTS?: Array<Record<string, unknown>> }
+      ).__ME_DEBUG_EVENTS;
+      if (Array.isArray(bag)) {
+        bag.push(payload);
+      } else {
+        (
+          window as typeof window & {
+            __ME_DEBUG_EVENTS?: Array<Record<string, unknown>>;
+          }
+        ).__ME_DEBUG_EVENTS = [payload];
+      }
+    }
     if (debugEndpointBlockedRef.current) {
-      console.info("[ME_DEBUG]", payload);
+      console.warn("[ME_DEBUG]", payload);
       return;
     }
     fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
@@ -529,7 +548,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       body: JSON.stringify(payload),
     }).catch((error) => {
       debugEndpointBlockedRef.current = true;
-      console.info("[ME_DEBUG_BLOCKED]", {
+      console.warn("[ME_DEBUG_BLOCKED]", {
         ...payload,
         errorMessage: error instanceof Error ? error.message : String(error),
       });
