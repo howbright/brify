@@ -774,6 +774,68 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   }, [editMode, isTouchDevice, onViewModeEditAttempt, postAgentLog]);
 
   useEffect(() => {
+    const host = elRef.current;
+    if (!host) return;
+
+    const isEditorEl = (el: EventTarget | null) => {
+      if (!(el instanceof HTMLElement)) return false;
+      if (el.matches("input,textarea")) return true;
+      if (el.getAttribute("contenteditable") === "true") return true;
+      return false;
+    };
+
+    const handleFocusIn = (e: FocusEvent) => {
+      if (!isEditorEl(e.target)) return;
+      // #region agent log
+      postAgentLog({
+        runId: debugRunIdRef.current,
+        hypothesisId: "H15",
+        location: "components/ClientMindElixir.tsx:editorFocusIn",
+        message: "editor focused",
+        data: {
+          targetTag: (e.target as HTMLElement | null)?.tagName ?? null,
+          activeTag:
+            (document.activeElement as HTMLElement | null)?.tagName ?? null,
+          selectedNodeId: selectedNodeIdRef.current,
+          mobileActionNodeId,
+          isTouchDevice,
+        },
+        timestamp: Date.now(),
+      });
+      // #endregion
+    };
+
+    const handleFocusOut = (e: FocusEvent) => {
+      if (!isEditorEl(e.target)) return;
+      // #region agent log
+      postAgentLog({
+        runId: debugRunIdRef.current,
+        hypothesisId: "H15",
+        location: "components/ClientMindElixir.tsx:editorFocusOut",
+        message: "editor blurred",
+        data: {
+          targetTag: (e.target as HTMLElement | null)?.tagName ?? null,
+          relatedTag: (e.relatedTarget as HTMLElement | null)?.tagName ?? null,
+          activeTag:
+            (document.activeElement as HTMLElement | null)?.tagName ?? null,
+          selectedNodeId: selectedNodeIdRef.current,
+          mobileActionNodeId,
+          isTouchDevice,
+        },
+        timestamp: Date.now(),
+      });
+      // #endregion
+    };
+
+    host.addEventListener("focusin", handleFocusIn);
+    host.addEventListener("focusout", handleFocusOut);
+    return () => {
+      host.removeEventListener("focusin", handleFocusIn);
+      host.removeEventListener("focusout", handleFocusOut);
+    };
+  }, [isTouchDevice, mobileActionNodeId, postAgentLog, selectedNodeIdRef]);
+
+  useEffect(() => {
     if (isTouchDevice) return;
     if (typeof document === "undefined") return;
     const html = document.documentElement;
@@ -1092,7 +1154,23 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     };
 
     const handleClick = (e: MouseEvent) => {
-      if (isTouchDevice) return;
+      if (isTouchDevice) {
+        // #region agent log
+        postAgentLog({
+          runId: debugRunIdRef.current,
+          hypothesisId: "H16",
+          location: "components/ClientMindElixir.tsx:handleClickTouchSkip",
+          message: "host click ignored on touch device",
+          data: {
+            targetTag: (e.target as HTMLElement | null)?.tagName ?? null,
+            selectedNodeId: selectedNodeIdRef.current,
+            mobileActionNodeId,
+          },
+          timestamp: Date.now(),
+        });
+        // #endregion
+        return;
+      }
       if (Date.now() - touchDragMovedAtRef.current < 280) {
         touchDragMovedAtRef.current = 0;
         return;
@@ -1139,6 +1217,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   }, [
     applySelectionFromElement,
     isTouchDevice,
+    mobileActionNodeId,
+    postAgentLog,
     selectedNodeElRef,
     setSelectedNodeId,
     setSelectedNoteText,

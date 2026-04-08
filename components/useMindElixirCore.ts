@@ -613,6 +613,31 @@ export function useMindElixirCore({
           syncNodeDecorations();
         });
 
+        if (
+          op?.name === "beginEdit" ||
+          op?.name === "finishEdit" ||
+          op?.name === "editNode" ||
+          op?.name === "selectNode" ||
+          op?.name === "unselectNodes" ||
+          op?.name === "clearSelection"
+        ) {
+          // #region agent log
+          postAgentLog({
+            runId: "core-selection",
+            hypothesisId: "H15",
+            location: "components/useMindElixirCore.ts:operationEditFlow",
+            message: "operation edit flow",
+            data: {
+              opName: op?.name ?? "unknown",
+              opId: op?.id ?? op?.data?.id ?? op?.obj?.id ?? null,
+              selectedNodeId: selectedNodeIdRef.current,
+              elapsedMs: Date.now() - lastClickedNodeRef.current.at,
+            },
+            timestamp: Date.now(),
+          });
+          // #endregion
+        }
+
         if (op?.name === "beginEdit") {
           // #region agent log
           postAgentLog({
