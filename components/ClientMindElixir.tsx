@@ -1279,7 +1279,49 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           }),
         }).catch(() => {});
         // #endregion
-        await mind.beginEdit(currentNode);
+        let renameTrigger: "beginEdit" | "dblclick-fallback" = "beginEdit";
+        try {
+          await mind.beginEdit(currentNode);
+        } catch (error) {
+          // #region agent log
+          fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              runId: debugRunIdRef.current,
+              hypothesisId: "H10",
+              location: "components/ClientMindElixir.tsx:1282",
+              message: "rename beginEdit threw, trying dblclick fallback",
+              data: {
+                actionTargetNodeId,
+                renameTargetId,
+                errorMessage:
+                  error instanceof Error ? error.message : String(error),
+              },
+              timestamp: Date.now(),
+            }),
+          }).catch(() => {});
+          // #endregion
+          const fallbackEl =
+            currentNodeEl ??
+            (renameTargetId
+              ? (getNodeElById(renameTargetId) as
+                  | (HTMLElement & { nodeObj?: AnyNode })
+                  | null)
+              : null);
+          if (fallbackEl) {
+            renameTrigger = "dblclick-fallback";
+            fallbackEl.dispatchEvent(
+              new MouseEvent("dblclick", {
+                bubbles: true,
+                cancelable: true,
+                view: window,
+              })
+            );
+          } else {
+            throw error;
+          }
+        }
         requestAnimationFrame(() => {
           const host = elRef.current;
           const hasEditor = Boolean(
@@ -1299,6 +1341,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
                 renameTargetId,
                 selectedNodeIdAfter: selectedNodeIdRef.current,
                 hasEditor,
+                renameTrigger,
               },
               timestamp: Date.now(),
             }),
