@@ -1604,6 +1604,8 @@
         "updatedDesc": "최근 수정순",
         "titleAsc": "제목순"
       },
+      "refresh": "목록 새로고침",
+      "refreshing": "목록 새로고침 중",
       "filterOpen": "필터 열기",
       "filterClose": "필터 닫기",
       "resetFilters": "필터 초기화"

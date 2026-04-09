@@ -452,6 +452,8 @@ export default function MapsPage() {
     totalCount,
     loading,
     error,
+    hasInFlightMaps,
+    refresh,
   } = useMapsListQuery({
     listFields: LIST_FIELDS,
     page,
@@ -579,6 +581,7 @@ export default function MapsPage() {
   const hasResults = totalCount > 0;
   const isInitialLoading = loading && drafts.length === 0;
   const isRefreshing = loading && drafts.length > 0;
+  const isRefreshingList = isRefreshing || hasInFlightMaps;
   const tagSummary =
     !tagOrganizeMode && effectiveTagFilters.length > 0
       ? effectiveTagFilters.join(", ")
@@ -784,6 +787,8 @@ export default function MapsPage() {
                   query={query}
                   onQueryChange={onQueryChange}
                   onClearQuery={onClearQuery}
+                  onRefresh={refresh}
+                  refreshing={isRefreshingList}
                   selectionMode={selectionMode}
                   selectedCount={selectedMapIds.length}
                   onOpenMerge={() => setMergeDialogOpen(true)}

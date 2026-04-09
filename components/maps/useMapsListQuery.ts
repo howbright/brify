@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/app/types/database.types";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
@@ -62,6 +62,13 @@ export default function useMapsListQuery({
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshNonce, setRefreshNonce] = useState(0);
+
+  const refresh = useCallback(() => {
+    setRefreshNonce((value) => value + 1);
+  }, []);
+
+  const hasInFlightMaps = drafts.some((draft) => draft.status === "processing");
 
   useEffect(() => {
     let cancelled = false;
@@ -199,7 +206,22 @@ export default function useMapsListQuery({
     contentFilters,
     locale,
     toDraft,
+    refreshNonce,
   ]);
+
+  useEffect(() => {
+    if (!hasInFlightMaps) return;
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState !== "visible") return;
+      if (typeof document.hasFocus === "function" && !document.hasFocus()) return;
+      refresh();
+    }, 12000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [hasInFlightMaps, refresh]);
 
   return {
     drafts,
@@ -208,5 +230,7 @@ export default function useMapsListQuery({
     setTotalCount,
     loading,
     error,
+    hasInFlightMaps,
+    refresh,
   };
 }

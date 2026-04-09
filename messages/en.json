@@ -1604,6 +1604,8 @@
         "updatedDesc": "Recently updated",
         "titleAsc": "Title"
       },
+      "refresh": "Refresh list",
+      "refreshing": "Refreshing list",
       "filterOpen": "Open filters",
       "filterClose": "Close filters",
       "resetFilters": "Reset filters"

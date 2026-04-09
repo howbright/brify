@@ -19,6 +19,8 @@ type MapListToolbarProps = {
   query: string;
   onQueryChange: (value: string) => void;
   onClearQuery: () => void;
+  onRefresh: () => void;
+  refreshing: boolean;
   selectionMode: boolean;
   selectedCount: number;
   onOpenMerge: () => void;
@@ -53,6 +55,8 @@ export default function MapListToolbar({
   query,
   onQueryChange,
   onClearQuery,
+  onRefresh,
+  refreshing,
   selectionMode,
   selectedCount,
   onOpenMerge,
@@ -309,6 +313,18 @@ export default function MapListToolbar({
               <option value="updated_desc">{t("sort.updatedDesc")}</option>
               <option value="title_asc">{t("sort.titleAsc")}</option>
             </select>
+            <button
+              type="button"
+              onClick={onRefresh}
+              disabled={refreshing}
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-blue-200/80 bg-blue-50 text-blue-700 shadow-sm hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-70 dark:border-blue-300/18 dark:bg-blue-400/10 dark:text-blue-200 dark:hover:bg-blue-400/16 md:h-7 md:w-7"
+              aria-label={refreshing ? t("refreshing") : t("refresh")}
+            >
+              <Icon
+                icon="mdi:refresh"
+                className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`}
+              />
+            </button>
             <button
               ref={filterButtonRef}
               type="button"
