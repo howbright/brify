@@ -374,7 +374,7 @@ function parseScale(transform: string | null) {
 const PAN_MODE_CLASS = "me-pan-mode";
 const VIEW_MODE_CLASS = "me-view-mode";
 const MANUAL_SELECTION_PRIORITY_MS = 1200;
-const MOBILE_DEBUG_BUILD_TAG = "2026-04-08-prod-dbledit-v10";
+const MOBILE_DEBUG_BUILD_TAG = "2026-04-08-prod-dbledit-v11";
 const BLOCKED_OPS = [
   "addChild",
   "insertParent",
@@ -788,7 +788,18 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       // #endregion
       if (!isTouchDevice && editMode === "edit") {
         const nodeTarget = target?.closest?.("me-tpc[data-nodeid], [data-nodeid]");
-        const rawNodeId = nodeId ?? nodeTarget?.getAttribute("data-nodeid") ?? null;
+        const fallbackSelectedEl =
+          (selectedNodeElRef.current as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
+          null;
+        const fallbackSelectedId = selectedNodeIdRef.current ?? null;
+        const rawNodeId =
+          nodeId ??
+          nodeTarget?.getAttribute("data-nodeid") ??
+          fallbackSelectedEl?.dataset?.nodeid ??
+          fallbackSelectedId;
+        const effectiveTarget =
+          (nodeTarget as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
+          fallbackSelectedEl;
         // #region agent log
         postAgentLog({
           runId: debugRunIdRef.current,
@@ -798,20 +809,22 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           data: {
             rawNodeId,
             hasNodeTarget: Boolean(nodeTarget),
+            hasFallbackSelectedEl: Boolean(fallbackSelectedEl),
+            fallbackSelectedId,
             editMode,
             isTouchDevice,
           },
           timestamp: Date.now(),
         });
         // #endregion
-        if (!nodeTarget || !rawNodeId) return;
+        if (!effectiveTarget || !rawNodeId) return;
         const normalizedNodeId = normalizeNodeId(rawNodeId);
         const editTarget =
           (getNodeElById(rawNodeId) as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
           (getNodeElById(normalizedNodeId) as
             | (HTMLElement & { nodeObj?: AnyNode })
             | null) ??
-          (nodeTarget as HTMLElement);
+          effectiveTarget;
         applySelectionFromElement(editTarget, normalizedNodeId);
         focusNodeById(normalizedNodeId);
         void (async () => {
