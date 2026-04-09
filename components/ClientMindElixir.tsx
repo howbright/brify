@@ -1835,43 +1835,64 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         }
         .me-ts-badge {
           position: absolute;
-          left: 50%;
-          bottom: calc(100% + 6px);
-          transform: translateX(-50%);
+          right: -8px;
+          bottom: -10px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           max-width: 120px;
-          padding: 2px 7px;
+          min-height: 18px;
+          padding: 3px 8px;
           border-radius: 999px;
-          background: rgba(15, 23, 42, 0.88);
-          color: #ffffff;
+          border: 1px solid rgba(96, 165, 250, 0.35);
+          background: linear-gradient(
+            180deg,
+            rgba(239, 246, 255, 0.96),
+            rgba(219, 234, 254, 0.94)
+          );
+          color: #1d4ed8;
           font-size: 10px;
           font-weight: 700;
           line-height: 1;
           white-space: nowrap;
-          box-shadow: 0 8px 18px rgba(15, 23, 42, 0.28);
+          letter-spacing: -0.01em;
+          box-shadow:
+            0 6px 14px rgba(59, 130, 246, 0.16),
+            0 0 0 1px rgba(255, 255, 255, 0.7);
           pointer-events: none;
           z-index: 2;
         }
         .${DEFAULT_DARK_CANVAS_CLASS} .me-ts-badge {
-          background: rgba(255, 255, 255, 0.92);
-          color: #0f172a;
+          border-color: rgba(125, 211, 252, 0.22);
+          background: linear-gradient(
+            180deg,
+            rgba(30, 41, 59, 0.96),
+            rgba(15, 23, 42, 0.94)
+          );
+          color: rgba(186, 230, 253, 0.96);
+          box-shadow:
+            0 10px 22px rgba(2, 6, 23, 0.34),
+            0 0 0 1px rgba(125, 211, 252, 0.08);
         }
         .${VIEW_MODE_CLASS} .me-note-dot {
           cursor: pointer;
         }
         me-tpc[data-highlight="gold"] {
-          background-color: #fde68a !important;
-          color: #7c2d12 !important;
-          border: 1px solid #f59e0b !important;
+          background: linear-gradient(
+            135deg,
+            #fb923c 0%,
+            #fdba74 45%,
+            #fde68a 100%
+          ) !important;
+          color: #1f2937 !important;
+          border: 1.5px solid #e11d48 !important;
           box-shadow:
-            0 6px 16px rgba(245, 158, 11, 0.35),
-            0 0 0 2px rgba(253, 230, 138, 0.5);
+            0 8px 18px rgba(251, 146, 60, 0.28),
+            0 0 0 2px rgba(255, 237, 213, 0.38);
         }
         me-tpc[data-highlight="gold"] .text {
-          color: #7c2d12 !important;
-          font-weight: 600;
+          color: #111827 !important;
+          font-weight: 500;
         }
         me-tpc[data-search="true"] {
           outline: 2px solid rgba(59, 130, 246, 0.35);
