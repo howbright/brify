@@ -4,6 +4,7 @@ import { useRef } from "react";
 
 type AnyNode = {
   id: string;
+  topic: string;
   root?: boolean;
   parent?: { id?: string } | null;
   highlight?: { variant?: string } | null;
