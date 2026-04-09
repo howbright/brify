@@ -374,7 +374,7 @@ function parseScale(transform: string | null) {
 const PAN_MODE_CLASS = "me-pan-mode";
 const VIEW_MODE_CLASS = "me-view-mode";
 const MANUAL_SELECTION_PRIORITY_MS = 1200;
-const MOBILE_DEBUG_BUILD_TAG = "2026-04-08-prod-dbledit-v7";
+const MOBILE_DEBUG_BUILD_TAG = "2026-04-08-prod-dbledit-v8";
 const BLOCKED_OPS = [
   "addChild",
   "insertParent",
@@ -782,6 +782,54 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         timestamp: Date.now(),
       });
       // #endregion
+      if (!isTouchDevice && editMode === "edit") {
+        const nodeTarget = target?.closest?.("me-tpc[data-nodeid], [data-nodeid]");
+        const rawNodeId = nodeId ?? nodeTarget?.getAttribute("data-nodeid") ?? null;
+        if (!nodeTarget || !rawNodeId) return;
+        const normalizedNodeId = normalizeNodeId(rawNodeId);
+        const editTarget =
+          (getNodeElById(rawNodeId) as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
+          (getNodeElById(normalizedNodeId) as
+            | (HTMLElement & { nodeObj?: AnyNode })
+            | null) ??
+          (nodeTarget as HTMLElement);
+        applySelectionFromElement(editTarget, normalizedNodeId);
+        focusNodeById(normalizedNodeId);
+        void (async () => {
+          await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+          try {
+            await mindRef.current?.beginEdit?.(editTarget);
+            // #region agent log
+            postAgentLog({
+              runId: debugRunIdRef.current,
+              hypothesisId: "H21",
+              location: "components/ClientMindElixir.tsx:desktopDblclickBeginEdit",
+              message: "desktop dblclick beginEdit invoked",
+              data: {
+                nodeId: normalizedNodeId,
+                hasEditTarget: Boolean(editTarget),
+              },
+              timestamp: Date.now(),
+            });
+            // #endregion
+          } catch (error) {
+            // #region agent log
+            postAgentLog({
+              runId: debugRunIdRef.current,
+              hypothesisId: "H21",
+              location: "components/ClientMindElixir.tsx:desktopDblclickBeginEditCatch",
+              message: "desktop dblclick beginEdit threw",
+              data: {
+                nodeId: normalizedNodeId,
+                errorMessage: error instanceof Error ? error.message : String(error),
+              },
+              timestamp: Date.now(),
+            });
+            // #endregion
+          }
+        })();
+        return;
+      }
       if (editMode !== "view") return;
       if (!target) return;
       const isNode =
@@ -796,7 +844,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       host.removeEventListener("dblclick", suppressTouchDblClick, true);
       host.removeEventListener("dblclick", handleDblClick);
     };
-  }, [editMode, isTouchDevice, onViewModeEditAttempt, postAgentLog]);
+  }, [
+    applySelectionFromElement,
+    editMode,
+    focusNodeById,
+    getNodeElById,
+    isTouchDevice,
+    onViewModeEditAttempt,
+    postAgentLog,
+  ]);
 
   useEffect(() => {
     const host = elRef.current;
