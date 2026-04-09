@@ -56,7 +56,16 @@ export function useMindElixirNodeActions({
 
   const runMobileNodeAction = async (action: MobileAction) => {
     const mind = mindRef.current;
-    const currentNode = mind?.currentNode;
+    const selectedEl =
+      (selectedNodeElRef.current as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
+      (selectedNodeIdRef.current
+        ? ((getNodeElById(selectedNodeIdRef.current) as
+            | (HTMLElement & { nodeObj?: AnyNode })
+            | null) ?? null)
+        : null);
+    const currentNode =
+      (selectedEl?.nodeObj ? selectedEl : null) ??
+      ((mind?.currentNode as (HTMLElement & { nodeObj?: AnyNode }) | null) ?? null);
     if (!mind || !currentNode) return;
 
     try {
