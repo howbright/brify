@@ -202,6 +202,7 @@ export default function MapDetailPage() {
   );
   const mindRef = useRef<ClientMindElixirHandle | null>(null);
   const centeredOnceRef = useRef(false);
+  const pendingRecenterRef = useRef(false);
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
   const [isSavingMeta, setIsSavingMeta] = useState(false);
   const [tagEditOpen, setTagEditOpen] = useState(false);
@@ -514,8 +515,10 @@ export default function MapDetailPage() {
 
   useEffect(() => {
     if (!mapData || loading) return;
-    if (centeredOnceRef.current) return;
+    const shouldCenter = pendingRecenterRef.current || !centeredOnceRef.current;
+    if (!shouldCenter) return;
     centeredOnceRef.current = true;
+    pendingRecenterRef.current = false;
     const raf = requestAnimationFrame(() => {
       mindRef.current?.centerMap?.();
     });
@@ -797,6 +800,7 @@ export default function MapDetailPage() {
             .eq("id", mapId)
             .single();
           if (!error && data?.mind_elixir) {
+            pendingRecenterRef.current = true;
             setMapData(data.mind_elixir);
           }
         } catch {
