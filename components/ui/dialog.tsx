@@ -68,12 +68,12 @@ export const DialogContent = ({ className, children, ...props }: React.Component
       <div
         className="
           pointer-events-none absolute inset-0 rounded-3xl
-          bg-[radial-gradient(800px_260px_at_20%_0%,rgba(59,130,246,0.18),transparent_55%)]
-          dark:bg-[radial-gradient(800px_260px_at_20%_0%,rgba(56,189,248,0.18),transparent_55%)]
+          bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,250,252,0.94))]
+          dark:bg-[radial-gradient(800px_260px_at_20%_0%,rgba(56,189,248,0.10),transparent_58%)]
         "
       />
-      <div className="pointer-events-none absolute inset-0 rounded-3xl dark:bg-white/[0.03]" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-slate-400 dark:bg-white/20" />
+      <div className="pointer-events-none absolute inset-0 rounded-3xl bg-white/70 dark:bg-white/[0.03]" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-slate-300/80 dark:bg-white/16" />
       <DialogPrimitive.Title asChild>
         <VisuallyHidden>Login Required</VisuallyHidden>
       </DialogPrimitive.Title>
