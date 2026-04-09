@@ -374,7 +374,7 @@ function parseScale(transform: string | null) {
 const PAN_MODE_CLASS = "me-pan-mode";
 const VIEW_MODE_CLASS = "me-view-mode";
 const MANUAL_SELECTION_PRIORITY_MS = 1200;
-const MOBILE_DEBUG_BUILD_TAG = "2026-04-08-prod-dbledit-v9";
+const MOBILE_DEBUG_BUILD_TAG = "2026-04-08-prod-dbledit-v10";
 const BLOCKED_OPS = [
   "addChild",
   "insertParent",
@@ -480,6 +480,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const lastMobileActionOpenAtRef = useRef(0);
   const longPressTimerRef = useRef<number | null>(null);
   const longPressTriggeredRef = useRef(false);
+  const lastDesktopNodeClickRef = useRef<{ id: string | null; at: number }>({
+    id: null,
+    at: 0,
+  });
   const touchDragMovedAtRef = useRef(0);
   const lastStableSelectionRef = useRef<{ id: string | null; at: number }>({
     id: null,
@@ -1310,7 +1314,69 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       }
       const nodeId = nodeEl.getAttribute("data-nodeid");
       if (!nodeId) return;
+      const normalizedNodeId = normalizeNodeId(nodeId);
+      const now = Date.now();
+      const prev = lastDesktopNodeClickRef.current;
+      const isDoubleClickByTiming =
+        prev.id === normalizedNodeId && now - prev.at <= 320;
+      lastDesktopNodeClickRef.current = { id: normalizedNodeId, at: now };
       applySelectionFromElement(nodeEl, nodeId);
+      // #region agent log
+      postAgentLog({
+        runId: debugRunIdRef.current,
+        hypothesisId: "H23",
+        location: "components/ClientMindElixir.tsx:desktopClickNode",
+        message: "desktop click node timing",
+        data: {
+          nodeId: normalizedNodeId,
+          isDoubleClickByTiming,
+          editMode,
+          isTouchDevice,
+        },
+        timestamp: now,
+      });
+      // #endregion
+      if (!isDoubleClickByTiming || editMode !== "edit") return;
+      const editTarget =
+        (getNodeElById(normalizedNodeId) as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
+        (nodeEl as HTMLElement & { nodeObj?: AnyNode });
+      focusNodeById(normalizedNodeId);
+      void (async () => {
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        try {
+          await mindRef.current?.beginEdit?.(editTarget);
+          const hasEditorAfterBeginEdit = Boolean(
+            document.querySelector("input,textarea,[contenteditable='true']")
+          );
+          // #region agent log
+          postAgentLog({
+            runId: debugRunIdRef.current,
+            hypothesisId: "H23",
+            location: "components/ClientMindElixir.tsx:desktopClickTimingBeginEdit",
+            message: "desktop timing beginEdit invoked",
+            data: {
+              nodeId: normalizedNodeId,
+              hasEditorAfterBeginEdit,
+            },
+            timestamp: Date.now(),
+          });
+          // #endregion
+        } catch (error) {
+          // #region agent log
+          postAgentLog({
+            runId: debugRunIdRef.current,
+            hypothesisId: "H23",
+            location: "components/ClientMindElixir.tsx:desktopClickTimingBeginEditCatch",
+            message: "desktop timing beginEdit threw",
+            data: {
+              nodeId: normalizedNodeId,
+              errorMessage: error instanceof Error ? error.message : String(error),
+            },
+            timestamp: Date.now(),
+          });
+          // #endregion
+        }
+      })();
     };
 
     host.addEventListener("pointerdown", handlePointerDown);
@@ -1321,6 +1387,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     };
   }, [
     applySelectionFromElement,
+    editMode,
+    focusNodeById,
+    getNodeElById,
     isTouchDevice,
     mobileActionNodeId,
     postAgentLog,
