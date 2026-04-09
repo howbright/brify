@@ -297,7 +297,9 @@ export default function MapNotesTab() {
 
   const handleOpenDetail = () => {
     if (!selectedDraft || selectedDraft.status !== "done" || isMockMode) return;
-    const nextUrl = locale ? `/${locale}/maps/${selectedDraft.id}` : `/maps/${selectedDraft.id}`;
+    const nextUrl = locale
+      ? `/${locale}/maps/${selectedDraft.id}?tab=notes`
+      : `/maps/${selectedDraft.id}?tab=notes`;
     setOpeningDetailId(selectedDraft.id);
     router.push(nextUrl);
   };
