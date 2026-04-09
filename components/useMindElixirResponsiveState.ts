@@ -33,32 +33,39 @@ export function useMindElixirResponsiveState({
   const debugEndpointBlockedRef = useRef(false);
 
   const postAgentLog = (payload: Record<string, unknown>) => {
+    const mergedPayload = {
+      sessionId: "bde55e",
+      ...payload,
+    };
     if (typeof window !== "undefined") {
       const bag = (
         window as typeof window & { __ME_DEBUG_EVENTS?: Array<Record<string, unknown>> }
       ).__ME_DEBUG_EVENTS;
       if (Array.isArray(bag)) {
-        bag.push(payload);
+        bag.push(mergedPayload);
       } else {
         (
           window as typeof window & {
             __ME_DEBUG_EVENTS?: Array<Record<string, unknown>>;
           }
-        ).__ME_DEBUG_EVENTS = [payload];
+        ).__ME_DEBUG_EVENTS = [mergedPayload];
       }
     }
     if (debugEndpointBlockedRef.current) {
-      console.warn("[ME_DEBUG]", payload);
+      console.warn("[ME_DEBUG]", mergedPayload);
       return;
     }
-    fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+    fetch("http://127.0.0.1:7600/ingest/7bd65ea4-78f4-422e-b8b9-6e9c6e260f2e", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      headers: {
+        "Content-Type": "application/json",
+        "X-Debug-Session-Id": "bde55e",
+      },
+      body: JSON.stringify(mergedPayload),
     }).catch((error) => {
       debugEndpointBlockedRef.current = true;
       console.warn("[ME_DEBUG_BLOCKED]", {
-        ...payload,
+        ...mergedPayload,
         errorMessage: error instanceof Error ? error.message : String(error),
       });
     });

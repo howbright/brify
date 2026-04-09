@@ -480,10 +480,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const lastMobileActionOpenAtRef = useRef(0);
   const longPressTimerRef = useRef<number | null>(null);
   const longPressTriggeredRef = useRef(false);
-  const lastDesktopNodeClickRef = useRef<{ id: string | null; at: number }>({
-    id: null,
-    at: 0,
-  });
   const touchDragMovedAtRef = useRef(0);
   const lastStableSelectionRef = useRef<{ id: string | null; at: number }>({
     id: null,
@@ -523,6 +519,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const isDecoratingRef = useRef(false);
   const onChangeRef = useRef<((op: any) => void) | null>(null);
   const postAgentLog = useCallback((payload: Record<string, unknown>) => {
+    const mergedPayload = {
+      sessionId: "bde55e",
+      ...payload,
+    };
     if (typeof window !== "undefined") {
       const host = window.location.hostname;
       const isLocalHost = host === "localhost" || host === "127.0.0.1";
@@ -533,27 +533,30 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         window as typeof window & { __ME_DEBUG_EVENTS?: Array<Record<string, unknown>> }
       ).__ME_DEBUG_EVENTS;
       if (Array.isArray(bag)) {
-        bag.push(payload);
+        bag.push(mergedPayload);
       } else {
         (
           window as typeof window & {
             __ME_DEBUG_EVENTS?: Array<Record<string, unknown>>;
           }
-        ).__ME_DEBUG_EVENTS = [payload];
+        ).__ME_DEBUG_EVENTS = [mergedPayload];
       }
     }
     if (debugEndpointBlockedRef.current) {
-      console.warn("[ME_DEBUG]", payload);
+      console.warn("[ME_DEBUG]", mergedPayload);
       return;
     }
-    fetch("http://127.0.0.1:7243/ingest/b44aa14f-cb62-41f5-bd7a-02a25686b9d0", {
+    fetch("http://127.0.0.1:7600/ingest/7bd65ea4-78f4-422e-b8b9-6e9c6e260f2e", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      headers: {
+        "Content-Type": "application/json",
+        "X-Debug-Session-Id": "bde55e",
+      },
+      body: JSON.stringify(mergedPayload),
     }).catch((error) => {
       debugEndpointBlockedRef.current = true;
       console.warn("[ME_DEBUG_BLOCKED]", {
-        ...payload,
+        ...mergedPayload,
         errorMessage: error instanceof Error ? error.message : String(error),
       });
     });
@@ -743,135 +746,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     const host = elRef.current;
     if (!wrapper || !host) return;
 
-    const suppressTouchDblClick = (e: MouseEvent) => {
-      if (!isTouchDevice) return;
-      const target = e.target as HTMLElement | null;
-      // #region agent log
-      postAgentLog({
-        runId: debugRunIdRef.current,
-        hypothesisId: "H20",
-        location: "components/ClientMindElixir.tsx:suppressTouchDblClick",
-        message: "touch dblclick suppressed",
-        data: {
-          targetTag: target?.tagName ?? null,
-          nodeId:
-            target?.closest?.("me-tpc[data-nodeid]")?.getAttribute("data-nodeid") ??
-            target?.closest?.("[data-nodeid]")?.getAttribute("data-nodeid") ??
-            null,
-        },
-        timestamp: Date.now(),
-      });
-      // #endregion
-      e.preventDefault();
-      e.stopPropagation();
-    };
-
     const handleDblClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement | null;
-      const nodeId =
-        target?.closest?.("me-tpc[data-nodeid]")?.getAttribute("data-nodeid") ??
-        target?.closest?.("[data-nodeid]")?.getAttribute("data-nodeid") ??
-        null;
-      // #region agent log
-      postAgentLog({
-        runId: debugRunIdRef.current,
-        hypothesisId: "H3",
-        location: "components/ClientMindElixir.tsx:handleDblClick",
-        message: "host dblclick observed",
-        data: {
-          editMode,
-          nodeId,
-          isTouchDevice,
-        },
-        timestamp: Date.now(),
-      });
-      // #endregion
-      if (!isTouchDevice && editMode === "edit") {
-        const nodeTarget = target?.closest?.("me-tpc[data-nodeid], [data-nodeid]");
-        const fallbackSelectedEl =
-          (selectedNodeElRef.current as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
-          null;
-        const fallbackSelectedId = selectedNodeIdRef.current ?? null;
-        const rawNodeId =
-          nodeId ??
-          nodeTarget?.getAttribute("data-nodeid") ??
-          fallbackSelectedEl?.dataset?.nodeid ??
-          fallbackSelectedId;
-        const effectiveTarget =
-          (nodeTarget as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
-          fallbackSelectedEl;
-        // #region agent log
-        postAgentLog({
-          runId: debugRunIdRef.current,
-          hypothesisId: "H22",
-          location: "components/ClientMindElixir.tsx:desktopDblclickBranch",
-          message: "desktop dblclick branch reached",
-          data: {
-            rawNodeId,
-            hasNodeTarget: Boolean(nodeTarget),
-            hasFallbackSelectedEl: Boolean(fallbackSelectedEl),
-            fallbackSelectedId,
-            editMode,
-            isTouchDevice,
-          },
-          timestamp: Date.now(),
-        });
-        // #endregion
-        if (!effectiveTarget || !rawNodeId) return;
-        const normalizedNodeId = normalizeNodeId(rawNodeId);
-        const editTarget =
-          (getNodeElById(rawNodeId) as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
-          (getNodeElById(normalizedNodeId) as
-            | (HTMLElement & { nodeObj?: AnyNode })
-            | null) ??
-          effectiveTarget;
-        applySelectionFromElement(editTarget, normalizedNodeId);
-        focusNodeById(normalizedNodeId);
-        void (async () => {
-          await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-          try {
-            await mindRef.current?.beginEdit?.(editTarget);
-            const hasEditorImmediately = Boolean(
-              document.querySelector("input,textarea,[contenteditable='true']")
-            );
-            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-            const hasEditorAfterFrame = Boolean(
-              document.querySelector("input,textarea,[contenteditable='true']")
-            );
-            // #region agent log
-            postAgentLog({
-              runId: debugRunIdRef.current,
-              hypothesisId: "H21",
-              location: "components/ClientMindElixir.tsx:desktopDblclickBeginEdit",
-              message: "desktop dblclick beginEdit invoked",
-              data: {
-                nodeId: normalizedNodeId,
-                hasEditTarget: Boolean(editTarget),
-                hasEditorImmediately,
-                hasEditorAfterFrame,
-              },
-              timestamp: Date.now(),
-            });
-            // #endregion
-          } catch (error) {
-            // #region agent log
-            postAgentLog({
-              runId: debugRunIdRef.current,
-              hypothesisId: "H21",
-              location: "components/ClientMindElixir.tsx:desktopDblclickBeginEditCatch",
-              message: "desktop dblclick beginEdit threw",
-              data: {
-                nodeId: normalizedNodeId,
-                errorMessage: error instanceof Error ? error.message : String(error),
-              },
-              timestamp: Date.now(),
-            });
-            // #endregion
-          }
-        })();
-        return;
-      }
       if (editMode !== "view") return;
+      const target = e.target as HTMLElement | null;
       if (!target) return;
       const isNode =
         target.closest?.("me-tpc") || target.closest?.("[data-nodeid]");
@@ -879,21 +756,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       onViewModeEditAttempt?.();
     };
 
-    host.addEventListener("dblclick", suppressTouchDblClick, true);
     host.addEventListener("dblclick", handleDblClick);
     return () => {
-      host.removeEventListener("dblclick", suppressTouchDblClick, true);
       host.removeEventListener("dblclick", handleDblClick);
     };
-  }, [
-    applySelectionFromElement,
-    editMode,
-    focusNodeById,
-    getNodeElById,
-    isTouchDevice,
-    onViewModeEditAttempt,
-    postAgentLog,
-  ]);
+  }, [editMode, onViewModeEditAttempt]);
 
   useEffect(() => {
     const host = elRef.current;
@@ -1248,6 +1115,12 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     const getNodeElementFromEvent = (e: PointerEvent | MouseEvent) => {
       const targetEl = e.target as HTMLElement | null;
       if (targetEl?.closest?.("[data-hover-actions='true']")) return null;
+      if (
+        targetEl?.closest?.("#input-box") ||
+        targetEl?.matches?.("input,textarea,[contenteditable='true']")
+      ) {
+        return null;
+      }
       const direct =
         targetEl?.closest?.("me-tpc[data-nodeid]") ??
         targetEl?.closest?.("me-tpc") ??
@@ -1327,69 +1200,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       }
       const nodeId = nodeEl.getAttribute("data-nodeid");
       if (!nodeId) return;
-      const normalizedNodeId = normalizeNodeId(nodeId);
-      const now = Date.now();
-      const prev = lastDesktopNodeClickRef.current;
-      const isDoubleClickByTiming =
-        prev.id === normalizedNodeId && now - prev.at <= 320;
-      lastDesktopNodeClickRef.current = { id: normalizedNodeId, at: now };
       applySelectionFromElement(nodeEl, nodeId);
-      // #region agent log
-      postAgentLog({
-        runId: debugRunIdRef.current,
-        hypothesisId: "H23",
-        location: "components/ClientMindElixir.tsx:desktopClickNode",
-        message: "desktop click node timing",
-        data: {
-          nodeId: normalizedNodeId,
-          isDoubleClickByTiming,
-          editMode,
-          isTouchDevice,
-        },
-        timestamp: now,
-      });
-      // #endregion
-      if (!isDoubleClickByTiming || editMode !== "edit") return;
-      const editTarget =
-        (getNodeElById(normalizedNodeId) as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
-        (nodeEl as HTMLElement & { nodeObj?: AnyNode });
-      focusNodeById(normalizedNodeId);
-      void (async () => {
-        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-        try {
-          await mindRef.current?.beginEdit?.(editTarget);
-          const hasEditorAfterBeginEdit = Boolean(
-            document.querySelector("input,textarea,[contenteditable='true']")
-          );
-          // #region agent log
-          postAgentLog({
-            runId: debugRunIdRef.current,
-            hypothesisId: "H23",
-            location: "components/ClientMindElixir.tsx:desktopClickTimingBeginEdit",
-            message: "desktop timing beginEdit invoked",
-            data: {
-              nodeId: normalizedNodeId,
-              hasEditorAfterBeginEdit,
-            },
-            timestamp: Date.now(),
-          });
-          // #endregion
-        } catch (error) {
-          // #region agent log
-          postAgentLog({
-            runId: debugRunIdRef.current,
-            hypothesisId: "H23",
-            location: "components/ClientMindElixir.tsx:desktopClickTimingBeginEditCatch",
-            message: "desktop timing beginEdit threw",
-            data: {
-              nodeId: normalizedNodeId,
-              errorMessage: error instanceof Error ? error.message : String(error),
-            },
-            timestamp: Date.now(),
-          });
-          // #endregion
-        }
-      })();
     };
 
     host.addEventListener("pointerdown", handlePointerDown);
@@ -1400,12 +1211,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     };
   }, [
     applySelectionFromElement,
-    editMode,
-    focusNodeById,
-    getNodeElById,
     isTouchDevice,
     mobileActionNodeId,
     postAgentLog,
+    selectedNodeIdRef,
     selectedNodeElRef,
     setSelectedNodeId,
     setSelectedNoteText,
@@ -1534,120 +1343,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           setSelectedNodeId(normalizedRenameId);
           requestAnimationFrame(() => updateSelectedRect(normalizedRenameId));
         }
-        if (renameTargetId) {
-          focusNodeById(renameTargetId);
-        }
-        if (isTouchDevice && renameTargetId) {
-          const normalizedRenameId = normalizeNodeId(renameTargetId);
-          const currentTopicFromSelected = currentNodeEl?.nodeObj?.topic ?? "";
-          const normalizedCurrent = normalizeMindData(latestMindDataRef.current);
-          const latestTopic =
-            normalizedCurrent?.node && renameTargetId
-              ? findNodeById(normalizedCurrent.node, renameTargetId)?.topic ?? ""
-              : "";
-          const currentTopic = (latestTopic || currentTopicFromSelected || "").trim();
-          const nextTopicRaw = window.prompt(mobileEditLabels.rename, currentTopic);
-          // #region agent log
-          postAgentLog({
-            runId: debugRunIdRef.current,
-            hypothesisId: "H19",
-            location: "components/ClientMindElixir.tsx:renameMobilePrompt",
-            message: "mobile rename prompt result",
-            data: {
-              renameTargetId,
-              currentTopicLength: currentTopic.length,
-              cancelled: nextTopicRaw === null,
-              nextTopicLength: nextTopicRaw?.trim().length ?? null,
-            },
-            timestamp: Date.now(),
-          });
-          // #endregion
-          if (nextTopicRaw === null) {
-            setMobileActionNodeId(null);
-            setMobileActionNodeIsRoot(null);
-            return;
-          }
-          const nextTopic = nextTopicRaw.trim();
-          if (!nextTopic || nextTopic === currentTopic) {
-            setMobileActionNodeId(null);
-            setMobileActionNodeIsRoot(null);
-            return;
-          }
-          const normalizedLatest =
-            syncLatestMindDataFromMind() ?? normalizeMindData(latestMindDataRef.current);
-          const nextData = normalizedLatest ? cloneMindData(normalizedLatest.data) : null;
-          const nextRoot = nextData ? normalizeMindData(nextData)?.node ?? null : null;
-          const targetNode =
-            nextRoot && renameTargetId ? findNodeById(nextRoot, renameTargetId) : null;
-          if (!nextData || !targetNode) {
-            // #region agent log
-            postAgentLog({
-              runId: debugRunIdRef.current,
-              hypothesisId: "H19",
-              location: "components/ClientMindElixir.tsx:renameMobilePromptNoTarget",
-              message: "mobile rename prompt failed to resolve target node",
-              data: {
-                renameTargetId,
-                hasNextData: Boolean(nextData),
-                hasTargetNode: Boolean(targetNode),
-              },
-              timestamp: Date.now(),
-            });
-            // #endregion
-            return;
-          }
-          targetNode.topic = nextTopic;
-          latestMindDataRef.current = nextData;
-          mind.refresh?.(nextData);
-          selectedNodeIdRef.current = normalizedRenameId;
-          setSelectedNodeId(normalizedRenameId);
-          requestAnimationFrame(() => updateSelectedRect(normalizedRenameId));
-          onChangeRef.current?.({
-            name: "editNode",
-            id: normalizedRenameId,
-            value: nextTopic,
-          });
-          // #region agent log
-          postAgentLog({
-            runId: debugRunIdRef.current,
-            hypothesisId: "H19",
-            location: "components/ClientMindElixir.tsx:renameMobilePromptApplied",
-            message: "mobile rename prompt applied",
-            data: {
-              renameTargetId: normalizedRenameId,
-              topicLength: nextTopic.length,
-            },
-            timestamp: Date.now(),
-          });
-          // #endregion
-          setMobileActionNodeId(null);
-          setMobileActionNodeIsRoot(null);
-          return;
-        }
-
-        const dispatchDoubleClick = (el: HTMLElement) => {
-          el.dispatchEvent(
-            new MouseEvent("click", {
-              bubbles: true,
-              cancelable: true,
-              view: window,
-            })
-          );
-          el.dispatchEvent(
-            new MouseEvent("click", {
-              bubbles: true,
-              cancelable: true,
-              view: window,
-            })
-          );
-          el.dispatchEvent(
-            new MouseEvent("dblclick", {
-              bubbles: true,
-              cancelable: true,
-              view: window,
-            })
-          );
-        };
         await new Promise<void>((resolve) => {
           requestAnimationFrame(() => resolve());
         });
@@ -1734,29 +1429,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           timestamp: Date.now(),
         });
         // #endregion
-        let editorActivated = hasEditorImmediately;
-        if (!editorActivated && latestNodeEl && !isTouchDevice) {
-          dispatchDoubleClick(latestNodeEl);
-          await new Promise<void>((resolve) => {
-            requestAnimationFrame(() => resolve());
-          });
-          editorEl = findEditorElement();
-          editorActivated = Boolean(editorEl);
-          // #region agent log
-          postAgentLog({
-            runId: debugRunIdRef.current,
-            hypothesisId: "H15",
-            location: "components/ClientMindElixir.tsx:renameDesktopDblclickFallback",
-            message: "rename desktop dblclick fallback result",
-            data: {
-              renameTargetId,
-              editorActivated,
-            },
-            timestamp: Date.now(),
-          });
-          // #endregion
-        }
-        if (editorActivated) {
+        if (hasEditorImmediately) {
           try {
             editorEl?.focus();
           } catch {
@@ -1778,10 +1451,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             timestamp: Date.now(),
           });
           // #endregion
-          if (!isTouchDevice) {
-            setMobileActionNodeId(null);
-            setMobileActionNodeIsRoot(null);
-          }
         }
         return;
       }
@@ -1829,7 +1498,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       setMobileActionNodeId(null);
       setMobileActionNodeIsRoot(null);
     }
-  }, [mobileActionNodeId, selectedNodeId]);
+  }, [isTouchDevice, mobileActionNodeId, postAgentLog, selectedNodeId]);
 
   const handleToggleMobileActionNode = useCallback(() => {
     const willOpen =
@@ -1866,7 +1535,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     });
   }, [
     editMode,
-    isTouchDevice,
     mobileActionNodeId,
     postAgentLog,
     selectedNodeIsRoot,
