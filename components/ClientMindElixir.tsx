@@ -374,7 +374,7 @@ function parseScale(transform: string | null) {
 const PAN_MODE_CLASS = "me-pan-mode";
 const VIEW_MODE_CLASS = "me-view-mode";
 const MANUAL_SELECTION_PRIORITY_MS = 1200;
-const MOBILE_DEBUG_BUILD_TAG = "2026-04-08-prod-dbledit-v8";
+const MOBILE_DEBUG_BUILD_TAG = "2026-04-08-prod-dbledit-v9";
 const BLOCKED_OPS = [
   "addChild",
   "insertParent",
@@ -785,6 +785,21 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       if (!isTouchDevice && editMode === "edit") {
         const nodeTarget = target?.closest?.("me-tpc[data-nodeid], [data-nodeid]");
         const rawNodeId = nodeId ?? nodeTarget?.getAttribute("data-nodeid") ?? null;
+        // #region agent log
+        postAgentLog({
+          runId: debugRunIdRef.current,
+          hypothesisId: "H22",
+          location: "components/ClientMindElixir.tsx:desktopDblclickBranch",
+          message: "desktop dblclick branch reached",
+          data: {
+            rawNodeId,
+            hasNodeTarget: Boolean(nodeTarget),
+            editMode,
+            isTouchDevice,
+          },
+          timestamp: Date.now(),
+        });
+        // #endregion
         if (!nodeTarget || !rawNodeId) return;
         const normalizedNodeId = normalizeNodeId(rawNodeId);
         const editTarget =
@@ -799,6 +814,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
           try {
             await mindRef.current?.beginEdit?.(editTarget);
+            const hasEditorImmediately = Boolean(
+              document.querySelector("input,textarea,[contenteditable='true']")
+            );
+            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+            const hasEditorAfterFrame = Boolean(
+              document.querySelector("input,textarea,[contenteditable='true']")
+            );
             // #region agent log
             postAgentLog({
               runId: debugRunIdRef.current,
@@ -808,6 +830,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
               data: {
                 nodeId: normalizedNodeId,
                 hasEditTarget: Boolean(editTarget),
+                hasEditorImmediately,
+                hasEditorAfterFrame,
               },
               timestamp: Date.now(),
             });
