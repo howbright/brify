@@ -374,7 +374,7 @@ function parseScale(transform: string | null) {
 const PAN_MODE_CLASS = "me-pan-mode";
 const VIEW_MODE_CLASS = "me-view-mode";
 const MANUAL_SELECTION_PRIORITY_MS = 1200;
-const MOBILE_DEBUG_BUILD_TAG = "2026-04-08-prod-dbledit-v5";
+const MOBILE_DEBUG_BUILD_TAG = "2026-04-08-prod-dbledit-v7";
 const BLOCKED_OPS = [
   "addChild",
   "insertParent",
@@ -739,6 +739,29 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     const host = elRef.current;
     if (!wrapper || !host) return;
 
+    const suppressTouchDblClick = (e: MouseEvent) => {
+      if (!isTouchDevice) return;
+      const target = e.target as HTMLElement | null;
+      // #region agent log
+      postAgentLog({
+        runId: debugRunIdRef.current,
+        hypothesisId: "H20",
+        location: "components/ClientMindElixir.tsx:suppressTouchDblClick",
+        message: "touch dblclick suppressed",
+        data: {
+          targetTag: target?.tagName ?? null,
+          nodeId:
+            target?.closest?.("me-tpc[data-nodeid]")?.getAttribute("data-nodeid") ??
+            target?.closest?.("[data-nodeid]")?.getAttribute("data-nodeid") ??
+            null,
+        },
+        timestamp: Date.now(),
+      });
+      // #endregion
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
     const handleDblClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
       const nodeId =
@@ -767,8 +790,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       onViewModeEditAttempt?.();
     };
 
+    host.addEventListener("dblclick", suppressTouchDblClick, true);
     host.addEventListener("dblclick", handleDblClick);
     return () => {
+      host.removeEventListener("dblclick", suppressTouchDblClick, true);
       host.removeEventListener("dblclick", handleDblClick);
     };
   }, [editMode, isTouchDevice, onViewModeEditAttempt, postAgentLog]);
@@ -1350,6 +1375,94 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         if (renameTargetId) {
           focusNodeById(renameTargetId);
         }
+        if (isTouchDevice && renameTargetId) {
+          const normalizedRenameId = normalizeNodeId(renameTargetId);
+          const currentTopicFromSelected = currentNodeEl?.nodeObj?.topic ?? "";
+          const normalizedCurrent = normalizeMindData(latestMindDataRef.current);
+          const latestTopic =
+            normalizedCurrent?.node && renameTargetId
+              ? findNodeById(normalizedCurrent.node, renameTargetId)?.topic ?? ""
+              : "";
+          const currentTopic = (latestTopic || currentTopicFromSelected || "").trim();
+          const nextTopicRaw = window.prompt(mobileEditLabels.rename, currentTopic);
+          // #region agent log
+          postAgentLog({
+            runId: debugRunIdRef.current,
+            hypothesisId: "H19",
+            location: "components/ClientMindElixir.tsx:renameMobilePrompt",
+            message: "mobile rename prompt result",
+            data: {
+              renameTargetId,
+              currentTopicLength: currentTopic.length,
+              cancelled: nextTopicRaw === null,
+              nextTopicLength: nextTopicRaw?.trim().length ?? null,
+            },
+            timestamp: Date.now(),
+          });
+          // #endregion
+          if (nextTopicRaw === null) {
+            setMobileActionNodeId(null);
+            setMobileActionNodeIsRoot(null);
+            return;
+          }
+          const nextTopic = nextTopicRaw.trim();
+          if (!nextTopic || nextTopic === currentTopic) {
+            setMobileActionNodeId(null);
+            setMobileActionNodeIsRoot(null);
+            return;
+          }
+          const normalizedLatest =
+            syncLatestMindDataFromMind() ?? normalizeMindData(latestMindDataRef.current);
+          const nextData = normalizedLatest ? cloneMindData(normalizedLatest.data) : null;
+          const nextRoot = nextData ? normalizeMindData(nextData)?.node ?? null : null;
+          const targetNode =
+            nextRoot && renameTargetId ? findNodeById(nextRoot, renameTargetId) : null;
+          if (!nextData || !targetNode) {
+            // #region agent log
+            postAgentLog({
+              runId: debugRunIdRef.current,
+              hypothesisId: "H19",
+              location: "components/ClientMindElixir.tsx:renameMobilePromptNoTarget",
+              message: "mobile rename prompt failed to resolve target node",
+              data: {
+                renameTargetId,
+                hasNextData: Boolean(nextData),
+                hasTargetNode: Boolean(targetNode),
+              },
+              timestamp: Date.now(),
+            });
+            // #endregion
+            return;
+          }
+          targetNode.topic = nextTopic;
+          latestMindDataRef.current = nextData;
+          mind.refresh?.(nextData);
+          selectedNodeIdRef.current = normalizedRenameId;
+          setSelectedNodeId(normalizedRenameId);
+          requestAnimationFrame(() => updateSelectedRect(normalizedRenameId));
+          onChangeRef.current?.({
+            name: "editNode",
+            id: normalizedRenameId,
+            value: nextTopic,
+          });
+          // #region agent log
+          postAgentLog({
+            runId: debugRunIdRef.current,
+            hypothesisId: "H19",
+            location: "components/ClientMindElixir.tsx:renameMobilePromptApplied",
+            message: "mobile rename prompt applied",
+            data: {
+              renameTargetId: normalizedRenameId,
+              topicLength: nextTopic.length,
+            },
+            timestamp: Date.now(),
+          });
+          // #endregion
+          setMobileActionNodeId(null);
+          setMobileActionNodeIsRoot(null);
+          return;
+        }
+
         const dispatchDoubleClick = (el: HTMLElement) => {
           el.dispatchEvent(
             new MouseEvent("click", {
@@ -1423,62 +1536,25 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           return findEditorElement();
         };
 
-        const beginEditCandidates: Array<{
-          label: string;
-          value: unknown;
-        }> = [
-          { label: "element", value: latestNodeEl ?? currentNode },
-          {
-            label: "nodeObj",
-            value:
-              latestNodeEl?.nodeObj ??
-              currentNodeEl?.nodeObj ??
-              (currentNode as { nodeObj?: AnyNode } | null)?.nodeObj ??
-              null,
-          },
-          { label: "nodeId", value: renameTargetId },
-        ];
-
         let editorEl: HTMLElement | null = null;
-        let beginEditAttempt: string | null = null;
-        for (const candidate of beginEditCandidates) {
-          if (!candidate.value) continue;
-          try {
-            await mind.beginEdit(candidate.value as never);
-          } catch (error) {
-            // #region agent log
-            postAgentLog({
-              runId: debugRunIdRef.current,
-              hypothesisId: "H18",
-              location: "components/ClientMindElixir.tsx:renameBeginEditAttemptCatch",
-              message: "mind.beginEdit attempt threw",
-              data: {
-                renameTargetId,
-                attempt: candidate.label,
-                errorMessage: error instanceof Error ? error.message : String(error),
-              },
-              timestamp: Date.now(),
-            });
-            // #endregion
-          }
-          editorEl = await checkEditor();
-          beginEditAttempt = candidate.label;
+        try {
+          await mind.beginEdit(latestNodeEl ?? currentNode);
+        } catch (error) {
           // #region agent log
           postAgentLog({
             runId: debugRunIdRef.current,
-            hypothesisId: "H18",
-            location: "components/ClientMindElixir.tsx:renameBeginEditAttemptResult",
-            message: "mind.beginEdit attempt result",
+            hypothesisId: "H5",
+            location: "components/ClientMindElixir.tsx:renameBeginEditCatch",
+            message: "mind.beginEdit threw",
             data: {
               renameTargetId,
-              attempt: candidate.label,
-              hasEditor: Boolean(editorEl),
+              errorMessage: error instanceof Error ? error.message : String(error),
             },
             timestamp: Date.now(),
           });
           // #endregion
-          if (editorEl) break;
         }
+        editorEl = await checkEditor();
 
         const hasEditorImmediately = Boolean(editorEl);
         // #region agent log
@@ -1492,7 +1568,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             hasEditorImmediately,
             hasLatestNodeEl: Boolean(latestNodeEl),
             isTouchDevice,
-            beginEditAttempt,
           },
           timestamp: Date.now(),
         });
