@@ -20,6 +20,7 @@ import ClientMindElixirOverlay from "@/components/ClientMindElixirOverlay";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 import { useMindElixirFocusSearch } from "@/components/useMindElixirFocusSearch";
 import { useMindElixirMiniMap } from "@/components/useMindElixirMiniMap";
+import { useMindElixirNodeActions } from "@/components/useMindElixirNodeActions";
 import { useMindElixirResponsiveState } from "@/components/useMindElixirResponsiveState";
 
 type ClientMindElixirProps = {
@@ -509,27 +510,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     : "group relative inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] shadow-sm";
   const hoverActionIconClass = isTouchDevice ? "h-4 w-4" : "h-3 w-3";
   const isDecoratingRef = useRef(false);
-  const openNodeContextMenu = (
-    nodeId?: string | null,
-    anchorEl?: HTMLElement | null
-  ) => {
-    const targetId = nodeId ?? selectedNodeIdRef.current;
-    if (!targetId) return;
-    const nodeEl = getNodeElById(targetId) ?? selectedNodeElRef.current ?? null;
-    if (!nodeEl) return;
-    const triggerRect = (anchorEl ?? nodeEl).getBoundingClientRect();
-    nodeEl.dispatchEvent(
-      new MouseEvent("contextmenu", {
-        bubbles: true,
-        cancelable: true,
-        button: 2,
-        buttons: 2,
-        clientX: triggerRect.right + 8,
-        clientY: triggerRect.top + triggerRect.height / 2,
-        view: window,
-      })
-    );
-  };
   const handleNoteClick = () => {
     const mind = mindRef.current;
     const selectedId = selectedNodeIdRef.current;
@@ -1008,59 +988,17 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     onChangeRef.current?.(result.op);
     requestAnimationFrame(() => updateSelectedRect(result.selectedId));
   };
-
-  const runMobileNodeAction = async (
-    action: "addChild" | "addSibling" | "rename" | "remove"
-  ) => {
-    const mind = mindRef.current;
-    const currentNode = mind?.currentNode;
-    if (!mind || !currentNode) return;
-
-    try {
-      if (action === "addChild") {
-        await mind.addChild(currentNode);
-        setMobileActionNodeId(null);
-        return;
-      }
-      if (action === "addSibling") {
-        await mind.insertSibling("after", currentNode);
-        setMobileActionNodeId(null);
-        return;
-      }
-      if (action === "rename") {
-        await mind.beginEdit(currentNode);
-        setMobileActionNodeId(null);
-        return;
-      }
-      const isRoot =
-        (currentNode.nodeObj as AnyNode | undefined)?.root ||
-        !(currentNode.nodeObj as AnyNode | undefined)?.parent?.id;
-      if (isRoot) return;
-      await mind.removeNodes([currentNode]);
-      setMobileActionNodeId(null);
-    } catch (error) {
-      console.error("[ME] mobile action failed:", action, error);
-    }
-  };
-
-  const selectedNodeObj =
-    (selectedNodeElRef.current as (HTMLElement & { nodeObj?: AnyNode }) | null)
-      ?.nodeObj ?? null;
-  const selectedNodeIsRoot = Boolean(
-    selectedNodeObj?.root || !selectedNodeObj?.parent?.id
-  );
-
-  useEffect(() => {
-    if (!showMobileControls || editMode !== "edit") {
-      setMobileActionNodeId(null);
-    }
-  }, [showMobileControls, editMode]);
-
-  useEffect(() => {
-    if (!selectedNodeId) {
-      setMobileActionNodeId(null);
-    }
-  }, [selectedNodeId]);
+  const { openNodeContextMenu, runMobileNodeAction, selectedNodeIsRoot } =
+    useMindElixirNodeActions({
+      editMode,
+      showMobileControls,
+      mindRef,
+      selectedNodeElRef,
+      selectedNodeId,
+      selectedNodeIdRef,
+      setMobileActionNodeId,
+      getNodeElById,
+    });
 
   function applyEditMode(mind: any, enabled: boolean) {
     if (!mind) return;
