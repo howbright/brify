@@ -56,6 +56,8 @@ type MapControlsMessages = {
     shortcuts?: string;
     tutorial?: string;
     closeMap?: string;
+    timestampsShow?: string;
+    timestampsHide?: string;
   };
 };
 
@@ -82,6 +84,8 @@ export default function MapControls({
   onCenterMap,
   onZoomIn,
   onZoomOut,
+  showTimestamps,
+  onToggleTimestamps,
   highlightEditToggle = false,
   modeToggleTutorialId,
   editButtonTutorialId,
@@ -112,6 +116,8 @@ export default function MapControls({
   onCenterMap?: () => void;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
+  showTimestamps?: boolean;
+  onToggleTimestamps?: () => void;
   highlightEditToggle?: boolean;
   modeToggleTutorialId?: string;
   editButtonTutorialId?: string;
@@ -158,6 +164,8 @@ export default function MapControls({
             shortcuts: "단축키",
             tutorial: "튜토리얼",
             closeMap: "맵 닫기",
+            timestampsShow: "타임스탬프 보기",
+            timestampsHide: "타임스탬프 숨기기",
           },
         }
       : {
@@ -194,6 +202,8 @@ export default function MapControls({
             shortcuts: "Shortcuts",
             tutorial: "Tutorial",
             closeMap: "Close map",
+            timestampsShow: "Show timestamps",
+            timestampsHide: "Hide timestamps",
           },
         };
   const copy = {
@@ -457,7 +467,20 @@ export default function MapControls({
                     hideLabel
                   />
                 )}
-                {(onCenterMap || onZoomIn || onZoomOut) && (
+                {onToggleTimestamps && (
+                  <MapControlButton
+                    icon="mdi:timeline-clock-outline"
+                    label={
+                      showTimestamps
+                        ? copy.actions.timestampsHide
+                        : copy.actions.timestampsShow
+                    }
+                    onClick={onToggleTimestamps}
+                    pressed={Boolean(showTimestamps)}
+                    hideLabel
+                  />
+                )}
+                {(onCenterMap || onZoomIn || onZoomOut || onToggleTimestamps) && (
                   <span className="h-3 w-px bg-neutral-200 dark:bg-white/15" />
                 )}
                 <MapControlButton

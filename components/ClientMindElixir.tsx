@@ -43,6 +43,7 @@ type ClientMindElixirProps = {
   disableDirectContextMenu?: boolean;
   showSelectionContextMenuButton?: boolean;
   showMiniMap?: boolean;
+  showTimestamps?: boolean;
   showToolbar?: boolean;
   focusInsetLeft?: number;
   panMode?: boolean;
@@ -79,6 +80,7 @@ export type ClientMindElixirHandle = {
 type AnyNode = {
   id: string;
   topic: string;
+  ts?: unknown;
   root?: boolean;
   parent?: { id?: string } | null;
   branchColor?: string;
@@ -421,6 +423,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       disableDirectContextMenu = false,
       showSelectionContextMenuButton = false,
       showMiniMap = true,
+      showTimestamps = true,
       showToolbar = false,
       focusInsetLeft = 0,
       panMode,
@@ -433,6 +436,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const elRef = useRef<HTMLDivElement>(null);
   const mindRef = useRef<any>(null);
   const focusInsetLeftRef = useRef(0);
+  const showTimestampsRef = useRef(showTimestamps);
   const currentLevelRef = useRef(0);
   const latestMindDataRef = useRef<any>(null);
 
@@ -462,6 +466,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   useEffect(() => {
     focusInsetLeftRef.current = focusInsetLeft;
   }, [focusInsetLeft]);
+
+  useEffect(() => {
+    showTimestampsRef.current = showTimestamps;
+    const host = elRef.current;
+    if (!host) return;
+    host.dispatchEvent(new Event("mind-elixir-refresh-decorations"));
+  }, [showTimestamps]);
 
   const [ready, setReady] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -1203,6 +1214,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     let handleResize: (() => void) | null = null;
     let handleMiniResize: (() => void) | null = null;
     let syncMiniMap: (() => void) | null = null;
+    let handleRefreshDecorations: (() => void) | null = null;
     let mutationObserver: MutationObserver | null = null;
 
     (async () => {
@@ -1318,6 +1330,31 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         attributes: true,
         attributeFilter: ["data-nodeid"],
       };
+      const parseTimestampSeconds = (raw: unknown): number | null => {
+        if (typeof raw === "number" && Number.isFinite(raw) && raw >= 0) {
+          return Math.floor(raw);
+        }
+        if (typeof raw === "string") {
+          const parsed = Number(raw.trim());
+          if (Number.isFinite(parsed) && parsed >= 0) {
+            return Math.floor(parsed);
+          }
+        }
+        return null;
+      };
+      const formatTimestamp = (seconds: number): string => {
+        const total = Math.max(0, Math.floor(seconds));
+        const hh = Math.floor(total / 3600);
+        const mm = Math.floor((total % 3600) / 60);
+        const ss = total % 60;
+        if (mindLocale === "ko") {
+          const totalMinutes = Math.floor(total / 60);
+          return `${totalMinutes}분 ${ss}초`;
+        }
+        if (hh > 0) return `${hh}h ${mm}m ${ss}s`;
+        if (mm > 0) return `${mm}m ${ss}s`;
+        return `${ss}s`;
+      };
       const syncNodeDecorations = () => {
         const host = elRef.current;
         if (!host) return;
@@ -1357,6 +1394,25 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             const dot = el.querySelector<HTMLElement>(".me-note-dot");
             if (dot) dot.remove();
           }
+          const shouldShowTimestamps = showTimestampsRef.current !== false;
+          const tsSeconds = parseTimestampSeconds(latestNode?.ts ?? el.nodeObj?.ts);
+          const tsBadge = el.querySelector<HTMLElement>(".me-ts-badge");
+          if (shouldShowTimestamps && tsSeconds !== null) {
+            const label = formatTimestamp(tsSeconds);
+            el.setAttribute("data-ts", String(tsSeconds));
+            if (tsBadge) {
+              tsBadge.textContent = label;
+            } else {
+              const badge = document.createElement("span");
+              badge.className = "me-ts-badge";
+              badge.setAttribute("data-ts-badge", "true");
+              badge.textContent = label;
+              el.appendChild(badge);
+            }
+          } else {
+            el.removeAttribute("data-ts");
+            if (tsBadge) tsBadge.remove();
+          }
         });
         if (mutationObserver && elRef.current) {
           mutationObserver.observe(elRef.current, observerOptions);
@@ -1385,6 +1441,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       mindRef.current = mind;
       applyEditMode(mind, editMode === "edit");
       syncNodeDecorations();
+      handleRefreshDecorations = () => {
+        syncNodeDecorations();
+      };
+      elRef.current?.addEventListener(
+        "mind-elixir-refresh-decorations",
+        handleRefreshDecorations
+      );
       if (elRef.current && typeof MutationObserver !== "undefined") {
         mutationObserver = new MutationObserver(() => {
           syncNodeDecorations();
@@ -1576,6 +1639,12 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         mutationObserver.disconnect();
         mutationObserver = null;
       }
+      if (handleRefreshDecorations && elRef.current) {
+        elRef.current.removeEventListener(
+          "mind-elixir-refresh-decorations",
+          handleRefreshDecorations
+        );
+      }
       try {
         if (preserveViewState) {
           const mind = mindRef.current;
@@ -1763,6 +1832,31 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           width: 10px;
           height: 10px;
           pointer-events: none;
+        }
+        .me-ts-badge {
+          position: absolute;
+          left: 50%;
+          bottom: calc(100% + 6px);
+          transform: translateX(-50%);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          max-width: 120px;
+          padding: 2px 7px;
+          border-radius: 999px;
+          background: rgba(15, 23, 42, 0.88);
+          color: #ffffff;
+          font-size: 10px;
+          font-weight: 700;
+          line-height: 1;
+          white-space: nowrap;
+          box-shadow: 0 8px 18px rgba(15, 23, 42, 0.28);
+          pointer-events: none;
+          z-index: 2;
+        }
+        .${DEFAULT_DARK_CANVAS_CLASS} .me-ts-badge {
+          background: rgba(255, 255, 255, 0.92);
+          color: #0f172a;
         }
         .${VIEW_MODE_CLASS} .me-note-dot {
           cursor: pointer;
