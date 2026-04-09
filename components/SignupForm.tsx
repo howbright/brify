@@ -55,6 +55,14 @@ export default function SignupForm() {
     return true;
   };
 
+  const buildAuthCallbackUrl = () => {
+    const origin =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_SITE_URL;
+    return new URL("/auth/callback", origin);
+  };
+
   const handleGoogleSignup = async () => {
     if (!requireAgreementsOrShowError()) return;
 
@@ -62,9 +70,7 @@ export default function SignupForm() {
       setIsGoogleLoading(true);
       setMessage("");
 
-      const redirectUrl = new URL(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
-      );
+      const redirectUrl = buildAuthCallbackUrl();
       const nextPath = `/${locale}/video-to-map`;
       redirectUrl.searchParams.set("flow", "signup");
       redirectUrl.searchParams.set("terms", "1");
@@ -107,9 +113,7 @@ export default function SignupForm() {
     setIsSubmitting(true);
     setMessage("");
 
-    const redirectUrl = new URL(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
-    );
+    const redirectUrl = buildAuthCallbackUrl();
     const nextPath = `/${locale}/video-to-map`;
     redirectUrl.searchParams.set("flow", "signup");
     redirectUrl.searchParams.set("terms", "1");

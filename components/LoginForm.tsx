@@ -43,6 +43,14 @@ export default function LoginForm() {
     return "";
   };
 
+  const buildAuthCallbackUrl = () => {
+    const origin =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_SITE_URL;
+    return new URL("/auth/callback", origin);
+  };
+
   const handleGoogleLogin = async () => {
     try {
       setIsGoogleLoading(true);
@@ -51,9 +59,7 @@ export default function LoginForm() {
       const next =
         new URLSearchParams(window.location.search).get("next") ??
         `/${locale}/video-to-map`;
-      const redirectUrl = new URL(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
-      );
+      const redirectUrl = buildAuthCallbackUrl();
       redirectUrl.searchParams.set("locale", locale);
       redirectUrl.searchParams.set("next", next);
 
@@ -93,9 +99,7 @@ export default function LoginForm() {
     const next =
       new URLSearchParams(window.location.search).get("next") ??
       `/${locale}/video-to-map`;
-    const redirectUrl = new URL(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
-    );
+    const redirectUrl = buildAuthCallbackUrl();
     redirectUrl.searchParams.set("locale", locale);
     redirectUrl.searchParams.set("next", next);
 
