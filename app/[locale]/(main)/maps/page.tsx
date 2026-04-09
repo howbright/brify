@@ -28,6 +28,8 @@ import MapListToolbar from "@/components/maps/MapListToolbar";
 import MapCardList from "@/components/maps/MapCardList";
 import MapTableList from "@/components/maps/MapTableList";
 import MapsRecentSections from "@/components/maps/MapsRecentSections";
+import MapNotesTab from "@/components/maps/MapNotesTab";
+import MapTermsTab from "@/components/maps/MapTermsTab";
 import MobileTagSheet from "@/components/maps/MobileTagSheet";
 import useMapSelectionMerge from "@/components/maps/useMapSelectionMerge";
 import useMapPreview from "@/components/maps/useMapPreview";
@@ -39,13 +41,14 @@ import useRecentMaps from "@/components/maps/useRecentMaps";
 import { usePinnedPanel, usePinnedToolbar } from "@/components/maps/usePinnedLayout";
 import MapFilterPopover from "@/components/maps/MapFilterPopover";
 import TagMergeDialog from "@/components/maps/TagMergeDialog";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 import type { Database } from "@/app/types/database.types";
 import { useRef } from "react";
 
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
 type SourceType = "youtube" | "website" | "file" | "manual";
+type MapsPageTab = "maps" | "notes" | "terms";
 
 const LIST_FIELDS =
   "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
@@ -242,6 +245,7 @@ export default function MapsPage() {
   const toolbarInnerRef = useRef<HTMLDivElement | null>(null);
   const previewShellRef = useRef<HTMLElement | null>(null);
   const tagPanelShellRef = useRef<HTMLElement | null>(null);
+  const [activeTab, setActiveTab] = useState<MapsPageTab>("maps");
   const [viewMode, setViewMode] = useState<"card" | "table">("card");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [openingDetailId, setOpeningDetailId] = useState<string | null>(null);
@@ -252,8 +256,17 @@ export default function MapsPage() {
   const desktopDefaultsAppliedRef = useRef(false);
 
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const params = useParams();
   const locale = typeof params?.locale === "string" ? params.locale : null;
+  const tabLabels = useMemo(
+    () =>
+      locale === "ko"
+        ? { maps: "맵", notes: "노트", terms: "용어" }
+        : { maps: "Maps", notes: "Notes", terms: "Terms" },
+    [locale]
+  );
   const statusLabels = useMemo<Record<MapJobStatus, string>>(
     () => ({
       idle: tCommon("status.idle"),
@@ -591,19 +604,77 @@ export default function MapsPage() {
     />
   ) : null;
 
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    const nextTab: MapsPageTab =
+      tabParam === "notes" || tabParam === "terms" ? tabParam : "maps";
+    if (nextTab !== activeTab) {
+      setActiveTab(nextTab);
+    }
+  }, [activeTab, searchParams]);
+
+  const handleChangeTab = (nextTab: MapsPageTab) => {
+    setActiveTab(nextTab);
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
+    if (nextTab === "maps") {
+      nextSearchParams.delete("tab");
+    } else {
+      nextSearchParams.set("tab", nextTab);
+    }
+    const nextQuery = nextSearchParams.toString();
+    if (typeof window !== "undefined") {
+      const nextUrl = nextQuery ? `${pathname}?${nextQuery}` : pathname;
+      window.history.pushState({}, "", nextUrl);
+    }
+    setFiltersOpen(false);
+    if (nextTab !== "maps") {
+      setPreviewOpen(false);
+      setMobilePreviewOpen(false);
+      setSelectionMode(false);
+      clearSelection();
+      setTagOrganizeMode(false);
+      setMobileTagSheetOpen(false);
+    }
+  };
+
   return (
     <main className="min-h-[70vh] bg-neutral-50 px-6 pt-22 pb-12 dark:bg-[#07111f]">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-2 flex items-center justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-              {tPage("title")}
-            </h1>
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+            {tPage("title")}
+          </h1>
+          <div className="flex flex-wrap items-center gap-2">
+            {(
+              [
+                { id: "maps", label: tabLabels.maps },
+                { id: "notes", label: tabLabels.notes },
+                { id: "terms", label: tabLabels.terms },
+              ] as const
+            ).map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => handleChangeTab(tab.id)}
+                  aria-pressed={isActive}
+                  className={`inline-flex items-center rounded-full border px-3 py-1.5 text-[13px] font-semibold transition ${
+                    isActive
+                      ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black"
+                      : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-white/12 dark:bg-white/[0.04] dark:text-white/72 dark:hover:bg-white/[0.08]"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {recentSections}
+        {activeTab === "maps" ? recentSections : null}
 
+        {activeTab === "maps" ? (
         <div
           className={`${recentSectionsCollapsed ? "-mt-1" : "mt-4"} grid gap-6 ${
             isTagOrganizeActive
@@ -985,6 +1056,11 @@ export default function MapsPage() {
               </section>
             ))}
         </div>
+        ) : activeTab === "notes" ? (
+          <MapNotesTab />
+        ) : (
+          <MapTermsTab />
+        )}
       </div>
 
       <MobileTagSheet

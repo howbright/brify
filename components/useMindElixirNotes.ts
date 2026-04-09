@@ -16,7 +16,7 @@ type Params = {
   normalizeMindData: (raw: any) => { data: any; node: AnyNode } | null;
   findNodeById: (node: AnyNode, id: string) => AnyNode | null;
   normalizeNodeId: (id: string) => string;
-  onChangeRef: React.RefObject<((op: any) => void) | null>;
+  onChangeRef: React.RefObject<((op: any) => void) | null | undefined>;
   setSelectedNoteText: React.Dispatch<React.SetStateAction<string | null>>;
 };
 

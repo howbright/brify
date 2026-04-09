@@ -23,6 +23,8 @@ export type MapDraft = {
 
   // 썸네일: 프로토타입이라 URL or 로컬 미리보기
   thumbnailUrl?: string;
+  notesCount?: number;
+  termsCount?: number;
 
   // 작업 상태
   status: MapJobStatus;
