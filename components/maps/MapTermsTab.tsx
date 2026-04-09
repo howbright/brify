@@ -291,14 +291,7 @@ export default function MapTermsTab() {
       setLoading(true);
       setError(null);
       try {
-        const supabase = createClient();
-        const { data: sessionData } = await supabase.auth.getSession();
-        const accessToken = sessionData.session?.access_token;
-        const base = process.env.NEXT_PUBLIC_API_BASE_URL;
-        if (!accessToken || !base) throw new Error("terms-load-failed");
-
-        const res = await fetch(`${base}/maps/${selectedMapId}/terms`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
+        const res = await fetch(`/api/maps/${encodeURIComponent(selectedMapId)}/terms`, {
           cache: "no-store",
         });
         const json = await res.json().catch(() => ({}));
