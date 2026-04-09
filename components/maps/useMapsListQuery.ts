@@ -117,11 +117,14 @@ export default function useMapsListQuery({
         if (sourceFilters.length > 0) {
           request = request.in("source_type", sourceFilters);
         }
-        if (contentFilters.includes("notes")) {
-          request = request.gt("notes_count", 0);
-        }
-        if (contentFilters.includes("terms")) {
-          request = request.gt("terms_count", 0);
+        if (contentFilters.length === 1) {
+          if (contentFilters[0] === "notes") {
+            request = request.gt("notes_count", 0);
+          } else if (contentFilters[0] === "terms") {
+            request = request.gt("terms_count", 0);
+          }
+        } else if (contentFilters.length > 1) {
+          request = request.or("notes_count.gt.0,terms_count.gt.0");
         }
         if (!includesNoTagFilter && effectiveTagFilters.length > 0) {
           request = request.overlaps("tags", effectiveTagFilters);
