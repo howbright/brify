@@ -202,6 +202,7 @@ export default function MapDetailPage() {
   const mobileThemeRef = useRef<HTMLDivElement | null>(null);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
+  const initializedMapIdRef = useRef<string | null>(null);
 
   const MUTATING_OPS = useMemo(
     () =>
@@ -291,6 +292,8 @@ export default function MapDetailPage() {
 
   useEffect(() => {
     if (loading || !draft) return;
+    if (initializedMapIdRef.current === draft.id) return;
+    initializedMapIdRef.current = draft.id;
     setLeftOpen(!isTutorialMobile);
     const tutorialCompleted = getMapTutorialCompleted(
       isTutorialMobile ? "mobile" : "desktop"
