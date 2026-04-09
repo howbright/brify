@@ -115,6 +115,7 @@ export default function ClientMindElixirOverlay({
         }
         title={mobileEditMenuTitle}
         labels={mobileEditLabels}
+        anchorRect={selectedRect}
         disableAddSibling={selectedNodeIsRoot}
         disableRename={!selectedNodeId}
         disableRemove={selectedNodeIsRoot}

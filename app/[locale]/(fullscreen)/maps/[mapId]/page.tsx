@@ -761,6 +761,12 @@ export default function MapDetailPage() {
             .single();
           if (!error && data?.mind_elixir) {
             setMapData(data.mind_elixir);
+            requestAnimationFrame(() => {
+              mindRef.current?.centerMap?.();
+            });
+            window.setTimeout(() => {
+              mindRef.current?.centerMap?.();
+            }, 120);
           }
         } catch {
           // ignore
