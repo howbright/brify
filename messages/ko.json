@@ -1692,6 +1692,8 @@
       "delete": "삭제",
       "editTags": "태그 편집",
       "noTag": "태그 없음",
+      "notesCount": "노트 {count}",
+      "termsCount": "용어 {count}",
       "opening": "여는 중...",
       "open": "열기"
     },
