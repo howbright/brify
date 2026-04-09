@@ -286,6 +286,13 @@ export default function MapsPage() {
     }),
     [tCommon]
   );
+  const contentLabels = useMemo(
+    () => ({
+      notes: locale === "ko" ? "노트" : "Notes",
+      terms: locale === "ko" ? "용어" : "Terms",
+    }),
+    [locale]
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -359,10 +366,13 @@ export default function MapsPage() {
     setStatusFilters,
     sourceFilters,
     setSourceFilters,
+    contentFilters,
+    setContentFilters,
     dateRange,
     dateLabel,
     statusSummary,
     sourceSummary,
+    contentSummary,
     toggleArrayValue,
     onQueryChange,
     onClearQuery,
@@ -371,6 +381,7 @@ export default function MapsPage() {
   } = useMapsListControls({
     statusLabels,
     sourceLabels,
+    contentLabels,
     datePresetLabels: {
       "7d": tCommon("datePreset.7d"),
       "30d": tCommon("datePreset.30d"),
@@ -423,6 +434,7 @@ export default function MapsPage() {
     dateRange,
     statusFilters,
     sourceFilters,
+    contentFilters,
     updateDrafts: (updater) => setDrafts(updater),
     setPage,
     noTagFilter: NO_TAG_FILTER,
@@ -446,6 +458,7 @@ export default function MapsPage() {
     dateRange,
     statusFilters,
     sourceFilters,
+    contentFilters,
     locale,
     toDraft,
   });
@@ -548,6 +561,7 @@ export default function MapsPage() {
   const hasActiveFilters =
     statusFilters.length > 0 ||
     sourceFilters.length > 0 ||
+    contentFilters.length > 0 ||
     tagFilters.length > 0 ||
     datePreset !== "30d";
   const totalPages = useMemo(
@@ -772,6 +786,7 @@ export default function MapsPage() {
                   bulkDeleting={bulkDeleting}
                   statusSummary={statusSummary}
                   sourceSummary={sourceSummary}
+                  contentSummary={contentSummary}
                   tagSummary={tagSummary}
                   dateLabel={dateLabel}
                   datePreset={datePreset}
@@ -844,6 +859,7 @@ export default function MapsPage() {
                   showResetFilters={
                     statusFilters.length > 0 ||
                     sourceFilters.length > 0 ||
+                    contentFilters.length > 0 ||
                     tagFilters.length > 0 ||
                     datePreset !== "30d"
                   }
@@ -885,6 +901,11 @@ export default function MapsPage() {
                       sourceFilters={sourceFilters}
                       onToggleSource={(value) => {
                         toggleArrayValue(value, setSourceFilters);
+                        setPage(1);
+                      }}
+                      contentFilters={contentFilters}
+                      onToggleContent={(value) => {
+                        toggleArrayValue(value, setContentFilters);
                         setPage(1);
                       }}
                       tagFilters={tagFilters}

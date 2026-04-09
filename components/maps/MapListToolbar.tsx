@@ -27,6 +27,7 @@ type MapListToolbarProps = {
   bulkDeleting: boolean;
   statusSummary: string | null;
   sourceSummary: string | null;
+  contentSummary: string | null;
   tagSummary: string | null;
   dateLabel: string;
   datePreset: string;
@@ -60,6 +61,7 @@ export default function MapListToolbar({
   bulkDeleting,
   statusSummary,
   sourceSummary,
+  contentSummary,
   tagSummary,
   dateLabel,
   datePreset: _datePreset,
@@ -181,6 +183,7 @@ export default function MapListToolbar({
         >
           {statusSummary && <span>{t("summary.status", { value: statusSummary })}</span>}
           {sourceSummary && <span>{t("summary.source", { value: sourceSummary })}</span>}
+          {contentSummary && <span>{t("summary.content", { value: contentSummary })}</span>}
           {tagSummary && <span>{t("summary.tag", { value: tagSummary })}</span>}
         </div>
 

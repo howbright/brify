@@ -7,6 +7,7 @@ import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/
 
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
 type SourceType = "youtube" | "website" | "file" | "manual";
+type ContentFilter = "notes" | "terms";
 
 type UseMapsListQueryParams = {
   listFields: string;
@@ -20,6 +21,7 @@ type UseMapsListQueryParams = {
   dateRange: { from: string | null; to: string | null };
   statusFilters: MapJobStatus[];
   sourceFilters: SourceType[];
+  contentFilters: ContentFilter[];
   locale?: string | null;
   toDraft: (row: MapRow) => MapDraft;
 };
@@ -52,6 +54,7 @@ export default function useMapsListQuery({
   dateRange,
   statusFilters,
   sourceFilters,
+  contentFilters,
   locale,
   toDraft,
 }: UseMapsListQueryParams) {
@@ -113,6 +116,12 @@ export default function useMapsListQuery({
         }
         if (sourceFilters.length > 0) {
           request = request.in("source_type", sourceFilters);
+        }
+        if (contentFilters.includes("notes")) {
+          request = request.gt("notes_count", 0);
+        }
+        if (contentFilters.includes("terms")) {
+          request = request.gt("terms_count", 0);
         }
         if (!includesNoTagFilter && effectiveTagFilters.length > 0) {
           request = request.overlaps("tags", effectiveTagFilters);
@@ -184,6 +193,7 @@ export default function useMapsListQuery({
     dateRange.to,
     statusFilters,
     sourceFilters,
+    contentFilters,
     locale,
     toDraft,
   ]);

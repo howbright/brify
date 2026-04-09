@@ -1586,6 +1586,7 @@
       "summary": {
         "status": "상태 {value}",
         "source": "소스 {value}",
+        "content": "내용 {value}",
         "tag": "태그 {value}"
       },
       "previewOn": "프리뷰 켜기",
@@ -1628,6 +1629,7 @@
         "date": "기간",
         "status": "상태",
         "source": "소스 타입",
+        "content": "내용",
         "tag": "태그"
       },
       "custom": "직접 선택",
@@ -1641,6 +1643,10 @@
         "website": "웹",
         "file": "파일",
         "manual": "수동"
+      },
+      "content": {
+        "notes": "노트",
+        "terms": "용어"
       },
       "tagLoading": "태그 불러오는 중…",
       "tagEmpty": "사용할 수 있는 태그가 없어요."

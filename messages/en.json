@@ -1586,6 +1586,7 @@
       "summary": {
         "status": "Status {value}",
         "source": "Source {value}",
+        "content": "Content {value}",
         "tag": "Tag {value}"
       },
       "previewOn": "Preview on",
@@ -1628,6 +1629,7 @@
         "date": "Date",
         "status": "Status",
         "source": "Source type",
+        "content": "Content",
         "tag": "Tag"
       },
       "custom": "Custom",
@@ -1641,6 +1643,10 @@
         "website": "Web",
         "file": "File",
         "manual": "Manual"
+      },
+      "content": {
+        "notes": "Notes",
+        "terms": "Terms"
       },
       "tagLoading": "Loading tags…",
       "tagEmpty": "No tags available."

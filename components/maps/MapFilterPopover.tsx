@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import type { MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 
 type SourceType = "youtube" | "website" | "file" | "manual";
+type ContentFilter = "notes" | "terms";
 
 const DATE_PRESETS = [
   { id: "7d", labelKey: "presets.7d" },
@@ -25,6 +26,8 @@ type MapFilterPopoverProps = {
   onToggleStatus: (value: MapJobStatus) => void;
   sourceFilters: SourceType[];
   onToggleSource: (value: SourceType) => void;
+  contentFilters: ContentFilter[];
+  onToggleContent: (value: ContentFilter) => void;
   tagFilters: string[];
   tagOptions: Array<{ name: string; count: number }>;
   tagsLoading: boolean;
@@ -45,6 +48,8 @@ export default function MapFilterPopover({
   onToggleStatus,
   sourceFilters,
   onToggleSource,
+  contentFilters,
+  onToggleContent,
   tagFilters,
   tagOptions,
   tagsLoading,
@@ -182,6 +187,32 @@ export default function MapFilterPopover({
                     type="checkbox"
                     checked={sourceFilters.includes(item.id)}
                     onChange={() => onToggleSource(item.id)}
+                  />
+                  {item.label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <div className="font-semibold text-neutral-800 dark:text-white">
+              {t("sections.content")}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(
+                [
+                  { id: "notes", label: t("content.notes") },
+                  { id: "terms", label: t("content.terms") },
+                ] as const
+              ).map((item) => (
+                <label
+                  key={item.id}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-400 bg-white px-3 py-1 text-xs text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
+                >
+                  <input
+                    type="checkbox"
+                    checked={contentFilters.includes(item.id)}
+                    onChange={() => onToggleContent(item.id)}
                   />
                   {item.label}
                 </label>
