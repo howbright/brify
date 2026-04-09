@@ -13,24 +13,31 @@ const DEMO = brifyDemoSample;
 const DEMO_CREDITS = 26;
 const DEMO_PROCESSING_MS = 5000;
 
+function resolveDemoSampleLocale(locale: string): "ko" | "en" {
+  return locale === "ko" ? "ko" : "en";
+}
+
 function resolveDemoLanguage(outputLang: string): "ko" | "en" {
   if (outputLang === "ko") return "ko";
   return "en";
 }
 
-function buildDemoDraft(language: "ko" | "en", scriptText: string): MapDraft {
+function buildDemoDraft(
+  sampleLocale: "ko" | "en",
+  scriptText: string
+): MapDraft {
   return {
     id: "demo-map",
     createdAt: Date.now(),
     updatedAt: Date.now(),
     sourceUrl: DEMO.sourceUrl,
     sourceType: "youtube",
-    title: DEMO.title,
-    channelName: DEMO.channelName,
+    title: DEMO.titleByLanguage[sampleLocale],
+    channelName: DEMO.channelNameByLanguage[sampleLocale],
     thumbnailUrl: DEMO.thumbnailUrl,
-    tags: [...DEMO.tags],
-    description: DEMO.summaryByLanguage[language],
-    summary: DEMO.summaryByLanguage[language],
+    tags: [...DEMO.tagsByLanguage[sampleLocale]],
+    description: DEMO.summaryByLanguage[sampleLocale],
+    summary: DEMO.summaryByLanguage[sampleLocale],
     sourceCharCount: scriptText.length,
     status: "processing",
     requiredCredits: 1,
@@ -40,7 +47,12 @@ function buildDemoDraft(language: "ko" | "en", scriptText: string): MapDraft {
 export default function DemoPage() {
   const t = useTranslations("DemoPage");
   const locale = useLocale();
-  const [scriptText, setScriptText] = useState(DEMO.transcriptLines.join("\n\n"));
+  const sampleLocale = useMemo(() => resolveDemoSampleLocale(locale), [locale]);
+  const sampleTranscript = useMemo(
+    () => DEMO.transcriptLinesByLanguage[sampleLocale].join("\n\n"),
+    [sampleLocale]
+  );
+  const [scriptText, setScriptText] = useState(sampleTranscript);
   const [outputLang, setOutputLang] = useState(() =>
     locale === "en" ? "en" : "ko"
   );
@@ -61,6 +73,10 @@ export default function DemoPage() {
   const selectedMindData = DEMO.mindDataByLanguage[resolvedLanguage];
   const requiredCredits = 1;
   const eyebrowLabel = locale === "ko" ? "사용해보기" : "Live Demo";
+
+  useEffect(() => {
+    setScriptText(sampleTranscript);
+  }, [sampleTranscript]);
 
   const handleDemoLanguageChange = (nextLang: string) => {
     if (nextLang === "ko" || nextLang === "en" || nextLang === "auto") {
@@ -96,7 +112,7 @@ export default function DemoPage() {
     setIsProcessing(true);
 
     const language = resolvedLanguage;
-    const nextDraft = buildDemoDraft(language, scriptText);
+    const nextDraft = buildDemoDraft(sampleLocale, scriptText);
     setDrafts([nextDraft]);
     window.setTimeout(() => {
       if (!draftsSectionRef.current) return;

@@ -709,7 +709,7 @@ export default function DemoFullscreenDialog({
   const shareDialogTitle =
     shareDialogMessages?.title ??
     (language === "ko"
-      ? "이 구조맵은 체험용입니다"
+      ? "이 구조맵은 예시용입니다"
       : "This Structure Map is for demo only");
   const shareDialogDescription =
     shareDialogMessages?.description ??

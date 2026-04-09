@@ -361,15 +361,15 @@
     "eyebrow": "사용해보기",
     "titlePrefix": "샘플 콘텐츠로",
     "titleHighlight": "구조맵 생성 흐름",
-    "titleSuffix": "을 체험해보세요",
+    "titleSuffix": " 예시를 확인해보세요",
     "draftsTitle": "만든 구조맵",
     "previewTitle": "구조맵 미리보기",
     "toasts": {
-      "languageRestricted": "체험에서는 한국어와 영어만 선택할 수 있어요.",
+      "languageRestricted": "예시 페이지에서는 한국어와 영어만 선택할 수 있어요.",
       "emptyScript": "샘플 원문이 비어 있어 구조맵을 만들 수 없어요.",
       "success": "샘플 구조맵 생성이 완료됐어요.",
       "autoOpen": "구조맵이 준비되었습니다. 구조맵 페이지로 이동합니다.",
-      "readOnly": "체험 페이지에서는 샘플 원문을 수정할 수 없어요."
+      "readOnly": "예시 페이지에서는 샘플 원문을 수정할 수 없어요."
     }
   },
   "DemoFullscreenDialog": {
@@ -392,11 +392,11 @@
       "viewMode": "보기 모드"
     },
     "toasts": {
-      "demoFinished": "체험이 끝났습니다. 홈으로 돌아갑니다.",
+      "demoFinished": "예시 보기가 끝났습니다. 홈으로 돌아갑니다.",
       "editModeRequired": "노드를 수정하려면 편집 모드를 눌러주세요."
     },
     "shareDialog": {
-      "title": "이 구조맵은 체험용입니다",
+      "title": "이 구조맵은 예시용입니다",
       "description": "실제 서비스에서는 구조맵을 링크로 공유하고 다른 사람과 함께 볼 수 있어요. 서비스를 시작하면 내 구조맵의 공유 링크를 바로 만들 수 있습니다.",
       "action": "서비스 시작하기",
       "cancel": "닫기"
@@ -784,7 +784,7 @@
       "logout": "로그아웃"
     },
     "nav": {
-      "samples": "체험",
+      "samples": "예시",
       "about": "소개",
       "pricing": "요금제",
       "contactFeedback": "문의/피드백"
@@ -1077,7 +1077,7 @@
     "helper": "남의 결론을 따라가지 말고, 여러 관점을 비교해 내 기준을 만드세요.",
     "switchTitleAria": "타이틀 전환",
     "ctaPrimary": "무료로 시작하기",
-    "ctaSecondary": "체험하기",
+    "ctaSecondary": "예시보기",
     "featureItems": [
       "세부내용도 놓치지 않고 정리",
       "어려운 용어도 자동으로 정리",
