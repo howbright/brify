@@ -374,7 +374,7 @@ function parseScale(transform: string | null) {
 const PAN_MODE_CLASS = "me-pan-mode";
 const VIEW_MODE_CLASS = "me-view-mode";
 const MANUAL_SELECTION_PRIORITY_MS = 1200;
-const MOBILE_DEBUG_BUILD_TAG = "2026-04-08-prod-dbledit-v3";
+const MOBILE_DEBUG_BUILD_TAG = "2026-04-08-prod-dbledit-v4";
 const BLOCKED_OPS = [
   "addChild",
   "insertParent",

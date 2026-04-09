@@ -38,6 +38,7 @@ function normalizeNodeId(id: string) {
   return id.startsWith("me") ? id.slice(2) : id;
 }
 const UNSELECT_GRACE_MS = 320;
+const UNSELECT_GRACE_MS_TOUCH = 900;
 
 type UseMindElixirCoreParams = {
   mounted: boolean;
@@ -144,6 +145,17 @@ export function useMindElixirCore({
 }: UseMindElixirCoreParams) {
   const initTokenRef = useRef(0);
   const debugEndpointBlockedRef = useRef(false);
+  const getUnselectGraceMs = () => {
+    const hasCoarsePointer =
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(pointer: coarse)").matches;
+    const hasTouchPoints =
+      typeof navigator !== "undefined" && navigator.maxTouchPoints > 0;
+    return hasCoarsePointer || hasTouchPoints
+      ? UNSELECT_GRACE_MS_TOUCH
+      : UNSELECT_GRACE_MS;
+  };
   const postAgentLog = (payload: Record<string, unknown>) => {
     if (typeof window !== "undefined") {
       const host = window.location.hostname;
@@ -529,8 +541,9 @@ export function useMindElixirCore({
 
       mind.bus?.addListener?.("unselectNodes", () => {
         const elapsedMs = Date.now() - lastClickedNodeRef.current.at;
+        const graceMs = getUnselectGraceMs();
         const hasSelected = Boolean(selectedNodeIdRef.current);
-        const willSkipClear = elapsedMs < UNSELECT_GRACE_MS && hasSelected;
+        const willSkipClear = elapsedMs < graceMs && hasSelected;
         // #region agent log
         postAgentLog({
           runId: "core-selection",
@@ -539,6 +552,7 @@ export function useMindElixirCore({
           message: "bus.unselectNodes fired",
           data: {
             elapsedMs,
+            graceMs,
             selectedNodeId: selectedNodeIdRef.current,
             hasSelected,
             willSkipClear,
@@ -676,8 +690,9 @@ export function useMindElixirCore({
           op?.name === "removeNodes"
         ) {
           const elapsedMs = Date.now() - lastClickedNodeRef.current.at;
+          const graceMs = getUnselectGraceMs();
           const hasSelected = Boolean(selectedNodeIdRef.current);
-          const willSkipClear = elapsedMs < UNSELECT_GRACE_MS && hasSelected;
+          const willSkipClear = elapsedMs < graceMs && hasSelected;
           // #region agent log
           postAgentLog({
             runId: "core-selection",
@@ -687,6 +702,7 @@ export function useMindElixirCore({
             data: {
               opName: op?.name ?? "unknown",
               elapsedMs,
+              graceMs,
               selectedNodeId: selectedNodeIdRef.current,
               hasSelected,
               willSkipClear,
