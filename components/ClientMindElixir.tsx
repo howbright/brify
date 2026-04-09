@@ -374,7 +374,7 @@ function parseScale(transform: string | null) {
 const PAN_MODE_CLASS = "me-pan-mode";
 const VIEW_MODE_CLASS = "me-view-mode";
 const MANUAL_SELECTION_PRIORITY_MS = 1200;
-const MOBILE_DEBUG_BUILD_TAG = "2026-04-08-prod-dbledit-v4";
+const MOBILE_DEBUG_BUILD_TAG = "2026-04-08-prod-dbledit-v5";
 const BLOCKED_OPS = [
   "addChild",
   "insertParent",
@@ -1405,37 +1405,82 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         });
         // #endregion
 
-        try {
-          await mind.beginEdit(latestNodeEl ?? currentNode);
-        } catch (error) {
-          // #region agent log
-          postAgentLog({
-            runId: debugRunIdRef.current,
-            hypothesisId: "H5",
-            location: "components/ClientMindElixir.tsx:renameBeginEditCatch",
-            message: "mind.beginEdit threw",
-            data: {
-              renameTargetId,
-              errorMessage: error instanceof Error ? error.message : String(error),
-            },
-            timestamp: Date.now(),
-          });
-          // #endregion
-        }
-
         const findEditorElement = () =>
           (document.querySelector(
             "input,textarea,[contenteditable='true']"
           ) as HTMLElement | null);
-        let editorEl = findEditorElement();
-        let hasEditorImmediately = Boolean(editorEl);
-        if (!hasEditorImmediately) {
-          await new Promise<void>((resolve) => {
+        const waitFrame = () =>
+          new Promise<void>((resolve) => {
             requestAnimationFrame(() => resolve());
           });
-          editorEl = findEditorElement();
-          hasEditorImmediately = Boolean(editorEl);
+        const checkEditor = async () => {
+          let editor = findEditorElement();
+          if (editor) return editor;
+          await waitFrame();
+          editor = findEditorElement();
+          if (editor) return editor;
+          await waitFrame();
+          return findEditorElement();
+        };
+
+        const beginEditCandidates: Array<{
+          label: string;
+          value: unknown;
+        }> = [
+          { label: "element", value: latestNodeEl ?? currentNode },
+          {
+            label: "nodeObj",
+            value:
+              latestNodeEl?.nodeObj ??
+              currentNodeEl?.nodeObj ??
+              (currentNode as { nodeObj?: AnyNode } | null)?.nodeObj ??
+              null,
+          },
+          { label: "nodeId", value: renameTargetId },
+        ];
+
+        let editorEl: HTMLElement | null = null;
+        let beginEditAttempt: string | null = null;
+        for (const candidate of beginEditCandidates) {
+          if (!candidate.value) continue;
+          try {
+            await mind.beginEdit(candidate.value as never);
+          } catch (error) {
+            // #region agent log
+            postAgentLog({
+              runId: debugRunIdRef.current,
+              hypothesisId: "H18",
+              location: "components/ClientMindElixir.tsx:renameBeginEditAttemptCatch",
+              message: "mind.beginEdit attempt threw",
+              data: {
+                renameTargetId,
+                attempt: candidate.label,
+                errorMessage: error instanceof Error ? error.message : String(error),
+              },
+              timestamp: Date.now(),
+            });
+            // #endregion
+          }
+          editorEl = await checkEditor();
+          beginEditAttempt = candidate.label;
+          // #region agent log
+          postAgentLog({
+            runId: debugRunIdRef.current,
+            hypothesisId: "H18",
+            location: "components/ClientMindElixir.tsx:renameBeginEditAttemptResult",
+            message: "mind.beginEdit attempt result",
+            data: {
+              renameTargetId,
+              attempt: candidate.label,
+              hasEditor: Boolean(editorEl),
+            },
+            timestamp: Date.now(),
+          });
+          // #endregion
+          if (editorEl) break;
         }
+
+        const hasEditorImmediately = Boolean(editorEl);
         // #region agent log
         postAgentLog({
           runId: debugRunIdRef.current,
@@ -1447,6 +1492,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             hasEditorImmediately,
             hasLatestNodeEl: Boolean(latestNodeEl),
             isTouchDevice,
+            beginEditAttempt,
           },
           timestamp: Date.now(),
         });
