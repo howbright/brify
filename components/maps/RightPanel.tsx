@@ -5,7 +5,6 @@ import { ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import NoteItem, { type NoteItemData } from "@/components/maps/NoteItem";
 import TermsBlock from "@/components/maps/TermsBlock";
-import { createClient } from "@/utils/supabase/client";
 
 type TermItem = {
   term: string;
@@ -182,31 +181,6 @@ export default function RightPanel({
     }
   };
 
-  const getAccessToken = async () => {
-    const supabase = createClient();
-    const { data: sessionData, error: sessionErr } =
-      await supabase.auth.getSession();
-
-    if (sessionErr) {
-      throw new Error(t("errors.auth.session", { message: sessionErr.message }));
-    }
-
-    const accessToken = sessionData.session?.access_token;
-    if (!accessToken) {
-      throw new Error(t("errors.auth.login"));
-    }
-
-    return accessToken;
-  };
-
-  const getApiBase = () => {
-    const base = process.env.NEXT_PUBLIC_API_BASE_URL;
-    if (!base) {
-      throw new Error(t("errors.env.missingApiBase"));
-    }
-    return base;
-  };
-
   const stopTermsPolling = () => {
     if (termsPollRef.current) {
       clearInterval(termsPollRef.current);
@@ -239,13 +213,7 @@ export default function RightPanel({
     if (!silent) setTermsLoading(true);
 
     try {
-      const accessToken = await getAccessToken();
-      const base = getApiBase();
-
-      const res = await fetch(`${base}/maps/${mapId}/terms`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+      const res = await fetch(`/api/maps/${encodeURIComponent(mapId)}/terms`, {
         cache: "no-store",
       });
 
@@ -301,13 +269,7 @@ export default function RightPanel({
   const fetchTermsStatus = async () => {
     if (!mapId) return;
     try {
-      const accessToken = await getAccessToken();
-      const base = getApiBase();
-
-      const res = await fetch(`${base}/maps/${mapId}/terms/status`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+      const res = await fetch(`/api/maps/${encodeURIComponent(mapId)}/terms/status`, {
         cache: "no-store",
       });
 
@@ -392,14 +354,10 @@ export default function RightPanel({
     startTermsPolling();
     setTermsLoading(true);
     try {
-      const accessToken = await getAccessToken();
-      const base = getApiBase();
-
-      const res = await fetch(`${base}/maps/${mapId}/terms/auto`, {
+      const res = await fetch(`/api/maps/${encodeURIComponent(mapId)}/terms/auto`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({}),
       });
@@ -431,14 +389,10 @@ export default function RightPanel({
     startTermsPolling();
     setTermsLoading(true);
     try {
-      const accessToken = await getAccessToken();
-      const base = getApiBase();
-
-      const res = await fetch(`${base}/maps/${mapId}/terms/custom`, {
+      const res = await fetch(`/api/maps/${encodeURIComponent(mapId)}/terms/custom`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ termsCsv }),
       });
@@ -463,16 +417,10 @@ export default function RightPanel({
     if (!mapId || !term || termsLoading) return;
     setTermsLoading(true);
     try {
-      const accessToken = await getAccessToken();
-      const base = getApiBase();
-
       const res = await fetch(
-        `${base}/maps/${mapId}/terms/${encodeURIComponent(term)}`,
+        `/api/maps/${encodeURIComponent(mapId)}/terms/${encodeURIComponent(term)}`,
         {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
         }
       );
 
