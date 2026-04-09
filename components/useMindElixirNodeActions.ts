@@ -69,25 +69,28 @@ export function useMindElixirNodeActions({
     if (!mind || !currentNode) return;
 
     try {
+      if (typeof mind.selectNode === "function") {
+        mind.selectNode(currentNode);
+      }
       if (action === "addChild") {
-        await mind.addChild(currentNode);
+        await mind.addChild();
         setMobileActionNodeId(null);
         return;
       }
       if (action === "addSibling") {
-        await mind.insertSibling("after", currentNode);
+        await mind.insertSibling("after");
         setMobileActionNodeId(null);
         return;
       }
       if (action === "rename") {
-        await mind.beginEdit(currentNode);
+        await mind.beginEdit();
         setMobileActionNodeId(null);
         return;
       }
       const nodeObj = currentNode.nodeObj as AnyNode | undefined;
       const isRoot = nodeObj?.root || !nodeObj?.parent?.id;
       if (isRoot) return;
-      await mind.removeNodes([currentNode]);
+      await mind.removeNodes(mind.currentNodes ?? [currentNode]);
       setMobileActionNodeId(null);
     } catch (error) {
       console.error("[ME] mobile action failed:", action, error);
