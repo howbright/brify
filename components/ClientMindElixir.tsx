@@ -21,6 +21,7 @@ import { useMindThemePreference } from "@/components/maps/MindThemePreferencePro
 import { useMindElixirFocusSearch } from "@/components/useMindElixirFocusSearch";
 import { useMindElixirMiniMap } from "@/components/useMindElixirMiniMap";
 import { useMindElixirNodeActions } from "@/components/useMindElixirNodeActions";
+import { useMindElixirNotes } from "@/components/useMindElixirNotes";
 import { useMindElixirResponsiveState } from "@/components/useMindElixirResponsiveState";
 
 type ClientMindElixirProps = {
@@ -467,9 +468,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const [selectedRect, setSelectedRect] = useState<DOMRect | null>(null);
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [selectedNoteText, setSelectedNoteText] = useState<string | null>(null);
-  const [noteEditorOpen, setNoteEditorOpen] = useState(false);
-  const [noteDraft, setNoteDraft] = useState("");
-  const [noteTargetId, setNoteTargetId] = useState<string | null>(null);
   const [mobileActionNodeId, setMobileActionNodeId] = useState<string | null>(null);
   const selectedNodeIdRef = useRef<string | null>(null);
   const selectedNodeElRef = useRef<HTMLElement | null>(null);
@@ -510,72 +508,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     : "group relative inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] shadow-sm";
   const hoverActionIconClass = isTouchDevice ? "h-4 w-4" : "h-3 w-3";
   const isDecoratingRef = useRef(false);
-  const handleNoteClick = () => {
-    const mind = mindRef.current;
-    const selectedId = selectedNodeIdRef.current;
-    if (!mind || !selectedId) return;
-    const selectedEl = selectedNodeElRef.current as
-      | (HTMLElement & { nodeObj?: AnyNode })
-      | null;
-    if (!selectedEl?.nodeObj) return;
-    setNoteTargetId(selectedId);
-    setNoteDraft(selectedEl.nodeObj.note ?? "");
-    setNoteEditorOpen(true);
-  };
-
-  const handleNoteSave = () => {
-    const selectedId = noteTargetId ?? selectedNodeIdRef.current;
-    const selectedEl = selectedNodeElRef.current as
-      | (HTMLElement & { nodeObj?: AnyNode })
-      | null;
-    if (!selectedId || !selectedEl?.nodeObj) {
-      setNoteEditorOpen(false);
-      return;
-    }
-    const trimmed = noteDraft.trim();
-    const normalizedLatest = normalizeMindData(latestMindDataRef.current);
-    const latestRoot = normalizedLatest?.node ?? null;
-    const latestNode =
-      latestRoot && selectedId ? findNodeById(latestRoot, selectedId) : null;
-    if (trimmed.length === 0) {
-      delete selectedEl.nodeObj.note;
-      if (latestNode) {
-        delete latestNode.note;
-      }
-      selectedEl.removeAttribute("data-note");
-      const dot = selectedEl.querySelector<HTMLElement>(".me-note-dot");
-      if (dot) dot.remove();
-      onChangeRef.current?.({
-        name: "updateNote",
-        id: normalizeNodeId(selectedId),
-        value: null,
-      });
-      setSelectedNoteText(null);
-      setNoteEditorOpen(false);
-      return;
-    }
-    const clipped = trimmed.slice(0, 500);
-    selectedEl.nodeObj.note = clipped;
-    if (latestNode) {
-      latestNode.note = clipped;
-    }
-    let dot = selectedEl.querySelector<HTMLElement>(".me-note-dot");
-    if (!dot) {
-      dot = document.createElement("span");
-      dot.className = "me-note-dot";
-      dot.setAttribute("data-note-dot", "true");
-      dot.innerHTML = NOTE_BADGE_SVG;
-      selectedEl.appendChild(dot);
-    }
-    dot.setAttribute("data-nodeid", selectedEl.dataset.nodeid ?? "");
-    onChangeRef.current?.({
-      name: "updateNote",
-      id: normalizeNodeId(selectedId),
-      value: clipped,
-    });
-    setSelectedNoteText(clipped);
-    setNoteEditorOpen(false);
-  };
   const handleFocusClick = () => {
     const mind = mindRef.current;
     const nodeId = selectedNodeIdRef.current;
@@ -981,6 +913,25 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   useEffect(() => {
     selectedNodeIdRef.current = selectedNodeId;
   }, [selectedNodeId]);
+
+  const {
+    noteEditorOpen,
+    setNoteEditorOpen,
+    noteDraft,
+    setNoteDraft,
+    handleNoteClick,
+    handleNoteSave,
+  } = useMindElixirNotes({
+    selectedNodeIdRef,
+    selectedNodeElRef,
+    latestMindDataRef,
+    noteBadgeSvg: NOTE_BADGE_SVG,
+    normalizeMindData,
+    findNodeById,
+    normalizeNodeId,
+    onChangeRef,
+    setSelectedNoteText,
+  });
 
   const handleHighlightClick = (targetNodeId?: string | null) => {
     const result = handleHighlightClickBase(targetNodeId);
