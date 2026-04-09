@@ -51,7 +51,7 @@ type SourceType = "youtube" | "website" | "file" | "manual";
 type MapsPageTab = "maps" | "notes" | "terms";
 
 const LIST_FIELDS =
-  "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
+  "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,notes_count,terms_count";
 const PAGE_SIZE = 20;
 const NO_TAG_FILTER = "__NO_TAG__";
 
@@ -84,6 +84,12 @@ function toDraft(row: MapRow): MapDraft {
     channelName: row.channel_name ?? undefined,
     thumbnailUrl: row.thumbnail_url ? withCacheBuster(row.thumbnail_url) : undefined,
     tags: Array.isArray(row.tags) ? row.tags : [],
+    notesCount: typeof (row as MapRow & { notes_count?: unknown }).notes_count === "number"
+      ? ((row as MapRow & { notes_count?: number }).notes_count ?? 0)
+      : 0,
+    termsCount: typeof (row as MapRow & { terms_count?: unknown }).terms_count === "number"
+      ? ((row as MapRow & { terms_count?: number }).terms_count ?? 0)
+      : 0,
     description: row.description ?? undefined,
     summary: row.summary ?? undefined,
     status: coerceMapStatus(row.map_status),
