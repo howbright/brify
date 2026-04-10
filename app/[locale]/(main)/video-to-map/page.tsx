@@ -18,7 +18,7 @@ import { useMapDraftStatusPolling } from "@/app/hooks/useMapDraftStatusPolling";
 
 // ✅ 크레딧 정책 (1~2단계 + 초과는 거절)
 const CREDIT_POLICY = {
-  ONE_MAX_CHARS: 70_000,
+  ONE_MAX_CHARS: 50_000,
   TWO_MAX_CHARS: 110_000,
 } as const;
 
