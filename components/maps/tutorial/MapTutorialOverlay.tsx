@@ -3,7 +3,7 @@
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import { useLocale, useMessages, useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getShortcutCopy } from "@/components/maps/shortcutCopy";
 
 export type MapTutorialLanguage = "ko" | "en";
@@ -155,6 +155,7 @@ export default function MapTutorialOverlay({
   const [measuredTargetStyle, setMeasuredTargetStyle] = useState<React.CSSProperties | null>(
     null
   );
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
@@ -235,6 +236,28 @@ export default function MapTutorialOverlay({
   const shouldRenderMeasuredTarget = Boolean(measuredTargetStyle);
   const shouldRenderFallbackTarget = !step.targetId && !step.targetSelector;
 
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    const touch = event.touches[0];
+    if (!touch) return;
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (!isMobileViewport) return;
+    const start = touchStartRef.current;
+    const touch = event.changedTouches[0];
+    touchStartRef.current = null;
+    if (!start || !touch) return;
+
+    const deltaX = touch.clientX - start.x;
+    const deltaY = touch.clientY - start.y;
+    if (Math.abs(deltaX) < 56) return;
+    if (Math.abs(deltaY) > 42) return;
+    if (deltaX < 0) {
+      onNext();
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[140]">
       <div className="absolute inset-0 bg-slate-950/38" />
@@ -278,7 +301,11 @@ export default function MapTutorialOverlay({
       ) : null}
 
       <div className={`absolute inset-0 flex p-4 sm:p-6 ${isMobileViewport ? "items-end justify-center" : "items-center justify-center"}`}>
-        <div className={`pointer-events-auto w-full border border-white/20 bg-[#0f172a]/96 text-white shadow-[0_36px_100px_-42px_rgba(0,0,0,0.75)] ${isMobileViewport ? "max-w-[24rem] rounded-[26px] px-4 py-4" : "max-w-md rounded-[30px] p-6"}`}>
+        <div
+          className={`pointer-events-auto w-full border border-white/20 bg-[#0f172a]/96 text-white shadow-[0_36px_100px_-42px_rgba(0,0,0,0.75)] ${isMobileViewport ? "max-w-[24rem] rounded-[26px] px-4 py-4" : "max-w-md rounded-[30px] p-6"}`}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           <div className="flex items-start justify-between gap-4">
             <div className="mt-0 flex items-center gap-2">
               <div className="rounded-full border border-white/15 bg-white/6 px-3 py-1 text-xs font-black tracking-[0.16em] text-white/78">
