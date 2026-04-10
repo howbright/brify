@@ -9,6 +9,7 @@ function SectionCard({
   description,
   children,
   className,
+  contentClassName,
   visualClassName,
   index,
   featured = false,
@@ -17,6 +18,7 @@ function SectionCard({
   description: string;
   children: React.ReactNode;
   className?: string;
+  contentClassName?: string;
   visualClassName?: string;
   index?: number;
   featured?: boolean;
@@ -45,7 +47,7 @@ function SectionCard({
       <div className={`mb-5 flex min-h-[148px] items-center ${visualClassName ?? ""}`}>
         {children}
       </div>
-      <div className="mt-auto">
+      <div className={`mt-auto ${contentClassName ?? ""}`}>
         <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
           {title}
         </h3>
@@ -231,6 +233,7 @@ export default function MapLibrarySection() {
           <SectionCard
             title={t("cards.edit.title")}
             description={t("cards.edit.description")}
+            contentClassName="pt-2"
             index={2}
           >
             <EditVisual />

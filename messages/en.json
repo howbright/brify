@@ -604,7 +604,7 @@
       },
       "edit": {
         "title": "Edit Freely",
-        "description": "Refine key claims and reasoning in your own words as you shape your own standard."
+        "description": "Edit your Structure Map freely in your own way."
       },
       "read": {
         "title": "Highlight and Notes",
@@ -1084,7 +1084,7 @@
       "Generate results in your language",
       "Compare Structure Maps and spot differences at a glance"
     ],
-    "flowItems": ["Paste a script", "Create a Structure Map", "Read · Edit · Compare"],
+    "flowItems": ["Paste a script", "Create a Structure Map", "Read · Edit · Compare", "Build your own standard"],
     "videoLabel": "See the workflow in 30 seconds",
     "visualAlt": "Structure Map preview"
   },

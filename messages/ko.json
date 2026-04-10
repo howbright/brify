@@ -587,7 +587,7 @@
     "imageAlt": "Brify 만든 사람",
     "label": "서비스 만든이",
     "name": "Lina",
-    "quote": "“볼 것은 많은데 <strong>시간은 늘 모자라더군요</strong>.\n영상 보며 ‘정말 유익하다’고 느꼈는데, 저녁이면 <strong>절반도 기억이 나지 않았습니다</strong>.\n‘<highlight>나중에 봐야지</highlight>’ 하고 미뤘다가 결국 못 본 영상도 적지 않았습니다.\n<strong>건강</strong>과 <strong>아이들 교육</strong>, <strong>재테크</strong>까지 챙겨야 할 것들이 겹치니 더더욱 놓치기 쉬웠습니다.\n그래서 <heavy>도구를 직접 만들었습니다</heavy>. 방금 본 내용을 <strong>'구조맵'으로 정리</strong>해 두면, 다시 열어도 <strong>흐름과 요지</strong>가 남습니다.”"
+    "quote": "“볼 것은 많은데 <strong>시간은 늘 모자라더군요</strong>.\n영상 보며 ‘정말 유익하다’고 느꼈는데, 저녁이면 <strong>절반도 기억이 나지 않았습니다</strong>.\n‘나중에 봐야지’ 하고 미뤘다가 결국 못 본 영상도 적지 않았습니다.\n건강과 아이들 교육, 재테크까지 챙겨야 할 것들이 겹치니 더더욱 놓치기 쉬웠습니다.\n그래서 <heavy>도구를 직접 만들었습니다</heavy>. 방금 본 내용을 <strong>'구조맵'으로 정리</strong>해 두면, 다시 열어도 <strong>흐름과 요지</strong>가 남습니다.”"
   },
   "MapLibrarySection": {
     "eyebrow": "Build Your Own Standard",
@@ -604,7 +604,7 @@
       },
       "edit": {
         "title": "자유롭게 편집",
-        "description": "중요한 주장과 근거를 내 방식대로 다듬으며 기준을 정리할 수 있어요."
+        "description": "구조맵을 내 방식대로 자유롭게 편집할 수 있어요."
       },
       "read": {
         "title": "하이라이트와 노트",
@@ -1084,9 +1084,9 @@
       "원하는 언어로 결과 생성",
       "구조맵끼리 비교하며 차이를 한눈에"
     ],
-    "flowItems": ["스크립트 입력", "구조맵 생성", "읽기 · 편집 · 비교"],
+    "flowItems": ["스크립트 입력", "구조맵 생성", "읽기 · 편집 · 비교", "나만의 기준 세우기"],
     "videoLabel": "30초 안에 보는 사용 흐름",
-    "visualAlt": "요약 다이어그램 미리보기"
+    "visualAlt": "구조화 다이어그램 미리보기"
   },
   "WelcomePage": {
     "subtitle": "welcome to brify",
