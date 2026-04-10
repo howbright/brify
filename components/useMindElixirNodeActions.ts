@@ -32,6 +32,11 @@ export function useMindElixirNodeActions({
   setMobileActionNodeId,
   getNodeElById,
 }: Params) {
+  const waitForSelectionFrame = () =>
+    new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve());
+    });
+
   const openNodeContextMenu = (
     nodeId?: string | null,
     anchorEl?: HTMLElement | null
@@ -69,28 +74,33 @@ export function useMindElixirNodeActions({
     if (!mind || !currentNode) return;
 
     try {
+      let activeNode = currentNode;
       if (typeof mind.selectNode === "function") {
         mind.selectNode(currentNode);
+        await waitForSelectionFrame();
+        activeNode =
+          (mind.currentNode as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
+          currentNode;
       }
       if (action === "addChild") {
-        await mind.addChild();
+        await mind.addChild(activeNode);
         setMobileActionNodeId(null);
         return;
       }
       if (action === "addSibling") {
-        await mind.insertSibling("after");
+        await mind.insertSibling("after", activeNode);
         setMobileActionNodeId(null);
         return;
       }
       if (action === "rename") {
-        await mind.beginEdit();
+        await mind.beginEdit(activeNode);
         setMobileActionNodeId(null);
         return;
       }
-      const nodeObj = currentNode.nodeObj as AnyNode | undefined;
+      const nodeObj = activeNode.nodeObj as AnyNode | undefined;
       const isRoot = nodeObj?.root || !nodeObj?.parent?.id;
       if (isRoot) return;
-      await mind.removeNodes(mind.currentNodes ?? [currentNode]);
+      await mind.removeNodes(mind.currentNodes ?? [activeNode]);
       setMobileActionNodeId(null);
     } catch (error) {
       console.error("[ME] mobile action failed:", action, error);
