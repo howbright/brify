@@ -1330,6 +1330,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         attributes: true,
         attributeFilter: ["data-nodeid"],
       };
+      const clearEditingNodeState = () => {
+        elRef.current
+          ?.querySelectorAll<HTMLElement>('me-tpc[data-editing="true"]')
+          .forEach((node) => node.removeAttribute("data-editing"));
+      };
       const parseTimestampSeconds = (raw: unknown): number | null => {
         if (typeof raw === "number" && Number.isFinite(raw) && raw >= 0) {
           return Math.floor(raw);
@@ -1587,6 +1592,27 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         syncNodeDecorations();
       });
 
+      if (op?.name === "beginEdit") {
+        clearEditingNodeState();
+        const id = op?.obj?.id;
+        if (id) {
+          const nodeEl =
+            mind.findEle?.(id) ??
+            elRef.current?.querySelector<HTMLElement>(
+              `me-tpc[data-nodeid="${id}"]`
+            ) ??
+            elRef.current?.querySelector<HTMLElement>(
+              `[data-nodeid="${id}"]`
+            ) ??
+            null;
+          nodeEl?.setAttribute("data-editing", "true");
+        }
+      }
+
+      if (op?.name === "finishEdit") {
+        clearEditingNodeState();
+      }
+
       if (op?.name === "selectNode") {
         if (
           Date.now() - lastClickedNodeRef.current.at <
@@ -1783,6 +1809,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           overflow-wrap: anywhere !important;
           word-break: break-word !important;
           text-wrap: wrap !important;
+        }
+        me-tpc[data-editing="true"] .text,
+        me-tpc[data-editing="true"] .topic {
+          opacity: 0 !important;
+        }
+        me-tpc[data-editing="true"] .me-note-dot,
+        me-tpc[data-editing="true"] .me-ts-badge {
+          opacity: 0 !important;
         }
         @media (max-width: 639px) {
           me-parent me-tpc:not(.root) {
