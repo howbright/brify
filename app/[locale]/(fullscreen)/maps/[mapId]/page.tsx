@@ -21,6 +21,7 @@ import MapMetadataEditDialog from "@/components/maps/MapMetadataEditDialog";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import DiscardDraftDialog from "@/components/maps/DiscardDraftDialog";
 import ShareDialog from "@/components/maps/ShareDialog";
+import ShortcutsDialog from "@/components/maps/ShortcutsDialog";
 import TagEditDialog from "@/components/maps/TagEditDialog";
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/app/types/database.types";
@@ -222,6 +223,7 @@ export default function MapDetailPage() {
   const [shareEnabled, setShareEnabled] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
   const [desktopMoreOpen, setDesktopMoreOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [mobileMapActionsOpen, setMobileMapActionsOpen] = useState(false);
   const [mobileThemeOpen, setMobileThemeOpen] = useState(false);
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(false);
@@ -942,6 +944,21 @@ export default function MapDetailPage() {
     ? t("draftStatus.hasDraft")
     : undefined;
   const statusTone = isSavingDraft ? "warning" : savedPulse ? "success" : "neutral";
+  const controlIconButtonClass =
+    "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/80 bg-white/88 text-slate-600 shadow-[0_10px_26px_-18px_rgba(15,23,42,0.18)] backdrop-blur-sm transition hover:bg-white hover:text-slate-900 dark:border-white/10 dark:bg-[#0f172a]/82 dark:text-white/78 dark:shadow-[0_18px_40px_-26px_rgba(2,6,23,0.72)] dark:hover:bg-[#162033] dark:hover:text-white";
+  const controlPanelClass =
+    "rounded-2xl border border-slate-200/80 bg-white/95 p-1.5 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.24)] backdrop-blur-md dark:border-white/10 dark:bg-[#0f172a]/95 dark:shadow-[0_22px_52px_-28px_rgba(2,6,23,0.92)]";
+  const controlMenuItemClass =
+    "w-full rounded-xl px-3 py-2 text-left text-[12px] font-semibold text-slate-700 transition hover:bg-slate-100/90 hover:text-slate-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white";
+  const controlMenuItemContentClass = "flex items-center gap-2.5";
+  const secondaryControlPillClass =
+    "inline-flex items-center gap-1.5 rounded-xl border border-slate-200/80 bg-white/90 px-3.5 text-[11px] font-semibold text-slate-700 shadow-[0_10px_26px_-18px_rgba(15,23,42,0.16)] backdrop-blur-sm transition hover:bg-white hover:text-slate-900 dark:border-white/10 dark:bg-[#0f172a]/84 dark:text-white/76 dark:shadow-[0_18px_40px_-28px_rgba(2,6,23,0.78)] dark:hover:bg-[#162033] dark:hover:text-white";
+  const primaryControlPillClass =
+    "inline-flex items-center gap-1.5 rounded-xl bg-[linear-gradient(135deg,#2563eb_0%,#1d4ed8_100%)] px-3.5 text-[11px] font-semibold text-white shadow-[0_14px_30px_-18px_rgba(37,99,235,0.5)] transition hover:shadow-[0_18px_34px_-18px_rgba(37,99,235,0.62)] dark:bg-[linear-gradient(135deg,#3b82f6_0%,#2563eb_100%)]";
+  const searchShellClass =
+    "relative z-[40] flex h-8 w-[228px] items-center gap-2 rounded-lg border border-slate-400 bg-white px-2.5 text-[11px] text-slate-700 shadow-[0_8px_20px_-18px_rgba(15,23,42,0.14)] dark:border-white/28 dark:bg-[#0b1220] dark:text-white dark:shadow-[0_16px_36px_-30px_rgba(2,6,23,0.7)]";
+  const plainHeaderIconButtonClass =
+    "inline-flex h-8 w-8 items-center justify-center text-slate-500 transition hover:text-slate-900 dark:text-white/65 dark:hover:text-white";
 
   return (
     <div className="fixed inset-0 z-[120] bg-white dark:bg-[#0b1220] [--header-h:68px]">
@@ -950,131 +967,146 @@ export default function MapDetailPage() {
         onClose={() => router.push(backToMapsUrl)}
         closeLabel={t("actions.closeMap")}
         left={
-          <button
-            id={FULLSCREEN_PAGE_LEFT_PANEL_BUTTON_ID}
-            type="button"
-            onClick={() => (leftOpen ? setLeftOpen(false) : openTab(leftTab))}
-            className="
-              inline-flex items-center
-              p-1
-              text-neutral-800 hover:text-neutral-900
-              dark:text-white/85 dark:hover:text-white
-            "
-            aria-label={t("tabs.info")}
-            title={t("tabs.info")}
-          >
-            <span className="sr-only">{t("tabs.info")}</span>
-            {leftOpen ? (
-              <Icon icon="mdi:chevron-left" className="h-7 w-7" />
-            ) : (
-              <span className="inline-flex h-4 w-5 flex-col justify-between">
-                <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />
-                <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />
-                <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />
-              </span>
-            )}
-          </button>
+          !leftOpen ? (
+            <button
+              id={FULLSCREEN_PAGE_LEFT_PANEL_BUTTON_ID}
+              type="button"
+              onClick={() => openTab(leftTab)}
+              className="
+                inline-flex h-8 w-10 items-center justify-center
+                rounded-l-none rounded-r-full
+                bg-blue-600 text-white
+                shadow-sm transition hover:bg-blue-700
+                dark:bg-blue-500/70 dark:text-white dark:hover:bg-blue-500
+              "
+              aria-label={t("tabs.info")}
+              title={t("tabs.info")}
+            >
+              <span className="sr-only">{t("tabs.info")}</span>
+              <Icon icon="mdi:chevron-right" className="h-5 w-5" />
+            </button>
+          ) : (
+            <div className="h-8 w-10" aria-hidden="true" />
+          )
         }
         right={
-          <div className="hidden sm:flex items-center gap-2">
-            {searchOpen ? (
-              <div className="relative z-[40] flex items-center gap-2 w-full sm:w-auto rounded-xl border border-neutral-900 bg-black px-2 py-1 text-[11px] text-white shadow-sm dark:border-white/20 dark:bg-black dark:text-white">
-                <Icon icon="mdi:magnify" className="h-3.5 w-3.5" />
-                <input
-                  ref={searchInputRef}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.repeat) {
-                      e.preventDefault();
-                      return;
-                    }
-                    e.stopPropagation();
-                    if (e.key === "Escape") {
-                      e.preventDefault();
-                      closeSearch();
-                      return;
-                    }
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      stepSearch(e.shiftKey ? -1 : 1);
-                      return;
-                    }
-                    if (e.key === "ArrowDown") {
-                      e.preventDefault();
-                      stepSearch(1);
-                      return;
-                    }
-                    if (e.key === "ArrowUp") {
-                      e.preventDefault();
-                      stepSearch(-1);
-                      return;
-                    }
-                  }}
-                  placeholder="검색"
-                  className="w-full sm:w-[140px] bg-transparent text-[11px] text-white outline-none placeholder:text-white/60"
-                />
-                <span className="text-[10px] text-white/70">
-                  {searchResults.length ? `${searchIndex + 1}/${searchResults.length}` : "0"}
-                </span>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => stepSearch(-1)}
-                    className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-white/10"
-                    aria-label="이전 결과"
-                    title="이전 결과"
-                  >
-                    <Icon icon="mdi:chevron-up" className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => stepSearch(1)}
-                    className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-white/10"
-                    aria-label="다음 결과"
-                    title="다음 결과"
-                  >
-                    <Icon icon="mdi:chevron-down" className="h-3.5 w-3.5" />
-                  </button>
-                </div>
+          <div className="hidden sm:flex items-center gap-1.5">
+            {statusLabel ? (
+              <span
+                className={`
+                  inline-flex h-7 items-center px-1.5 text-[10px] font-semibold
+                  ${
+                    statusTone === "success"
+                      ? "text-emerald-700 dark:text-emerald-200"
+                      : statusTone === "warning"
+                      ? "text-amber-700 dark:text-amber-200"
+                      : "text-slate-500 dark:text-white/65"
+                  }
+                `}
+              >
+                {statusLabel}
+              </span>
+            ) : null}
+            {hasDraft ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setConfirmDiscardOpen(true)}
+                  className={`${secondaryControlPillClass} h-7 px-3 text-[10px]`}
+                >
+                  {t("actions.discardDraft")}
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePublish}
+                  className={`${primaryControlPillClass} h-7 px-3 text-[10px]`}
+                >
+                  {t("actions.publish")}
+                </button>
+              </>
+            ) : null}
+            <div className={searchShellClass}>
+              <Icon icon="mdi:magnify" className="h-4 w-4 shrink-0 text-slate-600 dark:text-white/75" />
+              <input
+                ref={searchInputRef}
+                value={searchQuery}
+                onFocus={() => setSearchOpen(true)}
+                onChange={(e) => {
+                  if (!searchOpen) setSearchOpen(true);
+                  setSearchQuery(e.target.value);
+                }}
+                onKeyDown={(e) => {
+                  if (e.repeat) {
+                    e.preventDefault();
+                    return;
+                  }
+                  e.stopPropagation();
+                  if (e.key === "Escape") {
+                    e.preventDefault();
+                    closeSearch();
+                    return;
+                  }
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    stepSearch(e.shiftKey ? -1 : 1);
+                    return;
+                  }
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    stepSearch(1);
+                    return;
+                  }
+                  if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    stepSearch(-1);
+                    return;
+                  }
+                }}
+                placeholder={t("actions.searchPlaceholder")}
+                className="min-w-0 flex-1 bg-transparent text-[11px] text-slate-800 outline-none placeholder:text-slate-500 dark:text-white dark:placeholder:text-white/45"
+              />
+              <span className="shrink-0 text-[10px] font-semibold text-slate-500 dark:text-white/60">
+                {searchResults.length ? `${searchIndex + 1}/${searchResults.length}` : "0"}
+              </span>
+              {searchQuery ? (
                 <button
                   type="button"
                   onClick={closeSearch}
-                  className="inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-white/10"
-                  aria-label="검색 닫기"
-                  title="검색 닫기"
+                  className="inline-flex h-5 w-5 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
+                  aria-label={t("actions.clearSearch")}
+                  title={t("actions.clearSearch")}
                 >
                   <Icon icon="mdi:close" className="h-3.5 w-3.5" />
                 </button>
+              ) : null}
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => stepSearch(-1)}
+                  className="inline-flex h-6 w-6 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/65 dark:hover:bg-white/10 dark:hover:text-white"
+                  aria-label={t("actions.previousSearchResult")}
+                  title={t("actions.previousSearchResult")}
+                >
+                  <Icon icon="mdi:chevron-up" className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => stepSearch(1)}
+                  className="inline-flex h-6 w-6 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/65 dark:hover:bg-white/10 dark:hover:text-white"
+                  aria-label={t("actions.nextSearchResult")}
+                  title={t("actions.nextSearchResult")}
+                >
+                  <Icon icon="mdi:chevron-down" className="h-3.5 w-3.5" />
+                </button>
               </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setSearchOpen(true)}
-                className="
-                  inline-flex items-center justify-center
-                  h-8 w-8 rounded-lg
-                  border border-neutral-900/30 bg-neutral-900 text-white shadow-md
-                  hover:bg-neutral-800
-                  dark:border-white/15 dark:bg-white/15 dark:text-white dark:hover:bg-white/20
-                "
-                aria-label="검색"
-                title="검색"
-              >
-                <Icon icon="mdi:magnify" className="h-4 w-4" />
-              </button>
-            )}
+            </div>
             <button
               type="button"
               onClick={() => {
                 setTutorialStepIndex(0);
                 setTutorialOpen(true);
               }}
-              className="
-                inline-flex h-8 w-8 items-center justify-center rounded-lg
-                border border-neutral-200 bg-white/95 text-neutral-700 shadow-sm
-                dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-              "
+              className={plainHeaderIconButtonClass}
               aria-label={t("actions.tutorial")}
               title={t("actions.tutorial")}
             >
@@ -1084,27 +1116,26 @@ export default function MapDetailPage() {
               <button
                 type="button"
                 onClick={() => setDesktopMoreOpen((v) => !v)}
-                className="
-                  inline-flex h-8 w-8 items-center justify-center rounded-lg
-                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-sm
-                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-                "
-                aria-label="더보기"
-                title="더보기"
+                className={plainHeaderIconButtonClass}
+                aria-label={t("actions.more")}
+                title={t("actions.more")}
               >
                 <Icon icon="mdi:dots-horizontal" className="h-4 w-4" />
               </button>
               {desktopMoreOpen && (
-                <div className="absolute right-0 mt-2 w-[210px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
+                <div className={`absolute right-0 mt-2 w-[210px] ${controlPanelClass}`}>
                   <button
                     type="button"
                     onClick={() => {
                       setDesktopMoreOpen(false);
                       mindRef.current?.setLayout?.("left");
                     }}
-                    className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                    className={controlMenuItemClass}
                   >
-                    왼쪽 정렬
+                    <span className={controlMenuItemContentClass}>
+                      <Icon icon="mdi:arrow-left-bold-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                      <span>{t("moreMenu.layoutLeft")}</span>
+                    </span>
                   </button>
                   <button
                     type="button"
@@ -1112,9 +1143,12 @@ export default function MapDetailPage() {
                       setDesktopMoreOpen(false);
                       mindRef.current?.setLayout?.("right");
                     }}
-                    className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                    className={controlMenuItemClass}
                   >
-                    오른쪽 정렬
+                    <span className={controlMenuItemContentClass}>
+                      <Icon icon="mdi:arrow-right-bold-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                      <span>{t("moreMenu.layoutRight")}</span>
+                    </span>
                   </button>
                   <button
                     type="button"
@@ -1122,17 +1156,27 @@ export default function MapDetailPage() {
                       setDesktopMoreOpen(false);
                       mindRef.current?.setLayout?.("side");
                     }}
-                    className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                    className={controlMenuItemClass}
                   >
-                    가운데 정렬
+                    <span className={controlMenuItemContentClass}>
+                      <Icon icon="mdi:arrow-left-right-bold-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                      <span>{t("moreMenu.layoutBoth")}</span>
+                    </span>
                   </button>
                   <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
                   <div className="px-3 py-2">
-                    <div className="text-[11px] font-semibold text-neutral-500 dark:text-white/60">
-                      테마
+                    <div className="text-[11px] font-semibold text-slate-500 dark:text-white/60">
+                      {t("moreMenu.theme")}
                     </div>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      {themeOptions.map((theme) => (
+                      {themeOptions.map((theme) => {
+                        const themeLabel =
+                          theme.name === PROFILE_THEME_NAME
+                            ? t("moreMenu.profileTheme")
+                            : theme.name === DEFAULT_THEME_NAME
+                            ? t("moreMenu.defaultTheme")
+                            : theme.name;
+                        return (
                         <button
                           key={theme.name}
                           type="button"
@@ -1143,12 +1187,12 @@ export default function MapDetailPage() {
                           className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold ${
                             theme.name === themeName
                               ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-300/40 dark:bg-blue-500/10 dark:text-blue-50/90"
-                              : "border-neutral-200 bg-white text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70"
+                              : "border-slate-200 bg-white text-slate-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70"
                           }`}
                         >
-                          {theme.name}
+                          {themeLabel}
                         </button>
-                      ))}
+                      )})}
                     </div>
                   </div>
                   <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
@@ -1159,9 +1203,11 @@ export default function MapDetailPage() {
                         setDesktopMoreOpen(false);
                         setShowTimestamps((prev) => !prev);
                       }}
-                      className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                      className={controlMenuItemClass}
                     >
-                      {showTimestamps ? "타임스탬프 숨기기" : "타임스탬프 보기"}
+                      {showTimestamps
+                        ? t("moreMenu.hideTimestamps")
+                        : t("moreMenu.showTimestamps")}
                     </button>
                   ) : null}
                   <button
@@ -1170,9 +1216,25 @@ export default function MapDetailPage() {
                       setDesktopMoreOpen(false);
                       handleExportPng();
                     }}
-                    className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                    className={controlMenuItemClass}
                   >
-                    PNG 저장
+                    <span className={controlMenuItemContentClass}>
+                      <Icon icon="mdi:download" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                      <span>{t("moreMenu.savePng")}</span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDesktopMoreOpen(false);
+                      setShortcutsOpen(true);
+                    }}
+                    className={controlMenuItemClass}
+                  >
+                    <span className={controlMenuItemContentClass}>
+                      <Icon icon="mdi:keyboard-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                      <span>{t("moreMenu.shortcuts")}</span>
+                    </span>
                   </button>
                   <button
                     type="button"
@@ -1181,9 +1243,12 @@ export default function MapDetailPage() {
                       setShareOpen(true);
                       void fetchShareStatus();
                     }}
-                    className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                    className={controlMenuItemClass}
                   >
-                    공유
+                    <span className={controlMenuItemContentClass}>
+                      <Icon icon="mdi:share-variant-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                      <span>{t("moreMenu.share")}</span>
+                    </span>
                   </button>
                 </div>
               )}
@@ -1201,11 +1266,7 @@ export default function MapDetailPage() {
               setMobileMapActionsOpen(false);
               setMobileThemeOpen(false);
             }}
-            className="
-              inline-flex h-9 w-9 items-center justify-center rounded-2xl
-              border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-              dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-            "
+            className={controlIconButtonClass}
             aria-label={mobileToolbarCollapsed ? "도구 펼치기" : "도구 접기"}
             title={mobileToolbarCollapsed ? "도구 펼치기" : "도구 접기"}
           >
@@ -1219,11 +1280,7 @@ export default function MapDetailPage() {
               <button
                 type="button"
                 onClick={() => mindRef.current?.centerMap?.()}
-                className="
-                  inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-                "
+                className={controlIconButtonClass}
                 aria-label="가운데로"
                 title="가운데로"
               >
@@ -1232,11 +1289,7 @@ export default function MapDetailPage() {
               <button
                 type="button"
                 onClick={() => mindRef.current?.zoomIn?.()}
-                className="
-                  inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-                "
+                className={controlIconButtonClass}
                 aria-label="확대"
                 title="확대"
               >
@@ -1245,11 +1298,7 @@ export default function MapDetailPage() {
               <button
                 type="button"
                 onClick={() => mindRef.current?.zoomOut?.()}
-                className="
-                  inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-                "
+                className={controlIconButtonClass}
                 aria-label="축소"
                 title="축소"
               >
@@ -1258,11 +1307,7 @@ export default function MapDetailPage() {
               <button
                 type="button"
                 onClick={() => mindRef.current?.collapseAll?.()}
-                className="
-                  inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-                "
+                className={controlIconButtonClass}
                 aria-label="전체 접기"
                 title="전체 접기"
               >
@@ -1272,11 +1317,7 @@ export default function MapDetailPage() {
                 <button
                   type="button"
                   onClick={() => setMobileMapActionsOpen((v) => !v)}
-                  className="
-                    inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                    border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-                    dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-                  "
+                  className={controlIconButtonClass}
                   aria-label="맵 조작"
                   title="맵 조작"
                 >
@@ -1284,14 +1325,14 @@ export default function MapDetailPage() {
                 </button>
 
             {mobileMapActionsOpen && (
-              <div className="absolute right-full mr-2 top-0 w-[160px] rounded-2xl border border-neutral-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
+              <div className={`absolute right-full mr-2 top-0 w-[160px] ${controlPanelClass}`}>
                 <button
                   type="button"
                   onClick={() => {
                     setMobileMapActionsOpen(false);
                     mindRef.current?.expandAll?.();
                   }}
-                  className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                  className={controlMenuItemClass}
                 >
                   전체 펴기
                 </button>
@@ -1301,7 +1342,7 @@ export default function MapDetailPage() {
                     setMobileMapActionsOpen(false);
                     mindRef.current?.expandOneLevel?.();
                   }}
-                  className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                  className={controlMenuItemClass}
                 >
                   한단계 펴기
                 </button>
@@ -1311,7 +1352,7 @@ export default function MapDetailPage() {
                       setMobileMapActionsOpen(false);
                       mindRef.current?.collapseOneLevel?.();
                     }}
-                    className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                    className={controlMenuItemClass}
                   >
                     한단계 접기
                   </button>
@@ -1322,7 +1363,7 @@ export default function MapDetailPage() {
                       setMobileMapActionsOpen(false);
                       mindRef.current?.setLayout?.("left");
                     }}
-                    className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                    className={controlMenuItemClass}
                   >
                     왼쪽 정렬
                   </button>
@@ -1332,7 +1373,7 @@ export default function MapDetailPage() {
                       setMobileMapActionsOpen(false);
                       mindRef.current?.setLayout?.("right");
                     }}
-                    className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                    className={controlMenuItemClass}
                   >
                     오른쪽 정렬
                   </button>
@@ -1342,7 +1383,7 @@ export default function MapDetailPage() {
                       setMobileMapActionsOpen(false);
                       mindRef.current?.setLayout?.("side");
                     }}
-                    className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:text-white/80 dark:hover:bg-white/10"
+                    className={controlMenuItemClass}
                   >
                     가운데 정렬
                 </button>
@@ -1354,19 +1395,15 @@ export default function MapDetailPage() {
                 <button
                   type="button"
                   onClick={() => setMobileThemeOpen((v) => !v)}
-                  className="
-                    inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                    border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-                    dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-                  "
+                  className={controlIconButtonClass}
                   aria-label="테마"
                   title="테마"
                 >
                   <Icon icon="mdi:palette-outline" className="h-4 w-4" />
                 </button>
                 {mobileThemeOpen && (
-                  <div className="absolute right-full mr-2 top-0 w-[180px] rounded-2xl border border-neutral-200 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-[#0f172a]">
-                    <div className="text-[11px] font-semibold text-neutral-500 dark:text-white/60">
+                  <div className={`absolute right-full mr-2 top-0 w-[180px] p-2 ${controlPanelClass}`}>
+                    <div className="text-[11px] font-semibold text-slate-500 dark:text-white/60">
                       테마
                     </div>
                     <div className="mt-2 flex flex-wrap gap-2">
@@ -1381,7 +1418,7 @@ export default function MapDetailPage() {
                           className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold ${
                             theme.name === themeName
                               ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-300/40 dark:bg-blue-500/10 dark:text-blue-50/90"
-                              : "border-neutral-200 bg-white text-neutral-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70"
+                              : "border-slate-200 bg-white text-slate-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70"
                           }`}
                         >
                           {theme.name}
@@ -1395,11 +1432,7 @@ export default function MapDetailPage() {
               <button
                 type="button"
                 onClick={handleExportPng}
-                className="
-                  inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-                "
+                className={controlIconButtonClass}
                 aria-label="PNG 저장"
                 title="PNG 저장"
               >
@@ -1412,11 +1445,7 @@ export default function MapDetailPage() {
                   setShareOpen(true);
                   void fetchShareStatus();
                 }}
-                className="
-                  inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-                "
+                className={controlIconButtonClass}
                 aria-label="공유"
                 title="공유"
               >
@@ -1429,11 +1458,7 @@ export default function MapDetailPage() {
                   setTutorialStepIndex(0);
                   setTutorialOpen(true);
                 }}
-                className="
-                  inline-flex h-9 w-9 items-center justify-center rounded-2xl
-                  border border-neutral-200 bg-white/95 text-neutral-700 shadow-md
-                  dark:border-white/10 dark:bg-[#0b1220]/85 dark:text-white/80
-                "
+                className={controlIconButtonClass}
                 aria-label={t("actions.tutorial")}
                 title={t("actions.tutorial")}
               >
@@ -1493,58 +1518,6 @@ export default function MapDetailPage() {
           </div>
         </div>
 
-        {(statusLabel || hasDraft) && (
-          <div className="pointer-events-auto absolute right-4 top-3 z-[15] flex items-center gap-2">
-            {statusLabel && (
-              <span
-                className={`
-                  inline-flex items-center px-1 text-[11px] font-semibold
-                  ${
-                    statusTone === "success"
-                      ? "text-emerald-600 dark:text-emerald-300"
-                      : statusTone === "warning"
-                      ? "text-amber-600 dark:text-amber-300"
-                      : "text-neutral-500 dark:text-white/70"
-                  }
-                `}
-              >
-                {statusLabel}
-              </span>
-            )}
-            {hasDraft && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setConfirmDiscardOpen(true)}
-                  className="
-                    inline-flex items-center gap-1.5 rounded-full border border-neutral-200/70
-                    bg-white/90 px-2 py-0.5 text-[11px] font-semibold text-neutral-600
-                    shadow-sm hover:text-neutral-900
-                    dark:border-white/10 dark:bg-[#0b1220]/80 dark:text-white/70 dark:hover:text-white
-                  "
-                >
-                  <Icon icon="mdi:undo-variant" className="h-3.5 w-3.5" />
-                  {t("actions.discardDraft")}
-                </button>
-                <button
-                  type="button"
-                  onClick={handlePublish}
-                  className="
-                    inline-flex items-center gap-1.5
-                    rounded-full
-                    bg-blue-600 px-4 py-1.5 text-[13px] font-semibold text-white shadow-md
-                    hover:bg-blue-700
-                    dark:bg-blue-500 dark:hover:bg-blue-400
-                  "
-                >
-                  <Icon icon="mdi:check-circle-outline" className="h-4.5 w-4.5" />
-                  {t("actions.publish")}
-                </button>
-              </>
-            )}
-          </div>
-        )}
-
         {error && (
           <div className="absolute left-4 top-3 z-[15]">
             <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
@@ -1580,6 +1553,11 @@ export default function MapDetailPage() {
             onSkip={() => setTutorialOpen(false)}
           />
         ) : null}
+
+        <ShortcutsDialog
+          open={shortcutsOpen}
+          onClose={() => setShortcutsOpen(false)}
+        />
 
         {draft ? (
           <TagEditDialog

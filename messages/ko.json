@@ -1379,7 +1379,25 @@
       "tutorial": "튜토리얼",
       "closeMap": "맵 닫기",
       "discardDraft": "임시 변경 버리기",
-      "publish": "완료/발행"
+      "publish": "완료/발행",
+      "searchPlaceholder": "검색",
+      "clearSearch": "검색 초기화",
+      "previousSearchResult": "이전 결과",
+      "nextSearchResult": "다음 결과",
+      "more": "더보기"
+    },
+    "moreMenu": {
+      "layoutLeft": "왼쪽 배치",
+      "layoutRight": "오른쪽 배치",
+      "layoutBoth": "양방향 배치",
+      "theme": "테마",
+      "profileTheme": "내 설정 테마",
+      "defaultTheme": "클래식 테마",
+      "showTimestamps": "타임스탬프 보기",
+      "hideTimestamps": "타임스탬프 숨기기",
+      "savePng": "PNG 저장",
+      "shortcuts": "단축키 안내",
+      "share": "공유"
     },
     "draftStatus": {
       "autoSaving": "자동 저장 중…",
@@ -1417,7 +1435,8 @@
   "DiscardDraftDialog": {
     "title": "임시 변경 버리기",
     "description": "임시 변경사항을 모두 삭제하고 마지막 발행본으로 돌아갈까요?",
-    "actionLabel": "버리기"
+    "actionLabel": "버리기",
+    "cancel": "취소"
   },
   "FullscreenDialog": {
     "fallbackTitle": "구조맵",

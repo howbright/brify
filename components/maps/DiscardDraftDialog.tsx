@@ -24,6 +24,7 @@ export default function DiscardDraftDialog({
       title={t("title")}
       description={t("description")}
       actionLabel={t("actionLabel")}
+      cancelLabel={t("cancel")}
       tone="danger"
     />
   );

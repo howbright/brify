@@ -1379,7 +1379,25 @@
       "tutorial": "Tutorial",
       "closeMap": "Close map",
       "discardDraft": "Discard draft",
-      "publish": "Done / Publish"
+      "publish": "Done / Publish",
+      "searchPlaceholder": "Search",
+      "clearSearch": "Clear search",
+      "previousSearchResult": "Previous result",
+      "nextSearchResult": "Next result",
+      "more": "More"
+    },
+    "moreMenu": {
+      "layoutLeft": "Left layout",
+      "layoutRight": "Right layout",
+      "layoutBoth": "Both-side layout",
+      "theme": "Theme",
+      "profileTheme": "My theme",
+      "defaultTheme": "Classic theme",
+      "showTimestamps": "Show timestamps",
+      "hideTimestamps": "Hide timestamps",
+      "savePng": "Save PNG",
+      "shortcuts": "Keyboard shortcuts",
+      "share": "Share"
     },
     "draftStatus": {
       "autoSaving": "Auto-saving…",
@@ -1417,7 +1435,8 @@
   "DiscardDraftDialog": {
     "title": "Discard draft changes",
     "description": "Discard all draft changes and return to the last published version?",
-    "actionLabel": "Discard"
+    "actionLabel": "Discard",
+    "cancel": "Cancel"
   },
   "FullscreenDialog": {
     "fallbackTitle": "Structure Map",

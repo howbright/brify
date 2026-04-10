@@ -57,12 +57,8 @@ export default function MindElixirMiniMap({
   if (!show) return null;
 
   return (
-    <div className="pointer-events-auto absolute bottom-6 right-4 z-20 rounded-xl border border-neutral-200 bg-white/90 p-2 shadow-sm dark:border-white/45 dark:bg-[#0b1220]/82 dark:shadow-[0_16px_42px_-24px_rgba(15,23,42,0.92)]">
-      <div className="flex items-center gap-2">
-        <div className="text-[14px] font-bold text-neutral-600 dark:text-white/88">
-          {label}
-        </div>
-        <div className="ml-auto flex items-center gap-1">
+    <div className="pointer-events-auto absolute bottom-6 right-4 z-20 rounded-xl border border-neutral-200 bg-white p-2 shadow-sm dark:border-white/45 dark:bg-[#0b1220] dark:shadow-[0_16px_42px_-24px_rgba(15,23,42,0.92)]">
+      <div className="flex items-center justify-start gap-1">
           {[
             {
               icon: "mdi:crosshairs-gps",
@@ -114,7 +110,6 @@ export default function MindElixirMiniMap({
               />
             </button>
           ) : null}
-        </div>
       </div>
       {!collapsed ? (
         <canvas
