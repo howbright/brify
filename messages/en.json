@@ -681,8 +681,8 @@
       "title": "Most content uses only 1 credit",
       "desc": "Only very large texts require 2 credits",
       "details": {
-        "small": "Up to 70,000 chars",
-        "medium": "70,001 to 110,000 chars",
+        "small": "Up to 50,000 chars",
+        "medium": "50,001 to 110,000 chars",
         "large": "Over 110,000 chars"
       },
       "result": {
@@ -907,7 +907,7 @@
     "faq": {
       "title": "FAQ",
       "q2": "How many credits does a video use?",
-      "a2": "Most content uses just 1 credit. Up to 70,000 characters uses 1 credit, 70,001 to 110,000 characters uses 2 credits, and anything over 110,000 characters can't be processed.",
+      "a2": "Most content uses just 1 credit. Up to 50,000 characters uses 1 credit, 50,001 to 110,000 characters uses 2 credits, and anything over 110,000 characters can't be processed.",
       "q3": "Do credits expire?",
       "a3": "Paid credits are valid for 1 year from the payment date. Refund requests are available within 7 days of purchase, and only orders whose credited amount has not been used are eligible for a full refund.",
       "q4": "Will I receive a payment receipt?",

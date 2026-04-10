@@ -1553,6 +1553,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       });
 
       mind.bus?.addListener?.("unselectNodes", () => {
+        clearEditingNodeState();
         setSelectedNodeId(null);
         setSelectedRect(null);
         selectedNodeElRef.current = null;
@@ -1652,6 +1653,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           op?.name === "clearSelection" ||
           op?.name === "removeNodes"
         ) {
+          clearEditingNodeState();
           setSelectedNodeId(null);
           setSelectedRect(null);
         }
