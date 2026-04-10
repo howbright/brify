@@ -1452,10 +1452,10 @@
     "title": "Content Details",
     "subtitle": "Title is required; everything else is optional.",
     "fields": {
-      "sourceQuestion": "Is this the YouTube transcript you entered?",
+      "sourceQuestion": "Is this Structure Map based on a YouTube video?",
       "sourceTypeYes": "Yes",
       "sourceTypeNo": "No",
-      "url": "URL (optional)",
+      "url": "YouTube URL",
       "title": "Title",
       "channel": "Channel/Source (optional)",
       "thumbnail": "Thumbnail (optional)",
@@ -1471,14 +1471,16 @@
       "description": "Add notes, summary, or description for this structure map."
     },
     "buttons": {
-      "youtubeAutofill": "Autofill from YouTube",
+      "youtubeAutofill": "Fetch YouTube details",
       "youtubeLoading": "Loading...",
       "uploadThumbnail": "Upload thumbnail",
       "close": "Close",
-      "save": "Save and continue"
+      "save": "Continue"
     },
     "hints": {
-      "youtubeUrl": "If this is a YouTube URL, we can autofill title/channel/thumbnail.",
+      "youtubeOptional": "If you enter a YouTube URL, we can autofill the title, channel, and thumbnail. You can also skip it and fill things in manually.",
+      "youtubeUrl": "Enter a YouTube URL to autofill the title, channel, and thumbnail.",
+      "youtubeSkip": "You can continue without entering a URL.",
       "nonYoutubeUrl": "If it's not a YouTube URL, please fill in the fields below.",
       "tags": "Separate tags with commas to save them."
     },
@@ -1505,6 +1507,7 @@
       "loginRequired": "Login required.",
       "missingApiBase": "Missing NEXT_PUBLIC_API_BASE_URL.",
       "youtubeFetchFailed": "Failed to fetch YouTube metadata.",
+      "youtubeRestricted": "We couldn't autofill this video. It may be private or access-restricted. You can continue by entering the details manually.",
       "requestFailed": "Request failed.",
       "invalidImage": "The image file is invalid.",
       "titleRequired": "Title is required. Please enter a title.",

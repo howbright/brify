@@ -7,12 +7,32 @@ type Props = {
   show: boolean;
   label: string;
   canvasRef: RefObject<HTMLCanvasElement | null>;
+  centerLabel: string;
+  zoomInLabel: string;
+  zoomOutLabel: string;
+  collapseLevelLabel: string;
+  expandLevelLabel: string;
+  onCenter: () => void;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onCollapseLevel: () => void;
+  onExpandLevel: () => void;
 };
 
 export default function MindElixirMiniMap({
   show,
   label,
   canvasRef,
+  centerLabel,
+  zoomInLabel,
+  zoomOutLabel,
+  collapseLevelLabel,
+  expandLevelLabel,
+  onCenter,
+  onZoomIn,
+  onZoomOut,
+  onCollapseLevel,
+  onExpandLevel,
 }: Props) {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -38,23 +58,63 @@ export default function MindElixirMiniMap({
 
   return (
     <div className="pointer-events-auto absolute bottom-6 right-4 z-20 rounded-xl border border-neutral-200 bg-white/90 p-2 shadow-sm dark:border-white/45 dark:bg-[#0b1220]/82 dark:shadow-[0_16px_42px_-24px_rgba(15,23,42,0.92)]">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center gap-2">
         <div className="text-[14px] font-bold text-neutral-600 dark:text-white/88">
           {label}
         </div>
-        {isTouchDevice ? (
-          <button
-            type="button"
-            onClick={() => setCollapsed((prev) => !prev)}
-            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
-            aria-label={collapsed ? "Expand mini map" : "Collapse mini map"}
-          >
-            <Icon
-              icon={collapsed ? "mdi:chevron-up" : "mdi:chevron-down"}
-              className="h-4 w-4"
-            />
-          </button>
-        ) : null}
+        <div className="ml-auto flex items-center gap-1">
+          {[
+            {
+              icon: "mdi:crosshairs-gps",
+              label: centerLabel,
+              onClick: onCenter,
+            },
+            {
+              icon: "mdi:plus",
+              label: zoomInLabel,
+              onClick: onZoomIn,
+            },
+            {
+              icon: "mdi:minus",
+              label: zoomOutLabel,
+              onClick: onZoomOut,
+            },
+            {
+              icon: "mdi:unfold-less-horizontal",
+              label: collapseLevelLabel,
+              onClick: onCollapseLevel,
+            },
+            {
+              icon: "mdi:unfold-more-horizontal",
+              label: expandLevelLabel,
+              onClick: onExpandLevel,
+            },
+          ].map((action) => (
+            <button
+              key={action.label}
+              type="button"
+              onClick={action.onClick}
+              className="inline-flex h-7 w-7 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
+              aria-label={action.label}
+              title={action.label}
+            >
+              <Icon icon={action.icon} className="h-4 w-4" />
+            </button>
+          ))}
+          {isTouchDevice ? (
+            <button
+              type="button"
+              onClick={() => setCollapsed((prev) => !prev)}
+              className="inline-flex h-7 w-7 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
+              aria-label={collapsed ? "Expand mini map" : "Collapse mini map"}
+            >
+              <Icon
+                icon={collapsed ? "mdi:chevron-up" : "mdi:chevron-down"}
+                className="h-4 w-4"
+              />
+            </button>
+          ) : null}
+        </div>
       </div>
       {!collapsed ? (
         <canvas

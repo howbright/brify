@@ -29,7 +29,17 @@ type ClientMindElixirOverlayProps = {
   showMiniMap: boolean;
   isTouchDevice: boolean;
   miniMapLabel: string;
+  miniMapCenterLabel: string;
+  miniMapZoomInLabel: string;
+  miniMapZoomOutLabel: string;
+  miniMapCollapseLevelLabel: string;
+  miniMapExpandLevelLabel: string;
   miniMapRef: React.RefObject<HTMLCanvasElement | null>;
+  onMiniMapCenter: () => void;
+  onMiniMapZoomIn: () => void;
+  onMiniMapZoomOut: () => void;
+  onMiniMapCollapseLevel: () => void;
+  onMiniMapExpandLevel: () => void;
   isFocusMode: boolean;
   selectedRect: DOMRect | null;
   hoverActionWrapClass: string;
@@ -73,7 +83,17 @@ export default function ClientMindElixirOverlay({
   showMiniMap,
   isTouchDevice,
   miniMapLabel,
+  miniMapCenterLabel,
+  miniMapZoomInLabel,
+  miniMapZoomOutLabel,
+  miniMapCollapseLevelLabel,
+  miniMapExpandLevelLabel,
   miniMapRef,
+  onMiniMapCenter,
+  onMiniMapZoomIn,
+  onMiniMapZoomOut,
+  onMiniMapCollapseLevel,
+  onMiniMapExpandLevel,
   isFocusMode,
   selectedRect,
   hoverActionWrapClass,
@@ -130,6 +150,16 @@ export default function ClientMindElixirOverlay({
         show={showMiniMap && !isTouchDevice}
         label={miniMapLabel}
         canvasRef={miniMapRef}
+        centerLabel={miniMapCenterLabel}
+        zoomInLabel={miniMapZoomInLabel}
+        zoomOutLabel={miniMapZoomOutLabel}
+        collapseLevelLabel={miniMapCollapseLevelLabel}
+        expandLevelLabel={miniMapExpandLevelLabel}
+        onCenter={onMiniMapCenter}
+        onZoomIn={onMiniMapZoomIn}
+        onZoomOut={onMiniMapZoomOut}
+        onCollapseLevel={onMiniMapCollapseLevel}
+        onExpandLevel={onMiniMapExpandLevel}
       />
 
       {!isFocusMode && selectedNodeId && selectedRect && (

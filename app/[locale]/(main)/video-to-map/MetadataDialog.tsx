@@ -32,6 +32,19 @@ function normalizeTags(tags: string[]) {
   );
 }
 
+function looksLikeRestrictedYoutubeError(message: string) {
+  const lowered = message.toLowerCase();
+  return (
+    lowered.includes("private") ||
+    lowered.includes("forbidden") ||
+    lowered.includes("not available") ||
+    lowered.includes("unavailable") ||
+    lowered.includes("접근") ||
+    lowered.includes("비공개") ||
+    lowered.includes("제한")
+  );
+}
+
 type Props = {
   mapId?: string; // ✅ 추가: map 단위 썸네일 저장 경로에 사용
 
@@ -83,7 +96,6 @@ export default function MetadataDialog({
   const [titleError, setTitleError] = useState<string | null>(null);
   const [isFetchingYoutubeMeta, setIsFetchingYoutubeMeta] = useState(false);
   const [youtubeMetaError, setYoutubeMetaError] = useState<string | null>(null);
-  const [youtubeAutofilled, setYoutubeAutofilled] = useState(false);
 
   // ✅ manual upload states
   const [thumbFile, setThumbFile] = useState<File | null>(null);
@@ -101,14 +113,8 @@ export default function MetadataDialog({
       : isYouTubeUrl(initialSourceUrl)
         ? "youtube"
         : "manual";
-    const hasExistingDetails =
-      Boolean(initial.title?.trim()) ||
-      Boolean(initial.channelName?.trim()) ||
-      Boolean(initial.thumbnailUrl?.trim()) ||
-      Boolean(initial.description?.trim()) ||
-      Boolean(initial.tags?.length);
     if (initialType === "manual") return true;
-    if (initialType === "youtube") return false;
+    if (initialType === "youtube") return true;
     return false;
   });
   const tagSuggestions = useMemo(() => {
@@ -190,11 +196,13 @@ export default function MetadataDialog({
 
       // ✅ 유튜브 자동 채우기를 성공하면 "수동 업로드 상태"는 해제 (충돌 방지)
       clearManualUploadState();
-      setYoutubeAutofilled(true);
       setDetailsExpanded(true);
     } catch (error: unknown) {
+      const message = getErrorMessage(error, t("errors.youtubeFetchFailed"));
       setYoutubeMetaError(
-        getErrorMessage(error, t("errors.youtubeFetchFailed"))
+        looksLikeRestrictedYoutubeError(message)
+          ? t("errors.youtubeRestricted")
+          : message
       );
     } finally {
       setIsFetchingYoutubeMeta(false);
@@ -211,13 +219,16 @@ export default function MetadataDialog({
       return;
     }
 
+    if (sourceType === "youtube") {
+      setDetailsExpanded(true);
+      return;
+    }
+
     if (sourceType !== "youtube") {
       setDetailsExpanded(false);
       return;
     }
-
-    setDetailsExpanded(youtubeAutofilled);
-  }, [sourceType, youtubeAutofilled]);
+  }, [sourceType]);
 
   useEffect(() => {
     setTagItems(normalizeTags(initial.tags ?? []));
@@ -468,13 +479,15 @@ export default function MetadataDialog({
                 <label className="text-[17px] font-bold text-neutral-800 dark:text-neutral-100">
                   {t("fields.sourceQuestion")}
                 </label>
+                <p className="text-[14px] leading-6 text-neutral-600 dark:text-white/65">
+                  {t("hints.youtubeOptional")}
+                </p>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => {
                       setSourceType("youtube");
-                      setYoutubeAutofilled(false);
-                      setDetailsExpanded(false);
+                      setDetailsExpanded(true);
                     }}
                     className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-400 bg-white px-4 py-3 text-[15px] font-bold text-neutral-800 transition hover:bg-neutral-50 dark:border-white/30 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
                   >
@@ -485,7 +498,6 @@ export default function MetadataDialog({
                     type="button"
                     onClick={() => {
                       setSourceType("manual");
-                      setYoutubeAutofilled(false);
                       setDetailsExpanded(true);
                     }}
                     className="rounded-2xl border border-slate-400 bg-white px-4 py-3 text-[15px] font-bold text-neutral-800 transition hover:bg-neutral-50 dark:border-white/30 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
@@ -499,6 +511,12 @@ export default function MetadataDialog({
             {/* URL */}
             {sourceType === "youtube" ? (
             <div className="grid gap-1.5 min-w-0">
+              <label className="text-[17px] font-bold text-neutral-800 dark:text-neutral-100">
+                {t("fields.url")}
+              </label>
+              <p className="text-[14px] leading-6 text-neutral-600 dark:text-white/65">
+                {t("hints.youtubeUrl")}
+              </p>
               <div className="flex flex-col sm:flex-row gap-2 min-w-0">
                 <input
                   value={sourceUrl}
@@ -540,6 +558,10 @@ export default function MetadataDialog({
                   {youtubeMetaError}
                 </p>
               )}
+
+              <p className="text-[13px] leading-6 text-neutral-500 dark:text-white/55">
+                {t("hints.youtubeSkip")}
+              </p>
 
             </div>
             ) : null}

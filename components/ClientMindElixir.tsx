@@ -443,6 +443,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const { resolvedTheme } = useTheme();
   const locale = useLocale();
   const miniMapLabel = locale === "ko" ? "미니맵" : "Mini map";
+  const miniMapCenterLabel = locale === "ko" ? "중심으로 이동" : "Center";
+  const miniMapZoomInLabel = locale === "ko" ? "줌인" : "Zoom in";
+  const miniMapZoomOutLabel = locale === "ko" ? "줌아웃" : "Zoom out";
+  const miniMapCollapseLevelLabel =
+    locale === "ko" ? "한단계 접기" : "Collapse one level";
+  const miniMapExpandLevelLabel =
+    locale === "ko" ? "한단계 펴기" : "Expand one level";
   const mobileEditMenuTitle = locale === "ko" ? "노드 편집" : "Edit node";
   const moreActionsLabel = locale === "ko" ? "더보기" : "More";
   const focusModeLabel = locale === "ko" ? "포커스 모드" : "Focus Mode";
@@ -1963,7 +1970,60 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         showMiniMap={showMiniMap}
         isTouchDevice={isTouchDevice}
         miniMapLabel={miniMapLabel}
+        miniMapCenterLabel={miniMapCenterLabel}
+        miniMapZoomInLabel={miniMapZoomInLabel}
+        miniMapZoomOutLabel={miniMapZoomOutLabel}
+        miniMapCollapseLevelLabel={miniMapCollapseLevelLabel}
+        miniMapExpandLevelLabel={miniMapExpandLevelLabel}
         miniMapRef={miniMapRef}
+        onMiniMapCenter={() => centerMap(mindRef.current)}
+        onMiniMapZoomIn={() => {
+          const mind = mindRef.current;
+          if (!mind || typeof mind.scale !== "function") return;
+          const next = Math.min(mind.scaleMax ?? 1.4, (mind.scaleVal ?? 1) + 0.1);
+          mind.scale(next);
+        }}
+        onMiniMapZoomOut={() => {
+          const mind = mindRef.current;
+          if (!mind || typeof mind.scale !== "function") return;
+          const next = Math.max(mind.scaleMin ?? 0.2, (mind.scaleVal ?? 1) - 0.1);
+          mind.scale(next);
+        }}
+        onMiniMapCollapseLevel={() => {
+          const mind = mindRef.current;
+          if (!mind) return;
+          const raw = mind.getData?.() ?? mind.getAllData?.();
+          const normalized = normalizeMindData(raw);
+          if (!normalized) return;
+          const next = cloneMindData(normalized.data);
+          const nextNode = normalizeMindData(next)?.node;
+          if (!nextNode) return;
+          const current =
+            currentLevelRef.current ?? getMaxExpandedDepth(nextNode);
+          const target = Math.max(1, current - 1);
+          setExpandedToLevel(nextNode, target);
+          mind.refresh?.(next);
+          currentLevelRef.current = target;
+          centerMap(mind);
+        }}
+        onMiniMapExpandLevel={() => {
+          const mind = mindRef.current;
+          if (!mind) return;
+          const raw = mind.getData?.() ?? mind.getAllData?.();
+          const normalized = normalizeMindData(raw);
+          if (!normalized) return;
+          const next = cloneMindData(normalized.data);
+          const nextNode = normalizeMindData(next)?.node;
+          if (!nextNode) return;
+          const maxDepth = getMaxDepth(nextNode);
+          const current =
+            currentLevelRef.current ?? getMaxExpandedDepth(nextNode);
+          const target = Math.min(maxDepth, current + 1);
+          setExpandedToLevel(nextNode, target);
+          mind.refresh?.(next);
+          currentLevelRef.current = target;
+          centerMap(mind);
+        }}
         isFocusMode={isFocusMode}
         selectedRect={selectedRect}
         hoverActionWrapClass={hoverActionWrapClass}

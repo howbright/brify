@@ -189,7 +189,6 @@ export default function LeftPanel({
     if (termsLoading) return;
     if (terms.length > 0) return;
     fetchTerms(true);
-    fetchTermsStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, activeTab, mapId]);
 
@@ -197,7 +196,6 @@ export default function LeftPanel({
     if (!open || !mapId) return;
     if (termsLoading || terms.length > 0) return;
     fetchTerms(true);
-    fetchTermsStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, mapId]);
 
@@ -481,6 +479,13 @@ export default function LeftPanel({
         }
       }
     } catch (e) {
+      if (!termsRequestedInSession && !hasTermsRequest) {
+        stopTermsPolling();
+        setTermsStatus("idle");
+        setTermsError(null);
+        return;
+      }
+
       console.error(e);
       setHasTermsRequest(false);
       setTermsStatus("failed");

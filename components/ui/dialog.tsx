@@ -77,8 +77,8 @@ export const DialogContent = ({ className, children, ...props }: React.Component
       <DialogPrimitive.Title asChild>
         <VisuallyHidden>Login Required</VisuallyHidden>
       </DialogPrimitive.Title>
-      {children}
-      <DialogPrimitive.Close className="absolute top-4 right-4 z-10 text-neutral-500 hover:text-neutral-800 dark:text-white/60 dark:hover:text-white">
+      <div className="relative z-10">{children}</div>
+      <DialogPrimitive.Close className="absolute top-4 right-4 z-20 text-neutral-500 hover:text-neutral-800 dark:text-white/60 dark:hover:text-white">
         <X className="h-6 w-6" />
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>

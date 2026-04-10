@@ -63,7 +63,6 @@ export default function RightPanel({
     if (terms.length > 0) return;
 
     fetchTerms(true);
-    fetchTermsStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, tab]);
 
@@ -333,6 +332,13 @@ export default function RightPanel({
         }
       }
     } catch (e) {
+      if (!termsRequestedInSession && !hasTermsRequest) {
+        stopTermsPolling();
+        setTermsStatus("idle");
+        setTermsError(null);
+        return;
+      }
+
       console.error(e);
       setHasTermsRequest(false);
       setTermsStatus("failed");

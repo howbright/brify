@@ -12,7 +12,6 @@ import CreditConfirmModal from "./CreditConfirmModal";
 import MetadataDialog from "./MetadataDialog";
 import YoutubeScriptDialog from "./YoutubeScriptDialog";
 import ResultReadyPanel from "./ResultReadyPanel";
-import FullscreenDialog from "@/components/ui/FullscreenDialog";
 
 import { createClient } from "@/utils/supabase/client";
 import { useMapDraftStatusPolling } from "@/app/hooks/useMapDraftStatusPolling";
@@ -185,11 +184,6 @@ export default function VideoToMapPage() {
   const [createdMapId, setCreatedMapId] = useState<string | null>(null);
   const [editingDraft, setEditingDraft] = useState<MapDraft | null>(null);
   const [savingMetaId, setSavingMetaId] = useState<string | null>(null);
-  const [openDraft, setOpenDraft] = useState<MapDraft | null>(null);
-  const [showFullscreen, setShowFullscreen] = useState(true);
-  const [openMapData, setOpenMapData] = useState<any | null>(null);
-  const [openMapLoading, setOpenMapLoading] = useState(false);
-  const [openMapError, setOpenMapError] = useState<string | null>(null);
   const [pendingFocusDraftId, setPendingFocusDraftId] = useState<string | null>(null);
   const [highlightedDraftId, setHighlightedDraftId] = useState<string | null>(null);
   const draftsSectionRef = useRef<HTMLElement | null>(null);
@@ -241,55 +235,6 @@ export default function VideoToMapPage() {
       cancelled = true;
     };
   }, []);
-
-  useEffect(() => {
-    if (!showFullscreen || !openDraft?.id) return;
-
-    let cancelled = false;
-    const targetId = openDraft.id;
-
-    setOpenMapData(null);
-    setOpenMapError(null);
-    setOpenMapLoading(true);
-
-    (async () => {
-      try {
-        const supabase = createClient();
-        const { data, error } = await supabase
-          .from("maps")
-          .select("mind_elixir,summary")
-          .eq("id", targetId)
-          .single();
-
-        if (cancelled) return;
-        if (error) throw error;
-
-        const mindData = (data as { mind_elixir?: any })?.mind_elixir ?? null;
-        if (!mindData) {
-          throw new Error(t("errors.missingMindData"));
-        }
-
-        setOpenMapData(mindData);
-        const fetchedSummary =
-          (data as { summary?: string | null })?.summary ?? undefined;
-        if (fetchedSummary) {
-          setOpenDraft((prev) =>
-            prev ? { ...prev, summary: fetchedSummary } : prev
-          );
-        }
-      } catch (e: any) {
-        if (cancelled) return;
-        setOpenMapError(e?.message ?? t("errors.openMapFailed"));
-        setOpenMapData(null);
-      } finally {
-        if (!cancelled) setOpenMapLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [showFullscreen, openDraft?.id, t]);
 
   useEffect(() => {
     if (!isProcessing) {
@@ -584,6 +529,7 @@ export default function VideoToMapPage() {
 
     try {
       const targetId = createdMapId ?? editingDraft?.id;
+      const shouldOpenFullscreenPage = Boolean(createdMapId && !editingDraft);
       if (!targetId) {
         throw new Error(t("errors.missingMapId"));
       }
@@ -719,6 +665,10 @@ export default function VideoToMapPage() {
       setCreatedMapId(null);
       setEditingDraft(null);
       setSavingMetaId(null);
+
+      if (shouldOpenFullscreenPage) {
+        router.push(`/${locale}/maps/${targetId}`);
+      }
     } catch (e: any) {
       setIsProcessing(false);
       const msg = e?.message ?? t("errors.createFailed");
@@ -844,8 +794,7 @@ export default function VideoToMapPage() {
                     setShowMetadataDialog(true);
                   }}
                   onOpen={(draft) => {
-                    setOpenDraft(draft);
-                    setShowFullscreen(true);
+                    router.push(`/${locale}/maps/${draft.id}`);
                   }}
                 />
               ))}
@@ -904,18 +853,6 @@ export default function VideoToMapPage() {
         />
       )}
 
-      <FullscreenDialog
-        open={showFullscreen}
-        title={openDraft?.title ?? t("labels.previewTitle")}
-        draft={openDraft}
-        mapData={openMapData}
-        mapLoading={openMapLoading}
-        mapError={openMapError}
-        onClose={() => {
-          setShowFullscreen(false);
-          setOpenDraft(null);
-        }}
-      />
     </main>
   );
 }
