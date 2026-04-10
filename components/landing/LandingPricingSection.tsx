@@ -2,11 +2,11 @@
 "use client";
 
 import PricingGrid, { Pack } from "@/components/pricing/PricingGrid";
-import { getBillingCatalog } from "@/app/lib/billing/catalog";
+import { getBillingCurrencyByLocale } from "@/app/lib/billing/catalog";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Props = {
   isAuthed: boolean;
@@ -42,17 +42,59 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
   const locale = useLocale();
   const isKorean = locale === "ko";
   const isCompactRibbon = locale !== "ko";
+  const [catalogPacks, setCatalogPacks] = useState<Pack[]>(packs ?? []);
+
+  useEffect(() => {
+    if (packs) {
+      setCatalogPacks(packs);
+      return;
+    }
+
+    let cancelled = false;
+    const currency = getBillingCurrencyByLocale(locale);
+
+    const loadCatalog = async () => {
+      try {
+        const res = await fetch(`/api/billing/catalog?currency=${currency}`, {
+          method: "GET",
+          cache: "no-store",
+        });
+
+        if (!res.ok) {
+          console.error("Failed to load billing catalog");
+          return;
+        }
+
+        const data = (await res.json()) as {
+          items: Array<{ id: string; credits: number; price: number; popular?: boolean; starter?: boolean }>;
+        };
+
+        if (cancelled) return;
+
+        setCatalogPacks(
+          (data.items ?? []).map((pack) => ({
+            id: pack.id,
+            credits: pack.credits,
+            priceUSD: pack.price,
+            popular: pack.popular,
+            starter: pack.starter,
+          }))
+        );
+      } catch (error) {
+        console.error("Error while loading billing catalog:", error);
+      }
+    };
+
+    loadCatalog();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [packs, locale]);
 
   const effectivePacks: Pack[] = useMemo(() => {
-    if (packs) return packs;
-    return getBillingCatalog(locale).map((pack) => ({
-      id: pack.id,
-      credits: pack.credits,
-      priceUSD: pack.price,
-      popular: pack.popular,
-      starter: pack.starter,
-    }));
-  }, [packs, locale]);
+    return catalogPacks;
+  }, [catalogPacks]);
 
   const signedInHref = `/${locale}/billing`;
   const signedOutHref = `/${locale}/login?next=${encodeURIComponent(

@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { getBillingCatalogItemById } from "@/app/lib/billing/catalog";
+import { fetchBillingCatalogItemById } from "@/app/lib/billing/catalog.server";
 import { createClient } from "@/utils/supabase/server";
 import { adminSupabase } from "@/utils/supabase/admin";
 
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "packId is required" }, { status: 400 });
   }
 
-  const catalogItem = getBillingCatalogItemById(packId);
+  const catalogItem = await fetchBillingCatalogItemById(packId);
   if (!catalogItem) {
     return NextResponse.json({ error: "Unknown pack" }, { status: 404 });
   }
@@ -55,23 +55,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: "Credit pack is not available" },
       { status: 400 }
-    );
-  }
-
-  const isCatalogMismatch =
-    dbPack.credits !== catalogItem.credits ||
-    dbPack.price !== catalogItem.price ||
-    dbPack.currency !== catalogItem.currency;
-
-  if (isCatalogMismatch) {
-    console.error("Billing catalog mismatch:", {
-      packId,
-      dbPack,
-      catalogItem,
-    });
-    return NextResponse.json(
-      { error: "Billing pack is misconfigured" },
-      { status: 500 }
     );
   }
 

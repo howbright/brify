@@ -1,7 +1,7 @@
 // app/[locale]/billing/page.tsx
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Script from "next/script";
 import { useSession } from "@/components/SessionProvider";
@@ -9,9 +9,9 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
-  getBillingCatalog,
   type BillingCatalogItem,
   type BillingCurrency,
+  getBillingCurrencyByLocale,
 } from "@/app/lib/billing/catalog";
 
 type BalanceResponse = {
@@ -102,6 +102,7 @@ export default function BillingPage() {
   const locale = useLocale();
   const isKorean = locale === "ko";
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
+  const [packs, setPacks] = useState<BillingCatalogItem[]>([]);
   const [openFaq, setOpenFaq] = useState<"q2" | "q3" | "q4" | null>(null);
 
   useEffect(() => {
@@ -148,7 +149,37 @@ export default function BillingPage() {
     };
   }, [session, router, locale]);
 
-  const packs = useMemo(() => getBillingCatalog(locale), [locale]);
+  useEffect(() => {
+    let cancelled = false;
+    const currency = getBillingCurrencyByLocale(locale);
+
+    const fetchCatalog = async () => {
+      try {
+        const res = await fetch(`/api/billing/catalog?currency=${currency}`, {
+          method: "GET",
+          cache: "no-store",
+        });
+
+        if (!res.ok) {
+          console.error("Failed to load billing catalog");
+          return;
+        }
+
+        const data = (await res.json()) as { items: BillingCatalogItem[] };
+        if (!cancelled) {
+          setPacks(data.items ?? []);
+        }
+      } catch (error) {
+        console.error("Error while loading billing catalog:", error);
+      }
+    };
+
+    fetchCatalog();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
 
   const refundPolicyHref = `/${locale}/refund-policy`;
   const billingHistoryHref = `/${locale}/billing/history`;

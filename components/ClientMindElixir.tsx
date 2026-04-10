@@ -1339,8 +1339,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       };
       const clearEditingNodeState = () => {
         elRef.current
-          ?.querySelectorAll<HTMLElement>('me-tpc[data-editing="true"]')
+          ?.querySelectorAll<HTMLElement>("me-tpc[data-editing]")
           .forEach((node) => node.removeAttribute("data-editing"));
+      };
+      const shouldHideOriginalTextWhileEditing = (topic: unknown) => {
+        const normalized =
+          typeof topic === "string" ? topic.trim().toLowerCase() : "";
+        if (!normalized) return true;
+        return normalized !== "new node";
       };
       const parseTimestampSeconds = (raw: unknown): number | null => {
         if (typeof raw === "number" && Number.isFinite(raw) && raw >= 0) {
@@ -1612,7 +1618,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
               `[data-nodeid="${id}"]`
             ) ??
             null;
-          nodeEl?.setAttribute("data-editing", "true");
+          const topic =
+            op?.obj?.topic ??
+            (nodeEl as (HTMLElement & { nodeObj?: AnyNode }) | null)?.nodeObj?.topic ??
+            "";
+          nodeEl?.setAttribute(
+            "data-editing",
+            shouldHideOriginalTextWhileEditing(topic) ? "mask" : "placeholder"
+          );
         }
       }
 
@@ -1817,12 +1830,12 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           word-break: break-word !important;
           text-wrap: wrap !important;
         }
-        me-tpc[data-editing="true"] .text,
-        me-tpc[data-editing="true"] .topic {
+        me-tpc[data-editing="mask"] .text,
+        me-tpc[data-editing="mask"] .topic {
           opacity: 0 !important;
         }
-        me-tpc[data-editing="true"] .me-note-dot,
-        me-tpc[data-editing="true"] .me-ts-badge {
+        me-tpc[data-editing="mask"] .me-note-dot,
+        me-tpc[data-editing="mask"] .me-ts-badge {
           opacity: 0 !important;
         }
         @media (max-width: 639px) {
