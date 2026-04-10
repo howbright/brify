@@ -16,7 +16,11 @@ const locales = [
   { code: "ko", label: "한국어" },
 ];
 
-export default function LanguageSelector() {
+type Props = {
+  compact?: boolean;
+};
+
+export default function LanguageSelector({ compact = false }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const currentLocale = useLocale();
@@ -56,7 +60,12 @@ export default function LanguageSelector() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-white/8 dark:hover:text-white">
+        <button
+          className={[
+            "inline-flex items-center rounded-full font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-white/8 dark:hover:text-white",
+            compact ? "gap-1 px-2 py-1 text-xs" : "gap-1.5 px-2 py-1 text-sm",
+          ].join(" ")}
+        >
           <Icon icon="ic:baseline-language" className="text-base opacity-80" />
           {current?.label || currentLocale}
         </button>
