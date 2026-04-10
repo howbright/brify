@@ -86,6 +86,7 @@ export default function Footer() {
             </p>
 
             <div className="mt-6 space-y-1.5 text-[14px] font-medium text-slate-700 dark:text-slate-300">
+              <p>{t("company.companyName")}</p>
               <p>{t("company.representative")}</p>
               <p>{t("company.businessNumber")}</p>
               <p>{t("company.mailOrderNumber")}</p>

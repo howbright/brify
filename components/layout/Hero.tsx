@@ -61,43 +61,27 @@ function HeroDiagramImage({
 
   return (
     <div className="group relative">
-        <div
-          aria-hidden
-          className="
-            pointer-events-none absolute inset-0 z-10
-            rounded-3xl ring-1 ring-inset ring-white/50
-            dark:ring-white/8
-          "
-        />
-        <div
-          aria-hidden
-          className="
-            pointer-events-none absolute inset-x-10 top-0 z-10 h-20
-            bg-[radial-gradient(50%_100%_at_50%_0%,rgba(255,255,255,0.70),transparent_78%)]
-            opacity-80
-            dark:bg-[radial-gradient(50%_100%_at_50%_0%,rgba(255,255,255,0.10),transparent_78%)]
-            dark:opacity-100
-          "
-        />
-        <div
-          aria-hidden
-          className="
-            pointer-events-none absolute -inset-6 -z-10 rounded-[36px]
-            bg-[radial-gradient(60%_60%_at_50%_50%,rgba(59,130,246,0.16),transparent_72%)]
-            blur-2xl
-            dark:bg-[radial-gradient(60%_60%_at_50%_50%,rgba(99,102,241,0.16),transparent_72%)]
-          "
-        />
-        <div className="relative w-full aspect-video overflow-hidden rounded-3xl">
-        {!isVideoOpen ? (
-          <button
-            type="button"
-            onClick={() => setIsVideoOpen(true)}
-            className="absolute bottom-4 right-4 z-20 inline-flex cursor-pointer items-center rounded-full border border-white/70 bg-slate-950/70 px-3.5 py-2 text-sm font-bold tracking-[0.04em] text-white transition-transform duration-200 hover:scale-[1.03] dark:border-white/55 dark:bg-slate-950/72 md:text-[15px]"
-          >
-            {videoLabel}
-          </button>
-        ) : null}
+      <div
+        aria-hidden
+        className="
+          pointer-events-none absolute inset-x-10 top-0 z-10 h-20
+          bg-[radial-gradient(50%_100%_at_50%_0%,rgba(255,255,255,0.70),transparent_78%)]
+          opacity-80
+          dark:bg-[radial-gradient(50%_100%_at_50%_0%,rgba(255,255,255,0.10),transparent_78%)]
+          dark:opacity-100
+        "
+      />
+      <div
+        aria-hidden
+        className="
+          pointer-events-none absolute -inset-6 -z-10 rounded-[36px]
+          bg-[radial-gradient(60%_60%_at_50%_50%,rgba(59,130,246,0.16),transparent_72%)]
+          blur-2xl
+          dark:bg-[radial-gradient(60%_60%_at_50%_50%,rgba(99,102,241,0.16),transparent_72%)]
+        "
+      />
+      <div className="relative w-full overflow-hidden rounded-3xl">
+        <div className="relative aspect-video overflow-hidden rounded-3xl">
         {isVideoOpen ? (
           <iframe
             src="https://www.youtube.com/embed/Zr3y3y9_Jcg?autoplay=1&rel=0"
@@ -108,41 +92,33 @@ function HeroDiagramImage({
             className="absolute left-1/2 top-1/2 h-[118%] w-[118%] -translate-x-1/2 -translate-y-1/2 border-0"
           />
         ) : (
-          <button
-            type="button"
-            aria-label={`${alt} 재생`}
-            onClick={() => setIsVideoOpen(true)}
-            className="relative block h-full w-full cursor-pointer"
-          >
+          <div className="relative h-full w-full">
             <Image
-              src="/images/hero.png"
+              src="/images/hero/hero5.png"
               alt={alt}
               fill
               priority
               sizes="(max-width: 768px) 100vw, 520px"
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+              className="object-cover"
             />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span
-                className="
-                  inline-flex h-20 w-20 items-center justify-center rounded-full
-                  bg-[#ff0033] text-white shadow-[0_22px_50px_-18px_rgba(255,0,51,0.45)]
-                  transition-transform duration-200 group-hover:scale-[1.04]
-                  dark:bg-[#ff0033] dark:text-white
-                "
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="ml-1.5 h-14 w-14 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:scale-110"
-                >
-                  <path d="M8 6.5v11l9-5.5-9-5.5Z" />
-                </svg>
-              </span>
-            </div>
-          </button>
+          </div>
         )}
         </div>
+        <div className="flex justify-end px-1 pt-3">
+          <button
+            type="button"
+            onClick={() => setIsVideoOpen(true)}
+            className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-700 bg-slate-800 px-3.5 py-2 text-sm font-bold tracking-[0.04em] text-white transition-transform duration-200 hover:scale-[1.03] hover:bg-slate-900 dark:border-white/18 dark:bg-white/[0.14] dark:text-white dark:hover:bg-white/[0.2] md:text-[15px]"
+          >
+            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/18">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="ml-0.5 h-4 w-4">
+                <path d="M8 6.5v11l9-5.5-9-5.5Z" />
+              </svg>
+            </span>
+            {videoLabel}
+          </button>
+        </div>
+      </div>
       </div>
   );
 }
@@ -185,10 +161,10 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
         animate="show"
       >
         {features.map((text, i) => (
-          <motion.div key={i} variants={itemV} className="flex min-w-0 items-start gap-3">
+          <motion.div key={i} variants={itemV} className="flex min-w-0 items-center gap-3">
             <span
               aria-hidden
-              className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-gradient-to-br from-blue-600 via-sky-500 to-cyan-400 shadow-[0_0_0_5px_rgba(59,130,246,0.10)] dark:from-sky-300 dark:via-blue-300 dark:to-cyan-200 dark:shadow-[0_0_0_5px_rgba(125,211,252,0.10)]"
+              className="h-2.5 w-2.5 shrink-0 self-center rounded-full bg-gradient-to-br from-blue-600 via-sky-500 to-cyan-400 shadow-[0_0_0_5px_rgba(59,130,246,0.10)] dark:from-sky-300 dark:via-blue-300 dark:to-cyan-200 dark:shadow-[0_0_0_5px_rgba(125,211,252,0.10)]"
             />
             <span className="min-w-0 text-[15px] font-normal leading-6 text-neutral-900 [overflow-wrap:anywhere] dark:text-neutral-100 md:text-[17px] md:leading-7">
               {text}

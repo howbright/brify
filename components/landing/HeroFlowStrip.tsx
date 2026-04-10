@@ -9,7 +9,7 @@ function FlowStep({
   index = 0,
 }: {
   label: string;
-  tone: "blue" | "indigo" | "sky";
+  tone: "blue" | "indigo" | "sky" | "rose";
   index?: number;
 }) {
   const toneClass =
@@ -17,7 +17,9 @@ function FlowStep({
       ? "bg-gradient-to-r from-blue-600 to-sky-500 text-white shadow-[0_14px_28px_-18px_rgba(37,99,235,0.46)]"
       : tone === "indigo"
         ? "bg-gradient-to-r from-blue-700 to-blue-500 text-white shadow-[0_14px_28px_-18px_rgba(29,78,216,0.5)]"
-        : "bg-gradient-to-r from-sky-500 to-cyan-400 text-white shadow-[0_14px_28px_-18px_rgba(8,145,178,0.48)]";
+        : tone === "sky"
+          ? "bg-gradient-to-r from-sky-500 to-cyan-400 text-white shadow-[0_14px_28px_-18px_rgba(8,145,178,0.48)]"
+          : "bg-gradient-to-r from-rose-500 via-orange-500 to-amber-400 text-white shadow-[0_16px_30px_-18px_rgba(244,63,94,0.52)]";
 
   return (
     <motion.div
@@ -45,7 +47,7 @@ export default function HeroFlowStrip() {
     const raw = t.raw("flowItems");
     return Array.isArray(raw)
       ? (raw as string[])
-      : ["스크립트 입력", "구조맵 생성", "읽기 · 편집 · 공유"];
+      : ["스크립트 입력", "구조맵 생성", "읽기 · 편집 · 비교", "나만의 기준 세우기"];
   })();
 
   return (
@@ -102,6 +104,7 @@ export default function HeroFlowStrip() {
           <FlowStep label={flowItems[0]} tone="blue" index={0} />
           <FlowStep label={flowItems[1]} tone="indigo" index={1} />
           <FlowStep label={flowItems[2]} tone="sky" index={2} />
+          {flowItems[3] ? <FlowStep label={flowItems[3]} tone="rose" index={3} /> : null}
         </motion.div>
       </div>
     </section>
