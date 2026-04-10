@@ -19,6 +19,7 @@ import GlobalNotificationStack from "@/components/notifications/GlobalNotificati
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+
 export const metadata: Metadata = {
   title: "Brify – 긴 글을 한눈에 정리하세요",
   description:
