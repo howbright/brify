@@ -3,7 +3,7 @@
 import type { Variants } from "framer-motion";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "@/i18n/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 
@@ -60,53 +60,12 @@ function HeroDiagramImage({
   videoLoadingLabel: string;
 }) {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const [shouldWarmVideo, setShouldWarmVideo] = useState(false);
-  const [isVideoReady, setIsVideoReady] = useState(false);
   const [isOpeningVideo, setIsOpeningVideo] = useState(false);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   const locale = useLocale();
   const heroVideoSrc =
     locale.toLowerCase().startsWith("ko")
-      ? "/images/hero/hero-kr.mp4"
-      : "/images/hero/hero-en.mp4";
-
-  useEffect(() => {
-    const warm = () => setShouldWarmVideo(true);
-
-    const browser = globalThis as typeof globalThis & {
-      requestIdleCallback?: (
-        callback: IdleRequestCallback,
-        options?: IdleRequestOptions,
-      ) => number;
-      cancelIdleCallback?: (handle: number) => void;
-    };
-
-    if (typeof browser.requestIdleCallback === "function") {
-      const id = browser.requestIdleCallback(warm, { timeout: 1200 });
-      return () => browser.cancelIdleCallback?.(id);
-    }
-
-    const timeoutId = globalThis.setTimeout(warm, 400);
-    return () => globalThis.clearTimeout(timeoutId);
-  }, []);
-
-  useEffect(() => {
-    if (!isVideoOpen) return;
-
-    const video = videoRef.current;
-    if (!video) return;
-
-    video.currentTime = 0;
-    void video.play().catch(() => {
-      video.controls = true;
-    });
-  }, [isVideoOpen]);
-
-  useEffect(() => {
-    if (isVideoOpen && isVideoReady) {
-      setIsOpeningVideo(false);
-    }
-  }, [isVideoOpen, isVideoReady]);
+      ? "https://www.youtube.com/embed/6cP5w-cuLt4?autoplay=1&rel=0"
+      : "https://www.youtube.com/embed/oef-y2HWCM0?autoplay=1&rel=0";
 
   return (
     <div className="group relative">
@@ -131,28 +90,21 @@ function HeroDiagramImage({
       />
       <div className="relative w-full overflow-hidden rounded-3xl">
         <div className="relative aspect-video overflow-hidden rounded-3xl">
-          {shouldWarmVideo ? (
-            <video
-              ref={videoRef}
+          {isVideoOpen ? (
+            <iframe
+              src={heroVideoSrc}
               title={alt}
-              poster="/images/hero/hero5.png"
-              preload="auto"
-              playsInline
-              controls={isVideoOpen}
-              onCanPlay={() => setIsVideoReady(true)}
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-200 ${
-                isVideoOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-              }`}
-            >
-              <source src={heroVideoSrc} type="video/mp4" />
-            </video>
-          ) : null}
-
-          {!isVideoOpen ? (
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+              onLoad={() => setIsOpeningVideo(false)}
+              className="absolute left-1/2 top-1/2 z-20 h-[118%] w-[118%] -translate-x-1/2 -translate-y-1/2 border-0"
+            />
+          ) : (
             <button
               type="button"
               onClick={() => {
-                setShouldWarmVideo(true);
+                setIsOpeningVideo(true);
                 setIsVideoOpen(true);
               }}
               className="relative block h-full w-full cursor-pointer"
@@ -168,18 +120,7 @@ function HeroDiagramImage({
               />
               <span className="absolute inset-0 bg-gradient-to-t from-slate-950/20 via-transparent to-transparent" />
             </button>
-          ) : !isVideoReady ? (
-            <div className="absolute inset-0">
-              <Image
-                src="/images/hero/hero5.png"
-                alt={alt}
-                fill
-                priority
-                sizes="(max-width: 768px) 100vw, 520px"
-                className="object-cover"
-              />
-            </div>
-          ) : null}
+          )}
           {isOpeningVideo ? (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/18 backdrop-blur-[2px]">
               <div className="inline-flex items-center gap-2 rounded-full bg-slate-950/72 px-4 py-2 text-sm font-semibold text-white shadow-lg">
@@ -193,7 +134,6 @@ function HeroDiagramImage({
           <button
             type="button"
             onClick={() => {
-              setShouldWarmVideo(true);
               setIsOpeningVideo(true);
               setIsVideoOpen(true);
             }}
