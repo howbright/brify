@@ -1,4 +1,6 @@
-export type Json =
+Need to install the following packages:
+supabase@2.89.1
+Ok to proceed? (y) export type Json =
   | string
   | number
   | boolean
@@ -258,6 +260,81 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      map_ops_snapshots: {
+        Row: {
+          avg_ai_processing_ms_24h: number | null
+          backlog: number
+          captured_at: string
+          current_done: number
+          current_failed: number
+          current_processing: number
+          current_queued: number
+          failure_rate_24h: number
+          id: string
+          max_ai_processing_ms_24h: number | null
+          p95_ai_processing_ms_24h: number | null
+          queue_active: number
+          queue_completed: number
+          queue_delayed: number
+          queue_failed: number
+          queue_paused: number
+          queue_prioritized: number
+          queue_waiting: number
+          recent_done: number
+          recent_failed: number
+          recent_in_progress: number
+          recent_total: number
+        }
+        Insert: {
+          avg_ai_processing_ms_24h?: number | null
+          backlog?: number
+          captured_at?: string
+          current_done?: number
+          current_failed?: number
+          current_processing?: number
+          current_queued?: number
+          failure_rate_24h?: number
+          id?: string
+          max_ai_processing_ms_24h?: number | null
+          p95_ai_processing_ms_24h?: number | null
+          queue_active?: number
+          queue_completed?: number
+          queue_delayed?: number
+          queue_failed?: number
+          queue_paused?: number
+          queue_prioritized?: number
+          queue_waiting?: number
+          recent_done?: number
+          recent_failed?: number
+          recent_in_progress?: number
+          recent_total?: number
+        }
+        Update: {
+          avg_ai_processing_ms_24h?: number | null
+          backlog?: number
+          captured_at?: string
+          current_done?: number
+          current_failed?: number
+          current_processing?: number
+          current_queued?: number
+          failure_rate_24h?: number
+          id?: string
+          max_ai_processing_ms_24h?: number | null
+          p95_ai_processing_ms_24h?: number | null
+          queue_active?: number
+          queue_completed?: number
+          queue_delayed?: number
+          queue_failed?: number
+          queue_paused?: number
+          queue_prioritized?: number
+          queue_waiting?: number
+          recent_done?: number
+          recent_failed?: number
+          recent_in_progress?: number
+          recent_total?: number
+        }
+        Relationships: []
       }
       map_term_requests: {
         Row: {
