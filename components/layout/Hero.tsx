@@ -2,6 +2,7 @@
 
 import type { Variants } from "framer-motion";
 import { AnimatePresence, motion } from "framer-motion";
+import { Icon } from "@iconify/react";
 import { Link } from "@/i18n/navigation";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
@@ -98,7 +99,7 @@ function HeroDiagramImage({
               referrerPolicy="strict-origin-when-cross-origin"
               allowFullScreen
               onLoad={() => setIsOpeningVideo(false)}
-              className="absolute left-1/2 top-1/2 z-20 h-[118%] w-[118%] -translate-x-1/2 -translate-y-1/2 border-0"
+              className="absolute inset-0 z-20 h-full w-full border-0"
             />
           ) : (
             <button
@@ -147,10 +148,8 @@ function HeroDiagramImage({
               </>
             ) : (
               <>
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/18">
-                  <svg viewBox="0 0 24 24" fill="currentColor" className="ml-0.5 h-4 w-4">
-                    <path d="M8 6.5v11l9-5.5-9-5.5Z" />
-                  </svg>
+                <span className="inline-flex items-center justify-center">
+                  <Icon icon="lucide:clapperboard" className="h-[18px] w-[18px]" />
                 </span>
                 {videoLabel}
               </>
