@@ -452,8 +452,17 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     locale === "ko" ? "한단계 펴기" : "Expand one level";
   const mobileEditMenuTitle = locale === "ko" ? "노드 편집" : "Edit node";
   const moreActionsLabel = locale === "ko" ? "더보기" : "More";
+  const annotationAddLabel = locale === "ko" ? "주석 추가" : "Add annotation";
+  const highlightLabel = locale === "ko" ? "하이라이트" : "Highlight";
   const focusModeLabel = locale === "ko" ? "포커스 모드" : "Focus Mode";
   const focusModeExitLabel = locale === "ko" ? "나가기" : "Exit";
+  const annotationDialogTitle = locale === "ko" ? "주석" : "Annotation";
+  const annotationPlaceholder =
+    locale === "ko" ? "주석을 입력하세요" : "Write an annotation";
+  const annotationDeleteLabel =
+    locale === "ko" ? "주석 삭제" : "Delete annotation";
+  const cancelLabel = locale === "ko" ? "취소" : "Cancel";
+  const saveLabel = locale === "ko" ? "저장" : "Save";
   const {
     mounted,
     isTouchDevice,
@@ -1331,6 +1340,148 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         theme: resolvedThemeObj,
       }) as PatchedMindInstance;
 
+      const resolveTopicEl = (value: any): HTMLElement | null => {
+        if (!value) return null;
+        if (
+          value instanceof HTMLElement &&
+          value.tagName === "ME-TPC" &&
+          "nodeObj" in value &&
+          (value as HTMLElement & { nodeObj?: AnyNode }).nodeObj
+        ) {
+          return value;
+        }
+        if (value instanceof HTMLElement) {
+          const topic = value.closest?.("me-tpc");
+          if (
+            topic instanceof HTMLElement &&
+            "nodeObj" in topic &&
+            (topic as HTMLElement & { nodeObj?: AnyNode }).nodeObj
+          ) {
+            return topic;
+          }
+        }
+        const id =
+          typeof value?.nodeObj?.id === "string"
+            ? value.nodeObj.id
+            : typeof value?.id === "string"
+              ? value.id
+              : null;
+        if (!id || typeof mind.findEle !== "function") return null;
+        try {
+          const topic = mind.findEle(id);
+          if (
+            topic instanceof HTMLElement &&
+            topic.tagName === "ME-TPC" &&
+            (topic as HTMLElement & { nodeObj?: AnyNode }).nodeObj
+          ) {
+            return topic;
+          }
+        } catch {}
+        return null;
+      };
+
+      const resolveTopicEls = (value: any): HTMLElement[] => {
+        if (!Array.isArray(value)) return [];
+        return value
+          .map((item) => resolveTopicEl(item))
+          .filter((item): item is HTMLElement => item instanceof HTMLElement);
+      };
+
+      const patchTopicMethod = (
+        key:
+          | "selectNode"
+          | "addChild"
+          | "beginEdit"
+          | "moveUpNode"
+          | "moveDownNode"
+      ) => {
+        const original = mind[key]?.bind(mind);
+        if (typeof original !== "function") return;
+        mind[key] = (target?: any, ...args: any[]) => {
+          const resolvedTarget =
+            resolveTopicEl(target) ??
+            resolveTopicEl(mind.currentNode) ??
+            undefined;
+          if (!resolvedTarget) return;
+          return original(resolvedTarget, ...args);
+        };
+      };
+
+      patchTopicMethod("selectNode");
+      patchTopicMethod("addChild");
+      patchTopicMethod("beginEdit");
+      patchTopicMethod("moveUpNode");
+      patchTopicMethod("moveDownNode");
+
+      const originalExpandNode = mind.expandNode?.bind(mind);
+      if (typeof originalExpandNode === "function") {
+        mind.expandNode = (target?: any, expanded?: boolean) => {
+          const resolvedTarget =
+            resolveTopicEl(target) ??
+            resolveTopicEl(mind.currentNode) ??
+            undefined;
+          if (!resolvedTarget) return;
+
+          const nodeObj =
+            (resolvedTarget as HTMLElement & { nodeObj?: AnyNode }).nodeObj ??
+            undefined;
+          const parentEl = resolvedTarget.parentElement;
+          const expanderEl = parentEl?.children?.[1] as HTMLElement | undefined;
+
+          if (!expanderEl || expanderEl.tagName !== "ME-EPD") {
+            if (nodeObj) {
+              nodeObj.expanded =
+                typeof expanded === "boolean"
+                  ? expanded
+                  : nodeObj.expanded !== false;
+            }
+            return;
+          }
+
+          return originalExpandNode(resolvedTarget, expanded);
+        };
+      }
+
+      const originalInsertSibling = mind.insertSibling?.bind(mind);
+      if (typeof originalInsertSibling === "function") {
+        mind.insertSibling = (type: "before" | "after", target?: any, ...args: any[]) => {
+          const resolvedTarget =
+            resolveTopicEl(target) ??
+            resolveTopicEl(mind.currentNode) ??
+            undefined;
+          if (!resolvedTarget) return;
+          return originalInsertSibling(type, resolvedTarget, ...args);
+        };
+      }
+
+      const originalRemoveNodes = mind.removeNodes?.bind(mind);
+      if (typeof originalRemoveNodes === "function") {
+        mind.removeNodes = (targets?: any[]) => {
+          const resolvedTargets = resolveTopicEls(targets);
+          if (resolvedTargets.length === 0) {
+            const fallback = resolveTopicEl(mind.currentNode);
+            if (!fallback) return;
+            return originalRemoveNodes([fallback]);
+          }
+          return originalRemoveNodes(resolvedTargets);
+        };
+      }
+
+      const patchMoveNodeMethod = (key: "moveNodeBefore" | "moveNodeAfter" | "moveNodeIn") => {
+        const original = mind[key]?.bind(mind);
+        if (typeof original !== "function") return;
+        mind[key] = (from: any[], to: any) => {
+          const resolvedFrom = resolveTopicEls(from);
+          const resolvedTo = resolveTopicEl(to);
+          if (resolvedFrom.length === 0 || !resolvedTo) return;
+          return original(resolvedFrom, resolvedTo);
+        };
+      };
+
+      patchMoveNodeMethod("moveNodeBefore");
+      patchMoveNodeMethod("moveNodeAfter");
+      patchMoveNodeMethod("moveNodeIn");
+
       const observerOptions = {
         childList: true,
         subtree: true,
@@ -1604,6 +1755,19 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       requestAnimationFrame(() => {
         syncLatestMindDataFromMind();
         syncNodeDecorations();
+        if (
+          op?.name === "moveNodeBefore" ||
+          op?.name === "moveNodeAfter" ||
+          op?.name === "moveNodeIn" ||
+          op?.name === "moveUpNode" ||
+          op?.name === "moveDownNode" ||
+          op?.name === "addChild" ||
+          op?.name === "insertSibling" ||
+          op?.name === "insertParent" ||
+          op?.name === "finishEdit"
+        ) {
+          updateSelectedRect(selectedNodeIdRef.current);
+        }
       });
 
       if (op?.name === "beginEdit") {
@@ -2047,6 +2211,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         onNoteClick={handleNoteClick}
         onHighlightClick={() => handleHighlightClick(selectedNodeIdRef.current)}
         moreActionsLabel={moreActionsLabel}
+        annotationAddLabel={annotationAddLabel}
+        highlightLabel={highlightLabel}
         showSelectionContextMenuButton={showSelectionContextMenuButton}
         onToggleMobileActionNode={() =>
           setMobileActionNodeId((prev) =>
@@ -2069,6 +2235,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           handleNoteSave();
         }}
         onSaveNote={handleNoteSave}
+        annotationDialogTitle={annotationDialogTitle}
+        annotationPlaceholder={annotationPlaceholder}
+        annotationDeleteLabel={annotationDeleteLabel}
+        cancelLabel={cancelLabel}
+        saveLabel={saveLabel}
         loading={loading}
         ready={ready}
       />

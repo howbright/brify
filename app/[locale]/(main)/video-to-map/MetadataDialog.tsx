@@ -413,6 +413,7 @@ export default function MetadataDialog({
             dark:ring-1 dark:ring-white/20
             dark:shadow-[0_38px_140px_-70px_rgba(0,0,0,0.95)]
           "
+          onKeyDownCapture={(event) => event.stopPropagation()}
         >
           <div
             className="

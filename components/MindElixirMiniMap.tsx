@@ -76,14 +76,14 @@ export default function MindElixirMiniMap({
               onClick: onZoomOut,
             },
             {
-              icon: "mdi:unfold-less-horizontal",
-              label: collapseLevelLabel,
-              onClick: onCollapseLevel,
-            },
-            {
               icon: "mdi:unfold-more-horizontal",
               label: expandLevelLabel,
               onClick: onExpandLevel,
+            },
+            {
+              icon: "mdi:unfold-less-horizontal",
+              label: collapseLevelLabel,
+              onClick: onCollapseLevel,
             },
           ].map((action) => (
             <button

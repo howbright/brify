@@ -48,6 +48,8 @@ type ClientMindElixirOverlayProps = {
   onNoteClick: () => void;
   onHighlightClick: () => void;
   moreActionsLabel: string;
+  annotationAddLabel: string;
+  highlightLabel: string;
   showSelectionContextMenuButton: boolean;
   onToggleMobileActionNode: () => void;
   onOpenSelectionContextMenu: (anchorEl: HTMLElement) => void;
@@ -61,6 +63,11 @@ type ClientMindElixirOverlayProps = {
   onNoteDraftChange: (value: string) => void;
   onDeleteNote: () => void;
   onSaveNote: () => void;
+  annotationDialogTitle: string;
+  annotationPlaceholder: string;
+  annotationDeleteLabel: string;
+  cancelLabel: string;
+  saveLabel: string;
   loading: boolean;
   ready: boolean;
 };
@@ -102,6 +109,8 @@ export default function ClientMindElixirOverlay({
   onNoteClick,
   onHighlightClick,
   moreActionsLabel,
+  annotationAddLabel,
+  highlightLabel,
   showSelectionContextMenuButton,
   onToggleMobileActionNode,
   onOpenSelectionContextMenu,
@@ -115,6 +124,11 @@ export default function ClientMindElixirOverlay({
   onNoteDraftChange,
   onDeleteNote,
   onSaveNote,
+  annotationDialogTitle,
+  annotationPlaceholder,
+  annotationDeleteLabel,
+  cancelLabel,
+  saveLabel,
   loading,
   ready,
 }: ClientMindElixirOverlayProps) {
@@ -199,11 +213,11 @@ export default function ClientMindElixirOverlay({
                   e.stopPropagation();
                   onNoteClick();
                 }}
-                aria-label="노트 추가"
+                aria-label={annotationAddLabel}
               >
                 <Icon icon="mdi:note-text-outline" className={hoverActionIconClass} />
                 <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-                  노트 추가
+                  {annotationAddLabel}
                 </span>
               </button>
               <button
@@ -218,11 +232,11 @@ export default function ClientMindElixirOverlay({
                   e.stopPropagation();
                   e.preventDefault();
                 }}
-                aria-label="하이라이트"
+                aria-label={highlightLabel}
               >
                 <Icon icon="mdi:marker" className={hoverActionIconClass} />
                 <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-                  하이라이트
+                  {highlightLabel}
                 </span>
               </button>
               {showMobileControls && editMode === "edit" ? (
@@ -295,13 +309,13 @@ export default function ClientMindElixirOverlay({
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-200">
-                노트
+                {annotationDialogTitle}
               </h3>
             </div>
 
             <textarea
               className="min-h-[120px] w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200/60 dark:border-white/10 dark:bg-[#0b1220] dark:text-white/85 dark:focus:border-blue-300 dark:focus:ring-blue-500/30"
-              placeholder="노트를 입력하세요"
+              placeholder={annotationPlaceholder}
               value={noteDraft}
               onChange={(e) => onNoteDraftChange(e.target.value.slice(0, 500))}
               maxLength={500}
@@ -315,21 +329,21 @@ export default function ClientMindElixirOverlay({
                   className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-100 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20"
                   onClick={onDeleteNote}
                 >
-                  노트 삭제
+                  {annotationDeleteLabel}
                 </button>
                 <button
                   type="button"
                   className="rounded-full border border-neutral-200 bg-white px-3 py-1 text-[11px] font-semibold text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/10"
                   onClick={() => onNoteEditorOpenChange(false)}
                 >
-                  취소
+                  {cancelLabel}
                 </button>
                 <button
                   type="button"
                   className="rounded-full bg-blue-600 px-3 py-1 text-[11px] font-semibold text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
                   onClick={onSaveNote}
                 >
-                  저장
+                  {saveLabel}
                 </button>
               </div>
             </div>

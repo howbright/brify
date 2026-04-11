@@ -182,6 +182,7 @@ export default function VideoToMapPage() {
   const [viewMode, setViewMode] = useState<"input" | "result">("input");
   const [lastJobId, setLastJobId] = useState<string | null>(null);
   const [createdMapId, setCreatedMapId] = useState<string | null>(null);
+  const [pendingAutoOpenMapId, setPendingAutoOpenMapId] = useState<string | null>(null);
   const [editingDraft, setEditingDraft] = useState<MapDraft | null>(null);
   const [savingMetaId, setSavingMetaId] = useState<string | null>(null);
   const [pendingFocusDraftId, setPendingFocusDraftId] = useState<string | null>(null);
@@ -268,6 +269,15 @@ export default function VideoToMapPage() {
 
     return () => window.clearTimeout(timer);
   }, [drafts, pendingFocusDraftId, showMetadataDialog]);
+
+  useEffect(() => {
+    if (!pendingAutoOpenMapId) return;
+    const targetDraft = drafts.find((draft) => draft.id === pendingAutoOpenMapId);
+    if (!targetDraft) return;
+    if (targetDraft.status !== "done") return;
+    setPendingAutoOpenMapId(null);
+    router.push(`/${locale}/maps/${pendingAutoOpenMapId}`);
+  }, [drafts, locale, pendingAutoOpenMapId, router]);
 
   const showInputTooLargeUI = creditInfo.tooLarge;
 
@@ -529,7 +539,7 @@ export default function VideoToMapPage() {
 
     try {
       const targetId = createdMapId ?? editingDraft?.id;
-      const shouldOpenFullscreenPage = Boolean(createdMapId && !editingDraft);
+      const shouldAutoOpenWhenReady = Boolean(createdMapId && !editingDraft);
       if (!targetId) {
         throw new Error(t("errors.missingMapId"));
       }
@@ -666,8 +676,8 @@ export default function VideoToMapPage() {
       setEditingDraft(null);
       setSavingMetaId(null);
 
-      if (shouldOpenFullscreenPage) {
-        router.push(`/${locale}/maps/${targetId}`);
+      if (shouldAutoOpenWhenReady) {
+        setPendingAutoOpenMapId(targetId);
       }
     } catch (e: any) {
       setIsProcessing(false);

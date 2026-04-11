@@ -1073,8 +1073,8 @@
     "eyebrow": "The more information there is, the more you need a standard of your own.",
     "titles": ["Turn YouTube transcripts", "Turn any long text"],
     "titleHighlight": "into a Structure Map",
-    "titleSuffix": "!",
-    "helper": "Don’t follow someone else’s conclusion. Compare different perspectives and build your own standard.",
+    "titleSuffix": "",
+    "helper": "Structure long content so you can grasp it quickly.",
     "switchTitleAria": "Switch title",
     "ctaPrimary": "Start for free",
     "ctaSecondary": "View demo",
@@ -1085,7 +1085,7 @@
       "Compare Structure Maps and spot differences at a glance"
     ],
     "flowItems": ["Paste a script", "Create a Structure Map", "Read · Edit · Compare", "Build your own standard"],
-    "videoLabel": "See the workflow in 30 seconds",
+    "videoLabel": "View workflow",
     "visualAlt": "Structure Map preview"
   },
   "WelcomePage": {

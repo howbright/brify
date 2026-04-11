@@ -258,6 +258,7 @@ export default function MapMetadataEditDialog({
             dark:ring-1 dark:ring-white/20
             dark:shadow-[0_38px_140px_-70px_rgba(0,0,0,0.95)]
           "
+          onKeyDownCapture={(event) => event.stopPropagation()}
         >
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_280px_at_20%_0%,rgba(59,130,246,0.16),transparent_60%)] dark:bg-[radial-gradient(900px_280px_at_20%_0%,rgba(56,189,248,0.16),transparent_60%)]" />
           <div className="pointer-events-none absolute inset-0 dark:bg-white/[0.03]" />

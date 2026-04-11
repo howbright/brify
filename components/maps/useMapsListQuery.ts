@@ -42,6 +42,10 @@ function expandStatusFilters(statusFilters: MapJobStatus[]) {
   return Array.from(expanded);
 }
 
+function normalizeTag(tag: string) {
+  return tag.trim().toLowerCase();
+}
+
 export default function useMapsListQuery({
   listFields,
   page,
@@ -85,21 +89,24 @@ export default function useMapsListQuery({
 
         let request = supabase.from("maps").select(listFields, { count: "exact" });
 
+        const shouldFilterTagsClientSide =
+          effectiveTagFilters.length > 0 || includesNoTagFilter;
+
         if (sort === "created_desc") {
-          if (!includesNoTagFilter) request = request.range(from, to);
+          if (!shouldFilterTagsClientSide) request = request.range(from, to);
           request = request.order("created_at", { ascending: false });
         } else if (sort === "created_asc") {
-          if (!includesNoTagFilter) request = request.range(from, to);
+          if (!shouldFilterTagsClientSide) request = request.range(from, to);
           request = request.order("created_at", { ascending: true });
         } else if (sort === "updated_desc") {
-          if (!includesNoTagFilter) request = request.range(from, to);
+          if (!shouldFilterTagsClientSide) request = request.range(from, to);
           request = request.order("updated_at", {
             ascending: false,
             nullsFirst: false,
           });
-        } else if (sort === "title_asc" && !includesNoTagFilter) {
+        } else if (sort === "title_asc" && !shouldFilterTagsClientSide) {
           // handled on client after fetch
-        } else if (includesNoTagFilter) {
+        } else if (shouldFilterTagsClientSide) {
           // full result set for client-side OR filtering with empty-tag pseudo filter
         }
 
@@ -133,10 +140,6 @@ export default function useMapsListQuery({
         } else if (contentFilters.length > 1) {
           request = request.or("notes_count.gt.0,terms_count.gt.0");
         }
-        if (!includesNoTagFilter && effectiveTagFilters.length > 0) {
-          request = request.overlaps("tags", effectiveTagFilters);
-        }
-
         const { data, error, count } = await request;
 
         if (cancelled) return;
@@ -144,15 +147,25 @@ export default function useMapsListQuery({
 
         const rows = (data ?? []) as unknown as MapRow[];
 
-        const filteredRows = includesNoTagFilter
+        const normalizedFilters = new Set(
+          effectiveTagFilters.map((tag) => normalizeTag(tag)).filter(Boolean)
+        );
+
+        const filteredRows = shouldFilterTagsClientSide
           ? rows.filter((row) => {
               const tags = Array.isArray(row.tags) ? row.tags : [];
-              const hasNoTags = tags.length === 0;
+              const normalizedTags = tags
+                .map((tag) => (typeof tag === "string" ? normalizeTag(tag) : ""))
+                .filter(Boolean);
+              const hasNoTags = normalizedTags.length === 0;
               const matchesNamedTag =
-                effectiveTagFilters.length > 0
-                  ? tags.some((tag) => effectiveTagFilters.includes(tag))
+                normalizedFilters.size > 0
+                  ? normalizedTags.some((tag) => normalizedFilters.has(tag))
                   : false;
-              return hasNoTags || matchesNamedTag;
+              if (includesNoTagFilter) {
+                return hasNoTags || matchesNamedTag;
+              }
+              return matchesNamedTag;
             })
           : rows;
 
@@ -169,7 +182,7 @@ export default function useMapsListQuery({
           const pagedRows = sortedRows.slice(from, to + 1);
           setDrafts(pagedRows.map(toDraft));
           setTotalCount(sortedRows.length);
-        } else if (includesNoTagFilter) {
+        } else if (shouldFilterTagsClientSide) {
           const pagedRows = filteredRows.slice(from, to + 1);
           setDrafts(pagedRows.map(toDraft));
           setTotalCount(filteredRows.length);
