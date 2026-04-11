@@ -53,13 +53,16 @@ function Highlight({ children }: { children: React.ReactNode }) {
 function HeroDiagramImage({
   alt,
   videoLabel,
+  videoLoadingLabel,
 }: {
   alt: string;
   videoLabel: string;
+  videoLoadingLabel: string;
 }) {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [shouldWarmVideo, setShouldWarmVideo] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
+  const [isOpeningVideo, setIsOpeningVideo] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
@@ -93,6 +96,12 @@ function HeroDiagramImage({
       video.controls = true;
     });
   }, [isVideoOpen]);
+
+  useEffect(() => {
+    if (isVideoOpen && isVideoReady) {
+      setIsOpeningVideo(false);
+    }
+  }, [isVideoOpen, isVideoReady]);
 
   return (
     <div className="group relative">
@@ -166,22 +175,41 @@ function HeroDiagramImage({
               />
             </div>
           ) : null}
+          {isOpeningVideo ? (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/18 backdrop-blur-[2px]">
+              <div className="inline-flex items-center gap-2 rounded-full bg-slate-950/72 px-4 py-2 text-sm font-semibold text-white shadow-lg">
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />
+                {videoLoadingLabel}
+              </div>
+            </div>
+          ) : null}
         </div>
         <div className="flex justify-end px-1 pt-3">
           <button
             type="button"
             onClick={() => {
               setShouldWarmVideo(true);
+              setIsOpeningVideo(true);
               setIsVideoOpen(true);
             }}
+            disabled={isOpeningVideo}
             className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-700 bg-slate-800 px-3.5 py-2 text-sm font-bold tracking-[0.04em] text-white transition-transform duration-200 hover:scale-[1.03] hover:bg-slate-900 dark:border-white/18 dark:bg-white/[0.14] dark:text-white dark:hover:bg-white/[0.2] md:text-[15px]"
           >
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/18">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="ml-0.5 h-4 w-4">
-                <path d="M8 6.5v11l9-5.5-9-5.5Z" />
-              </svg>
-            </span>
-            {videoLabel}
+            {isOpeningVideo ? (
+              <>
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />
+                {videoLoadingLabel}
+              </>
+            ) : (
+              <>
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/18">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="ml-0.5 h-4 w-4">
+                    <path d="M8 6.5v11l9-5.5-9-5.5Z" />
+                  </svg>
+                </span>
+                {videoLabel}
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -381,7 +409,11 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
 
           {/* mobile image */}
           <div className="mt-6 md:hidden">
-            <HeroDiagramImage alt={t("visualAlt")} videoLabel={t("videoLabel")} />
+            <HeroDiagramImage
+              alt={t("visualAlt")}
+              videoLabel={t("videoLabel")}
+              videoLoadingLabel={t("videoLoadingLabel")}
+            />
           </div>
 
           {/* CTA */}
@@ -444,7 +476,11 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
 
         {/* RIGHT */}
         <div className="relative hidden md:block">
-          <HeroDiagramImage alt={t("visualAlt")} videoLabel={t("videoLabel")} />
+          <HeroDiagramImage
+            alt={t("visualAlt")}
+            videoLabel={t("videoLabel")}
+            videoLoadingLabel={t("videoLoadingLabel")}
+          />
         </div>
 
         {renderFeatures(

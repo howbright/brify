@@ -1086,6 +1086,7 @@
     ],
     "flowItems": ["스크립트 입력", "구조맵 생성", "읽기 · 편집 · 비교", "나만의 기준 세우기"],
     "videoLabel": "사용 흐름 보기",
+    "videoLoadingLabel": "불러오는 중...",
     "visualAlt": "구조화 다이어그램 미리보기"
   },
   "WelcomePage": {

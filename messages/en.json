@@ -1086,6 +1086,7 @@
     ],
     "flowItems": ["Paste a script", "Create a Structure Map", "Read · Edit · Compare", "Build your own standard"],
     "videoLabel": "View workflow",
+    "videoLoadingLabel": "Loading...",
     "visualAlt": "Structure Map preview"
   },
   "WelcomePage": {
