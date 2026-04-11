@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { useTranslations } from "next-intl";
 
 export default function ShareDialog({
   open,
@@ -21,6 +22,8 @@ export default function ShareDialog({
   onDisable: () => void;
   onCopy: () => void;
 }) {
+  const t = useTranslations("FullscreenMapPage.shareDialog");
+
   if (!open) return null;
 
   return (
@@ -53,16 +56,16 @@ export default function ShareDialog({
         <div className="flex items-start justify-between gap-3">
           <div className="relative">
             <h3 className="text-lg md:text-xl font-bold text-blue-700 dark:text-[rgb(var(--hero-b))]">
-              공유 링크
+              {t("title")}
             </h3>
             <p className="mt-3 text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
-              링크를 가진 누구나 읽기 전용으로 볼 수 있습니다.
+              {t("description")}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="닫기"
+            aria-label={t("close")}
             className="
               relative inline-flex items-center justify-center
               text-neutral-500 hover:text-neutral-800
@@ -84,13 +87,13 @@ export default function ShareDialog({
                   className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-slate-400 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-100 dark:border-white/20 dark:bg-white/[0.08] dark:text-white/85 dark:hover:bg-white/[0.12]"
                 >
                   <Icon icon="mdi:content-copy" className="h-3.5 w-3.5" />
-                  복사
+                  {t("copy")}
                 </button>
               </div>
             </div>
           ) : (
             <div className="rounded-2xl border border-dashed border-slate-400 bg-white px-3 py-3 text-sm text-neutral-600 dark:border-white/20 dark:bg-white/[0.08] dark:text-white/75">
-              공유 링크를 생성하면 여기서 복사할 수 있습니다.
+              {t("empty")}
             </div>
           )}
         </div>
@@ -105,7 +108,7 @@ export default function ShareDialog({
               dark:border-white/20 dark:bg-white/[0.08] dark:text-white/90 dark:hover:bg-white/[0.12]
             "
           >
-            취소
+            {t("cancel")}
           </button>
           {shareEnabled ? (
             <button
@@ -114,7 +117,7 @@ export default function ShareDialog({
               disabled={loading}
               className="inline-flex items-center gap-1.5 rounded-2xl bg-rose-600 px-3.5 py-1.5 text-xs md:text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-60 dark:bg-rose-500 dark:hover:bg-rose-400"
             >
-              링크 끄기
+              {t("disable")}
             </button>
           ) : (
             <button
@@ -123,7 +126,7 @@ export default function ShareDialog({
               disabled={loading}
               className="inline-flex items-center gap-1.5 rounded-2xl bg-blue-600 px-3.5 py-1.5 text-xs md:text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 dark:bg-[rgb(var(--hero-b))] dark:hover:bg-[rgb(var(--hero-a))] dark:text-neutral-950"
             >
-              링크 생성
+              {t("enable")}
             </button>
           )}
         </div>

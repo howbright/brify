@@ -3,7 +3,7 @@
 import type { Variants } from "framer-motion";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "@/i18n/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 
@@ -58,6 +58,35 @@ function HeroDiagramImage({
   videoLabel: string;
 }) {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [shouldWarmVideo, setShouldWarmVideo] = useState(false);
+  const [isVideoReady, setIsVideoReady] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const warm = () => setShouldWarmVideo(true);
+
+    if (typeof window === "undefined") return;
+
+    if ("requestIdleCallback" in window) {
+      const id = window.requestIdleCallback(warm, { timeout: 1200 });
+      return () => window.cancelIdleCallback(id);
+    }
+
+    const timeoutId = window.setTimeout(warm, 400);
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
+  useEffect(() => {
+    if (!isVideoOpen) return;
+
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.currentTime = 0;
+    void video.play().catch(() => {
+      video.controls = true;
+    });
+  }, [isVideoOpen]);
 
   return (
     <div className="group relative">
@@ -82,32 +111,63 @@ function HeroDiagramImage({
       />
       <div className="relative w-full overflow-hidden rounded-3xl">
         <div className="relative aspect-video overflow-hidden rounded-3xl">
-        {isVideoOpen ? (
-          <iframe
-            src="https://www.youtube.com/embed/Zr3y3y9_Jcg?autoplay=1&rel=0"
-            title={alt}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-            className="absolute left-1/2 top-1/2 h-[118%] w-[118%] -translate-x-1/2 -translate-y-1/2 border-0"
-          />
-        ) : (
-          <div className="relative h-full w-full">
-            <Image
-              src="/images/hero/hero5.png"
-              alt={alt}
-              fill
-              priority
-              sizes="(max-width: 768px) 100vw, 520px"
-              className="object-cover"
-            />
-          </div>
-        )}
+          {shouldWarmVideo ? (
+            <video
+              ref={videoRef}
+              title={alt}
+              poster="/images/hero/hero5.png"
+              preload="auto"
+              playsInline
+              controls={isVideoOpen}
+              onCanPlay={() => setIsVideoReady(true)}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-200 ${
+                isVideoOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+              }`}
+            >
+              <source src="/images/hero/hero-kr.mp4" type="video/mp4" />
+            </video>
+          ) : null}
+
+          {!isVideoOpen ? (
+            <button
+              type="button"
+              onClick={() => {
+                setShouldWarmVideo(true);
+                setIsVideoOpen(true);
+              }}
+              className="relative block h-full w-full cursor-pointer"
+              aria-label={videoLabel}
+            >
+              <Image
+                src="/images/hero/hero5.png"
+                alt={alt}
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 520px"
+                className="object-cover"
+              />
+              <span className="absolute inset-0 bg-gradient-to-t from-slate-950/20 via-transparent to-transparent" />
+            </button>
+          ) : !isVideoReady ? (
+            <div className="absolute inset-0">
+              <Image
+                src="/images/hero/hero5.png"
+                alt={alt}
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 520px"
+                className="object-cover"
+              />
+            </div>
+          ) : null}
         </div>
         <div className="flex justify-end px-1 pt-3">
           <button
             type="button"
-            onClick={() => setIsVideoOpen(true)}
+            onClick={() => {
+              setShouldWarmVideo(true);
+              setIsVideoOpen(true);
+            }}
             className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-700 bg-slate-800 px-3.5 py-2 text-sm font-bold tracking-[0.04em] text-white transition-transform duration-200 hover:scale-[1.03] hover:bg-slate-900 dark:border-white/18 dark:bg-white/[0.14] dark:text-white dark:hover:bg-white/[0.2] md:text-[15px]"
           >
             <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/18">

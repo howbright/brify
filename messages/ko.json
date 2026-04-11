@@ -1413,6 +1413,16 @@
       "copied": "링크를 복사했어요.",
       "copyFailed": "복사에 실패했습니다."
     },
+    "shareDialog": {
+      "title": "공유 링크",
+      "description": "링크를 가진 누구나 읽기 전용으로 볼 수 있습니다.",
+      "close": "닫기",
+      "copy": "복사",
+      "empty": "공유 링크를 생성하면 여기서 복사할 수 있습니다.",
+      "cancel": "취소",
+      "disable": "링크 끄기",
+      "enable": "링크 생성"
+    },
     "publishToast": {
       "success": "발행이 완료되었습니다.",
       "failed": "발행에 실패했습니다."
@@ -1717,6 +1727,7 @@
       "delete": "삭제",
       "editTags": "태그 편집",
       "noTag": "태그 없음",
+      "noSummary": "요약이 아직 없어요.",
       "notesCount": "노트 {count}",
       "termsCount": "용어 {count}",
       "opening": "여는 중...",

@@ -1102,6 +1102,30 @@ export default function MapDetailPage() {
             </div>
             <button
               type="button"
+              onClick={() => setShowTimestamps((prev) => !prev)}
+              className={plainHeaderIconButtonClass}
+              aria-label={
+                showTimestamps
+                  ? t("moreMenu.hideTimestamps")
+                  : t("moreMenu.showTimestamps")
+              }
+              title={
+                showTimestamps
+                  ? t("moreMenu.hideTimestamps")
+                  : t("moreMenu.showTimestamps")
+              }
+            >
+              <Icon
+                icon={
+                  showTimestamps
+                    ? "mdi:timeline-clock-outline"
+                    : "mdi:timeline-clock-outline"
+                }
+                className={`h-4 w-4 ${showTimestamps ? "text-sky-700 dark:text-sky-200" : ""}`}
+              />
+            </button>
+            <button
+              type="button"
               onClick={() => {
                 setTutorialStepIndex(0);
                 setTutorialOpen(true);

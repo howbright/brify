@@ -132,12 +132,13 @@ export default function MapListItem({
       : null;
 
   const displayTitle = getDisplayTitle(draft);
-  const visibleTags = draft.tags?.slice(0, 6) ?? [];
+  const visibleTags = draft.tags?.slice(0, 4) ?? [];
   const remainingTagCount = Math.max((draft.tags?.length ?? 0) - visibleTags.length, 0);
   const notesCount = draft.notesCount ?? 0;
   const termsCount = draft.termsCount ?? 0;
   const hasTopActionMenu = Boolean(onDelete);
   const isOpeningDetail = openingDetailId === draft.id;
+  const summary = (draft.summary ?? draft.description ?? "").trim();
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -179,16 +180,16 @@ export default function MapListItem({
           onSelect?.(draft);
         }
       }}
-      className={`relative flex h-full w-full max-w-full min-w-0 box-border flex-col rounded-2xl border px-3 py-2.5 transition md:px-4 md:py-3
+      className={`relative flex h-full w-full max-w-full min-w-0 box-border flex-col rounded-2xl border px-3 py-3 transition md:px-4 md:py-3.5
         ${
           isActive
-            ? "border-[color:var(--color-primary-600)] bg-[rgba(37,99,235,0.08)] shadow-[0_16px_32px_-28px_rgba(37,99,235,0.24)] dark:border-[color:var(--color-primary-400)] dark:bg-[rgba(96,165,250,0.12)] dark:shadow-[0_18px_36px_-24px_rgba(37,99,235,0.28)]"
-            : "border-slate-400 bg-white hover:bg-neutral-50 dark:border-sky-200/14 dark:bg-[linear-gradient(180deg,rgba(13,20,32,0.98),rgba(8,14,24,1))] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_26px_52px_-34px_rgba(2,6,23,0.96)] dark:hover:border-sky-300/24 dark:hover:bg-[linear-gradient(180deg,rgba(18,28,43,0.99),rgba(11,18,29,1))] dark:hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_30px_58px_-34px_rgba(2,6,23,0.98)]"
+            ? "border-[color:var(--color-primary-600)] bg-[rgba(37,99,235,0.07)] shadow-[0_18px_34px_-28px_rgba(37,99,235,0.24)] dark:border-[color:var(--color-primary-400)] dark:bg-[rgba(96,165,250,0.11)] dark:shadow-[0_22px_40px_-26px_rgba(37,99,235,0.28)]"
+            : "border-slate-300 bg-white shadow-[0_14px_30px_-24px_rgba(15,23,42,0.18)] hover:border-slate-400 hover:bg-slate-50/70 hover:shadow-[0_18px_34px_-24px_rgba(15,23,42,0.2)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(13,20,32,0.98),rgba(8,14,24,1))] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_22px_48px_-34px_rgba(2,6,23,0.94)] dark:hover:border-sky-300/22 dark:hover:bg-[linear-gradient(180deg,rgba(18,28,43,0.99),rgba(11,18,29,1))]"
         }`}
     >
-      <div className="flex min-w-0 flex-1 flex-col gap-2.5 md:gap-3">
-        <div className={`min-w-0 ${hasTopActionMenu ? "pr-20 sm:pr-0" : ""}`}>
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
+      <div className="flex min-w-0 flex-1 flex-col gap-3">
+        <div className={`min-w-0 ${hasTopActionMenu ? "pr-12" : ""}`}>
+          <div className="flex min-w-0 items-start gap-2">
             {selectionMode && (
               <input
                 type="checkbox"
@@ -199,14 +200,34 @@ export default function MapListItem({
                 aria-label={t("selectAria", { title: displayTitle })}
               />
             )}
-            <h3 className="min-w-0 text-[14px] font-medium leading-5 text-neutral-800 line-clamp-2 dark:text-white/92 md:text-[16px] md:font-semibold md:leading-6 md:text-neutral-900 md:dark:text-white/95">
-              {displayTitle}
-            </h3>
+            <div className="min-w-0 flex-1">
+              <h3 className="min-w-0 text-[14px] font-semibold leading-5 text-slate-900 line-clamp-2 dark:text-white/94 md:text-[15px] md:leading-5">
+                {displayTitle}
+              </h3>
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                {sourceBadge && (
+                  <span
+                    className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${sourceBadge.cls} ${sourceBadge.darkCls}`}
+                  >
+                    {sourceBadge.label}
+                  </span>
+                )}
+                {statusBadge && (
+                  <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${statusBadge.textCls}`}>
+                    <span className={`h-2 w-2 rounded-full ${statusBadge.dotCls}`} />
+                    {statusBadge.text}
+                  </span>
+                )}
+                <span className="text-[11px] font-medium text-slate-500 dark:text-white/52">
+                  {formatDate(draft, locale)}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
         {hasTopActionMenu ? (
-          <div className="absolute right-3 top-2.5 flex items-center gap-2 md:right-4 md:top-3">
+          <div className="absolute right-3 top-3 flex items-center gap-2 md:right-4 md:top-3.5">
             <div ref={menuRef} className="relative">
               <button
                 type="button"
@@ -214,7 +235,7 @@ export default function MapListItem({
                   event.stopPropagation();
                   setMenuOpen((v) => !v);
                 }}
-                className="inline-flex items-center justify-center rounded-full border border-slate-400 bg-white p-1.5 text-neutral-500 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/62 dark:hover:bg-white/[0.08]"
+                className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white p-1.5 text-neutral-500 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/62 dark:hover:bg-white/[0.08]"
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
                 aria-label="More actions"
@@ -251,8 +272,85 @@ export default function MapListItem({
           </div>
         ) : null}
 
-        <div className="flex min-w-0 items-start gap-2.5 md:gap-3">
-          <div className="aspect-video w-20 shrink-0 overflow-hidden rounded-lg border border-slate-400 bg-neutral-50 dark:border-white/12 dark:bg-white/[0.04] md:w-24 md:rounded-xl">
+        <div className="grid min-w-0 grid-cols-[1fr_92px] gap-3 md:grid-cols-[1fr_104px]">
+          <div className="min-w-0">
+            {summary ? (
+              <p className="line-clamp-2 text-[12px] leading-5 text-slate-600 dark:text-white/68 md:text-[13px]">
+                {summary}
+              </p>
+            ) : (
+              <p className="text-[12px] leading-5 text-slate-400 dark:text-white/38 md:text-[13px]">
+                {t("noSummary")}
+              </p>
+            )}
+
+            <div className="mt-2 flex min-w-0 flex-wrap items-center gap-1.5">
+              {visibleTags.length ? (
+                <>
+                  {visibleTags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="max-w-full break-all rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium leading-4 text-slate-600 dark:bg-white/[0.06] dark:text-white/70 md:max-w-[140px] md:truncate md:break-normal md:px-2 md:text-[11px]"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                  {remainingTagCount > 0 && (
+                    <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-white/[0.06] dark:text-white/60 md:px-2 md:text-[11px]">
+                      +{remainingTagCount}
+                    </span>
+                  )}
+                  {showEditTags && onEditTags && (
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onEditTags(draft);
+                      }}
+                      className="inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-[10px] font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-200 dark:hover:bg-blue-500/10 md:text-[11px]"
+                      aria-label={t("editTags")}
+                    >
+                      <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
+                      <span>{t("editTags")}</span>
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <span className="text-[10px] text-slate-500 dark:text-white/50 md:text-[11px]">
+                    {t("noTag")}
+                  </span>
+                  {showEditTags && onEditTags && (
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onEditTags(draft);
+                      }}
+                      className="inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-[10px] font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-200 dark:hover:bg-blue-500/10 md:text-[11px]"
+                      aria-label={t("editTags")}
+                    >
+                      <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
+                      <span>{t("editTags")}</span>
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <span className="inline-flex items-center gap-1 rounded-md border border-blue-200/80 bg-blue-50/85 px-1.5 py-0.5 text-[10px] font-medium text-blue-700 dark:border-blue-300/14 dark:bg-blue-400/10 dark:text-blue-200/88 md:px-2 md:text-[11px]">
+                <Icon icon="mdi:note-text-outline" className="h-3.5 w-3.5 shrink-0" />
+                <span>{t("notesCount", { count: notesCount })}</span>
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-md border border-sky-200/80 bg-sky-50/85 px-1.5 py-0.5 text-[10px] font-medium text-sky-700 dark:border-sky-300/14 dark:bg-sky-400/10 dark:text-sky-200/88 md:px-2 md:text-[11px]">
+                <Icon icon="mdi:book-outline" className="h-3.5 w-3.5 shrink-0" />
+                <span>{t("termsCount", { count: termsCount })}</span>
+              </span>
+            </div>
+          </div>
+
+          <div className="aspect-video overflow-hidden rounded-xl border border-slate-300 bg-neutral-50 dark:border-white/12 dark:bg-white/[0.04]">
             {draft.thumbnailUrl ? (
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -269,93 +367,10 @@ export default function MapListItem({
               </div>
             )}
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              {sourceBadge && (
-                <span
-                  className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold md:px-2.5 md:text-[11px] ${sourceBadge.cls} ${sourceBadge.darkCls}`}
-                >
-                  {sourceBadge.label}
-                </span>
-              )}
-              {statusBadge && (
-                <span className={`inline-flex items-center gap-1 text-[11px] font-medium md:gap-1.5 md:text-[12px] ${statusBadge.textCls}`}>
-                  <span className={`h-2 w-2 rounded-full ${statusBadge.dotCls}`} />
-                  {statusBadge.text}
-                </span>
-              )}
-            </div>
-
-            <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1 md:mt-2 md:gap-1.5">
-              {visibleTags.length ? (
-                <>
-                  {visibleTags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="max-w-full break-all rounded-lg bg-neutral-100/90 px-1.5 py-0.5 text-[11px] font-medium leading-4 text-neutral-600 dark:bg-white/[0.06] dark:text-white/70 md:px-2 md:py-1 md:text-[12px] md:max-w-[140px] md:truncate md:break-normal"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                  {remainingTagCount > 0 && (
-                    <span className="rounded-lg bg-neutral-100/90 px-1.5 py-0.5 text-[11px] font-medium text-neutral-500 dark:bg-white/[0.06] dark:text-white/60 md:px-2 md:py-1 md:text-[12px]">
-                      +{remainingTagCount}
-                    </span>
-                  )}
-                  {showEditTags && onEditTags && (
-                    <button
-                      type="button"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        onEditTags(draft);
-                      }}
-                      className="inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-[11px] font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-200 dark:hover:bg-blue-500/10"
-                      aria-label={t("editTags")}
-                    >
-                      <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
-                      <span>{t("editTags")}</span>
-                    </button>
-                  )}
-                </>
-              ) : (
-                <>
-                  <span className="text-[11px] text-neutral-500 dark:text-white/50 md:text-[12px]">
-                    {t("noTag")}
-                  </span>
-                  {showEditTags && onEditTags && (
-                    <button
-                      type="button"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        onEditTags(draft);
-                      }}
-                      className="inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-[11px] font-medium text-blue-700 hover:bg-blue-50 dark:text-blue-200 dark:hover:bg-blue-500/10"
-                      aria-label={t("editTags")}
-                    >
-                      <Icon icon="mdi:pencil" className="h-3.5 w-3.5" />
-                      <span>{t("editTags")}</span>
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
-
-            <div className="mt-2 flex flex-wrap items-center gap-1.5 md:mt-2.5 md:gap-2">
-              <span className="inline-flex items-center gap-1 rounded-md border border-blue-200/70 bg-blue-50/80 px-1.5 py-0.5 text-[11px] font-medium text-blue-700 dark:border-blue-300/14 dark:bg-blue-400/10 dark:text-blue-200/88 md:px-2 md:py-1 md:text-[12px]">
-                <Icon icon="mdi:note-text-outline" className="h-3.5 w-3.5 shrink-0" />
-                <span>{t("notesCount", { count: notesCount })}</span>
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-md border border-sky-200/70 bg-sky-50/80 px-1.5 py-0.5 text-[11px] font-medium text-sky-700 dark:border-sky-300/14 dark:bg-sky-400/10 dark:text-sky-200/88 md:px-2 md:py-1 md:text-[12px]">
-                <Icon icon="mdi:book-outline" className="h-3.5 w-3.5 shrink-0" />
-                <span>{t("termsCount", { count: termsCount })}</span>
-              </span>
-            </div>
-          </div>
         </div>
       </div>
 
-      <div className="mt-auto flex items-center justify-between gap-3 pt-2 text-[12px] font-medium text-neutral-500 dark:text-white/60 md:pt-3 md:text-[13px]">
-        <span>{formatDate(draft, locale)}</span>
+      <div className="mt-auto flex items-center justify-end gap-2 pt-2">
         {onOpenDetail && showOpenDetail && (
           <button
             type="button"
@@ -367,7 +382,7 @@ export default function MapListItem({
             onMouseEnter={() => onPrefetchDetail?.(draft)}
             onFocus={() => onPrefetchDetail?.(draft)}
             disabled={isOpeningDetail}
-            className="inline-flex items-center gap-1 rounded-full border border-blue-200/80 bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-700 hover:border-blue-300 hover:bg-blue-100 hover:text-blue-800 hover:shadow-sm disabled:cursor-wait disabled:opacity-80 dark:border-blue-300/18 dark:bg-blue-400/10 dark:text-blue-200 dark:hover:border-sky-300/26 dark:hover:bg-blue-400/16 md:px-3 md:py-1.5 md:text-[11px]"
+            className="inline-flex items-center gap-1 rounded-full border border-blue-200/80 bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-700 hover:border-blue-300 hover:bg-blue-100 hover:text-blue-800 hover:shadow-sm disabled:cursor-wait disabled:opacity-80 dark:border-blue-300/18 dark:bg-blue-400/10 dark:text-blue-200 dark:hover:border-sky-300/26 dark:hover:bg-blue-400/16 md:px-3 md:text-[11px]"
           >
             <Icon
               icon={isOpeningDetail ? "mdi:loading" : "mdi:open-in-new"}

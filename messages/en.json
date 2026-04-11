@@ -1413,6 +1413,16 @@
       "copied": "Link copied.",
       "copyFailed": "We couldn't copy the link."
     },
+    "shareDialog": {
+      "title": "Share link",
+      "description": "Anyone with the link can view this in read-only mode.",
+      "close": "Close",
+      "copy": "Copy",
+      "empty": "Once you create a share link, you can copy it here.",
+      "cancel": "Cancel",
+      "disable": "Turn off link",
+      "enable": "Create link"
+    },
     "publishToast": {
       "success": "Published successfully.",
       "failed": "Publishing failed."
@@ -1717,6 +1727,7 @@
       "delete": "Delete",
       "editTags": "Edit tags",
       "noTag": "No tag",
+      "noSummary": "No summary yet.",
       "notesCount": "Notes {count}",
       "termsCount": "Terms {count}",
       "opening": "Opening...",
