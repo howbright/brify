@@ -4,7 +4,7 @@ import type { Variants } from "framer-motion";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "@/i18n/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 
 /* ---------------- animations ---------------- */
@@ -64,6 +64,11 @@ function HeroDiagramImage({
   const [isVideoReady, setIsVideoReady] = useState(false);
   const [isOpeningVideo, setIsOpeningVideo] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const locale = useLocale();
+  const heroVideoSrc =
+    locale.toLowerCase().startsWith("ko")
+      ? "/images/hero/hero-kr.mp4"
+      : "/images/hero/hero-en.mp4";
 
   useEffect(() => {
     const warm = () => setShouldWarmVideo(true);
@@ -139,7 +144,7 @@ function HeroDiagramImage({
                 isVideoOpen ? "opacity-100" : "opacity-0 pointer-events-none"
               }`}
             >
-              <source src="/images/hero/hero-kr.mp4" type="video/mp4" />
+              <source src={heroVideoSrc} type="video/mp4" />
             </video>
           ) : null}
 
