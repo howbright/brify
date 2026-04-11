@@ -27,6 +27,19 @@ export default async function AdminHomePage({
             이메일, 결제일, 상태, 결제사로 검색하고 환불 가능 여부를 빠르게 확인해요.
           </p>
         </Link>
+
+        <Link
+          href={`/${locale}/admin/ops/maps`}
+          className="rounded-3xl border border-slate-300 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+        >
+          <div className="text-sm font-semibold text-blue-700">ADMIN MAP OPS</div>
+          <h2 className="mt-2 text-xl font-extrabold tracking-tight text-neutral-950">
+            구조맵 운영 현황
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-neutral-600">
+            큐 backlog, 최근 처리시간, 실패율, 실패 맵 목록을 한 화면에서 확인해요.
+          </p>
+        </Link>
       </section>
     </main>
   );
