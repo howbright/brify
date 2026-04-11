@@ -4,7 +4,7 @@ import type { Variants } from "framer-motion";
 import { AnimatePresence, motion } from "framer-motion";
 import { Icon } from "@iconify/react";
 import { Link } from "@/i18n/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 
@@ -60,104 +60,160 @@ function HeroDiagramImage({
   videoLabel: string;
   videoLoadingLabel: string;
 }) {
-  const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [isInlineVideoOpen, setIsInlineVideoOpen] = useState(false);
+  const [isMobileVideoOpen, setIsMobileVideoOpen] = useState(false);
   const [isOpeningVideo, setIsOpeningVideo] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const locale = useLocale();
   const heroVideoSrc =
     locale.toLowerCase().startsWith("ko")
       ? "https://www.youtube.com/embed/6cP5w-cuLt4?autoplay=1&rel=0"
       : "https://www.youtube.com/embed/oef-y2HWCM0?autoplay=1&rel=0";
 
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+    const sync = () => setIsMobile(media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
+
+  const openVideo = () => {
+    setIsOpeningVideo(true);
+    if (isMobile) {
+      setIsMobileVideoOpen(true);
+      return;
+    }
+    setIsInlineVideoOpen(true);
+  };
+
+  const closeMobileVideo = () => {
+    setIsMobileVideoOpen(false);
+    setIsOpeningVideo(false);
+  };
+
   return (
-    <div className="group relative">
-      <div
-        aria-hidden
-        className="
-          pointer-events-none absolute inset-x-10 top-0 z-10 h-20
-          bg-[radial-gradient(50%_100%_at_50%_0%,rgba(255,255,255,0.70),transparent_78%)]
-          opacity-80
-          dark:bg-[radial-gradient(50%_100%_at_50%_0%,rgba(255,255,255,0.10),transparent_78%)]
-          dark:opacity-100
-        "
-      />
-      <div
-        aria-hidden
-        className="
-          pointer-events-none absolute -inset-6 -z-10 rounded-[36px]
-          bg-[radial-gradient(60%_60%_at_50%_50%,rgba(59,130,246,0.16),transparent_72%)]
-          blur-2xl
-          dark:bg-[radial-gradient(60%_60%_at_50%_50%,rgba(99,102,241,0.16),transparent_72%)]
-        "
-      />
-      <div className="relative w-full overflow-hidden rounded-3xl">
-        <div className="relative aspect-video overflow-hidden rounded-3xl">
-          {isVideoOpen ? (
-            <iframe
-              src={heroVideoSrc}
-              title={alt}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allowFullScreen
-              onLoad={() => setIsOpeningVideo(false)}
-              className="absolute inset-0 z-20 h-full w-full border-0"
-            />
-          ) : (
+    <>
+      <div className="group relative">
+        <div
+          aria-hidden
+          className="
+            pointer-events-none absolute inset-x-10 top-0 z-10 h-20
+            bg-[radial-gradient(50%_100%_at_50%_0%,rgba(255,255,255,0.70),transparent_78%)]
+            opacity-80
+            dark:bg-[radial-gradient(50%_100%_at_50%_0%,rgba(255,255,255,0.10),transparent_78%)]
+            dark:opacity-100
+          "
+        />
+        <div
+          aria-hidden
+          className="
+            pointer-events-none absolute -inset-6 -z-10 rounded-[36px]
+            bg-[radial-gradient(60%_60%_at_50%_50%,rgba(59,130,246,0.16),transparent_72%)]
+            blur-2xl
+            dark:bg-[radial-gradient(60%_60%_at_50%_50%,rgba(99,102,241,0.16),transparent_72%)]
+          "
+        />
+        <div className="relative w-full overflow-hidden rounded-3xl">
+          <div className="relative aspect-video overflow-hidden rounded-3xl">
+            {isInlineVideoOpen && !isMobile ? (
+              <iframe
+                src={heroVideoSrc}
+                title={alt}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+                onLoad={() => setIsOpeningVideo(false)}
+                className="absolute inset-0 z-20 h-full w-full border-0"
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={openVideo}
+                className="relative block h-full w-full cursor-pointer"
+                aria-label={videoLabel}
+              >
+                <Image
+                  src="/images/hero/hero5.png"
+                  alt={alt}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 520px"
+                  className="object-cover"
+                />
+                <span className="absolute inset-0 bg-gradient-to-t from-slate-950/20 via-transparent to-transparent" />
+              </button>
+            )}
+            {isOpeningVideo && (!isMobile || !isMobileVideoOpen) ? (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/18 backdrop-blur-[2px]">
+                <div className="inline-flex items-center gap-2 rounded-full bg-slate-950/72 px-4 py-2 text-sm font-semibold text-white shadow-lg">
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />
+                  {videoLoadingLabel}
+                </div>
+              </div>
+            ) : null}
+          </div>
+          <div className="flex justify-end px-1 pt-3">
             <button
               type="button"
-              onClick={() => {
-                setIsOpeningVideo(true);
-                setIsVideoOpen(true);
-              }}
-              className="relative block h-full w-full cursor-pointer"
-              aria-label={videoLabel}
+              onClick={openVideo}
+              disabled={isOpeningVideo}
+              className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-700 bg-slate-800 px-3.5 py-2 text-sm font-bold tracking-[0.04em] text-white transition-transform duration-200 hover:scale-[1.03] hover:bg-slate-900 dark:border-white/18 dark:bg-white/[0.14] dark:text-white dark:hover:bg-white/[0.2] md:text-[15px]"
             >
-              <Image
-                src="/images/hero/hero5.png"
-                alt={alt}
-                fill
-                priority
-                sizes="(max-width: 768px) 100vw, 520px"
-                className="object-cover"
-              />
-              <span className="absolute inset-0 bg-gradient-to-t from-slate-950/20 via-transparent to-transparent" />
+              {isOpeningVideo ? (
+                <>
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />
+                  {videoLoadingLabel}
+                </>
+              ) : (
+                <>
+                  <span className="inline-flex items-center justify-center">
+                    <Icon icon="lucide:clapperboard" className="h-[18px] w-[18px]" />
+                  </span>
+                  {videoLabel}
+                </>
+              )}
             </button>
-          )}
-          {isOpeningVideo ? (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/18 backdrop-blur-[2px]">
-              <div className="inline-flex items-center gap-2 rounded-full bg-slate-950/72 px-4 py-2 text-sm font-semibold text-white shadow-lg">
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />
-                {videoLoadingLabel}
-              </div>
-            </div>
-          ) : null}
+          </div>
         </div>
-        <div className="flex justify-end px-1 pt-3">
+      </div>
+      {isMobileVideoOpen ? (
+        <div className="fixed inset-0 z-[250] bg-black sm:hidden">
           <button
             type="button"
-            onClick={() => {
-              setIsOpeningVideo(true);
-              setIsVideoOpen(true);
-            }}
-            disabled={isOpeningVideo}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-700 bg-slate-800 px-3.5 py-2 text-sm font-bold tracking-[0.04em] text-white transition-transform duration-200 hover:scale-[1.03] hover:bg-slate-900 dark:border-white/18 dark:bg-white/[0.14] dark:text-white dark:hover:bg-white/[0.2] md:text-[15px]"
+            onClick={closeMobileVideo}
+            className="absolute right-4 top-4 z-[260] inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur hover:bg-white/16"
+            aria-label="Close video"
           >
-            {isOpeningVideo ? (
-              <>
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />
-                {videoLoadingLabel}
-              </>
-            ) : (
-              <>
-                <span className="inline-flex items-center justify-center">
-                  <Icon icon="lucide:clapperboard" className="h-[18px] w-[18px]" />
-                </span>
-                {videoLabel}
-              </>
-            )}
+            <Icon icon="mdi:close" className="h-5 w-5" />
           </button>
+
+          <div className="flex h-full w-full items-center justify-center px-0">
+            <div className="relative w-full">
+              <div className="relative aspect-video w-full bg-black">
+                <iframe
+                  src={isMobileVideoOpen ? heroVideoSrc : undefined}
+                  title={alt}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                  onLoad={() => setIsOpeningVideo(false)}
+                  className="absolute inset-0 h-full w-full border-0"
+                />
+                {isOpeningVideo ? (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/38">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-black/78 px-4 py-2 text-sm font-semibold text-white shadow-lg">
+                      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />
+                      {videoLoadingLabel}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      </div>
+      ) : null}
+    </>
   );
 }
 
