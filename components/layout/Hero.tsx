@@ -67,8 +67,8 @@ function HeroDiagramImage({
   const locale = useLocale();
   const heroVideoSrc =
     locale.toLowerCase().startsWith("ko")
-      ? "https://www.youtube.com/embed/6cP5w-cuLt4?autoplay=1&rel=0"
-      : "https://www.youtube.com/embed/oef-y2HWCM0?autoplay=1&rel=0";
+      ? "https://www.youtube.com/embed/IvC8y0eY5bE?autoplay=1&rel=0"
+      : "https://www.youtube.com/embed/HMKChsqujos?autoplay=1&rel=0";
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 767px)");
