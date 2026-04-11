@@ -65,15 +65,21 @@ function HeroDiagramImage({
   useEffect(() => {
     const warm = () => setShouldWarmVideo(true);
 
-    if (typeof window === "undefined") return;
+    const browser = globalThis as typeof globalThis & {
+      requestIdleCallback?: (
+        callback: IdleRequestCallback,
+        options?: IdleRequestOptions,
+      ) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
 
-    if ("requestIdleCallback" in window) {
-      const id = window.requestIdleCallback(warm, { timeout: 1200 });
-      return () => window.cancelIdleCallback(id);
+    if (typeof browser.requestIdleCallback === "function") {
+      const id = browser.requestIdleCallback(warm, { timeout: 1200 });
+      return () => browser.cancelIdleCallback?.(id);
     }
 
-    const timeoutId = window.setTimeout(warm, 400);
-    return () => window.clearTimeout(timeoutId);
+    const timeoutId = globalThis.setTimeout(warm, 400);
+    return () => globalThis.clearTimeout(timeoutId);
   }, []);
 
   useEffect(() => {
