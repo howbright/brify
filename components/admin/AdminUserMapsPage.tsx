@@ -506,11 +506,19 @@ export default function AdminUserMapsPage() {
             {mapDetail ? (
               <div className="mt-5 space-y-4 text-sm text-neutral-700">
                 <div className="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className={cn("inline-flex rounded-full border px-2 py-1 text-[11px] font-semibold", getStatusTone(mapDetail.mapStatus))}>
-                      {mapDetail.mapStatus}
-                    </span>
-                    <span className="text-xs text-neutral-500">{mapDetail.extractStatus}</span>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={cn("inline-flex rounded-full border px-2 py-1 text-[11px] font-semibold", getStatusTone(mapDetail.mapStatus))}>
+                        {mapDetail.mapStatus}
+                      </span>
+                      <span className="text-xs text-neutral-500">{mapDetail.extractStatus}</span>
+                    </div>
+                    <Link
+                      href={pathname.replace(/\/users\/maps$/, `/${mapDetail.id}`)}
+                      className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-neutral-800 transition-all hover:-translate-y-0.5 hover:shadow-md"
+                    >
+                      구조맵 열기
+                    </Link>
                   </div>
                   <div className="mt-3 text-base font-bold text-neutral-950">
                     {mapDetail.shortTitle || mapDetail.title}
