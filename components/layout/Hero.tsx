@@ -63,7 +63,7 @@ function HeroDiagramImage({
   const [isInlineVideoOpen, setIsInlineVideoOpen] = useState(false);
   const [isMobileVideoOpen, setIsMobileVideoOpen] = useState(false);
   const [isOpeningVideo, setIsOpeningVideo] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [useOverlayVideo, setUseOverlayVideo] = useState(false);
   const locale = useLocale();
   const heroVideoSrc =
     locale.toLowerCase().startsWith("ko")
@@ -71,16 +71,22 @@ function HeroDiagramImage({
       : "https://www.youtube.com/embed/HMKChsqujos?autoplay=1&rel=0";
 
   useEffect(() => {
-    const media = window.matchMedia("(max-width: 767px)");
-    const sync = () => setIsMobile(media.matches);
+    const coarsePointer = window.matchMedia("(pointer: coarse)");
+    const narrowViewport = window.matchMedia("(max-width: 1024px)");
+    const sync = () =>
+      setUseOverlayVideo(coarsePointer.matches || narrowViewport.matches);
     sync();
-    media.addEventListener("change", sync);
-    return () => media.removeEventListener("change", sync);
+    coarsePointer.addEventListener("change", sync);
+    narrowViewport.addEventListener("change", sync);
+    return () => {
+      coarsePointer.removeEventListener("change", sync);
+      narrowViewport.removeEventListener("change", sync);
+    };
   }, []);
 
   const openVideo = () => {
     setIsOpeningVideo(true);
-    if (isMobile) {
+    if (useOverlayVideo) {
       setIsMobileVideoOpen(true);
       return;
     }
@@ -116,7 +122,7 @@ function HeroDiagramImage({
         />
         <div className="relative w-full overflow-hidden rounded-3xl">
           <div className="relative aspect-video overflow-hidden rounded-3xl">
-            {isInlineVideoOpen && !isMobile ? (
+            {isInlineVideoOpen && !useOverlayVideo ? (
               <iframe
                 src={heroVideoSrc}
                 title={alt}
@@ -144,7 +150,7 @@ function HeroDiagramImage({
                 <span className="absolute inset-0 bg-gradient-to-t from-slate-950/20 via-transparent to-transparent" />
               </button>
             )}
-            {isOpeningVideo && (!isMobile || !isMobileVideoOpen) ? (
+            {isOpeningVideo && (!useOverlayVideo || !isMobileVideoOpen) ? (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/18 backdrop-blur-[2px]">
                 <div className="inline-flex items-center gap-2 rounded-full bg-slate-950/72 px-4 py-2 text-sm font-semibold text-white shadow-lg">
                   <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />
@@ -178,7 +184,7 @@ function HeroDiagramImage({
         </div>
       </div>
       {isMobileVideoOpen ? (
-        <div className="fixed inset-0 z-[250] bg-black sm:hidden">
+        <div className="fixed inset-0 z-[250] bg-black">
           <button
             type="button"
             onClick={closeMobileVideo}
