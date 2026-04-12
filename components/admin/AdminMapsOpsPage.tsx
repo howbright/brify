@@ -568,7 +568,7 @@ export default function AdminMapsOpsPage() {
                   현재 큐 상태
                 </h2>
                 <p className="mt-1 text-sm leading-6 text-neutral-600">
-                  큐 backlog가 20에 가까워지면 체감 대기 시간이 길어질 수 있어요.
+                  큐 적체를 볼 때는 waiting, active, delayed, prioritized를 우선 보면 돼요.
                 </p>
               </div>
               <div className="rounded-full border border-slate-300 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
@@ -581,12 +581,6 @@ export default function AdminMapsOpsPage() {
               <StatCard label="active" value={`${queueStats?.counts.active ?? 0}`} />
               <StatCard label="delayed" value={`${queueStats?.counts.delayed ?? 0}`} />
               <StatCard label="prioritized" value={`${queueStats?.counts.prioritized ?? 0}`} />
-            </div>
-
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <StatCard label="failed" value={`${queueStats?.counts.failed ?? 0}`} tone="warn" />
-              <StatCard label="completed" value={`${queueStats?.counts.completed ?? 0}`} />
-              <StatCard label="paused" value={`${queueStats?.counts.paused ?? 0}`} />
             </div>
 
             <div className="mt-4 text-xs text-neutral-500">
@@ -619,6 +613,24 @@ export default function AdminMapsOpsPage() {
                 <dt className="text-sm font-medium text-neutral-600">최근 실패</dt>
                 <dd className="text-base font-extrabold text-neutral-950">
                   {generationStats?.recent.failed.toLocaleString() ?? 0}건
+                </dd>
+              </div>
+              <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">
+                <dt className="text-sm font-medium text-neutral-600">현재 완료 맵</dt>
+                <dd className="text-base font-extrabold text-neutral-950">
+                  {generationStats?.current.done.toLocaleString() ?? 0}건
+                </dd>
+              </div>
+              <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">
+                <dt className="text-sm font-medium text-neutral-600">현재 실패 맵</dt>
+                <dd className="text-base font-extrabold text-neutral-950">
+                  {generationStats?.current.failed.toLocaleString() ?? 0}건
+                </dd>
+              </div>
+              <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">
+                <dt className="text-sm font-medium text-neutral-600">현재 paused job</dt>
+                <dd className="text-base font-extrabold text-neutral-950">
+                  {queueStats?.counts.paused.toLocaleString() ?? 0}개
                 </dd>
               </div>
               <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">
