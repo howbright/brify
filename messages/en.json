@@ -70,7 +70,8 @@
       "createTimedOut": "The map creation request is taking too long. The server may be delayed, so please try again shortly."
     },
     "messages": {
-      "youtubeFilled": "We filled the input with the fetched script. You can create the map right away."
+      "youtubeFilled": "We filled the input with the fetched script. You can create the map right away.",
+      "insufficientCreditsToast": "Not enough credits."
     },
     "labels": {
       "untitled": "Untitled",
@@ -90,7 +91,13 @@
     "languageTitle": "Which language should we use for the map?",
     "generateTitle": "Generate the map",
     "creditsInfo": "{current} credits available · this run uses {required} credit(s)",
-    "generateButton": "Generate Structure Map"
+    "generateButton": "Generate Structure Map",
+    "insufficientCreditsCard": {
+      "title": "You don’t have enough credits to create a Structure Map",
+      "description": "Top up your credits and you can continue right away.",
+      "balance": "Current balance: {current} credits",
+      "action": "Top up credits"
+    }
   },
   "OutputLanguageSelect": {
     "labels": {
@@ -1167,6 +1174,10 @@
     "signup_reward": {
       "title": "Signup reward granted",
       "message": "You have received {credits} credits as a signup reward."
+    },
+    "admin_gift_credits": {
+      "title": "Gift credits received",
+      "message": "An admin has granted you {credits} free credits."
     },
     "mission_approved": {
       "title": "Mission reward granted",

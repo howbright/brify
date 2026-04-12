@@ -132,6 +132,8 @@ export default function VideoToMapPage() {
   const [statusStep, setStatusStep] = useState(0);
 
   const [error, setError] = useState<string | null>(null);
+  const [showInsufficientCreditsCard, setShowInsufficientCreditsCard] =
+    useState(false);
 
   // ✅ 토스트(간단)
   const [toast, setToast] = useState<{ open: boolean; message: string }>({
@@ -251,6 +253,12 @@ export default function VideoToMapPage() {
   }, [isProcessing, statusMessages.length]);
 
   useEffect(() => {
+    if (currentCredits >= requiredCredits) {
+      setShowInsufficientCreditsCard(false);
+    }
+  }, [currentCredits, requiredCredits]);
+
+  useEffect(() => {
     if (!pendingFocusDraftId || showMetadataDialog) return;
     if (!drafts.some((draft) => draft.id === pendingFocusDraftId)) return;
 
@@ -293,6 +301,7 @@ export default function VideoToMapPage() {
     try {
       getRequiredCreditsUnsafe(scriptText);
     } catch (e: any) {
+      setShowInsufficientCreditsCard(false);
       if (e?.message === "INPUT_TOO_LARGE") {
         const msg = buildTooLargeMessage(creditInfo.length);
         setError(msg);
@@ -422,11 +431,14 @@ export default function VideoToMapPage() {
     if (currentCredits < creditsNow) {
       setShowCreditDialog(false);
       setError(t("errors.insufficientCredits"));
+      setShowInsufficientCreditsCard(true);
+      openToast(t("messages.insufficientCreditsToast"));
       return;
     }
 
     setShowCreditDialog(false);
     setError(null);
+    setShowInsufficientCreditsCard(false);
     setIsProcessing(true);
 
     try {
@@ -746,10 +758,12 @@ export default function VideoToMapPage() {
               scriptText={scriptText}
               setScriptText={setScriptText}
               error={error}
+              showInsufficientCreditsCard={showInsufficientCreditsCard}
               isProcessing={isProcessing}
               currentCredits={currentCredits}
               requiredCredits={requiredCredits}
               onGenerate={handleClickGenerate}
+              onOpenBilling={() => router.push(`/${locale}/billing`)}
               onOpenYoutubeDialog={() => {
                 setYoutubeError(null);
                 setYoutubeSuccess(null);

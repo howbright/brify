@@ -8,10 +8,12 @@ type Props = {
   scriptText: string;
   setScriptText: (v: string) => void;
   error: string | null;
+  showInsufficientCreditsCard?: boolean;
   isProcessing: boolean;
   currentCredits: number;
   requiredCredits: number;
   onGenerate: () => void;
+  onOpenBilling?: () => void;
 
   // ✅ 유튜브 모달 열기
   onOpenYoutubeDialog?: () => void;
@@ -36,10 +38,12 @@ export default function ScriptInputCard({
   scriptText,
   setScriptText,
   error,
+  showInsufficientCreditsCard = false,
   isProcessing,
   currentCredits,
   requiredCredits,
   onGenerate,
+  onOpenBilling,
   onOpenYoutubeDialog,
   showYoutubeHelpButton = true,
   outputLang,
@@ -218,7 +222,9 @@ export default function ScriptInputCard({
         />
       </div>
 
-      {error && <p className="text-[13px] sm:text-sm text-red-500 whitespace-pre-line">{error}</p>}
+      {error && !showInsufficientCreditsCard ? (
+        <p className="text-[13px] sm:text-sm text-red-500 whitespace-pre-line">{error}</p>
+      ) : null}
 
       {/* 하단: 언어 선택 -> 생성 */}
       <div className="grid gap-3">
@@ -263,6 +269,51 @@ export default function ScriptInputCard({
                     required: requiredCredits,
                   })}
                 </div>
+                {showInsufficientCreditsCard ? (
+                  <div
+                    className="
+                      rounded-2xl border border-amber-200 bg-[linear-gradient(180deg,#fffaf0_0%,#fff7e8_100%)]
+                      px-4 py-3 shadow-[0_16px_34px_-24px_rgba(120,53,15,0.38)]
+                      dark:border-amber-300/20 dark:bg-[linear-gradient(180deg,rgba(120,53,15,0.22),rgba(15,23,42,0.9))]
+                    "
+                  >
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex items-start gap-2">
+                          <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-300/12 dark:text-amber-200">
+                            <Icon icon="mdi:credit-card-outline" className="h-4.5 w-4.5" />
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-[14px] font-bold text-amber-950 dark:text-amber-100">
+                              {t("insufficientCreditsCard.title")}
+                            </p>
+                            <p className="mt-1 text-[13px] leading-5 text-amber-900/90 dark:text-amber-100/85">
+                              {t("insufficientCreditsCard.description")}
+                            </p>
+                            <p className="mt-2 text-[12px] font-semibold text-amber-800 dark:text-amber-200/90">
+                              {t("insufficientCreditsCard.balance", {
+                                current: currentCredits.toLocaleString(),
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={onOpenBilling}
+                        className="
+                          inline-flex shrink-0 items-center justify-center rounded-xl
+                          bg-blue-600 px-3.5 py-2 text-[13px] font-semibold text-white
+                          shadow-[0_14px_30px_-18px_rgba(37,99,235,0.8)]
+                          hover:bg-blue-700
+                          dark:bg-[rgb(var(--hero-b))] dark:text-neutral-950 dark:hover:bg-[rgb(var(--hero-a))]
+                        "
+                      >
+                        {t("insufficientCreditsCard.action")}
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
                 <button
                   type="button"
                   onClick={() => {
