@@ -63,6 +63,26 @@ type FailedJobsResponse = {
   limit: number;
 };
 
+type OpsHistoryResponse = {
+  window: {
+    hours: number;
+    startAt: string;
+    endAt: string;
+  };
+  points: Array<{
+    capturedAt: string;
+    backlog: number;
+    active: number;
+    failureRate24h: number;
+    avgAiProcessingMs24h: number;
+    p95AiProcessingMs24h: number;
+    maxAiProcessingMs24h: number;
+    currentProcessing: number;
+    currentFailed: number;
+    currentQueued: number;
+  }>;
+};
+
 function formatDateTime(value: string | null) {
   if (!value) return "-";
   try {
@@ -82,6 +102,112 @@ function formatMs(ms: number | null | undefined) {
   if (typeof ms !== "number" || !Number.isFinite(ms) || ms <= 0) return "-";
   if (ms < 1000) return `${ms}ms`;
   return `${(ms / 1000).toFixed(1)}s`;
+}
+
+function formatShortTime(value: string) {
+  try {
+    return new Intl.DateTimeFormat("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date(value));
+  } catch {
+    return value;
+  }
+}
+
+function buildLinePath(values: number[], width: number, height: number) {
+  if (!values.length) return "";
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values, 0);
+  const range = max - min || 1;
+
+  return values
+    .map((value, index) => {
+      const x = values.length === 1 ? width / 2 : (index / (values.length - 1)) * width;
+      const y = height - ((value - min) / range) * height;
+      return `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
+    })
+    .join(" ");
+}
+
+function HistoryChart({
+  title,
+  description,
+  points,
+  getValue,
+  valueFormatter,
+  stroke,
+}: {
+  title: string;
+  description: string;
+  points: OpsHistoryResponse["points"];
+  getValue: (point: OpsHistoryResponse["points"][number]) => number;
+  valueFormatter: (value: number) => string;
+  stroke: string;
+}) {
+  const values = points.map(getValue);
+  const latestValue = values.length ? values[values.length - 1] : 0;
+  const maxValue = values.length ? Math.max(...values) : 0;
+  const path = buildLinePath(values, 100, 44);
+  const areaPath = path ? `M 0 44 ${path.slice(1)} L 100 44 Z` : "";
+  const gradientId = `gradient-${title.replace(/\s+/g, "-").toLowerCase()}`;
+  const firstLabel = points.length ? formatShortTime(points[0].capturedAt) : "-";
+  const lastLabel = points.length ? formatShortTime(points[points.length - 1].capturedAt) : "-";
+
+  return (
+    <div className="rounded-[28px] border border-slate-300 bg-white/92 p-5 shadow-[0_18px_50px_-30px_rgba(15,23,42,0.35)] sm:p-6">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h3 className="text-base font-extrabold tracking-tight text-neutral-950">{title}</h3>
+          <p className="mt-1 text-sm leading-6 text-neutral-600">{description}</p>
+        </div>
+        <div className="text-right">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-500">
+            Latest
+          </div>
+          <div className="mt-1 text-lg font-extrabold tracking-tight text-neutral-950">
+            {valueFormatter(latestValue)}
+          </div>
+          <div className="text-[11px] text-neutral-500">최대 {valueFormatter(maxValue)}</div>
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50/80 p-4">
+        {points.length > 1 ? (
+          <svg viewBox="0 0 100 44" className="h-36 w-full overflow-visible">
+            <defs>
+              <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stopColor={stroke} stopOpacity="0.28" />
+                <stop offset="100%" stopColor={stroke} stopOpacity="0.04" />
+              </linearGradient>
+            </defs>
+            <path
+              d={areaPath}
+              fill={`url(#${gradientId})`}
+              opacity="0.7"
+            />
+            <path
+              d={path}
+              fill="none"
+              stroke={stroke}
+              strokeWidth="2.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        ) : (
+          <div className="flex h-36 items-center justify-center text-sm text-neutral-500">
+            그래프를 그리기엔 아직 스냅샷이 부족해요.
+          </div>
+        )}
+
+        <div className="mt-3 flex items-center justify-between text-[11px] text-neutral-500">
+          <span>{firstLabel}</span>
+          <span>{lastLabel}</span>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function StatCard({
@@ -121,6 +247,7 @@ export default function AdminMapsOpsPage() {
   const [queueStats, setQueueStats] = useState<QueueStatsResponse | null>(null);
   const [generationStats, setGenerationStats] = useState<GenerationStatsResponse | null>(null);
   const [failedJobs, setFailedJobs] = useState<FailedJobsResponse | null>(null);
+  const [opsHistory, setOpsHistory] = useState<OpsHistoryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -152,7 +279,7 @@ export default function AdminMapsOpsPage() {
           Authorization: `Bearer ${accessToken}`,
         };
 
-        const [queueRes, statsRes, failedRes] = await Promise.all([
+        const [queueRes, statsRes, failedRes, historyRes] = await Promise.all([
           fetch(`${baseUrl}/admin/maps/queue-stats`, {
             method: "GET",
             headers,
@@ -168,37 +295,50 @@ export default function AdminMapsOpsPage() {
             headers,
             cache: "no-store",
           }),
+          fetch(`${baseUrl}/admin/maps/ops-history?hours=24`, {
+            method: "GET",
+            headers,
+            cache: "no-store",
+          }),
         ]);
 
-        if ([queueRes, statsRes, failedRes].some((res) => res.status === 401)) {
+        if ([queueRes, statsRes, failedRes, historyRes].some((res) => res.status === 401)) {
           throw new Error("인증이 만료되었어요. 다시 로그인해 주세요.");
         }
 
-        if ([queueRes, statsRes, failedRes].some((res) => res.status === 403)) {
+        if ([queueRes, statsRes, failedRes, historyRes].some((res) => res.status === 403)) {
           throw new Error("관리자 권한이 필요해요.");
         }
 
-        if (!queueRes.ok || !statsRes.ok || !failedRes.ok) {
+        if (!queueRes.ok || !statsRes.ok || !failedRes.ok || !historyRes.ok) {
           throw new Error("운영 데이터를 불러오지 못했어요.");
         }
 
-        const [queueJson, statsJson, failedJson] = (await Promise.all([
+        const [queueJson, statsJson, failedJson, historyJson] = (await Promise.all([
           queueRes.json(),
           statsRes.json(),
           failedRes.json(),
-        ])) as [QueueStatsResponse, GenerationStatsResponse, FailedJobsResponse];
+          historyRes.json(),
+        ])) as [
+          QueueStatsResponse,
+          GenerationStatsResponse,
+          FailedJobsResponse,
+          OpsHistoryResponse,
+        ];
 
         if (cancelled) return;
 
         setQueueStats(queueJson);
         setGenerationStats(statsJson);
         setFailedJobs(failedJson);
+        setOpsHistory(historyJson);
       } catch (error) {
         if (!cancelled) {
           setErrorMessage(error instanceof Error ? error.message : "알 수 없는 오류가 발생했어요.");
           setQueueStats(null);
           setGenerationStats(null);
           setFailedJobs(null);
+          setOpsHistory(null);
         }
       } finally {
         if (!cancelled) {
@@ -331,6 +471,41 @@ export default function AdminMapsOpsPage() {
               description={card.description}
             />
           ))}
+        </section>
+
+        <section className="mt-8 grid gap-4 xl:grid-cols-2">
+          <HistoryChart
+            title="Backlog 추이"
+            description="5분 단위로 쌓인 전체 backlog 추이예요."
+            points={opsHistory?.points ?? []}
+            getValue={(point) => point.backlog}
+            valueFormatter={(value) => `${value.toLocaleString()}개`}
+            stroke="#2563eb"
+          />
+          <HistoryChart
+            title="Active 추이"
+            description="실제로 worker가 처리 중인 job 수 추이예요."
+            points={opsHistory?.points ?? []}
+            getValue={(point) => point.active}
+            valueFormatter={(value) => `${value.toLocaleString()}개`}
+            stroke="#0f766e"
+          />
+          <HistoryChart
+            title="24시간 실패율 추이"
+            description="최근 24시간 failure rate가 어떻게 변하는지 확인해요."
+            points={opsHistory?.points ?? []}
+            getValue={(point) => point.failureRate24h * 100}
+            valueFormatter={(value) => `${value.toFixed(1)}%`}
+            stroke="#dc2626"
+          />
+          <HistoryChart
+            title="P95 AI 처리시간 추이"
+            description="느린 구간 체감을 보기 위한 P95 처리시간 추이예요."
+            points={opsHistory?.points ?? []}
+            getValue={(point) => point.p95AiProcessingMs24h}
+            valueFormatter={(value) => formatMs(value)}
+            stroke="#7c3aed"
+          />
         </section>
 
         <section className="mt-8 grid gap-4 xl:grid-cols-[1.2fr_1fr]">
