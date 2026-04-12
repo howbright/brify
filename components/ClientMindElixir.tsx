@@ -612,6 +612,27 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     };
   }, [editMode, onViewModeEditAttempt]);
 
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    const host = elRef.current;
+    if (!wrapper || !host) return;
+
+    const preventBrowserSwipeNavigation = (event: WheelEvent) => {
+      if (!event.isTrusted) return;
+      if (!host.contains(event.target as Node | null)) return;
+      event.preventDefault();
+    };
+
+    wrapper.addEventListener("wheel", preventBrowserSwipeNavigation, {
+      passive: false,
+      capture: true,
+    });
+
+    return () => {
+      wrapper.removeEventListener("wheel", preventBrowserSwipeNavigation, true);
+    };
+  }, []);
+
 
   const clearLongPressState = () => {
     if (longPressTimerRef.current) {
@@ -1947,6 +1968,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           ? DEFAULT_DARK_CANVAS_CLASS
           : ""
       }`}
+      style={{ overscrollBehaviorX: "none" }}
     >
       <style jsx global>{`
         .${PAN_MODE_CLASS} me-tpc,

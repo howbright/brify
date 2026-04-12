@@ -475,6 +475,22 @@ export default function MapDetailPage() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [desktopMoreOpen, mobileMapActionsOpen, mobileThemeOpen]);
+
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverscrollX = html.style.overscrollBehaviorX;
+    const prevBodyOverscrollX = body.style.overscrollBehaviorX;
+
+    html.style.overscrollBehaviorX = "none";
+    body.style.overscrollBehaviorX = "none";
+
+    return () => {
+      html.style.overscrollBehaviorX = prevHtmlOverscrollX;
+      body.style.overscrollBehaviorX = prevBodyOverscrollX;
+    };
+  }, []);
+
   useEffect(() => {
     const handleFind = (event: KeyboardEvent) => {
       const isCmdOrCtrl = event.metaKey || event.ctrlKey;
