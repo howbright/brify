@@ -421,6 +421,58 @@ export default function AdminMapsOpsPage() {
             <p className="mt-2 max-w-3xl text-sm leading-6 text-neutral-600 sm:text-base">
               큐 적체, 최근 처리시간, 실패율, 실패 맵 목록을 한 화면에서 확인하는 운영 대시보드예요.
             </p>
+            <div className="mt-4 rounded-[24px] border border-slate-300 bg-white/80 px-4 py-4 text-sm leading-6 text-neutral-700 shadow-sm sm:px-5">
+              <div className="font-semibold text-neutral-900">
+                현재 운영 구성: API 서버 1개 + worker 5개
+              </div>
+              <div className="mt-2">
+                지금 기준에서 backlog가 짧고 P95 처리시간이 안정적이면 현재 worker 수를 유지해도 괜찮아요.
+                반대로 backlog가 자주 10을 넘고 20에 가까워지거나, active가 오랫동안 5 근처를 유지하면서
+                P95 처리시간이 계속 늘어나면 worker를 더 늘리는 쪽을 검토하는 게 좋아요.
+              </div>
+              <div className="mt-2">
+                실패율이 일시적으로 튀는 건 외부 장애일 수 있지만, 24시간 실패율이 10%를 자주 넘으면 OpenAI
+                모델, 프롬프트, 재시도 정책, 결제 상태, 입력 품질을 먼저 점검하는 게 좋아요.
+              </div>
+              <div className="mt-2">
+                권장 해석 기준:
+              </div>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-neutral-600">
+                <li>backlog 0~9: 안정 구간, 현재 worker 유지</li>
+                <li>backlog 10~19가 자주 반복: worker 증설 검토 시작</li>
+                <li>backlog 20 이상이 지속: 신규 생성 제한 또는 worker 즉시 증설 고려</li>
+                <li>active가 장시간 5에 고정: worker가 포화 상태일 가능성 높음</li>
+                <li>P95 AI 처리시간이 계속 상승: 모델/입력 분포/worker 수 함께 점검</li>
+                <li>24시간 실패율 10% 이상 반복: 장애 원인 분석 우선, 20% 이상이면 즉시 점검</li>
+              </ul>
+              <div className="mt-4 font-semibold text-neutral-900">
+                현재 들어가 있는 안정화 처리
+              </div>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-neutral-600">
+                <li>OpenAI 응답 형식이 깨지면 내부 재시도 최대 2회</li>
+                <li>BullMQ job 재시도 최대 5회</li>
+                <li>서버 재기동 시 processing / failed 맵 자동 복구</li>
+                <li>수동 복구 API로 운영 중에도 재큐잉 가능</li>
+                <li>
+                  복구는 Postgres advisory lock으로 한 인스턴스만 수행
+                  <span className="ml-1 text-neutral-500">
+                    (운영 env: <code>MAP_RECOVERY_ON_BOOTSTRAP</code>, API 서버 1개만
+                    <code className="ml-1">true</code>, worker들은
+                    <code className="ml-1">false</code>)
+                  </span>
+                </li>
+                <li>5분마다 운영 스냅샷 자동 저장 중</li>
+              </ul>
+              <div className="mt-4 font-semibold text-neutral-900">
+                큐 cap 운영 기준
+              </div>
+              <div className="mt-2 text-neutral-600">
+                현재 backlog 20을 운영 cap 기준으로 보고 있어요. 다만 이 숫자는 지금 대시보드에서
+                경고 기준으로 쓰는 값이고, 신규 생성 요청을 자동 차단하는 강제 로직은 아직 들어가 있지
+                않아요. 그래서 backlog가 20에 자주 닿는다면 worker를 늘리거나, 다음 단계로 실제 생성 차단
+                로직을 넣는 걸 검토해야 해요.
+              </div>
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-2">
