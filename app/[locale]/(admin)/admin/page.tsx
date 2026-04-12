@@ -14,7 +14,7 @@ export default async function AdminHomePage({
         관리자 가드가 정상 동작 중이에요. 환불 처리 화면으로 바로 이동할 수 있어요.
       </p>
 
-      <section className="mt-8 grid gap-4 sm:grid-cols-2">
+      <section className="mt-8 grid gap-4 lg:grid-cols-3">
         <Link
           href={`/${locale}/admin/refund`}
           className="rounded-3xl border border-slate-300 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
@@ -38,6 +38,19 @@ export default async function AdminHomePage({
           </h2>
           <p className="mt-2 text-sm leading-6 text-neutral-600">
             큐 backlog, 최근 처리시간, 실패율, 실패 맵 목록을 한 화면에서 확인해요.
+          </p>
+        </Link>
+
+        <Link
+          href={`/${locale}/admin/credits/gift`}
+          className="rounded-3xl border border-slate-300 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+        >
+          <div className="text-sm font-semibold text-blue-700">ADMIN GIFT</div>
+          <h2 className="mt-2 text-xl font-extrabold tracking-tight text-neutral-950">
+            무료 크레딧 선물 지급
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-neutral-600">
+            특정 사용자에게 free credits를 지급하고 트랜잭션과 알림까지 함께 기록해요.
           </p>
         </Link>
       </section>

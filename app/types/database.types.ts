@@ -872,6 +872,7 @@ export type Database = {
         | "refund_completed"
         | "credit_insufficient"
         | "system_info"
+        | "admin_gift_credits"
       notification_status:
         | "approved"
         | "rejected"
@@ -1072,6 +1073,7 @@ export const Constants = {
         "refund_completed",
         "credit_insufficient",
         "system_info",
+        "admin_gift_credits",
       ],
       notification_status: [
         "approved",

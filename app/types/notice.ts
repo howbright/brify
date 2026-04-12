@@ -15,6 +15,7 @@ export type NotificationStatus =
 
 export type NotificationEventType =
   | "signup_bonus"
+  | "admin_gift_credits"
   | "mission_approved"
   | "mission_rejected"
   | "payment_completed"
