@@ -502,6 +502,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     id: null,
     at: 0,
   });
+  const pendingDeselectTimerRef = useRef<number | null>(null);
   const longPressTimerRef = useRef<number | null>(null);
   const longPressTriggeredRef = useRef(false);
   const touchDragMovedAtRef = useRef(0);
@@ -592,11 +593,24 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   }, [onChange]);
 
   useEffect(() => {
+    return () => {
+      if (pendingDeselectTimerRef.current) {
+        window.clearTimeout(pendingDeselectTimerRef.current);
+        pendingDeselectTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     const wrapper = wrapperRef.current;
     const host = elRef.current;
     if (!wrapper || !host) return;
 
     const handleDblClick = (e: MouseEvent) => {
+      if (pendingDeselectTimerRef.current) {
+        window.clearTimeout(pendingDeselectTimerRef.current);
+        pendingDeselectTimerRef.current = null;
+      }
       if (editMode !== "view") return;
       const target = e.target as HTMLElement | null;
       if (!target) return;
@@ -812,6 +826,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     };
 
     const handleClick = (e: MouseEvent) => {
+      if (pendingDeselectTimerRef.current) {
+        window.clearTimeout(pendingDeselectTimerRef.current);
+        pendingDeselectTimerRef.current = null;
+      }
       if (Date.now() - touchDragMovedAtRef.current < 280) {
         touchDragMovedAtRef.current = 0;
         return;
@@ -836,6 +854,19 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       }
       const nodeId = nodeEl.getAttribute("data-nodeid");
       if (!nodeId) return;
+      if (selectedNodeIdRef.current === nodeId && e.detail === 1) {
+        pendingDeselectTimerRef.current = window.setTimeout(() => {
+          const mind = mindRef.current;
+          mind?.selection?.cancel?.();
+          setSelectedNodeId(null);
+          setSelectedRect(null);
+          selectedNodeElRef.current = null;
+          setSelectedNoteText(null);
+          setMobileActionNodeId(null);
+          pendingDeselectTimerRef.current = null;
+        }, 220);
+        return;
+      }
       applySelectionFromElement(nodeEl, nodeId);
     };
 

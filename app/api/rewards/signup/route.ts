@@ -10,15 +10,15 @@ export async function POST() {
   try {
     const supabase = await createClient();
     const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-    if (sessionError || !session?.user?.id) {
+    if (userError || !user?.id) {
       return NextResponse.json({ ok: false, error: "UNAUTHORIZED" }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     // locale은 쿠키나 프로필 기반으로 넣어도 되고, 일단 cookie 기준으로
     // (원하면 profiles.locale 읽어오는 걸로 바꿔도 됨)

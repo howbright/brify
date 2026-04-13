@@ -17,9 +17,9 @@ export default async function Home({
   const { locale } = await params;
   const supabase = await createClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const isAuthed = !!session;
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAuthed = !!user;
   const billingCurrency = getBillingCurrencyByLocale(locale);
   const billingCatalog = await fetchBillingCatalog(billingCurrency);
   const packs = billingCatalog.map((pack) => ({

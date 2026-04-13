@@ -43,12 +43,12 @@ export async function GET(req: Request) {
 
     const supabase = await createClient();
     const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
     // 로그인 안 되어있으면 빈 배열 반환
-    if (sessionError || !session?.user) {
+    if (userError || !user) {
       return NextResponse.json({ ok: true, items: [] }, { status: 200 });
     }
 

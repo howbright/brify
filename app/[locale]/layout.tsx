@@ -62,9 +62,12 @@ export default async function RootLayout({
   const { locale } = await params;
   const supabase = await createClient();
   const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const {
     data: { session },
   } = await supabase.auth.getSession();
-  // console.log("로그인을 했으니 session을 새로 가져오자", session);
+  const safeSession = user ? session : null;
   if (!hasLocale(routing.locales, locale)) {
     notFound();
   }
@@ -76,7 +79,7 @@ export default async function RootLayout({
       {" "}
       {/* ✅ 여기! 최상단에 감싸주기 */}
       <ReactQueryProvider>
-        <SessionProvider session={session}>
+        <SessionProvider session={safeSession}>
           <AuthRscRefresher /> {/* ← 여기! 헤더보다 위든 아래든 상관 없음 */}
           <NextIntlClientProvider locale={locale} messages={messages}>
             <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
