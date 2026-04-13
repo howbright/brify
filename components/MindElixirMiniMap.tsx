@@ -57,7 +57,7 @@ export default function MindElixirMiniMap({
   if (!show) return null;
 
   return (
-    <div className="pointer-events-auto absolute bottom-6 right-4 z-20 rounded-xl border border-neutral-200 bg-white p-2 shadow-sm dark:border-white/45 dark:bg-[#0b1220] dark:shadow-[0_16px_42px_-24px_rgba(15,23,42,0.92)]">
+    <div className="pointer-events-auto absolute bottom-6 right-4 z-20 rounded-xl border border-white/15 bg-[#0b1220] p-2 shadow-[0_16px_42px_-24px_rgba(15,23,42,0.92)]">
       <div className="flex items-center justify-start gap-1">
           {[
             {
@@ -90,7 +90,7 @@ export default function MindElixirMiniMap({
               key={action.label}
               type="button"
               onClick={action.onClick}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
+              className="inline-flex h-7 w-7 items-center justify-center rounded-full text-white/72 hover:bg-white/10 hover:text-white"
               aria-label={action.label}
               title={action.label}
             >
@@ -101,7 +101,7 @@ export default function MindElixirMiniMap({
             <button
               type="button"
               onClick={() => setCollapsed((prev) => !prev)}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
+              className="inline-flex h-7 w-7 items-center justify-center rounded-full text-white/72 hover:bg-white/10 hover:text-white"
               aria-label={collapsed ? "Expand mini map" : "Collapse mini map"}
             >
               <Icon

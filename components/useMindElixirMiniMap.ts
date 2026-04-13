@@ -109,19 +109,10 @@ export function useMindElixirMiniMap({
         offsetY,
       };
 
-      const isDarkMiniMap = effectiveMode === "dark";
-      const miniMapBg = isDarkMiniMap
-        ? "rgba(255, 255, 255, 0.08)"
-        : "rgba(15, 23, 42, 0.06)";
-      const miniMapEdge = isDarkMiniMap
-        ? "rgba(226, 232, 240, 0.5)"
-        : "rgba(51, 65, 85, 0.35)";
-      const miniMapNode = isDarkMiniMap
-        ? "rgba(241, 245, 249, 0.92)"
-        : "rgba(51, 65, 85, 0.8)";
-      const miniMapViewport = isDarkMiniMap
-        ? "rgba(96, 165, 250, 0.95)"
-        : "rgba(37, 99, 235, 0.75)";
+      const miniMapBg = "rgba(255, 255, 255, 0.06)";
+      const miniMapEdge = "rgba(191, 219, 254, 0.55)";
+      const miniMapNode = "rgba(248, 250, 252, 0.98)";
+      const miniMapViewport = "rgba(125, 211, 252, 0.98)";
 
       ctx.fillStyle = miniMapBg;
       ctx.fillRect(0, 0, rect.width, rect.height);
