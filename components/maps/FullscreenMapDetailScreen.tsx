@@ -971,6 +971,88 @@ export default function FullscreenMapDetailScreen({
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
+  const handlePrintMap = async () => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      toast.message(t("moreMenu.print"));
+      return;
+    }
+
+    printWindow.document.write(`
+      <!doctype html>
+      <html>
+        <head>
+          <title>${title}</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <style>
+            html, body {
+              margin: 0;
+              padding: 0;
+              background: #ffffff;
+            }
+            body {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              min-height: 100vh;
+              padding: 24px;
+              box-sizing: border-box;
+            }
+            .loading {
+              font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+              color: #475569;
+            }
+            img {
+              max-width: 100%;
+              max-height: calc(100vh - 48px);
+              object-fit: contain;
+              display: block;
+              margin: 0 auto;
+            }
+            @media print {
+              body {
+                padding: 0;
+                min-height: auto;
+              }
+              img {
+                width: 100%;
+                max-height: none;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="loading">${t("moreMenu.print")}</div>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+
+    try {
+      const blob = await mindRef.current?.exportPng?.();
+      if (!blob) {
+        printWindow.close();
+        toast.message(t("export.failed"));
+        return;
+      }
+
+      const url = URL.createObjectURL(blob);
+      printWindow.document.body.innerHTML = "";
+      const img = printWindow.document.createElement("img");
+      img.src = url;
+      img.alt = title;
+      img.onload = () => {
+        printWindow.focus();
+        printWindow.print();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+      };
+      printWindow.document.body.appendChild(img);
+    } catch {
+      printWindow.close();
+      toast.message(t("export.failed"));
+    }
+  };
+
   const fetchShareStatus = async () => {
     if (!mapId) return;
     try {
@@ -1360,6 +1442,19 @@ export default function FullscreenMapDetailScreen({
                     type="button"
                     onClick={() => {
                       setDesktopMoreOpen(false);
+                      void handlePrintMap();
+                    }}
+                    className={controlMenuItemClass}
+                  >
+                    <span className={controlMenuItemContentClass}>
+                      <Icon icon="mdi:printer-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                      <span>{t("moreMenu.print")}</span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDesktopMoreOpen(false);
                       setShortcutsOpen(true);
                     }}
                     className={controlMenuItemClass}
@@ -1572,6 +1667,16 @@ export default function FullscreenMapDetailScreen({
                 title="PNG 저장"
               >
                 <Icon icon="mdi:download" className="h-4 w-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => void handlePrintMap()}
+                className={controlIconButtonClass}
+                aria-label={t("moreMenu.print")}
+                title={t("moreMenu.print")}
+              >
+                <Icon icon="mdi:printer-outline" className="h-4 w-4" />
               </button>
 
               {!isAdminView ? (
