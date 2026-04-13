@@ -503,6 +503,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     at: 0,
   });
   const pendingDeselectTimerRef = useRef<number | null>(null);
+  const wasSelectedBeforePointerDownRef = useRef(false);
   const longPressTimerRef = useRef<number | null>(null);
   const longPressTriggeredRef = useRef(false);
   const touchDragMovedAtRef = useRef(0);
@@ -822,6 +823,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       if (!nodeEl || !(nodeEl instanceof HTMLElement)) return;
       const nodeId = nodeEl.getAttribute("data-nodeid");
       if (!nodeId) return;
+      wasSelectedBeforePointerDownRef.current =
+        selectedNodeIdRef.current === nodeId;
       applySelectionFromElement(nodeEl, nodeId);
     };
 
@@ -854,7 +857,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       }
       const nodeId = nodeEl.getAttribute("data-nodeid");
       if (!nodeId) return;
-      if (selectedNodeIdRef.current === nodeId && e.detail === 1) {
+      if (wasSelectedBeforePointerDownRef.current && e.detail === 1) {
         pendingDeselectTimerRef.current = window.setTimeout(() => {
           const mind = mindRef.current;
           mind?.selection?.cancel?.();
@@ -865,8 +868,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           setMobileActionNodeId(null);
           pendingDeselectTimerRef.current = null;
         }, 220);
+        wasSelectedBeforePointerDownRef.current = false;
         return;
       }
+      wasSelectedBeforePointerDownRef.current = false;
       applySelectionFromElement(nodeEl, nodeId);
     };
 
