@@ -23,13 +23,13 @@
       "generating": "구조맵 생성 중..."
     },
     "status": {
-      "reading": "영상 내용을 읽고 있어요...",
+      "reading": "내용을 읽고 있어요...",
       "splittingFlow": "큰 흐름을 먼저 나누는 중이에요...",
-      "arrangingStructure": "구조맵로 배치하고 있어요...",
+      "arrangingStructure": "구조맵으로 배치하고 있어요...",
       "almostThere": "조금만 더 기다려 주세요!"
     },
     "processing": {
-      "title": "영상을 구조맵로 정리하는 중이에요...",
+      "title": "콘텐츠를 구조맵으로 정리하는 중이에요...",
       "bullet1": "요약이 아니라, 흐름 · 단계 · 분기를 먼저 분석하고 있어요.",
       "bullet2": "영상 길이에 따라 수십 초 이상 걸릴 수 있어요.",
       "bullet3": "창을 닫지만 않으시면, 작업은 자동으로 이어져요."
@@ -41,7 +41,7 @@
     },
     "modal": {
       "title": "크레딧 사용 확인",
-      "usageText": "이 영상 스크립트를 구조맵로 변환하는 데 {credits} credit이 사용돼요.",
+      "usageText": "이 영상 스크립트를 구조맵으로 변환하는 데 {credits} credit이 사용돼요.",
       "bullet1": "영상이 길수록 처리 시간이 길어질 수 있어요.",
       "bullet2": "한 번 실행하면 되돌릴 수 없고, 사용된 크레딧은 환불되지 않아요.",
       "bullet3": "처리 중에는 이 페이지를 닫지 않으시는 것을 추천드려요.",
@@ -1503,10 +1503,11 @@
       "url": "유튜브 URL",
       "youtubeTitle": "유튜브 제목",
       "title": "제목",
-    "channel": "채널/출처",
-    "thumbnail": "썸네일",
-    "tags": "태그 (쉼표로 구분)",
-    "description": "설명"
+      "sameAsYoutubeTitle": "유튜브 제목과 동일",
+      "channel": "채널/출처",
+      "thumbnail": "썸네일",
+      "tags": "태그",
+      "description": "설명"
     },
     "placeholders": {
       "url": "https://youtube.com/watch?v=...",
@@ -1514,7 +1515,7 @@
       "title": "예: 콘텐츠 제목을 입력해 주세요",
       "channel": "채널명 / 작성자 / 출처",
       "thumbnailUrl": "(선택) 썸네일 URL",
-      "tags": "회의, 마케팅, 기획, OKR (쉼표로 구분)",
+      "tags": "태그를 입력하고 Enter로 추가",
       "description": "이 구조맵에 대한 메모/요약/설명 등을 입력해 주세요."
     },
     "buttons": {
@@ -1533,6 +1534,7 @@
     },
     "tags": {
       "removeTagAria": "태그 삭제",
+      "addTagAria": "태그 추가",
       "addTagPlaceholder": "태그 추가",
       "enterHint": "태그를 입력한 뒤 Enter를 누르면 추가됩니다.",
       "addFromExisting": "기존 태그에서 추가",

@@ -360,15 +360,26 @@ function expandPathToId(
   return false;
 }
 
-function centerMap(mind: any) {
+function centerMap(mind: any, beforeCenter?: () => void) {
   if (!mind) return;
+  beforeCenter?.();
   requestAnimationFrame(() => {
-    if (typeof mind.toCenter === "function") {
-      mind.toCenter();
-      return;
-    }
-    if (typeof mind.scaleFit === "function") {
-      mind.scaleFit();
+    const hasMountedCanvas =
+      mind.container instanceof HTMLElement ||
+      mind.wrapper instanceof HTMLElement ||
+      mind.el instanceof HTMLElement;
+    if (!hasMountedCanvas) return;
+
+    try {
+      if (typeof mind.toCenter === "function") {
+        mind.toCenter();
+        return;
+      }
+      if (typeof mind.scaleFit === "function") {
+        mind.scaleFit();
+      }
+    } catch (error) {
+      console.warn("[ME] centerMap skipped:", error);
     }
   });
 }
@@ -444,8 +455,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const locale = useLocale();
   const miniMapLabel = locale === "ko" ? "미니맵" : "Mini map";
   const miniMapCenterLabel = locale === "ko" ? "중심으로 이동" : "Center";
-  const miniMapZoomInLabel = locale === "ko" ? "줌인" : "Zoom in";
-  const miniMapZoomOutLabel = locale === "ko" ? "줌아웃" : "Zoom out";
+  const miniMapZoomInLabel =
+    locale === "ko" ? "줌인 (⌘+)" : "Zoom in (⌘+)";
+  const miniMapZoomOutLabel =
+    locale === "ko" ? "줌아웃 (⌘-)" : "Zoom out (⌘-)";
   const miniMapCollapseLevelLabel =
     locale === "ko" ? "한단계 접기" : "Collapse one level";
   const miniMapExpandLevelLabel =
@@ -578,6 +591,16 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     if (!normalized) return null;
     latestMindDataRef.current = cloneMindData(normalized.data);
     return normalizeMindData(latestMindDataRef.current);
+  };
+  const clearSelectionBeforeCenter = () => {
+    const mind = mindRef.current;
+    try {
+      mind?.unselectNodes?.();
+    } catch {}
+    setSelectedNodeId(null);
+    setSelectedRect(null);
+    setSelectedNoteText(null);
+    selectedNodeElRef.current = null;
   };
 
   const initTokenRef = useRef(0);
@@ -1101,7 +1124,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         setAllExpanded(nextNode, true);
         mind.refresh?.(next);
         currentLevelRef.current = getMaxDepth(nextNode);
-        centerMap(mind);
+        centerMap(mind, clearSelectionBeforeCenter);
       },
       collapseAll: () => {
         const mind = mindRef.current;
@@ -1116,7 +1139,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         setExpandedToLevel(nextNode, 1);
         mind.refresh?.(next);
         currentLevelRef.current = 1;
-        centerMap(mind);
+        centerMap(mind, clearSelectionBeforeCenter);
       },
       expandOneLevel: () => {
         const mind = mindRef.current;
@@ -1134,7 +1157,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         setExpandedToLevel(nextNode, target);
         mind.refresh?.(next);
         currentLevelRef.current = target;
-        centerMap(mind);
+        centerMap(mind, clearSelectionBeforeCenter);
       },
       collapseOneLevel: () => {
         const mind = mindRef.current;
@@ -1151,7 +1174,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         setExpandedToLevel(nextNode, target);
         mind.refresh?.(next);
         currentLevelRef.current = target;
-        centerMap(mind);
+        centerMap(mind, clearSelectionBeforeCenter);
       },
       expandToLevel: (level: number) => {
         const mind = mindRef.current;
@@ -1198,7 +1221,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         } else {
           mind.initSide?.();
         }
-        centerMap(mind);
+        centerMap(mind, clearSelectionBeforeCenter);
       },
       getSnapshot: () => {
         const mind = mindRef.current;
@@ -1224,7 +1247,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         }
       },
       centerMap: () => {
-        centerMap(mindRef.current);
+        centerMap(mindRef.current, clearSelectionBeforeCenter);
       },
       zoomIn: () => {
         const mind = mindRef.current;
@@ -2213,7 +2236,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         miniMapCollapseLevelLabel={miniMapCollapseLevelLabel}
         miniMapExpandLevelLabel={miniMapExpandLevelLabel}
         miniMapRef={miniMapRef}
-        onMiniMapCenter={() => centerMap(mindRef.current)}
+        onMiniMapCenter={() => centerMap(mindRef.current, clearSelectionBeforeCenter)}
         onMiniMapZoomIn={() => {
           const mind = mindRef.current;
           if (!mind || typeof mind.scale !== "function") return;
@@ -2241,7 +2264,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           setExpandedToLevel(nextNode, target);
           mind.refresh?.(next);
           currentLevelRef.current = target;
-          centerMap(mind);
+          centerMap(mind, clearSelectionBeforeCenter);
         }}
         onMiniMapExpandLevel={() => {
           const mind = mindRef.current;
@@ -2259,7 +2282,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           setExpandedToLevel(nextNode, target);
           mind.refresh?.(next);
           currentLevelRef.current = target;
-          centerMap(mind);
+          centerMap(mind, clearSelectionBeforeCenter);
         }}
         isFocusMode={isFocusMode}
         selectedRect={selectedRect}

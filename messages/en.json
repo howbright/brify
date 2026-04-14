@@ -23,13 +23,13 @@
       "generating": "Creating your Structure Map..."
     },
     "status": {
-      "reading": "Reading the video content...",
+      "reading": "Reading the content...",
       "splittingFlow": "Breaking it into high-level sections...",
       "arrangingStructure": "Laying everything out as a Structure Map...",
       "almostThere": "Almost done. Just a moment!"
     },
     "processing": {
-      "title": "We’re organizing your video into a Structure Map...",
+      "title": "We’re organizing your content into a Structure Map...",
       "bullet1": "Instead of just summarizing, we first analyze the flow, steps and branches.",
       "bullet2": "Depending on the length of the video, this can take tens of seconds or more.",
       "bullet3": "As long as you keep this page open, the process will continue automatically."
@@ -1503,6 +1503,7 @@
       "url": "YouTube URL",
       "youtubeTitle": "YouTube title",
       "title": "Title",
+      "sameAsYoutubeTitle": "Same as YouTube title",
       "channel": "Channel/Source (optional)",
       "thumbnail": "Thumbnail (optional)",
       "tags": "Tags (optional)",
@@ -1514,7 +1515,7 @@
       "title": "e.g., Enter a content title",
       "channel": "Channel / Author / Source",
       "thumbnailUrl": "(optional) Thumbnail URL",
-      "tags": "meeting, marketing, planning, OKR (comma-separated)",
+      "tags": "Type a tag and press Enter to add it",
       "description": "Add notes, summary, or description for this structure map."
     },
     "buttons": {
@@ -1529,10 +1530,11 @@
       "youtubeUrl": "Enter a YouTube URL to autofill the title, channel, and thumbnail.",
       "youtubeSkip": "You can continue without entering a URL.",
       "nonYoutubeUrl": "If it's not a YouTube URL, please fill in the fields below.",
-      "tags": "Separate tags with commas to save them."
+      "tags": ""
     },
     "tags": {
       "removeTagAria": "Remove tag",
+      "addTagAria": "Add tag",
       "addTagPlaceholder": "Add a tag",
       "enterHint": "Type a tag and press Enter to add it.",
       "addFromExisting": "Add from existing tags",

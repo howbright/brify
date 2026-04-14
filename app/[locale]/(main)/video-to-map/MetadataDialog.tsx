@@ -86,6 +86,10 @@ export default function MetadataDialog({
   });
   const [title, setTitle] = useState(initial.title ?? "");
   const [youtubeTitle, setYoutubeTitle] = useState(initial.youtubeTitle ?? "");
+  const [titleMatchesYoutube, setTitleMatchesYoutube] = useState(() => {
+    const initialSourceUrl = initial.sourceUrl ?? "";
+    return isYouTubeUrl(initialSourceUrl);
+  });
   const [channelName, setChannelName] = useState(initial.channelName ?? "");
   const [thumbnailUrl, setThumbnailUrl] = useState(initial.thumbnailUrl ?? "");
   const [tagInput, setTagInput] = useState("");
@@ -191,7 +195,9 @@ export default function MetadataDialog({
       if (json?.title) {
         const fetchedTitle = String(json.title);
         setYoutubeTitle(fetchedTitle);
-        setTitle(fetchedTitle);
+        if (titleMatchesYoutube) {
+          setTitle(fetchedTitle);
+        }
       }
       if (json?.channelName) setChannelName(String(json.channelName));
       if (json?.thumbnailUrl) setThumbnailUrl(String(json.thumbnailUrl));
@@ -238,8 +244,17 @@ export default function MetadataDialog({
   }, [sourceType]);
 
   useEffect(() => {
-    setTagItems(normalizeTags(initial.tags ?? []));
-  }, [initial.tags]);
+    if (!youtube) {
+      setTitleMatchesYoutube(false);
+      return;
+    }
+    setTitleMatchesYoutube(true);
+  }, [youtube]);
+
+  useEffect(() => {
+    if (!youtube || !titleMatchesYoutube) return;
+    setTitle(youtubeTitle);
+  }, [titleMatchesYoutube, youtube, youtubeTitle]);
 
   useEffect(() => {
     let cancelled = false;
@@ -265,8 +280,8 @@ export default function MetadataDialog({
     };
   }, []);
 
-  const handleAddTag = () => {
-    const next = tagInput.trim();
+  const handleAddTag = (rawValue?: unknown) => {
+    const next = String(rawValue ?? tagInput ?? "").trim();
     if (!next) return;
     setTagItems((prev) => normalizeTags([...prev, next]));
     setTagInput("");
@@ -577,22 +592,7 @@ export default function MetadataDialog({
 
             {detailsExpanded ? (
               <>
-                {/* Title + Channel */}
-                {youtube ? (
-                  <div className="grid gap-1.5 min-w-0">
-                    <label className="text-[17px] font-bold text-neutral-800 dark:text-neutral-100">
-                      {t("fields.youtubeTitle")}
-                    </label>
-                    <input
-                      value={youtubeTitle}
-                      readOnly
-                      placeholder={t("placeholders.youtubeTitle")}
-                      className="w-full min-w-0 rounded-2xl border border-slate-300 bg-neutral-100 px-3 py-2.5 text-[15px] text-neutral-600 dark:border-white/20 dark:bg-white/10 dark:text-white/75"
-                    />
-                  </div>
-                ) : null}
-
-                <div className="grid md:grid-cols-2 gap-3 min-w-0">
+                <div className="grid gap-3 min-w-0">
                   <div className="grid gap-1.5 min-w-0">
                     <div className="flex items-center justify-between gap-2 min-w-0">
                       <label className="text-[17px] font-bold text-neutral-800 dark:text-neutral-100">
@@ -607,11 +607,13 @@ export default function MetadataDialog({
                       value={title}
                       onChange={(e) => setTitle(e.target.value.slice(0, 200))}
                       placeholder={t("placeholders.title")}
+                      disabled={youtube && titleMatchesYoutube}
                       className={`
                         w-full min-w-0
                         rounded-2xl border bg-neutral-50 px-3 py-2.5 text-[15px]
                         focus:outline-none focus:ring-2
-                        dark:bg-white/5 dark:text-white dark:placeholder:text-white/40
+                        disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500
+                        dark:bg-white/5 dark:text-white dark:placeholder:text-white/40 dark:disabled:bg-white/10 dark:disabled:text-white/55
                         ${
                           titleError
                             ? "border-rose-300 focus:border-rose-400 focus:ring-rose-300/50 dark:border-rose-500/50"
@@ -619,12 +621,41 @@ export default function MetadataDialog({
                         }
                       `}
                     />
+                    {youtube ? (
+                      <label className="inline-flex items-center gap-2 text-[14px] font-medium text-neutral-600 dark:text-white/70">
+                        <input
+                          type="checkbox"
+                          checked={titleMatchesYoutube}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setTitleMatchesYoutube(checked);
+                            setTitle(checked ? youtubeTitle : "");
+                          }}
+                          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span>{t("fields.sameAsYoutubeTitle")}</span>
+                      </label>
+                    ) : null}
                     {titleError && (
                       <p className="text-[15px] leading-6 font-medium text-rose-600 dark:text-rose-300 break-words">
                         {titleError}
                       </p>
                     )}
                   </div>
+
+                  {youtube ? (
+                    <div className="grid gap-1.5 min-w-0">
+                      <label className="text-[17px] font-bold text-neutral-800 dark:text-neutral-100">
+                        {t("fields.youtubeTitle")}
+                      </label>
+                      <input
+                        value={youtubeTitle}
+                        readOnly
+                        placeholder={t("placeholders.youtubeTitle")}
+                        className="w-full min-w-0 rounded-2xl border border-slate-300 bg-neutral-100 px-3 py-2.5 text-[15px] text-neutral-600 dark:border-white/20 dark:bg-white/10 dark:text-white/75"
+                      />
+                    </div>
+                  ) : null}
 
                   <div className="grid gap-1.5 min-w-0">
                     <label className="text-[17px] font-bold text-neutral-800 dark:text-neutral-100">
@@ -768,14 +799,23 @@ export default function MetadataDialog({
                         onCompositionStart={() => setTagComposing(true)}
                         onCompositionEnd={() => setTagComposing(false)}
                         onKeyDown={(e) => {
-                          if (tagComposing || e.nativeEvent.isComposing) return;
-                          if (e.key !== "Enter" && e.key !== ",") return;
+                          if (e.key !== "Enter") return;
                           e.preventDefault();
-                          handleAddTag();
+                          if (tagComposing || e.nativeEvent.isComposing) return;
+                          handleAddTag(e.currentTarget.value);
                         }}
                         placeholder={t("tags.addTagPlaceholder")}
                         className="min-w-[140px] flex-1 border-0 bg-transparent px-0 py-0 text-[16px] text-neutral-900 placeholder:text-neutral-400 focus:outline-none dark:text-white dark:placeholder:text-white/40"
                       />
+                      <button
+                        type="button"
+                        onClick={handleAddTag}
+                        disabled={!tagInput.trim()}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-[rgb(var(--hero-b))] dark:text-[#081120] dark:hover:bg-[rgb(var(--hero-a))]"
+                        aria-label={t("tags.addTagAria")}
+                      >
+                        <Icon icon="mdi:plus" className="h-4 w-4" />
+                      </button>
                     </div>
 
                     <p className="text-[14px] font-medium text-neutral-500 dark:text-white/60">

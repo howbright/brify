@@ -1219,6 +1219,19 @@ export default function FullscreenMapDetailScreen({
     : hasDraft
     ? t("draftStatus.hasDraft")
     : undefined;
+  const mobileCenterLabel = locale === "ko" ? "가운데로" : "Center";
+  const mobileZoomInLabel = locale === "ko" ? "확대" : "Zoom in";
+  const mobileZoomOutLabel = locale === "ko" ? "축소" : "Zoom out";
+  const mobileCollapseLevelLabel =
+    locale === "ko" ? "한단계 접기" : "Collapse one level";
+  const mobileExpandLevelLabel =
+    locale === "ko" ? "한단계 펴기" : "Expand one level";
+  const mobileToolbarOpenLabel =
+    locale === "ko" ? "도구 펼치기" : "Open tools";
+  const mobileToolbarCloseLabel =
+    locale === "ko" ? "도구 접기" : "Close tools";
+  const mobileMapActionsLabel =
+    locale === "ko" ? "맵 조작" : "Map actions";
   const statusTone = isSavingDraft ? "warning" : savedPulse ? "success" : "neutral";
   const controlIconButtonClass =
     "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/80 bg-white/88 text-slate-600 shadow-[0_10px_26px_-18px_rgba(15,23,42,0.18)] backdrop-blur-sm transition hover:bg-white hover:text-slate-900 dark:border-white/10 dark:bg-[#0f172a]/82 dark:text-white/78 dark:shadow-[0_18px_40px_-26px_rgba(2,6,23,0.72)] dark:hover:bg-[#162033] dark:hover:text-white";
@@ -1582,8 +1595,8 @@ export default function FullscreenMapDetailScreen({
               setMobileThemeOpen(false);
             }}
             className={controlIconButtonClass}
-            aria-label={mobileToolbarCollapsed ? "도구 펼치기" : "도구 접기"}
-            title={mobileToolbarCollapsed ? "도구 펼치기" : "도구 접기"}
+            aria-label={mobileToolbarCollapsed ? mobileToolbarOpenLabel : mobileToolbarCloseLabel}
+            title={mobileToolbarCollapsed ? mobileToolbarOpenLabel : mobileToolbarCloseLabel}
           >
             <Icon
               icon={mobileToolbarCollapsed ? "mdi:chevron-left" : "mdi:chevron-right"}
@@ -1596,8 +1609,8 @@ export default function FullscreenMapDetailScreen({
                 type="button"
                 onClick={() => mindRef.current?.centerMap?.()}
                 className={controlIconButtonClass}
-                aria-label="가운데로"
-                title="가운데로"
+                aria-label={mobileCenterLabel}
+                title={mobileCenterLabel}
               >
                 <Icon icon="mdi:crosshairs-gps" className="h-4 w-4" />
               </button>
@@ -1605,8 +1618,8 @@ export default function FullscreenMapDetailScreen({
                 type="button"
                 onClick={() => mindRef.current?.zoomIn?.()}
                 className={controlIconButtonClass}
-                aria-label="확대"
-                title="확대"
+                aria-label={mobileZoomInLabel}
+                title={mobileZoomInLabel}
               >
                 <Icon icon="mdi:plus" className="h-4 w-4" />
               </button>
@@ -1614,27 +1627,36 @@ export default function FullscreenMapDetailScreen({
                 type="button"
                 onClick={() => mindRef.current?.zoomOut?.()}
                 className={controlIconButtonClass}
-                aria-label="축소"
-                title="축소"
+                aria-label={mobileZoomOutLabel}
+                title={mobileZoomOutLabel}
               >
                 <Icon icon="mdi:minus" className="h-4 w-4" />
               </button>
               <button
                 type="button"
-                onClick={() => mindRef.current?.collapseAll?.()}
+                onClick={() => mindRef.current?.collapseOneLevel?.()}
                 className={controlIconButtonClass}
-                aria-label="전체 접기"
-                title="전체 접기"
+                aria-label={mobileCollapseLevelLabel}
+                title={mobileCollapseLevelLabel}
               >
-                <Icon icon="mdi:collapse-all-outline" className="h-4 w-4" />
+                <Icon icon="mdi:unfold-less-horizontal" className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => mindRef.current?.expandOneLevel?.()}
+                className={controlIconButtonClass}
+                aria-label={mobileExpandLevelLabel}
+                title={mobileExpandLevelLabel}
+              >
+                <Icon icon="mdi:unfold-more-horizontal" className="h-4 w-4" />
               </button>
               <div className="relative" ref={mobileMapActionsRef}>
                 <button
                   type="button"
                   onClick={() => setMobileMapActionsOpen((v) => !v)}
                   className={controlIconButtonClass}
-                  aria-label="맵 조작"
-                  title="맵 조작"
+                  aria-label={mobileMapActionsLabel}
+                  title={mobileMapActionsLabel}
                 >
                   <Icon icon="mdi:vector-polyline" className="h-4 w-4" />
                 </button>

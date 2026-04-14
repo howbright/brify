@@ -188,7 +188,7 @@ export default function ClientMindElixirOverlay({
             }}
           />
           <div
-            className="absolute z-20"
+            className="absolute z-[15]"
             data-hover-actions="true"
             onPointerDown={(e) => {
               e.stopPropagation();

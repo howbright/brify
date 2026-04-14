@@ -58,7 +58,7 @@ export default function MindElixirMiniMap({
 
   return (
     <div className="pointer-events-auto absolute bottom-6 right-4 z-20 rounded-xl border border-white/15 bg-[#0b1220] p-2 shadow-[0_16px_42px_-24px_rgba(15,23,42,0.92)]">
-      <div className="flex items-center justify-start gap-1">
+      <div className="flex items-center justify-start gap-1.5">
           {[
             {
               icon: "mdi:crosshairs-gps",
@@ -90,24 +90,30 @@ export default function MindElixirMiniMap({
               key={action.label}
               type="button"
               onClick={action.onClick}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-full text-white/72 hover:bg-white/10 hover:text-white"
+              className="group relative inline-flex h-8 w-8 items-center justify-center rounded-full text-white/92 transition-colors hover:bg-sky-400/18 hover:text-white focus:outline-none"
               aria-label={action.label}
               title={action.label}
             >
-              <Icon icon={action.icon} className="h-4 w-4" />
+              <Icon icon={action.icon} className="h-4.5 w-4.5" />
+              <span className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/88 px-2 py-1 text-[10px] font-medium text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                {action.label}
+              </span>
             </button>
           ))}
           {isTouchDevice ? (
             <button
               type="button"
               onClick={() => setCollapsed((prev) => !prev)}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-full text-white/72 hover:bg-white/10 hover:text-white"
+              className="group relative inline-flex h-8 w-8 items-center justify-center rounded-full text-white/92 transition-colors hover:bg-sky-400/18 hover:text-white focus:outline-none"
               aria-label={collapsed ? "Expand mini map" : "Collapse mini map"}
             >
               <Icon
                 icon={collapsed ? "mdi:chevron-up" : "mdi:chevron-down"}
-                className="h-4 w-4"
+                className="h-4.5 w-4.5"
               />
+              <span className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/88 px-2 py-1 text-[10px] font-medium text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                {collapsed ? "Expand mini map" : "Collapse mini map"}
+              </span>
             </button>
           ) : null}
       </div>
