@@ -1,7 +1,8 @@
 export type MapJobStatus =
   | "idle"
   | "queued"
-  | "processing"
+  | "processing_structure"
+  | "processing_metadata"
   | "done"
   | "failed";
 
@@ -14,6 +15,7 @@ export type MapDraft = {
   sourceUrl?: string;
   sourceType?: "youtube" | "website" | "file" | "manual";
   title: string;
+  youtubeTitle?: string;
   shortTitle?: string;
   channelName?: string;
   tags: string[];

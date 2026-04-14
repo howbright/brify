@@ -100,10 +100,17 @@ function getInitialFullyCollapsedMapData<T>(raw: T): T {
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
 
 function coerceMapStatus(status?: string | null): MapJobStatus {
-  if (status === "done" || status === "failed" || status === "processing") {
+  if (
+    status === "done" ||
+    status === "failed" ||
+    status === "queued" ||
+    status === "idle" ||
+    status === "processing_structure" ||
+    status === "processing_metadata"
+  ) {
     return status;
   }
-  return "processing";
+  return "processing_structure";
 }
 
 function withCacheBuster(url: string) {
@@ -425,6 +432,84 @@ export default function FullscreenMapDetailScreen({
     setTutorialOpen(!tutorialCompleted);
     setTutorialStepIndex(0);
   }, [loading, draft?.id, isTutorialMobile]);
+
+  useEffect(() => {
+    if (!mapId || !draft) return;
+
+    const isActiveStatus =
+      draft.status === "idle" ||
+      draft.status === "queued" ||
+      draft.status === "processing_structure" ||
+      draft.status === "processing_metadata";
+
+    if (!isActiveStatus) return;
+
+    let cancelled = false;
+
+    const refreshMap = async () => {
+      try {
+        if (isAdminView) {
+          const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+          if (!baseUrl) return;
+
+          const supabase = createClient();
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+
+          const accessToken = session?.access_token;
+          if (!accessToken) return;
+
+          const response = await fetch(`${baseUrl}/admin/maps/${mapId}/inspect`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            cache: "no-store",
+          });
+
+          if (!response.ok || cancelled) return;
+          const data = (await response.json()) as AdminInspectMapResponse;
+          if (cancelled) return;
+          setDraft(toDraftFromAdminInspect(data));
+          if (data?.mindElixir) {
+            setMapData((prev) => prev ?? data.mindElixir);
+          }
+          return;
+        }
+
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("maps")
+          .select(
+            "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,mind_elixir,mind_elixir_draft,mind_theme_override"
+          )
+          .eq("id", mapId)
+          .single();
+
+        if (error || cancelled || !data) return;
+
+        const row = data as MapRow;
+        setDraft(toDraft(row));
+        const effectiveMind = row?.mind_elixir_draft ?? row?.mind_elixir ?? null;
+        setHasDraft(Boolean(row?.mind_elixir_draft));
+        if (effectiveMind) {
+          setMapData((prev) => prev ?? effectiveMind);
+        }
+      } catch {
+        // ignore polling errors and keep the current screen stable
+      }
+    };
+
+    void refreshMap();
+    const timer = window.setInterval(() => {
+      void refreshMap();
+    }, 4000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [draft?.status, isAdminView, mapId, draft?.id]);
 
   useEffect(() => {
     if (!tagEditOpen) return;

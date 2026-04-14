@@ -58,7 +58,7 @@ export default function MapTableList({
             label: statusLabels[draft.status] ?? t("status.failed"),
             cls: "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-400/25 dark:bg-rose-500/10 dark:text-rose-200",
           }
-        : draft.status === "processing"
+        : draft.status === "processing_structure" || draft.status === "processing_metadata"
         ? {
             label: statusLabels[draft.status] ?? t("status.processing"),
             cls: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-400/25 dark:bg-blue-500/10 dark:text-blue-200",
@@ -80,7 +80,7 @@ export default function MapTableList({
         {drafts.map((draft) => {
           const isSelected = previewOpen && draft.id === selectedId;
           const isOpeningDetail = openingDetailId === draft.id;
-          const canOpenDetail = draft.status === "done";
+          const canOpenDetail = draft.status === "done" || draft.status === "processing_metadata";
           const displayTitle = getDisplayTitle(draft);
           const tags = draft.tags ?? [];
           const visibleTags = tags.slice(0, 2);
@@ -225,7 +225,7 @@ export default function MapTableList({
           {drafts.map((draft) => {
             const isSelected = previewOpen && draft.id === selectedId;
             const isOpeningDetail = openingDetailId === draft.id;
-            const canOpenDetail = draft.status === "done";
+            const canOpenDetail = draft.status === "done" || draft.status === "processing_metadata";
             const displayTitle = getDisplayTitle(draft);
             const tags = draft.tags ?? [];
             const visibleTags = tags.slice(0, 2);

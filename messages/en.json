@@ -1282,7 +1282,10 @@
     "descriptionSection": "Description",
     "noDescription": "No description",
     "termsIntro": "AI automatically extracts key terms to help you understand the content.",
-    "requestFailed": "Request failed"
+    "requestFailed": "Request failed",
+    "metadataPending": "Generating metadata now.",
+    "metadataPendingSummary": "Generating the one-paragraph summary.",
+    "metadataPendingTags": "Generating tags now."
   },
   "RightPanel": {
     "tabs": {
@@ -1498,6 +1501,7 @@
       "sourceTypeYes": "Yes",
       "sourceTypeNo": "No",
       "url": "YouTube URL",
+      "youtubeTitle": "YouTube title",
       "title": "Title",
       "channel": "Channel/Source (optional)",
       "thumbnail": "Thumbnail (optional)",
@@ -1506,6 +1510,7 @@
     },
     "placeholders": {
       "url": "https://youtube.com/watch?v=...",
+      "youtubeTitle": "Original YouTube title",
       "title": "e.g., Enter a content title",
       "channel": "Channel / Author / Source",
       "thumbnailUrl": "(optional) Thumbnail URL",

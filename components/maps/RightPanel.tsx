@@ -39,7 +39,7 @@ export default function RightPanel({
   const [termsLoading, setTermsLoading] = useState(false);
   const [termsError, setTermsError] = useState<string | null>(null);
   const [termsStatus, setTermsStatus] = useState<
-    "idle" | "queued" | "processing" | "done" | "failed"
+    "idle" | "queued" | "processing_structure" | "processing_metadata" | "done" | "failed"
   >("idle");
   const [termsRequestedInSession, setTermsRequestedInSession] = useState(false);
   const [hasTermsRequest, setHasTermsRequest] = useState(false);
@@ -307,7 +307,7 @@ export default function RightPanel({
         return;
       }
 
-      if (status === "idle" || status === "queued" || status === "processing") {
+      if (status === "idle" || status === "queued" || status === "processing_structure" || status === "processing_metadata") {
         setTermsStatus(status);
         startTermsPolling();
         setTermsError(null);
@@ -518,7 +518,8 @@ export default function RightPanel({
             (termsRequestedInSession &&
               (termsStatus === "idle" ||
                 termsStatus === "queued" ||
-                termsStatus === "processing"))
+                termsStatus === "processing_structure" ||
+                      termsStatus === "processing_metadata"))
           }
           error={termsError}
           usedCount={0}

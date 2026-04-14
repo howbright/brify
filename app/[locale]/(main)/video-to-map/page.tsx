@@ -107,15 +107,22 @@ function withCacheBuster(url: string) {
 }
 
 const DRAFT_SELECT_FIELDS =
-  "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
+  "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
 const MAP_CREATE_TIMEOUT_MS = 45_000;
 
 function coerceMapStatus(status?: string | null): MapJobStatus {
-  if (status === "done" || status === "failed" || status === "processing") {
+  if (
+    status === "done" ||
+    status === "failed" ||
+    status === "queued" ||
+    status === "idle" ||
+    status === "processing_structure" ||
+    status === "processing_metadata"
+  ) {
     return status;
   }
-  // map_status가 "queued"/"idle" 등인 경우 처리 중으로 간주
-  return "processing";
+  // map_status가 작업 중 상태라면 processing_structure 쪽으로 기본 처리
+  return "processing_structure";
 }
 
 export default function VideoToMapPage() {
@@ -201,6 +208,9 @@ export default function VideoToMapPage() {
     [t]
   );
 
+  const hasPendingGeneratedMap = Boolean(pendingAutoOpenMapId);
+  const inputLocked = isProcessing || hasPendingGeneratedMap;
+
   const buildTooLargeMessage = (current: number) =>
     [
       t("errors.tooLargeLine1"),
@@ -282,7 +292,7 @@ export default function VideoToMapPage() {
     if (!pendingAutoOpenMapId) return;
     const targetDraft = drafts.find((draft) => draft.id === pendingAutoOpenMapId);
     if (!targetDraft) return;
-    if (targetDraft.status !== "done") return;
+    if (targetDraft.status !== "done" && targetDraft.status !== "processing_metadata") return;
     setPendingAutoOpenMapId(null);
     router.push(`/${locale}/maps/${pendingAutoOpenMapId}`);
   }, [drafts, locale, pendingAutoOpenMapId, router]);
@@ -463,6 +473,7 @@ export default function VideoToMapPage() {
       }
 
       const sourceUrl = youtubeMeta?.sourceUrl || youtubeUrl || undefined;
+      const initialMapTitle = youtubeMeta?.title?.trim() || t("labels.untitled");
       const controller = new AbortController();
       const timeoutId = window.setTimeout(() => {
         controller.abort();
@@ -475,7 +486,8 @@ export default function VideoToMapPage() {
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          title: t("labels.untitled"),
+          title: initialMapTitle,
+          youtube_title: youtubeMeta?.title?.trim() || undefined,
           extracted_text: scriptText,
           source_type: detectSourceType(sourceUrl),
           source_url: sourceUrl,
@@ -517,7 +529,7 @@ export default function VideoToMapPage() {
           tags: [],
           description: "",
           sourceCharCount: normalized.length || undefined,
-          status: "processing",
+          status: "processing_structure",
         };
 
         return [optimisticDraft, ...prev];
@@ -542,6 +554,7 @@ export default function VideoToMapPage() {
   const handleSaveMetadata = async (meta: {
     sourceUrl?: string;
     title: string;
+    youtubeTitle?: string;
     channelName?: string;
     thumbnailUrl?: string;
     tags: string[];
@@ -586,6 +599,7 @@ export default function VideoToMapPage() {
         },
         body: JSON.stringify({
           title: meta.title,
+          youtube_title: meta.youtubeTitle,
           description: meta.description,
           tags: meta.tags ?? [],
           thumbnail_url: meta.thumbnailUrl,
@@ -626,6 +640,7 @@ export default function VideoToMapPage() {
                   .source_type as MapDraft["sourceType"])
               : undefined,
             title: data.title ?? t("labels.untitled"),
+            youtubeTitle: (data as { youtube_title?: string | null }).youtube_title ?? undefined,
             shortTitle: data.short_title ?? undefined,
             channelName: data.channel_name ?? undefined,
             thumbnailUrl: data.thumbnail_url
@@ -666,11 +681,12 @@ export default function VideoToMapPage() {
           createdAt: Date.now(),
           sourceUrl: meta.sourceUrl,
           title: meta.title || t("labels.untitled"),
+          youtubeTitle: meta.youtubeTitle,
           channelName: meta.channelName,
           thumbnailUrl: cacheBustedThumb,
           tags: meta.tags ?? [],
           description: meta.description,
-          status: "processing",
+          status: "processing_structure",
         };
 
         const exists = prev.some((d) => d.id === id);
@@ -759,7 +775,7 @@ export default function VideoToMapPage() {
               setScriptText={setScriptText}
               error={error}
               showInsufficientCreditsCard={showInsufficientCreditsCard}
-              isProcessing={isProcessing}
+              isProcessing={inputLocked}
               currentCredits={currentCredits}
               requiredCredits={requiredCredits}
               onGenerate={handleClickGenerate}
@@ -771,7 +787,7 @@ export default function VideoToMapPage() {
               }}
               outputLang={outputLang}
               setOutputLang={setOutputLang}
-              disabled={showMetadataDialog}
+              disabled={showMetadataDialog || hasPendingGeneratedMap}
               // ✅ 핵심: 한도 초과 UI 처리 props 내려주기
               isTooLarge={showInputTooLargeUI}
               billingLength={creditInfo.length}
@@ -851,6 +867,7 @@ export default function VideoToMapPage() {
           initial={{
             sourceUrl: editingDraft?.sourceUrl ?? youtubeMeta?.sourceUrl ?? "",
             title: editingDraft?.title ?? youtubeMeta?.title ?? "",
+            youtubeTitle: editingDraft?.youtubeTitle ?? youtubeMeta?.title ?? "",
             channelName:
               editingDraft?.channelName ?? youtubeMeta?.channelName ?? "",
             tags: editingDraft?.tags ?? [],
@@ -866,7 +883,7 @@ export default function VideoToMapPage() {
             setIsProcessing(false);
           }}
           onSave={handleSaveMetadata}
-          isProcessing={isProcessing}
+          isProcessing={inputLocked}
           processingTitle={t("processing.title")}
           processingMessage={statusMessages[statusStep]}
           processingBullets={[

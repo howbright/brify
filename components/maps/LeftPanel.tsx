@@ -83,6 +83,7 @@ export default function LeftPanel({
     () => map.title?.trim() || t("untitled"),
     [map.title, t]
   );
+  const metadataPending = map.status === "processing_metadata";
 
   const [internalTab, setInternalTab] = useState<LeftPanelTab>(tab ?? "info");
   const [notesSubtab, setNotesSubtab] = useState<NotesSubtab>("memo");
@@ -100,7 +101,7 @@ export default function LeftPanel({
   const [termsLoading, setTermsLoading] = useState(false);
   const [termsError, setTermsError] = useState<string | null>(null);
   const [termsStatus, setTermsStatus] = useState<
-    "idle" | "queued" | "processing" | "done" | "failed"
+    "idle" | "queued" | "processing_structure" | "processing_metadata" | "done" | "failed"
   >("idle");
   const [termsRequestedInSession, setTermsRequestedInSession] = useState(false);
   const [hasTermsRequest, setHasTermsRequest] = useState(false);
@@ -454,7 +455,7 @@ export default function LeftPanel({
         return;
       }
 
-      if (status === "idle" || status === "queued" || status === "processing") {
+      if (status === "idle" || status === "queued" || status === "processing_structure" || status === "processing_metadata") {
         setTermsStatus(status);
         startTermsPolling();
         setTermsError(null);
@@ -703,8 +704,15 @@ export default function LeftPanel({
           </div>
 
           {activeTab === "info" && (
-            <div className="mt-3 text-[17px] font-bold text-neutral-900 dark:text-white/90 whitespace-normal break-words leading-6">
-              {displayTitle}
+            <div className="mt-3 space-y-1.5">
+              <div className="text-[17px] font-bold text-neutral-900 dark:text-white/90 whitespace-normal break-words leading-6">
+                {displayTitle}
+              </div>
+              {metadataPending ? (
+                <div className="text-[12px] font-medium text-blue-700 dark:text-blue-200/85">
+                  {t("metadataPending")}
+                </div>
+              ) : null}
             </div>
           )}
         </div>
@@ -745,7 +753,7 @@ export default function LeftPanel({
                   </button>
                 </div>
               )}
-              {map.summary ? (
+              {map.summary || metadataPending ? (
                 <section className="mb-4">
                   <div className="mb-2.5 flex items-center gap-2">
                     <div className="h-5 w-1 rounded-full bg-blue-200 dark:bg-blue-500/40" />
@@ -763,7 +771,7 @@ export default function LeftPanel({
                     "
                   >
                     <p className="whitespace-pre-wrap break-words">
-                      {map.summary}
+                      {map.summary || t("metadataPendingSummary")}
                     </p>
                   </div>
                 </section>
@@ -892,6 +900,8 @@ export default function LeftPanel({
                         </span>
                       ))}
                     </div>
+                  ) : metadataPending ? (
+                    <EmptyText>{t("metadataPendingTags")}</EmptyText>
                   ) : (
                     <EmptyText>{t("noTags")}</EmptyText>
                   )}
@@ -964,7 +974,8 @@ export default function LeftPanel({
                   (termsRequestedInSession &&
                     (termsStatus === "idle" ||
                       termsStatus === "queued" ||
-                      termsStatus === "processing"))
+                      termsStatus === "processing_structure" ||
+                      termsStatus === "processing_metadata"))
                 }
                 error={termsError}
                 usedCount={0}

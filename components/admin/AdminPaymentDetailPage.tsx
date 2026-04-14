@@ -107,7 +107,7 @@ type PaymentDetailResponse = {
         title: string | null;
         sourceType: "youtube" | "website" | "file" | "manual" | null;
         sourceUrl: string | null;
-        mapStatus: "processing" | "done" | "failed" | "idle" | "queued" | null;
+        mapStatus: "processing_structure" | "processing_metadata" | "done" | "failed" | "idle" | "queued" | null;
         creditsCharged: number | null;
         createdAt: string | null;
       };

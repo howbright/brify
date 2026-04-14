@@ -39,7 +39,8 @@ export function useMapDraftStatusPolling(
         (d) =>
           d.status === "idle" ||
           d.status === "queued" ||
-          d.status === "processing"
+          d.status === "processing_structure" ||
+          d.status === "processing_metadata"
       ),
     [drafts]
   );
@@ -67,7 +68,8 @@ export function useMapDraftStatusPolling(
           (d) =>
             d.map_status === "idle" ||
             d.map_status === "queued" ||
-            d.map_status === "processing"
+            d.map_status === "processing_structure" ||
+            d.map_status === "processing_metadata"
         );
         return hasActiveJob ? refreshMs : 0;
       },

@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import type { MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 
+export type MapStatusFilter = MapJobStatus | "processing";
+
 type SourceType = "youtube" | "website" | "file" | "manual";
 type ContentFilter = "notes" | "terms";
 
@@ -18,7 +20,7 @@ type DatePresetId = (typeof DATE_PRESETS)[number]["id"] | "custom";
 type SortValue = "created_desc" | "created_asc" | "updated_desc" | "title_asc";
 
 type UseMapsListControlsOptions = {
-  statusLabels: Record<MapJobStatus, string>;
+  statusLabels: Record<MapStatusFilter, string>;
   sourceLabels: Record<SourceType, string>;
   contentLabels: Record<ContentFilter, string>;
   datePresetLabels: Record<Exclude<DatePresetId, "custom">, string>;
@@ -62,7 +64,7 @@ export default function useMapsListControls({
   const [datePreset, setDatePreset] = useState<DatePresetId>("30d");
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
-  const [statusFilters, setStatusFilters] = useState<MapJobStatus[]>([]);
+  const [statusFilters, setStatusFilters] = useState<MapStatusFilter[]>([]);
   const [sourceFilters, setSourceFilters] = useState<SourceType[]>([]);
   const [contentFilters, setContentFilters] = useState<ContentFilter[]>([]);
 

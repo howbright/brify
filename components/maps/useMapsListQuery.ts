@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/app/types/database.types";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
+import type { MapStatusFilter } from "./useMapsListControls";
 
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
 type SourceType = "youtube" | "website" | "file" | "manual";
@@ -19,21 +20,22 @@ type UseMapsListQueryParams = {
   includesNoTagFilter: boolean;
   effectiveTagFilters: string[];
   dateRange: { from: string | null; to: string | null };
-  statusFilters: MapJobStatus[];
+  statusFilters: MapStatusFilter[];
   sourceFilters: SourceType[];
   contentFilters: ContentFilter[];
   locale?: string | null;
   toDraft: (row: MapRow) => MapDraft;
 };
 
-function expandStatusFilters(statusFilters: MapJobStatus[]) {
+function expandStatusFilters(statusFilters: MapStatusFilter[]) {
   const expanded = new Set<MapJobStatus>();
 
   statusFilters.forEach((status) => {
-    if (status === "processing") {
+    if (status === "processing" || status === "processing_structure" || status === "processing_metadata") {
       expanded.add("idle");
       expanded.add("queued");
-      expanded.add("processing");
+      expanded.add("processing_structure");
+      expanded.add("processing_metadata");
       return;
     }
     expanded.add(status);
@@ -72,7 +74,7 @@ export default function useMapsListQuery({
     setRefreshNonce((value) => value + 1);
   }, []);
 
-  const hasInFlightMaps = drafts.some((draft) => draft.status === "processing");
+  const hasInFlightMaps = drafts.some((draft) => draft.status === "processing_structure" || draft.status === "processing_metadata");
 
   useEffect(() => {
     let cancelled = false;

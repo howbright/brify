@@ -9,6 +9,7 @@ import { resizeToWebp, validateImageFile } from "@/utils/image";
 type Meta = {
   sourceUrl?: string;
   title: string;
+  youtubeTitle?: string;
   channelName?: string;
   thumbnailUrl?: string;
   tags: string[];
@@ -51,6 +52,7 @@ type Props = {
   initial: {
     sourceUrl?: string;
     title?: string;
+    youtubeTitle?: string;
     channelName?: string;
     thumbnailUrl?: string;
     tags?: string[];
@@ -83,6 +85,7 @@ export default function MetadataDialog({
     return isYouTubeUrl(initialSourceUrl) ? "youtube" : "manual";
   });
   const [title, setTitle] = useState(initial.title ?? "");
+  const [youtubeTitle, setYoutubeTitle] = useState(initial.youtubeTitle ?? "");
   const [channelName, setChannelName] = useState(initial.channelName ?? "");
   const [thumbnailUrl, setThumbnailUrl] = useState(initial.thumbnailUrl ?? "");
   const [tagInput, setTagInput] = useState("");
@@ -185,7 +188,11 @@ export default function MetadataDialog({
         );
       }
 
-      if (json?.title) setTitle(String(json.title));
+      if (json?.title) {
+        const fetchedTitle = String(json.title);
+        setYoutubeTitle(fetchedTitle);
+        setTitle(fetchedTitle);
+      }
       if (json?.channelName) setChannelName(String(json.channelName));
       if (json?.thumbnailUrl) setThumbnailUrl(String(json.thumbnailUrl));
       if (json?.description) setDescription(String(json.description));
@@ -378,6 +385,7 @@ export default function MetadataDialog({
     const meta: Meta = {
       sourceUrl: sourceUrl.trim() || undefined,
       title: title.trim(),
+      youtubeTitle: youtubeTitle.trim() || undefined,
       channelName: channelName.trim() || undefined,
       thumbnailUrl: finalThumbUrl,
       tags: tagItems,
@@ -570,6 +578,20 @@ export default function MetadataDialog({
             {detailsExpanded ? (
               <>
                 {/* Title + Channel */}
+                {youtube ? (
+                  <div className="grid gap-1.5 min-w-0">
+                    <label className="text-[17px] font-bold text-neutral-800 dark:text-neutral-100">
+                      {t("fields.youtubeTitle")}
+                    </label>
+                    <input
+                      value={youtubeTitle}
+                      readOnly
+                      placeholder={t("placeholders.youtubeTitle")}
+                      className="w-full min-w-0 rounded-2xl border border-slate-300 bg-neutral-100 px-3 py-2.5 text-[15px] text-neutral-600 dark:border-white/20 dark:bg-white/10 dark:text-white/75"
+                    />
+                  </div>
+                ) : null}
+
                 <div className="grid md:grid-cols-2 gap-3 min-w-0">
                   <div className="grid gap-1.5 min-w-0">
                     <div className="flex items-center justify-between gap-2 min-w-0">

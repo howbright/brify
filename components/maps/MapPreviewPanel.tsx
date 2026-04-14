@@ -44,7 +44,7 @@ export default function MapPreviewPanel({
   const miniRef = useRef<MapMiniPreviewHandle | null>(null);
   const autoZoomedMapIdRef = useRef<string | null>(null);
   const summary = draft?.summary ?? draft?.description ?? t("noSummary");
-  const canOpenDetail = draft?.status === "done";
+  const canOpenDetail = draft?.status === "done" || draft?.status === "processing_metadata";
 
   useEffect(() => {
     if (previewStatus !== "loaded" || !draft?.id) return;

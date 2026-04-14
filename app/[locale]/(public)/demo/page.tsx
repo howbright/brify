@@ -39,7 +39,7 @@ function buildDemoDraft(
     description: DEMO.summaryByLanguage[sampleLocale],
     summary: DEMO.summaryByLanguage[sampleLocale],
     sourceCharCount: scriptText.length,
-    status: "processing",
+    status: "processing_structure",
     requiredCredits: 1,
   };
 }

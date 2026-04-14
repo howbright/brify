@@ -34,7 +34,7 @@ import MobileTagSheet from "@/components/maps/MobileTagSheet";
 import useMapSelectionMerge from "@/components/maps/useMapSelectionMerge";
 import useMapPreview from "@/components/maps/useMapPreview";
 import useMapTags from "@/components/maps/useMapTags";
-import useMapsListControls from "@/components/maps/useMapsListControls";
+import useMapsListControls, { type MapStatusFilter } from "@/components/maps/useMapsListControls";
 import useMapDeletion from "@/components/maps/useMapDeletion";
 import useMapsListQuery from "@/components/maps/useMapsListQuery";
 import useRecentMaps from "@/components/maps/useRecentMaps";
@@ -56,10 +56,17 @@ const PAGE_SIZE = 20;
 const NO_TAG_FILTER = "__NO_TAG__";
 
 function coerceMapStatus(status?: string | null): MapJobStatus {
-  if (status === "done" || status === "failed" || status === "processing") {
+  if (
+    status === "done" ||
+    status === "failed" ||
+    status === "queued" ||
+    status === "idle" ||
+    status === "processing_structure" ||
+    status === "processing_metadata"
+  ) {
     return status;
   }
-  return "processing";
+  return "processing_structure";
 }
 
 function withCacheBuster(url: string) {
@@ -273,11 +280,13 @@ export default function MapsPage() {
         : { maps: "Maps", notes: "Notes", terms: "Terms" },
     [locale]
   );
-  const statusLabels = useMemo<Record<MapJobStatus, string>>(
+  const statusLabels = useMemo<Record<MapStatusFilter, string>>(
     () => ({
       idle: tCommon("status.idle"),
       queued: tCommon("status.queued"),
       processing: tCommon("status.processing"),
+      processing_structure: tCommon("status.processing"),
+      processing_metadata: tCommon("status.processing"),
       done: tCommon("status.done"),
       failed: tCommon("status.failed"),
     }),
@@ -332,7 +341,7 @@ export default function MapsPage() {
   );
 
   const handleOpenDetail = (item: MapDraft) => {
-    if (item.status !== "done") {
+    if (item.status !== "done" && item.status !== "processing_metadata") {
       const blockedMessage =
         locale === "ko"
           ? item.status === "failed"
@@ -350,7 +359,7 @@ export default function MapsPage() {
   };
 
   const handlePrefetchDetail = (item: MapDraft) => {
-    if (item.status !== "done") return;
+    if (item.status !== "done" && item.status !== "processing_metadata") return;
     const nextUrl = locale ? `/${locale}/maps/${item.id}` : `/maps/${item.id}`;
     router.prefetch(nextUrl);
   };

@@ -470,6 +470,7 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          youtube_title: string | null
         }
         Insert: {
           ai_processing_ms?: number | null
@@ -504,6 +505,7 @@ export type Database = {
           title: string
           updated_at?: string
           user_id: string
+          youtube_title?: string | null
         }
         Update: {
           ai_processing_ms?: number | null
@@ -538,6 +540,7 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          youtube_title?: string | null
         }
         Relationships: []
       }
@@ -853,7 +856,13 @@ export type Database = {
         | "error"
         | "not_found"
       map_source_type: "youtube" | "website" | "file" | "manual"
-      map_status: "processing" | "done" | "failed" | "idle" | "queued"
+      map_status:
+        | "queued"
+        | "processing_structure"
+        | "processing_metadata"
+        | "done"
+        | "failed"
+        | "idle"
       map_term_request_kind: "auto" | "custom"
       map_term_request_status:
         | "processing"
@@ -1053,7 +1062,14 @@ export const Constants = {
         "not_found",
       ],
       map_source_type: ["youtube", "website", "file", "manual"],
-      map_status: ["processing", "done", "failed", "idle", "queued"],
+      map_status: [
+        "queued",
+        "processing_structure",
+        "processing_metadata",
+        "done",
+        "failed",
+        "idle",
+      ],
       map_term_request_kind: ["auto", "custom"],
       map_term_request_status: [
         "processing",

@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
+import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
+import type { MapStatusFilter } from "./useMapsListControls";
 
 type SourceType = "youtube" | "website" | "file" | "manual";
 type TagSort = "recent" | "name" | "count_desc" | "count_asc";
@@ -18,7 +19,7 @@ type UseMapTagsOptions = {
   filtersOpen: boolean;
   mobileTagSheetOpen: boolean;
   dateRange: DateRange;
-  statusFilters: MapJobStatus[];
+  statusFilters: MapStatusFilter[];
   sourceFilters: SourceType[];
   contentFilters: ContentFilter[];
   updateDrafts: React.Dispatch<React.SetStateAction<MapDraft[]>>;

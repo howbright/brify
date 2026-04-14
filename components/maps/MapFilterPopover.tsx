@@ -2,7 +2,7 @@
 
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
-import type { MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
+import type { MapStatusFilter } from "./useMapsListControls";
 
 type SourceType = "youtube" | "website" | "file" | "manual";
 type ContentFilter = "notes" | "terms";
@@ -22,8 +22,8 @@ type MapFilterPopoverProps = {
   customTo: string;
   onCustomFromChange: (value: string) => void;
   onCustomToChange: (value: string) => void;
-  statusFilters: MapJobStatus[];
-  onToggleStatus: (value: MapJobStatus) => void;
+  statusFilters: MapStatusFilter[];
+  onToggleStatus: (value: MapStatusFilter) => void;
   sourceFilters: SourceType[];
   onToggleSource: (value: SourceType) => void;
   contentFilters: ContentFilter[];

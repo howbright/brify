@@ -9,7 +9,7 @@ const MS_PER_CHAR = 112610 / 8460;
 const PROGRESS_CAP = 97;
 
 function isActiveStatus(status: MapDraft["status"]) {
-  return status === "idle" || status === "queued" || status === "processing";
+  return status === "idle" || status === "queued" || status === "processing_structure" || status === "processing_metadata";
 }
 
 function formatDraftTimestamp(value: number, locale: string) {

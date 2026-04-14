@@ -111,10 +111,17 @@ function getCopy(locale: string): TermsTabCopy {
 }
 
 function coerceMapStatus(status?: string | null) {
-  if (status === "done" || status === "failed" || status === "processing") {
+  if (
+    status === "done" ||
+    status === "failed" ||
+    status === "queued" ||
+    status === "idle" ||
+    status === "processing_structure" ||
+    status === "processing_metadata"
+  ) {
     return status;
   }
-  return "processing" as const;
+  return "processing_structure" as const;
 }
 
 function withCacheBuster(url: string) {

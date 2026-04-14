@@ -123,7 +123,7 @@ export default function MapListItem({
           dotCls: "bg-rose-500 dark:bg-rose-300",
           textCls: "text-rose-700 dark:text-rose-200",
         }
-      : draft.status === "processing"
+      : draft.status === "processing_structure" || draft.status === "processing_metadata"
       ? {
           text: t("status.processing"),
           dotCls: "bg-blue-500 dark:bg-blue-300",
