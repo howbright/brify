@@ -46,18 +46,18 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
   return (
     <header className={headerClassName} role="banner">
       <div className="mx-auto max-w-7xl px-6 md:px-10">
-        <div className="flex h-[64px] items-center justify-between">
+        <div className="flex h-[64px] items-center justify-between min-[971px]:h-[64px]">
           {/* 좌측 로고 */}
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex min-w-0 items-center gap-2.5 min-[971px]:gap-3">
             <Image
               src="/images/newlogo.png"
               alt="Brify"
               width={512}
               height={512}
-              className="h-10 w-10 transition-transform hover:scale-[1.02]"
+              className="h-8 w-8 transition-transform hover:scale-[1.02] min-[971px]:h-10 min-[971px]:w-10"
               priority
             />
-            <span className="text-[25px] font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
+            <span className="truncate text-[20px] font-extrabold tracking-tight text-slate-900 dark:text-slate-100 min-[971px]:text-[25px]">
               Brify
             </span>
           </Link>
@@ -175,47 +175,45 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
           </div>
 
           {/* 모바일 – 새 구조맵 버튼 + 모바일 메뉴 (md 미만) */}
-          <div className={`${mobileHeaderClass} items-center gap-2`}>
+          <div className={`${mobileHeaderClass} shrink-0 items-center gap-1.5`}>
             {!isAuthed && <LanguageSelector compact />}
             {!isAuthed && (
-              <>
-                <Link
-                  href="/signup?next=%2Fvideo-to-map"
-                  className="
-                    inline-flex items-center rounded-full
-                    bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white
-                    shadow-[0_8px_22px_rgba(37,99,235,0.32)]
-                    transition-colors hover:bg-blue-700
-                    dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
-                  "
-                >
-                  {t("auth.signup")}
-                </Link>
-              </>
+              <Link
+                href="/signup?next=%2Fvideo-to-map"
+                className="
+                  inline-flex h-8 shrink-0 items-center rounded-xl
+                  bg-blue-600 px-3 text-[12px] font-semibold text-white
+                  shadow-[0_8px_22px_rgba(37,99,235,0.24)]
+                  transition-colors hover:bg-blue-700
+                  dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
+                "
+              >
+                {t("auth.signup")}
+              </Link>
             )}
 
             {isAuthed && (
               <Link
                 href="/video-to-map"
                 className="
-                  inline-flex items-center gap-1.5
-                  rounded-full px-3 py-1.5 text-xs font-semibold
+                  inline-flex h-8 shrink-0 items-center gap-1.5
+                  rounded-xl px-3 text-[12px] font-semibold
                   bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500
                   text-white
-                  shadow-[0_8px_22px_rgba(37,99,235,0.45)]
-                  hover:shadow-[0_10px_28px_rgba(79,70,229,0.65)]
+                  shadow-[0_8px_22px_rgba(37,99,235,0.28)]
+                  hover:shadow-[0_10px_28px_rgba(79,70,229,0.42)]
                   transition-all duration-150
                   hover:-translate-y-0.5 active:translate-y-0
                 "
               >
                 <span
                   className="
-                    inline-flex h-5 w-5 items-center justify-center
-                    rounded-full border border-white/50
+                    inline-flex h-4.5 w-4.5 items-center justify-center
+                    rounded-full border border-white/45
                     bg-white/15 shadow-sm
                   "
                 >
-                  <Icon icon="lucide:plus" className="h-3 w-3" />
+                  <Icon icon="lucide:plus" className="h-[10px] w-[10px]" />
                 </span>
                 <span>{t("cta.newMap")}</span>
               </Link>

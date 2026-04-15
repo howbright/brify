@@ -61,12 +61,12 @@ export default function ClientMobileUserMenu({
     <div className="flex items-center gap-2">
       {/* 햄버거 버튼 */}
       <button
-        className="inline-flex items-center rounded-lg border border-slate-400 p-2 text-sm text-gray-500 hover:bg-gray-100 dark:border-white/20 dark:text-gray-300 dark:hover:bg-gray-800"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-300 bg-white/78 text-slate-600 shadow-sm transition-colors hover:bg-slate-100 dark:border-white/15 dark:bg-white/8 dark:text-gray-300 dark:hover:bg-gray-800"
         onClick={() => setOpen((v) => !v)}
         aria-label="Open menu"
         aria-expanded={open}
       >
-        <Icon icon={open ? "mdi:close" : "mdi:menu"} className="w-6 h-6" />
+        <Icon icon={open ? "mdi:close" : "mdi:menu"} className="h-[18px] w-[18px]" />
       </button>
 
       <AnimatePresence>

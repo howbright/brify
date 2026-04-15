@@ -62,8 +62,10 @@ export default function LanguageSelector({ compact = false }: Props) {
       <DropdownMenuTrigger asChild>
         <button
           className={[
-            "inline-flex items-center rounded-full font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-white/8 dark:hover:text-white",
-            compact ? "gap-1 px-2 py-1 text-xs" : "gap-1.5 px-2 py-1 text-sm",
+            "inline-flex items-center font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-white/8 dark:hover:text-white",
+            compact
+              ? "h-8 gap-1 rounded-xl border border-slate-300 bg-white/78 px-2.5 text-[12px] shadow-sm dark:border-white/15 dark:bg-white/8"
+              : "gap-1.5 rounded-full px-2 py-1 text-sm",
           ].join(" ")}
         >
           <Icon icon="ic:baseline-language" className="text-base opacity-80" />
