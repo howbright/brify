@@ -1582,7 +1582,7 @@
     }
   },
   "Footer": {
-    "description": "서로 다른 의견과 정보를 구조화해, 빠르게 비교하고 나만의 기준을 만들도록 돕는 서비스.",
+    "description": "긴 내용을 구조화해 정보를 빠르게 파악하고, 나만의 기준을 세울 수 있도록 돕는 서비스",
     "contactEmail": "이메일",
     "contactPhone": "전화",
     "contactAddress": "주소",
