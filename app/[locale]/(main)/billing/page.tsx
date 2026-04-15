@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Script from "next/script";
 import { useSession } from "@/components/SessionProvider";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
@@ -18,6 +18,18 @@ type BalanceResponse = {
   total: number;
   paid: number;
   free: number;
+};
+
+type LemonPaymentStatusResponse = {
+  status: "pending" | "paid";
+  payment: {
+    id: string;
+    status: string;
+    credits: number;
+    created_at: string;
+    provider_order_id: string;
+  } | null;
+  balance: BalanceResponse;
 };
 
 type TossPaymentsInstance = {
@@ -99,11 +111,19 @@ export default function BillingPage() {
   const t = useTranslations("BillingPage");
   const { session } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const locale = useLocale();
   const isKorean = locale === "ko";
+  const lemonSuccess = searchParams.get("success");
+  const lemonProvider = searchParams.get("provider");
+  const lemonPack = searchParams.get("pack");
+  const lemonStartedAt = searchParams.get("started_at");
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
   const [packs, setPacks] = useState<BillingCatalogItem[]>([]);
   const [openFaq, setOpenFaq] = useState<"q2" | "q3" | "q4" | null>(null);
+  const [lemonCheckoutState, setLemonCheckoutState] = useState<
+    "idle" | "pending" | "success" | "failed"
+  >("idle");
 
   useEffect(() => {
     if (!session) {
@@ -148,6 +168,67 @@ export default function BillingPage() {
       cancelled = true;
     };
   }, [session, router, locale]);
+
+  useEffect(() => {
+    if (!session) return;
+
+    if (
+      lemonSuccess !== "1" ||
+      lemonProvider !== "lemon_squeezy" ||
+      !lemonPack ||
+      !lemonStartedAt
+    ) {
+      setLemonCheckoutState("idle");
+      return;
+    }
+
+    let cancelled = false;
+    let attempt = 0;
+    const maxAttempts = 20;
+
+    const poll = async () => {
+      if (cancelled) return;
+
+      setLemonCheckoutState("pending");
+
+      try {
+        const res = await fetch(
+          `/api/payments/lemonsqueezy/status?pack=${encodeURIComponent(lemonPack)}&started_at=${encodeURIComponent(lemonStartedAt)}`,
+          {
+            method: "GET",
+            cache: "no-store",
+          }
+        );
+
+        if (cancelled) return;
+
+        if (res.ok) {
+          const data = (await res.json()) as LemonPaymentStatusResponse;
+          if (data.status === "paid") {
+            setBalance(data.balance);
+            setLemonCheckoutState("success");
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("Error while checking Lemon payment status:", error);
+      }
+
+      attempt += 1;
+      if (attempt >= maxAttempts) {
+        setLemonCheckoutState("failed");
+        return;
+      }
+
+      window.setTimeout(poll, 2500);
+    };
+
+    void poll();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [lemonPack, lemonProvider, lemonStartedAt, lemonSuccess, session]);
 
   useEffect(() => {
     let cancelled = false;
@@ -263,6 +344,36 @@ export default function BillingPage() {
         </header>
 
         <main className="mx-auto max-w-5xl px-6 md:px-10 pb-24">
+          {lemonCheckoutState !== "idle" && (
+            <section className="mt-8">
+              <div
+                className={[
+                  "rounded-2xl border px-5 py-4 shadow-sm transition-colors",
+                  lemonCheckoutState === "success"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-500/12 dark:text-emerald-100"
+                    : lemonCheckoutState === "failed"
+                      ? "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-100"
+                      : "border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-400/30 dark:bg-blue-500/10 dark:text-blue-100",
+                ].join(" ")}
+              >
+                <p className="text-[15px] font-semibold">
+                  {lemonCheckoutState === "success"
+                    ? t("lemonCheckout.successTitle")
+                    : lemonCheckoutState === "failed"
+                      ? t("lemonCheckout.delayedTitle")
+                      : t("lemonCheckout.pendingTitle")}
+                </p>
+                <p className="mt-1 text-[13px] leading-6 opacity-90">
+                  {lemonCheckoutState === "success"
+                    ? t("lemonCheckout.successDescription")
+                    : lemonCheckoutState === "failed"
+                      ? t("lemonCheckout.delayedDescription")
+                      : t("lemonCheckout.pendingDescription")}
+                </p>
+              </div>
+            </section>
+          )}
+
           {/* 잔액 카드 */}
           <section className="mt-8">
             <div className="mb-5">
@@ -475,6 +586,12 @@ function CreditPackCard({
   const { credits, price, currency, checkoutUrl, popular, starter, provider } = pack;
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const envCheckoutUrlByCredits: Record<number, string | undefined> = {
+    50: process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CREDITS_50_URL,
+    150: process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CREDITS_150_URL,
+    300: process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CREDITS_300_URL,
+  };
+  const resolvedCheckoutUrl = envCheckoutUrlByCredits[credits] ?? checkoutUrl;
 
   const handleBuy = async () => {
     if (!userId) {
@@ -573,19 +690,19 @@ function CreditPackCard({
       return;
     }
 
-    if (!checkoutUrl) {
+    if (!resolvedCheckoutUrl) {
       toast.error("Checkout URL이 설정되지 않았어요.");
       return;
     }
 
-    const url = new URL(checkoutUrl);
+    const url = new URL(resolvedCheckoutUrl);
 
     url.searchParams.set("checkout[custom][user_id]", userId);
     url.searchParams.set("checkout[custom][pack_code]", pack.id);
 
     url.searchParams.set(
       "checkout[product_options][redirect_url]",
-      `${window.location.origin}/${locale}/billing?success=1`
+      `${window.location.origin}/${locale}/billing?success=1&provider=lemon_squeezy&pack=${encodeURIComponent(pack.id)}&started_at=${Date.now()}`
     );
 
     window.open(url.toString(), "_blank", "noopener,noreferrer");

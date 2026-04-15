@@ -1,7 +1,5 @@
-"use client";
-
 import Image from "next/image";
-import { useLocale, useTranslations } from "next-intl";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
 
@@ -14,13 +12,10 @@ const supportLinks = [
 ];
 
 function FooterLink({ href, label }: { href: string; label: string }) {
-  const locale = useLocale();
-
   return (
     <li>
       <Link
         href={href}
-        locale={locale}
         className="
           text-[14px] font-medium text-slate-500 transition-colors
           hover:text-blue-700
@@ -33,12 +28,15 @@ function FooterLink({ href, label }: { href: string; label: string }) {
   );
 }
 
-export default function Footer() {
-  const t = useTranslations("Footer");
-  const locale = useLocale();
+export default async function Footer() {
+  const t = await getTranslations("Footer");
+  const locale = await getLocale();
   const contactEmailLabel = locale === "ko" ? "이메일" : "Email";
   const contactPhoneLabel = locale === "ko" ? "전화" : "Phone";
   const contactAddressLabel = locale === "ko" ? "주소" : "Address";
+  const emailLine = `${contactEmailLabel}: hello@brify.app`;
+  const phoneLine = `${contactPhoneLabel}: 031-701-0274`;
+  const addressLine = `${contactAddressLabel}: ${t("contact.address")}`;
 
   return (
     <footer
@@ -98,15 +96,9 @@ export default function Footer() {
               {t("contact.title")}
             </div>
             <div className="mt-4 space-y-2 text-[14px] font-medium text-slate-500 dark:text-slate-400">
-              <p>
-                {contactEmailLabel}: hello@brify.app
-              </p>
-              <p>
-                {contactPhoneLabel}: 031-701-0274
-              </p>
-              <p>
-                {contactAddressLabel}: {t("contact.address")}
-              </p>
+              <p>{emailLine}</p>
+              <p>{phoneLine}</p>
+              <p>{addressLine}</p>
             </div>
           </div>
 

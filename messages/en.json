@@ -937,6 +937,14 @@
     },
     "bullets": {
       "missionCredits": "Earn free credits through missions"
+    },
+    "lemonCheckout": {
+      "pendingTitle": "Your payment is complete and we're checking your credits",
+      "pendingDescription": "Please wait a moment. Your balance will refresh automatically once the payment is confirmed.",
+      "successTitle": "Your credits have been added",
+      "successDescription": "Your payment has been reflected. You can continue creating Structure Maps right away.",
+      "delayedTitle": "Your payment is complete, but credit sync is taking a little longer",
+      "delayedDescription": "Please refresh in a moment. If it still doesn't show up, we can check the order status for you."
     }
   },
   "BillingHistoryPage": {

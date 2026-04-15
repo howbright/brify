@@ -46,7 +46,10 @@ export async function GET() {
   const paid = profile.credits_paid ?? 0;
   const free = profile.credits_free ?? 0;
   const currentBalance = paid + free;
-  const totalChargedCredits = (payments ?? [])
+  const visiblePayments = (payments ?? []).filter(
+    (payment) => payment.status !== "canceled"
+  );
+  const totalChargedCredits = visiblePayments
     .filter((payment) => payment.status === "paid")
     .reduce((sum, payment) => sum + (payment.credits ?? 0), 0);
 
@@ -57,6 +60,6 @@ export async function GET() {
       currentPaidBalance: paid,
       usedCredits: Math.max(totalChargedCredits - paid, 0),
     },
-    payments: payments ?? [],
+    payments: visiblePayments,
   });
 }
