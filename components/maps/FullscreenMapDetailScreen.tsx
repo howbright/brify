@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
@@ -26,6 +26,7 @@ import ShareDialog from "@/components/maps/ShareDialog";
 import ShortcutsDialog from "@/components/maps/ShortcutsDialog";
 import TagEditDialog from "@/components/maps/TagEditDialog";
 import { createClient } from "@/utils/supabase/client";
+import LanguageSelector from "@/components/LanguageSelector";
 import type { Database } from "@/app/types/database.types";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 import { loadingMindElixir } from "@/app/lib/mind-elixir/sampleData";
@@ -35,7 +36,6 @@ import {
 } from "@/app/lib/mapTutorialState";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 import FullscreenHeader from "@/components/maps/FullscreenHeader";
-import LanguageSelector from "@/components/LanguageSelector";
 
 type MindNode = {
   children?: MindNode[];
@@ -258,11 +258,15 @@ export default function FullscreenMapDetailScreen({
   sharedToken = null,
 }: FullscreenMapDetailScreenProps) {
   const t = useTranslations("FullscreenMapPage");
+  const tFullscreenDialog = useTranslations("FullscreenDialog");
+  const tHeader = useTranslations("Header");
   const tTutorial = useTranslations("MapTutorial");
   const isTutorialMobile = useTutorialIsMobile();
   const router = useRouter();
+  const pathname = usePathname();
   const { resolvedTheme } = useTheme();
   const { profileThemeName } = useMindThemePreference();
+  const supabase = createClient();
   const backToMapsUrl =
     accessMode === "admin"
       ? `/${locale}/admin/users/maps`
@@ -272,6 +276,13 @@ export default function FullscreenMapDetailScreen({
   const isAdminView = accessMode === "admin";
   const isSharedView = accessMode === "shared";
   const isReadOnlyView = isAdminView || isSharedView;
+  const localeOptions = useMemo(
+    () => [
+      { code: "ko", label: "한국어" },
+      { code: "en", label: "English" },
+    ],
+    []
+  );
 
   const [draft, setDraft] = useState<MapDraft | null>(null);
   const [mapData, setMapData] = useState<MapRow["mind_elixir"] | null>(null);
@@ -332,11 +343,13 @@ export default function FullscreenMapDetailScreen({
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [mobileMapActionsOpen, setMobileMapActionsOpen] = useState(false);
   const [mobileThemeOpen, setMobileThemeOpen] = useState(false);
+  const [mobileLanguageOpen, setMobileLanguageOpen] = useState(false);
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(true);
   const [showTimestamps, setShowTimestamps] = useState(true);
   const desktopMoreRef = useRef<HTMLDivElement | null>(null);
   const mobileMapActionsRef = useRef<HTMLDivElement | null>(null);
   const mobileThemeRef = useRef<HTMLDivElement | null>(null);
+  const mobileLanguageRef = useRef<HTMLDivElement | null>(null);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
   const initializedMapIdRef = useRef<string | null>(null);
@@ -765,7 +778,7 @@ export default function FullscreenMapDetailScreen({
   }, [searchOpen]);
 
   useEffect(() => {
-    if (!desktopMoreOpen && !mobileMapActionsOpen && !mobileThemeOpen) return;
+    if (!desktopMoreOpen && !mobileMapActionsOpen && !mobileThemeOpen && !mobileLanguageOpen) return;
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node | null;
       if (!target) return;
@@ -778,13 +791,17 @@ export default function FullscreenMapDetailScreen({
       if (mobileThemeOpen && mobileThemeRef.current?.contains(target)) {
         return;
       }
+      if (mobileLanguageOpen && mobileLanguageRef.current?.contains(target)) {
+        return;
+      }
       setMobileMapActionsOpen(false);
       setMobileThemeOpen(false);
+      setMobileLanguageOpen(false);
       setDesktopMoreOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [desktopMoreOpen, mobileMapActionsOpen, mobileThemeOpen]);
+  }, [desktopMoreOpen, mobileLanguageOpen, mobileMapActionsOpen, mobileThemeOpen]);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -1359,19 +1376,19 @@ export default function FullscreenMapDetailScreen({
     : hasDraft
     ? t("draftStatus.hasDraft")
     : undefined;
-  const mobileCenterLabel = locale === "ko" ? "가운데로" : "Center";
-  const mobileZoomInLabel = locale === "ko" ? "확대" : "Zoom in";
-  const mobileZoomOutLabel = locale === "ko" ? "축소" : "Zoom out";
+  const mobileCenterLabel = tFullscreenDialog("actions.centerMap");
+  const mobileZoomInLabel = tFullscreenDialog("actions.zoomIn");
+  const mobileZoomOutLabel = tFullscreenDialog("actions.zoomOut");
   const mobileCollapseLevelLabel =
-    locale === "ko" ? "한단계 접기" : "Collapse one level";
+    locale === "ko" ? "한 단계 접기" : "Collapse one level";
   const mobileExpandLevelLabel =
-    locale === "ko" ? "한단계 펴기" : "Expand one level";
+    locale === "ko" ? "한 단계 펴기" : "Expand one level";
   const mobileToolbarOpenLabel =
     locale === "ko" ? "도구 펼치기" : "Open tools";
   const mobileToolbarCloseLabel =
     locale === "ko" ? "도구 접기" : "Close tools";
   const mobileMapActionsLabel =
-    locale === "ko" ? "맵 조작" : "Map actions";
+    locale === "ko" ? "레이아웃" : "Layouts";
   const statusTone = isSavingDraft ? "warning" : savedPulse ? "success" : "neutral";
   const controlIconButtonClass =
     "inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 text-white shadow-[0_10px_24px_-16px_rgba(15,23,42,0.36)] transition hover:bg-sky-600 dark:bg-[#1f3b72] dark:text-white dark:shadow-[0_16px_32px_-22px_rgba(2,6,23,0.82)] dark:hover:bg-[#2a56a5]";
@@ -1396,6 +1413,7 @@ export default function FullscreenMapDetailScreen({
     "pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100 group-focus-within:opacity-100 dark:bg-[#020817]";
   const mobileVerticalTooltipClass =
     "pointer-events-none absolute right-full top-1/2 mr-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100 group-focus-within:opacity-100 dark:bg-[#020817]";
+  const mobileLanguageLabel = tHeader("userMenu.language");
   const sharedMissingTitle =
     locale === "ko" ? "공유된 구조맵을 찾을 수 없어요" : "Shared map not found";
   const sharedMissingDescription =
@@ -1404,6 +1422,37 @@ export default function FullscreenMapDetailScreen({
       : "The link may be invalid, or sharing may have been turned off.";
   const sharedMissingAction =
     locale === "ko" ? "홈으로 돌아가기" : "Back to home";
+
+  const handleLocaleChange = async (nextLocale: string) => {
+    if (nextLocale === locale) {
+      setMobileLanguageOpen(false);
+      return;
+    }
+
+    document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000`;
+
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        await supabase.auth.updateUser({
+          data: {
+            ...(user.user_metadata ?? {}),
+            language: nextLocale,
+          },
+        });
+      }
+    } catch {
+      // 언어 저장 실패가 라우팅을 막을 필요는 없으므로 무시
+    }
+
+    const pathWithoutLocale = pathname.replace(/^\/(ko|en)(?=\/|$)/, "");
+    const newPath = `/${nextLocale}${pathWithoutLocale || "/"}`;
+    setMobileLanguageOpen(false);
+    router.push(newPath);
+  };
 
   if (isSharedView && !loading && !draft) {
     return (
@@ -1882,6 +1931,7 @@ export default function FullscreenMapDetailScreen({
                 setMobileToolbarCollapsed((v) => !v);
                 setMobileMapActionsOpen(false);
                 setMobileThemeOpen(false);
+                setMobileLanguageOpen(false);
               }}
               className={controlIconButtonClass}
               aria-label={mobileToolbarCollapsed ? mobileToolbarOpenLabel : mobileToolbarCloseLabel}
@@ -1898,70 +1948,6 @@ export default function FullscreenMapDetailScreen({
           </div>
           {!mobileToolbarCollapsed ? (
             <>
-              {!isSharedView ? (
-                <>
-                  <div className="group relative">
-                    <button
-                      type="button"
-                      onClick={() => mindRef.current?.centerMap?.()}
-                      className={controlIconButtonClass}
-                      aria-label={mobileCenterLabel}
-                      title={mobileCenterLabel}
-                    >
-                      <Icon icon="mdi:crosshairs-gps" className="h-4 w-4" />
-                    </button>
-                    <span className={mobileVerticalTooltipClass}>{mobileCenterLabel}</span>
-                  </div>
-                  <div className="group relative">
-                    <button
-                      type="button"
-                      onClick={() => mindRef.current?.zoomIn?.()}
-                      className={controlIconButtonClass}
-                      aria-label={mobileZoomInLabel}
-                      title={mobileZoomInLabel}
-                    >
-                      <Icon icon="mdi:plus" className="h-4 w-4" />
-                    </button>
-                    <span className={mobileVerticalTooltipClass}>{mobileZoomInLabel}</span>
-                  </div>
-                  <div className="group relative">
-                    <button
-                      type="button"
-                      onClick={() => mindRef.current?.zoomOut?.()}
-                      className={controlIconButtonClass}
-                      aria-label={mobileZoomOutLabel}
-                      title={mobileZoomOutLabel}
-                    >
-                      <Icon icon="mdi:minus" className="h-4 w-4" />
-                    </button>
-                    <span className={mobileVerticalTooltipClass}>{mobileZoomOutLabel}</span>
-                  </div>
-                  <div className="group relative">
-                    <button
-                      type="button"
-                      onClick={() => mindRef.current?.collapseOneLevel?.()}
-                      className={controlIconButtonClass}
-                      aria-label={mobileCollapseLevelLabel}
-                      title={mobileCollapseLevelLabel}
-                    >
-                      <Icon icon="mdi:unfold-less-horizontal" className="h-4 w-4" />
-                    </button>
-                    <span className={mobileVerticalTooltipClass}>{mobileCollapseLevelLabel}</span>
-                  </div>
-                  <div className="group relative">
-                    <button
-                      type="button"
-                      onClick={() => mindRef.current?.expandOneLevel?.()}
-                      className={controlIconButtonClass}
-                      aria-label={mobileExpandLevelLabel}
-                      title={mobileExpandLevelLabel}
-                    >
-                      <Icon icon="mdi:unfold-more-horizontal" className="h-4 w-4" />
-                    </button>
-                    <span className={mobileVerticalTooltipClass}>{mobileExpandLevelLabel}</span>
-                  </div>
-                </>
-              ) : null}
               <div className="relative" ref={mobileMapActionsRef}>
                 <div className="group relative">
                   <button
@@ -1978,37 +1964,6 @@ export default function FullscreenMapDetailScreen({
 
             {mobileMapActionsOpen && (
               <div className={`absolute right-full mr-2 top-0 w-[160px] ${controlPanelClass}`}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMapActionsOpen(false);
-                    mindRef.current?.expandAll?.();
-                  }}
-                  className={controlMenuItemClass}
-                >
-                  전체 펴기
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMapActionsOpen(false);
-                    mindRef.current?.expandOneLevel?.();
-                  }}
-                  className={controlMenuItemClass}
-                >
-                  한단계 펴기
-                </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileMapActionsOpen(false);
-                      mindRef.current?.collapseOneLevel?.();
-                    }}
-                    className={controlMenuItemClass}
-                  >
-                    한단계 접기
-                  </button>
-                  <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
                   <button
                     type="button"
                     onClick={() => {
@@ -2017,7 +1972,7 @@ export default function FullscreenMapDetailScreen({
                     }}
                     className={controlMenuItemClass}
                   >
-                    왼쪽 정렬
+                    {t("moreMenu.layoutLeft")}
                   </button>
                   <button
                     type="button"
@@ -2027,7 +1982,7 @@ export default function FullscreenMapDetailScreen({
                     }}
                     className={controlMenuItemClass}
                   >
-                    오른쪽 정렬
+                    {t("moreMenu.layoutRight")}
                   </button>
                   <button
                     type="button"
@@ -2037,10 +1992,55 @@ export default function FullscreenMapDetailScreen({
                     }}
                     className={controlMenuItemClass}
                   >
-                    가운데 정렬
+                    {t("moreMenu.layoutBoth")}
                 </button>
               </div>
             )}
+              </div>
+
+              <div className="relative" ref={mobileLanguageRef}>
+                <div className="group relative">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileLanguageOpen((v) => !v);
+                      setMobileMapActionsOpen(false);
+                      setMobileThemeOpen(false);
+                    }}
+                    className={controlIconButtonClass}
+                    aria-label={mobileLanguageLabel}
+                    title={mobileLanguageLabel}
+                  >
+                    <Icon icon="ic:baseline-language" className="h-4 w-4" />
+                  </button>
+                  <span className={mobileVerticalTooltipClass}>{mobileLanguageLabel}</span>
+                </div>
+                {mobileLanguageOpen ? (
+                  <div className={`absolute right-full top-0 mr-2 w-[124px] p-2 ${controlPanelClass}`}>
+                    <div className="flex flex-col gap-1">
+                      {localeOptions.map((option) => {
+                        const active = option.code === locale;
+                        return (
+                          <button
+                            key={option.code}
+                            type="button"
+                            onClick={() => void handleLocaleChange(option.code)}
+                            className={`inline-flex h-9 items-center justify-between rounded-xl px-3 text-[12px] font-semibold transition ${
+                              active
+                                ? "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-100"
+                                : "text-slate-700 hover:bg-slate-100 dark:text-white/80 dark:hover:bg-white/10"
+                            }`}
+                          >
+                            <span>{option.label}</span>
+                            {active ? (
+                              <Icon icon="mdi:check" className="h-4 w-4 shrink-0" />
+                            ) : null}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : null}
               </div>
 
               <div className="relative" ref={mobileThemeRef}>
@@ -2049,17 +2049,17 @@ export default function FullscreenMapDetailScreen({
                     type="button"
                     onClick={() => setMobileThemeOpen((v) => !v)}
                     className={controlIconButtonClass}
-                    aria-label="테마"
-                    title="테마"
+                    aria-label={t("moreMenu.theme")}
+                    title={t("moreMenu.theme")}
                   >
                     <Icon icon="mdi:palette-outline" className="h-4 w-4" />
                   </button>
-                  <span className={mobileVerticalTooltipClass}>테마</span>
+                  <span className={mobileVerticalTooltipClass}>{t("moreMenu.theme")}</span>
                 </div>
                 {mobileThemeOpen && (
                   <div className={`absolute right-full mr-2 top-0 w-[180px] p-2 ${controlPanelClass}`}>
                     <div className="text-[11px] font-semibold text-slate-500 dark:text-white/60">
-                      테마
+                      {t("moreMenu.theme")}
                     </div>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {themeOptions.map((theme) => (
@@ -2089,12 +2089,12 @@ export default function FullscreenMapDetailScreen({
                   type="button"
                   onClick={handleExportPng}
                   className={controlIconButtonClass}
-                  aria-label="PNG 저장"
-                  title="PNG 저장"
+                  aria-label={t("moreMenu.savePng")}
+                  title={t("moreMenu.savePng")}
                 >
                   <Icon icon="mdi:download" className="h-4 w-4" />
                 </button>
-                <span className={mobileVerticalTooltipClass}>PNG 저장</span>
+                <span className={mobileVerticalTooltipClass}>{t("moreMenu.savePng")}</span>
               </div>
 
               <div className="group relative">
@@ -2119,12 +2119,12 @@ export default function FullscreenMapDetailScreen({
                       void fetchShareStatus();
                     }}
                     className={controlIconButtonClass}
-                    aria-label="공유"
-                    title="공유"
+                    aria-label={t("moreMenu.share")}
+                    title={t("moreMenu.share")}
                   >
                     <Icon icon="mdi:share-variant" className="h-4 w-4" />
                   </button>
-                  <span className={mobileVerticalTooltipClass}>공유</span>
+                  <span className={mobileVerticalTooltipClass}>{t("moreMenu.share")}</span>
                 </div>
               ) : null}
 
@@ -2255,107 +2255,105 @@ export default function FullscreenMapDetailScreen({
           />
         )}
 
-        {isSharedView ? (
-          <div className="pointer-events-none absolute bottom-4 left-4 z-[22]">
-            <div className="hidden pointer-events-auto sm:block">
-              <Link
-                href={`/${locale}`}
-                className="inline-flex items-center gap-1.5 rounded-full border border-sky-200/90 bg-sky-50/95 px-6 py-3.5 text-[18px] font-extrabold tracking-[-0.02em] text-slate-800 shadow-[0_18px_40px_-18px_rgba(15,23,42,0.5)] backdrop-blur-sm transition hover:border-sky-300 hover:bg-sky-100/95 dark:border-white/14 dark:bg-[#0f172a]/90 dark:text-white/88 dark:hover:border-white/22 dark:hover:bg-[#111c31]"
-              >
-                <div className="relative h-11 w-[56px] shrink-0">
-                  <Image
-                    src="/images/newlogo.png"
-                    alt="Brify logo"
-                    fill
-                    sizes="56px"
-                    className="object-contain"
-                  />
-                </div>
-                <span>{locale === "ko" ? "브라이피" : "Brify"}</span>
-              </Link>
-            </div>
-            <div className="pointer-events-auto flex items-center gap-2 sm:hidden">
-              <Link
-                href={`/${locale}`}
-                className="inline-flex items-center gap-1 rounded-full border border-sky-200/90 bg-sky-50/95 px-3.5 py-2 text-[13px] font-extrabold tracking-[-0.02em] text-slate-800 shadow-[0_18px_40px_-18px_rgba(15,23,42,0.5)] backdrop-blur-sm transition hover:border-sky-300 hover:bg-sky-100/95 dark:border-white/14 dark:bg-[#0f172a]/90 dark:text-white/88 dark:hover:border-white/22 dark:hover:bg-[#111c31]"
-              >
-                <div className="relative h-7 w-[36px] shrink-0">
-                  <Image
-                    src="/images/newlogo.png"
-                    alt="Brify logo"
-                    fill
-                    sizes="36px"
-                    className="object-contain"
-                  />
-                </div>
-                <span>{locale === "ko" ? "브라이피" : "Brify"}</span>
-              </Link>
+        <div className="pointer-events-none absolute bottom-4 left-4 z-[22]">
+          <div className="hidden pointer-events-auto sm:block">
+            <Link
+              href={`/${locale}`}
+              className="inline-flex items-center gap-1.5 rounded-full border border-sky-200/90 bg-sky-50/95 px-6 py-3.5 text-[18px] font-extrabold tracking-[-0.02em] text-slate-800 shadow-[0_18px_40px_-18px_rgba(15,23,42,0.5)] backdrop-blur-sm transition hover:border-sky-300 hover:bg-sky-100/95 dark:border-white/14 dark:bg-[#0f172a]/90 dark:text-white/88 dark:hover:border-white/22 dark:hover:bg-[#111c31]"
+            >
+              <div className="relative h-11 w-[56px] shrink-0">
+                <Image
+                  src="/images/newlogo.png"
+                  alt="Brify logo"
+                  fill
+                  sizes="56px"
+                  className="object-contain"
+                />
+              </div>
+              <span>{locale === "ko" ? "브라이피" : "Brify"}</span>
+            </Link>
+          </div>
+          <div className="pointer-events-auto flex items-center gap-2 sm:hidden">
+            <Link
+              href={`/${locale}`}
+              className="inline-flex items-center gap-1 rounded-full border border-sky-200/90 bg-sky-50/95 px-3.5 py-2 text-[13px] font-extrabold tracking-[-0.02em] text-slate-800 shadow-[0_18px_40px_-18px_rgba(15,23,42,0.5)] backdrop-blur-sm transition hover:border-sky-300 hover:bg-sky-100/95 dark:border-white/14 dark:bg-[#0f172a]/90 dark:text-white/88 dark:hover:border-white/22 dark:hover:bg-[#111c31]"
+            >
+              <div className="relative h-7 w-[36px] shrink-0">
+                <Image
+                  src="/images/newlogo.png"
+                  alt="Brify logo"
+                  fill
+                  sizes="36px"
+                  className="object-contain"
+                />
+              </div>
+              <span>{locale === "ko" ? "브라이피" : "Brify"}</span>
+            </Link>
 
-              <div className="flex items-center gap-1.5 rounded-full bg-transparent px-2 py-1.5">
-                <div className="group relative">
-                  <button
-                    type="button"
-                    onClick={() => mindRef.current?.centerMap?.()}
-                    className={mobileBottomControlButtonClass}
-                    aria-label={mobileCenterLabel}
-                    title={mobileCenterLabel}
-                  >
-                    <Icon icon="mdi:crosshairs-gps" className="h-4 w-4" />
-                  </button>
-                  <span className={mobileBottomTooltipClass}>{mobileCenterLabel}</span>
-                </div>
-                <div className="group relative">
-                  <button
-                    type="button"
-                    onClick={() => mindRef.current?.zoomIn?.()}
-                    className={mobileBottomControlButtonClass}
-                    aria-label={mobileZoomInLabel}
-                    title={mobileZoomInLabel}
-                  >
-                    <Icon icon="mdi:plus" className="h-4 w-4" />
-                  </button>
-                  <span className={mobileBottomTooltipClass}>{mobileZoomInLabel}</span>
-                </div>
-                <div className="group relative">
-                  <button
-                    type="button"
-                    onClick={() => mindRef.current?.zoomOut?.()}
-                    className={mobileBottomControlButtonClass}
-                    aria-label={mobileZoomOutLabel}
-                    title={mobileZoomOutLabel}
-                  >
-                    <Icon icon="mdi:minus" className="h-4 w-4" />
-                  </button>
-                  <span className={mobileBottomTooltipClass}>{mobileZoomOutLabel}</span>
-                </div>
-                <div className="group relative">
-                  <button
-                    type="button"
-                    onClick={() => mindRef.current?.collapseOneLevel?.()}
-                    className={mobileBottomControlButtonClass}
-                    aria-label={mobileCollapseLevelLabel}
-                    title={mobileCollapseLevelLabel}
-                  >
-                    <Icon icon="mdi:unfold-less-horizontal" className="h-4 w-4" />
-                  </button>
-                  <span className={mobileBottomTooltipClass}>{mobileCollapseLevelLabel}</span>
-                </div>
-                <div className="group relative">
-                  <button
-                    type="button"
-                    onClick={() => mindRef.current?.expandOneLevel?.()}
-                    className={mobileBottomControlButtonClass}
-                    aria-label={mobileExpandLevelLabel}
-                    title={mobileExpandLevelLabel}
-                  >
-                    <Icon icon="mdi:unfold-more-horizontal" className="h-4 w-4" />
-                  </button>
-                  <span className={mobileBottomTooltipClass}>{mobileExpandLevelLabel}</span>
-                </div>
+            <div className="flex items-center gap-1.5 rounded-full bg-transparent px-2 py-1.5">
+              <div className="group relative">
+                <button
+                  type="button"
+                  onClick={() => mindRef.current?.centerMap?.()}
+                  className={mobileBottomControlButtonClass}
+                  aria-label={mobileCenterLabel}
+                  title={mobileCenterLabel}
+                >
+                  <Icon icon="mdi:crosshairs-gps" className="h-4 w-4" />
+                </button>
+                <span className={mobileBottomTooltipClass}>{mobileCenterLabel}</span>
+              </div>
+              <div className="group relative">
+                <button
+                  type="button"
+                  onClick={() => mindRef.current?.zoomIn?.()}
+                  className={mobileBottomControlButtonClass}
+                  aria-label={mobileZoomInLabel}
+                  title={mobileZoomInLabel}
+                >
+                  <Icon icon="mdi:plus" className="h-4 w-4" />
+                </button>
+                <span className={mobileBottomTooltipClass}>{mobileZoomInLabel}</span>
+              </div>
+              <div className="group relative">
+                <button
+                  type="button"
+                  onClick={() => mindRef.current?.zoomOut?.()}
+                  className={mobileBottomControlButtonClass}
+                  aria-label={mobileZoomOutLabel}
+                  title={mobileZoomOutLabel}
+                >
+                  <Icon icon="mdi:minus" className="h-4 w-4" />
+                </button>
+                <span className={mobileBottomTooltipClass}>{mobileZoomOutLabel}</span>
+              </div>
+              <div className="group relative">
+                <button
+                  type="button"
+                  onClick={() => mindRef.current?.collapseOneLevel?.()}
+                  className={mobileBottomControlButtonClass}
+                  aria-label={mobileCollapseLevelLabel}
+                  title={mobileCollapseLevelLabel}
+                >
+                  <Icon icon="mdi:unfold-less-horizontal" className="h-4 w-4" />
+                </button>
+                <span className={mobileBottomTooltipClass}>{mobileCollapseLevelLabel}</span>
+              </div>
+              <div className="group relative">
+                <button
+                  type="button"
+                  onClick={() => mindRef.current?.expandOneLevel?.()}
+                  className={mobileBottomControlButtonClass}
+                  aria-label={mobileExpandLevelLabel}
+                  title={mobileExpandLevelLabel}
+                >
+                  <Icon icon="mdi:unfold-more-horizontal" className="h-4 w-4" />
+                </button>
+                <span className={mobileBottomTooltipClass}>{mobileExpandLevelLabel}</span>
               </div>
             </div>
           </div>
-        ) : null}
+        </div>
 
         {tutorialOpen ? (
           <MapTutorialOverlay

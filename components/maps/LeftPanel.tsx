@@ -72,12 +72,12 @@ export default function LeftPanel({
   const tRight = useTranslations("RightPanel");
   const locale = useLocale();
   const createdLabel = useMemo(
-    () => safeDateLabel(map.createdAt),
-    [map.createdAt]
+    () => safeDateLabel(map.createdAt, locale),
+    [locale, map.createdAt]
   );
   const updatedLabel = useMemo(
-    () => safeDateLabel(map.updatedAt),
-    [map.updatedAt]
+    () => safeDateLabel(map.updatedAt, locale),
+    [locale, map.updatedAt]
   );
   const sourceType = useMemo(() => map.sourceType ?? "text", [map.sourceType]);
   const displayTitle = useMemo(() => {
@@ -667,10 +667,10 @@ export default function LeftPanel({
         <div className="pointer-events-none absolute inset-0 dark:bg-white/[0.03]" />
 
         {/* header */}
-        <div className="relative px-5 pt-3 border-b border-slate-400 dark:border-white/20">
+        <div className="relative px-4 pt-2.5 sm:px-5 sm:pt-3 border-b border-slate-400 dark:border-white/20">
           <div className="flex items-center justify-between gap-3">
             {mapId || readOnly ? (
-              <div className="flex items-center gap-5">
+              <div className="flex items-center gap-3 sm:gap-5">
                 <TabButton
                   active={activeTab === "info"}
                   label={t("infoTab")}
@@ -704,8 +704,8 @@ export default function LeftPanel({
             <button
               type="button"
               onClick={onClose}
-              className="
-                ml-auto -mr-5 inline-flex -translate-y-1.5 items-center justify-center
+            className="
+                ml-auto -mr-4 sm:-mr-5 inline-flex -translate-y-1.5 items-center justify-center
                 h-8 w-10
                 rounded-l-full rounded-r-md
                 bg-blue-600 text-white
@@ -720,9 +720,26 @@ export default function LeftPanel({
           </div>
 
           {activeTab === "info" && (
-            <div className="mt-3 space-y-1.5">
-              <div className="text-[17px] font-bold text-neutral-900 dark:text-white/90 whitespace-normal break-words leading-6">
-                {displayTitle}
+            <div className="mt-2.5 space-y-1 sm:mt-3 sm:space-y-1.5">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1 text-[17px] font-bold text-neutral-900 dark:text-white/90 whitespace-normal break-words leading-6">
+                  {displayTitle}
+                </div>
+                {onEdit ? (
+                  <button
+                    type="button"
+                    onClick={onEdit}
+                    className="
+                      inline-flex h-8 w-8 shrink-0 items-center justify-center
+                      text-blue-600 transition hover:text-blue-700
+                      dark:text-blue-300 dark:hover:text-blue-200
+                    "
+                    aria-label={t("edit")}
+                    title={t("edit")}
+                  >
+                    <Icon icon="mdi:pencil-outline" className="h-4 w-4" />
+                  </button>
+                ) : null}
               </div>
               {metadataPending ? (
                 <div className="text-[12px] font-medium text-blue-700 dark:text-blue-200/85">
@@ -750,25 +767,6 @@ export default function LeftPanel({
                   </span>
                 </div>
               </div>
-              {onEdit && (
-                <div className="mb-3 flex items-center justify-end">
-                  <button
-                    type="button"
-                    onClick={onEdit}
-                    className="
-                      shrink-0
-                      inline-flex items-center gap-1.5
-                      rounded-2xl border border-slate-400 bg-blue-50 px-3 py-1.5
-                      text-sm font-semibold text-blue-700 hover:bg-blue-100
-                      dark:border-white/20 dark:bg-blue-500/10
-                      dark:text-blue-50/90 dark:hover:bg-blue-500/20
-                    "
-                  >
-                    <Icon icon="mdi:pencil" className="h-4 w-4" />
-                    {t("edit")}
-                  </button>
-                </div>
-              )}
               {/* 출처 */}
               <Section title={t("sourceSection")}>
                 <div className="flex gap-3">
@@ -1097,8 +1095,8 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={`
-        relative inline-flex items-center gap-2
-        border-b-2 px-1 pb-2 text-[16px] font-bold transition-colors
+        relative inline-flex items-center gap-1.5
+        border-b-2 px-0.5 pb-1.5 text-[13px] font-bold transition-colors sm:gap-2 sm:px-1 sm:pb-2 sm:text-[16px]
         ${
           active
             ? isMystic
@@ -1124,8 +1122,8 @@ function TabButton({
       {typeof count === "number" && count > 0 ? (
         <span
           className={`
-            relative inline-flex min-w-6 items-center justify-center
-            rounded-full px-1.5 py-0.5 text-[11px] font-semibold tracking-tight
+            relative inline-flex min-w-5 items-center justify-center
+            rounded-full px-1.5 py-0.5 text-[10px] font-semibold tracking-tight sm:min-w-6 sm:text-[11px]
             ${
               active
                 ? "bg-blue-100 text-blue-700 dark:bg-blue-400/20 dark:text-blue-200"
@@ -1140,13 +1138,13 @@ function TabButton({
         <span
           className="
             relative inline-flex items-center gap-1
-            rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-tight
+            rounded-full px-1.5 py-0.5 text-[10px] font-semibold tracking-tight sm:px-2 sm:text-[11px]
             text-white
             bg-[linear-gradient(135deg,#7c3aed,#22c55e,#3b82f6)]
             shadow-[0_8px_18px_-10px_rgba(124,58,237,0.65)]
           "
         >
-          <Icon icon="mdi:sparkles" className="h-3 w-3" />
+          <Icon icon="mdi:sparkles" className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
           {badge}
         </span>
       ) : null}
@@ -1222,7 +1220,7 @@ function NotesBlock({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="inline-flex w-fit items-center rounded-full border border-slate-300 bg-neutral-100 p-1 dark:border-white/15 dark:bg-white/[0.06]">
+      <div className="inline-flex w-fit items-center rounded-full border border-slate-300 bg-neutral-100 p-0.5 sm:p-1 dark:border-white/15 dark:bg-white/[0.06]">
         {[
           {
             id: "highlight" as const,
@@ -1236,7 +1234,7 @@ function NotesBlock({
             key={item.id}
             type="button"
             onClick={() => onSubtabChange(item.id)}
-            className={`rounded-full px-3 py-1.5 text-[13px] font-semibold transition-colors ${
+            className={`rounded-full px-2.5 py-1 text-[12px] font-semibold transition-colors sm:px-3 sm:py-1.5 sm:text-[13px] ${
               subtab === item.id
                 ? "bg-white text-neutral-900 shadow-sm dark:bg-white/14 dark:text-white"
                 : "text-neutral-500 hover:text-neutral-800 dark:text-white/60 dark:hover:text-white/85"
@@ -1260,7 +1258,7 @@ function NotesBlock({
         ))}
       </div>
 
-      <div className="text-[16px] font-medium leading-7 text-neutral-600 dark:text-white/70">
+      <div className="text-[13px] font-medium leading-5 sm:text-[16px] sm:leading-7 text-neutral-600 dark:text-white/70">
         {subtab === "memo"
           ? helperText
           : subtab === "node"
@@ -1269,7 +1267,7 @@ function NotesBlock({
       </div>
 
       {error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-[14px] leading-6 text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
+        <div className="rounded-xl border border-rose-200 bg-rose-50 p-2.5 text-[13px] leading-5 sm:rounded-2xl sm:p-3 sm:text-[14px] sm:leading-6 text-rose-700 dark:border-rose-500/25 dark:bg-rose-500/10 dark:text-rose-200">
           {error}
         </div>
       ) : null}
@@ -1287,7 +1285,7 @@ function NotesBlock({
             }}
             placeholder={placeholder}
             className="
-              flex-1 rounded-2xl border border-slate-400 bg-blue-50/40 px-4 py-3 text-[15px]
+              flex-1 rounded-xl border border-slate-400 bg-blue-50/40 px-3 py-2.5 text-[13px] sm:rounded-2xl sm:px-4 sm:py-3 sm:text-[15px]
               outline-none focus:ring-2 focus:ring-blue-200
               dark:border-white/20 dark:bg-white/[0.06] dark:text-white
               dark:focus:ring-blue-500/20
@@ -1298,8 +1296,9 @@ function NotesBlock({
             onClick={onAdd}
             disabled={submitting}
             className="
-              rounded-2xl border border-blue-700 bg-blue-700 px-4 py-3
-              text-[15px] font-semibold text-white hover:bg-blue-800
+              rounded-xl border border-blue-700 bg-blue-700 px-3 py-2.5
+              text-[13px] font-semibold text-white hover:bg-blue-800
+              sm:rounded-2xl sm:px-4 sm:py-3 sm:text-[15px]
               disabled:cursor-not-allowed disabled:opacity-60
               dark:border-blue-400 dark:bg-blue-500
               dark:text-white dark:hover:bg-blue-400
@@ -1312,11 +1311,11 @@ function NotesBlock({
 
       <div className="flex flex-col gap-2">
         {subtab === "memo" && loading ? (
-          <div className="rounded-2xl border border-slate-400 bg-blue-50/50 p-4 text-[15px] leading-6 text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/75">
+          <div className="rounded-xl border border-slate-400 bg-blue-50/50 p-3 text-[13px] leading-5 sm:rounded-2xl sm:p-4 sm:text-[15px] sm:leading-6 text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/75">
             {loadingLabel}
           </div>
         ) : subtab === "memo" && notes.length === 0 ? (
-          <div className="rounded-2xl border border-slate-400 bg-blue-50/50 p-4 text-[17px] font-medium leading-7 text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80">
+          <div className="rounded-xl border border-slate-400 bg-blue-50/50 p-3 text-[14px] font-medium leading-5 sm:rounded-2xl sm:p-4 sm:text-[17px] sm:leading-7 text-neutral-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80">
             {emptyLabel}
           </div>
         ) : subtab === "memo" ? (
@@ -1424,12 +1423,12 @@ function NotesBlock({
 
 /* ---------------- helpers ---------------- */
 
-function safeDateLabel(ts?: number) {
+function safeDateLabel(ts?: number, locale?: string) {
   if (!ts) return "-";
   try {
     const d = new Date(ts);
     if (Number.isNaN(d.getTime())) return "-";
-    return d.toLocaleString();
+    return d.toLocaleString(locale);
   } catch {
     return "-";
   }
