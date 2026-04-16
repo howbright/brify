@@ -26,7 +26,7 @@ type MapTableListProps = {
 };
 
 function getDisplayTitle(draft: MapDraft) {
-  const baseTitle = draft.shortTitle?.trim() || draft.title;
+  const baseTitle = draft.title;
   const channel = draft.channelName?.trim();
   return channel ? `${baseTitle} [${channel}]` : baseTitle;
 }

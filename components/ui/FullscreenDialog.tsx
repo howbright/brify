@@ -121,7 +121,7 @@ export default function FullscreenDialog({
   const t = useTranslations("FullscreenDialog");
   const tTutorial = useTranslations("MapTutorial");
   const isTutorialMobile = useTutorialIsMobile();
-  const headerTitle = draft?.shortTitle ?? title ?? draft?.title ?? t("fallbackTitle");
+  const headerTitle = title ?? draft?.title ?? t("fallbackTitle");
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
 

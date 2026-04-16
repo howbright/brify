@@ -5,7 +5,10 @@ import { Icon } from "@iconify/react";
 import { useLocale, useTranslations } from "next-intl";
 import { MapDraft } from "./types";
 
-const MS_PER_CHAR = 112610 / 8460;
+// Recent observed baseline: 18,857 chars took about 50.7s.
+// Use that estimate so the optimistic progress bar moves at a pace
+// that better matches current backend throughput.
+const MS_PER_CHAR = 50696 / 18857;
 const PROGRESS_CAP = 97;
 
 function isActiveStatus(status: MapDraft["status"]) {

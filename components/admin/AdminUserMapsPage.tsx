@@ -448,14 +448,7 @@ export default function AdminUserMapsPage() {
                             {item.sourceType} · {formatDateTime(item.updatedAt)}
                           </span>
                         </div>
-                        <div className="mt-3 text-sm font-semibold">
-                          {item.shortTitle || item.title}
-                        </div>
-                        {item.shortTitle && item.shortTitle !== item.title ? (
-                          <div className={cn("mt-1 text-xs", isSelected ? "text-slate-200" : "text-neutral-500")}>
-                            원본 제목: {item.title}
-                          </div>
-                        ) : null}
+                        <div className="mt-3 text-sm font-semibold">{item.title}</div>
                         <div className={cn("mt-2 text-xs", isSelected ? "text-slate-200" : "text-neutral-500")}>
                           크레딧 {item.creditsCharged} · 글자수 {item.sourceCharCount.toLocaleString()} · 언어 {item.outputLanguage ?? "-"}
                         </div>
@@ -520,12 +513,7 @@ export default function AdminUserMapsPage() {
                       구조맵 열기
                     </Link>
                   </div>
-                  <div className="mt-3 text-base font-bold text-neutral-950">
-                    {mapDetail.shortTitle || mapDetail.title}
-                  </div>
-                  {mapDetail.shortTitle && mapDetail.shortTitle !== mapDetail.title ? (
-                    <div className="mt-1 text-xs text-neutral-500">원본 제목: {mapDetail.title}</div>
-                  ) : null}
+                  <div className="mt-3 text-base font-bold text-neutral-950">{mapDetail.title}</div>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -600,7 +588,7 @@ export default function AdminUserMapsPage() {
               <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-5 text-sm text-neutral-500">
                 맵을 선택하면 상세 정보가 여기에 표시돼요.
                 {selectedMap ? (
-                  <div className="mt-2">선택된 맵: {selectedMap.shortTitle || selectedMap.title}</div>
+                  <div className="mt-2">선택된 맵: {selectedMap.title}</div>
                 ) : null}
               </div>
             )}

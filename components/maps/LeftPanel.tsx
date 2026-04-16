@@ -81,10 +81,10 @@ export default function LeftPanel({
   );
   const sourceType = useMemo(() => map.sourceType ?? "text", [map.sourceType]);
   const displayTitle = useMemo(() => {
-    const baseTitle = map.shortTitle?.trim() || map.title?.trim() || t("untitled");
+    const baseTitle = map.title?.trim() || t("untitled");
     const channel = map.channelName?.trim();
     return channel ? `${baseTitle} [${channel}]` : baseTitle;
-  }, [map.channelName, map.shortTitle, map.title, t]);
+  }, [map.channelName, map.title, t]);
   const originalTitle = useMemo(
     () => map.title?.trim() || t("untitled"),
     [map.title, t]

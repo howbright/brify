@@ -167,7 +167,7 @@ function formatTimestamp(ts?: number) {
 }
 
 function getDisplayTitle(draft: MapDraft, untitled: string) {
-  const baseTitle = draft.shortTitle?.trim() || draft.title?.trim() || untitled;
+  const baseTitle = draft.title?.trim() || untitled;
   const channel = draft.channelName?.trim();
   return channel ? `${baseTitle} [${channel}]` : baseTitle;
 }
@@ -194,7 +194,6 @@ export default function MapTermsTab() {
     const base = q
       ? termsDrafts.filter((draft) => {
           const haystack = [
-            draft.shortTitle,
             draft.title,
             draft.channelName,
             ...(draft.tags ?? []),

@@ -7,6 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 import { resizeToWebp, validateImageFile } from "@/utils/image";
 
 type Meta = {
+  sourceType: "youtube" | "manual";
   sourceUrl?: string;
   title: string;
   youtubeTitle?: string;
@@ -50,6 +51,7 @@ type Props = {
   mapId?: string; // ✅ 추가: map 단위 썸네일 저장 경로에 사용
 
   initial: {
+    sourceType?: "youtube" | "website" | "file" | "manual";
     sourceUrl?: string;
     title?: string;
     youtubeTitle?: string;
@@ -79,9 +81,11 @@ export default function MetadataDialog({
 }: Props) {
   const t = useTranslations("MetadataDialog");
   const [sourceUrl, setSourceUrl] = useState(initial.sourceUrl ?? "");
-  const [sourceType, setSourceType] = useState<"youtube" | "manual" | null>(() => {
+  const [sourceType, setSourceType] = useState<"youtube" | "manual">(() => {
+    if (initial.sourceType === "youtube") return "youtube";
+    if (initial.sourceType === "manual") return "manual";
     const initialSourceUrl = initial.sourceUrl ?? "";
-    if (!initialSourceUrl) return null;
+    if (!initialSourceUrl) return "manual";
     return isYouTubeUrl(initialSourceUrl) ? "youtube" : "manual";
   });
   const [title, setTitle] = useState(initial.title ?? "");
@@ -113,17 +117,6 @@ export default function MetadataDialog({
   const [thumbPreviewUrl, setThumbPreviewUrl] = useState<string | null>(null);
 
   const youtube = sourceType === "youtube";
-  const [detailsExpanded, setDetailsExpanded] = useState(() => {
-    const initialSourceUrl = initial.sourceUrl ?? "";
-    const initialType = !initialSourceUrl
-      ? null
-      : isYouTubeUrl(initialSourceUrl)
-        ? "youtube"
-        : "manual";
-    if (initialType === "manual") return true;
-    if (initialType === "youtube") return true;
-    return false;
-  });
   const tagSuggestions = useMemo(() => {
     const term = tagInput.trim().toLowerCase();
     if (!term) return [];
@@ -209,7 +202,6 @@ export default function MetadataDialog({
 
       // ✅ 유튜브 자동 채우기를 성공하면 "수동 업로드 상태"는 해제 (충돌 방지)
       clearManualUploadState();
-      setDetailsExpanded(true);
     } catch (error: unknown) {
       const message = getErrorMessage(error, t("errors.youtubeFetchFailed"));
       setYoutubeMetaError(
@@ -225,23 +217,6 @@ export default function MetadataDialog({
   useEffect(() => {
     if (titleError && title.trim()) setTitleError(null);
   }, [title, titleError]);
-
-  useEffect(() => {
-    if (sourceType === "manual") {
-      setDetailsExpanded(true);
-      return;
-    }
-
-    if (sourceType === "youtube") {
-      setDetailsExpanded(true);
-      return;
-    }
-
-    if (sourceType !== "youtube") {
-      setDetailsExpanded(false);
-      return;
-    }
-  }, [sourceType]);
 
   useEffect(() => {
     if (!youtube) {
@@ -398,6 +373,7 @@ export default function MetadataDialog({
       }
     }
     const meta: Meta = {
+      sourceType: sourceType === "youtube" ? "youtube" : "manual",
       sourceUrl: sourceUrl.trim() || undefined,
       title: title.trim(),
       youtubeTitle: youtubeTitle.trim() || undefined,
@@ -480,14 +456,6 @@ export default function MetadataDialog({
               </div>
             </div>
 
-            <button
-              onClick={handleTryClose}
-              className="rounded-full p-1.5 text-neutral-500 transition hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white flex-shrink-0"
-              aria-label="close"
-              disabled={isUploadingThumb}
-            >
-              <Icon icon="mdi:close" className="h-5 w-5" />
-            </button>
           </div>
 
           {/* body */}
@@ -498,39 +466,36 @@ export default function MetadataDialog({
               overflow-x-hidden
             "
           >
-            {sourceType === null ? (
-              <div className="grid gap-2 min-w-0">
-                <label className="text-[17px] font-bold text-neutral-800 dark:text-neutral-100">
-                  {t("fields.sourceQuestion")}
-                </label>
-                <p className="text-[14px] leading-6 text-neutral-600 dark:text-white/65">
-                  {t("hints.youtubeOptional")}
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSourceType("youtube");
-                      setDetailsExpanded(true);
-                    }}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-400 bg-white px-4 py-3 text-[15px] font-bold text-neutral-800 transition hover:bg-neutral-50 dark:border-white/30 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
-                  >
-                    <Icon icon="mdi:youtube" className="h-6 w-6 flex-shrink-0 text-[#FF0000]" />
-                    {t("fields.sourceTypeYes")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSourceType("manual");
-                      setDetailsExpanded(true);
-                    }}
-                    className="rounded-2xl border border-slate-400 bg-white px-4 py-3 text-[15px] font-bold text-neutral-800 transition hover:bg-neutral-50 dark:border-white/30 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
-                  >
-                    {t("fields.sourceTypeNo")}
-                  </button>
-                </div>
+            <div className="grid gap-2 min-w-0">
+              <label className="text-[17px] font-bold text-neutral-800 dark:text-neutral-100">
+                {t("fields.sourceQuestion")}
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSourceType("youtube")}
+                  className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-[15px] font-bold transition ${
+                    sourceType === "youtube"
+                      ? "border-red-300 bg-red-50 text-red-700 dark:border-red-400/40 dark:bg-red-500/12 dark:text-red-200"
+                      : "border-slate-400 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-white/30 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+                  }`}
+                >
+                  <Icon icon="mdi:youtube" className="h-6 w-6 flex-shrink-0 text-[#FF0000]" />
+                  {t("fields.sourceTypeYes")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSourceType("manual")}
+                  className={`rounded-2xl border px-4 py-3 text-[15px] font-bold transition ${
+                    sourceType === "manual"
+                      ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-sky-400/40 dark:bg-sky-500/12 dark:text-sky-200"
+                      : "border-slate-400 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-white/30 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+                  }`}
+                >
+                  {t("fields.sourceTypeNo")}
+                </button>
               </div>
-            ) : null}
+            </div>
 
             {/* URL */}
             {sourceType === "youtube" ? (
@@ -590,7 +555,6 @@ export default function MetadataDialog({
             </div>
             ) : null}
 
-            {detailsExpanded ? (
               <>
                 <div className="grid gap-3 min-w-0">
                   <div className="grid gap-1.5 min-w-0">
@@ -913,7 +877,6 @@ export default function MetadataDialog({
                   />
                 </div>
               </>
-            ) : null}
           </div>
 
           {/* footer */}
@@ -926,24 +889,24 @@ export default function MetadataDialog({
               bg-white/90 dark:bg-[#111C2E]/92
             "
           >
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-            <button
-              onClick={handleTryClose}
-              disabled={isBusy}
-              className="
-                w-full sm:w-auto sm:ml-auto
-                rounded-2xl border border-slate-400 bg-white px-4 py-3 text-[15px] font-bold text-neutral-800
-                hover:bg-neutral-100
-                dark:border-white/20 dark:bg-white/[0.04] dark:text-white dark:hover:bg-white/10
-                disabled:opacity-50 disabled:cursor-not-allowed
-              "
-            >
-              {t("buttons.close")}
-            </button>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+              <button
+                onClick={handleTryClose}
+                disabled={isBusy}
+                className="
+                  w-full sm:w-auto sm:ml-auto
+                  rounded-2xl border border-slate-400 bg-white px-4 py-3 text-[15px] font-bold text-neutral-800
+                  hover:bg-neutral-100
+                  dark:border-white/20 dark:bg-white/[0.04] dark:text-white dark:hover:bg-white/10
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                "
+              >
+                {t("buttons.close")}
+              </button>
 
-            <button
-              onClick={handleSave}
-              disabled={isBusy}
+              <button
+                onClick={handleSave}
+                disabled={isBusy}
                 className="
                   w-full sm:w-auto
                   rounded-2xl px-4 py-3 text-[15px] font-bold text-white
@@ -952,10 +915,10 @@ export default function MetadataDialog({
                   dark:bg-[rgb(var(--hero-b))] dark:text-[#081120] dark:hover:bg-[rgb(var(--hero-a))]
                   disabled:opacity-50 disabled:cursor-not-allowed
                 "
-            >
-              {isUploadingThumb ? t("status.uploading") : t("buttons.save")}
-            </button>
-          </div>
+              >
+                {isUploadingThumb ? t("status.uploading") : t("buttons.save")}
+              </button>
+            </div>
           </div>
         </div>
       </div>

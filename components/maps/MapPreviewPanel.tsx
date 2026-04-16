@@ -19,7 +19,7 @@ function formatDate(draft: MapDraft, locale: string) {
 }
 
 function getDisplayTitle(draft: MapDraft) {
-  return draft.shortTitle?.trim() || draft.title;
+  return draft.title;
 }
 
 export default function MapPreviewPanel({

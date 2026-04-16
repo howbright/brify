@@ -687,7 +687,7 @@ export default function AdminMapsOpsPage() {
                         FAILED
                       </div>
                       <div className="mt-2 truncate text-base font-extrabold tracking-tight text-neutral-950 sm:text-lg">
-                        {item.shortTitle ?? item.title}
+                        {item.title}
                       </div>
                       <div className="mt-1 text-xs text-neutral-500">
                         mapId {item.id} · {item.sourceType} · job {item.extractJobId ?? "-"}

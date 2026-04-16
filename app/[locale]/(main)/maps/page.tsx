@@ -51,7 +51,7 @@ type SourceType = "youtube" | "website" | "file" | "manual";
 type MapsPageTab = "maps" | "notes" | "terms";
 
 const LIST_FIELDS =
-  "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,notes_count,terms_count";
+  "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,notes_count,terms_count";
 const PAGE_SIZE = 20;
 const NO_TAG_FILTER = "__NO_TAG__";
 
@@ -87,7 +87,6 @@ function toDraft(row: MapRow): MapDraft {
     sourceUrl: row.source_url ?? undefined,
     sourceType: row.source_type ?? undefined,
     title: row.title ?? "제목없음",
-    shortTitle: row.short_title ?? undefined,
     channelName: row.channel_name ?? undefined,
     thumbnailUrl: row.thumbnail_url ? withCacheBuster(row.thumbnail_url) : undefined,
     tags: Array.isArray(row.tags) ? row.tags : [],
@@ -106,7 +105,7 @@ function toDraft(row: MapRow): MapDraft {
 }
 
 function getMapListDisplayTitle(draft: MapDraft) {
-  const baseTitle = draft.shortTitle?.trim() || draft.title;
+  const baseTitle = draft.title;
   const channel = draft.channelName?.trim();
   return channel ? `${baseTitle} [${channel}]` : baseTitle;
 }

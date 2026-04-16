@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -10,7 +11,6 @@ import { useMessages, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import FullscreenHeader from "@/components/maps/FullscreenHeader";
-import MapControls from "@/components/maps/MapControls";
 import NoteItem, { type NoteItemData } from "@/components/maps/NoteItem";
 import TermsBlock from "@/components/maps/TermsBlock";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
@@ -34,6 +34,7 @@ import type { ClientMindElixirHandle } from "@/components/ClientMindElixir";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 
 const PROFILE_THEME_NAME = "내설정테마";
+const DEMO_THEME_NAME = "Inkline";
 
 const ClientMindElixir = dynamic(
   () => import("@/components/ClientMindElixir"),
@@ -253,7 +254,7 @@ function DemoLeftPanel({
     <aside
       ref={panelRef}
       className={`
-        absolute left-0 top-0 z-[18] h-full
+        absolute left-0 top-[-40px] z-[32] h-[calc(100%+40px)]
         transition-transform duration-300
         ${open ? "translate-x-0" : "-translate-x-[calc(100%+28px)]"}
       `}
@@ -553,6 +554,7 @@ export default function DemoFullscreenDialog({
 }) {
   const router = useRouter();
   const t = useTranslations("DemoFullscreenDialog");
+  const tMap = useTranslations("FullscreenMapPage");
   const tTutorial = useTranslations("MapTutorial");
   const messages = useMessages() as {
     DemoFullscreenDialog?: {
@@ -573,10 +575,20 @@ export default function DemoFullscreenDialog({
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
   const [shareGuideOpen, setShareGuideOpen] = useState(false);
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(false);
+  const [desktopMoreOpen, setDesktopMoreOpen] = useState(false);
+  const [showTimestamps, setShowTimestamps] = useState(true);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Array<{ id: string; text: string }>>([]);
+  const [searchIndex, setSearchIndex] = useState(0);
   const [themeName, setThemeName] = useState<string>(
-    profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME
+    DEMO_THEME_NAME
   );
   const mindRef = useRef<ClientMindElixirHandle | null>(null);
+  const desktopMoreRef = useRef<HTMLDivElement | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
+  const searchIndexRef = useRef(0);
   const initialMapData = useMemo(
     () =>
       isTutorialMobile
@@ -637,9 +649,79 @@ export default function DemoFullscreenDialog({
     }
   }, [isTutorialMobile]);
 
+  useEffect(() => {
+    if (!desktopMoreOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node | null;
+      if (!target) return;
+      if (desktopMoreRef.current?.contains(target)) return;
+      setDesktopMoreOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [desktopMoreOpen]);
+
+  const closeSearch = () => {
+    setSearchOpen(false);
+    setSearchQuery("");
+    setSearchResults([]);
+    setSearchIndex(0);
+    searchIndexRef.current = 0;
+    mindRef.current?.clearSearchHighlights?.();
+  };
+
+  const stepSearch = (dir: 1 | -1) => {
+    if (!searchResults.length) return;
+    const current = searchIndexRef.current;
+    const next = (current + dir + searchResults.length) % searchResults.length;
+    searchIndexRef.current = next;
+    setSearchIndex(next);
+    const id = searchResults[next]?.id;
+    if (id) {
+      mindRef.current?.setSearchActive?.(id);
+      mindRef.current?.focusNodeById?.(id);
+    }
+  };
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    if (typeof window !== "undefined" && window.innerWidth < 640) {
+      mobileSearchInputRef.current?.focus();
+      return;
+    }
+    searchInputRef.current?.focus();
+  }, [searchOpen]);
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    const q = searchQuery.trim();
+    if (!q) {
+      setSearchResults([]);
+      setSearchIndex(0);
+      searchIndexRef.current = 0;
+      mindRef.current?.clearSearchHighlights?.();
+      return;
+    }
+
+    const matches = mindRef.current?.findNodesByQuery?.(q, {
+      includeNotes: true,
+    }) ?? [];
+    setSearchResults(matches);
+    setSearchIndex(0);
+    searchIndexRef.current = 0;
+    mindRef.current?.setSearchHighlights?.(
+      matches.map((item) => item.id),
+      q
+    );
+    if (matches[0]?.id) {
+      mindRef.current?.setSearchActive?.(matches[0].id);
+      mindRef.current?.focusNodeById?.(matches[0].id);
+    }
+  }, [searchOpen, searchQuery]);
+
   if (!open || !draft || !mounted) return null;
 
-  const headerTitle = draft.shortTitle ?? title ?? draft.title ?? t("dialog.title");
+  const headerTitle = title ?? draft.title ?? t("dialog.title");
 
   const resolvedThemeName =
     themeName === PROFILE_THEME_NAME ? profileThemeName : themeName;
@@ -721,6 +803,17 @@ export default function DemoFullscreenDialog({
     (language === "ko" ? "서비스 시작하기" : "Start Using Brify");
   const shareDialogCancel =
     shareDialogMessages?.cancel ?? (language === "ko" ? "닫기" : "Close");
+  const searchShellClass =
+    "relative z-[40] flex h-8 w-[228px] items-center gap-2 rounded-lg border border-slate-400 bg-white px-2.5 text-[11px] text-slate-700 shadow-[0_8px_20px_-18px_rgba(15,23,42,0.14)] dark:border-white/28 dark:bg-[#0b1220] dark:text-white dark:shadow-[0_16px_36px_-30px_rgba(2,6,23,0.7)]";
+  const mobileSearchShellClass =
+    "relative z-[40] flex h-8 w-[min(72vw,290px)] items-center gap-1.5 rounded-lg border border-slate-400 bg-white px-2 text-[11px] text-slate-700 dark:border-white/28 dark:bg-[#0b1220] dark:text-white";
+  const plainHeaderIconButtonClass =
+    "inline-flex h-8 w-8 items-center justify-center text-slate-500 transition hover:text-slate-900 dark:text-white/65 dark:hover:text-white";
+  const controlPanelClass =
+    "rounded-2xl border border-slate-200/80 bg-white/95 p-1.5 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.24)] backdrop-blur-md dark:border-white/10 dark:bg-[#0f172a]/95 dark:shadow-[0_22px_52px_-28px_rgba(2,6,23,0.92)]";
+  const controlMenuItemClass =
+    "w-full rounded-xl px-3 py-2 text-left text-[12px] font-semibold text-slate-700 transition hover:bg-slate-100/90 hover:text-slate-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white";
+  const controlMenuItemContentClass = "flex items-center gap-2.5";
 
   return createPortal(
     <div className="fixed left-0 top-0 z-[120] h-screen w-screen max-w-none bg-black/70" role="dialog" aria-modal="true" aria-label={headerTitle}>
@@ -730,69 +823,361 @@ export default function DemoFullscreenDialog({
           onClose={handleGoHome}
           closeLabel={t("actions.closeMap")}
           left={
-            <button
-              id={DEMO_LEFT_PANEL_BUTTON_ID}
-              type="button"
-              onClick={() => setLeftOpen((prev) => !prev)}
-              className="inline-flex items-center p-1 text-neutral-800 hover:text-neutral-900 dark:text-white/85 dark:hover:text-white"
-              aria-label={t("actions.infoPanel")}
-              title={t("actions.infoPanel")}
-            >
-              <span className="sr-only">{t("actions.infoPanel")}</span>
-              {leftOpen ? (
-                <Icon icon="mdi:chevron-left" className="h-8 w-8" />
-              ) : (
-                <span className="inline-flex h-4 w-5 flex-col justify-between">
-                  <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />
-                  <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />
-                  <span className="h-[2px] w-full bg-[#111827] dark:bg-white" />
-                </span>
-              )}
-            </button>
+            !leftOpen ? (
+              <button
+                id={DEMO_LEFT_PANEL_BUTTON_ID}
+                type="button"
+                onClick={() => setLeftOpen(true)}
+                className="
+                  inline-flex h-8 w-10 items-center justify-center
+                  rounded-l-none rounded-r-full
+                  bg-blue-600 text-white
+                  shadow-sm transition hover:bg-blue-700
+                  dark:bg-blue-500/70 dark:text-white dark:hover:bg-blue-500
+                "
+                aria-label={t("actions.infoPanel")}
+                title={t("actions.infoPanel")}
+              >
+                <span className="sr-only">{t("actions.infoPanel")}</span>
+                <Icon icon="mdi:chevron-right" className="h-5 w-5" />
+              </button>
+            ) : (
+              <div className="h-8 w-10" aria-hidden="true" />
+            )
           }
-          right={
-            <div className="flex items-center gap-2">
+        right={
+          <>
+            <div className="flex items-center gap-1 sm:hidden">
+              <div className={mobileSearchShellClass}>
+                <Icon icon="mdi:magnify" className="h-3.5 w-3.5 shrink-0 text-slate-600 dark:text-white/75" />
+                <input
+                  ref={mobileSearchInputRef}
+                  value={searchQuery}
+                  onFocus={() => setSearchOpen(true)}
+                  onChange={(e) => {
+                    if (!searchOpen) setSearchOpen(true);
+                    setSearchQuery(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.repeat) {
+                      e.preventDefault();
+                      return;
+                    }
+                    e.stopPropagation();
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      closeSearch();
+                      return;
+                    }
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      stepSearch(e.shiftKey ? -1 : 1);
+                      return;
+                    }
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      stepSearch(1);
+                      return;
+                    }
+                    if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      stepSearch(-1);
+                    }
+                  }}
+                  placeholder={tMap("actions.searchPlaceholder")}
+                  className="min-w-0 flex-1 bg-transparent text-[11px] text-slate-800 outline-none placeholder:text-slate-500 dark:text-white dark:placeholder:text-white/45"
+                />
+                <span className="shrink-0 text-[10px] font-semibold text-slate-500 dark:text-white/60">
+                  {searchResults.length ? `${searchIndex + 1}/${searchResults.length}` : "0"}
+                </span>
+                {searchQuery ? (
+                  <button
+                    type="button"
+                    onClick={closeSearch}
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
+                    aria-label={tMap("actions.clearSearch")}
+                    title={tMap("actions.clearSearch")}
+                  >
+                    <Icon icon="mdi:close" className="h-3.5 w-3.5" />
+                  </button>
+                ) : null}
+                <div className="flex items-center gap-0.5">
+                  <button
+                    type="button"
+                    onClick={() => stepSearch(-1)}
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/65 dark:hover:bg-white/10 dark:hover:text-white"
+                    aria-label={tMap("actions.previousSearchResult")}
+                    title={tMap("actions.previousSearchResult")}
+                  >
+                    <Icon icon="mdi:chevron-up" className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => stepSearch(1)}
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/65 dark:hover:bg-white/10 dark:hover:text-white"
+                    aria-label={tMap("actions.nextSearchResult")}
+                    title={tMap("actions.nextSearchResult")}
+                  >
+                    <Icon icon="mdi:chevron-down" className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
               <button
                 type="button"
-                onClick={handleStartService}
-                className="inline-flex h-8 items-center justify-center rounded-full border border-sky-300 bg-[linear-gradient(135deg,#2563eb_0%,#0ea5e9_55%,#14b8a6_100%)] px-3 text-[12px] font-extrabold tracking-[-0.01em] text-white shadow-[0_16px_30px_-18px_rgba(14,165,233,0.65)] sm:hidden"
-                title={t("actions.startService")}
+                onClick={() => setShowTimestamps((prev) => !prev)}
+                className={plainHeaderIconButtonClass}
+                aria-label={
+                  showTimestamps
+                    ? tMap("moreMenu.hideTimestamps")
+                    : tMap("moreMenu.showTimestamps")
+                }
+                title={
+                  showTimestamps
+                    ? tMap("moreMenu.hideTimestamps")
+                    : tMap("moreMenu.showTimestamps")
+                }
               >
-                {t("actions.startService")}
-              </button>
-
-              <div className="hidden items-center gap-2 sm:flex">
-                <MapControls
-                  editMode={editMode}
-                  panMode={false}
-                  themes={themeOptions}
-                  currentThemeName={themeName}
-                  onToggleEdit={() => {}}
-                  onTogglePanMode={() => {}}
-                  onSelectTheme={(name) => setThemeName(name)}
-                  onCollapseAll={() => mindRef.current?.collapseAll?.()}
-                  onExpandAll={() => mindRef.current?.expandAll?.()}
-                  onExpandLevel={() => mindRef.current?.expandOneLevel?.()}
-                  onCollapseLevel={() => mindRef.current?.collapseOneLevel?.()}
-                  onAlignLeft={() => mindRef.current?.setLayout?.("left")}
-                  onAlignRight={() => mindRef.current?.setLayout?.("right")}
-                  onAlignSide={() => mindRef.current?.setLayout?.("side")}
-                  onCenterMap={() => mindRef.current?.centerMap?.()}
-                  onZoomIn={() => mindRef.current?.zoomIn?.()}
-                  onZoomOut={() => mindRef.current?.zoomOut?.()}
-                  onPublish={() => {}}
-                  onShare={handleOpenDemoShareGuide}
-                  onOpenTutorial={handleRestartTutorial}
-                  onExportPng={handleExportPng}
-                  onCloseMap={handleGoHome}
-                  placement="inline"
-                  hideEditToggle
-                  hidePanToggle
+                <Icon
+                  icon="mdi:timeline-clock-outline"
+                  className={`h-4 w-4 ${showTimestamps ? "text-sky-700 dark:text-sky-200" : ""}`}
                 />
+              </button>
+            </div>
+
+            <div className="hidden sm:flex items-center gap-1.5">
+              <div className={searchShellClass}>
+                <Icon icon="mdi:magnify" className="h-4 w-4 shrink-0 text-slate-600 dark:text-white/75" />
+                <input
+                  ref={searchInputRef}
+                  value={searchQuery}
+                  onFocus={() => setSearchOpen(true)}
+                  onChange={(e) => {
+                    if (!searchOpen) setSearchOpen(true);
+                    setSearchQuery(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.repeat) {
+                      e.preventDefault();
+                      return;
+                    }
+                    e.stopPropagation();
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      closeSearch();
+                      return;
+                    }
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      stepSearch(e.shiftKey ? -1 : 1);
+                      return;
+                    }
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      stepSearch(1);
+                      return;
+                    }
+                    if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      stepSearch(-1);
+                    }
+                  }}
+                  placeholder={tMap("actions.searchPlaceholder")}
+                  className="min-w-0 flex-1 bg-transparent text-[11px] text-slate-800 outline-none placeholder:text-slate-500 dark:text-white dark:placeholder:text-white/45"
+                />
+                <span className="shrink-0 text-[10px] font-semibold text-slate-500 dark:text-white/60">
+                  {searchResults.length ? `${searchIndex + 1}/${searchResults.length}` : "0"}
+                </span>
+                {searchQuery ? (
+                  <button
+                    type="button"
+                    onClick={closeSearch}
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
+                    aria-label={tMap("actions.clearSearch")}
+                    title={tMap("actions.clearSearch")}
+                  >
+                    <Icon icon="mdi:close" className="h-3.5 w-3.5" />
+                  </button>
+                ) : null}
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => stepSearch(-1)}
+                    className="inline-flex h-6 w-6 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/65 dark:hover:bg-white/10 dark:hover:text-white"
+                    aria-label={tMap("actions.previousSearchResult")}
+                    title={tMap("actions.previousSearchResult")}
+                  >
+                    <Icon icon="mdi:chevron-up" className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => stepSearch(1)}
+                    className="inline-flex h-6 w-6 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/65 dark:hover:bg-white/10 dark:hover:text-white"
+                    aria-label={tMap("actions.nextSearchResult")}
+                    title={tMap("actions.nextSearchResult")}
+                  >
+                    <Icon icon="mdi:chevron-down" className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowTimestamps((prev) => !prev)}
+                className={plainHeaderIconButtonClass}
+                aria-label={
+                  showTimestamps
+                    ? tMap("moreMenu.hideTimestamps")
+                    : tMap("moreMenu.showTimestamps")
+                }
+                title={
+                  showTimestamps
+                    ? tMap("moreMenu.hideTimestamps")
+                    : tMap("moreMenu.showTimestamps")
+                }
+              >
+                <Icon
+                  icon="mdi:timeline-clock-outline"
+                  className={`h-4 w-4 ${showTimestamps ? "text-sky-700 dark:text-sky-200" : ""}`}
+                />
+              </button>
+              <button
+                type="button"
+                onClick={handleRestartTutorial}
+                className={plainHeaderIconButtonClass}
+                aria-label={tMap("actions.tutorial")}
+                title={tMap("actions.tutorial")}
+              >
+                <Icon icon="mdi:school-outline" className="h-4 w-4" />
+              </button>
+              <div className="relative" ref={desktopMoreRef}>
+                <button
+                  type="button"
+                  onClick={() => setDesktopMoreOpen((v) => !v)}
+                  className={plainHeaderIconButtonClass}
+                  aria-label={tMap("actions.more")}
+                  title={tMap("actions.more")}
+                >
+                  <Icon icon="mdi:dots-horizontal" className="h-4 w-4" />
+                </button>
+                {desktopMoreOpen ? (
+                  <div className={`absolute right-0 mt-2 w-[210px] ${controlPanelClass}`}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDesktopMoreOpen(false);
+                        mindRef.current?.setLayout?.("left");
+                      }}
+                      className={controlMenuItemClass}
+                    >
+                      <span className={controlMenuItemContentClass}>
+                        <Icon icon="mdi:arrow-left-bold-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                        <span>{tMap("moreMenu.layoutLeft")}</span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDesktopMoreOpen(false);
+                        mindRef.current?.setLayout?.("right");
+                      }}
+                      className={controlMenuItemClass}
+                    >
+                      <span className={controlMenuItemContentClass}>
+                        <Icon icon="mdi:arrow-right-bold-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                        <span>{tMap("moreMenu.layoutRight")}</span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDesktopMoreOpen(false);
+                        mindRef.current?.setLayout?.("side");
+                      }}
+                      className={controlMenuItemClass}
+                    >
+                      <span className={controlMenuItemContentClass}>
+                        <Icon icon="mdi:arrow-left-right-bold-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                        <span>{tMap("moreMenu.layoutBoth")}</span>
+                      </span>
+                    </button>
+                    <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
+                    <div className="px-3 py-2">
+                      <div className="text-[11px] font-semibold text-slate-500 dark:text-white/60">
+                        {tMap("moreMenu.theme")}
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {themeOptions.map((theme) => {
+                          const themeLabel =
+                            theme.name === PROFILE_THEME_NAME
+                              ? tMap("moreMenu.profileTheme")
+                              : theme.name === DEFAULT_THEME_NAME
+                              ? tMap("moreMenu.defaultTheme")
+                              : theme.name;
+                          return (
+                            <button
+                              key={theme.name}
+                              type="button"
+                              onClick={() => {
+                                setThemeName(theme.name);
+                                setDesktopMoreOpen(false);
+                              }}
+                              className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold ${
+                                theme.name === themeName
+                                  ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-300/40 dark:bg-blue-500/10 dark:text-blue-50/90"
+                                  : "border-slate-200 bg-white text-slate-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70"
+                              }`}
+                            >
+                              {themeLabel}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDesktopMoreOpen(false);
+                        setShowTimestamps((prev) => !prev);
+                      }}
+                      className={controlMenuItemClass}
+                    >
+                      {showTimestamps
+                        ? tMap("moreMenu.hideTimestamps")
+                        : tMap("moreMenu.showTimestamps")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDesktopMoreOpen(false);
+                        handleExportPng();
+                      }}
+                      className={controlMenuItemClass}
+                    >
+                      <span className={controlMenuItemContentClass}>
+                        <Icon icon="mdi:download" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                        <span>{tMap("moreMenu.savePng")}</span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDesktopMoreOpen(false);
+                        handleOpenDemoShareGuide();
+                      }}
+                      className={controlMenuItemClass}
+                    >
+                      <span className={controlMenuItemContentClass}>
+                        <Icon icon="mdi:share-variant-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                        <span>{tMap("moreMenu.share")}</span>
+                      </span>
+                    </button>
+                  </div>
+                ) : null}
               </div>
             </div>
-          }
-        />
+          </>
+        }
+      />
 
         <div className="relative w-full" style={{ height: "calc(100% - var(--header-h))" }}>
           <div className="absolute inset-0 bg-[#f6f7fb] dark:bg-[#070c16]" />
@@ -810,6 +1195,7 @@ export default function DemoFullscreenDialog({
                 loading={false}
                 placeholderData={loadingMindElixir}
                 showMiniMap={!isTutorialMobile}
+                showTimestamps={showTimestamps}
                 openMenuOnClick={false}
                 disableDirectContextMenu
                 showSelectionContextMenuButton
@@ -826,6 +1212,25 @@ export default function DemoFullscreenDialog({
             <Icon icon="mdi:rocket-launch" className="h-5 w-5" />
             {t("actions.startService")}
           </button>
+
+          <div className="pointer-events-none absolute bottom-4 left-4 z-[22]">
+            <button
+              type="button"
+              onClick={handleGoHome}
+              className="pointer-events-auto inline-flex items-center gap-1 rounded-full border border-sky-200/90 bg-sky-50/95 px-3.5 py-2 text-[13px] font-extrabold tracking-[-0.02em] text-slate-800 shadow-[0_18px_40px_-18px_rgba(15,23,42,0.5)] backdrop-blur-sm transition hover:border-sky-300 hover:bg-sky-100/95 dark:border-white/14 dark:bg-[#0f172a]/90 dark:text-white/88 dark:hover:border-white/22 dark:hover:bg-[#111c31] sm:gap-1.5 sm:px-6 sm:py-3.5 sm:text-[18px]"
+            >
+              <div className="relative h-7 w-[36px] shrink-0 sm:h-11 sm:w-[56px]">
+                <Image
+                  src="/images/newlogo.png"
+                  alt="Brify logo"
+                  fill
+                  sizes="(max-width: 640px) 36px, 56px"
+                  className="object-contain"
+                />
+              </div>
+              <span>{language === "ko" ? "브라이피" : "Brify"}</span>
+            </button>
+          </div>
 
           <div className="pointer-events-auto absolute right-3 top-16 z-[25] flex flex-col gap-2 sm:hidden">
             <button

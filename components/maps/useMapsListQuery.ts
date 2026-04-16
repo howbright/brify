@@ -197,7 +197,7 @@ export default function useMapsListQuery({
           if (safeQuery) {
             const tagToken = safeQuery.split(/\s+/)[0];
             request = request.or(
-              `short_title.ilike.%${safeQuery}%,title.ilike.%${safeQuery}%,description.ilike.%${safeQuery}%,tags.cs.{${tagToken}}`
+              `title.ilike.%${safeQuery}%,description.ilike.%${safeQuery}%,tags.cs.{${tagToken}}`
             );
           }
         }

@@ -694,8 +694,8 @@ export default function FullscreenMapDetailScreen({
   }, [profileThemeName, themeName]);
 
   const title = useMemo(
-    () => draft?.shortTitle ?? draft?.title ?? t("fallbackTitle"),
-    [draft?.shortTitle, draft?.title, t]
+    () => draft?.title ?? t("fallbackTitle"),
+    [draft?.title, t]
   );
   const tutorialSteps = useMemo(
     () =>
@@ -1032,7 +1032,7 @@ export default function FullscreenMapDetailScreen({
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          short_title: meta.title,
+          title: meta.title,
           description: meta.description,
           tags: meta.tags ?? [],
           thumbnail_url: meta.thumbnailUrl,
@@ -2373,7 +2373,7 @@ export default function FullscreenMapDetailScreen({
           <TagEditDialog
             open={tagEditOpen}
             onOpenChange={setTagEditOpen}
-            draftTitle={draft.shortTitle ?? draft.title ?? t("selectedMap")}
+            draftTitle={draft.title ?? t("selectedMap")}
             initialTags={draft.tags ?? []}
             allTags={allTagNames}
             saving={tagEditSubmitting}
@@ -2386,7 +2386,7 @@ export default function FullscreenMapDetailScreen({
             mapId={draft.id}
             initial={{
               sourceUrl: draft.sourceUrl ?? "",
-              title: draft.shortTitle ?? draft.title ?? "",
+              title: draft.title ?? "",
               channelName: draft.channelName ?? "",
               tags: draft.tags ?? [],
               description: draft.description ?? "",

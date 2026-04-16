@@ -1,14 +1,64 @@
-"use client";
-
-import { useParams } from "next/navigation";
-import { useLocale } from "next-intl";
+import type { Metadata } from "next";
 import FullscreenMapDetailScreen from "@/components/maps/FullscreenMapDetailScreen";
 import LanguageSelector from "@/components/LanguageSelector";
+import {
+  buildSharedMapOgText,
+  getSharedMapMetaByToken,
+} from "@/app/lib/sharedMapMeta";
 
-export default function SharedMapPage() {
-  const params = useParams();
-  const locale = useLocale();
-  const token = String(params?.token ?? "");
+type PageProps = {
+  params: Promise<{
+    locale: string;
+    token: string;
+  }>;
+};
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { locale, token } = await params;
+  const map = await getSharedMapMetaByToken(token);
+
+  if (!map) {
+    return {
+      title: "Brify 공유 구조맵",
+      description: "공유된 구조맵을 확인해보세요.",
+    };
+  }
+
+  const { title, description } = buildSharedMapOgText(map);
+  const imageUrl = `https://brify.ai/${locale}/share/${token}/opengraph-image`;
+  const pageUrl = `https://brify.ai/${locale}/share/${token}`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: pageUrl,
+      siteName: "Brify",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
+    },
+  };
+}
+
+export default async function SharedMapPage({ params }: PageProps) {
+  const { locale, token } = await params;
 
   return (
     <div className="relative min-h-screen">

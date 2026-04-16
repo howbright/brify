@@ -30,18 +30,13 @@ type BalanceResponse = {
 
 /**
  * ✅ 크레딧/제한 계산을 위한 정제 함수
- * - 타임스탬프(0:03, 12:34, 1:02:11) 제거
+ * - 타임스탬프는 유지
  * - [음악] [박수] 같은 태그 제거
  * - 공백/줄바꿈 정리
  */
 function normalizeForBilling(raw: string) {
   let s = raw ?? "";
 
-  // 1) 줄 시작 타임스탬프 제거
-  //   - "0:03" 같은 타임스탬프만 있는 줄
-  s = s.replace(/^\s*\d{1,2}:\d{2}(?::\d{2})?\s*$/gm, "");
-  //   - "0:03 내용..." 형태
-  s = s.replace(/^\s*\d{1,2}:\d{2}(?::\d{2})?\s+/gm, "");
 
   // 2) [음악], [박수] 등 대괄호 태그 제거 (한국어/영어 기본 패턴)
   s = s.replace(
@@ -552,6 +547,7 @@ export default function VideoToMapPage() {
 
   // ✅ 메타데이터 저장 → 카드 생성/업데이트
   const handleSaveMetadata = async (meta: {
+    sourceType: "youtube" | "manual";
     sourceUrl?: string;
     title: string;
     youtubeTitle?: string;
@@ -604,7 +600,7 @@ export default function VideoToMapPage() {
           tags: meta.tags ?? [],
           thumbnail_url: meta.thumbnailUrl,
           channel_name: meta.channelName,
-          source_type: detectSourceType(meta.sourceUrl),
+          source_type: meta.sourceType,
           source_url: meta.sourceUrl,
         }),
       });
@@ -680,6 +676,7 @@ export default function VideoToMapPage() {
           id,
           createdAt: Date.now(),
           sourceUrl: meta.sourceUrl,
+          sourceType: meta.sourceType,
           title: meta.title || t("labels.untitled"),
           youtubeTitle: meta.youtubeTitle,
           channelName: meta.channelName,
@@ -865,6 +862,7 @@ export default function VideoToMapPage() {
         <MetadataDialog
           mapId={editingDraft?.id ?? createdMapId ?? undefined}
           initial={{
+            sourceType: editingDraft?.sourceType,
             sourceUrl: editingDraft?.sourceUrl ?? youtubeMeta?.sourceUrl ?? "",
             title: editingDraft?.title ?? youtubeMeta?.title ?? "",
             youtubeTitle: editingDraft?.youtubeTitle ?? youtubeMeta?.title ?? "",
