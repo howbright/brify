@@ -42,6 +42,8 @@ type ClientMindElixirProps = {
   openMenuOnClick?: boolean;
   disableDirectContextMenu?: boolean;
   showSelectionContextMenuButton?: boolean;
+  showAnnotationAction?: boolean;
+  showHighlightAction?: boolean;
   showMiniMap?: boolean;
   showTimestamps?: boolean;
   showToolbar?: boolean;
@@ -50,6 +52,7 @@ type ClientMindElixirProps = {
   panModeButton?: 0 | 2;
   preferPanModeOnTouch?: boolean;
   showMobileEditControls?: boolean;
+  onReadOnlyHighlight?: () => void;
 };
 
 export type ClientMindElixirHandle = {
@@ -433,6 +436,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       openMenuOnClick = true,
       disableDirectContextMenu = false,
       showSelectionContextMenuButton = false,
+      showAnnotationAction = true,
+      showHighlightAction = true,
       showMiniMap = true,
       showTimestamps = true,
       showToolbar = false,
@@ -440,6 +445,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       panMode,
       panModeButton = 2,
       showMobileEditControls = true,
+      onReadOnlyHighlight,
     },
     ref
   ) {
@@ -1043,6 +1049,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const handleHighlightClick = (targetNodeId?: string | null) => {
     const result = handleHighlightClickBase(targetNodeId);
     if (!result) return;
+    if (editMode === "view") {
+      onReadOnlyHighlight?.();
+    }
     onChangeRef.current?.(result.op);
     requestAnimationFrame(() => updateSelectedRect(result.selectedId));
   };
@@ -2041,8 +2050,12 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-add_parent,
         .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-add_sibling,
         .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-remove_child,
+        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-remove,
         .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-up,
         .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-down,
+        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-edit,
+        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-cut,
+        .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-paste,
         .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-link,
         .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-link-bidirectional,
         .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-summary {
@@ -2291,6 +2304,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         hoverActionIconClass={hoverActionIconClass}
         onNoteClick={handleNoteClick}
         onHighlightClick={() => handleHighlightClick(selectedNodeIdRef.current)}
+        showAnnotationAction={showAnnotationAction}
+        showHighlightAction={showHighlightAction}
         moreActionsLabel={moreActionsLabel}
         annotationAddLabel={annotationAddLabel}
         highlightLabel={highlightLabel}

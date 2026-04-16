@@ -654,8 +654,8 @@
       },
       "main": {
         "eyebrow": "Most Important",
-        "title": "1 credit per Structure Map!",
-        "description": "In most cases, one Structure Map costs just 1 credit."
+        "title": "Most maps only need 1 credit",
+        "description": ""
       },
       "pay": {
         "eyebrow": "No Subscription",

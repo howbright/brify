@@ -47,6 +47,8 @@ type ClientMindElixirOverlayProps = {
   hoverActionIconClass: string;
   onNoteClick: () => void;
   onHighlightClick: () => void;
+  showAnnotationAction: boolean;
+  showHighlightAction: boolean;
   moreActionsLabel: string;
   annotationAddLabel: string;
   highlightLabel: string;
@@ -108,6 +110,8 @@ export default function ClientMindElixirOverlay({
   hoverActionIconClass,
   onNoteClick,
   onHighlightClick,
+  showAnnotationAction,
+  showHighlightAction,
   moreActionsLabel,
   annotationAddLabel,
   highlightLabel,
@@ -206,39 +210,43 @@ export default function ClientMindElixirOverlay({
             }}
           >
             <div className={hoverActionWrapClass}>
-              <button
-                type="button"
-                className={`${hoverActionButtonClass} bg-red-500 text-white ring-1 ring-red-600/60`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onNoteClick();
-                }}
-                aria-label={annotationAddLabel}
-              >
-                <Icon icon="mdi:note-text-outline" className={hoverActionIconClass} />
-                <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-                  {annotationAddLabel}
-                </span>
-              </button>
-              <button
-                type="button"
-                className={`${hoverActionButtonClass} bg-yellow-400 text-black ring-1 ring-yellow-500/70`}
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onHighlightClick();
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }}
-                aria-label={highlightLabel}
-              >
-                <Icon icon="mdi:marker" className={hoverActionIconClass} />
-                <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-                  {highlightLabel}
-                </span>
-              </button>
+              {showAnnotationAction ? (
+                <button
+                  type="button"
+                  className={`${hoverActionButtonClass} bg-red-500 text-white ring-1 ring-red-600/60`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNoteClick();
+                  }}
+                  aria-label={annotationAddLabel}
+                >
+                  <Icon icon="mdi:note-text-outline" className={hoverActionIconClass} />
+                  <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                    {annotationAddLabel}
+                  </span>
+                </button>
+              ) : null}
+              {showHighlightAction ? (
+                <button
+                  type="button"
+                  className={`${hoverActionButtonClass} bg-yellow-400 text-black ring-1 ring-yellow-500/70`}
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onHighlightClick();
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
+                  aria-label={highlightLabel}
+                >
+                  <Icon icon="mdi:marker" className={hoverActionIconClass} />
+                  <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                    {highlightLabel}
+                  </span>
+                </button>
+              ) : null}
               {showMobileControls && editMode === "edit" ? (
                 <button
                   type="button"

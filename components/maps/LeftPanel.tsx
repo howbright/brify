@@ -42,6 +42,9 @@ export default function LeftPanel({
   deleteLabel,
   map,
   mapId,
+  readOnly = false,
+  sharedNotes = [],
+  sharedTerms = [],
   mindData,
   onSelectNodeNote,
   tab,
@@ -56,6 +59,9 @@ export default function LeftPanel({
   deleteLabel?: string;
   map: MapDraft;
   mapId?: string;
+  readOnly?: boolean;
+  sharedNotes?: NoteItem[];
+  sharedTerms?: TermItem[];
   mindData?: unknown | null;
   onSelectNodeNote?: (nodeId: string) => void;
   tab?: LeftPanelTab;
@@ -86,18 +92,18 @@ export default function LeftPanel({
   const metadataPending = map.status === "processing_metadata";
 
   const [internalTab, setInternalTab] = useState<LeftPanelTab>(tab ?? "info");
-  const [notesSubtab, setNotesSubtab] = useState<NotesSubtab>("memo");
+  const [notesSubtab, setNotesSubtab] = useState<NotesSubtab>("highlight");
   const activeTab = tab ?? internalTab;
   const setActiveTab = onTabChange ?? setInternalTab;
   const panelTitle =
     activeTab === "info" ? t("title") : tRight(`tabs.${activeTab}`);
 
   const [noteText, setNoteText] = useState("");
-  const [notes, setNotes] = useState<NoteItem[]>([]);
+  const [notes, setNotes] = useState<NoteItem[]>(sharedNotes);
   const [notesLoading, setNotesLoading] = useState(false);
   const [noteSubmitting, setNoteSubmitting] = useState(false);
   const [notesError, setNotesError] = useState<string | null>(null);
-  const [terms, setTerms] = useState<TermItem[]>([]);
+  const [terms, setTerms] = useState<TermItem[]>(sharedTerms);
   const [termsLoading, setTermsLoading] = useState(false);
   const [termsError, setTermsError] = useState<string | null>(null);
   const [termsStatus, setTermsStatus] = useState<
@@ -167,38 +173,48 @@ export default function LeftPanel({
 
   useEffect(() => {
     if (activeTab !== "notes") return;
-    setNotesSubtab("memo");
+    setNotesSubtab("highlight");
   }, [activeTab]);
 
   useEffect(() => {
-    if (!open || !mapId) return;
+    if (readOnly || !open || !mapId) return;
     if (activeTab !== "notes") return;
     fetchNotes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, activeTab, mapId]);
+  }, [open, activeTab, mapId, readOnly]);
 
   useEffect(() => {
-    if (!open || !mapId) return;
+    if (readOnly || !open || !mapId) return;
     if (notesLoading || notes.length > 0) return;
     fetchNotes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, mapId]);
+  }, [open, mapId, readOnly]);
 
   useEffect(() => {
-    if (!open || !mapId) return;
+    if (readOnly || !open || !mapId) return;
     if (activeTab !== "terms") return;
     if (termsLoading) return;
     if (terms.length > 0) return;
     fetchTerms(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, activeTab, mapId]);
+  }, [open, activeTab, mapId, readOnly]);
 
   useEffect(() => {
-    if (!open || !mapId) return;
+    if (readOnly || !open || !mapId) return;
     if (termsLoading || terms.length > 0) return;
     fetchTerms(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, mapId]);
+  }, [open, mapId, readOnly]);
+
+  useEffect(() => {
+    if (!readOnly) return;
+    setNotes(sharedNotes);
+  }, [readOnly, sharedNotes]);
+
+  useEffect(() => {
+    if (!readOnly) return;
+    setTerms(sharedTerms);
+  }, [readOnly, sharedTerms]);
 
   useEffect(() => {
     if (!open) return;
@@ -653,7 +669,7 @@ export default function LeftPanel({
         {/* header */}
         <div className="relative px-5 pt-3 border-b border-slate-400 dark:border-white/20">
           <div className="flex items-center justify-between gap-3">
-            {mapId ? (
+            {mapId || readOnly ? (
               <div className="flex items-center gap-5">
                 <TabButton
                   active={activeTab === "info"}
@@ -753,53 +769,25 @@ export default function LeftPanel({
                   </button>
                 </div>
               )}
-              {map.summary || metadataPending ? (
-                <section className="mb-4">
-                  <div className="mb-2.5 flex items-center gap-2">
-                    <div className="h-5 w-1 rounded-full bg-blue-200 dark:bg-blue-500/40" />
-                    <h3 className="text-[15px] font-bold text-neutral-900 dark:text-white/85">
-                      {t("summarySection")}
-                    </h3>
-                  </div>
-                  <div
-                    className="
-                      rounded-3xl border border-slate-400 bg-blue-50/60 p-3.5
-                      text-[15px] leading-7 text-neutral-700
-                      shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)]
-                      dark:border-white/20 dark:bg-blue-500/10 dark:text-white/80
-                      dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]
-                    "
-                  >
-                    <p className="whitespace-pre-wrap break-words">
-                      {map.summary || t("metadataPendingSummary")}
-                    </p>
-                  </div>
-                </section>
-              ) : null}
-
               {/* 출처 */}
               <Section title={t("sourceSection")}>
                 <div className="flex gap-3">
-                  <div
-                    className="
-                      relative h-16 w-28 rounded-2xl overflow-hidden
-                      border border-slate-400 bg-neutral-50 flex-shrink-0
-                      dark:border-white/20 dark:bg-white/[0.06]
-                    "
-                  >
-                    {map.thumbnailUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
+                  {map.thumbnailUrl ? (
+                    <div
+                      className="
+                        relative h-16 w-28 rounded-2xl overflow-hidden
+                        border border-slate-400 bg-neutral-50 flex-shrink-0
+                        dark:border-white/20 dark:bg-white/[0.06]
+                      "
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={map.thumbnailUrl}
                         alt=""
                         className="h-full w-full object-cover"
                       />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center text-[11px] text-neutral-400 dark:text-white/45">
-                        {t("thumbnailPlaceholder")}
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  ) : null}
 
                   <div className="min-w-0 flex-1">
                     <RowItem
@@ -813,19 +801,21 @@ export default function LeftPanel({
                         multiline
                       />
                     ) : null}
-                    <RowItem
-                      label={t("channel")}
-                      value={map.channelName ?? t("none")}
-                    />
+                    {map.channelName?.trim() ? (
+                      <RowItem
+                        label={t("channel")}
+                        value={map.channelName}
+                      />
+                    ) : null}
 
-                    <div className="mt-1 min-w-0">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <div className="h-2 w-2 shrink-0 rounded-full bg-blue-500/80 dark:bg-blue-300/80" />
-                        <div className="text-[12px] font-medium tracking-[0.01em] text-neutral-400 dark:text-white/45">
-                          {t("sourceLink")}
+                    {map.sourceUrl ? (
+                      <div className="mt-1 min-w-0">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <div className="h-2 w-2 shrink-0 rounded-full bg-blue-500/80 dark:bg-blue-300/80" />
+                          <div className="text-[12px] font-medium tracking-[0.01em] text-neutral-400 dark:text-white/45">
+                            {t("sourceLink")}
+                          </div>
                         </div>
-                      </div>
-                      {map.sourceUrl ? (
                         <a
                           href={map.sourceUrl}
                           target="_blank"
@@ -839,12 +829,8 @@ export default function LeftPanel({
                         >
                           {map.sourceUrl}
                         </a>
-                      ) : (
-                        <div className="mt-0.5 pl-[14px] text-[14px] text-neutral-700 dark:text-white/85">
-                          {t("none")}
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </Section>
@@ -908,6 +894,30 @@ export default function LeftPanel({
                 </div>
               </section>
 
+              {map.summary || metadataPending ? (
+                <section className="mb-4">
+                  <div className="mb-2.5 flex items-center gap-2">
+                    <div className="h-5 w-1 rounded-full bg-blue-200 dark:bg-blue-500/40" />
+                    <h3 className="text-[15px] font-bold text-neutral-900 dark:text-white/85">
+                      {t("summarySection")}
+                    </h3>
+                  </div>
+                  <div
+                    className="
+                      rounded-3xl border border-slate-400 bg-blue-50/60 p-3.5
+                      text-[15px] leading-7 text-neutral-700
+                      shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)]
+                      dark:border-white/20 dark:bg-blue-500/10 dark:text-white/80
+                      dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]
+                    "
+                  >
+                    <p className="whitespace-pre-wrap break-words">
+                      {map.summary || t("metadataPendingSummary")}
+                    </p>
+                  </div>
+                </section>
+              ) : null}
+
               {/* ✅ description: 접기/펼치기 제거 → 항상 노출 */}
               <Section title={t("descriptionSection")}>
                 <div className="text-[15px] leading-7 text-neutral-700 dark:text-white/80 whitespace-pre-wrap break-words">
@@ -937,6 +947,8 @@ export default function LeftPanel({
           ) : activeTab === "notes" ? (
             <NotesBlock
               subtab={notesSubtab}
+              readOnly={readOnly}
+              hideZeroCounts={readOnly}
               onSubtabChange={setNotesSubtab}
               noteText={noteText}
               setNoteText={setNoteText}
@@ -982,6 +994,7 @@ export default function LeftPanel({
                 onAutoExtract={requestAutoTerms}
                 onExplainCustom={requestCustomTerms}
                 onDeleteTerm={deleteTerm}
+                readOnly={readOnly}
               />
             </>
           )}
@@ -1142,6 +1155,8 @@ function TabButton({
 }
 
 function NotesBlock({
+  readOnly,
+  hideZeroCounts = false,
   subtab,
   onSubtabChange,
   noteText,
@@ -1162,6 +1177,8 @@ function NotesBlock({
   loadingLabel,
   emptyLabel,
 }: {
+  readOnly: boolean;
+  hideZeroCounts?: boolean;
   subtab: NotesSubtab;
   onSubtabChange: (next: NotesSubtab) => void;
   noteText: string;
@@ -1207,13 +1224,13 @@ function NotesBlock({
     <div className="flex flex-col gap-3">
       <div className="inline-flex w-fit items-center rounded-full border border-slate-300 bg-neutral-100 p-1 dark:border-white/15 dark:bg-white/[0.06]">
         {[
-          { id: "memo" as const, label: memoTitle, count: notes.length },
-          { id: "node" as const, label: nodeNotesTitle, count: nodeNotes.length },
           {
             id: "highlight" as const,
             label: highlightsTitle,
             count: highlights.length,
           },
+          { id: "node" as const, label: nodeNotesTitle, count: nodeNotes.length },
+          { id: "memo" as const, label: memoTitle, count: notes.length },
         ].map((item) => (
           <button
             key={item.id}
@@ -1227,15 +1244,17 @@ function NotesBlock({
           >
             <span className="inline-flex items-center gap-1.5">
               <span>{item.label}</span>
-              <span
-                className={`inline-flex min-w-[1.2rem] items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-bold leading-none ${
-                  subtab === item.id
-                    ? "bg-neutral-900/8 text-neutral-700 dark:bg-white/14 dark:text-white"
-                    : "bg-neutral-200 text-neutral-500 dark:bg-white/10 dark:text-white/65"
-                }`}
-              >
-                {item.count}
-              </span>
+              {(!hideZeroCounts || item.count > 0) && (
+                <span
+                  className={`inline-flex min-w-[1.2rem] items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-bold leading-none ${
+                    subtab === item.id
+                      ? "bg-neutral-900/8 text-neutral-700 dark:bg-white/14 dark:text-white"
+                      : "bg-neutral-200 text-neutral-500 dark:bg-white/10 dark:text-white/65"
+                  }`}
+                >
+                  {item.count}
+                </span>
+              )}
             </span>
           </button>
         ))}
@@ -1255,7 +1274,7 @@ function NotesBlock({
         </div>
       ) : null}
 
-      {subtab === "memo" ? (
+      {!readOnly && subtab === "memo" ? (
         <div className="flex gap-2">
           <input
             value={noteText}
@@ -1307,6 +1326,7 @@ function NotesBlock({
               note={n}
               onDelete={onDelete}
               onUpdate={onUpdate}
+              readOnly={readOnly}
             />
           ))
         ) : subtab === "node" && nodeNotes.length === 0 ? (
@@ -1319,22 +1339,44 @@ function NotesBlock({
               key={item.id}
               type="button"
               onClick={() => onSelectNodeNote?.(item.id)}
-              className="rounded-2xl border border-slate-400 bg-white p-3 text-left transition-colors hover:bg-amber-50/60 dark:border-white/20 dark:bg-white/[0.08] dark:hover:bg-amber-500/10"
+              className="
+                rounded-2xl border border-slate-300 bg-white p-3 text-left transition-colors
+                hover:border-amber-300 hover:bg-amber-50/40
+                dark:border-white/15 dark:bg-white/[0.06] dark:hover:border-amber-300/30 dark:hover:bg-amber-500/8
+              "
             >
-              <div className="mb-1 flex items-center gap-2">
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-400/15 dark:text-amber-200">
-                  <Icon icon="mdi:note-text-outline" className="h-3.5 w-3.5" />
-                </span>
-                <div className="min-w-0 flex-1 whitespace-pre-wrap break-words text-[14px] font-semibold leading-6 text-neutral-900 dark:text-white/90">
-                  {item.topic}
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div
+                    className="
+                      inline-flex max-w-full items-center gap-2 rounded-md border border-slate-500 bg-slate-50 px-2.5 py-1.5
+                      text-[13px] font-semibold leading-5 text-slate-900 shadow-[0_8px_18px_-16px_rgba(15,23,42,0.2)]
+                      dark:border-white/28 dark:bg-[#111827] dark:text-white/90
+                    "
+                  >
+                    <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-400/15 dark:text-amber-200">
+                      <Icon icon="mdi:shape-outline" className="h-3 w-3" />
+                    </span>
+                    <span className="truncate whitespace-pre-wrap break-words">
+                      {item.topic}
+                    </span>
+                  </div>
                 </div>
                 <Icon
                   icon="mdi:arrow-top-right"
-                  className="h-4 w-4 shrink-0 text-neutral-400 dark:text-white/45"
+                  className="mt-1 h-4 w-4 shrink-0 text-neutral-400 dark:text-white/45"
                 />
               </div>
-              <div className="pl-8 text-[14px] leading-6 text-neutral-600 dark:text-white/70">
-                {item.note}
+              <div
+                className="
+                  mt-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5
+                  text-[14px] font-normal leading-6 text-slate-700
+                  dark:border-white/10 dark:bg-white/[0.04] dark:text-white/74
+                "
+              >
+                <div className="whitespace-pre-wrap break-words">
+                  {item.note}
+                </div>
               </div>
             </button>
           ))
@@ -1348,18 +1390,28 @@ function NotesBlock({
               key={item.id}
               type="button"
               onClick={() => onSelectNodeNote?.(item.id)}
-              className="rounded-2xl border border-slate-400 bg-white p-3 text-left transition-colors hover:bg-yellow-50/60 dark:border-white/20 dark:bg-white/[0.08] dark:hover:bg-yellow-500/10"
+              className="
+                rounded border p-3 text-left transition-colors
+                border-rose-500/80
+                bg-[linear-gradient(135deg,rgba(251,146,60,0.55)_0%,rgba(253,186,116,0.58)_45%,rgba(253,230,138,0.62)_100%)]
+                hover:bg-[linear-gradient(135deg,rgba(251,146,60,0.68)_0%,rgba(253,186,116,0.68)_45%,rgba(253,230,138,0.74)_100%)]
+                shadow-[0_14px_30px_-18px_rgba(251,146,60,0.55)]
+                dark:border-rose-300/55
+                dark:bg-[linear-gradient(135deg,rgba(251,146,60,0.48)_0%,rgba(253,186,116,0.44)_45%,rgba(253,230,138,0.4)_100%)]
+                dark:hover:bg-[linear-gradient(135deg,rgba(251,146,60,0.58)_0%,rgba(253,186,116,0.54)_45%,rgba(253,230,138,0.5)_100%)]
+                dark:shadow-[0_16px_34px_-20px_rgba(251,146,60,0.5)]
+              "
             >
               <div className="flex items-center gap-2">
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-400/15 dark:text-yellow-200">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/50 text-amber-800 ring-1 ring-rose-500/70 dark:bg-black/18 dark:text-amber-50 dark:ring-rose-300/45">
                   <Icon icon="mdi:marker" className="h-3.5 w-3.5" />
                 </span>
-                <div className="min-w-0 flex-1 whitespace-pre-wrap break-words text-[14px] font-semibold leading-6 text-neutral-900 dark:text-white/90">
+                <div className="min-w-0 flex-1 whitespace-pre-wrap break-words text-[14px] font-medium leading-6 text-[#111827] dark:text-slate-50">
                   {item.topic}
                 </div>
                 <Icon
                   icon="mdi:arrow-top-right"
-                  className="h-4 w-4 shrink-0 text-neutral-400 dark:text-white/45"
+                  className="h-4 w-4 shrink-0 text-rose-600 dark:text-amber-100/85"
                 />
               </div>
             </button>

@@ -157,7 +157,7 @@ export default function VideoToMapPage() {
   const [drafts, setDrafts] = useState<MapDraft[]>([]);
 
   // ✅ Draft 상태 폴링/머지 로직은 훅으로 분리
-  useMapDraftStatusPolling(drafts, setDrafts, { refreshMs: 4000 });
+  useMapDraftStatusPolling(drafts, setDrafts, { refreshMs: 1000 });
 
   // const [isHelpOpen, setIsHelpOpen] = useState(false);
 

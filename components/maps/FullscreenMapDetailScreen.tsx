@@ -168,7 +168,8 @@ type FullscreenMapDetailScreenProps = {
   mapId: string;
   locale: string;
   sourceTab?: string | null;
-  accessMode?: "user" | "admin";
+  accessMode?: "user" | "admin" | "shared";
+  sharedToken?: string | null;
 };
 
 type AdminInspectMapResponse = {
@@ -188,6 +189,36 @@ type AdminInspectMapResponse = {
   thumbnailUrl: string | null;
   channelName: string | null;
   mindElixir: MapRow["mind_elixir"] | null;
+};
+
+type SharedMapResponse = {
+  id: string;
+  title: string;
+  short_title: string | null;
+  description: string | null;
+  summary: string | null;
+  tags: string[];
+  channel_name: string | null;
+  source_url: string | null;
+  source_type: string | null;
+  thumbnail_url: string | null;
+  credits_charged: number | null;
+  mind_elixir: MapRow["mind_elixir"] | null;
+  mind_theme_override: string | null;
+  map_status: string;
+  created_at: string;
+  updated_at: string;
+  notes?: Array<{
+    id: string;
+    text: string;
+    created_at: string;
+    updated_at: string;
+  }>;
+  terms?: Array<{
+    term: string;
+    meaning: string;
+    updated_at?: string | null;
+  }>;
 };
 
 function toDraftFromAdminInspect(row: AdminInspectMapResponse): MapDraft {
@@ -221,6 +252,7 @@ export default function FullscreenMapDetailScreen({
   locale,
   sourceTab,
   accessMode = "user",
+  sharedToken = null,
 }: FullscreenMapDetailScreenProps) {
   const t = useTranslations("FullscreenMapPage");
   const tTutorial = useTranslations("MapTutorial");
@@ -235,9 +267,12 @@ export default function FullscreenMapDetailScreen({
       ? `/${locale}/maps?tab=${sourceTab}`
       : `/${locale}/maps`;
   const isAdminView = accessMode === "admin";
+  const isSharedView = accessMode === "shared";
+  const isReadOnlyView = isAdminView || isSharedView;
 
   const [draft, setDraft] = useState<MapDraft | null>(null);
   const [mapData, setMapData] = useState<MapRow["mind_elixir"] | null>(null);
+  const [panelMindData, setPanelMindData] = useState<MapRow["mind_elixir"] | null>(null);
   const [hasDraft, setHasDraft] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -251,7 +286,7 @@ export default function FullscreenMapDetailScreen({
   const searchIndexRef = useRef(0);
   const lastStepAtRef = useRef(0);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
-  const editMode: "view" | "edit" = isAdminView ? "view" : "edit";
+  const editMode: "view" | "edit" = isReadOnlyView ? "view" : "edit";
   const panMode = false;
   const [themeName, setThemeName] = useState<string>(
     profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME
@@ -283,6 +318,12 @@ export default function FullscreenMapDetailScreen({
   const [shareLoading, setShareLoading] = useState(false);
   const [shareEnabled, setShareEnabled] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
+  const [sharedNotes, setSharedNotes] = useState<
+    Array<{ id: string; text: string; createdAt: number; createdAtLabel: string }>
+  >([]);
+  const [sharedTerms, setSharedTerms] = useState<
+    Array<{ term: string; meaning: string; updatedAt?: number; isNew?: boolean }>
+  >([]);
   const [desktopMoreOpen, setDesktopMoreOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [mobileMapActionsOpen, setMobileMapActionsOpen] = useState(false);
@@ -334,7 +375,83 @@ export default function FullscreenMapDetailScreen({
       try {
         setLoading(true);
         setError(null);
-        if (isAdminView) {
+        if (isSharedView) {
+          if (!sharedToken) {
+            throw new Error("공유 토큰이 없습니다.");
+          }
+          const response = await fetch(`/api/share/${sharedToken}`, {
+            cache: "no-store",
+          });
+          const json = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(json?.error || "공유 구조맵을 불러오지 못했어요.");
+          }
+
+          const data = (json?.map ?? null) as SharedMapResponse | null;
+          if (!data) {
+            throw new Error("공유 구조맵을 불러오지 못했어요.");
+          }
+          if (cancelled) return;
+
+          setDraft(
+            toDraft({
+              ...(data as unknown as MapRow),
+              id: data.id,
+              created_at: data.created_at,
+              updated_at: data.updated_at,
+              title: data.title,
+              short_title: data.short_title,
+              channel_name: data.channel_name,
+              source_url: data.source_url,
+              source_type: data.source_type,
+              tags: data.tags,
+              description: data.description,
+              summary: data.summary,
+              thumbnail_url: data.thumbnail_url,
+              map_status: data.map_status,
+              credits_charged: data.credits_charged,
+            } as MapRow)
+          );
+          setHasDraft(false);
+          if (!data?.mind_elixir) {
+            throw new Error("mind_elixir 데이터가 없습니다.");
+          }
+          setMapData(data.mind_elixir);
+          setPanelMindData(data.mind_elixir);
+          setSharedNotes(
+            Array.isArray(data.notes)
+              ? data.notes.map((item) => {
+                  const createdAt = new Date(item.created_at).getTime();
+                  return {
+                    id: String(item.id),
+                    text: String(item.text ?? ""),
+                    createdAt,
+                    createdAtLabel: new Date(createdAt).toLocaleString(),
+                  };
+                })
+              : []
+          );
+          setSharedTerms(
+            Array.isArray(data.terms)
+              ? data.terms.map((item) => ({
+                  term: String(item.term ?? ""),
+                  meaning: String(item.meaning ?? ""),
+                  updatedAt: item.updated_at
+                    ? new Date(item.updated_at).getTime()
+                    : undefined,
+                  isNew: false,
+                }))
+              : []
+          );
+
+          const override = data?.mind_theme_override ?? null;
+          if (override) {
+            setThemeName(override);
+          } else {
+            setThemeName(DEFAULT_THEME_NAME);
+          }
+          themeInitRef.current = true;
+        } else if (isAdminView) {
           const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
           if (!baseUrl) {
             throw new Error("NEXT_PUBLIC_API_BASE_URL이 설정되지 않았어요.");
@@ -369,6 +486,9 @@ export default function FullscreenMapDetailScreen({
             throw new Error("mind_elixir 데이터가 없습니다.");
           }
           setMapData(data.mindElixir);
+          setPanelMindData(data.mindElixir);
+          setSharedNotes([]);
+          setSharedTerms([]);
           setThemeName(profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME);
           themeInitRef.current = true;
         } else {
@@ -396,6 +516,9 @@ export default function FullscreenMapDetailScreen({
             throw new Error("mind_elixir 데이터가 없습니다.");
           }
           setMapData(effectiveMind);
+          setPanelMindData(effectiveMind);
+          setSharedNotes([]);
+          setSharedTerms([]);
 
           const override = row?.mind_theme_override ?? null;
           if (override) {
@@ -410,7 +533,10 @@ export default function FullscreenMapDetailScreen({
         setError(getErrorMessage(e, "구조맵을 불러오지 못했습니다."));
         setDraft(null);
         setMapData(null);
+        setPanelMindData(null);
         setHasDraft(false);
+        setSharedNotes([]);
+        setSharedTerms([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -419,19 +545,19 @@ export default function FullscreenMapDetailScreen({
     return () => {
       cancelled = true;
     };
-  }, [isAdminView, mapId, profileThemeName]);
+  }, [isAdminView, isSharedView, mapId, profileThemeName, sharedToken]);
 
   useEffect(() => {
     if (loading || !draft) return;
     if (initializedMapIdRef.current === draft.id) return;
     initializedMapIdRef.current = draft.id;
-    setLeftOpen(!isTutorialMobile);
+    setLeftOpen(isSharedView ? false : !isTutorialMobile);
     const tutorialCompleted = getMapTutorialCompleted(
       isTutorialMobile ? "mobile" : "desktop"
     );
     setTutorialOpen(!tutorialCompleted);
     setTutorialStepIndex(0);
-  }, [loading, draft?.id, isTutorialMobile]);
+  }, [loading, draft?.id, isTutorialMobile, isSharedView]);
 
   useEffect(() => {
     if (!mapId || !draft) return;
@@ -448,6 +574,9 @@ export default function FullscreenMapDetailScreen({
 
     const refreshMap = async () => {
       try {
+        if (isSharedView) {
+          return;
+        }
         if (isAdminView) {
           const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
           if (!baseUrl) return;
@@ -509,7 +638,7 @@ export default function FullscreenMapDetailScreen({
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [draft?.status, isAdminView, mapId, draft?.id]);
+  }, [draft?.status, isAdminView, isSharedView, mapId, draft?.id]);
 
   useEffect(() => {
     if (!tagEditOpen) return;
@@ -781,6 +910,12 @@ export default function FullscreenMapDetailScreen({
     }, 1200);
   };
 
+  const syncPanelMindDataFromMind = () => {
+    const snapshot = mindRef.current?.getSnapshot?.() as MapRow["mind_elixir"] | null;
+    if (!snapshot) return;
+    setPanelMindData(snapshot);
+  };
+
   useEffect(() => {
     return () => {
       if (autoSaveTimerRef.current) {
@@ -965,6 +1100,7 @@ export default function FullscreenMapDetailScreen({
             .single();
           if (!error && data?.mind_elixir) {
             setMapData(data.mind_elixir);
+            setPanelMindData(data.mind_elixir);
             requestAnimationFrame(() => {
               mindRef.current?.centerMap?.();
             });
@@ -1003,6 +1139,7 @@ export default function FullscreenMapDetailScreen({
           if (!error && data?.mind_elixir) {
             pendingRecenterRef.current = true;
             setMapData(data.mind_elixir);
+            setPanelMindData(data.mind_elixir);
           }
         } catch {
           // ignore
@@ -1248,13 +1385,55 @@ export default function FullscreenMapDetailScreen({
     "relative z-[40] flex h-8 w-[228px] items-center gap-2 rounded-lg border border-slate-400 bg-white px-2.5 text-[11px] text-slate-700 shadow-[0_8px_20px_-18px_rgba(15,23,42,0.14)] dark:border-white/28 dark:bg-[#0b1220] dark:text-white dark:shadow-[0_16px_36px_-30px_rgba(2,6,23,0.7)]";
   const plainHeaderIconButtonClass =
     "inline-flex h-8 w-8 items-center justify-center text-slate-500 transition hover:text-slate-900 dark:text-white/65 dark:hover:text-white";
+  const sharedMissingTitle =
+    locale === "ko" ? "공유된 구조맵을 찾을 수 없어요" : "Shared map not found";
+  const sharedMissingDescription =
+    locale === "ko"
+      ? "링크가 잘못되었거나, 공유가 종료되었을 수 있어요."
+      : "The link may be invalid, or sharing may have been turned off.";
+  const sharedMissingAction =
+    locale === "ko" ? "홈으로 돌아가기" : "Back to home";
+
+  if (isSharedView && !loading && !draft) {
+    return (
+      <div className="fixed inset-0 z-[120] bg-[linear-gradient(180deg,#f6f8fc_0%,#eef3fb_100%)] dark:bg-[linear-gradient(180deg,#09111d_0%,#0b1220_100%)]">
+        <div className="flex h-full items-center justify-center px-6">
+          <div className="w-full max-w-[460px] rounded-[28px] border border-slate-300/80 bg-white/92 p-8 text-center shadow-[0_30px_80px_-40px_rgba(15,23,42,0.35)] backdrop-blur dark:border-white/10 dark:bg-[#0f172a]/92 dark:shadow-[0_40px_100px_-44px_rgba(2,6,23,0.92)]">
+            <div className="mx-auto mb-5 inline-flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 text-rose-500 dark:bg-rose-500/12 dark:text-rose-200">
+              <Icon icon="mdi:link-off" className="h-7 w-7" />
+            </div>
+            <h1 className="text-[24px] font-bold tracking-tight text-slate-900 dark:text-white">
+              {sharedMissingTitle}
+            </h1>
+            <p className="mt-3 text-[15px] leading-7 text-slate-600 dark:text-white/70">
+              {error || sharedMissingDescription}
+            </p>
+            <button
+              type="button"
+              onClick={() => router.push(`/${locale}`)}
+              className="mt-6 inline-flex h-11 items-center justify-center rounded-2xl bg-blue-600 px-5 text-[14px] font-semibold text-white shadow-[0_18px_34px_-20px_rgba(37,99,235,0.55)] transition hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
+            >
+              {sharedMissingAction}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[120] bg-white dark:bg-[#0b1220] [--header-h:68px]">
       <FullscreenHeader
         title={title}
-        onClose={() => router.push(backToMapsUrl)}
+        onClose={() => router.push(isSharedView ? `/${locale}` : backToMapsUrl)}
         closeLabel={t("actions.closeMap")}
+        titleBadge={
+          isSharedView ? (
+            <span className="inline-flex h-5 items-center rounded-full border border-blue-300/35 bg-blue-500/15 px-2 text-[10px] font-semibold tracking-normal text-blue-50/95 dark:border-blue-300/35 dark:bg-blue-500/15 dark:text-blue-50/95">
+              {locale === "ko" ? "읽기전용" : "Read only"}
+            </span>
+          ) : undefined
+        }
         left={
           !leftOpen ? (
             <button
@@ -1280,7 +1459,7 @@ export default function FullscreenMapDetailScreen({
         }
         right={
           <div className="hidden sm:flex items-center gap-1.5">
-            {!isAdminView && statusLabel ? (
+            {!isReadOnlyView && statusLabel ? (
               <span
                 className={`
                   inline-flex h-7 items-center px-1.5 text-[10px] font-semibold
@@ -1296,7 +1475,7 @@ export default function FullscreenMapDetailScreen({
                 {statusLabel}
               </span>
             ) : null}
-            {!isAdminView && hasDraft ? (
+            {!isReadOnlyView && hasDraft ? (
               <>
                 <button
                   type="button"
@@ -1562,7 +1741,7 @@ export default function FullscreenMapDetailScreen({
                       <span>{t("moreMenu.shortcuts")}</span>
                     </span>
                   </button>
-                  {!isAdminView ? (
+                  {!isReadOnlyView ? (
                     <button
                       type="button"
                       onClick={() => {
@@ -1786,7 +1965,7 @@ export default function FullscreenMapDetailScreen({
                 <Icon icon="mdi:printer-outline" className="h-4 w-4" />
               </button>
 
-              {!isAdminView ? (
+              {!isReadOnlyView ? (
                 <button
                   type="button"
                   onClick={() => {
@@ -1829,24 +2008,40 @@ export default function FullscreenMapDetailScreen({
               ref={mindRef}
               mode={resolvedTheme === "dark" ? "dark" : "light"}
               editMode={editMode}
-              onChange={(op) => {
-                if (!op?.name) return;
-                if (op.name === "toggleHighlight") {
-                  scheduleAutoSave();
-                  return;
-                }
-                if (op.name === "updateNote") {
-                  const now = Date.now();
-                  if (now - lastHighlightToastRef.current > 2000) {
-                    lastHighlightToastRef.current = now;
-                    toast.message("노트 변경을 저장 중...");
-                  }
-                  scheduleAutoSave();
-                  return;
-                }
-                if (!MUTATING_OPS.has(op.name)) return;
-                scheduleAutoSave();
-              }}
+              onChange={
+                isReadOnlyView
+                  ? undefined
+                  : (op) => {
+                      if (!op?.name) return;
+                      if (op.name === "toggleHighlight") {
+                        syncPanelMindDataFromMind();
+                        scheduleAutoSave();
+                        return;
+                      }
+                      if (op.name === "updateNote") {
+                        syncPanelMindDataFromMind();
+                        const now = Date.now();
+                        if (now - lastHighlightToastRef.current > 2000) {
+                          lastHighlightToastRef.current = now;
+                          toast.message("노트 변경을 저장 중...");
+                        }
+                        scheduleAutoSave();
+                        return;
+                      }
+                      if (!MUTATING_OPS.has(op.name)) return;
+                      scheduleAutoSave();
+                    }
+              }
+              onViewModeEditAttempt={
+                isSharedView
+                  ? () =>
+                      toast.message(
+                        locale === "ko"
+                          ? "공유 페이지는 읽기전용이에요."
+                          : "Shared pages are read-only."
+                      )
+                  : undefined
+              }
               theme={
                 themeName === DEFAULT_THEME_NAME
                   ? null
@@ -1862,7 +2057,19 @@ export default function FullscreenMapDetailScreen({
               focusInsetLeft={leftOpen ? LEFT_PANEL_FOCUS_INSET : 0}
               openMenuOnClick={false}
               disableDirectContextMenu
-              showSelectionContextMenuButton
+              showSelectionContextMenuButton={!isAdminView}
+              showAnnotationAction={!isReadOnlyView}
+              showHighlightAction={!isAdminView}
+              onReadOnlyHighlight={
+                isSharedView
+                  ? () =>
+                      toast.message(
+                        locale === "ko"
+                          ? "읽기전용에서는 하이라이트가 저장되지 않습니다."
+                          : "Highlights are not saved in read-only mode."
+                      )
+                  : undefined
+              }
             />
           </div>
         </div>
@@ -1880,13 +2087,16 @@ export default function FullscreenMapDetailScreen({
           <LeftPanel
             open={leftOpen}
             onClose={() => setLeftOpen(false)}
-            onEdit={isAdminView ? undefined : () => setShowMetadataDialog(true)}
-            onEditTags={isAdminView ? undefined : () => setTagEditOpen(true)}
-            onDelete={isAdminView ? undefined : () => setConfirmDeleteOpen(true)}
-            deleteLabel={isAdminView ? undefined : t("actions.delete")}
+            onEdit={isReadOnlyView ? undefined : () => setShowMetadataDialog(true)}
+            onEditTags={isReadOnlyView ? undefined : () => setTagEditOpen(true)}
+            onDelete={isReadOnlyView ? undefined : () => setConfirmDeleteOpen(true)}
+            deleteLabel={isReadOnlyView ? undefined : t("actions.delete")}
             map={draft}
-            mapId={isAdminView ? undefined : mapId}
-            mindData={mapData}
+            mapId={isSharedView ? undefined : isReadOnlyView ? undefined : mapId}
+            readOnly={isSharedView}
+            sharedNotes={isSharedView ? sharedNotes : undefined}
+            sharedTerms={isSharedView ? sharedTerms : undefined}
+            mindData={panelMindData}
             onSelectNodeNote={handleSelectNodeNote}
             tab={leftTab}
             onTabChange={setLeftTab}
@@ -1938,7 +2148,7 @@ export default function FullscreenMapDetailScreen({
         )}
       </div>
 
-      {!isAdminView ? (
+      {!isReadOnlyView ? (
       <ConfirmDialog
         open={confirmDeleteOpen}
         onOpenChange={setConfirmDeleteOpen}
@@ -1954,7 +2164,7 @@ export default function FullscreenMapDetailScreen({
       />
       ) : null}
 
-      {!isAdminView ? (
+      {!isReadOnlyView ? (
       <DiscardDraftDialog
         open={confirmDiscardOpen}
         onClose={() => setConfirmDiscardOpen(false)}
@@ -1965,7 +2175,7 @@ export default function FullscreenMapDetailScreen({
       />
       ) : null}
 
-      {!isAdminView ? (
+      {!isReadOnlyView ? (
       <ShareDialog
         open={shareOpen}
         onClose={() => setShareOpen(false)}

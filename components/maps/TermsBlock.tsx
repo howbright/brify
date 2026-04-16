@@ -16,6 +16,7 @@ export default function TermsBlock({
   onAutoExtract,
   onExplainCustom,
   onDeleteTerm,
+  readOnly = false,
 }: {
   terms: TermItem[];
   loading: boolean;
@@ -24,6 +25,7 @@ export default function TermsBlock({
   onAutoExtract: () => void;
   onExplainCustom: (termsCsv: string) => void;
   onDeleteTerm?: (term: string) => void;
+  readOnly?: boolean;
 }) {
   const t = useTranslations("TermsBlock");
   const hasTerms = terms.length > 0;
@@ -102,6 +104,7 @@ export default function TermsBlock({
 
       {hasTerms && !loading && (
         <>
+          {!readOnly ? (
           <div className="sticky top-[-16px] z-30 -mx-4 border-b border-slate-400 bg-white px-4 py-2 shadow-[0_6px_16px_rgba(15,23,42,0.08)] dark:border-white/20 dark:bg-[#0b1220]">
             <button
               type="button"
@@ -180,6 +183,7 @@ export default function TermsBlock({
               </div>
             )}
           </div>
+          ) : null}
 
           <div className="flex flex-col gap-2">
             {terms.map((x, idx) => (
@@ -196,15 +200,17 @@ export default function TermsBlock({
                   <div className="font-semibold text-neutral-900 dark:text-white">
                     {x.term}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => onDeleteTerm?.(x.term)}
-                    className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-400 text-neutral-400 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-500 dark:border-white/20 dark:text-white/45 dark:hover:border-rose-500/25 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
-                    title={t("delete")}
-                    aria-label={t("delete")}
-                  >
-                    <Icon icon="mdi:close" className="h-3.5 w-3.5" />
-                  </button>
+                  {!readOnly ? (
+                    <button
+                      type="button"
+                      onClick={() => onDeleteTerm?.(x.term)}
+                      className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-400 text-neutral-400 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-500 dark:border-white/20 dark:text-white/45 dark:hover:border-rose-500/25 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
+                      title={t("delete")}
+                      aria-label={t("delete")}
+                    >
+                      <Icon icon="mdi:close" className="h-3.5 w-3.5" />
+                    </button>
+                  ) : null}
                 </div>
                 <div className="mt-1 text-[15px] leading-6 text-neutral-700 dark:text-white/80">
                   {x.meaning}
@@ -216,7 +222,7 @@ export default function TermsBlock({
         </>
       )}
 
-      {!hasTerms && !loading && (
+      {!hasTerms && !loading && !readOnly && (
         <button
           type="button"
           onClick={handleOpen}
@@ -238,7 +244,7 @@ export default function TermsBlock({
         </button>
       )}
 
-      {!hasTerms && !loading && pickerOpen && (
+      {!hasTerms && !loading && !readOnly && pickerOpen && (
         <div className="rounded-2xl border border-slate-400 bg-white p-3 dark:border-white/20 dark:bg-white/[0.06]">
           <div className="text-[18px] font-bold text-neutral-900 dark:text-white">
             {t("picker.title")}

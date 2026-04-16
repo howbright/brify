@@ -15,10 +15,12 @@ function NoteItem({
   note,
   onDelete,
   onUpdate,
+  readOnly = false,
 }: {
   note: NoteItemData;
   onDelete: (id: string) => void;
   onUpdate: (id: string, text: string) => void;
+  readOnly?: boolean;
 }) {
   const t = useTranslations("NoteItem");
   const [editing, setEditing] = useState(false);
@@ -73,6 +75,7 @@ function NoteItem({
         <span className="text-[13px] sm:text-[14px] font-medium text-neutral-500 dark:text-white/60">
           {note.createdAtLabel}
         </span>
+        {!readOnly ? (
         <div className="flex items-center gap-1.5">
           {editing ? (
             <>
@@ -118,6 +121,7 @@ function NoteItem({
             </>
           )}
         </div>
+        ) : null}
       </div>
     </div>
   );

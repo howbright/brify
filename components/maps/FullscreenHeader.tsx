@@ -3,6 +3,7 @@ type Props = {
   title: string;
   onClose: () => void;
   closeLabel: string;
+  titleBadge?: ReactNode;
   left?: ReactNode;
   right?: ReactNode;
 };
@@ -11,6 +12,7 @@ export default function FullscreenHeader({
   title,
   onClose,
   closeLabel,
+  titleBadge,
   left,
   right,
 }: Props) {
@@ -21,7 +23,10 @@ export default function FullscreenHeader({
     >
       <div className="flex flex-col">
         <div className="flex h-[28px] items-center justify-between bg-[#1f2937] px-3 pr-2 text-[14px] font-extrabold tracking-tight text-white dark:bg-[#0b1220] sm:justify-center">
-          <div className="truncate text-left sm:flex-1 sm:text-center">{title}</div>
+          <div className="flex min-w-0 items-center gap-2 text-left sm:flex-1 sm:justify-center sm:text-center">
+            <div className="truncate">{title}</div>
+            {titleBadge}
+          </div>
           <button
             type="button"
             onClick={onClose}
