@@ -19,6 +19,7 @@ import { MIND_THEMES, MIND_THEME_BY_NAME } from "@/components/maps/themes";
 
 const DEFAULT_THEME_NAME = "Default";
 const PROFILE_THEME_NAME = "내설정테마";
+const SHARED_DEFAULT_THEME_NAME = "Inkline";
 import MapMetadataEditDialog from "@/components/maps/MapMetadataEditDialog";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import DiscardDraftDialog from "@/components/maps/DiscardDraftDialog";
@@ -460,13 +461,7 @@ export default function FullscreenMapDetailScreen({
                 }))
               : []
           );
-
-          const override = data?.mind_theme_override ?? null;
-          if (override) {
-            setThemeName(override);
-          } else {
-            setThemeName(DEFAULT_THEME_NAME);
-          }
+          setThemeName(SHARED_DEFAULT_THEME_NAME);
           themeInitRef.current = true;
         } else if (isAdminView) {
           const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -683,6 +678,9 @@ export default function FullscreenMapDetailScreen({
   }, [tagEditOpen]);
 
   useEffect(() => {
+    if (isSharedView) {
+      return;
+    }
     if (!themeInitRef.current) {
       setThemeName(profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME);
       themeInitRef.current = true;
@@ -691,7 +689,7 @@ export default function FullscreenMapDetailScreen({
     if (!profileThemeName && themeName === PROFILE_THEME_NAME) {
       setThemeName(DEFAULT_THEME_NAME);
     }
-  }, [profileThemeName, themeName]);
+  }, [isSharedView, profileThemeName, themeName]);
 
   const title = useMemo(
     () => draft?.title ?? t("fallbackTitle"),
@@ -1173,6 +1171,7 @@ export default function FullscreenMapDetailScreen({
 
   const handleSelectTheme = async (name: string) => {
     setThemeName(name);
+    if (isSharedView) return;
     if (!mapId) return;
 
     const override =
