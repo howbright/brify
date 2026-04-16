@@ -289,6 +289,7 @@ export default function FullscreenMapDetailScreen({
   const searchIndexRef = useRef(0);
   const lastStepAtRef = useRef(0);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
   const editMode: "view" | "edit" = isReadOnlyView ? "view" : "edit";
   const panMode = false;
   const [themeName, setThemeName] = useState<string>(
@@ -331,7 +332,7 @@ export default function FullscreenMapDetailScreen({
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [mobileMapActionsOpen, setMobileMapActionsOpen] = useState(false);
   const [mobileThemeOpen, setMobileThemeOpen] = useState(false);
-  const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(false);
+  const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(true);
   const [showTimestamps, setShowTimestamps] = useState(true);
   const desktopMoreRef = useRef<HTMLDivElement | null>(null);
   const mobileMapActionsRef = useRef<HTMLDivElement | null>(null);
@@ -692,11 +693,6 @@ export default function FullscreenMapDetailScreen({
       }),
     [tTutorial, isTutorialMobile]
   );
-  useEffect(() => {
-    if (isTutorialMobile) {
-      setMobileToolbarCollapsed(false);
-    }
-  }, [isTutorialMobile]);
   const initialMapData = useMemo(
     () =>
       isTutorialMobile
@@ -761,6 +757,10 @@ export default function FullscreenMapDetailScreen({
 
   useEffect(() => {
     if (!searchOpen) return;
+    if (typeof window !== "undefined" && window.innerWidth < 640) {
+      mobileSearchInputRef.current?.focus();
+      return;
+    }
     searchInputRef.current?.focus();
   }, [searchOpen]);
 
@@ -1374,7 +1374,7 @@ export default function FullscreenMapDetailScreen({
     locale === "ko" ? "맵 조작" : "Map actions";
   const statusTone = isSavingDraft ? "warning" : savedPulse ? "success" : "neutral";
   const controlIconButtonClass =
-    "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/80 bg-white/88 text-slate-600 shadow-[0_10px_26px_-18px_rgba(15,23,42,0.18)] backdrop-blur-sm transition hover:bg-white hover:text-slate-900 dark:border-white/10 dark:bg-[#0f172a]/82 dark:text-white/78 dark:shadow-[0_18px_40px_-26px_rgba(2,6,23,0.72)] dark:hover:bg-[#162033] dark:hover:text-white";
+    "inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 text-white shadow-[0_10px_24px_-16px_rgba(15,23,42,0.36)] transition hover:bg-sky-600 dark:bg-[#1f3b72] dark:text-white dark:shadow-[0_16px_32px_-22px_rgba(2,6,23,0.82)] dark:hover:bg-[#2a56a5]";
   const controlPanelClass =
     "rounded-2xl border border-slate-200/80 bg-white/95 p-1.5 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.24)] backdrop-blur-md dark:border-white/10 dark:bg-[#0f172a]/95 dark:shadow-[0_22px_52px_-28px_rgba(2,6,23,0.92)]";
   const controlMenuItemClass =
@@ -1386,8 +1386,16 @@ export default function FullscreenMapDetailScreen({
     "inline-flex items-center gap-1.5 rounded-xl bg-[linear-gradient(135deg,#2563eb_0%,#1d4ed8_100%)] px-3.5 text-[11px] font-semibold text-white shadow-[0_14px_30px_-18px_rgba(37,99,235,0.5)] transition hover:shadow-[0_18px_34px_-18px_rgba(37,99,235,0.62)] dark:bg-[linear-gradient(135deg,#3b82f6_0%,#2563eb_100%)]";
   const searchShellClass =
     "relative z-[40] flex h-8 w-[228px] items-center gap-2 rounded-lg border border-slate-400 bg-white px-2.5 text-[11px] text-slate-700 shadow-[0_8px_20px_-18px_rgba(15,23,42,0.14)] dark:border-white/28 dark:bg-[#0b1220] dark:text-white dark:shadow-[0_16px_36px_-30px_rgba(2,6,23,0.7)]";
+  const mobileSearchShellClass =
+    "relative z-[40] flex h-8 w-[min(72vw,290px)] items-center gap-1.5 rounded-lg border border-slate-400 bg-white px-2 text-[11px] text-slate-700 dark:border-white/28 dark:bg-[#0b1220] dark:text-white";
   const plainHeaderIconButtonClass =
     "inline-flex h-8 w-8 items-center justify-center text-slate-500 transition hover:text-slate-900 dark:text-white/65 dark:hover:text-white";
+  const mobileBottomControlButtonClass =
+    "inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 text-white shadow-[0_10px_24px_-16px_rgba(15,23,42,0.36)] transition hover:bg-sky-600 dark:bg-[#1f3b72] dark:text-white dark:shadow-[0_16px_32px_-22px_rgba(2,6,23,0.82)] dark:hover:bg-[#2a56a5]";
+  const mobileBottomTooltipClass =
+    "pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100 group-focus-within:opacity-100 dark:bg-[#020817]";
+  const mobileVerticalTooltipClass =
+    "pointer-events-none absolute right-full top-1/2 mr-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100 group-focus-within:opacity-100 dark:bg-[#020817]";
   const sharedMissingTitle =
     locale === "ko" ? "공유된 구조맵을 찾을 수 없어요" : "Shared map not found";
   const sharedMissingDescription =
@@ -1461,388 +1469,512 @@ export default function FullscreenMapDetailScreen({
           )
         }
         right={
-          <div className="hidden sm:flex items-center gap-1.5">
-            {isSharedView ? <LanguageSelector compact /> : null}
-            {!isReadOnlyView && statusLabel ? (
-              <span
-                className={`
-                  inline-flex h-7 items-center px-1.5 text-[10px] font-semibold
-                  ${
-                    statusTone === "success"
-                      ? "text-emerald-700 dark:text-emerald-200"
-                      : statusTone === "warning"
-                      ? "text-amber-700 dark:text-amber-200"
-                      : "text-slate-500 dark:text-white/65"
-                  }
-                `}
-              >
-                {statusLabel}
-              </span>
-            ) : null}
-            {!isReadOnlyView && hasDraft ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setConfirmDiscardOpen(true)}
-                  className={`${secondaryControlPillClass} h-7 px-3 text-[10px]`}
-                >
-                  {t("actions.discardDraft")}
-                </button>
-                <button
-                  type="button"
-                  onClick={handlePublish}
-                  className={`${primaryControlPillClass} h-7 px-3 text-[10px]`}
-                >
-                  {t("actions.publish")}
-                </button>
-              </>
-            ) : null}
-            <div className={searchShellClass}>
-              <Icon icon="mdi:magnify" className="h-4 w-4 shrink-0 text-slate-600 dark:text-white/75" />
-              <input
-                ref={searchInputRef}
-                value={searchQuery}
-                onFocus={() => setSearchOpen(true)}
-                onChange={(e) => {
-                  if (!searchOpen) setSearchOpen(true);
-                  setSearchQuery(e.target.value);
-                }}
-                onKeyDown={(e) => {
-                  if (e.repeat) {
-                    e.preventDefault();
-                    return;
-                  }
-                  e.stopPropagation();
-                  if (e.key === "Escape") {
-                    e.preventDefault();
-                    closeSearch();
-                    return;
-                  }
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    stepSearch(e.shiftKey ? -1 : 1);
-                    return;
-                  }
-                  if (e.key === "ArrowDown") {
-                    e.preventDefault();
-                    stepSearch(1);
-                    return;
-                  }
-                  if (e.key === "ArrowUp") {
-                    e.preventDefault();
-                    stepSearch(-1);
-                    return;
-                  }
-                }}
-                placeholder={t("actions.searchPlaceholder")}
-                className="min-w-0 flex-1 bg-transparent text-[11px] text-slate-800 outline-none placeholder:text-slate-500 dark:text-white dark:placeholder:text-white/45"
-              />
-              <span className="shrink-0 text-[10px] font-semibold text-slate-500 dark:text-white/60">
-                {searchResults.length ? `${searchIndex + 1}/${searchResults.length}` : "0"}
-              </span>
-              {searchQuery ? (
-                <button
-                  type="button"
-                  onClick={closeSearch}
-                  className="inline-flex h-5 w-5 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
-                  aria-label={t("actions.clearSearch")}
-                  title={t("actions.clearSearch")}
-                >
-                  <Icon icon="mdi:close" className="h-3.5 w-3.5" />
-                </button>
-              ) : null}
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => stepSearch(-1)}
-                  className="inline-flex h-6 w-6 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/65 dark:hover:bg-white/10 dark:hover:text-white"
-                  aria-label={t("actions.previousSearchResult")}
-                  title={t("actions.previousSearchResult")}
-                >
-                  <Icon icon="mdi:chevron-up" className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => stepSearch(1)}
-                  className="inline-flex h-6 w-6 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/65 dark:hover:bg-white/10 dark:hover:text-white"
-                  aria-label={t("actions.nextSearchResult")}
-                  title={t("actions.nextSearchResult")}
-                >
-                  <Icon icon="mdi:chevron-down" className="h-3.5 w-3.5" />
-                </button>
+          <>
+            <div className="flex items-center gap-1 sm:hidden">
+              <div className={mobileSearchShellClass}>
+                <Icon icon="mdi:magnify" className="h-3.5 w-3.5 shrink-0 text-slate-600 dark:text-white/75" />
+                <input
+                  ref={mobileSearchInputRef}
+                  value={searchQuery}
+                  onFocus={() => setSearchOpen(true)}
+                  onChange={(e) => {
+                    if (!searchOpen) setSearchOpen(true);
+                    setSearchQuery(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.repeat) {
+                      e.preventDefault();
+                      return;
+                    }
+                    e.stopPropagation();
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      closeSearch();
+                      return;
+                    }
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      stepSearch(e.shiftKey ? -1 : 1);
+                      return;
+                    }
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      stepSearch(1);
+                      return;
+                    }
+                    if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      stepSearch(-1);
+                      return;
+                    }
+                  }}
+                  placeholder={t("actions.searchPlaceholder")}
+                  className="min-w-0 flex-1 bg-transparent text-[11px] text-slate-800 outline-none placeholder:text-slate-500 dark:text-white dark:placeholder:text-white/45"
+                />
+                <span className="shrink-0 text-[10px] font-semibold text-slate-500 dark:text-white/60">
+                  {searchResults.length ? `${searchIndex + 1}/${searchResults.length}` : "0"}
+                </span>
+                {searchQuery ? (
+                  <button
+                    type="button"
+                    onClick={closeSearch}
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
+                    aria-label={t("actions.clearSearch")}
+                    title={t("actions.clearSearch")}
+                  >
+                    <Icon icon="mdi:close" className="h-3.5 w-3.5" />
+                  </button>
+                ) : null}
+                <div className="flex items-center gap-0.5">
+                  <button
+                    type="button"
+                    onClick={() => stepSearch(-1)}
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/65 dark:hover:bg-white/10 dark:hover:text-white"
+                    aria-label={t("actions.previousSearchResult")}
+                    title={t("actions.previousSearchResult")}
+                  >
+                    <Icon icon="mdi:chevron-up" className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => stepSearch(1)}
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/65 dark:hover:bg-white/10 dark:hover:text-white"
+                    aria-label={t("actions.nextSearchResult")}
+                    title={t("actions.nextSearchResult")}
+                  >
+                    <Icon icon="mdi:chevron-down" className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowTimestamps((prev) => !prev)}
-              className={plainHeaderIconButtonClass}
-              aria-label={
-                showTimestamps
-                  ? t("moreMenu.hideTimestamps")
-                  : t("moreMenu.showTimestamps")
-              }
-              title={
-                showTimestamps
-                  ? t("moreMenu.hideTimestamps")
-                  : t("moreMenu.showTimestamps")
-              }
-            >
-              <Icon
-                icon={
-                  showTimestamps
-                    ? "mdi:timeline-clock-outline"
-                    : "mdi:timeline-clock-outline"
-                }
-                className={`h-4 w-4 ${showTimestamps ? "text-sky-700 dark:text-sky-200" : ""}`}
-              />
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setTutorialStepIndex(0);
-                setTutorialOpen(true);
-              }}
-              className={plainHeaderIconButtonClass}
-              aria-label={t("actions.tutorial")}
-              title={t("actions.tutorial")}
-            >
-              <Icon icon="mdi:school-outline" className="h-4 w-4" />
-            </button>
-            <div className="relative" ref={desktopMoreRef}>
               <button
                 type="button"
-                onClick={() => setDesktopMoreOpen((v) => !v)}
+                onClick={() => setShowTimestamps((prev) => !prev)}
                 className={plainHeaderIconButtonClass}
-                aria-label={t("actions.more")}
-                title={t("actions.more")}
+                aria-label={
+                  showTimestamps
+                    ? t("moreMenu.hideTimestamps")
+                    : t("moreMenu.showTimestamps")
+                }
+                title={
+                  showTimestamps
+                    ? t("moreMenu.hideTimestamps")
+                    : t("moreMenu.showTimestamps")
+                }
               >
-                <Icon icon="mdi:dots-horizontal" className="h-4 w-4" />
+                <Icon
+                  icon="mdi:timeline-clock-outline"
+                  className={`h-4 w-4 ${showTimestamps ? "text-sky-700 dark:text-sky-200" : ""}`}
+                />
               </button>
-              {desktopMoreOpen && (
-                <div className={`absolute right-0 mt-2 w-[210px] ${controlPanelClass}`}>
+            </div>
+
+            <div className="hidden sm:flex items-center gap-1.5">
+              {isSharedView ? <LanguageSelector compact /> : null}
+              {!isReadOnlyView && statusLabel ? (
+                <span
+                  className={`
+                    inline-flex h-7 items-center px-1.5 text-[10px] font-semibold
+                    ${
+                      statusTone === "success"
+                        ? "text-emerald-700 dark:text-emerald-200"
+                        : statusTone === "warning"
+                        ? "text-amber-700 dark:text-amber-200"
+                        : "text-slate-500 dark:text-white/65"
+                    }
+                  `}
+                >
+                  {statusLabel}
+                </span>
+              ) : null}
+              {!isReadOnlyView && hasDraft ? (
+                <>
                   <button
                     type="button"
-                    onClick={() => {
-                      setDesktopMoreOpen(false);
-                      mindRef.current?.setLayout?.("left");
-                    }}
-                    className={controlMenuItemClass}
+                    onClick={() => setConfirmDiscardOpen(true)}
+                    className={`${secondaryControlPillClass} h-7 px-3 text-[10px]`}
                   >
-                    <span className={controlMenuItemContentClass}>
-                      <Icon icon="mdi:arrow-left-bold-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
-                      <span>{t("moreMenu.layoutLeft")}</span>
-                    </span>
+                    {t("actions.discardDraft")}
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      setDesktopMoreOpen(false);
-                      mindRef.current?.setLayout?.("right");
-                    }}
-                    className={controlMenuItemClass}
+                    onClick={handlePublish}
+                    className={`${primaryControlPillClass} h-7 px-3 text-[10px]`}
                   >
-                    <span className={controlMenuItemContentClass}>
-                      <Icon icon="mdi:arrow-right-bold-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
-                      <span>{t("moreMenu.layoutRight")}</span>
-                    </span>
+                    {t("actions.publish")}
+                  </button>
+                </>
+              ) : null}
+              <div className={searchShellClass}>
+                <Icon icon="mdi:magnify" className="h-4 w-4 shrink-0 text-slate-600 dark:text-white/75" />
+                <input
+                  ref={searchInputRef}
+                  value={searchQuery}
+                  onFocus={() => setSearchOpen(true)}
+                  onChange={(e) => {
+                    if (!searchOpen) setSearchOpen(true);
+                    setSearchQuery(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.repeat) {
+                      e.preventDefault();
+                      return;
+                    }
+                    e.stopPropagation();
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      closeSearch();
+                      return;
+                    }
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      stepSearch(e.shiftKey ? -1 : 1);
+                      return;
+                    }
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      stepSearch(1);
+                      return;
+                    }
+                    if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      stepSearch(-1);
+                      return;
+                    }
+                  }}
+                  placeholder={t("actions.searchPlaceholder")}
+                  className="min-w-0 flex-1 bg-transparent text-[11px] text-slate-800 outline-none placeholder:text-slate-500 dark:text-white dark:placeholder:text-white/45"
+                />
+                <span className="shrink-0 text-[10px] font-semibold text-slate-500 dark:text-white/60">
+                  {searchResults.length ? `${searchIndex + 1}/${searchResults.length}` : "0"}
+                </span>
+                {searchQuery ? (
+                  <button
+                    type="button"
+                    onClick={closeSearch}
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
+                    aria-label={t("actions.clearSearch")}
+                    title={t("actions.clearSearch")}
+                  >
+                    <Icon icon="mdi:close" className="h-3.5 w-3.5" />
+                  </button>
+                ) : null}
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => stepSearch(-1)}
+                    className="inline-flex h-6 w-6 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/65 dark:hover:bg-white/10 dark:hover:text-white"
+                    aria-label={t("actions.previousSearchResult")}
+                    title={t("actions.previousSearchResult")}
+                  >
+                    <Icon icon="mdi:chevron-up" className="h-3.5 w-3.5" />
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      setDesktopMoreOpen(false);
-                      mindRef.current?.setLayout?.("side");
-                    }}
-                    className={controlMenuItemClass}
+                    onClick={() => stepSearch(1)}
+                    className="inline-flex h-6 w-6 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-white/65 dark:hover:bg-white/10 dark:hover:text-white"
+                    aria-label={t("actions.nextSearchResult")}
+                    title={t("actions.nextSearchResult")}
                   >
-                    <span className={controlMenuItemContentClass}>
-                      <Icon icon="mdi:arrow-left-right-bold-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
-                      <span>{t("moreMenu.layoutBoth")}</span>
-                    </span>
+                    <Icon icon="mdi:chevron-down" className="h-3.5 w-3.5" />
                   </button>
-                  <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
-                  <div className="px-3 py-2">
-                    <div className="text-[11px] font-semibold text-slate-500 dark:text-white/60">
-                      {t("moreMenu.theme")}
-                    </div>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {themeOptions.map((theme) => {
-                        const themeLabel =
-                          theme.name === PROFILE_THEME_NAME
-                            ? t("moreMenu.profileTheme")
-                            : theme.name === DEFAULT_THEME_NAME
-                            ? t("moreMenu.defaultTheme")
-                            : theme.name;
-                        return (
-                        <button
-                          key={theme.name}
-                          type="button"
-                          onClick={() => {
-                            handleSelectTheme(theme.name);
-                            setDesktopMoreOpen(false);
-                          }}
-                          className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold ${
-                            theme.name === themeName
-                              ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-300/40 dark:bg-blue-500/10 dark:text-blue-50/90"
-                              : "border-slate-200 bg-white text-slate-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70"
-                          }`}
-                        >
-                          {themeLabel}
-                        </button>
-                      )})}
-                    </div>
-                  </div>
-                  <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
-                  {hasTimestampNodes ? (
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowTimestamps((prev) => !prev)}
+                className={plainHeaderIconButtonClass}
+                aria-label={
+                  showTimestamps
+                    ? t("moreMenu.hideTimestamps")
+                    : t("moreMenu.showTimestamps")
+                }
+                title={
+                  showTimestamps
+                    ? t("moreMenu.hideTimestamps")
+                    : t("moreMenu.showTimestamps")
+                }
+              >
+                <Icon
+                  icon="mdi:timeline-clock-outline"
+                  className={`h-4 w-4 ${showTimestamps ? "text-sky-700 dark:text-sky-200" : ""}`}
+                />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTutorialStepIndex(0);
+                  setTutorialOpen(true);
+                }}
+                className={plainHeaderIconButtonClass}
+                aria-label={t("actions.tutorial")}
+                title={t("actions.tutorial")}
+              >
+                <Icon icon="mdi:school-outline" className="h-4 w-4" />
+              </button>
+              <div className="relative" ref={desktopMoreRef}>
+                <button
+                  type="button"
+                  onClick={() => setDesktopMoreOpen((v) => !v)}
+                  className={plainHeaderIconButtonClass}
+                  aria-label={t("actions.more")}
+                  title={t("actions.more")}
+                >
+                  <Icon icon="mdi:dots-horizontal" className="h-4 w-4" />
+                </button>
+                {desktopMoreOpen && (
+                  <div className={`absolute right-0 mt-2 w-[210px] ${controlPanelClass}`}>
                     <button
                       type="button"
                       onClick={() => {
                         setDesktopMoreOpen(false);
-                        setShowTimestamps((prev) => !prev);
-                      }}
-                      className={controlMenuItemClass}
-                    >
-                      {showTimestamps
-                        ? t("moreMenu.hideTimestamps")
-                        : t("moreMenu.showTimestamps")}
-                    </button>
-                  ) : null}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDesktopMoreOpen(false);
-                      handleExportPng();
-                    }}
-                    className={controlMenuItemClass}
-                  >
-                    <span className={controlMenuItemContentClass}>
-                      <Icon icon="mdi:download" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
-                      <span>{t("moreMenu.savePng")}</span>
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDesktopMoreOpen(false);
-                      void handlePrintMap();
-                    }}
-                    className={controlMenuItemClass}
-                  >
-                    <span className={controlMenuItemContentClass}>
-                      <Icon icon="mdi:printer-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
-                      <span>{t("moreMenu.print")}</span>
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDesktopMoreOpen(false);
-                      setShortcutsOpen(true);
-                    }}
-                    className={controlMenuItemClass}
-                  >
-                    <span className={controlMenuItemContentClass}>
-                      <Icon icon="mdi:keyboard-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
-                      <span>{t("moreMenu.shortcuts")}</span>
-                    </span>
-                  </button>
-                  {!isReadOnlyView ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setDesktopMoreOpen(false);
-                        setShareOpen(true);
-                        void fetchShareStatus();
+                        mindRef.current?.setLayout?.("left");
                       }}
                       className={controlMenuItemClass}
                     >
                       <span className={controlMenuItemContentClass}>
-                        <Icon icon="mdi:share-variant-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
-                        <span>{t("moreMenu.share")}</span>
+                        <Icon icon="mdi:arrow-left-bold-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                        <span>{t("moreMenu.layoutLeft")}</span>
                       </span>
                     </button>
-                  ) : null}
-                </div>
-              )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDesktopMoreOpen(false);
+                        mindRef.current?.setLayout?.("right");
+                      }}
+                      className={controlMenuItemClass}
+                    >
+                      <span className={controlMenuItemContentClass}>
+                        <Icon icon="mdi:arrow-right-bold-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                        <span>{t("moreMenu.layoutRight")}</span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDesktopMoreOpen(false);
+                        mindRef.current?.setLayout?.("side");
+                      }}
+                      className={controlMenuItemClass}
+                    >
+                      <span className={controlMenuItemContentClass}>
+                        <Icon icon="mdi:arrow-left-right-bold-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                        <span>{t("moreMenu.layoutBoth")}</span>
+                      </span>
+                    </button>
+                    <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
+                    <div className="px-3 py-2">
+                      <div className="text-[11px] font-semibold text-slate-500 dark:text-white/60">
+                        {t("moreMenu.theme")}
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {themeOptions.map((theme) => {
+                          const themeLabel =
+                            theme.name === PROFILE_THEME_NAME
+                              ? t("moreMenu.profileTheme")
+                              : theme.name === DEFAULT_THEME_NAME
+                              ? t("moreMenu.defaultTheme")
+                              : theme.name;
+                          return (
+                            <button
+                              key={theme.name}
+                              type="button"
+                              onClick={() => {
+                                handleSelectTheme(theme.name);
+                                setDesktopMoreOpen(false);
+                              }}
+                              className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold ${
+                                theme.name === themeName
+                                  ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-300/40 dark:bg-blue-500/10 dark:text-blue-50/90"
+                                  : "border-slate-200 bg-white text-slate-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70"
+                              }`}
+                            >
+                              {themeLabel}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
+                    {hasTimestampNodes ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDesktopMoreOpen(false);
+                          setShowTimestamps((prev) => !prev);
+                        }}
+                        className={controlMenuItemClass}
+                      >
+                        {showTimestamps
+                          ? t("moreMenu.hideTimestamps")
+                          : t("moreMenu.showTimestamps")}
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDesktopMoreOpen(false);
+                        handleExportPng();
+                      }}
+                      className={controlMenuItemClass}
+                    >
+                      <span className={controlMenuItemContentClass}>
+                        <Icon icon="mdi:download" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                        <span>{t("moreMenu.savePng")}</span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDesktopMoreOpen(false);
+                        void handlePrintMap();
+                      }}
+                      className={controlMenuItemClass}
+                    >
+                      <span className={controlMenuItemContentClass}>
+                        <Icon icon="mdi:printer-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                        <span>{t("moreMenu.print")}</span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDesktopMoreOpen(false);
+                        setShortcutsOpen(true);
+                      }}
+                      className={controlMenuItemClass}
+                    >
+                      <span className={controlMenuItemContentClass}>
+                        <Icon icon="mdi:keyboard-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                        <span>{t("moreMenu.shortcuts")}</span>
+                      </span>
+                    </button>
+                    {!isReadOnlyView ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDesktopMoreOpen(false);
+                          setShareOpen(true);
+                          void fetchShareStatus();
+                        }}
+                        className={controlMenuItemClass}
+                      >
+                        <span className={controlMenuItemContentClass}>
+                          <Icon icon="mdi:share-variant-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                          <span>{t("moreMenu.share")}</span>
+                        </span>
+                      </button>
+                    ) : null}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          </>
         }
       />
 
       <div className="relative w-full" style={{ height: "calc(100% - var(--header-h))" }}>
         <div className="pointer-events-auto absolute right-3 top-3 z-[25] flex flex-col gap-2 sm:hidden">
-          <button
-            type="button"
-            onClick={() => {
-              setMobileToolbarCollapsed((v) => !v);
-              setMobileMapActionsOpen(false);
-              setMobileThemeOpen(false);
-            }}
-            className={controlIconButtonClass}
-            aria-label={mobileToolbarCollapsed ? mobileToolbarOpenLabel : mobileToolbarCloseLabel}
-            title={mobileToolbarCollapsed ? mobileToolbarOpenLabel : mobileToolbarCloseLabel}
-          >
-            <Icon
-              icon={mobileToolbarCollapsed ? "mdi:chevron-left" : "mdi:chevron-right"}
-              className="h-4 w-4"
-            />
-          </button>
+          <div className="group relative">
+            <button
+              type="button"
+              onClick={() => {
+                setMobileToolbarCollapsed((v) => !v);
+                setMobileMapActionsOpen(false);
+                setMobileThemeOpen(false);
+              }}
+              className={controlIconButtonClass}
+              aria-label={mobileToolbarCollapsed ? mobileToolbarOpenLabel : mobileToolbarCloseLabel}
+              title={mobileToolbarCollapsed ? mobileToolbarOpenLabel : mobileToolbarCloseLabel}
+            >
+              <Icon
+                icon={mobileToolbarCollapsed ? "mdi:chevron-left" : "mdi:chevron-right"}
+                className="h-4 w-4"
+              />
+            </button>
+            <span className={mobileVerticalTooltipClass}>
+              {mobileToolbarCollapsed ? mobileToolbarOpenLabel : mobileToolbarCloseLabel}
+            </span>
+          </div>
           {!mobileToolbarCollapsed ? (
             <>
-              <button
-                type="button"
-                onClick={() => mindRef.current?.centerMap?.()}
-                className={controlIconButtonClass}
-                aria-label={mobileCenterLabel}
-                title={mobileCenterLabel}
-              >
-                <Icon icon="mdi:crosshairs-gps" className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => mindRef.current?.zoomIn?.()}
-                className={controlIconButtonClass}
-                aria-label={mobileZoomInLabel}
-                title={mobileZoomInLabel}
-              >
-                <Icon icon="mdi:plus" className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => mindRef.current?.zoomOut?.()}
-                className={controlIconButtonClass}
-                aria-label={mobileZoomOutLabel}
-                title={mobileZoomOutLabel}
-              >
-                <Icon icon="mdi:minus" className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => mindRef.current?.collapseOneLevel?.()}
-                className={controlIconButtonClass}
-                aria-label={mobileCollapseLevelLabel}
-                title={mobileCollapseLevelLabel}
-              >
-                <Icon icon="mdi:unfold-less-horizontal" className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => mindRef.current?.expandOneLevel?.()}
-                className={controlIconButtonClass}
-                aria-label={mobileExpandLevelLabel}
-                title={mobileExpandLevelLabel}
-              >
-                <Icon icon="mdi:unfold-more-horizontal" className="h-4 w-4" />
-              </button>
+              {!isSharedView ? (
+                <>
+                  <div className="group relative">
+                    <button
+                      type="button"
+                      onClick={() => mindRef.current?.centerMap?.()}
+                      className={controlIconButtonClass}
+                      aria-label={mobileCenterLabel}
+                      title={mobileCenterLabel}
+                    >
+                      <Icon icon="mdi:crosshairs-gps" className="h-4 w-4" />
+                    </button>
+                    <span className={mobileVerticalTooltipClass}>{mobileCenterLabel}</span>
+                  </div>
+                  <div className="group relative">
+                    <button
+                      type="button"
+                      onClick={() => mindRef.current?.zoomIn?.()}
+                      className={controlIconButtonClass}
+                      aria-label={mobileZoomInLabel}
+                      title={mobileZoomInLabel}
+                    >
+                      <Icon icon="mdi:plus" className="h-4 w-4" />
+                    </button>
+                    <span className={mobileVerticalTooltipClass}>{mobileZoomInLabel}</span>
+                  </div>
+                  <div className="group relative">
+                    <button
+                      type="button"
+                      onClick={() => mindRef.current?.zoomOut?.()}
+                      className={controlIconButtonClass}
+                      aria-label={mobileZoomOutLabel}
+                      title={mobileZoomOutLabel}
+                    >
+                      <Icon icon="mdi:minus" className="h-4 w-4" />
+                    </button>
+                    <span className={mobileVerticalTooltipClass}>{mobileZoomOutLabel}</span>
+                  </div>
+                  <div className="group relative">
+                    <button
+                      type="button"
+                      onClick={() => mindRef.current?.collapseOneLevel?.()}
+                      className={controlIconButtonClass}
+                      aria-label={mobileCollapseLevelLabel}
+                      title={mobileCollapseLevelLabel}
+                    >
+                      <Icon icon="mdi:unfold-less-horizontal" className="h-4 w-4" />
+                    </button>
+                    <span className={mobileVerticalTooltipClass}>{mobileCollapseLevelLabel}</span>
+                  </div>
+                  <div className="group relative">
+                    <button
+                      type="button"
+                      onClick={() => mindRef.current?.expandOneLevel?.()}
+                      className={controlIconButtonClass}
+                      aria-label={mobileExpandLevelLabel}
+                      title={mobileExpandLevelLabel}
+                    >
+                      <Icon icon="mdi:unfold-more-horizontal" className="h-4 w-4" />
+                    </button>
+                    <span className={mobileVerticalTooltipClass}>{mobileExpandLevelLabel}</span>
+                  </div>
+                </>
+              ) : null}
               <div className="relative" ref={mobileMapActionsRef}>
-                <button
-                  type="button"
-                  onClick={() => setMobileMapActionsOpen((v) => !v)}
-                  className={controlIconButtonClass}
-                  aria-label={mobileMapActionsLabel}
-                  title={mobileMapActionsLabel}
-                >
-                  <Icon icon="mdi:vector-polyline" className="h-4 w-4" />
-                </button>
+                <div className="group relative">
+                  <button
+                    type="button"
+                    onClick={() => setMobileMapActionsOpen((v) => !v)}
+                    className={controlIconButtonClass}
+                    aria-label={mobileMapActionsLabel}
+                    title={mobileMapActionsLabel}
+                  >
+                    <Icon icon="mdi:vector-polyline" className="h-4 w-4" />
+                  </button>
+                  <span className={mobileVerticalTooltipClass}>{mobileMapActionsLabel}</span>
+                </div>
 
             {mobileMapActionsOpen && (
               <div className={`absolute right-full mr-2 top-0 w-[160px] ${controlPanelClass}`}>
@@ -1912,15 +2044,18 @@ export default function FullscreenMapDetailScreen({
               </div>
 
               <div className="relative" ref={mobileThemeRef}>
-                <button
-                  type="button"
-                  onClick={() => setMobileThemeOpen((v) => !v)}
-                  className={controlIconButtonClass}
-                  aria-label="테마"
-                  title="테마"
-                >
-                  <Icon icon="mdi:palette-outline" className="h-4 w-4" />
-                </button>
+                <div className="group relative">
+                  <button
+                    type="button"
+                    onClick={() => setMobileThemeOpen((v) => !v)}
+                    className={controlIconButtonClass}
+                    aria-label="테마"
+                    title="테마"
+                  >
+                    <Icon icon="mdi:palette-outline" className="h-4 w-4" />
+                  </button>
+                  <span className={mobileVerticalTooltipClass}>테마</span>
+                </div>
                 {mobileThemeOpen && (
                   <div className={`absolute right-full mr-2 top-0 w-[180px] p-2 ${controlPanelClass}`}>
                     <div className="text-[11px] font-semibold text-slate-500 dark:text-white/60">
@@ -1949,53 +2084,65 @@ export default function FullscreenMapDetailScreen({
                 )}
               </div>
 
-              <button
-                type="button"
-                onClick={handleExportPng}
-                className={controlIconButtonClass}
-                aria-label="PNG 저장"
-                title="PNG 저장"
-              >
-                <Icon icon="mdi:download" className="h-4 w-4" />
-              </button>
+              <div className="group relative">
+                <button
+                  type="button"
+                  onClick={handleExportPng}
+                  className={controlIconButtonClass}
+                  aria-label="PNG 저장"
+                  title="PNG 저장"
+                >
+                  <Icon icon="mdi:download" className="h-4 w-4" />
+                </button>
+                <span className={mobileVerticalTooltipClass}>PNG 저장</span>
+              </div>
 
-              <button
-                type="button"
-                onClick={() => void handlePrintMap()}
-                className={controlIconButtonClass}
-                aria-label={t("moreMenu.print")}
-                title={t("moreMenu.print")}
-              >
-                <Icon icon="mdi:printer-outline" className="h-4 w-4" />
-              </button>
+              <div className="group relative">
+                <button
+                  type="button"
+                  onClick={() => void handlePrintMap()}
+                  className={controlIconButtonClass}
+                  aria-label={t("moreMenu.print")}
+                  title={t("moreMenu.print")}
+                >
+                  <Icon icon="mdi:printer-outline" className="h-4 w-4" />
+                </button>
+                <span className={mobileVerticalTooltipClass}>{t("moreMenu.print")}</span>
+              </div>
 
               {!isReadOnlyView ? (
+                <div className="group relative">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShareOpen(true);
+                      void fetchShareStatus();
+                    }}
+                    className={controlIconButtonClass}
+                    aria-label="공유"
+                    title="공유"
+                  >
+                    <Icon icon="mdi:share-variant" className="h-4 w-4" />
+                  </button>
+                  <span className={mobileVerticalTooltipClass}>공유</span>
+                </div>
+              ) : null}
+
+              <div className="group relative">
                 <button
                   type="button"
                   onClick={() => {
-                    setShareOpen(true);
-                    void fetchShareStatus();
+                    setTutorialStepIndex(0);
+                    setTutorialOpen(true);
                   }}
                   className={controlIconButtonClass}
-                  aria-label="공유"
-                  title="공유"
+                  aria-label={t("actions.tutorial")}
+                  title={t("actions.tutorial")}
                 >
-                  <Icon icon="mdi:share-variant" className="h-4 w-4" />
+                  <Icon icon="mdi:school-outline" className="h-4 w-4" />
                 </button>
-              ) : null}
-
-              <button
-                type="button"
-                onClick={() => {
-                  setTutorialStepIndex(0);
-                  setTutorialOpen(true);
-                }}
-                className={controlIconButtonClass}
-                aria-label={t("actions.tutorial")}
-                title={t("actions.tutorial")}
-              >
-                <Icon icon="mdi:school-outline" className="h-4 w-4" />
-              </button>
+                <span className={mobileVerticalTooltipClass}>{t("actions.tutorial")}</span>
+              </div>
 
             </>
           ) : null}
@@ -2110,21 +2257,103 @@ export default function FullscreenMapDetailScreen({
 
         {isSharedView ? (
           <div className="pointer-events-none absolute bottom-4 left-4 z-[22]">
-            <Link
-              href={`/${locale}`}
-              className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-sky-200/90 bg-sky-50/95 px-6 py-3.5 text-[18px] font-extrabold tracking-[-0.02em] text-slate-800 shadow-[0_18px_40px_-18px_rgba(15,23,42,0.5)] backdrop-blur-sm transition hover:border-sky-300 hover:bg-sky-100/95 dark:border-white/14 dark:bg-[#0f172a]/90 dark:text-white/88 dark:hover:border-white/22 dark:hover:bg-[#111c31]"
-            >
-              <div className="relative h-11 w-[56px] shrink-0">
-                <Image
-                  src="/images/newlogo.png"
-                  alt="Brify logo"
-                  fill
-                  sizes="56px"
-                  className="object-contain"
-                />
+            <div className="hidden pointer-events-auto sm:block">
+              <Link
+                href={`/${locale}`}
+                className="inline-flex items-center gap-1.5 rounded-full border border-sky-200/90 bg-sky-50/95 px-6 py-3.5 text-[18px] font-extrabold tracking-[-0.02em] text-slate-800 shadow-[0_18px_40px_-18px_rgba(15,23,42,0.5)] backdrop-blur-sm transition hover:border-sky-300 hover:bg-sky-100/95 dark:border-white/14 dark:bg-[#0f172a]/90 dark:text-white/88 dark:hover:border-white/22 dark:hover:bg-[#111c31]"
+              >
+                <div className="relative h-11 w-[56px] shrink-0">
+                  <Image
+                    src="/images/newlogo.png"
+                    alt="Brify logo"
+                    fill
+                    sizes="56px"
+                    className="object-contain"
+                  />
+                </div>
+                <span>{locale === "ko" ? "브라이피" : "Brify"}</span>
+              </Link>
+            </div>
+            <div className="pointer-events-auto flex items-center gap-2 sm:hidden">
+              <Link
+                href={`/${locale}`}
+                className="inline-flex items-center gap-1 rounded-full border border-sky-200/90 bg-sky-50/95 px-3.5 py-2 text-[13px] font-extrabold tracking-[-0.02em] text-slate-800 shadow-[0_18px_40px_-18px_rgba(15,23,42,0.5)] backdrop-blur-sm transition hover:border-sky-300 hover:bg-sky-100/95 dark:border-white/14 dark:bg-[#0f172a]/90 dark:text-white/88 dark:hover:border-white/22 dark:hover:bg-[#111c31]"
+              >
+                <div className="relative h-7 w-[36px] shrink-0">
+                  <Image
+                    src="/images/newlogo.png"
+                    alt="Brify logo"
+                    fill
+                    sizes="36px"
+                    className="object-contain"
+                  />
+                </div>
+                <span>{locale === "ko" ? "브라이피" : "Brify"}</span>
+              </Link>
+
+              <div className="flex items-center gap-1.5 rounded-full bg-transparent px-2 py-1.5">
+                <div className="group relative">
+                  <button
+                    type="button"
+                    onClick={() => mindRef.current?.centerMap?.()}
+                    className={mobileBottomControlButtonClass}
+                    aria-label={mobileCenterLabel}
+                    title={mobileCenterLabel}
+                  >
+                    <Icon icon="mdi:crosshairs-gps" className="h-4 w-4" />
+                  </button>
+                  <span className={mobileBottomTooltipClass}>{mobileCenterLabel}</span>
+                </div>
+                <div className="group relative">
+                  <button
+                    type="button"
+                    onClick={() => mindRef.current?.zoomIn?.()}
+                    className={mobileBottomControlButtonClass}
+                    aria-label={mobileZoomInLabel}
+                    title={mobileZoomInLabel}
+                  >
+                    <Icon icon="mdi:plus" className="h-4 w-4" />
+                  </button>
+                  <span className={mobileBottomTooltipClass}>{mobileZoomInLabel}</span>
+                </div>
+                <div className="group relative">
+                  <button
+                    type="button"
+                    onClick={() => mindRef.current?.zoomOut?.()}
+                    className={mobileBottomControlButtonClass}
+                    aria-label={mobileZoomOutLabel}
+                    title={mobileZoomOutLabel}
+                  >
+                    <Icon icon="mdi:minus" className="h-4 w-4" />
+                  </button>
+                  <span className={mobileBottomTooltipClass}>{mobileZoomOutLabel}</span>
+                </div>
+                <div className="group relative">
+                  <button
+                    type="button"
+                    onClick={() => mindRef.current?.collapseOneLevel?.()}
+                    className={mobileBottomControlButtonClass}
+                    aria-label={mobileCollapseLevelLabel}
+                    title={mobileCollapseLevelLabel}
+                  >
+                    <Icon icon="mdi:unfold-less-horizontal" className="h-4 w-4" />
+                  </button>
+                  <span className={mobileBottomTooltipClass}>{mobileCollapseLevelLabel}</span>
+                </div>
+                <div className="group relative">
+                  <button
+                    type="button"
+                    onClick={() => mindRef.current?.expandOneLevel?.()}
+                    className={mobileBottomControlButtonClass}
+                    aria-label={mobileExpandLevelLabel}
+                    title={mobileExpandLevelLabel}
+                  >
+                    <Icon icon="mdi:unfold-more-horizontal" className="h-4 w-4" />
+                  </button>
+                  <span className={mobileBottomTooltipClass}>{mobileExpandLevelLabel}</span>
+                </div>
               </div>
-              <span>{locale === "ko" ? "브라이피" : "Brify"}</span>
-            </Link>
+            </div>
           </div>
         ) : null}
 
