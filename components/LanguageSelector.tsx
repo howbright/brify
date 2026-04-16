@@ -75,7 +75,7 @@ export default function LanguageSelector({ compact = false }: Props) {
       <DropdownMenuContent
         align="end"
         className="
-  w-40 rounded-xl border border-slate-400
+  z-[180] w-40 rounded-xl border border-slate-400
   bg-white/95 shadow-lg
   dark:border-white/20 dark:bg-slate-900/95
 "

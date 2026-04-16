@@ -7,6 +7,14 @@ import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/
 import type { MapStatusFilter } from "./useMapsListControls";
 
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
+type MapNoteRow = Database["public"]["Tables"]["map_notes"]["Row"];
+type MapTermRow = Database["public"]["Tables"]["map_terms"]["Row"];
+type MindNode = {
+  id?: string;
+  note?: string | null;
+  highlight?: { variant?: string } | null;
+  children?: MindNode[];
+};
 type SourceType = "youtube" | "website" | "file" | "manual";
 type ContentFilter = "notes" | "terms";
 
@@ -46,6 +54,78 @@ function expandStatusFilters(statusFilters: MapStatusFilter[]) {
 
 function normalizeTag(tag: string) {
   return tag.trim().toLowerCase();
+}
+
+async function withActualCounts(
+  supabase: ReturnType<typeof createClient>,
+  rows: MapRow[]
+) {
+  const mapIds = Array.from(
+    new Set(rows.map((row) => row.id).filter((id): id is string => Boolean(id)))
+  );
+
+  if (mapIds.length === 0) return rows;
+
+  const [
+    { data: noteRows, error: notesError },
+    { data: termRows, error: termsError },
+    { data: mapMindRows, error: mapMindError },
+  ] =
+    await Promise.all([
+      supabase.from("map_notes").select("map_id").in("map_id", mapIds),
+      supabase.from("map_terms").select("map_id").in("map_id", mapIds),
+      supabase.from("maps").select("id,mind_elixir").in("id", mapIds),
+    ]);
+
+  if (notesError || termsError || mapMindError) {
+    return rows;
+  }
+
+  const noteCounts = new Map<string, number>();
+  const termCounts = new Map<string, number>();
+
+  ((noteRows ?? []) as Pick<MapNoteRow, "map_id">[]).forEach((row) => {
+    noteCounts.set(row.map_id, (noteCounts.get(row.map_id) ?? 0) + 1);
+  });
+
+  ((termRows ?? []) as Pick<MapTermRow, "map_id">[]).forEach((row) => {
+    termCounts.set(row.map_id, (termCounts.get(row.map_id) ?? 0) + 1);
+  });
+
+  const derivedNoteCounts = new Map<string, number>();
+
+  const countDerivedNotes = (raw: unknown) => {
+    const root =
+      raw &&
+      typeof raw === "object" &&
+      "nodeData" in (raw as Record<string, unknown>)
+        ? ((raw as { nodeData?: MindNode | null }).nodeData ?? null)
+        : (raw as MindNode | null);
+
+    if (!root || typeof root !== "object") return 0;
+
+    let count = 0;
+    const visit = (node: MindNode | null | undefined) => {
+      if (!node || typeof node !== "object") return;
+      const note = typeof node.note === "string" ? node.note.trim() : "";
+      if (note) count += 1;
+      if (node.highlight?.variant) count += 1;
+      node.children?.forEach((child) => visit(child));
+    };
+
+    visit(root);
+    return count;
+  };
+
+  ((mapMindRows ?? []) as Pick<MapRow, "id" | "mind_elixir">[]).forEach((row) => {
+    derivedNoteCounts.set(row.id, countDerivedNotes(row.mind_elixir));
+  });
+
+  return rows.map((row) => ({
+    ...row,
+    notes_count: (noteCounts.get(row.id) ?? 0) + (derivedNoteCounts.get(row.id) ?? 0),
+    terms_count: termCounts.get(row.id) ?? 0,
+  })) as MapRow[];
 }
 
 export default function useMapsListQuery({
@@ -182,14 +262,20 @@ export default function useMapsListQuery({
             return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
           });
           const pagedRows = sortedRows.slice(from, to + 1);
-          setDrafts(pagedRows.map(toDraft));
+          const rowsWithCounts = await withActualCounts(supabase, pagedRows);
+          if (cancelled) return;
+          setDrafts(rowsWithCounts.map(toDraft));
           setTotalCount(sortedRows.length);
         } else if (shouldFilterTagsClientSide) {
           const pagedRows = filteredRows.slice(from, to + 1);
-          setDrafts(pagedRows.map(toDraft));
+          const rowsWithCounts = await withActualCounts(supabase, pagedRows);
+          if (cancelled) return;
+          setDrafts(rowsWithCounts.map(toDraft));
           setTotalCount(filteredRows.length);
         } else {
-          setDrafts(rows.map(toDraft));
+          const rowsWithCounts = await withActualCounts(supabase, rows);
+          if (cancelled) return;
+          setDrafts(rowsWithCounts.map(toDraft));
           setTotalCount(count ?? 0);
         }
       } catch (e: unknown) {

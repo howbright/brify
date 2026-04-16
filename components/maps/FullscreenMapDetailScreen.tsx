@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
@@ -33,6 +35,7 @@ import {
 } from "@/app/lib/mapTutorialState";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 import FullscreenHeader from "@/components/maps/FullscreenHeader";
+import LanguageSelector from "@/components/LanguageSelector";
 
 type MindNode = {
   children?: MindNode[];
@@ -1459,6 +1462,7 @@ export default function FullscreenMapDetailScreen({
         }
         right={
           <div className="hidden sm:flex items-center gap-1.5">
+            {isSharedView ? <LanguageSelector compact /> : null}
             {!isReadOnlyView && statusLabel ? (
               <span
                 className={`
@@ -2103,6 +2107,26 @@ export default function FullscreenMapDetailScreen({
             termsTabId={FULLSCREEN_PAGE_TERMS_TAB_ID}
           />
         )}
+
+        {isSharedView ? (
+          <div className="pointer-events-none absolute bottom-4 left-4 z-[22]">
+            <Link
+              href={`/${locale}`}
+              className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-sky-200/90 bg-sky-50/95 px-6 py-3.5 text-[18px] font-extrabold tracking-[-0.02em] text-slate-800 shadow-[0_18px_40px_-18px_rgba(15,23,42,0.5)] backdrop-blur-sm transition hover:border-sky-300 hover:bg-sky-100/95 dark:border-white/14 dark:bg-[#0f172a]/90 dark:text-white/88 dark:hover:border-white/22 dark:hover:bg-[#111c31]"
+            >
+              <div className="relative h-11 w-[56px] shrink-0">
+                <Image
+                  src="/images/newlogo.png"
+                  alt="Brify logo"
+                  fill
+                  sizes="56px"
+                  className="object-contain"
+                />
+              </div>
+              <span>{locale === "ko" ? "브라이피" : "Brify"}</span>
+            </Link>
+          </div>
+        ) : null}
 
         {tutorialOpen ? (
           <MapTutorialOverlay
