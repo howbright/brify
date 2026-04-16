@@ -90,6 +90,10 @@ export default function LeftPanel({
     [map.title, t]
   );
   const metadataPending = map.status === "processing_metadata";
+  const metadataEditTooltip =
+    locale === "ko" ? "메타데이터 편집" : "Edit metadata";
+  const tagsEditTooltip =
+    locale === "ko" ? "태그 편집" : "Edit tags";
 
   const [internalTab, setInternalTab] = useState<LeftPanelTab>(tab ?? "info");
   const [notesSubtab, setNotesSubtab] = useState<NotesSubtab>("highlight");
@@ -726,19 +730,31 @@ export default function LeftPanel({
                   {displayTitle}
                 </div>
                 {onEdit ? (
-                  <button
-                    type="button"
-                    onClick={onEdit}
-                    className="
-                      inline-flex h-8 w-8 shrink-0 items-center justify-center
-                      text-blue-600 transition hover:text-blue-700
-                      dark:text-blue-300 dark:hover:text-blue-200
-                    "
-                    aria-label={t("edit")}
-                    title={t("edit")}
-                  >
-                    <Icon icon="mdi:pencil-outline" className="h-4 w-4" />
-                  </button>
+                  <div className="group relative shrink-0">
+                    <button
+                      type="button"
+                      onClick={onEdit}
+                      className="
+                        inline-flex h-8 w-8 items-center justify-center
+                        text-blue-600 transition hover:text-blue-700
+                        dark:text-blue-300 dark:hover:text-blue-200
+                      "
+                      aria-label={metadataEditTooltip}
+                      title={metadataEditTooltip}
+                    >
+                      <Icon icon="mdi:pencil-outline" className="h-4 w-4" />
+                    </button>
+                    <span
+                      className="
+                        pointer-events-none absolute bottom-full right-0 mb-2 whitespace-nowrap
+                        rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white
+                        opacity-0 shadow-lg transition group-hover:opacity-100 group-focus-within:opacity-100
+                        dark:bg-[#020817]
+                      "
+                    >
+                      {metadataEditTooltip}
+                    </span>
+                  </div>
                 ) : null}
               </div>
               {metadataPending ? (
@@ -842,21 +858,31 @@ export default function LeftPanel({
                       {t("tagsSection")}
                     </h3>
                     {onEditTags ? (
-                      <button
-                        type="button"
-                        onClick={onEditTags}
-                        className="
-                          inline-flex h-7 w-7 items-center justify-center
-                          rounded-lg border border-slate-400 bg-white
-                          text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900
-                          dark:border-white/20 dark:bg-white/[0.08]
-                          dark:text-white/75 dark:hover:bg-white/[0.12] dark:hover:text-white
-                        "
-                        aria-label={t("edit")}
-                        title={t("edit")}
-                      >
-                        <Icon icon="mdi:pencil" className="h-4 w-4" />
-                      </button>
+                      <div className="group relative">
+                        <button
+                          type="button"
+                          onClick={onEditTags}
+                          className="
+                            inline-flex h-7 w-7 items-center justify-center
+                            text-neutral-600 hover:text-neutral-900
+                            dark:text-white/75 dark:hover:text-white
+                          "
+                          aria-label={tagsEditTooltip}
+                          title={tagsEditTooltip}
+                        >
+                          <Icon icon="mdi:pencil" className="h-4 w-4" />
+                        </button>
+                        <span
+                          className="
+                            pointer-events-none absolute bottom-full right-0 mb-2 whitespace-nowrap
+                            rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white
+                            opacity-0 shadow-lg transition group-hover:opacity-100 group-focus-within:opacity-100
+                            dark:bg-[#020817]
+                          "
+                        >
+                          {tagsEditTooltip}
+                        </span>
+                      </div>
                     ) : null}
                   </div>
                 </div>
