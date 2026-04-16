@@ -1089,12 +1089,12 @@
     "titles": ["Turn YouTube transcripts", "Turn any long text"],
     "titleHighlight": "into a Structure Map",
     "titleSuffix": "",
-    "helper": "Structure long content so you can grasp it quickly.",
+    "helper": "Structure long content so you can quickly find what you need without missing important details.",
     "switchTitleAria": "Switch title",
     "ctaPrimary": "Start for free",
     "ctaSecondary": "View demo",
     "featureItems": [
-      "Keep the important details",
+      "Understand an hour of content in minutes",
       "Automatically explain difficult terms",
       "Generate results in your language",
       "Compare Structure Maps and spot differences at a glance"

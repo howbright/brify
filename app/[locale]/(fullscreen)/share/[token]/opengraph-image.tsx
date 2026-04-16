@@ -4,7 +4,9 @@ import {
   getSharedMapMetaByToken,
 } from "@/app/lib/sharedMapMeta";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 export const size = {
   width: 1200,
   height: 630,

@@ -249,6 +249,16 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
   })();
 
   const safeIdx = titles.length ? idx % titles.length : 0;
+
+  useEffect(() => {
+    if (titles.length <= 1) return;
+    const timer = window.setInterval(() => {
+      setIdx((prev) => (prev + 1) % titles.length);
+    }, 4000);
+
+    return () => window.clearInterval(timer);
+  }, [titles.length]);
+
   const renderFeatures = (
     className?: string,
     gridClassName = "grid gap-x-5 gap-y-3 sm:grid-cols-2",

@@ -3,7 +3,6 @@ import { adminSupabase } from "@/utils/supabase/admin";
 export type SharedMapMeta = {
   id: string;
   title: string | null;
-  shortTitle: string | null;
   description: string | null;
   summary: string | null;
   tags: string[];
@@ -20,7 +19,7 @@ export async function getSharedMapMetaByToken(
   const { data, error } = await adminSupabase
     .from("maps")
     .select(
-      "id, title, short_title, description, summary, tags, channel_name, source_type, thumbnail_url"
+      "id, title, description, summary, tags, channel_name, source_type, thumbnail_url"
     )
     .eq("share_token", token)
     .eq("share_enabled", true)
@@ -31,7 +30,6 @@ export async function getSharedMapMetaByToken(
   return {
     id: data.id,
     title: data.title,
-    shortTitle: data.short_title,
     description: data.description,
     summary: data.summary,
     tags: Array.isArray(data.tags) ? data.tags.filter(Boolean) : [],
@@ -42,8 +40,7 @@ export async function getSharedMapMetaByToken(
 }
 
 export function buildSharedMapOgText(map: SharedMapMeta) {
-  const title =
-    map.shortTitle?.trim() || map.title?.trim() || "Brify Structure Map";
+  const title = map.title?.trim() || "Brify Structure Map";
   const description =
     map.summary?.trim() ||
     map.description?.trim() ||
