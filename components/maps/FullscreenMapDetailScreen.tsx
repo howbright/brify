@@ -2424,6 +2424,7 @@ export default function FullscreenMapDetailScreen({
             onClose={() => setShowMetadataDialog(false)}
             onSave={handleSaveMetadata}
             isProcessing={isSavingMeta}
+            showYoutubeTitleSync={false}
           />
         ) : null}
       </div>

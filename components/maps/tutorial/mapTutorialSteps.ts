@@ -19,18 +19,6 @@ export function getMapTutorialSteps(
   if (platform === "mobile") {
     return [
       {
-        title: t("mobile.highlight.title"),
-        description: t("mobile.highlight.description"),
-        targetClassName: "left-1/2 bottom-[18%] h-24 w-24 -translate-x-1/2",
-        hideTargetRing: true,
-        highlightCalloutRing: true,
-        hideCalloutOnMobile: true,
-        calloutClassName: "left-1/2 bottom-[28%] w-[min(18.5rem,calc(100vw-1.5rem))] -translate-x-1/2",
-        calloutTitle: t("mobile.highlight.calloutTitle"),
-        calloutDescription: t("mobile.highlight.calloutDescription"),
-        illustration: "highlight",
-      },
-      {
         title: t("mobile.expand.title"),
         description: t("mobile.expand.description"),
         targetClassName: "left-1/2 bottom-[18%] h-24 w-24 -translate-x-1/2",
@@ -41,26 +29,6 @@ export function getMapTutorialSteps(
         calloutTitle: t("mobile.expand.calloutTitle"),
         calloutDescription: t("mobile.expand.calloutDescription"),
         illustration: "expand",
-      },
-      {
-        title: t("mobile.panel.title"),
-        description: t("mobile.panel.description"),
-        targetId: leftPanelButtonId,
-        targetClassName: "left-4 top-3 h-10 w-10",
-        hideCalloutOnMobile: true,
-        calloutClassName: "left-4 top-16 w-[min(18.5rem,calc(100vw-1.5rem))]",
-        calloutTitle: t("mobile.panel.calloutTitle"),
-        calloutDescription: t("mobile.panel.calloutDescription"),
-      },
-      {
-        title: t("mobile.terms.title"),
-        description: t("mobile.terms.description"),
-        targetId: termsTabId,
-        targetClassName: "left-6 top-20 h-14 w-24",
-        hideCalloutOnMobile: true,
-        calloutClassName: "left-1/2 top-[7.5rem] w-[min(18.5rem,calc(100vw-1.5rem))] -translate-x-1/2",
-        calloutTitle: t("mobile.terms.calloutTitle"),
-        calloutDescription: t("mobile.terms.calloutDescription"),
       },
     ];
   }

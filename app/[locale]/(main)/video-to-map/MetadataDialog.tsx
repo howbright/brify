@@ -67,6 +67,7 @@ type Props = {
   processingTitle?: string;
   processingMessage?: string;
   processingBullets?: string[];
+  showYoutubeTitleSync?: boolean;
 };
 
 export default function MetadataDialog({
@@ -78,6 +79,7 @@ export default function MetadataDialog({
   processingTitle,
   processingMessage,
   processingBullets: _processingBullets = [],
+  showYoutubeTitleSync = true,
 }: Props) {
   const t = useTranslations("MetadataDialog");
   const [sourceUrl, setSourceUrl] = useState(initial.sourceUrl ?? "");
@@ -91,6 +93,7 @@ export default function MetadataDialog({
   const [title, setTitle] = useState(initial.title ?? "");
   const [youtubeTitle, setYoutubeTitle] = useState(initial.youtubeTitle ?? "");
   const [titleMatchesYoutube, setTitleMatchesYoutube] = useState(() => {
+    if (!showYoutubeTitleSync) return false;
     const initialSourceUrl = initial.sourceUrl ?? "";
     return isYouTubeUrl(initialSourceUrl);
   });
@@ -188,7 +191,7 @@ export default function MetadataDialog({
       if (json?.title) {
         const fetchedTitle = String(json.title);
         setYoutubeTitle(fetchedTitle);
-        if (titleMatchesYoutube) {
+        if (showYoutubeTitleSync && titleMatchesYoutube) {
           setTitle(fetchedTitle);
         }
       }
@@ -219,17 +222,21 @@ export default function MetadataDialog({
   }, [title, titleError]);
 
   useEffect(() => {
+    if (!showYoutubeTitleSync) {
+      setTitleMatchesYoutube(false);
+      return;
+    }
     if (!youtube) {
       setTitleMatchesYoutube(false);
       return;
     }
     setTitleMatchesYoutube(true);
-  }, [youtube]);
+  }, [showYoutubeTitleSync, youtube]);
 
   useEffect(() => {
-    if (!youtube || !titleMatchesYoutube) return;
+    if (!showYoutubeTitleSync || !youtube || !titleMatchesYoutube) return;
     setTitle(youtubeTitle);
-  }, [titleMatchesYoutube, youtube, youtubeTitle]);
+  }, [showYoutubeTitleSync, titleMatchesYoutube, youtube, youtubeTitle]);
 
   useEffect(() => {
     let cancelled = false;
@@ -571,7 +578,7 @@ export default function MetadataDialog({
                       value={title}
                       onChange={(e) => setTitle(e.target.value.slice(0, 200))}
                       placeholder={t("placeholders.title")}
-                      disabled={youtube && titleMatchesYoutube}
+                      disabled={showYoutubeTitleSync && youtube && titleMatchesYoutube}
                       className={`
                         w-full min-w-0
                         rounded-2xl border bg-neutral-50 px-3 py-2.5 text-[15px]
@@ -585,7 +592,7 @@ export default function MetadataDialog({
                         }
                       `}
                     />
-                    {youtube ? (
+                    {youtube && showYoutubeTitleSync ? (
                       <label className="inline-flex items-center gap-2 text-[14px] font-medium text-neutral-600 dark:text-white/70">
                         <input
                           type="checkbox"
