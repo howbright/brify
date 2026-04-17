@@ -705,10 +705,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       if (event.key.toLowerCase() !== "c") return;
       if (isTypingTarget(event.target)) return;
 
-      const selectedNodes = Array.isArray(mind.currentNodes)
-        ? mind.currentNodes.filter(Boolean)
+      const selectedNodes: Array<{ nodeObj?: unknown }> = Array.isArray(
+        mind.currentNodes
+      )
+        ? (mind.currentNodes.filter(Boolean) as Array<{ nodeObj?: unknown }>)
         : [];
-      const currentNode = mind.currentNode ?? null;
+      const currentNode = (mind.currentNode ?? null) as
+        | { nodeObj?: unknown }
+        | null;
       if (selectedNodes.length === 0 && !currentNode) return;
 
       event.preventDefault();
@@ -719,7 +723,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       const topics = (
         selectedNodes.length > 0 ? selectedNodes : [currentNode]
       )
-        .map((node) => getNodeTopicText((node as { nodeObj?: unknown } | null)?.nodeObj))
+        .map((node: { nodeObj?: unknown } | null) => getNodeTopicText(node?.nodeObj))
         .filter(Boolean);
 
       if (topics.length > 0) {
