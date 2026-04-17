@@ -241,7 +241,10 @@ export default function ClientMindElixirOverlay({
                   }}
                   aria-label={highlightLabel}
                 >
-                  <Icon icon="mdi:marker" className={hoverActionIconClass} />
+                  <Icon
+                    icon="mdi:marker"
+                    className={isTouchDevice ? "h-[10px] w-[10px]" : hoverActionIconClass}
+                  />
                   <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
                     {highlightLabel}
                   </span>
