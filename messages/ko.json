@@ -365,18 +365,44 @@
     }
   },
   "DemoPage": {
-    "eyebrow": "사용해보기",
-    "titlePrefix": "샘플 콘텐츠로",
-    "titleHighlight": "구조맵 생성 흐름",
-    "titleSuffix": " 예시를 확인해보세요",
-    "draftsTitle": "만든 구조맵",
-    "previewTitle": "구조맵 미리보기",
-    "toasts": {
-      "languageRestricted": "예시 페이지에서는 한국어와 영어만 선택할 수 있어요.",
-      "emptyScript": "샘플 원문이 비어 있어 구조맵을 만들 수 없어요.",
-      "success": "샘플 구조맵 생성이 완료됐어요.",
-      "autoOpen": "구조맵이 준비되었습니다. 구조맵 페이지로 이동합니다.",
-      "readOnly": "예시 페이지에서는 샘플 원문을 수정할 수 없어요."
+    "eyebrow": "DEMO",
+    "title": "유명한 강연을 구조맵으로 읽어보세요",
+    "intro": {
+      "eyebrow": "왜 이 예시를 봐야 할까요",
+      "intro": "구조맵의 예시로 매우 유명한 TED 강의를 준비했습니다.",
+      "speaker": "Simon Sinek은 세계적으로 영향력 있는 리더십 전문가이자 작가입니다. 그의 TED 강연 ‘How Great Leaders Inspire Action’은 가장 많이 시청된 강연 중 하나로 애플과 같은 브랜드의 성공 원리를 설명합니다.",
+      "lead": "‘골든 서클(Golden Circle)’은 리더십과 브랜딩에서 가장 유명한 이론 중 하나입니다.",
+      "body1": "많은 사람들이 추천하는 유익한 강의들을 챙겨 보고 싶지만, 모두 보기에는 시간이 부족하죠.",
+      "body2": "그래서 Brify를 만들었습니다.",
+      "body3": "유튜브 영상을 보지 않아도, 스크립트만 붙여넣으면 핵심 개념을 당신의 모국어로, 단 몇 분 만에 구조적으로 이해할 수 있습니다."
+    },
+    "meta": {
+      "youtubeExample": "유튜브 예시",
+      "thumbnailFallback": "썸네일이 없습니다",
+      "titleLabel": "구조맵 제목",
+      "untitledFallback": "데모 구조맵",
+      "sourceTypeLabel": "원본 유형",
+      "channelLabel": "채널명",
+      "channelFallback": "채널 정보 없음",
+      "youtubeTitleLabel": "유튜브 제목",
+      "youtubeTitleFallback": "제목 정보 없음",
+      "summaryLabel": "요약",
+      "summaryFallback": "요약 정보가 없습니다.",
+      "tagsLabel": "태그",
+      "tagsFallback": "태그 정보가 없습니다.",
+      "originalLink": "원본 유튜브 보기",
+      "sourceTypes": {
+        "youtube": "YouTube",
+        "website": "웹페이지",
+        "file": "파일",
+        "manual": "직접 입력"
+      }
+    },
+    "preview": {
+      "eyebrow": "Structure Map Preview",
+      "title": "구조맵 미리보기",
+      "helper": "이 예시는 미리보기용으로 고정된 화면입니다. 버튼을 눌러 구조맵을 직접 체험해보세요.",
+      "cta": "크게 보기"
     }
   },
   "DemoFullscreenDialog": {
