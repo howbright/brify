@@ -3,11 +3,13 @@ import { adminSupabase } from "@/utils/supabase/admin";
 export type SharedMapMeta = {
   id: string;
   title: string | null;
+  youtubeTitle: string | null;
   description: string | null;
   summary: string | null;
   tags: string[];
   channelName: string | null;
   sourceType: string | null;
+  sourceUrl: string | null;
   thumbnailUrl: string | null;
 };
 
@@ -19,7 +21,7 @@ export async function getSharedMapMetaByToken(
   const { data, error } = await adminSupabase
     .from("maps")
     .select(
-      "id, title, description, summary, tags, channel_name, source_type, thumbnail_url"
+      "id, title, youtube_title, description, summary, tags, channel_name, source_type, source_url, thumbnail_url"
     )
     .eq("share_token", token)
     .eq("share_enabled", true)
@@ -30,11 +32,13 @@ export async function getSharedMapMetaByToken(
   return {
     id: data.id,
     title: data.title,
+    youtubeTitle: data.youtube_title,
     description: data.description,
     summary: data.summary,
     tags: Array.isArray(data.tags) ? data.tags.filter(Boolean) : [],
     channelName: data.channel_name,
     sourceType: data.source_type,
+    sourceUrl: data.source_url,
     thumbnailUrl: data.thumbnail_url,
   };
 }

@@ -19,6 +19,17 @@ export default async function FullscreenLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const h = await headers();
+  const currentPath = normalizeNext(h.get("x-pathname"));
+  const isSharedRoute = currentPath.startsWith(`/${locale}/share/`);
+
+  if (isSharedRoute) {
+    return (
+      <MindThemePreferenceProvider profileThemeName={null}>
+        {children}
+      </MindThemePreferenceProvider>
+    );
+  }
 
   const supabase = await createClient();
   const {
@@ -37,9 +48,6 @@ export default async function FullscreenLayout({
     .maybeSingle();
 
   if (profileError || !profile || profile.terms_accepted !== true) {
-    const h = await headers();
-    const currentPath = normalizeNext(h.get("x-pathname"));
-
     redirect(
       `/${locale}/signup/complete?next=${encodeURIComponent(currentPath)}`
     );
