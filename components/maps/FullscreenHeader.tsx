@@ -4,6 +4,7 @@ type Props = {
   onClose: () => void;
   closeLabel: string;
   titleBadge?: ReactNode;
+  mobileTitleBadge?: ReactNode;
   left?: ReactNode;
   right?: ReactNode;
 };
@@ -13,6 +14,7 @@ export default function FullscreenHeader({
   onClose,
   closeLabel,
   titleBadge,
+  mobileTitleBadge,
   left,
   right,
 }: Props) {
@@ -22,10 +24,15 @@ export default function FullscreenHeader({
       style={{ height: "var(--header-h)" }}
     >
       <div className="flex flex-col">
-        <div className="flex h-[28px] items-center justify-between bg-[#1f2937] px-3 pr-2 text-[14px] font-extrabold tracking-tight text-white dark:bg-[#0b1220] sm:justify-center">
-          <div className="flex min-w-0 items-center gap-2 text-left sm:flex-1 sm:justify-center sm:text-center">
+        <div className="flex min-h-[28px] items-center justify-between bg-[#1f2937] px-3 py-1 pr-2 text-[14px] font-extrabold tracking-tight text-white dark:bg-[#0b1220] sm:h-[28px] sm:py-0 sm:justify-center">
+          <div className="flex min-w-0 flex-col justify-center text-left sm:flex-1 sm:items-center sm:text-center">
+            <div className="flex min-w-0 items-center gap-2">
             <div className="truncate">{title}</div>
-            {titleBadge}
+              {titleBadge}
+            </div>
+            {mobileTitleBadge ? (
+              <div className="mt-0.5 sm:hidden">{mobileTitleBadge}</div>
+            ) : null}
           </div>
           <button
             type="button"

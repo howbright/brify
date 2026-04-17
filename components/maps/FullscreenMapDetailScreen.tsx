@@ -1479,14 +1479,21 @@ export default function FullscreenMapDetailScreen({
   }
 
   return (
-    <div className="fixed inset-0 z-[120] bg-white dark:bg-[#0b1220] [--header-h:68px]">
+    <div className="fixed inset-0 z-[120] bg-white dark:bg-[#0b1220] [--header-h:82px] sm:[--header-h:68px]">
       <FullscreenHeader
         title={title}
         onClose={() => router.push(isSharedView ? `/${locale}` : backToMapsUrl)}
         closeLabel={t("actions.closeMap")}
         titleBadge={
           isSharedView ? (
-            <span className="inline-flex h-5 items-center rounded-full border border-blue-300/35 bg-blue-500/15 px-2 text-[10px] font-semibold tracking-normal text-blue-50/95 dark:border-blue-300/35 dark:bg-blue-500/15 dark:text-blue-50/95">
+            <span className="hidden h-5 items-center rounded-full border border-blue-300/35 bg-blue-500/15 px-2 text-[10px] font-semibold tracking-normal text-blue-50/95 dark:border-blue-300/35 dark:bg-blue-500/15 dark:text-blue-50/95 sm:inline-flex">
+              {locale === "ko" ? "읽기전용" : "Read only"}
+            </span>
+          ) : undefined
+        }
+        mobileTitleBadge={
+          isSharedView ? (
+            <span className="inline-flex items-center rounded-full border border-blue-300/35 bg-blue-500/15 px-1.5 py-[1px] text-[9px] font-semibold leading-none tracking-normal text-blue-50/95 dark:border-blue-300/35 dark:bg-blue-500/15 dark:text-blue-50/95">
               {locale === "ko" ? "읽기전용" : "Read only"}
             </span>
           ) : undefined
