@@ -16,10 +16,11 @@ import ResultReadyPanel from "./ResultReadyPanel";
 import { createClient } from "@/utils/supabase/client";
 import { useMapDraftStatusPolling } from "@/app/hooks/useMapDraftStatusPolling";
 
-// ✅ 크레딧 정책 (1~2단계 + 초과는 거절)
+// ✅ 크레딧 정책
+// 긴 입력 구조 테스트를 위해 상한을 임시 확장함
 const CREDIT_POLICY = {
   ONE_MAX_CHARS: 50_000,
-  TWO_MAX_CHARS: 110_000,
+  TWO_MAX_CHARS: 300_000,
 } as const;
 
 type BalanceResponse = {

@@ -402,7 +402,8 @@
       "eyebrow": "Structure Map Preview",
       "title": "구조맵 미리보기",
       "helper": "이 예시는 미리보기용으로 고정된 화면입니다. 버튼을 눌러 구조맵을 직접 체험해보세요.",
-      "cta": "크게 보기"
+      "cta": "크게 보기",
+      "imageAlt": "구조맵 미리보기 프레임"
     }
   },
   "DemoFullscreenDialog": {
@@ -508,8 +509,8 @@
         "edit": "편집"
       },
       "mouse": {
-        "alt": "우클릭 마우스 안내",
-        "label": "우클릭 + 드래그"
+        "alt": "맵 이동 방법 안내",
+        "label": "우클릭 드래그 / 두 손가락 / 미니맵"
       },
       "trackpad": {
         "alt": "두 손가락 트랙패드 안내",
@@ -531,10 +532,10 @@
         "calloutDescription": "먼저 여기서 작업 모드를 바꿔 주세요."
       },
       "mouse": {
-        "title": "맵 이동은 우클릭 드래그하세요",
-        "description": "마우스를 쓸 때는 우클릭을 누른 채 드래그하면 화면 안에서 맵을 부드럽게 이동할 수 있어요.",
-        "calloutTitle": "마우스 이동",
-        "calloutDescription": "우클릭을 누른 채 끌어서 맵을 이동해요."
+        "title": "맵은 이렇게 이동해요",
+        "description": "마우스에서는 우클릭 드래그로, 트랙패드에서는 두 손가락으로 맵을 이동할 수 있어요. 미니맵을 이용해 이동할 수 있습니다.",
+        "calloutTitle": "맵 이동",
+        "calloutDescription": "우클릭 드래그, 두 손가락, 미니맵으로 원하는 위치를 빠르게 찾아보세요."
       },
       "trackpad": {
         "title": "트랙패드는 두 손가락으로 맵을 이동하세요",

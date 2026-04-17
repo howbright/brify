@@ -8,6 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
+import * as Tooltip from "@radix-ui/react-tooltip";
 import LeftPanel from "@/components/maps/LeftPanel";
 import MapTutorialOverlay from "@/components/maps/tutorial/MapTutorialOverlay";
 import { getMapTutorialSteps } from "@/components/maps/tutorial/mapTutorialSteps";
@@ -20,7 +21,8 @@ import { MIND_THEMES, MIND_THEME_BY_NAME } from "@/components/maps/themes";
 const DEFAULT_THEME_NAME = "Default";
 const PROFILE_THEME_NAME = "내설정테마";
 const SHARED_DEFAULT_THEME_NAME = "Inkline";
-import MapMetadataEditDialog from "@/components/maps/MapMetadataEditDialog";
+const LOADING_THEME_NAME = "Inkline";
+import MetadataDialog from "@/app/[locale]/(main)/video-to-map/MetadataDialog";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import DiscardDraftDialog from "@/components/maps/DiscardDraftDialog";
 import ShareDialog from "@/components/maps/ShareDialog";
@@ -127,15 +129,6 @@ function withCacheBuster(url: string) {
   }
 }
 
-function detectSourceType(sourceUrl?: string) {
-  if (!sourceUrl) return "manual" as const;
-  const lowered = sourceUrl.toLowerCase();
-  if (lowered.includes("youtube.com") || lowered.includes("youtu.be")) {
-    return "youtube" as const;
-  }
-  return "website" as const;
-}
-
 function toFileSafeName(value: string) {
   return value.replace(/[\\/:*?"<>|]+/g, "-").trim();
 }
@@ -156,6 +149,8 @@ function toDraft(row: MapRow): MapDraft {
     sourceUrl: row.source_url ?? undefined,
     sourceType: row.source_type ?? undefined,
     title: row.title ?? "Untitled",
+    youtubeTitle:
+      (row as { youtube_title?: string | null }).youtube_title ?? undefined,
     shortTitle: row.short_title ?? undefined,
     channelName: row.channel_name ?? undefined,
     thumbnailUrl: row.thumbnail_url ? withCacheBuster(row.thumbnail_url) : undefined,
@@ -179,6 +174,7 @@ type FullscreenMapDetailScreenProps = {
 type AdminInspectMapResponse = {
   id: string;
   title: string;
+  youtubeTitle?: string | null;
   shortTitle: string | null;
   description: string | null;
   summary: string | null;
@@ -239,6 +235,7 @@ function toDraftFromAdminInspect(row: AdminInspectMapResponse): MapDraft {
         ? row.sourceType
         : undefined,
     title: row.title ?? "Untitled",
+    youtubeTitle: row.youtubeTitle ?? undefined,
     shortTitle: row.shortTitle ?? undefined,
     channelName: row.channelName ?? undefined,
     thumbnailUrl: row.thumbnailUrl ? withCacheBuster(row.thumbnailUrl) : undefined,
@@ -304,9 +301,7 @@ export default function FullscreenMapDetailScreen({
   const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
   const editMode: "view" | "edit" = isReadOnlyView ? "view" : "edit";
   const panMode = false;
-  const [themeName, setThemeName] = useState<string>(
-    profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME
-  );
+  const [themeName, setThemeName] = useState<string>(LOADING_THEME_NAME);
   const themeInitRef = useRef(false);
   const themeOptions = useMemo(
     () => [{ name: PROFILE_THEME_NAME }, { name: DEFAULT_THEME_NAME }, ...MIND_THEMES],
@@ -508,7 +503,7 @@ export default function FullscreenMapDetailScreen({
           const { data, error } = await supabase
             .from("maps")
             .select(
-              "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,mind_elixir,mind_elixir_draft,mind_theme_override"
+              "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,mind_elixir,mind_elixir_draft,mind_theme_override"
             )
             .eq("id", mapId)
             .single();
@@ -622,7 +617,7 @@ export default function FullscreenMapDetailScreen({
         const { data, error } = await supabase
           .from("maps")
           .select(
-            "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,mind_elixir,mind_elixir_draft,mind_theme_override"
+            "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,mind_elixir,mind_elixir_draft,mind_theme_override"
           )
           .eq("id", mapId)
           .single();
@@ -994,8 +989,10 @@ export default function FullscreenMapDetailScreen({
   };
 
   const handleSaveMetadata = async (meta: {
+    sourceType: "youtube" | "manual";
     sourceUrl?: string;
     title: string;
+    youtubeTitle?: string;
     channelName?: string;
     thumbnailUrl?: string;
     tags: string[];
@@ -1031,11 +1028,12 @@ export default function FullscreenMapDetailScreen({
         },
         body: JSON.stringify({
           title: meta.title,
+          youtube_title: meta.youtubeTitle,
           description: meta.description,
           tags: meta.tags ?? [],
           thumbnail_url: meta.thumbnailUrl,
           channel_name: meta.channelName,
-          source_type: detectSourceType(meta.sourceUrl),
+          source_type: meta.sourceType,
           source_url: meta.sourceUrl,
         }),
       });
@@ -1049,7 +1047,7 @@ export default function FullscreenMapDetailScreen({
       const { data, error } = await supabase
         .from("maps")
         .select(
-          "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,thumbnail_url,map_status,credits_charged"
+          "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,thumbnail_url,map_status,credits_charged"
         )
         .eq("id", mapId)
         .single();
@@ -1727,38 +1725,68 @@ export default function FullscreenMapDetailScreen({
                   </button>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowTimestamps((prev) => !prev)}
-                className={plainHeaderIconButtonClass}
-                aria-label={
-                  showTimestamps
-                    ? t("moreMenu.hideTimestamps")
-                    : t("moreMenu.showTimestamps")
-                }
-                title={
-                  showTimestamps
-                    ? t("moreMenu.hideTimestamps")
-                    : t("moreMenu.showTimestamps")
-                }
-              >
-                <Icon
-                  icon="mdi:timeline-clock-outline"
-                  className={`h-4 w-4 ${showTimestamps ? "text-sky-700 dark:text-sky-200" : ""}`}
-                />
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setTutorialStepIndex(0);
-                  setTutorialOpen(true);
-                }}
-                className={plainHeaderIconButtonClass}
-                aria-label={t("actions.tutorial")}
-                title={t("actions.tutorial")}
-              >
-                <Icon icon="mdi:school-outline" className="h-4 w-4" />
-              </button>
+              <Tooltip.Root>
+                <Tooltip.Trigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => setShowTimestamps((prev) => !prev)}
+                    className={plainHeaderIconButtonClass}
+                    aria-label={
+                      showTimestamps
+                        ? t("moreMenu.hideTimestamps")
+                        : t("moreMenu.showTimestamps")
+                    }
+                    title={
+                      showTimestamps
+                        ? t("moreMenu.hideTimestamps")
+                        : t("moreMenu.showTimestamps")
+                    }
+                  >
+                    <Icon
+                      icon="mdi:timeline-clock-outline"
+                      className={`h-4 w-4 ${showTimestamps ? "text-sky-700 dark:text-sky-200" : ""}`}
+                    />
+                  </button>
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                  <Tooltip.Content
+                    side="bottom"
+                    sideOffset={8}
+                    className="z-[260] rounded-xl bg-slate-950 px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-[0_14px_32px_-18px_rgba(15,23,42,0.65)] dark:bg-white dark:text-slate-950"
+                  >
+                    {showTimestamps
+                      ? t("moreMenu.hideTimestamps")
+                      : t("moreMenu.showTimestamps")}
+                    <Tooltip.Arrow className="fill-slate-950 dark:fill-white" />
+                  </Tooltip.Content>
+                </Tooltip.Portal>
+              </Tooltip.Root>
+              <Tooltip.Root>
+                <Tooltip.Trigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTutorialStepIndex(0);
+                      setTutorialOpen(true);
+                    }}
+                    className={plainHeaderIconButtonClass}
+                    aria-label={t("actions.tutorial")}
+                    title={t("actions.tutorial")}
+                  >
+                    <Icon icon="mdi:school-outline" className="h-4 w-4" />
+                  </button>
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                  <Tooltip.Content
+                    side="bottom"
+                    sideOffset={8}
+                    className="z-[260] rounded-xl bg-slate-950 px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-[0_14px_32px_-18px_rgba(15,23,42,0.65)] dark:bg-white dark:text-slate-950"
+                  >
+                    {t("actions.tutorial")}
+                    <Tooltip.Arrow className="fill-slate-950 dark:fill-white" />
+                  </Tooltip.Content>
+                </Tooltip.Portal>
+              </Tooltip.Root>
               <div className="relative" ref={desktopMoreRef}>
                 <button
                   type="button"
@@ -2380,12 +2408,14 @@ export default function FullscreenMapDetailScreen({
           />
         ) : null}
 
-        {showMetadataDialog && draft && (
-          <MapMetadataEditDialog
+        {showMetadataDialog && draft ? (
+          <MetadataDialog
             mapId={draft.id}
             initial={{
+              sourceType: draft.sourceType,
               sourceUrl: draft.sourceUrl ?? "",
               title: draft.title ?? "",
+              youtubeTitle: draft.youtubeTitle ?? draft.title ?? "",
               channelName: draft.channelName ?? "",
               tags: draft.tags ?? [],
               description: draft.description ?? "",
@@ -2393,9 +2423,9 @@ export default function FullscreenMapDetailScreen({
             }}
             onClose={() => setShowMetadataDialog(false)}
             onSave={handleSaveMetadata}
-            saving={isSavingMeta}
+            isProcessing={isSavingMeta}
           />
-        )}
+        ) : null}
       </div>
 
       {!isReadOnlyView ? (

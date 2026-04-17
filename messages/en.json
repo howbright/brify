@@ -402,7 +402,8 @@
       "eyebrow": "Structure Map Preview",
       "title": "Structure Map Preview",
       "helper": "This example is a fixed preview screen. Press the button to explore the structure map directly.",
-      "cta": "Open Full View"
+      "cta": "Open Full View",
+      "imageAlt": "Structure map preview frame"
     }
   },
   "DemoFullscreenDialog": {
@@ -508,8 +509,8 @@
         "edit": "Edit"
       },
       "mouse": {
-        "alt": "Right click mouse guide",
-        "label": "Right click + drag"
+        "alt": "Map navigation guide",
+        "label": "Right-drag / two fingers / mini map"
       },
       "trackpad": {
         "alt": "Two-finger trackpad guide",
@@ -531,10 +532,10 @@
         "calloutDescription": "Start here when you want to edit the map."
       },
       "mouse": {
-        "title": "Move the map by right-dragging",
-        "description": "When you're using a mouse, hold right click and drag to move around the map smoothly.",
-        "calloutTitle": "Mouse move",
-        "calloutDescription": "Hold right click and drag the map."
+        "title": "Here is how to move around the map",
+        "description": "Use right-drag with a mouse, move with two fingers on a trackpad, or navigate with the mini map.",
+        "calloutTitle": "Map navigation",
+        "calloutDescription": "Use right-drag, two fingers, or the mini map to get where you want quickly."
       },
       "trackpad": {
         "title": "Use two fingers on a trackpad to move the map",

@@ -52,15 +52,19 @@ function TutorialIllustration({
 
   if (type === "mouse") {
     return (
-      <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-red-700">
-        <Image
-          src="/images/mouserightclick.png"
-          alt={t("illustrations.mouse.alt")}
-          width={56}
-          height={56}
-          className="h-14 w-14 object-contain"
-        />
-        <div className="text-sm font-bold">{t("illustrations.mouse.label")}</div>
+      <div className="rounded-2xl border border-red-200 bg-red-50 px-3 py-3 text-red-700">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-red-200">
+            <Icon icon="mdi:mouse-right-click-outline" className="h-6 w-6" />
+          </span>
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-red-200">
+            <Icon icon="mdi:gesture-swipe" className="h-6 w-6" />
+          </span>
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-red-200">
+            <Icon icon="mdi:map-outline" className="h-6 w-6" />
+          </span>
+        </div>
+        <div className="mt-3 text-sm font-extrabold">{t("illustrations.mouse.label")}</div>
       </div>
     );
   }
@@ -97,10 +101,16 @@ function TutorialIllustration({
   if (type === "expand") {
     return (
       <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-3 py-3 text-red-700">
-        <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-red-200">
-          <span className="absolute inset-0 rounded-full border-2 border-red-300/80" />
-          <Icon icon="mdi:plus" className="relative z-[1] h-6 w-6" />
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-red-200">
+            <span className="absolute inset-0 rounded-full border-2 border-red-300/80" />
+            <Icon icon="mdi:plus" className="relative z-[1] h-6 w-6" />
+          </span>
+          <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-red-200">
+            <span className="absolute inset-0 rounded-full border-2 border-red-300/80" />
+            <Icon icon="mdi:minus" className="relative z-[1] h-6 w-6" />
+          </span>
+        </div>
         <div className="text-left">
           <div className="text-sm font-extrabold">{t("illustrations.expand.label")}</div>
           <div className="mt-1 text-[12px] font-semibold text-red-600/80">

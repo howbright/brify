@@ -8,6 +8,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useMessages, useTranslations } from "next-intl";
+import * as Tooltip from "@radix-ui/react-tooltip";
 import { toast } from "sonner";
 
 import FullscreenHeader from "@/components/maps/FullscreenHeader";
@@ -1019,35 +1020,65 @@ export default function DemoFullscreenDialog({
                   </button>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowTimestamps((prev) => !prev)}
-                className={plainHeaderIconButtonClass}
-                aria-label={
-                  showTimestamps
-                    ? tMap("moreMenu.hideTimestamps")
-                    : tMap("moreMenu.showTimestamps")
-                }
-                title={
-                  showTimestamps
-                    ? tMap("moreMenu.hideTimestamps")
-                    : tMap("moreMenu.showTimestamps")
-                }
-              >
-                <Icon
-                  icon="mdi:timeline-clock-outline"
-                  className={`h-4 w-4 ${showTimestamps ? "text-sky-700 dark:text-sky-200" : ""}`}
-                />
-              </button>
-              <button
-                type="button"
-                onClick={handleRestartTutorial}
-                className={plainHeaderIconButtonClass}
-                aria-label={tMap("actions.tutorial")}
-                title={tMap("actions.tutorial")}
-              >
-                <Icon icon="mdi:school-outline" className="h-4 w-4" />
-              </button>
+              <Tooltip.Root>
+                <Tooltip.Trigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => setShowTimestamps((prev) => !prev)}
+                    className={plainHeaderIconButtonClass}
+                    aria-label={
+                      showTimestamps
+                        ? tMap("moreMenu.hideTimestamps")
+                        : tMap("moreMenu.showTimestamps")
+                    }
+                    title={
+                      showTimestamps
+                        ? tMap("moreMenu.hideTimestamps")
+                        : tMap("moreMenu.showTimestamps")
+                    }
+                  >
+                    <Icon
+                      icon="mdi:timeline-clock-outline"
+                      className={`h-4 w-4 ${showTimestamps ? "text-sky-700 dark:text-sky-200" : ""}`}
+                    />
+                  </button>
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                  <Tooltip.Content
+                    side="bottom"
+                    sideOffset={8}
+                    className="z-[260] rounded-xl bg-slate-950 px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-[0_14px_32px_-18px_rgba(15,23,42,0.65)] dark:bg-white dark:text-slate-950"
+                  >
+                    {showTimestamps
+                      ? tMap("moreMenu.hideTimestamps")
+                      : tMap("moreMenu.showTimestamps")}
+                    <Tooltip.Arrow className="fill-slate-950 dark:fill-white" />
+                  </Tooltip.Content>
+                </Tooltip.Portal>
+              </Tooltip.Root>
+              <Tooltip.Root>
+                <Tooltip.Trigger asChild>
+                  <button
+                    type="button"
+                    onClick={handleRestartTutorial}
+                    className={plainHeaderIconButtonClass}
+                    aria-label={tMap("actions.tutorial")}
+                    title={tMap("actions.tutorial")}
+                  >
+                    <Icon icon="mdi:school-outline" className="h-4 w-4" />
+                  </button>
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                  <Tooltip.Content
+                    side="bottom"
+                    sideOffset={8}
+                    className="z-[260] rounded-xl bg-slate-950 px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-[0_14px_32px_-18px_rgba(15,23,42,0.65)] dark:bg-white dark:text-slate-950"
+                  >
+                    {tMap("actions.tutorial")}
+                    <Tooltip.Arrow className="fill-slate-950 dark:fill-white" />
+                  </Tooltip.Content>
+                </Tooltip.Portal>
+              </Tooltip.Root>
               <div className="relative" ref={desktopMoreRef}>
                 <button
                   type="button"

@@ -269,6 +269,26 @@ async function copyToClipboard(text: string) {
   }
 }
 
+function isTypingTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.isContentEditable) return true;
+  const tagName = target.tagName;
+  if (tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT") {
+    return true;
+  }
+  return Boolean(
+    target.closest(
+      'input, textarea, select, [contenteditable="true"], [role="textbox"], #input-box'
+    )
+  );
+}
+
+function getNodeTopicText(node: unknown) {
+  if (!node || typeof node !== "object") return "";
+  const topic = (node as { topic?: unknown }).topic;
+  return typeof topic === "string" ? topic.trim() : "";
+}
+
 const NOTE_BADGE_SVG =
   '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1.5V8h4.5L14 3.5zM7 12h10v1.5H7V12zm0 4h10v1.5H7V16zm0-8h6v1.5H7V8z"/></svg>';
 
@@ -674,6 +694,42 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
     return () => {
       wrapper.removeEventListener("wheel", preventBrowserSwipeNavigation, true);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleCopyShortcut = (event: KeyboardEvent) => {
+      const mind = mindRef.current;
+      if (!mind) return;
+      if (!(event.metaKey || event.ctrlKey) || event.altKey) return;
+      if (event.key.toLowerCase() !== "c") return;
+      if (isTypingTarget(event.target)) return;
+
+      const selectedNodes = Array.isArray(mind.currentNodes)
+        ? mind.currentNodes.filter(Boolean)
+        : [];
+      const currentNode = mind.currentNode ?? null;
+      if (selectedNodes.length === 0 && !currentNode) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      mind.waitCopy = selectedNodes.length > 0 ? selectedNodes : [currentNode];
+
+      const topics = (
+        selectedNodes.length > 0 ? selectedNodes : [currentNode]
+      )
+        .map((node) => getNodeTopicText((node as { nodeObj?: unknown } | null)?.nodeObj))
+        .filter(Boolean);
+
+      if (topics.length > 0) {
+        void copyToClipboard(topics.join("\n"));
+      }
+    };
+
+    window.addEventListener("keydown", handleCopyShortcut, true);
+    return () => {
+      window.removeEventListener("keydown", handleCopyShortcut, true);
     };
   }, []);
 
@@ -1606,8 +1662,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         const mm = Math.floor((total % 3600) / 60);
         const ss = total % 60;
         if (mindLocale === "ko") {
-          const totalMinutes = Math.floor(total / 60);
-          return `${totalMinutes}분 ${ss}초`;
+          if (hh > 0) return `${hh}시간 ${mm}분 ${ss}초`;
+          if (mm > 0) return `${mm}분 ${ss}초`;
+          return `${ss}초`;
         }
         if (hh > 0) return `${hh}h ${mm}m ${ss}s`;
         if (mm > 0) return `${mm}m ${ss}s`;
