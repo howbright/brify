@@ -17,7 +17,7 @@ function RibbonText({ text, compact = false }: { text: string; compact?: boolean
   return (
     <svg
       viewBox="0 0 1000 140"
-      className="h-[56px] w-full overflow-visible sm:h-[72px]"
+      className="h-[80px] w-full overflow-visible sm:h-[72px]"
       aria-hidden="true"
     >
       <defs>
@@ -27,7 +27,7 @@ function RibbonText({ text, compact = false }: { text: string; compact?: boolean
         fill="currentColor"
         fontWeight="800"
         letterSpacing="-0.02em"
-        className={compact ? "text-[36px] sm:text-[50px]" : "text-[42px] sm:text-[56px]"}
+        className={compact ? "text-[56px] sm:text-[50px]" : "text-[58px] sm:text-[56px]"}
       >
         <textPath href="#ribbon-arc" startOffset="50%" textAnchor="middle">
           {text}
