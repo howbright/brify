@@ -2260,8 +2260,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             #fde68a 100%
           ) !important;
           color: #1f2937 !important;
-          border: 1.5px solid #e11d48 !important;
           box-shadow:
+            inset 0 0 0 1.5px #e11d48,
             0 8px 18px rgba(251, 146, 60, 0.28),
             0 0 0 2px rgba(255, 237, 213, 0.38);
         }
