@@ -139,6 +139,8 @@ export default function MapListItem({
   const hasTopActionMenu = Boolean(onDelete);
   const isOpeningDetail = openingDetailId === draft.id;
   const summary = (draft.summary ?? draft.description ?? "").trim();
+  const canOpenDetailFromTitle =
+    Boolean(onOpenDetail && showOpenDetail) && !selectionMode;
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -201,9 +203,28 @@ export default function MapListItem({
               />
             )}
             <div className="min-w-0 flex-1">
-              <h3 className="min-w-0 text-[14px] font-semibold leading-5 text-slate-900 line-clamp-2 dark:text-white/94 md:text-[15px] md:leading-5">
-                {displayTitle}
-              </h3>
+              {canOpenDetailFromTitle ? (
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    if (isOpeningDetail) return;
+                    onOpenDetail?.(draft);
+                  }}
+                  onMouseEnter={() => onPrefetchDetail?.(draft)}
+                  onFocus={() => onPrefetchDetail?.(draft)}
+                  disabled={isOpeningDetail}
+                  className="min-w-0 max-w-full text-left"
+                >
+                  <h3 className="min-w-0 text-[14px] font-semibold leading-5 text-slate-900 line-clamp-2 transition hover:text-blue-700 dark:text-white/94 dark:hover:text-blue-200 md:text-[15px] md:leading-5">
+                    {displayTitle}
+                  </h3>
+                </button>
+              ) : (
+                <h3 className="min-w-0 text-[14px] font-semibold leading-5 text-slate-900 line-clamp-2 dark:text-white/94 md:text-[15px] md:leading-5">
+                  {displayTitle}
+                </h3>
+              )}
               <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
                 {sourceBadge && (
                   <span
