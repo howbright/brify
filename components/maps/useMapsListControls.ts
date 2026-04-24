@@ -3,7 +3,9 @@
 import { useMemo, useState } from "react";
 import type { MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 
-export type MapStatusFilter = MapJobStatus | "processing";
+type ListMapJobStatus = Exclude<MapJobStatus, "retrying">;
+
+export type MapStatusFilter = ListMapJobStatus | "processing";
 
 type SourceType = "youtube" | "website" | "file" | "manual";
 type ContentFilter = "notes" | "terms";

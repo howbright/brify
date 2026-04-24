@@ -181,6 +181,7 @@
       "done": "Done",
       "failed": "Failed",
       "chunkQueued": "Waiting for map {current}/{total}",
+      "chunkRetrying": "Retrying map {current}/{total}",
       "chunkProcessing": "Generating map {current}/{total}",
       "mergeQueued": "Waiting to merge maps",
       "merging": "Merging structure maps"
@@ -190,7 +191,10 @@
       "merge": "Final Structure Map Merge"
     },
     "helpers": {
-      "longInput": "We’re processing this long input in multiple sections."
+      "longInput": "We’re processing this long input in multiple sections.",
+      "chunkProcessing": "We’re building structure map {current}/{total} right now.",
+      "chunkRetrying": "We’re regenerating structure map {current}/{total} with stricter guidance.",
+      "mergeProcessing": "We’re combining the generated maps into one final flow."
     },
     "thumbnailAlt": "Thumbnail",
     "noSource": "No source",

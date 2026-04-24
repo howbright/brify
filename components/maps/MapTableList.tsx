@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 
 type SourceType = "youtube" | "website" | "file" | "manual";
+type ListMapJobStatus = Exclude<MapJobStatus, "retrying">;
 
 type MapTableListProps = {
   drafts: MapDraft[];
@@ -21,7 +22,7 @@ type MapTableListProps = {
   openingDetailId?: string | null;
   showEditTags: boolean;
   showOpenDetail?: boolean;
-  statusLabels: Record<MapJobStatus, string>;
+  statusLabels: Record<ListMapJobStatus, string>;
   sourceLabels: Record<SourceType, string>;
 };
 
@@ -52,15 +53,17 @@ export default function MapTableList({
   const locale = useLocale();
   const t = useTranslations("MapsCommon.tableList");
   const renderStatusBadge = (draft: MapDraft) => {
+    const normalizedStatus =
+      draft.status === "retrying" ? "processing_structure" : draft.status;
     const statusBadge =
-      draft.status === "failed"
+      normalizedStatus === "failed"
         ? {
-            label: statusLabels[draft.status] ?? t("status.failed"),
+            label: statusLabels[normalizedStatus] ?? t("status.failed"),
             cls: "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-400/25 dark:bg-rose-500/10 dark:text-rose-200",
           }
-        : draft.status === "processing_structure" || draft.status === "processing_metadata"
+        : normalizedStatus === "processing_structure" || normalizedStatus === "processing_metadata"
         ? {
-            label: statusLabels[draft.status] ?? t("status.processing"),
+            label: statusLabels[normalizedStatus] ?? t("status.processing"),
             cls: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-400/25 dark:bg-blue-500/10 dark:text-blue-200",
           }
         : null;

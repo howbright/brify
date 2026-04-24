@@ -16,16 +16,22 @@ type GenerationJobRow =
 type GenerationChunkRow =
   Database["public"]["Tables"]["map_generation_chunks"]["Row"];
 
+type PollingChunkStatus =
+  | GenerationChunkRow["status"]
+  | "retrying";
+
+type PollingChunkRow = Pick<
+  GenerationChunkRow,
+  "id" | "job_id" | "chunk_index" | "chunk_count" | "error_message"
+> & { status: PollingChunkStatus };
+
 type PollingPayload = {
   maps: ServerDraftRow[];
   jobs: Pick<
     GenerationJobRow,
     "id" | "status" | "current_step" | "error_message" | "final_map_id" | "chunk_count"
   >[];
-  chunks: Pick<
-    GenerationChunkRow,
-    "id" | "job_id" | "chunk_index" | "chunk_count" | "status" | "error_message"
-  >[];
+  chunks: PollingChunkRow[];
 };
 
 type Options = {
@@ -36,16 +42,18 @@ function isDraftActive(status: MapJobStatus) {
   return (
     status === "idle" ||
     status === "queued" ||
+    status === "retrying" ||
     status === "processing_structure" ||
     status === "processing_metadata"
   );
 }
 
 function coerceChunkStatus(
-  status: Database["public"]["Enums"]["map_generation_chunk_status"]
+  status: PollingChunkStatus
 ): MapJobStatus {
   if (status === "failed" || status === "cancelled") return "failed";
   if (status === "done" || status === "merged") return "done";
+  if (status === "retrying") return "retrying";
   if (status === "processing") return "processing_structure";
   return "queued";
 }
@@ -147,7 +155,9 @@ export function useMapDraftStatusPolling(
         );
         const hasActiveChunk = payload.chunks.some(
           (chunk) =>
-            chunk.status === "queued" || chunk.status === "processing"
+            chunk.status === "queued" ||
+            chunk.status === "processing" ||
+            chunk.status === "retrying"
         );
         return hasActiveMap || hasActiveJob || hasActiveChunk ? refreshMs : 0;
       },
@@ -171,10 +181,20 @@ export function useMapDraftStatusPolling(
               chunk.job_id === draft.generationJobId &&
               chunk.chunk_index === draft.chunkIndex
           );
-          if (!foundChunk) return draft;
+          const foundJob = jobsById.get(draft.generationJobId);
+          if (!foundChunk && !foundJob) return draft;
 
-          const nextStatus = coerceChunkStatus(foundChunk.status);
-          const nextError = foundChunk.error_message ?? draft.error;
+          let nextStatus = foundChunk
+            ? coerceChunkStatus(foundChunk.status)
+            : draft.status;
+          const nextError = foundChunk?.error_message ?? draft.error;
+
+          if (
+            foundJob?.status === "processing_chunks" &&
+            (nextStatus === "queued" || nextStatus === "idle")
+          ) {
+            nextStatus = "processing_structure";
+          }
           if (
             nextStatus === draft.status &&
             nextError === draft.error

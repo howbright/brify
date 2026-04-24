@@ -12,7 +12,13 @@ const MS_PER_CHAR = 50696 / 18857;
 const PROGRESS_CAP = 97;
 
 function isActiveStatus(status: MapDraft["status"]) {
-  return status === "idle" || status === "queued" || status === "processing_structure" || status === "processing_metadata";
+  return (
+    status === "idle" ||
+    status === "queued" ||
+    status === "retrying" ||
+    status === "processing_structure" ||
+    status === "processing_metadata"
+  );
 }
 
 function formatDraftTimestamp(value: number, locale: string) {
@@ -82,6 +88,20 @@ export default function DraftMapCard({
       : null;
 
   const isMapDraft = (draft.kind ?? "map") === "map";
+  const rotatingHelperText =
+    draft.kind === "chunk"
+      ? draft.status === "retrying"
+        ? t("helpers.chunkRetrying", {
+            current: (draft.chunkIndex ?? 0) + 1,
+            total: draft.chunkCount ?? 1,
+          })
+        : t("helpers.chunkProcessing", {
+            current: (draft.chunkIndex ?? 0) + 1,
+            total: draft.chunkCount ?? 1,
+          })
+      : draft.kind === "merge"
+      ? t("helpers.mergeProcessing")
+      : processingMessages[processingIndex];
   const displayTitle =
     draft.kind === "chunk"
       ? t("titles.chunk", {
@@ -98,6 +118,10 @@ export default function DraftMapCard({
       : `${draft.channelName ? draft.channelName : t("noSource")}${
           draft.sourceUrl ? ` · ${t("hasUrl")}` : ""
         }`;
+  const activeHelperLine =
+    isActiveStatus(draft.status) && (draft.kind === "chunk" || draft.kind === "merge")
+      ? rotatingHelperText
+      : null;
 
   const badge =
     draft.status === "done"
@@ -117,7 +141,12 @@ export default function DraftMapCard({
       : {
           text:
             draft.kind === "chunk"
-              ? draft.status === "queued"
+              ? draft.status === "retrying"
+                ? t("status.chunkRetrying", {
+                    current: (draft.chunkIndex ?? 0) + 1,
+                    total: draft.chunkCount ?? 1,
+                  })
+                : draft.status === "queued"
                 ? t("status.chunkQueued", {
                     current: (draft.chunkIndex ?? 0) + 1,
                     total: draft.chunkCount ?? 1,
@@ -242,6 +271,12 @@ export default function DraftMapCard({
         <p className="mt-1 text-[12px] sm:text-sm text-neutral-500 dark:text-white/60 truncate">
           {sourceLine}
         </p>
+
+        {activeHelperLine ? (
+          <p className="mt-1 text-[12px] sm:text-[13px] font-semibold text-sky-700 dark:text-sky-200/90 truncate">
+            {activeHelperLine}
+          </p>
+        ) : null}
 
         {isActiveStatus(draft.status) && progressPercent !== null && (
           <div className="mt-2 sm:hidden">

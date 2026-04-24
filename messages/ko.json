@@ -181,6 +181,7 @@
       "done": "완료",
       "failed": "실패",
       "chunkQueued": "{current}/{total} 구조맵 대기 중",
+      "chunkRetrying": "{current}/{total} 구조맵 재시도 중",
       "chunkProcessing": "{current}/{total} 구조맵 생성 중",
       "mergeQueued": "구조맵 병합 대기 중",
       "merging": "구조맵 합치는 중"
@@ -190,7 +191,10 @@
       "merge": "최종 구조맵 병합"
     },
     "helpers": {
-      "longInput": "긴 입력을 여러 구간으로 나누어 처리하고 있어요."
+      "longInput": "긴 입력을 여러 구간으로 나누어 처리하고 있어요.",
+      "chunkProcessing": "{current}/{total} 구조맵을 차례대로 정리하고 있어요.",
+      "chunkRetrying": "{current}/{total} 구조맵을 더 정확하게 다시 생성하고 있어요.",
+      "mergeProcessing": "생성된 구조맵들을 하나의 흐름으로 정리하고 있어요."
     },
     "thumbnailAlt": "thumbnail",
     "noSource": "출처 없음",

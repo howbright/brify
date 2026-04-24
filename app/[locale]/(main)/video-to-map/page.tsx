@@ -145,6 +145,14 @@ function buildInitialDrafts(params: {
     thumbnailUrl,
     sourceCharCount,
   } = params;
+  const perChunkSourceCharCount =
+    sourceCharCount && chunkCount > 0
+      ? Math.max(1, Math.ceil(sourceCharCount / chunkCount))
+      : undefined;
+  const mergeSourceCharCount =
+    sourceCharCount && chunkCount > 1
+      ? Math.max(1, Math.ceil(sourceCharCount * 0.22))
+      : sourceCharCount;
 
   const finalDraft: MapDraft = {
     id: mapId,
@@ -180,6 +188,7 @@ function buildInitialDrafts(params: {
     channelName,
     thumbnailUrl,
     tags: [],
+    sourceCharCount: perChunkSourceCharCount,
     status: "queued",
   }));
 
@@ -195,6 +204,7 @@ function buildInitialDrafts(params: {
     channelName,
     thumbnailUrl,
     tags: [],
+    sourceCharCount: mergeSourceCharCount,
     status: "queued",
     helperText: "",
   };
@@ -586,7 +596,7 @@ export default function VideoToMapPage() {
       }
 
       const mapId = String(json?.id ?? "");
-      const generationJobId =
+      let generationJobId =
         typeof json?.generation_job_id === "string"
           ? json.generation_job_id
           : undefined;
@@ -596,6 +606,24 @@ export default function VideoToMapPage() {
           : 1;
       if (!mapId) {
         throw new Error(t("errors.missingMapId"));
+      }
+
+      if (!generationJobId && chunkCount > 1) {
+        try {
+          const { data: generationJob } = await supabase
+            .from("map_generation_jobs")
+            .select("id")
+            .eq("final_map_id", mapId)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          if (generationJob?.id) {
+            generationJobId = generationJob.id;
+          }
+        } catch (lookupError) {
+          console.error("Failed to resolve generation job id:", lookupError);
+        }
       }
 
       setDrafts((prev) => {

@@ -1,6 +1,7 @@
 export type MapJobStatus =
   | "idle"
   | "queued"
+  | "retrying"
   | "processing_structure"
   | "processing_metadata"
   | "done"
