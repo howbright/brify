@@ -224,6 +224,179 @@ export type Database = {
           },
         ]
       }
+      map_generation_chunks: {
+        Row: {
+          char_count: number
+          chunk_count: number
+          chunk_index: number
+          chunk_map_id: string | null
+          chunk_text: string
+          completed_at: string | null
+          created_at: string
+          end_char: number
+          error_message: string | null
+          id: string
+          job_id: string
+          overlap_end_char: number | null
+          overlap_start_char: number | null
+          start_char: number
+          started_at: string | null
+          status: Database["public"]["Enums"]["map_generation_chunk_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          char_count?: number
+          chunk_count: number
+          chunk_index: number
+          chunk_map_id?: string | null
+          chunk_text: string
+          completed_at?: string | null
+          created_at?: string
+          end_char?: number
+          error_message?: string | null
+          id?: string
+          job_id: string
+          overlap_end_char?: number | null
+          overlap_start_char?: number | null
+          start_char?: number
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["map_generation_chunk_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          char_count?: number
+          chunk_count?: number
+          chunk_index?: number
+          chunk_map_id?: string | null
+          chunk_text?: string
+          completed_at?: string | null
+          created_at?: string
+          end_char?: number
+          error_message?: string | null
+          id?: string
+          job_id?: string
+          overlap_end_char?: number | null
+          overlap_start_char?: number | null
+          start_char?: number
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["map_generation_chunk_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "map_generation_chunks_chunk_map_id_fkey"
+            columns: ["chunk_map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "map_generation_chunks_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "map_generation_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      map_generation_jobs: {
+        Row: {
+          channel_name: string | null
+          charged_credits: number
+          chunk_count: number
+          completed_at: string | null
+          created_at: string
+          current_step: string | null
+          description: string | null
+          error_message: string | null
+          extracted_text: string
+          final_map_id: string | null
+          id: string
+          output_language: string | null
+          overlap_chars: number
+          required_credits: number
+          source_type: string
+          source_url: string | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["map_generation_job_status"]
+          tags: string[]
+          target_chunk_chars: number
+          thumbnail_url: string | null
+          title: string | null
+          total_char_count: number
+          updated_at: string
+          user_id: string
+          youtube_title: string | null
+        }
+        Insert: {
+          channel_name?: string | null
+          charged_credits?: number
+          chunk_count?: number
+          completed_at?: string | null
+          created_at?: string
+          current_step?: string | null
+          description?: string | null
+          error_message?: string | null
+          extracted_text: string
+          final_map_id?: string | null
+          id?: string
+          output_language?: string | null
+          overlap_chars?: number
+          required_credits?: number
+          source_type?: string
+          source_url?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["map_generation_job_status"]
+          tags?: string[]
+          target_chunk_chars?: number
+          thumbnail_url?: string | null
+          title?: string | null
+          total_char_count?: number
+          updated_at?: string
+          user_id: string
+          youtube_title?: string | null
+        }
+        Update: {
+          channel_name?: string | null
+          charged_credits?: number
+          chunk_count?: number
+          completed_at?: string | null
+          created_at?: string
+          current_step?: string | null
+          description?: string | null
+          error_message?: string | null
+          extracted_text?: string
+          final_map_id?: string | null
+          id?: string
+          output_language?: string | null
+          overlap_chars?: number
+          required_credits?: number
+          source_type?: string
+          source_url?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["map_generation_job_status"]
+          tags?: string[]
+          target_chunk_chars?: number
+          thumbnail_url?: string | null
+          title?: string | null
+          total_char_count?: number
+          updated_at?: string
+          user_id?: string
+          youtube_title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "map_generation_jobs_final_map_id_fkey"
+            columns: ["final_map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       map_notes: {
         Row: {
           created_at: string
@@ -855,6 +1028,22 @@ export type Database = {
         | "failed"
         | "error"
         | "not_found"
+      map_generation_chunk_status:
+        | "queued"
+        | "processing"
+        | "done"
+        | "merged"
+        | "failed"
+        | "cancelled"
+      map_generation_job_status:
+        | "queued"
+        | "analyzing"
+        | "splitting"
+        | "processing_chunks"
+        | "merging"
+        | "done"
+        | "failed"
+        | "cancelled"
       map_source_type: "youtube" | "website" | "file" | "manual"
       map_status:
         | "queued"
@@ -1060,6 +1249,24 @@ export const Constants = {
         "failed",
         "error",
         "not_found",
+      ],
+      map_generation_chunk_status: [
+        "queued",
+        "processing",
+        "done",
+        "merged",
+        "failed",
+        "cancelled",
+      ],
+      map_generation_job_status: [
+        "queued",
+        "analyzing",
+        "splitting",
+        "processing_chunks",
+        "merging",
+        "done",
+        "failed",
+        "cancelled",
       ],
       map_source_type: ["youtube", "website", "file", "manual"],
       map_status: [
