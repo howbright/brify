@@ -17,10 +17,9 @@ import { createClient } from "@/utils/supabase/client";
 import { useMapDraftStatusPolling } from "@/app/hooks/useMapDraftStatusPolling";
 
 // ✅ 크레딧 정책
-// 긴 입력 구조 테스트를 위해 상한을 임시 확장함
 const CREDIT_POLICY = {
-  ONE_MAX_CHARS: 50_000,
-  TWO_MAX_CHARS: 300_000,
+  CHARS_PER_CREDIT: 50_000,
+  MAX_CHARS: 200_000,
 } as const;
 
 type BalanceResponse = {
@@ -59,11 +58,11 @@ function getRequiredCreditsUnsafe(text: string) {
 
   if (!length) return 1;
 
-  if (length > CREDIT_POLICY.TWO_MAX_CHARS) {
+  if (length > CREDIT_POLICY.MAX_CHARS) {
     throw new Error("INPUT_TOO_LARGE");
   }
 
-  return length > CREDIT_POLICY.ONE_MAX_CHARS ? 2 : 1;
+  return Math.max(1, Math.ceil(length / CREDIT_POLICY.CHARS_PER_CREDIT));
 }
 
 // ✅ 렌더용(절대 throw 안 함)
@@ -71,12 +70,14 @@ function getRequiredCreditsSafe(text: string) {
   const cleaned = normalizeForBilling(text);
   const length = cleaned.length;
 
-  if (!length) return { credits: 1, length, tooLarge: false, cleaned };
+  if (!length) {
+    return { credits: 1, chunkCount: 1, length, tooLarge: false, cleaned };
+  }
 
-  const tooLarge = length > CREDIT_POLICY.TWO_MAX_CHARS;
-  const credits = length > CREDIT_POLICY.ONE_MAX_CHARS ? 2 : 1;
+  const tooLarge = length > CREDIT_POLICY.MAX_CHARS;
+  const credits = Math.max(1, Math.ceil(length / CREDIT_POLICY.CHARS_PER_CREDIT));
 
-  return { credits, length, tooLarge, cleaned };
+  return { credits, chunkCount: credits, length, tooLarge, cleaned };
 }
 
 function detectSourceType(sourceUrl?: string) {
@@ -119,6 +120,86 @@ function coerceMapStatus(status?: string | null): MapJobStatus {
   }
   // map_status가 작업 중 상태라면 processing_structure 쪽으로 기본 처리
   return "processing_structure";
+}
+
+function buildInitialDrafts(params: {
+  mapId: string;
+  generationJobId?: string;
+  chunkCount: number;
+  title: string;
+  sourceUrl?: string;
+  sourceType?: MapDraft["sourceType"];
+  channelName?: string;
+  thumbnailUrl?: string;
+  sourceCharCount?: number;
+}): MapDraft[] {
+  const now = Date.now();
+  const {
+    mapId,
+    generationJobId,
+    chunkCount,
+    title,
+    sourceUrl,
+    sourceType,
+    channelName,
+    thumbnailUrl,
+    sourceCharCount,
+  } = params;
+
+  const finalDraft: MapDraft = {
+    id: mapId,
+    createdAt: now,
+    visible: chunkCount <= 1,
+    kind: "map",
+    generationJobId,
+    sourceUrl,
+    sourceType,
+    title,
+    channelName,
+    thumbnailUrl,
+    tags: [],
+    description: "",
+    sourceCharCount,
+    status: chunkCount <= 1 ? "processing_structure" : "queued",
+  };
+
+  if (chunkCount <= 1) {
+    return [finalDraft];
+  }
+
+  const chunkDrafts: MapDraft[] = Array.from({ length: chunkCount }, (_, index) => ({
+    id: `${mapId}::chunk:${index}`,
+    createdAt: now,
+    kind: "chunk",
+    parentMapId: mapId,
+    generationJobId,
+    chunkIndex: index,
+    chunkCount,
+    sourceType,
+    title,
+    channelName,
+    thumbnailUrl,
+    tags: [],
+    status: "queued",
+  }));
+
+  const mergeDraft: MapDraft = {
+    id: `${mapId}::merge`,
+    createdAt: now,
+    kind: "merge",
+    parentMapId: mapId,
+    generationJobId,
+    chunkCount,
+    sourceType,
+    title,
+    channelName,
+    thumbnailUrl,
+    tags: [],
+    status: "queued",
+    helperText: "",
+  };
+
+  return [finalDraft, ...chunkDrafts, mergeDraft];
 }
 
 export default function VideoToMapPage() {
@@ -211,7 +292,7 @@ export default function VideoToMapPage() {
     [
       t("errors.tooLargeLine1"),
       t("errors.tooLargeLine2", {
-        max: CREDIT_POLICY.TWO_MAX_CHARS.toLocaleString(),
+        max: CREDIT_POLICY.MAX_CHARS.toLocaleString(),
       }),
       t("errors.tooLargeLine3", {
         current: current.toLocaleString(),
@@ -505,6 +586,14 @@ export default function VideoToMapPage() {
       }
 
       const mapId = String(json?.id ?? "");
+      const generationJobId =
+        typeof json?.generation_job_id === "string"
+          ? json.generation_job_id
+          : undefined;
+      const chunkCount =
+        typeof json?.chunk_count === "number" && json.chunk_count > 0
+          ? json.chunk_count
+          : 1;
       if (!mapId) {
         throw new Error(t("errors.missingMapId"));
       }
@@ -514,21 +603,19 @@ export default function VideoToMapPage() {
 
         const sourceUrl = youtubeMeta?.sourceUrl || youtubeUrl || undefined;
         const normalized = normalizeForBilling(scriptText);
-        const optimisticDraft: MapDraft = {
-          id: mapId,
-          createdAt: Date.now(),
+        const optimisticDrafts = buildInitialDrafts({
+          mapId,
+          generationJobId,
+          chunkCount,
+          title: t("labels.untitled"),
           sourceUrl,
           sourceType: detectSourceType(sourceUrl),
-          title: t("labels.untitled"),
           channelName: youtubeMeta?.channelName ?? undefined,
           thumbnailUrl: youtubeMeta?.thumbnailUrl ?? undefined,
-          tags: [],
-          description: "",
           sourceCharCount: normalized.length || undefined,
-          status: "processing_structure",
-        };
+        });
 
-        return [optimisticDraft, ...prev];
+        return [...optimisticDrafts, ...prev];
       });
 
       setCreatedMapId(mapId);
@@ -664,7 +751,20 @@ export default function VideoToMapPage() {
         if (latestDraft) {
           const exists = prev.some((d) => d.id === id);
           if (exists) {
-            return prev.map((d) => (d.id === id ? { ...d, ...latestDraft } : d));
+            return prev.map((d) =>
+              d.id === id
+                ? { ...d, ...latestDraft }
+                : d.parentMapId === id
+                ? {
+                    ...d,
+                    title: latestDraft.title,
+                    channelName: latestDraft.channelName,
+                    thumbnailUrl: latestDraft.thumbnailUrl,
+                    sourceUrl: latestDraft.sourceUrl,
+                    sourceType: latestDraft.sourceType,
+                  }
+                : d
+            );
           }
           return [latestDraft, ...prev];
         }
@@ -689,7 +789,20 @@ export default function VideoToMapPage() {
 
         const exists = prev.some((d) => d.id === id);
         if (exists) {
-          return prev.map((d) => (d.id === id ? { ...d, ...draft } : d));
+          return prev.map((d) =>
+            d.id === id
+              ? { ...d, ...draft }
+              : d.parentMapId === id
+              ? {
+                  ...d,
+                  title: draft.title,
+                  channelName: draft.channelName,
+                  thumbnailUrl: draft.thumbnailUrl,
+                  sourceUrl: draft.sourceUrl,
+                  sourceType: draft.sourceType,
+                }
+              : d
+          );
         }
         return [draft, ...prev];
       });
@@ -697,7 +810,12 @@ export default function VideoToMapPage() {
       setShowMetadataDialog(false);
       setYoutubeMeta(null);
       setIsProcessing(false);
-      setPendingFocusDraftId(targetId);
+      const relatedVisibleDraft = drafts.find(
+        (draft) =>
+          draft.visible !== false &&
+          (draft.id === targetId || draft.parentMapId === targetId)
+      );
+      setPendingFocusDraftId(relatedVisibleDraft?.id ?? targetId);
       setCreatedMapId(null);
       setEditingDraft(null);
       setSavingMetaId(null);
@@ -789,7 +907,7 @@ export default function VideoToMapPage() {
               // ✅ 핵심: 한도 초과 UI 처리 props 내려주기
               isTooLarge={showInputTooLargeUI}
               billingLength={creditInfo.length}
-              maxLength={CREDIT_POLICY.TWO_MAX_CHARS}
+              maxLength={CREDIT_POLICY.MAX_CHARS}
             />
           ) : (
             <ResultReadyPanel
@@ -820,18 +938,22 @@ export default function VideoToMapPage() {
             </div>
 
             <div className="grid gap-3">
-              {drafts.map((d) => (
+              {drafts
+                .filter((d) => d.visible !== false)
+                .map((d) => (
                 <DraftMapCard
                   key={d.id}
                   draft={d}
                   highlighted={highlightedDraftId === d.id}
                   isSavingMetadata={savingMetaId === d.id}
                   onEditMetadata={(draft) => {
+                    if (draft.kind && draft.kind !== "map") return;
                     setCreatedMapId(draft.id);
                     setEditingDraft(draft);
                     setShowMetadataDialog(true);
                   }}
                   onOpen={(draft) => {
+                    if (draft.kind && draft.kind !== "map") return;
                     router.push(`/${locale}/maps/${draft.id}`);
                   }}
                 />
@@ -854,6 +976,7 @@ export default function VideoToMapPage() {
       {showCreditDialog && (
         <CreditConfirmModal
           credits={requiredCredits}
+          chunkCount={creditInfo.chunkCount}
           onCancel={() => setShowCreditDialog(false)}
           onConfirm={handleConfirmUseCredits}
         />

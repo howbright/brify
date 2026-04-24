@@ -165,6 +165,7 @@
     "title": "Credit usage",
     "usage": "{credits} credit will be used.",
     "notice": "Once it starts, it can’t be canceled.",
+    "splitNotice": "This input is long, so we’ll generate {count} structure maps first and then merge them into one.",
     "cancel": "Cancel",
     "confirm": "Use {credits} credit(s) and start"
   },
@@ -178,7 +179,18 @@
     },
     "status": {
       "done": "Done",
-      "failed": "Failed"
+      "failed": "Failed",
+      "chunkQueued": "Waiting for map {current}/{total}",
+      "chunkProcessing": "Generating map {current}/{total}",
+      "mergeQueued": "Waiting to merge maps",
+      "merging": "Merging structure maps"
+    },
+    "titles": {
+      "chunk": "Structure Map {current}/{total}",
+      "merge": "Final Structure Map Merge"
+    },
+    "helpers": {
+      "longInput": "We’re processing this long input in multiple sections."
     },
     "thumbnailAlt": "Thumbnail",
     "noSource": "No source",

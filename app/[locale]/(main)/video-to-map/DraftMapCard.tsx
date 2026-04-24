@@ -81,6 +81,24 @@ export default function DraftMapCard({
         )
       : null;
 
+  const isMapDraft = (draft.kind ?? "map") === "map";
+  const displayTitle =
+    draft.kind === "chunk"
+      ? t("titles.chunk", {
+          current: (draft.chunkIndex ?? 0) + 1,
+          total: draft.chunkCount ?? 1,
+        })
+      : draft.kind === "merge"
+      ? t("titles.merge")
+      : draft.title;
+
+  const sourceLine =
+    draft.kind === "chunk" || draft.kind === "merge"
+      ? draft.helperText || t("helpers.longInput")
+      : `${draft.channelName ? draft.channelName : t("noSource")}${
+          draft.sourceUrl ? ` · ${t("hasUrl")}` : ""
+        }`;
+
   const badge =
     draft.status === "done"
       ? {
@@ -97,7 +115,22 @@ export default function DraftMapCard({
             "dark:bg-rose-500/12 dark:text-rose-200 dark:border-rose-400/25",
         }
       : {
-          text: processingMessages[processingIndex],
+          text:
+            draft.kind === "chunk"
+              ? draft.status === "queued"
+                ? t("status.chunkQueued", {
+                    current: (draft.chunkIndex ?? 0) + 1,
+                    total: draft.chunkCount ?? 1,
+                  })
+                : t("status.chunkProcessing", {
+                    current: (draft.chunkIndex ?? 0) + 1,
+                    total: draft.chunkCount ?? 1,
+                  })
+              : draft.kind === "merge"
+              ? draft.status === "queued"
+                ? t("status.mergeQueued")
+                : t("status.merging")
+              : processingMessages[processingIndex],
           cls: "border-transparent text-white",
           darkCls: "border-transparent text-white",
         };
@@ -167,7 +200,7 @@ export default function DraftMapCard({
           <div className="min-w-0 pr-0 sm:pr-1">
             {/* ✅ 모바일: 2줄까지 보여주고 그 이상은 ... */}
             <p className="text-[14px] sm:text-base font-semibold text-neutral-900 dark:text-white line-clamp-2">
-              {draft.title}
+              {displayTitle}
             </p>
           </div>
 
@@ -207,8 +240,7 @@ export default function DraftMapCard({
 
         {/* ✅ 출처 라인(따로 분리해서 폭 싸움 방지) */}
         <p className="mt-1 text-[12px] sm:text-sm text-neutral-500 dark:text-white/60 truncate">
-          {draft.channelName ? draft.channelName : t("noSource")}
-          {draft.sourceUrl ? ` · ${t("hasUrl")}` : ""}
+          {sourceLine}
         </p>
 
         {isActiveStatus(draft.status) && progressPercent !== null && (
@@ -257,7 +289,7 @@ export default function DraftMapCard({
           </div>
 
           <div className="flex items-center gap-2 shrink-0 sm:self-auto">
-            {onEditMetadata && (
+            {isMapDraft && onEditMetadata && (
               <button
                 type="button"
                 onClick={() => onEditMetadata(draft)}
@@ -289,7 +321,7 @@ export default function DraftMapCard({
               </button>
             )}
 
-            {draft.status === "done" && (
+            {isMapDraft && draft.status === "done" && (
               <button
                 type="button"
                 onClick={() => onOpen?.(draft)}

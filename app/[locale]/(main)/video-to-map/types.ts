@@ -6,10 +6,20 @@ export type MapJobStatus =
   | "done"
   | "failed";
 
+export type MapDraftKind = "map" | "chunk" | "merge";
+
 export type MapDraft = {
   id: string;
   createdAt: number;
   updatedAt?: number;
+  visible?: boolean;
+  kind?: MapDraftKind;
+  parentMapId?: string;
+  generationJobId?: string;
+  chunkId?: string;
+  chunkIndex?: number;
+  chunkCount?: number;
+  helperText?: string;
 
   // user 입력/자동추출 메타
   sourceUrl?: string;

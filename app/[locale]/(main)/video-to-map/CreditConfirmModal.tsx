@@ -5,12 +5,14 @@ import { Icon } from "@iconify/react";
 
 type Props = {
   credits: number;
+  chunkCount?: number;
   onCancel: () => void;
   onConfirm: () => void;
 };
 
 export default function CreditConfirmModal({
   credits,
+  chunkCount = 1,
   onCancel,
   onConfirm,
 }: Props) {
@@ -95,6 +97,19 @@ export default function CreditConfirmModal({
         >
           {t("notice")}
         </div>
+
+        {chunkCount > 1 && (
+          <div
+            className="
+              relative mb-5 rounded-2xl border border-sky-200 bg-sky-50/80
+              px-4 py-3 text-sm font-medium text-sky-900
+              dark:border-sky-300/20 dark:bg-sky-400/10 dark:text-sky-100
+            "
+            role="note"
+          >
+            {t("splitNotice", { count: chunkCount })}
+          </div>
+        )}
 
         <div className="relative flex justify-end gap-2">
           <button
