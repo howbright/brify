@@ -242,6 +242,7 @@ export type Database = {
           start_char: number
           started_at: string | null
           status: Database["public"]["Enums"]["map_generation_chunk_status"]
+          structure_result: Json | null
           updated_at: string
           user_id: string
         }
@@ -262,6 +263,7 @@ export type Database = {
           start_char?: number
           started_at?: string | null
           status?: Database["public"]["Enums"]["map_generation_chunk_status"]
+          structure_result?: Json | null
           updated_at?: string
           user_id: string
         }
@@ -282,6 +284,7 @@ export type Database = {
           start_char?: number
           started_at?: string | null
           status?: Database["public"]["Enums"]["map_generation_chunk_status"]
+          structure_result?: Json | null
           updated_at?: string
           user_id?: string
         }
