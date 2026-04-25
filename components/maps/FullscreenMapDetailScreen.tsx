@@ -799,14 +799,20 @@ export default function FullscreenMapDetailScreen({
   useEffect(() => {
     const html = document.documentElement;
     const body = document.body;
+    const prevHtmlOverscroll = html.style.overscrollBehavior;
     const prevHtmlOverscrollX = html.style.overscrollBehaviorX;
+    const prevBodyOverscroll = body.style.overscrollBehavior;
     const prevBodyOverscrollX = body.style.overscrollBehaviorX;
 
+    html.style.overscrollBehavior = "none";
     html.style.overscrollBehaviorX = "none";
+    body.style.overscrollBehavior = "none";
     body.style.overscrollBehaviorX = "none";
 
     return () => {
+      html.style.overscrollBehavior = prevHtmlOverscroll;
       html.style.overscrollBehaviorX = prevHtmlOverscrollX;
+      body.style.overscrollBehavior = prevBodyOverscroll;
       body.style.overscrollBehaviorX = prevBodyOverscrollX;
     };
   }, []);
@@ -1479,7 +1485,10 @@ export default function FullscreenMapDetailScreen({
   }
 
   return (
-    <div className="fixed inset-0 z-[120] bg-white dark:bg-[#0b1220] [--header-h:82px] sm:[--header-h:68px]">
+    <div
+      className="fixed inset-0 z-[120] bg-white dark:bg-[#0b1220] [--header-h:82px] sm:[--header-h:68px]"
+      style={{ overscrollBehavior: "none" }}
+    >
       <FullscreenHeader
         title={title}
         onClose={() => router.push(isSharedView ? `/${locale}` : backToMapsUrl)}
@@ -2187,7 +2196,7 @@ export default function FullscreenMapDetailScreen({
         />
         <div className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(closest-side,black,transparent)] bg-[radial-gradient(900px_520px_at_50%_30%,rgba(59,130,246,0.10),transparent_62%)] dark:bg-[radial-gradient(900px_520px_at_50%_30%,rgba(56,189,248,0.10),transparent_62%)]" />
 
-        <div className="absolute inset-0">
+        <div className="absolute inset-0" style={{ overscrollBehavior: "none" }}>
           <div className="h-full w-full rounded-2xl border border-neutral-200/70 bg-white/65 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
             <ClientMindElixir
               ref={mindRef}

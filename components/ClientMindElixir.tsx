@@ -2085,6 +2085,31 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     applyPanInteraction(mindRef.current, Boolean(effectivePanMode), panModeButton);
   }, [effectivePanMode, panModeButton, ready]);
 
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    const handleTouchMove = (event: TouchEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+
+      if (
+        target.closest(
+          'button, input, textarea, select, a, [role="dialog"], [data-allow-touch-scroll="true"]'
+        )
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+    };
+
+    wrapper.addEventListener("touchmove", handleTouchMove, { passive: false });
+    return () => {
+      wrapper.removeEventListener("touchmove", handleTouchMove);
+    };
+  }, []);
+
   const isDarkCanvas = mounted && effectiveMode === "dark";
 
   return (
@@ -2097,7 +2122,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           ? DEFAULT_DARK_CANVAS_CLASS
           : ""
       }`}
-      style={{ overscrollBehaviorX: "none" }}
+      style={{ overscrollBehavior: "none", touchAction: "none" }}
     >
       <style jsx global>{`
         .${PAN_MODE_CLASS} me-tpc,

@@ -18,7 +18,7 @@ import { useMapDraftStatusPolling } from "@/app/hooks/useMapDraftStatusPolling";
 
 // ✅ 크레딧 정책
 const CREDIT_POLICY = {
-  CHARS_PER_CREDIT: 50_000,
+  CHARS_PER_CHUNK: 50_000,
   MAX_CHARS: 200_000,
 } as const;
 
@@ -51,6 +51,17 @@ function normalizeForBilling(raw: string) {
   return s.trim();
 }
 
+function getChunkCount(length: number) {
+  if (!length) return 1;
+  return Math.max(1, Math.ceil(length / CREDIT_POLICY.CHARS_PER_CHUNK));
+}
+
+function getCreditsForChunkCount(chunkCount: number) {
+  if (chunkCount <= 1) return 1;
+  if (chunkCount <= 3) return 2;
+  return 3;
+}
+
 // ✅ throw는 클릭/확정 시점에서만
 function getRequiredCreditsUnsafe(text: string) {
   const cleaned = normalizeForBilling(text);
@@ -62,7 +73,7 @@ function getRequiredCreditsUnsafe(text: string) {
     throw new Error("INPUT_TOO_LARGE");
   }
 
-  return Math.max(1, Math.ceil(length / CREDIT_POLICY.CHARS_PER_CREDIT));
+  return getCreditsForChunkCount(getChunkCount(length));
 }
 
 // ✅ 렌더용(절대 throw 안 함)
@@ -75,9 +86,10 @@ function getRequiredCreditsSafe(text: string) {
   }
 
   const tooLarge = length > CREDIT_POLICY.MAX_CHARS;
-  const credits = Math.max(1, Math.ceil(length / CREDIT_POLICY.CHARS_PER_CREDIT));
+  const chunkCount = getChunkCount(length);
+  const credits = getCreditsForChunkCount(chunkCount);
 
-  return { credits, chunkCount: credits, length, tooLarge, cleaned };
+  return { credits, chunkCount, length, tooLarge, cleaned };
 }
 
 function detectSourceType(sourceUrl?: string) {

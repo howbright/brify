@@ -396,7 +396,7 @@ export default function PricingGrid({
           <div className="text-center text-sm font-semibold text-slate-900 dark:text-white">
             {tLanding("creditRule.title")}
           </div>
-          <div className="mt-3 grid gap-2 text-center sm:grid-cols-3 sm:text-left">
+          <div className="mt-3 grid gap-2 text-center sm:grid-cols-2 lg:grid-cols-4 sm:text-left">
             <div className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-800 dark:bg-white/8 dark:text-slate-100">
               {tLanding("creditRule.details.small")} · {tLanding("creditRule.result.one")}
             </div>
@@ -404,7 +404,10 @@ export default function PricingGrid({
               {tLanding("creditRule.details.medium")} · {tLanding("creditRule.result.two")}
             </div>
             <div className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-800 dark:bg-white/8 dark:text-slate-100">
-              {tLanding("creditRule.details.large")} · {tLanding("creditRule.result.blocked")}
+              {tLanding("creditRule.details.large")} · {tLanding("creditRule.result.three")}
+            </div>
+            <div className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-800 dark:bg-white/8 dark:text-slate-100">
+              {tLanding("creditRule.details.blocked")} · {tLanding("creditRule.result.blocked")}
             </div>
           </div>
         </div>
@@ -431,7 +434,7 @@ export default function PricingGrid({
           </p>
 
           {openDetails && (
-            <ul className="mt-3 grid gap-1.5 text-xs text-[color-mix(in_oklab,var(--color-foreground),transparent_20%)] sm:grid-cols-3">
+            <ul className="mt-3 grid gap-1.5 text-xs text-[color-mix(in_oklab,var(--color-foreground),transparent_20%)] sm:grid-cols-2 xl:grid-cols-4">
               <li className="flex items-center gap-2">
                 <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
                 <span>
@@ -463,6 +466,19 @@ export default function PricingGrid({
                 <span>
                   <span className="text-[var(--color-foreground)]">
                     {tLanding("creditRule.details.large")}
+                  </span>{" "}
+                  →{" "}
+                  <b className="text-[var(--color-foreground)]">
+                    {tLanding("creditRule.result.three")}
+                  </b>
+                </span>
+              </li>
+
+              <li className="flex items-center gap-2">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
+                <span>
+                  <span className="text-[var(--color-foreground)]">
+                    {tLanding("creditRule.details.blocked")}
                   </span>{" "}
                   →{" "}
                   <b className="text-[var(--color-foreground)]">
