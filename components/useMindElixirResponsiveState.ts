@@ -16,6 +16,7 @@ type Params = {
   locale: string;
   editMode: "view" | "edit";
   panMode?: boolean;
+  preferPanModeOnTouch?: boolean;
   showMobileEditControls: boolean;
 };
 
@@ -25,6 +26,7 @@ export function useMindElixirResponsiveState({
   locale,
   editMode,
   panMode,
+  preferPanModeOnTouch = false,
   showMobileEditControls,
 }: Params) {
   const [mounted, setMounted] = useState(false);
@@ -57,7 +59,9 @@ export function useMindElixirResponsiveState({
     return resolvedTheme === "dark" ? "dark" : "light";
   }, [mode, resolvedTheme, mounted]);
 
-  const effectivePanMode = isTouchDevice ? false : (panMode ?? false);
+  const effectivePanMode = isTouchDevice
+    ? preferPanModeOnTouch
+    : (panMode ?? false);
   const showMobileControls =
     showMobileEditControls && isTouchDevice && editMode === "edit";
 

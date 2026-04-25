@@ -464,6 +464,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       focusInsetLeft = 0,
       panMode,
       panModeButton = 2,
+      preferPanModeOnTouch = false,
       showMobileEditControls = true,
       onReadOnlyHighlight,
     },
@@ -515,6 +516,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     locale,
     editMode,
     panMode,
+    preferPanModeOnTouch,
     showMobileEditControls,
   });
 

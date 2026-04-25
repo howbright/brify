@@ -2254,6 +2254,7 @@ export default function FullscreenMapDetailScreen({
               showSelectionContextMenuButton={!isAdminView}
               showAnnotationAction={!isReadOnlyView}
               showHighlightAction={!isAdminView}
+              preferPanModeOnTouch={isSharedView}
               onReadOnlyHighlight={
                 isSharedView
                   ? () =>
