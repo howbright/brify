@@ -489,8 +489,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     locale === "ko" ? "줌아웃 (⌘-)" : "Zoom out (⌘-)";
   const miniMapCollapseLevelLabel =
     locale === "ko" ? "한단계 접기" : "Collapse one level";
-  const miniMapExpandLevelLabel =
-    locale === "ko" ? "한단계 펴기" : "Expand one level";
+  const miniMapMoveUpLabel =
+    locale === "ko" ? "위로 이동" : "Move up";
   const mobileEditMenuTitle = locale === "ko" ? "노드 편집" : "Edit node";
   const moreActionsLabel = locale === "ko" ? "더보기" : "More";
   const annotationAddLabel = locale === "ko" ? "주석 추가" : "Add annotation";
@@ -2341,7 +2341,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         miniMapZoomInLabel={miniMapZoomInLabel}
         miniMapZoomOutLabel={miniMapZoomOutLabel}
         miniMapCollapseLevelLabel={miniMapCollapseLevelLabel}
-        miniMapExpandLevelLabel={miniMapExpandLevelLabel}
+        miniMapMoveUpLabel={miniMapMoveUpLabel}
         miniMapRef={miniMapRef}
         onMiniMapCenter={() => centerMap(mindRef.current, clearSelectionBeforeCenter)}
         onMiniMapZoomIn={() => {
@@ -2373,23 +2373,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           currentLevelRef.current = target;
           centerMap(mind, clearSelectionBeforeCenter);
         }}
-        onMiniMapExpandLevel={() => {
-          const mind = mindRef.current;
-          if (!mind) return;
-          const raw = mind.getData?.() ?? mind.getAllData?.();
-          const normalized = normalizeMindData(raw);
-          if (!normalized) return;
-          const next = cloneMindData(normalized.data);
-          const nextNode = normalizeMindData(next)?.node;
-          if (!nextNode) return;
-          const maxDepth = getMaxDepth(nextNode);
-          const current =
-            currentLevelRef.current ?? getMaxExpandedDepth(nextNode);
-          const target = Math.min(maxDepth, current + 1);
-          setExpandedToLevel(nextNode, target);
-          mind.refresh?.(next);
-          currentLevelRef.current = target;
-          centerMap(mind, clearSelectionBeforeCenter);
+        onMiniMapMoveUp={() => {
+          mindRef.current?.panBy(0, -120);
         }}
         isFocusMode={isFocusMode}
         selectedRect={selectedRect}

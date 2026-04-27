@@ -16,11 +16,13 @@ type PreviewData = MapPreviewRow["mind_elixir"] | MapPreviewRow["mind_elixir_dra
 type UseMapPreviewOptions = {
   drafts: MapDraft[];
   previewOpen: boolean;
+  isMobileViewport: boolean | null;
 };
 
 export default function useMapPreview({
   drafts,
   previewOpen,
+  isMobileViewport,
 }: UseMapPreviewOptions) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
@@ -50,7 +52,8 @@ export default function useMapPreview({
   );
 
   useEffect(() => {
-    if (!selectedId || !previewOpen) return;
+    const shouldLoadPreview = previewOpen || mobilePreviewOpen;
+    if (!selectedId || !shouldLoadPreview) return;
     const existing = previewByIdRef.current[selectedId];
     if (existing && existing.status !== "idle") return;
 
@@ -98,7 +101,7 @@ export default function useMapPreview({
     return () => {
       cancelled = true;
     };
-  }, [previewOpen, selectedId]);
+  }, [mobilePreviewOpen, previewOpen, selectedId]);
 
   const previewState = selectedId ? previewById[selectedId] : null;
   const previewStatus = selectedId ? previewState?.status ?? "loading" : "idle";
@@ -107,6 +110,11 @@ export default function useMapPreview({
   const handleItemSelect = (item: MapDraft, selectionMode: boolean, onToggleSelect: (draft: MapDraft) => void) => {
     if (selectionMode) {
       onToggleSelect(item);
+      return;
+    }
+    if (isMobileViewport === true) {
+      setSelectedId(item.id);
+      setMobilePreviewOpen(true);
       return;
     }
     if (!previewOpen) {

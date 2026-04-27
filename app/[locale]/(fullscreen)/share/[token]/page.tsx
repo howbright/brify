@@ -27,7 +27,7 @@ export async function generateMetadata({
   }
 
   const { title, description } = buildSharedMapOgText(map);
-  const imageUrl = "https://brify.app/images/sharing.png";
+  const imageUrl = "https://brify.app/images/sharingurl.jpg";
   const pageUrl = `https://brify.app/${locale}/share/${token}`;
 
   return {

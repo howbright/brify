@@ -527,15 +527,14 @@ export default function MapsPage() {
   } = useMapPreview({
     drafts,
     previewOpen,
+    isMobileViewport,
   });
 
   useEffect(() => {
     if (isMobileViewport !== true) return;
     if (previewOpen) setPreviewOpen(false);
-    if (mobilePreviewOpen) setMobilePreviewOpen(false);
   }, [
     isMobileViewport,
-    mobilePreviewOpen,
     previewOpen,
     setMobilePreviewOpen,
   ]);
@@ -1127,7 +1126,7 @@ export default function MapsPage() {
       />
 
       {/* Mobile bottom sheet preview */}
-      <div className={`lg:hidden ${previewOpen && !isMobileViewport ? "" : "hidden"}`}>
+      <div className={`lg:hidden ${mobilePreviewOpen ? "" : "hidden"}`}>
         <div
           className={`fixed inset-0 z-40 bg-black/25 transition-opacity ${
             mobilePreviewOpen ? "opacity-100" : "pointer-events-none opacity-0"

@@ -1132,19 +1132,19 @@
     }
   },
   "LandingBlueHero": {
-    "eyebrow": "The more information there is, the more you need a standard of your own.",
+    "eyebrow": "The more complex the information, the more you need structure you can see at a glance.",
     "titles": ["Turn YouTube transcripts", "Turn any long text"],
-    "titleHighlight": "into a Structure Map",
+    "titleHighlight": "into a Mind Map",
     "titleSuffix": "",
-    "helper": "Structure long content so you can quickly find what you need without missing important details.",
+    "helper": "Understand complex information faster and grasp the flow and structure at a glance.",
     "switchTitleAria": "Switch title",
     "ctaPrimary": "Start for free",
     "ctaSecondary": "View demo",
     "featureItems": [
-      "Understand an hour of content in minutes",
-      "Automatically explain difficult terms",
+      "Turn even 3-hour YouTube transcripts into mind maps fast",
+      "Make difficult terms easier to grasp",
       "Generate results in your language",
-      "Compare Structure Maps and spot differences at a glance"
+      "Compare mind maps and spot differences at a glance"
     ],
     "flowItems": ["Paste a script", "Create a Structure Map", "Read · Edit · Compare", "Build your own standard"],
     "videoLabel": "View workflow",

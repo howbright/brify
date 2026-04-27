@@ -11,12 +11,12 @@ type Props = {
   zoomInLabel: string;
   zoomOutLabel: string;
   collapseLevelLabel: string;
-  expandLevelLabel: string;
+  moveUpLabel: string;
   onCenter: () => void;
   onZoomIn: () => void;
   onZoomOut: () => void;
   onCollapseLevel: () => void;
-  onExpandLevel: () => void;
+  onMoveUp: () => void;
 };
 
 export default function MindElixirMiniMap({
@@ -27,12 +27,12 @@ export default function MindElixirMiniMap({
   zoomInLabel,
   zoomOutLabel,
   collapseLevelLabel,
-  expandLevelLabel,
+  moveUpLabel,
   onCenter,
   onZoomIn,
   onZoomOut,
   onCollapseLevel,
-  onExpandLevel,
+  onMoveUp,
 }: Props) {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -76,9 +76,9 @@ export default function MindElixirMiniMap({
               onClick: onZoomOut,
             },
             {
-              icon: "mdi:unfold-more-horizontal",
-              label: expandLevelLabel,
-              onClick: onExpandLevel,
+              icon: "mdi:arrow-up",
+              label: moveUpLabel,
+              onClick: onMoveUp,
             },
             {
               icon: "mdi:unfold-less-horizontal",
