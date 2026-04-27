@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/client";
 import { Link } from "@/i18n/navigation";
+import { isUnsupportedGoogleOauthBrowser } from "@/lib/auth/browser";
 import { Icon } from "@iconify/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -25,12 +26,19 @@ export default function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [isUnsupportedBrowser, setIsUnsupportedBrowser] = useState(false);
 
   const otpInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (step === "otp" && otpInputRef.current) otpInputRef.current.focus();
   }, [step]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setIsUnsupportedBrowser(isUnsupportedGoogleOauthBrowser(window.navigator.userAgent));
+  }, []);
+
   const validateEmail = (value: string) => {
     const normalized = value.trim();
     if (!normalized) return t("email.errors.required");
@@ -52,6 +60,12 @@ export default function LoginForm() {
   };
 
   const handleGoogleLogin = async () => {
+    if (isUnsupportedBrowser) {
+      setMessage(t("messages.googleInAppBrowser"));
+      setMessageType("error");
+      return;
+    }
+
     try {
       setIsGoogleLoading(true);
       setMessage("");
@@ -219,6 +233,11 @@ export default function LoginForm() {
               </span>
             )}
           </button>
+          {isUnsupportedBrowser ? (
+            <p className="text-sm leading-6 text-amber-700 dark:text-amber-300">
+              {t("messages.googleInAppBrowser")}
+            </p>
+          ) : null}
         </div>
 
         {/* 👉 Divider */}

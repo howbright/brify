@@ -1,6 +1,7 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
+import { isUnsupportedGoogleOauthBrowser } from "@/lib/auth/browser";
 import { createClient } from "@/utils/supabase/client";
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
@@ -24,6 +25,7 @@ export default function SignupForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [isUnsupportedBrowser, setIsUnsupportedBrowser] = useState(false);
 
   const otpInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -33,6 +35,11 @@ export default function SignupForm() {
       otpInputRef.current.focus();
     }
   }, [step]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setIsUnsupportedBrowser(isUnsupportedGoogleOauthBrowser(window.navigator.userAgent));
+  }, []);
 
   const validateEmail = (value: string) => {
     const normalized = value.trim();
@@ -65,6 +72,11 @@ export default function SignupForm() {
 
   const handleGoogleSignup = async () => {
     if (!requireAgreementsOrShowError()) return;
+    if (isUnsupportedBrowser) {
+      setMessage(t("errors.googleInAppBrowser"));
+      setMessageType("error");
+      return;
+    }
 
     try {
       setIsGoogleLoading(true);
@@ -323,6 +335,11 @@ export default function SignupForm() {
               </span>
             )}
           </button>
+          {isUnsupportedBrowser ? (
+            <p className="text-sm leading-6 text-amber-700 dark:text-amber-300">
+              {t("errors.googleInAppBrowser")}
+            </p>
+          ) : null}
         </div>
 
         <div className="flex items-center text-xs font-semibold uppercase tracking-wider text-neutral-400">

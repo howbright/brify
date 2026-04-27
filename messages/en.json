@@ -310,6 +310,7 @@
     "messages": {
       "googleFail": "Google sign-in failed: {message}",
       "googleError": "An error occurred during Google sign-in.",
+      "googleInAppBrowser": "Google sign-in may be blocked inside in-app browsers like KakaoTalk or Instagram. Please open Brify in Chrome or Safari and try again, or use email code sign-in instead.",
       "signupsNotAllowed": "Signups are not allowed.",
       "genericError": "Something went wrong: {message}",
       "codeSent": "We sent a verification code to your email.",
@@ -338,6 +339,7 @@
     "errors": {
       "googlePrefix": "Failed to sign in with Google:",
       "googleGeneric": "An error occurred during Google sign-in.",
+      "googleInAppBrowser": "Google sign-in may be blocked inside in-app browsers like KakaoTalk or Instagram. Please open Brify in Chrome or Safari and try again, or use email code sign-in instead.",
       "agreeRequired": "You must agree to the required terms to sign up.",
       "alreadyRegistered": "This email is already registered. Please log in.",
       "defaultPrefix": "An error occurred:",
@@ -1830,9 +1832,14 @@
       "openPreview": "Open preview",
       "close": "Close",
       "open": "Open",
+      "moveUp": "Move up",
       "loading": "Loading preview…",
       "loadFailed": "Failed to load the preview.",
-      "idle": "Preparing the preview."
+      "idle": "Preparing the preview.",
+      "inAppNotice": {
+        "title": "Map gestures may be unstable inside {app}.",
+        "body": "If the sheet closes while you drag the map upward, please open Brify in Chrome or Safari from the top-right menu."
+      }
     }
   },
   "MapsPage": {

@@ -2,11 +2,12 @@
 
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 import { Link } from "@/i18n/navigation";
+import { getInAppBrowserName } from "@/lib/auth/browser";
 import MapMiniPreview, {
   type MapMiniPreviewHandle,
   type MapMiniPreviewData,
 } from "@/components/maps/MapMiniPreview";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 function formatDate(draft: MapDraft, locale: string) {
@@ -43,6 +44,7 @@ export default function MapPreviewPanel({
   const t = useTranslations("MapsCommon.previewPanel");
   const miniRef = useRef<MapMiniPreviewHandle | null>(null);
   const autoZoomedMapIdRef = useRef<string | null>(null);
+  const [inAppBrowserName, setInAppBrowserName] = useState<string | null>(null);
   const summary = draft?.summary ?? draft?.description ?? t("noSummary");
   const canOpenDetail = draft?.status === "done" || draft?.status === "processing_metadata";
 
@@ -60,6 +62,11 @@ export default function MapPreviewPanel({
 
     return () => window.clearTimeout(timer);
   }, [draft?.id, previewStatus]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setInAppBrowserName(getInAppBrowserName(window.navigator.userAgent));
+  }, []);
 
   if (!draft) {
     return (
@@ -95,6 +102,13 @@ export default function MapPreviewPanel({
 
   return (
     <aside className="rounded-2xl border border-slate-400 bg-white p-5 dark:border-white/20 dark:bg-white/[0.04]">
+      {inAppBrowserName ? (
+        <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900 dark:border-amber-400/20 dark:bg-amber-500/10 dark:text-amber-100">
+          <p className="font-semibold">{t("inAppNotice.title", { app: inAppBrowserName })}</p>
+          <p className="mt-1 text-amber-800 dark:text-amber-100/85">{t("inAppNotice.body")}</p>
+        </div>
+      ) : null}
+
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-lg font-semibold text-neutral-900 dark:text-white line-clamp-2">
@@ -165,6 +179,16 @@ export default function MapPreviewPanel({
 
         {previewStatus === "loaded" && (
           <div className="absolute bottom-3 right-3 flex items-center rounded-full border border-slate-400 bg-white/90 text-sm font-semibold text-neutral-700 shadow-sm dark:border-white/20 dark:bg-[#0b1220]/75 dark:text-white/85">
+            <button
+              type="button"
+              onClick={() => miniRef.current?.panUp()}
+              className="px-2.5 py-1.5 hover:bg-neutral-50 dark:hover:bg-white/10"
+              aria-label={t("moveUp")}
+              title={t("moveUp")}
+            >
+              ↑
+            </button>
+            <div className="h-4 w-px bg-slate-400 dark:bg-white/20" />
             <button
               type="button"
               onClick={() => miniRef.current?.center()}

@@ -92,6 +92,7 @@ export type MapMiniPreviewHandle = {
   zoomIn: () => void;
   zoomOut: () => void;
   center: () => void;
+  panUp: () => void;
 };
 
 const MapMiniPreview = forwardRef<MapMiniPreviewHandle, {
@@ -109,6 +110,7 @@ const MapMiniPreview = forwardRef<MapMiniPreviewHandle, {
     zoomIn: () => mindRef.current?.zoomIn(),
     zoomOut: () => mindRef.current?.zoomOut(),
     center: () => mindRef.current?.centerMap(),
+    panUp: () => mindRef.current?.panBy(0, -80),
   }));
 
   if (!root) {

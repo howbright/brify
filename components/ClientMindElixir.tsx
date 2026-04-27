@@ -70,6 +70,7 @@ export type ClientMindElixirHandle = {
   centerMap: () => void;
   zoomIn: () => void;
   zoomOut: () => void;
+  panBy: (dx: number, dy: number) => void;
   findNodesByQuery: (
     query: string,
     options?: { includeNotes?: boolean }
@@ -1331,6 +1332,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         if (!mind || typeof mind.scale !== "function") return;
         const next = Math.max(mind.scaleMin ?? 0.2, (mind.scaleVal ?? 1) - 0.1);
         mind.scale(next);
+      },
+      panBy: (dx: number, dy: number) => {
+        const mind = mindRef.current;
+        if (!mind || typeof mind.move !== "function") return;
+        mind.move(dx, dy);
       },
       findNodesByQuery: (query, options) => {
         const raw =

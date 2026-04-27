@@ -310,6 +310,7 @@
     "messages": {
       "googleFail": "Google 로그인에 실패했어요: {message}",
       "googleError": "Google 로그인 중 오류가 발생했어요.",
+      "googleInAppBrowser": "카카오톡·인스타그램 같은 앱 안 브라우저에서는 Google 로그인이 차단될 수 있어요. 오른쪽 위 메뉴에서 Chrome 또는 Safari로 열어 다시 시도해 주세요. 급하면 이메일 코드 로그인을 이용하실 수 있어요.",
       "signupsNotAllowed": "가입이 허용되지 않았습니다.",
       "genericError": "오류가 발생했어요: {message}",
       "codeSent": "인증 코드를 이메일로 보냈습니다.",
@@ -338,6 +339,7 @@
     "errors": {
       "googlePrefix": "구글 로그인에 실패했어요:",
       "googleGeneric": "구글 로그인 중 오류가 발생했어요.",
+      "googleInAppBrowser": "카카오톡·인스타그램 같은 앱 안 브라우저에서는 Google 로그인이 차단될 수 있어요. 오른쪽 위 메뉴에서 Chrome 또는 Safari로 열어 다시 시도해 주세요. 급하면 이메일 코드 로그인을 이용하실 수 있어요.",
       "agreeRequired": "필수 약관에 동의해야 가입할 수 있습니다.",
       "alreadyRegistered": "이미 가입된 이메일입니다. 로그인해 주세요.",
       "defaultPrefix": "오류가 발생했어요:",
@@ -1830,9 +1832,14 @@
       "openPreview": "미리보기 열기",
       "close": "닫기",
       "open": "열기",
+      "moveUp": "위로 이동",
       "loading": "미리보기 불러오는 중…",
       "loadFailed": "미리보기를 불러오지 못했어요.",
-      "idle": "미리보기를 준비 중이에요."
+      "idle": "미리보기를 준비 중이에요.",
+      "inAppNotice": {
+        "title": "{app} 안 브라우저에서는 맵 조작이 불안정할 수 있어요.",
+        "body": "맵을 위로 움직일 때 시트가 닫히면, 오른쪽 위 메뉴에서 Chrome 또는 Safari로 열어 주세요."
+      }
     }
   },
   "MapsPage": {
