@@ -12,7 +12,7 @@ const PAGE_COPY = {
     title: "마인드맵으로 복잡한 정보 정리 | Brify",
     description:
       "Brify는 유튜브 대본, 웹페이지, 긴 텍스트를 마인드맵으로 정리해 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다.",
-    pageUrl: "https://brify.app/ko/mind-map",
+    pageUrl: "https://www.brify.app/ko/mind-map",
     heading: "마인드맵으로 복잡한 정보를 더 쉽게 이해하세요",
     lead:
       "마인드맵은 많은 정보를 한눈에 정리하고 다시 펼쳐보기 좋은 방식입니다. Brify는 유튜브와 긴 텍스트를 이 흐름에 맞게 정리해줍니다.",
@@ -36,27 +36,27 @@ const PAGE_COPY = {
     relatedHref: "/ko/youtube-notes",
   },
   en: {
-    title: "Mind Maps for Complex Information | Brify",
+    title: "YouTube to Mind Map | Convert YouTube Transcripts into Mind Maps | Brify",
     description:
-      "Brify turns YouTube transcripts, webpages, and long text into mind maps so you can understand flow and structure at a glance.",
-    pageUrl: "https://brify.app/en/mind-map",
-    heading: "Use mind maps to understand complex information faster",
+      "Brify helps you convert YouTube transcripts, webpages, and long text into mind maps so you can understand flow and structure at a glance.",
+    pageUrl: "https://www.brify.app/en/mind-map",
+    heading: "Convert YouTube transcripts into mind maps",
     lead:
-      "Mind maps are a powerful way to organize a lot of information and revisit it later. Brify applies that workflow to YouTube and long-form text.",
+      "If you want a YouTube to mind map workflow, Brify helps you convert YouTube transcripts into mind maps and revisit complex content more easily.",
     paragraphs: [
       "A mind map is not only a neat format. It is a way to understand relationships, hierarchy, and flow inside complex information.",
-      "Brify turns YouTube transcripts, webpages, and long text into mind maps so key ideas and their connections become easier to see.",
-      "That makes Brify especially useful for study, research, comparison, and any workflow that deals with complex inputs.",
+      "Brify helps you convert YouTube transcripts into mind maps so key ideas and their connections become easier to see.",
+      "That makes Brify especially useful if you are searching for a way to turn YouTube videos into mind maps for study, research, comparison, and complex inputs.",
     ],
     bullets: [
-      "People who want mind maps from YouTube content",
+      "People who want to convert YouTube content into mind maps",
       "People who want long text at a glance",
       "People who want visual flow and structure",
       "People who compare multiple sources and ideas",
     ],
     ctaTitle: "Start organizing with Brify mind maps",
     ctaBody:
-      "Turn YouTube, webpages, and long text into mind maps and understand complex information faster.",
+      "Convert YouTube transcripts, webpages, and long text into mind maps and understand complex information faster.",
     primaryCta: "Start Brify",
     secondaryCta: "See YouTube notes page",
     signupHref: "/en/signup",
@@ -75,7 +75,7 @@ export async function generateMetadata({
     description: copy.description,
     keywords:
       locale === "en"
-        ? ["mind map", "youtube mind map", "text mind map", "Brify"]
+        ? ["mind map", "youtube mind map", "youtube to mind map", "convert youtube to mind map", "text mind map", "Brify"]
         : ["마인드맵", "유튜브 마인드맵", "텍스트 마인드맵", "정보 정리", "브리피"],
     alternates: {
       canonical: copy.pageUrl,
@@ -94,8 +94,8 @@ export async function generateMetadata({
         {
           url:
             locale === "en"
-              ? "https://brify.app/images/sns_en.png"
-              : "https://brify.app/images/sns_ko.png",
+              ? "https://www.brify.app/images/sns_en.png"
+              : "https://www.brify.app/images/sns_ko.png",
           width: 1200,
           height: 630,
           alt: copy.title,
@@ -108,8 +108,8 @@ export async function generateMetadata({
       description: copy.description,
       images: [
         locale === "en"
-          ? "https://brify.app/images/sns_en.png"
-          : "https://brify.app/images/sns_ko.png",
+          ? "https://www.brify.app/images/sns_en.png"
+          : "https://www.brify.app/images/sns_ko.png",
       ],
     },
   };

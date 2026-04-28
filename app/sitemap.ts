@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE_URL = "https://brify.app";
+const BASE_URL = "https://www.brify.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

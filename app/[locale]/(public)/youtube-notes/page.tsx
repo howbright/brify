@@ -12,7 +12,7 @@ const PAGE_COPY = {
     title: "유튜브 정리, 유튜브 내용 정리 | Brify",
     description:
       "Brify는 긴 유튜브 대본을 마인드맵으로 정리해 복잡한 내용의 흐름과 구조를 더 빠르게 이해할 수 있게 도와줍니다.",
-    pageUrl: "https://brify.app/ko/youtube-notes",
+    pageUrl: "https://www.brify.app/ko/youtube-notes",
     heading: "긴 유튜브 내용을 더 쉽게 정리하는 방법",
     lead:
       "좋은 정보가 있는 유튜브를 저장만 해두고 끝내기 쉬웠다면, Brify로 핵심 흐름과 구조를 다시 펼쳐보기 쉬운 형태로 정리해보세요.",
@@ -36,16 +36,16 @@ const PAGE_COPY = {
     relatedHref: "/ko/youtube-summary",
   },
   en: {
-    title: "YouTube Notes and YouTube Organization | Brify",
+    title: "YouTube Notes and YouTube Video Organization | Brify",
     description:
-      "Brify turns long YouTube transcripts into mind maps so you can understand the flow and structure of complex content faster.",
-    pageUrl: "https://brify.app/en/youtube-notes",
-    heading: "A better way to organize long YouTube content",
+      "Brify helps you organize YouTube videos into structured notes and mind maps so you can revisit long content more easily.",
+    pageUrl: "https://www.brify.app/en/youtube-notes",
+    heading: "A better way to organize YouTube videos and notes",
     lead:
-      "If you keep saving useful YouTube videos but rarely revisit them, Brify helps you organize the key flow and structure into something easier to review later.",
+      "If you keep saving useful YouTube videos but rarely revisit them, Brify helps you organize YouTube notes, flow, and structure into something easier to review later.",
     body: [
       "Organizing YouTube content is hard not only because videos are long, but also because important ideas are repeated and scattered across different sections.",
-      "Brify turns YouTube transcripts into mind maps so you can see what is central and how ideas connect at a glance.",
+      "Brify helps you turn YouTube transcripts into structured notes and mind maps, so you can see what is central and how ideas connect at a glance.",
       "That makes Brify a better fit for people who want more than a short summary and want to revisit the structure of the content later.",
     ],
     bullets: [
@@ -75,7 +75,7 @@ export async function generateMetadata({
     description: copy.description,
     keywords:
       locale === "en"
-        ? ["youtube notes", "youtube organization", "youtube mind map", "Brify"]
+        ? ["youtube notes", "youtube organization", "organize youtube videos", "youtube mind map", "Brify"]
         : ["유튜브 정리", "유튜브 내용 정리", "유튜브 메모", "유튜브 마인드맵", "브리피"],
     alternates: {
       canonical: copy.pageUrl,
@@ -94,8 +94,8 @@ export async function generateMetadata({
         {
           url:
             locale === "en"
-              ? "https://brify.app/images/sns_en.png"
-              : "https://brify.app/images/sns_ko.png",
+              ? "https://www.brify.app/images/sns_en.png"
+              : "https://www.brify.app/images/sns_ko.png",
           width: 1200,
           height: 630,
           alt: copy.title,
@@ -108,8 +108,8 @@ export async function generateMetadata({
       description: copy.description,
       images: [
         locale === "en"
-          ? "https://brify.app/images/sns_en.png"
-          : "https://brify.app/images/sns_ko.png",
+          ? "https://www.brify.app/images/sns_en.png"
+          : "https://www.brify.app/images/sns_ko.png",
       ],
     },
   };

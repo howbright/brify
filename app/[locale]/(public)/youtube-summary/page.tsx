@@ -12,7 +12,7 @@ const PAGE_COPY = {
     title: "유튜브 요약, 유튜브 정리, 유튜브 마인드맵 | Brify",
     description:
       "Brify는 유튜브 대본, 웹페이지, 긴 텍스트를 마인드맵으로 정리해 복잡한 정보의 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다.",
-    pageUrl: "https://brify.app/ko/youtube-summary",
+    pageUrl: "https://www.brify.app/ko/youtube-summary",
     heading: "유튜브 요약과 정리, 마인드맵으로 더 빠르게",
     lead:
       "긴 유튜브 내용을 끝까지 다 보지 않아도 핵심 흐름과 구조를 한눈에 파악하고 싶다면, Brify가 더 빠른 이해를 도와줍니다.",
@@ -72,18 +72,18 @@ const PAGE_COPY = {
     signupHref: "/ko/signup",
   },
   en: {
-    title: "YouTube Summary, YouTube Notes, and YouTube Mind Maps | Brify",
+    title: "YouTube Summary Tool | Turn YouTube Videos into Mind Maps | Brify",
     description:
-      "Brify turns YouTube transcripts, webpages, and long text into mind maps so you can understand complex information at a glance.",
-    pageUrl: "https://brify.app/en/youtube-summary",
-    heading: "Summarize and organize YouTube videos with mind maps",
+      "Brify is a YouTube summary tool that turns YouTube transcripts into mind maps, helping you understand long videos and complex information at a glance.",
+    pageUrl: "https://www.brify.app/en/youtube-summary",
+    heading: "A YouTube summary tool that turns videos into mind maps",
     lead:
-      "If you want to understand long YouTube content without watching every minute, Brify helps you grasp the flow and structure faster.",
+      "If you want a faster way to summarize YouTube videos and turn YouTube transcripts into mind maps, Brify helps you grasp the flow and structure without watching every minute.",
     section1Title: "Why Brify works well for YouTube summaries and notes",
     section1Body: [
-      "YouTube is full of useful information, but long videos and complex topics are hard to organize quickly.",
-      "Brify turns YouTube transcripts into mind maps so you can see the main flow, repeated ideas, and connected details at a glance.",
-      "Instead of ending with a plain summary, Brify helps you revisit and understand the structure of the content more clearly.",
+      "YouTube is full of useful information, but long videos and complex topics are hard to summarize and organize quickly.",
+      "Brify works as a YouTube summary tool by turning YouTube transcripts into mind maps, so you can see the main flow, repeated ideas, and connected details at a glance.",
+      "Instead of ending with a plain summary, Brify helps you convert YouTube content into a structure you can revisit and understand more clearly.",
     ],
     section2Title: "Who this is for",
     bullets: [
@@ -116,12 +116,12 @@ const PAGE_COPY = {
       {
         question: "Is Brify a YouTube summary tool?",
         answer:
-          "Yes. Brify helps you understand YouTube content faster. Its strength is not only summarizing, but also organizing flow and structure into a mind-map-like format you can revisit.",
+          "Yes. Brify helps you summarize YouTube content faster. Its strength is not only summarizing, but also turning YouTube transcripts into mind maps you can revisit later.",
       },
       {
         question: "Can I organize YouTube videos as mind maps?",
         answer:
-          "Yes. Brify helps you organize YouTube transcripts while also visualizing them as mind maps, making complex information easier to grasp.",
+          "Yes. Brify helps you convert YouTube transcripts into mind maps, making complex information easier to grasp and compare.",
       },
       {
         question: "Can Brify also organize webpages and long text?",
@@ -149,8 +149,11 @@ export async function generateMetadata({
       locale === "en"
         ? [
             "youtube summary",
+            "youtube summary tool",
             "youtube notes",
             "youtube mind map",
+            "youtube to mind map",
+            "convert youtube to mind map",
             "mind map",
             "webpage summary",
             "Brify",
@@ -179,8 +182,8 @@ export async function generateMetadata({
       images: [
         {
           url: locale === "en"
-            ? "https://brify.app/images/sns_en.png"
-            : "https://brify.app/images/sns_ko.png",
+            ? "https://www.brify.app/images/sns_en.png"
+            : "https://www.brify.app/images/sns_ko.png",
           width: 1200,
           height: 630,
           alt: copy.title,
@@ -193,8 +196,8 @@ export async function generateMetadata({
       description: copy.description,
       images: [
         locale === "en"
-          ? "https://brify.app/images/sns_en.png"
-          : "https://brify.app/images/sns_ko.png",
+          ? "https://www.brify.app/images/sns_en.png"
+          : "https://www.brify.app/images/sns_ko.png",
       ],
     },
   };
@@ -225,7 +228,7 @@ export default async function YoutubeSummaryPage({ params }: PageProps) {
         "@type": "ListItem",
         position: 1,
         name: "Brify",
-        item: locale === "en" ? "https://brify.app/en" : "https://brify.app/ko",
+        item: locale === "en" ? "https://www.brify.app/en" : "https://www.brify.app/ko",
       },
       {
         "@type": "ListItem",

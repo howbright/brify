@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/api/", "/admin/", "/login", "/signup", "/billing/"],
     },
-    sitemap: "https://brify.app/sitemap.xml",
-    host: "https://brify.app",
+    sitemap: "https://www.brify.app/sitemap.xml",
+    host: "https://www.brify.app",
   };
 }
