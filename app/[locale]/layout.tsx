@@ -21,7 +21,8 @@ export const revalidate = 0;
 
 const SEO_COPY = {
   ko: {
-    title: "브라이피(Brify) – 유튜브 요약, 유튜브 정리, 마인드맵으로 복잡한 정보 한눈에",
+    title: "브라이피 Brify | 유튜브 요약·정리 마인드맵",
+    ogTitle: "브라이피 Brify | 유튜브 요약·정리",
     description:
       "브라이피(Brify)는 유튜브 대본, 웹페이지, 긴 텍스트를 마인드맵으로 정리해 복잡한 정보의 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다.",
     imageUrl: "https://www.brify.app/images/sns_ko.png",
@@ -43,6 +44,7 @@ const SEO_COPY = {
   },
   en: {
     title: "Brify – Turn YouTube, webpages, and long text into mind maps",
+    ogTitle: "Brify | YouTube summary mind maps",
     description:
       "Brify helps you organize long videos and text into visual maps so you can understand complex information at a glance.",
     imageUrl: "https://www.brify.app/images/sns_en.png",
@@ -83,7 +85,7 @@ export async function generateMetadata({
       },
     },
     openGraph: {
-      title: copy.title,
+      title: copy.ogTitle,
       description: copy.description,
       url: pageUrl,
       siteName: "Brify",
@@ -100,7 +102,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: copy.title,
+      title: copy.ogTitle,
       description: copy.description,
       images: [copy.imageUrl],
     },
