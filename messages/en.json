@@ -1132,8 +1132,8 @@
     }
   },
   "LandingBlueHero": {
-    "eyebrow": "The more complex the information, the more you need structure you can see at a glance.",
-    "titles": ["Turn YouTube transcripts", "Turn any long text"],
+    "eyebrow": "We built this so you can understand important information quickly without missing what matters.",
+    "titles": ["Turn complex, long text", "Turn YouTube transcripts"],
     "titleHighlight": "into a Mind Map",
     "titleSuffix": "",
     "helper": "Understand complex information faster and grasp the flow and structure at a glance.",

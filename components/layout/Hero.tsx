@@ -317,8 +317,19 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
       <section className="mx-auto grid max-w-7xl items-start gap-10 px-6 py-10 md:grid-cols-2 md:items-start md:gap-14 md:px-10 md:pt-[108px] md:pb-12 lg:pt-[116px] lg:pb-14">
         {/* LEFT */}
         <div className="min-w-0">
-          <div className="max-w-full text-sm font-normal text-neutral-700 [overflow-wrap:anywhere] dark:text-neutral-200 md:text-base">
-            {t("eyebrow")}
+          <div
+            className="
+              inline-flex max-w-full items-center rounded-full
+              border border-sky-200/90 bg-white/78 px-4 py-1.5
+              text-sm font-semibold text-sky-800 shadow-[0_10px_28px_-22px_rgba(14,116,144,0.55)]
+              [overflow-wrap:anywhere]
+              dark:border-sky-300/20 dark:bg-white/[0.08] dark:text-sky-200
+              md:text-base
+            "
+          >
+            <span className="border-b-2 border-sky-300/90 pb-0.5 dark:border-sky-300/70">
+              {t("eyebrow")}
+            </span>
           </div>
 
           {/* title + slide handle */}
@@ -381,12 +392,8 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
             </motion.button>
           </div>
 
-          <p className="mt-4 max-w-2xl text-[17px] font-normal leading-7 text-slate-700 [overflow-wrap:anywhere] dark:text-slate-200 md:text-[19px] md:leading-8">
-            {t("helper")}
-          </p>
-
           {/* mobile image */}
-          <div className="mt-4 md:hidden">
+          <div className="mt-5 md:hidden">
             <HeroDiagramImage
               alt={t("visualAlt")}
               videoLabel={t("videoLabel")}
