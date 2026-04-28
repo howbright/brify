@@ -61,42 +61,54 @@ function HeroDiagramImage({
   videoLoadingLabel: string;
 }) {
   const [isInlineVideoOpen, setIsInlineVideoOpen] = useState(false);
-  const [isMobileVideoOpen, setIsMobileVideoOpen] = useState(false);
   const [isOpeningVideo, setIsOpeningVideo] = useState(false);
-  const [useOverlayVideo, setUseOverlayVideo] = useState(false);
+  const [showDesktopPoster, setShowDesktopPoster] = useState(false);
   const locale = useLocale();
   const heroVideoSrc =
     locale.toLowerCase().startsWith("ko")
-      ? "https://www.youtube.com/embed/IvC8y0eY5bE?autoplay=1&rel=0"
-      : "https://www.youtube.com/embed/HMKChsqujos?autoplay=1&rel=0";
+      ? "https://www.youtube.com/embed/CYZBWVpUfwE?autoplay=1&mute=1&playsinline=1&rel=0"
+      : "https://www.youtube.com/embed/03pSyAZvJqo?autoplay=1&mute=1&playsinline=1&rel=0";
 
   useEffect(() => {
-    const coarsePointer = window.matchMedia("(pointer: coarse)");
-    const narrowViewport = window.matchMedia("(max-width: 1024px)");
-    const sync = () =>
-      setUseOverlayVideo(coarsePointer.matches || narrowViewport.matches);
-    sync();
-    coarsePointer.addEventListener("change", sync);
-    narrowViewport.addEventListener("change", sync);
-    return () => {
-      coarsePointer.removeEventListener("change", sync);
-      narrowViewport.removeEventListener("change", sync);
-    };
+    setIsInlineVideoOpen(true);
+    setIsOpeningVideo(true);
+    setShowDesktopPoster(true);
+    const timer = window.setTimeout(() => {
+      setShowDesktopPoster(false);
+    }, 5000);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   const openVideo = () => {
     setIsOpeningVideo(true);
-    if (useOverlayVideo) {
-      setIsMobileVideoOpen(true);
-      return;
-    }
     setIsInlineVideoOpen(true);
   };
 
-  const closeMobileVideo = () => {
-    setIsMobileVideoOpen(false);
-    setIsOpeningVideo(false);
-  };
+  const desktopPoster = (
+    <div
+      className={`absolute inset-0 z-30 transition-opacity duration-700 ${
+        showDesktopPoster ? "opacity-100" : "pointer-events-none opacity-0"
+      }`}
+      aria-hidden={!showDesktopPoster}
+    >
+      <Image
+        src="/images/hero/hero5.png"
+        alt=""
+        fill
+        priority
+        sizes="(max-width: 768px) 100vw, 520px"
+        className="object-cover"
+      />
+      <span className="absolute inset-0 bg-gradient-to-t from-slate-950/20 via-transparent to-transparent" />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="inline-flex items-center gap-2 rounded-full bg-slate-950/72 px-4 py-2 text-sm font-semibold text-white shadow-lg">
+          <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />
+          {videoLoadingLabel}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -122,16 +134,19 @@ function HeroDiagramImage({
         />
         <div className="relative w-full overflow-hidden rounded-3xl">
           <div className="relative aspect-video overflow-hidden rounded-3xl">
-            {isInlineVideoOpen && !useOverlayVideo ? (
-              <iframe
-                src={heroVideoSrc}
-                title={alt}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-                onLoad={() => setIsOpeningVideo(false)}
-                className="absolute inset-0 z-20 h-full w-full border-0"
-              />
+            {isInlineVideoOpen ? (
+              <>
+                <iframe
+                  src={heroVideoSrc}
+                  title={alt}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                  onLoad={() => setIsOpeningVideo(false)}
+                  className="absolute inset-0 z-20 h-full w-full border-0"
+                />
+                {desktopPoster}
+              </>
             ) : (
               <button
                 type="button"
@@ -150,7 +165,7 @@ function HeroDiagramImage({
                 <span className="absolute inset-0 bg-gradient-to-t from-slate-950/20 via-transparent to-transparent" />
               </button>
             )}
-            {isOpeningVideo && (!useOverlayVideo || !isMobileVideoOpen) ? (
+            {isOpeningVideo ? (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/18 backdrop-blur-[2px]">
                 <div className="inline-flex items-center gap-2 rounded-full bg-slate-950/72 px-4 py-2 text-sm font-semibold text-white shadow-lg">
                   <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />
@@ -159,66 +174,8 @@ function HeroDiagramImage({
               </div>
             ) : null}
           </div>
-          <div className="flex justify-end px-1 pt-3">
-            <button
-              type="button"
-              onClick={openVideo}
-              disabled={isOpeningVideo}
-              className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-700 bg-slate-800 px-3.5 py-2 text-sm font-bold tracking-[0.04em] text-white transition-transform duration-200 hover:scale-[1.03] hover:bg-slate-900 dark:border-white/18 dark:bg-white/[0.14] dark:text-white dark:hover:bg-white/[0.2] md:text-[15px]"
-            >
-              {isOpeningVideo ? (
-                <>
-                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />
-                  {videoLoadingLabel}
-                </>
-              ) : (
-                <>
-                  <span className="inline-flex items-center justify-center">
-                    <Icon icon="lucide:clapperboard" className="h-[18px] w-[18px]" />
-                  </span>
-                  {videoLabel}
-                </>
-              )}
-            </button>
-          </div>
         </div>
       </div>
-      {isMobileVideoOpen ? (
-        <div className="fixed inset-0 z-[250] bg-black">
-          <button
-            type="button"
-            onClick={closeMobileVideo}
-            className="absolute right-4 top-4 z-[260] inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur hover:bg-white/16"
-            aria-label="Close video"
-          >
-            <Icon icon="mdi:close" className="h-5 w-5" />
-          </button>
-
-          <div className="flex h-full w-full items-center justify-center px-0">
-            <div className="relative w-full">
-              <div className="relative aspect-video w-full bg-black">
-                <iframe
-                  src={isMobileVideoOpen ? heroVideoSrc : undefined}
-                  title={alt}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allowFullScreen
-                  onLoad={() => setIsOpeningVideo(false)}
-                  className="absolute inset-0 h-full w-full border-0"
-                />
-                {isOpeningVideo ? (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/38">
-                    <div className="inline-flex items-center gap-2 rounded-full bg-black/78 px-4 py-2 text-sm font-semibold text-white shadow-lg">
-                      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />
-                      {videoLoadingLabel}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </>
   );
 }
@@ -227,6 +184,9 @@ function HeroDiagramImage({
 
 export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boolean }) {
   const t = useTranslations("LandingBlueHero");
+  const locale = useLocale();
+  const demoShareToken = "3a805093-2bcf-484c-8a2d-e9d4f676d88e";
+  const demoShareHref = `/share/${demoShareToken}`;
   const [idx, setIdx] = useState(0);
 
   const titles = (() => {
@@ -261,7 +221,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
 
   const renderFeatures = (
     className?: string,
-    gridClassName = "grid gap-x-5 gap-y-3 sm:grid-cols-2",
+    gridClassName = "grid gap-y-3",
   ) => (
     <div className={className}>
       <motion.div
@@ -424,7 +384,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
           </p>
 
           {/* mobile image */}
-          <div className="mt-6 md:hidden">
+          <div className="mt-4 md:hidden">
             <HeroDiagramImage
               alt={t("visualAlt")}
               videoLabel={t("videoLabel")}
@@ -447,7 +407,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
             </Link>
 
             <Link
-              href="/demo"
+              href={demoShareHref}
               className="
                 group inline-flex items-center gap-2
                 rounded-2xl border border-slate-600 bg-white px-5 py-3 font-semibold
@@ -491,7 +451,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
         </div>
 
         {/* RIGHT */}
-        <div className="relative hidden md:block">
+        <div className="relative hidden md:block md:pt-1">
           <HeroDiagramImage
             alt={t("visualAlt")}
             videoLabel={t("videoLabel")}
@@ -501,7 +461,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
 
         {renderFeatures(
           "hidden md:max-[1125px]:col-span-2 md:max-[1125px]:mt-1 md:max-[1125px]:block",
-          "grid gap-x-6 gap-y-3 md:grid-cols-2 min-[980px]:grid-cols-4",
+          "grid gap-y-3",
         )}
       </section>
     </main>

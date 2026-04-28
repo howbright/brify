@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import LanguageSelector from "@/components/LanguageSelector";
 import { getSharedMapMetaByToken } from "@/app/lib/sharedMapMeta";
 
-const DEMO_SHARE_TOKEN = "0eb4b0cd-ef56-4078-ba9d-f37cbdc43aad";
+const DEMO_SHARE_TOKEN = "3a805093-2bcf-484c-8a2d-e9d4f676d88e";
 
 type DemoPageProps = {
   params: Promise<{

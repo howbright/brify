@@ -68,7 +68,7 @@ const PAGE_COPY = {
     ],
     primaryCta: "데모 보기",
     secondaryCta: "Brify 시작하기",
-    demoHref: "/ko/demo",
+    demoHref: "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e",
     signupHref: "/ko/signup",
   },
   en: {
@@ -131,7 +131,7 @@ const PAGE_COPY = {
     ],
     primaryCta: "View demo",
     secondaryCta: "Start Brify",
-    demoHref: "/en/demo",
+    demoHref: "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e",
     signupHref: "/en/signup",
   },
 } as const;

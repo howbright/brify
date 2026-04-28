@@ -108,7 +108,9 @@ export default function ClientMobileUserMenu({
               <button
                 onClick={() => {
                   setOpen(false);
-                  router.push("/demo");
+                  router.push(
+                    "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e"
+                  );
                 }}
                 className="w-full text-left py-2 text-sm"
               >

@@ -558,7 +558,7 @@ export default function FullscreenMapDetailScreen({
     if (loading || !draft) return;
     if (initializedMapIdRef.current === draft.id) return;
     initializedMapIdRef.current = draft.id;
-    setLeftOpen(isSharedView ? false : !isTutorialMobile);
+    setLeftOpen(!isTutorialMobile);
     const tutorialCompleted = getMapTutorialCompleted(
       isTutorialMobile ? "mobile" : "desktop"
     );
@@ -1366,11 +1366,26 @@ export default function FullscreenMapDetailScreen({
   };
 
   const shareUrl = useMemo(() => {
-    if (!shareToken) return null;
     if (typeof window === "undefined") return null;
+    if (isSharedView) {
+      return window.location.href;
+    }
+    if (!shareToken) return null;
     const origin = window.location.origin;
     return `${origin}/${locale}/share/${encodeURIComponent(shareToken)}`;
-  }, [shareToken, locale]);
+  }, [isSharedView, shareToken, locale]);
+
+  const handleOpenInBrowser = () => {
+    const url = shareUrl;
+    if (!url) return;
+    const opened = window.open(url, "_blank", "noopener,noreferrer");
+    if (opened) return;
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.target = "_blank";
+    anchor.rel = "noopener noreferrer";
+    anchor.click();
+  };
 
   const statusLabel = isSavingDraft
     ? t("draftStatus.autoSaving")
@@ -1966,6 +1981,28 @@ export default function FullscreenMapDetailScreen({
       />
 
       <div className="relative w-full" style={{ height: "calc(100% - var(--header-h))" }}>
+        {isSharedView ? (
+          <div className="pointer-events-auto absolute left-3 right-3 top-3 z-[26] flex items-center gap-2 sm:hidden">
+            <button
+              type="button"
+              onClick={handleOpenInBrowser}
+              className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border border-slate-300/90 bg-white/96 px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.7)] backdrop-blur-sm dark:border-white/12 dark:bg-[#0f172a]/92 dark:text-white/88"
+            >
+              <Icon icon="mdi:open-in-new" className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{t("share.openInBrowser")}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                void handleCopyShare();
+              }}
+              className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border border-slate-300/90 bg-white/96 px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.7)] backdrop-blur-sm dark:border-white/12 dark:bg-[#0f172a]/92 dark:text-white/88"
+            >
+              <Icon icon="mdi:content-copy" className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{t("share.copyLink")}</span>
+            </button>
+          </div>
+        ) : null}
         <div className="pointer-events-auto absolute right-3 top-3 z-[25] flex flex-col gap-2 sm:hidden">
           <div className="group relative">
             <button

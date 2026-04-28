@@ -32,7 +32,7 @@ const PAGE_COPY = {
       "Brify는 유튜브 대본을 마인드맵으로 정리해, 복잡한 정보를 더 빠르게 이해하고 다시 보기 쉽게 도와줍니다.",
     primaryCta: "데모 보기",
     secondaryCta: "유튜브 요약 페이지 보기",
-    demoHref: "/ko/demo",
+    demoHref: "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e",
     relatedHref: "/ko/youtube-summary",
   },
   en: {
@@ -59,7 +59,7 @@ const PAGE_COPY = {
       "Brify turns YouTube transcripts into mind maps so you can understand complex information faster and revisit it more easily.",
     primaryCta: "View demo",
     secondaryCta: "See YouTube summary page",
-    demoHref: "/en/demo",
+    demoHref: "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e",
     relatedHref: "/en/youtube-summary",
   },
 } as const;

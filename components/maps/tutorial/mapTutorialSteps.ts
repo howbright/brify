@@ -40,7 +40,7 @@ export function getMapTutorialSteps(
       targetClassName: "left-[21%] top-[42%] h-24 w-24",
       hideTargetRing: true,
       highlightCalloutRing: true,
-      calloutClassName: "left-1/2 top-[7%] w-64 -translate-x-1/2",
+      calloutClassName: "left-1/2 top-0 w-64 -translate-x-1/2",
       calloutTitle: t("steps.mouse.calloutTitle"),
       calloutDescription: t("steps.mouse.calloutDescription"),
       illustration: "mouse",

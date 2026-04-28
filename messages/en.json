@@ -1141,9 +1141,9 @@
     "ctaPrimary": "Start for free",
     "ctaSecondary": "View demo",
     "featureItems": [
-      "Turn even 3-hour YouTube transcripts into mind maps fast",
-      "Make difficult terms easier to grasp",
-      "Generate results in your language",
+      "Quickly turn even 3-hour lectures into mind maps",
+      "Automatically organize difficult terms",
+      "Generate results from foreign-language content in your native language",
       "Compare mind maps and spot differences at a glance"
     ],
     "flowItems": ["Paste a script", "Create a Structure Map", "Read · Edit · Compare", "Build your own standard"],
@@ -1482,7 +1482,9 @@
       "disableFailed": "We couldn't turn off sharing.",
       "disabled": "Sharing turned off.",
       "copied": "Link copied.",
-      "copyFailed": "We couldn't copy the link."
+      "copyFailed": "We couldn't copy the link.",
+      "openInBrowser": "Open in browser",
+      "copyLink": "Copy link"
     },
     "shareDialog": {
       "title": "Share link",

@@ -7,7 +7,7 @@ import ClientMobileUserMenu from "./ClientMobileMenu";
 import LanguageSelector from "@/components/LanguageSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Icon } from "@iconify/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 
 type Props = {
@@ -17,7 +17,9 @@ type Props = {
 
 export default function ClientHeaderShell({ isAuthed, email }: Props) {
   const [scrolled, setScrolled] = useState(false);
+  const locale = useLocale();
   const t = useTranslations("Header");
+  const demoShareHref = "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e";
   const desktopHeaderClass = "hidden min-[971px]:flex";
   const mobileHeaderClass = "hidden max-[970px]:flex";
 
@@ -65,7 +67,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
           {/* 가운데 내비 — md 이상에서만 표시 */}
           <nav className={`${desktopHeaderClass} items-center gap-2`}>
             <Link
-              href="/demo"
+              href={demoShareHref}
               className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 border border-slate-400 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
             >
               {t("nav.samples")}
