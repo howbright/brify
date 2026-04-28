@@ -44,13 +44,13 @@ export async function getSharedMapMetaByToken(
 }
 
 export function buildSharedMapOgText(map: SharedMapMeta) {
-  const title = map.title?.trim() || "Brify Structure Map";
+  const title = map.title?.trim() || "Brify Mind Map";
   const description =
     map.summary?.trim() ||
     map.description?.trim() ||
     (map.tags.length > 0
       ? `핵심 키워드: ${map.tags.slice(0, 3).join(", ")}`
-      : "공유된 구조맵을 확인해보세요.");
+      : "공유된 마인드맵을 확인해보세요.");
 
   return {
     title,

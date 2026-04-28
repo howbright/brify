@@ -2,7 +2,7 @@
   "VideoToMapPage": {
     "title": {
       "prefix": "텍스트를,",
-      "highlight": "구조맵으로 변환해 드립니다"
+      "highlight": "마인드맵으로 변환해 드립니다"
     },
     "description": {
       "beforeBold": "영상 스크립트나 긴 글을",
@@ -19,29 +19,29 @@
       "rule": "기본 기준은 1 credit = 최대 {threshold, number}자로, 그보다 긴 스크립트는 2 credit이 필요해요."
     },
     "buttons": {
-      "generate": "영상 스크립트로 구조맵 만들기",
-      "generating": "구조맵 생성 중..."
+      "generate": "영상 스크립트로 마인드맵 만들기",
+      "generating": "마인드맵 생성 중..."
     },
     "status": {
       "reading": "내용을 읽고 있어요...",
       "splittingFlow": "큰 흐름을 먼저 나누는 중이에요...",
-      "arrangingStructure": "구조맵으로 배치하고 있어요...",
+      "arrangingStructure": "마인드맵으로 배치하고 있어요...",
       "almostThere": "조금만 더 기다려 주세요!"
     },
     "processing": {
-      "title": "콘텐츠를 구조맵으로 정리하는 중이에요...",
+      "title": "콘텐츠를 마인드맵으로 정리하는 중이에요...",
       "bullet1": "요약이 아니라, 흐름 · 단계 · 분기를 먼저 분석하고 있어요.",
       "bullet2": "영상 길이에 따라 수십 초 이상 걸릴 수 있어요.",
       "bullet3": "창을 닫지만 않으시면, 작업은 자동으로 이어져요."
     },
     "result": {
-      "title": "생성된 구조맵 결과",
+      "title": "생성된 마인드맵 결과",
       "hint": "이 영역에는 나중에 실제 다이어그램 컴포넌트를 연결하시면 돼요.",
       "description": "지금은 임시로 API 응답을 JSON 형태로 보여드리고 있어요. 추후 React Flow / Mindmap 뷰를 이 자리에 렌더링하시면 돼요."
     },
     "modal": {
       "title": "크레딧 사용 확인",
-      "usageText": "이 영상 스크립트를 구조맵으로 변환하는 데 {credits} credit이 사용돼요.",
+      "usageText": "이 영상 스크립트를 마인드맵으로 변환하는 데 {credits} credit이 사용돼요.",
       "bullet1": "영상이 길수록 처리 시간이 길어질 수 있어요.",
       "bullet2": "한 번 실행하면 되돌릴 수 없고, 사용된 크레딧은 환불되지 않아요.",
       "bullet3": "처리 중에는 이 페이지를 닫지 않으시는 것을 추천드려요.",
@@ -50,11 +50,11 @@
     },
     "errors": {
       "emptyScript": "먼저 영상 스크립트를 아래에 붙여넣어 주세요.",
-      "insufficientCredits": "구조맵을 생성하기에 크레딧이 부족해요. 먼저 크레딧을 충전해 주세요.",
+      "insufficientCredits": "마인드맵을 생성하기에 크레딧이 부족해요. 먼저 크레딧을 충전해 주세요.",
       "requestFailed": "서버 요청에 실패했습니다. 잠시 후 다시 시도해 주세요.",
       "unknown": "알 수 없는 오류가 발생했습니다.",
       "processingFailed": "처리 중 오류가 발생했습니다.",
-      "openMapFailed": "구조맵을 불러오지 못했습니다.",
+      "openMapFailed": "마인드맵을 불러오지 못했습니다.",
       "missingMindData": "mind_elixir 데이터가 없습니다.",
       "tooLargeLine1": "입력 분량이 너무 커서 현재는 처리할 수 없어요.",
       "tooLargeLine2": "최대: {max}자 (과금 기준)",
@@ -66,8 +66,8 @@
       "youtubeFetchFailed": "스크립트를 가져오지 못했습니다.",
       "noTranscriptFound": "자막/스크립트를 찾지 못했습니다. (영상에 자막이 없을 수 있습니다.)",
       "missingMapId": "mapId가 없습니다.",
-      "createFailed": "구조맵 생성에 실패했습니다.",
-      "createTimedOut": "구조맵 생성 요청이 너무 오래 걸리고 있어요. 서버 작업이 지연 중일 수 있으니 잠시 후 다시 시도해 주세요."
+      "createFailed": "마인드맵 생성에 실패했습니다.",
+      "createTimedOut": "마인드맵 생성 요청이 너무 오래 걸리고 있어요. 서버 작업이 지연 중일 수 있으니 잠시 후 다시 시도해 주세요."
     },
     "messages": {
       "youtubeFilled": "스크립트를 가져와 입력칸에 채워 드렸습니다. 이제 바로 생성하실 수 있습니다.",
@@ -75,8 +75,8 @@
     },
     "labels": {
       "untitled": "제목없음",
-      "draftsTitle": "만든 구조맵",
-      "previewTitle": "구조맵 미리보기"
+      "draftsTitle": "만든 마인드맵",
+      "previewTitle": "마인드맵 미리보기"
     }
   },
   "ScriptInputCard": {
@@ -91,9 +91,9 @@
     "languageTitle": "어떤 언어로 맵을 만들까요?",
     "generateTitle": "맵을 생성해요",
     "creditsInfo": "보유 {current}크레딧 · 이번 생성 {required}크레딧",
-    "generateButton": "구조맵 생성하기",
+    "generateButton": "마인드맵 생성하기",
     "insufficientCreditsCard": {
-      "title": "크레딧이 부족해 구조맵을 만들 수 없어요",
+      "title": "크레딧이 부족해 마인드맵을 만들 수 없어요",
       "description": "크레딧을 충전하면 바로 계속할 수 있어요.",
       "balance": "현재 잔액: {current} 크레딧",
       "action": "크레딧 구매하기"
@@ -109,7 +109,7 @@
     "more": "더보기…",
     "dialogAria": "출력 언어 선택",
     "title": "출력 언어를 선택해 주세요",
-    "description": "선택하신 언어로 구조맵을 생성해 드립니다.",
+    "description": "선택하신 언어로 마인드맵을 생성해 드립니다.",
     "close": "닫기",
     "searchPlaceholder": "언어를 검색해 주세요 (예: English, 한국어, ja, zh...)",
     "noResults": "검색 결과가 없습니다. 다른 키워드로 시도해 주세요.",
@@ -417,16 +417,16 @@
       }
     },
     "preview": {
-      "eyebrow": "Structure Map Preview",
-      "title": "구조맵 미리보기",
-      "helper": "이 예시는 미리보기용으로 고정된 화면입니다. 버튼을 눌러 구조맵을 직접 체험해보세요.",
+      "eyebrow": "Mind Map Preview",
+      "title": "마인드맵 미리보기",
+      "helper": "이 예시는 미리보기용으로 고정된 화면입니다. 버튼을 눌러 마인드맵을 직접 체험해보세요.",
       "cta": "크게 보기",
-      "imageAlt": "구조맵 미리보기 프레임"
+      "imageAlt": "마인드맵 미리보기 프레임"
     }
   },
   "DemoFullscreenDialog": {
     "dialog": {
-      "title": "구조맵 미리보기"
+      "title": "마인드맵 미리보기"
     },
     "actions": {
       "close": "닫기",
@@ -448,8 +448,8 @@
       "editModeRequired": "노드를 수정하려면 편집 모드를 눌러주세요."
     },
     "shareDialog": {
-      "title": "이 구조맵은 예시용입니다",
-      "description": "실제 서비스에서는 구조맵을 링크로 공유하고 다른 사람과 함께 볼 수 있어요. 서비스를 시작하면 내 구조맵의 공유 링크를 바로 만들 수 있습니다.",
+      "title": "이 마인드맵은 예시용입니다",
+      "description": "실제 서비스에서는 마인드맵을 링크로 공유하고 다른 사람과 함께 볼 수 있어요. 서비스를 시작하면 내 마인드맵의 공유 링크를 바로 만들 수 있습니다.",
       "action": "서비스 시작하기",
       "cancel": "닫기"
     },
@@ -639,7 +639,7 @@
     "imageAlt": "Brify 만든 사람",
     "label": "서비스 만든이",
     "name": "Lina",
-    "quote": "“볼 것은 많은데 <strong>시간은 늘 모자라더군요</strong>.\n영상 보며 ‘정말 유익하다’고 느꼈는데, 저녁이면 <strong>절반도 기억이 나지 않았습니다</strong>.\n‘나중에 봐야지’ 하고 미뤘다가 결국 못 본 영상도 적지 않았습니다.\n건강과 아이들 교육, 재테크까지 챙겨야 할 것들이 겹치니 더더욱 놓치기 쉬웠습니다.\n그래서 <heavy>도구를 직접 만들었습니다</heavy>. 방금 본 내용을 <strong>'구조맵'으로 정리</strong>해 두면, 다시 열어도 <strong>흐름과 요지</strong>가 남습니다.”"
+    "quote": "“볼 것은 많은데 <strong>시간은 늘 모자라더군요</strong>.\n영상 보며 ‘정말 유익하다’고 느꼈는데, 저녁이면 <strong>절반도 기억이 나지 않았습니다</strong>.\n‘나중에 봐야지’ 하고 미뤘다가 결국 못 본 영상도 적지 않았습니다.\n건강과 아이들 교육, 재테크까지 챙겨야 할 것들이 겹치니 더더욱 놓치기 쉬웠습니다.\n그래서 <heavy>도구를 직접 만들었습니다</heavy>. 방금 본 내용을 <strong>'구조화된 마인드맵'으로 정리</strong>해 두면, 다시 열어도 <strong>흐름과 요지</strong>가 남습니다.”"
   },
   "MapLibrarySection": {
     "eyebrow": "Build Your Own Standard",
@@ -648,7 +648,7 @@
     "cards": {
       "tags": {
         "title": "태그로 분류",
-        "description": "비슷한 주제의 구조맵을 모아 관점별로 비교하기 쉬워집니다."
+        "description": "비슷한 주제의 마인드맵을 모아 더 쉽게 정리하고 살펴볼 수 있어요."
       },
       "merge": {
         "title": "맵 합치기",
@@ -656,7 +656,7 @@
       },
       "edit": {
         "title": "자유롭게 편집",
-        "description": "구조맵을 내 방식대로 자유롭게 편집할 수 있어요."
+        "description": "마인드맵을 내 방식대로 자유롭게 편집할 수 있어요."
       },
       "read": {
         "title": "하이라이트와 노트",
@@ -1146,7 +1146,7 @@
       "외국어 콘텐츠를 모국어로 결과 생성",
         "단순 요약이 아닙니다. 세부 정보도 놓치지 않아요"
     ],
-    "flowItems": ["스크립트 입력", "구조맵 생성", "읽기 · 편집 · 비교", "나만의 기준 세우기"],
+    "flowItems": ["스크립트 입력", "마인드맵 생성", "읽기 · 편집 · 비교", "나만의 기준 세우기"],
     "videoLabel": "사용 흐름 보기",
     "videoLoadingLabel": "불러오는 중...",
     "visualAlt": "구조화 다이어그램 미리보기"
@@ -1424,7 +1424,7 @@
     "saving": "저장 중..."
   },
   "FullscreenMapPage": {
-    "fallbackTitle": "구조맵",
+    "fallbackTitle": "마인드맵",
     "backToList": "목록",
     "mode": {
       "editing": "편집중",
@@ -1438,7 +1438,7 @@
     "status": {
       "loading": "불러오는 중",
       "loadFailed": "불러오기 실패",
-      "fetchError": "구조맵을 불러오지 못했어요"
+      "fetchError": "마인드맵을 불러오지 못했어요"
     },
     "modeBadge": {
       "edit": "편집모드: 노드 수정/추가 가능",
@@ -1509,7 +1509,7 @@
       "failed": "이미지 저장에 실패했습니다."
     },
     "deleteConfirm": {
-      "title": "구조맵을 삭제할까요?",
+      "title": "마인드맵을 삭제할까요?",
       "description": "삭제하면 복구할 수 없어요. 계속 진행할까요?",
       "action": "삭제",
       "actionDeleting": "삭제 중..."
@@ -1522,8 +1522,8 @@
     "cancel": "취소"
   },
   "FullscreenDialog": {
-    "fallbackTitle": "구조맵",
-    "title": "구조맵 미리보기",
+    "fallbackTitle": "마인드맵",
+    "title": "마인드맵 미리보기",
     "close": "닫기",
     "goList": "내 맵",
     "mode": {
@@ -1543,7 +1543,7 @@
       "tutorial": "튜토리얼"
     },
     "status": {
-      "fetchError": "구조맵을 불러오지 못했어요"
+      "fetchError": "마인드맵을 불러오지 못했어요"
     },
     "modeBadge": {
       "edit": "편집모드: 노드 수정/추가 가능",
@@ -1554,7 +1554,7 @@
     "title": "콘텐츠 정보 입력",
     "subtitle": "제목은 필수이며, 나머지는 선택입니다.",
     "fields": {
-      "sourceQuestion": "이 구조맵은 유튜브 영상을 바탕으로 만든 건가요?",
+      "sourceQuestion": "이 마인드맵은 유튜브 영상을 바탕으로 만든 건가요?",
       "sourceTypeYes": "네",
       "sourceTypeNo": "아니오",
       "url": "유튜브 URL",
@@ -1573,7 +1573,7 @@
       "channel": "채널명 / 작성자 / 출처",
       "thumbnailUrl": "(선택) 썸네일 URL",
       "tags": "태그를 입력하고 Enter로 추가",
-      "description": "이 구조맵에 대한 메모/요약/설명 등을 입력해 주세요."
+      "description": "이 마인드맵에 대한 메모/요약/설명 등을 입력해 주세요."
     },
     "buttons": {
       "youtubeAutofill": "유튜브 정보 불러오기",
@@ -1606,7 +1606,7 @@
     "status": {
       "uploading": "업로드 중..."
     },
-    "footerHint": "제목 입력 후 저장하시면 구조맵 목록에서 관리하실 수 있습니다.",
+    "footerHint": "제목 입력 후 저장하시면 마인드맵 목록에서 관리하실 수 있습니다.",
     "errors": {
       "youtubeUrlRequired": "유튜브 URL을 입력해 주세요.",
       "sessionFailed": "세션을 가져오지 못했습니다: {message}",
@@ -1623,8 +1623,8 @@
   },
   "MapMetadataEditDialog": {
     "title": "메타데이터 수정",
-    "subtitle": "현재 구조맵의 제목, 출처, 태그, 설명을 바로 수정할 수 있어요.",
-    "footerHint": "저장하면 이 구조맵의 메타데이터가 바로 업데이트됩니다.",
+    "subtitle": "현재 마인드맵의 제목, 출처, 태그, 설명을 바로 수정할 수 있어요.",
+    "footerHint": "저장하면 이 마인드맵의 메타데이터가 바로 업데이트됩니다.",
     "buttons": {
       "save": "저장",
       "closeTagPicker": "태그 목록 닫기"
@@ -1849,8 +1849,8 @@
     "tagOrganizeExit": "종료",
     "previewEmpty": {
       "loading": "목록을 불러오는 중이에요.",
-      "noMaps": "아직 생성한 구조맵이 없어요.",
-      "noMapsInRange": "선택한 기간에 생성된 구조맵이 없어요.",
+      "noMaps": "아직 생성한 마인드맵이 없어요.",
+      "noMapsInRange": "선택한 기간에 생성된 마인드맵이 없어요.",
       "noResults": "검색 결과가 없어요.",
       "selectFromList": "좌측에서 맵을 선택해 주세요."
     },
@@ -1863,8 +1863,8 @@
       "selectionTurnsOffTagOrganize": "태그 정리 모드를 종료하고 선택 모드로 전환했어요."
     },
     "empty": {
-      "noMaps": "아직 생성한 구조맵이 없어요.",
-      "noMapsForFilters": "선택한 조건에 맞는 구조맵이 없어요.",
+      "noMaps": "아직 생성한 마인드맵이 없어요.",
+      "noMapsForFilters": "선택한 조건에 맞는 마인드맵이 없어요.",
       "noSearchResults": "검색 결과가 없습니다. 다른 키워드로 시도해 보세요.",
       "noMapsForSelectedTags": "선택한 태그가 붙은 맵이 없어요."
     },
@@ -1875,12 +1875,12 @@
     },
     "dialogs": {
       "deleteMap": {
-        "title": "구조맵을 삭제할까요?",
+        "title": "마인드맵을 삭제할까요?",
         "description": "삭제하면 복구할 수 없어요. 계속 진행할까요?",
         "action": "삭제"
       },
       "deleteSelected": {
-        "title": "선택한 구조맵을 삭제할까요?",
+        "title": "선택한 마인드맵을 삭제할까요?",
         "description": "선택한 맵을 삭제하면 복구할 수 없어요.",
         "action": "선택 삭제"
       },

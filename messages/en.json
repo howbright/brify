@@ -2,12 +2,12 @@
   "VideoToMapPage": {
     "title": {
       "prefix": "Turn text",
-      "highlight": "into a Structure Map"
+      "highlight": "into a Mind Map"
     },
     "description": {
       "beforeBold": "Paste the full script from your video",
       "bold": "just as it is,",
-      "afterBold": "and we'll turn it into a Structure Map that makes the flow and hierarchy easy to see at a glance."
+      "afterBold": "and we'll turn it into a mind map that makes the flow and hierarchy easy to see at a glance."
     },
     "inputSection": {
       "title": "Paste your video script",
@@ -19,29 +19,29 @@
       "rule": "By default, 1 credit covers up to {threshold, number} characters. Scripts longer than that require 2 credits."
     },
     "buttons": {
-      "generate": "Create a Structure Map from this script",
-      "generating": "Creating your Structure Map..."
+      "generate": "Create a mind map from this script",
+      "generating": "Creating your mind map..."
     },
     "status": {
       "reading": "Reading the content...",
       "splittingFlow": "Breaking it into high-level sections...",
-      "arrangingStructure": "Laying everything out as a Structure Map...",
+      "arrangingStructure": "Laying everything out as a mind map...",
       "almostThere": "Almost done. Just a moment!"
     },
     "processing": {
-      "title": "We’re organizing your content into a Structure Map...",
+      "title": "We’re organizing your content into a mind map...",
       "bullet1": "Instead of just summarizing, we first analyze the flow, steps and branches.",
       "bullet2": "Depending on the length of the video, this can take tens of seconds or more.",
       "bullet3": "As long as you keep this page open, the process will continue automatically."
     },
     "result": {
-      "title": "Generated Structure Map",
-      "hint": "Later, you can plug your actual Structure Map component into this area.",
+      "title": "Generated mind map",
+      "hint": "Later, you can plug your actual mind map component into this area.",
       "description": "For now, we’re showing the raw API response as JSON. In the future, this will render a React Flow / mindmap view."
     },
     "modal": {
       "title": "Confirm credit usage",
-      "usageText": "Turning this video script into a Structure Map will use {credits} credit(s).",
+      "usageText": "Turning this video script into a mind map will use {credits} credit(s).",
       "bullet1": "The longer the video, the longer the processing time may be.",
       "bullet2": "Once started, this cannot be undone and used credits are non-refundable.",
       "bullet3": "We recommend keeping this page open while processing is in progress.",
@@ -50,11 +50,11 @@
     },
     "errors": {
       "emptyScript": "Please paste the video script into the field below first.",
-      "insufficientCredits": "You don’t have enough credits to create this Structure Map. Please top up your credits first.",
+      "insufficientCredits": "You don’t have enough credits to create this mind map. Please top up your credits first.",
       "requestFailed": "The request to the server failed. Please try again in a moment.",
       "unknown": "An unknown error occurred.",
       "processingFailed": "Something went wrong while processing.",
-      "openMapFailed": "Failed to load the Structure Map.",
+      "openMapFailed": "Failed to load the mind map.",
       "missingMindData": "mind_elixir data is missing.",
       "tooLargeLine1": "The input is too large to process right now.",
       "tooLargeLine2": "Maximum: {max} characters (billing length)",
@@ -66,7 +66,7 @@
       "youtubeFetchFailed": "Failed to fetch the script.",
       "noTranscriptFound": "Could not find subtitles or a transcript. (The video may not have subtitles.)",
       "missingMapId": "mapId is missing.",
-      "createFailed": "Failed to create the Structure Map.",
+      "createFailed": "Failed to create the mind map.",
       "createTimedOut": "The map creation request is taking too long. The server may be delayed, so please try again shortly."
     },
     "messages": {
@@ -75,8 +75,8 @@
     },
     "labels": {
       "untitled": "Untitled",
-      "draftsTitle": "Created Structure Maps",
-      "previewTitle": "Structure Map Preview"
+      "draftsTitle": "Created mind maps",
+      "previewTitle": "Mind Map Preview"
     }
   },
   "ScriptInputCard": {
@@ -91,9 +91,9 @@
     "languageTitle": "Which language should we use for the map?",
     "generateTitle": "Generate the map",
     "creditsInfo": "{current} credits available · this run uses {required} credit(s)",
-    "generateButton": "Generate Structure Map",
+    "generateButton": "Generate mind map",
     "insufficientCreditsCard": {
-      "title": "You don’t have enough credits to create a Structure Map",
+      "title": "You don’t have enough credits to create a mind map",
       "description": "Top up your credits and you can continue right away.",
       "balance": "Current balance: {current} credits",
       "action": "Top up credits"
@@ -109,7 +109,7 @@
     "more": "More…",
     "dialogAria": "Select output language",
     "title": "Choose an output language",
-    "description": "We’ll generate the Structure Map in the language you select.",
+    "description": "We’ll generate the mind map in the language you select.",
     "close": "Close",
     "searchPlaceholder": "Search languages (e.g. English, Korean, ja, zh...)",
     "noResults": "No results found. Try a different keyword.",
@@ -417,16 +417,16 @@
       }
     },
     "preview": {
-      "eyebrow": "Structure Map Preview",
-      "title": "Structure Map Preview",
-      "helper": "This example is a fixed preview screen. Press the button to explore the structure map directly.",
+      "eyebrow": "Mind Map Preview",
+      "title": "Mind Map Preview",
+      "helper": "This example is a fixed preview screen. Press the button to explore the mind map directly.",
       "cta": "Open Full View",
-      "imageAlt": "Structure map preview frame"
+      "imageAlt": "Mind map preview frame"
     }
   },
   "DemoFullscreenDialog": {
     "dialog": {
-      "title": "Structure Map Preview"
+      "title": "Mind Map Preview"
     },
     "actions": {
       "close": "Close",
@@ -448,8 +448,8 @@
       "editModeRequired": "Switch to Edit mode to modify nodes."
     },
     "shareDialog": {
-      "title": "This Structure Map is for demo only",
-      "description": "In the full service, you can share your Structure Map by link and view it together with others. Start using Brify to create a share link for your own map.",
+      "title": "This mind map is for demo only",
+      "description": "In the full service, you can share your mind map by link and view it together with others. Start using Brify to create a share link for your own map.",
       "action": "Start Using Brify",
       "cancel": "Close"
     },
@@ -639,7 +639,7 @@
     "imageAlt": "Creator of Brify",
     "label": "Creator",
     "name": "Lina",
-    "quote": "“There was always more to watch, and never enough time.\nI’d finish a video feeling it was genuinely helpful, but by the evening <strong>I could barely remember half of it</strong>.\nThere were also plenty of videos I meant to watch later, but never actually got around to.\nWith <strong>health</strong>, <strong>kids’ education</strong>, and <strong>personal finance</strong> all demanding attention, it became even easier to lose track.\nSo I <heavy>built a tool myself</heavy>. If I organize what I just watched into a <strong>“structure map”</strong>, I can reopen it later and still see the <strong>flow and the key points</strong> clearly.”"
+    "quote": "“There was always more to watch, and never enough time.\nI’d finish a video feeling it was genuinely helpful, but by the evening <strong>I could barely remember half of it</strong>.\nThere were also plenty of videos I meant to watch later, but never actually got around to.\nWith <strong>health</strong>, <strong>kids’ education</strong>, and <strong>personal finance</strong> all demanding attention, it became even easier to lose track.\nSo I <heavy>built a tool myself</heavy>. If I organize what I just watched into a <strong>structured mind map</strong>, I can reopen it later and still see the <strong>flow and the key points</strong> clearly.”"
   },
   "MapLibrarySection": {
     "eyebrow": "Build Your Own Standard",
@@ -648,7 +648,7 @@
     "cards": {
       "tags": {
         "title": "Tag Organization",
-        "description": "Group Structure Maps by theme so it becomes easier to compare perspectives side by side."
+        "description": "Group mind maps by theme so it becomes easier to organize and review related ideas."
       },
       "merge": {
         "title": "Merge Maps",
@@ -656,7 +656,7 @@
       },
       "edit": {
         "title": "Edit Freely",
-        "description": "Edit your Structure Map freely in your own way."
+        "description": "Edit your mind map freely in your own way."
       },
       "read": {
         "title": "Highlight and Notes",
@@ -1146,7 +1146,7 @@
       "Generate results from foreign-language content in your native language",
         "Not just a simple summary. It helps you keep the important details"
     ],
-    "flowItems": ["Paste a script", "Create a Structure Map", "Read · Edit · Compare", "Build your own standard"],
+    "flowItems": ["Paste a script", "Create a mind map", "Read · Edit · Compare", "Build your own standard"],
     "videoLabel": "View workflow",
     "videoLoadingLabel": "Loading...",
     "visualAlt": "Structure Map preview"
@@ -1424,7 +1424,7 @@
     "saving": "Saving..."
   },
   "FullscreenMapPage": {
-    "fallbackTitle": "Structure Map",
+    "fallbackTitle": "Mind Map",
     "backToList": "Back",
     "mode": {
       "editing": "Editing",
@@ -1438,7 +1438,7 @@
     "status": {
       "loading": "Loading",
       "loadFailed": "Load failed",
-      "fetchError": "We couldn't load the structure map."
+      "fetchError": "We couldn't load the mind map."
     },
     "modeBadge": {
       "edit": "Edit mode: you can edit/add nodes",
@@ -1509,7 +1509,7 @@
       "failed": "We couldn't save the image."
     },
     "deleteConfirm": {
-      "title": "Delete this structure map?",
+      "title": "Delete this mind map?",
       "description": "This action can’t be undone. Do you want to continue?",
       "action": "Delete",
       "actionDeleting": "Deleting..."
@@ -1522,8 +1522,8 @@
     "cancel": "Cancel"
   },
   "FullscreenDialog": {
-    "fallbackTitle": "Structure Map",
-    "title": "Structure Map Preview",
+    "fallbackTitle": "Mind Map",
+    "title": "Mind Map Preview",
     "close": "Close",
     "goList": "My maps",
     "mode": {
@@ -1543,7 +1543,7 @@
       "tutorial": "Tutorial"
     },
     "status": {
-      "fetchError": "We couldn't load the structure map."
+      "fetchError": "We couldn't load the mind map."
     },
     "modeBadge": {
       "edit": "Edit mode: you can edit/add nodes",
@@ -1554,7 +1554,7 @@
     "title": "Content Details",
     "subtitle": "Title is required; everything else is optional.",
     "fields": {
-      "sourceQuestion": "Is this Structure Map based on a YouTube video?",
+      "sourceQuestion": "Is this mind map based on a YouTube video?",
       "sourceTypeYes": "Yes",
       "sourceTypeNo": "No",
       "url": "YouTube URL",
@@ -1573,7 +1573,7 @@
       "channel": "Channel / Author / Source",
       "thumbnailUrl": "(optional) Thumbnail URL",
       "tags": "Type a tag and press Enter to add it",
-      "description": "Add notes, summary, or description for this structure map."
+      "description": "Add notes, summary, or description for this mind map."
     },
     "buttons": {
       "youtubeAutofill": "Fetch YouTube details",
@@ -1623,8 +1623,8 @@
   },
   "MapMetadataEditDialog": {
     "title": "Edit metadata",
-    "subtitle": "Update the current Structure Map title, source, tags, and description directly.",
-    "footerHint": "Saving will update this Structure Map metadata immediately.",
+    "subtitle": "Update the current mind map title, source, tags, and description directly.",
+    "footerHint": "Saving will update this mind map metadata immediately.",
     "buttons": {
       "save": "Save",
       "closeTagPicker": "Close tag list"
@@ -1849,8 +1849,8 @@
     "tagOrganizeExit": "Exit",
     "previewEmpty": {
       "loading": "Loading the list.",
-      "noMaps": "You have not created any structure maps yet.",
-      "noMapsInRange": "No structure maps were created in the selected date range.",
+      "noMaps": "You have not created any mind maps yet.",
+      "noMapsInRange": "No mind maps were created in the selected date range.",
       "noResults": "No search results.",
       "selectFromList": "Please select a map from the list."
     },
@@ -1863,8 +1863,8 @@
       "selectionTurnsOffTagOrganize": "Tag organize mode was turned off before entering selection mode."
     },
     "empty": {
-      "noMaps": "You have not created any structure maps yet.",
-      "noMapsForFilters": "No structure maps match the selected filters.",
+      "noMaps": "You have not created any mind maps yet.",
+      "noMapsForFilters": "No mind maps match the selected filters.",
       "noSearchResults": "No results found. Try a different keyword.",
       "noMapsForSelectedTags": "There are no maps with the selected tags."
     },
@@ -1875,12 +1875,12 @@
     },
     "dialogs": {
       "deleteMap": {
-        "title": "Delete this structure map?",
+        "title": "Delete this mind map?",
         "description": "This cannot be undone. Do you want to continue?",
         "action": "Delete"
       },
       "deleteSelected": {
-        "title": "Delete selected structure maps?",
+        "title": "Delete selected mind maps?",
         "description": "Deleting selected maps cannot be undone.",
         "action": "Delete selected"
       },

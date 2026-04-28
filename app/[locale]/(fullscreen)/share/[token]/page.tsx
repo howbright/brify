@@ -21,8 +21,8 @@ export async function generateMetadata({
 
   if (!map) {
     return {
-      title: "Brify 공유 구조맵",
-      description: "공유된 구조맵을 확인해보세요.",
+      title: "Brify 공유 마인드맵",
+      description: "공유된 마인드맵을 확인해보세요.",
     };
   }
 
