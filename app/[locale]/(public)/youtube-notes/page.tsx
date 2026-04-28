@@ -9,9 +9,9 @@ type PageProps = {
 
 const PAGE_COPY = {
   ko: {
-    title: "유튜브 정리, 유튜브 내용 정리 | Brify",
+    title: "브라이피(Brify) | 유튜브 정리, 유튜브 내용 정리",
     description:
-      "Brify는 긴 유튜브 대본을 마인드맵으로 정리해 복잡한 내용의 흐름과 구조를 더 빠르게 이해할 수 있게 도와줍니다.",
+      "브라이피(Brify)는 긴 유튜브 대본을 마인드맵으로 정리해 복잡한 내용의 흐름과 구조를 더 빠르게 이해할 수 있게 도와줍니다.",
     pageUrl: "https://www.brify.app/ko/youtube-notes",
     heading: "긴 유튜브 내용을 더 쉽게 정리하는 방법",
     lead:
@@ -32,7 +32,7 @@ const PAGE_COPY = {
       "Brify는 유튜브 대본을 마인드맵으로 정리해, 복잡한 정보를 더 빠르게 이해하고 다시 보기 쉽게 도와줍니다.",
     primaryCta: "데모 보기",
     secondaryCta: "유튜브 요약 페이지 보기",
-    demoHref: "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e",
+    demoHref: "/share/0eb4b0cd-ef56-4078-ba9d-f37cbdc43aad",
     relatedHref: "/ko/youtube-summary",
   },
   en: {
@@ -76,7 +76,7 @@ export async function generateMetadata({
     keywords:
       locale === "en"
         ? ["youtube notes", "youtube organization", "organize youtube videos", "youtube mind map", "Brify"]
-        : ["유튜브 정리", "유튜브 내용 정리", "유튜브 메모", "유튜브 마인드맵", "브리피"],
+        : ["유튜브 정리", "유튜브 내용 정리", "유튜브 메모", "유튜브 마인드맵", "브리피", "브라이피"],
     alternates: {
       canonical: copy.pageUrl,
       languages: {

@@ -643,7 +643,7 @@
   },
   "MapLibrarySection": {
     "eyebrow": "Build Your Own Standard",
-    "title": "The more you compare and connect, the clearer your own standard becomes",
+    "title": "Structure complex information and grasp the flow and key points at a glance",
     "subtitle": "Don’t stop at collecting scattered information. Compare it, organize it, and turn it into a standard you can actually rely on in your own judgment.",
     "cards": {
       "tags": {
@@ -683,8 +683,8 @@
         "role": "Professional handling dense documents"
       },
       "three": {
-        "quote": "I was often confused because different channels made different claims about health, but comparing and organizing large amounts of health-related YouTube information into Structure Maps helped me build my own standard.",
-        "role": "Health enthusiast"
+        "quote": "There were so many YouTube videos I wanted to watch, but I usually ended up only looking at the thumbnails or missing them altogether because I didn’t have time. Now, thanks to Brify, I can catch the important points much faster without missing them.",
+        "role": "Busy YouTube learner"
       }
     }
   },
@@ -805,7 +805,7 @@
   },
   "FinalCTA": {
     "title": "Don’t get pulled around by scattered information,",
-    "subtitle": "compare different perspectives and make decisions based on your own standard.",
+    "subtitle": "Go beyond gathering scattered information and organize it into mind maps for faster understanding.",
     "body": "Build a standard of your own that doesn’t waver, even when opinions differ.",
     "primary": {
       "signedOut": "Get started for free",

@@ -21,9 +21,9 @@ export const revalidate = 0;
 
 const SEO_COPY = {
   ko: {
-    title: "Brify – 유튜브 요약, 유튜브 정리, 마인드맵으로 복잡한 정보 한눈에",
+    title: "브라이피(Brify) – 유튜브 요약, 유튜브 정리, 마인드맵으로 복잡한 정보 한눈에",
     description:
-      "Brify는 유튜브 대본, 웹페이지, 긴 텍스트를 마인드맵으로 정리해 복잡한 정보의 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다.",
+      "브라이피(Brify)는 유튜브 대본, 웹페이지, 긴 텍스트를 마인드맵으로 정리해 복잡한 정보의 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다.",
     imageUrl: "https://www.brify.app/images/sns_ko.png",
     ogLocale: "ko_KR",
     keywords: [
@@ -37,6 +37,8 @@ const SEO_COPY = {
       "유튜브 대본 요약",
       "유튜브 대본 정리",
       "브리피",
+      "브라이피",
+      "Brify",
     ],
   },
   en: {

@@ -19,7 +19,10 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const locale = useLocale();
   const t = useTranslations("Header");
-  const demoShareHref = "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e";
+  const demoShareHref =
+    locale === "en"
+      ? "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e"
+      : "/share/0eb4b0cd-ef56-4078-ba9d-f37cbdc43aad";
   const desktopHeaderClass = "hidden min-[971px]:flex";
   const mobileHeaderClass = "hidden max-[970px]:flex";
 

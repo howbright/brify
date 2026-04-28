@@ -9,9 +9,9 @@ type PageProps = {
 
 const PAGE_COPY = {
   ko: {
-    title: "마인드맵으로 복잡한 정보 정리 | Brify",
+    title: "브라이피(Brify) | 마인드맵으로 복잡한 정보 정리",
     description:
-      "Brify는 유튜브 대본, 웹페이지, 긴 텍스트를 마인드맵으로 정리해 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다.",
+      "브라이피(Brify)는 유튜브 대본, 웹페이지, 긴 텍스트를 마인드맵으로 정리해 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다.",
     pageUrl: "https://www.brify.app/ko/mind-map",
     heading: "마인드맵으로 복잡한 정보를 더 쉽게 이해하세요",
     lead:
@@ -76,7 +76,7 @@ export async function generateMetadata({
     keywords:
       locale === "en"
         ? ["mind map", "youtube mind map", "youtube to mind map", "convert youtube to mind map", "text mind map", "Brify"]
-        : ["마인드맵", "유튜브 마인드맵", "텍스트 마인드맵", "정보 정리", "브리피"],
+        : ["마인드맵", "유튜브 마인드맵", "텍스트 마인드맵", "정보 정리", "브리피", "브라이피"],
     alternates: {
       canonical: copy.pageUrl,
       languages: {

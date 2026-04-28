@@ -185,7 +185,9 @@ function HeroDiagramImage({
 export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boolean }) {
   const t = useTranslations("LandingBlueHero");
   const locale = useLocale();
-  const demoShareToken = "3a805093-2bcf-484c-8a2d-e9d4f676d88e";
+  const demoShareToken = locale === "en"
+    ? "3a805093-2bcf-484c-8a2d-e9d4f676d88e"
+    : "0eb4b0cd-ef56-4078-ba9d-f37cbdc43aad";
   const demoShareHref = `/share/${demoShareToken}`;
   const [idx, setIdx] = useState(0);
 

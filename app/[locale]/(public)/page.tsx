@@ -34,13 +34,14 @@ export default async function Home({
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "Brify",
+    name: isEnglish ? "Brify" : "브라이피 Brify",
+    alternateName: isEnglish ? ["Brify"] : ["Brify", "브라이피"],
     applicationCategory: "ProductivityApplication",
     operatingSystem: "Web",
     url: `https://www.brify.app/${locale}`,
     description: isEnglish
       ? "Brify turns YouTube transcripts, webpages, and long text into mind maps so you can understand complex information at a glance."
-      : "Brify는 유튜브 대본, 웹페이지, 긴 텍스트를 마인드맵으로 정리해 복잡한 정보의 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다.",
+      : "브라이피(Brify)는 유튜브 대본, 웹페이지, 긴 텍스트를 마인드맵으로 정리해 복잡한 정보의 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다.",
     inLanguage: isEnglish ? "en" : "ko",
     offers: {
       "@type": "Offer",
