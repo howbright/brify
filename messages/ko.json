@@ -1483,8 +1483,8 @@
       "disabled": "공유 링크를 끄었습니다.",
       "copied": "링크를 복사했어요.",
       "copyFailed": "복사에 실패했습니다.",
-      "openInBrowser": "브라우저에서 열기",
-      "copyLink": "링크 복사"
+      "copyLink": "링크 복사",
+      "inAppHint": "인앱 브라우저에서는 구조맵이 잘 작동하지 않을 수 있어요. 링크를 복사해 새 브라우저에서 열어주세요."
     },
     "shareDialog": {
       "title": "공유 링크",

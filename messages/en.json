@@ -1483,8 +1483,8 @@
       "disabled": "Sharing turned off.",
       "copied": "Link copied.",
       "copyFailed": "We couldn't copy the link.",
-      "openInBrowser": "Open in browser",
-      "copyLink": "Copy link"
+      "copyLink": "Copy link",
+      "inAppHint": "Structure Maps may not work properly in in-app browsers. Copy the link and open it in a separate browser."
     },
     "shareDialog": {
       "title": "Share link",

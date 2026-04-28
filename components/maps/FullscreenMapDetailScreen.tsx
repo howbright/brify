@@ -341,8 +341,9 @@ export default function FullscreenMapDetailScreen({
   const [mobileMapActionsOpen, setMobileMapActionsOpen] = useState(false);
   const [mobileThemeOpen, setMobileThemeOpen] = useState(false);
   const [mobileLanguageOpen, setMobileLanguageOpen] = useState(false);
-  const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(true);
+  const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(false);
   const [showTimestamps, setShowTimestamps] = useState(false);
+  const [isLikelyInAppBrowser, setIsLikelyInAppBrowser] = useState(false);
   const desktopMoreRef = useRef<HTMLDivElement | null>(null);
   const mobileMapActionsRef = useRef<HTMLDivElement | null>(null);
   const mobileThemeRef = useRef<HTMLDivElement | null>(null);
@@ -1376,17 +1377,14 @@ export default function FullscreenMapDetailScreen({
     return `${origin}/${locale}/share/${encodeURIComponent(shareToken)}`;
   }, [isSharedView, shareToken, locale]);
 
-  const handleOpenInBrowser = () => {
-    const url = shareUrl;
-    if (!url) return;
-    const opened = window.open(url, "_blank", "noopener,noreferrer");
-    if (opened) return;
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.target = "_blank";
-    anchor.rel = "noopener noreferrer";
-    anchor.click();
-  };
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const ua = window.navigator.userAgent || window.navigator.vendor || "";
+    const isInApp =
+      /(KAKAOTALK|FBAN|FBAV|Instagram|Line|NAVER|DaumApps|WebView|wv)/i.test(ua) ||
+      (/Android/i.test(ua) && /Version\/[\d.]+/i.test(ua) && !/Chrome/i.test(ua));
+    setIsLikelyInAppBrowser(isInApp);
+  }, []);
 
   const statusLabel = isSavingDraft
     ? t("draftStatus.autoSaving")
@@ -1982,26 +1980,26 @@ export default function FullscreenMapDetailScreen({
       />
 
       <div className="relative w-full" style={{ height: "calc(100% - var(--header-h))" }}>
-        {isSharedView ? (
-          <div className="pointer-events-auto absolute left-3 right-3 top-3 z-[26] flex items-center gap-2 sm:hidden">
-            <button
-              type="button"
-              onClick={handleOpenInBrowser}
-              className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border border-slate-300/90 bg-white/96 px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.7)] backdrop-blur-sm dark:border-white/12 dark:bg-[#0f172a]/92 dark:text-white/88"
-            >
-              <Icon icon="mdi:open-in-new" className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">{t("share.openInBrowser")}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                void handleCopyShare();
-              }}
-              className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border border-slate-300/90 bg-white/96 px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.7)] backdrop-blur-sm dark:border-white/12 dark:bg-[#0f172a]/92 dark:text-white/88"
-            >
-              <Icon icon="mdi:content-copy" className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">{t("share.copyLink")}</span>
-            </button>
+        {isSharedView && isLikelyInAppBrowser ? (
+          <div className="pointer-events-auto absolute left-3 right-16 top-3 z-[24] sm:hidden">
+            <div className="rounded-2xl border border-amber-200/90 bg-amber-50/96 px-3 py-2.5 text-[11px] text-amber-900 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.7)] backdrop-blur-sm dark:border-amber-300/20 dark:bg-[#1f1606]/92 dark:text-amber-100/92">
+              <div className="flex items-start gap-2">
+                <Icon icon="mdi:alert-circle-outline" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="leading-4">{t("share.inAppHint")}</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void handleCopyShare();
+                    }}
+                    className="mt-2 inline-flex items-center gap-1 rounded-full border border-amber-300/80 bg-white/80 px-2.5 py-1 text-[10px] font-semibold text-amber-900 dark:border-amber-200/20 dark:bg-white/10 dark:text-amber-50"
+                  >
+                    <Icon icon="mdi:content-copy" className="h-3 w-3 shrink-0" />
+                    {t("share.copyLink")}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         ) : null}
         <div className="pointer-events-auto absolute right-3 top-3 z-[25] flex flex-col gap-2 sm:hidden">
