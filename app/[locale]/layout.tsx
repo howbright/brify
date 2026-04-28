@@ -21,11 +21,23 @@ export const revalidate = 0;
 
 const SEO_COPY = {
   ko: {
-    title: "Brify – 긴 글을 한눈에 정리하세요",
+    title: "Brify – 유튜브 요약, 유튜브 정리, 마인드맵으로 복잡한 정보 한눈에",
     description:
-      "Brify는 긴 글과 영상을 구조맵으로 정리해, 세부정보를 놓치지 않으면서 필요한 정보를 빠르게 파악할 수 있게 도와줍니다. 텍스트, 웹페이지, YouTube를 한눈에 읽어보세요.",
+      "Brify는 유튜브 대본, 웹페이지, 긴 텍스트를 마인드맵으로 정리해 복잡한 정보의 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다.",
     imageUrl: "https://brify.app/images/sns_ko.png",
     ogLocale: "ko_KR",
+    keywords: [
+      "유튜브 요약",
+      "유튜브 정리",
+      "유튜브 마인드맵",
+      "마인드맵",
+      "긴 글 요약",
+      "웹페이지 요약",
+      "정보 정리",
+      "유튜브 대본 요약",
+      "유튜브 대본 정리",
+      "브리피",
+    ],
   },
   en: {
     title: "Brify – Turn YouTube, webpages, and long text into mind maps",
@@ -33,6 +45,16 @@ const SEO_COPY = {
       "Brify helps you organize long videos and text into visual maps so you can understand complex information at a glance.",
     imageUrl: "https://brify.app/images/sns_en.png",
     ogLocale: "en_US",
+    keywords: [
+      "youtube summary",
+      "youtube notes",
+      "youtube mind map",
+      "mind map",
+      "long text summary",
+      "webpage summary",
+      "information organization",
+      "Brify",
+    ],
   },
 } as const;
 
@@ -49,7 +71,15 @@ export async function generateMetadata({
   return {
     title: copy.title,
     description: copy.description,
+    keywords: [...copy.keywords],
     metadataBase: new URL("https://brify.app"),
+    alternates: {
+      canonical: pageUrl,
+      languages: {
+        ko: "https://brify.app/ko",
+        en: "https://brify.app/en",
+      },
+    },
     openGraph: {
       title: copy.title,
       description: copy.description,

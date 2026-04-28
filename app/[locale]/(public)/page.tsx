@@ -15,6 +15,7 @@ export default async function Home({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const isEnglish = locale === "en";
   const supabase = await createClient();
   const {
     data: { user },
@@ -29,9 +30,31 @@ export default async function Home({
     popular: pack.popular,
     starter: pack.starter,
   }));
-  // const t = useTranslations("HomePage");
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Brify",
+    applicationCategory: "ProductivityApplication",
+    operatingSystem: "Web",
+    url: `https://brify.app/${locale}`,
+    description: isEnglish
+      ? "Brify turns YouTube transcripts, webpages, and long text into mind maps so you can understand complex information at a glance."
+      : "Brify는 유튜브 대본, 웹페이지, 긴 텍스트를 마인드맵으로 정리해 복잡한 정보의 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다.",
+    inLanguage: isEnglish ? "en" : "ko",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: isEnglish ? "USD" : "KRW",
+    },
+  };
+
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <Hero isAuthed={isAuthed} />
       <HeroFlowStrip />
       <MapLibrarySection />
