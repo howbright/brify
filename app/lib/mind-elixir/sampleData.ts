@@ -126,19 +126,56 @@ export const sampled = {
   }
 }
 
-// ✅ 구조맵 로딩용 플레이스홀더 (MindElixir용)
-export const loadingMindElixir = {
-  nodeData: {
-    id: "loading-root",
-    root: true,
-    topic: "구조맵 데이터를 가져오는 중입니다...",
-    children: [
-      { id: "loading-0", topic: "구조맵 생성하는 중 ...", children: [] },
-      { id: "loading-1", topic: "조금만 기다려주세요 ...", children: [] },
-      { id: "loading-2", topic: "내용을 정리하는 중 ...", children: [] },
-      { id: "loading-3", topic: "곧 완성됩니다 ...", children: [] },
-      { id: "loading-4", topic: "마지막 다듬는 중 ...", children: [] },
-    ],
+type LoadingLocale = "ko" | "en";
+
+const LOADING_MIND_ELIXIR_BY_LOCALE: Record<
+  LoadingLocale,
+  {
+    nodeData: {
+      id: string;
+      root: true;
+      topic: string;
+      children: Array<{ id: string; topic: string; children: [] }>;
+    };
+    linkData: Record<string, never>;
+  }
+> = {
+  ko: {
+    nodeData: {
+      id: "loading-root",
+      root: true,
+      topic: "구조맵 데이터를 가져오는 중입니다...",
+      children: [
+        { id: "loading-0", topic: "구조맵 생성하는 중 ...", children: [] },
+        { id: "loading-1", topic: "조금만 기다려주세요 ...", children: [] },
+        { id: "loading-2", topic: "내용을 정리하는 중 ...", children: [] },
+        { id: "loading-3", topic: "곧 완성됩니다 ...", children: [] },
+        { id: "loading-4", topic: "마지막 다듬는 중 ...", children: [] },
+      ],
+    },
+    linkData: {},
   },
-  linkData: {},
+  en: {
+    nodeData: {
+      id: "loading-root",
+      root: true,
+      topic: "Loading your Structure Map...",
+      children: [
+        { id: "loading-0", topic: "Generating the map ...", children: [] },
+        { id: "loading-1", topic: "Please wait a moment ...", children: [] },
+        { id: "loading-2", topic: "Organizing the content ...", children: [] },
+        { id: "loading-3", topic: "Almost there ...", children: [] },
+        { id: "loading-4", topic: "Polishing the final result ...", children: [] },
+      ],
+    },
+    linkData: {},
+  },
 };
+
+export function getLoadingMindElixir(locale?: string) {
+  const normalized = locale?.toLowerCase() === "ko" ? "ko" : "en";
+  return LOADING_MIND_ELIXIR_BY_LOCALE[normalized];
+}
+
+// Backward-compatible default
+export const loadingMindElixir = getLoadingMindElixir("ko");

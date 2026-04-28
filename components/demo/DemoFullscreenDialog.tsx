@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useMessages, useTranslations } from "next-intl";
+import { useLocale, useMessages, useTranslations } from "next-intl";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { toast } from "sonner";
 
@@ -26,7 +26,7 @@ import {
   MIND_THEME_BY_NAME,
 } from "@/components/maps/themes";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
-import { loadingMindElixir } from "@/app/lib/mind-elixir/sampleData";
+import { getLoadingMindElixir } from "@/app/lib/mind-elixir/sampleData";
 import {
   getMapTutorialCompleted,
   setMapTutorialCompleted,
@@ -554,6 +554,7 @@ export default function DemoFullscreenDialog({
   language?: DemoLanguage;
 }) {
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations("DemoFullscreenDialog");
   const tMap = useTranslations("FullscreenMapPage");
   const tTutorial = useTranslations("MapTutorial");
@@ -578,6 +579,7 @@ export default function DemoFullscreenDialog({
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(false);
   const [desktopMoreOpen, setDesktopMoreOpen] = useState(false);
   const [showTimestamps, setShowTimestamps] = useState(true);
+  const loadingMindElixir = useMemo(() => getLoadingMindElixir(locale), [locale]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Array<{ id: string; text: string }>>([]);

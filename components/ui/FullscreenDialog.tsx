@@ -5,12 +5,12 @@ import { Icon } from "@iconify/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTheme } from "next-themes";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import LeftPanel from "@/components/maps/LeftPanel";
 import FullscreenHeader from "@/components/maps/FullscreenHeader";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
-import { loadingMindElixir } from "@/app/lib/mind-elixir/sampleData";
+import { getLoadingMindElixir } from "@/app/lib/mind-elixir/sampleData";
 import MapControls from "@/components/maps/MapControls";
 import {
   DEFAULT_THEME_NAME,
@@ -118,9 +118,11 @@ export default function FullscreenDialog({
   );
   const mindRef = useRef<ClientMindElixirHandle | null>(null);
   const { resolvedTheme } = useTheme();
+  const locale = useLocale();
   const t = useTranslations("FullscreenDialog");
   const tTutorial = useTranslations("MapTutorial");
   const isTutorialMobile = useTutorialIsMobile();
+  const loadingMindElixir = useMemo(() => getLoadingMindElixir(locale), [locale]);
   const headerTitle = title ?? draft?.title ?? t("fallbackTitle");
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);

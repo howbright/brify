@@ -32,7 +32,7 @@ import { createClient } from "@/utils/supabase/client";
 import LanguageSelector from "@/components/LanguageSelector";
 import type { Database } from "@/app/types/database.types";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
-import { loadingMindElixir } from "@/app/lib/mind-elixir/sampleData";
+import { getLoadingMindElixir } from "@/app/lib/mind-elixir/sampleData";
 import {
   getMapTutorialCompleted,
   setMapTutorialCompleted,
@@ -281,6 +281,7 @@ export default function FullscreenMapDetailScreen({
     ],
     []
   );
+  const loadingMindElixir = useMemo(() => getLoadingMindElixir(locale), [locale]);
 
   const [draft, setDraft] = useState<MapDraft | null>(null);
   const [mapData, setMapData] = useState<MapRow["mind_elixir"] | null>(null);
