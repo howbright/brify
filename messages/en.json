@@ -121,7 +121,7 @@
       "success": "PDF text extraction is complete.",
       "charCount": "Extracted length: {count} characters"
     },
-    "youtubeHelp": "How to get a YouTube script",
+    "youtubeHelp": "How to copy a YouTube transcript",
     "tooLargeTitle": "The input is too large to process.",
     "billingLength": "Billing length: {count} characters",
     "maxLength": "Maximum allowed: {count} characters",

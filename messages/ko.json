@@ -121,7 +121,7 @@
       "success": "PDF 텍스트 추출이 완료되었습니다.",
       "charCount": "추출 분량: {count}자"
     },
-    "youtubeHelp": "유튜브 스크립트 가져오는 방법 안내",
+    "youtubeHelp": "유튜브 스크립트 복사하는 방법 안내",
     "tooLargeTitle": "입력 분량이 너무 커서 처리할 수 없습니다.",
     "billingLength": "과금 기준 분량: {count}자",
     "maxLength": "최대 허용: {count}자",
