@@ -5,6 +5,13 @@ import { useTranslations } from "next-intl";
 import OutputLanguageSelect from "./OutputLanguageSelect";
 
 type Props = {
+  inputMode?: "text" | "docx";
+  onChangeInputMode?: (mode: "text" | "docx") => void;
+  onSelectDocxFile?: (file: File) => void;
+  docxUploadState?: "idle" | "uploading" | "success" | "error";
+  docxFileName?: string | null;
+  docxCharCount?: number | null;
+  docxError?: string | null;
   scriptText: string;
   setScriptText: (v: string) => void;
   error: string | null;
@@ -35,6 +42,13 @@ type Props = {
 };
 
 export default function ScriptInputCard({
+  inputMode = "text",
+  onChangeInputMode,
+  onSelectDocxFile,
+  docxUploadState = "idle",
+  docxFileName = null,
+  docxCharCount = null,
+  docxError = null,
   scriptText,
   setScriptText,
   error,
@@ -134,6 +148,35 @@ export default function ScriptInputCard({
         ) : null}
       </div>
 
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onChangeInputMode?.("text")}
+          disabled={locked}
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] font-semibold transition ${
+            inputMode === "text"
+              ? "border-blue-600 bg-blue-600 text-white dark:border-blue-400 dark:bg-blue-400 dark:text-slate-900"
+              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/25 dark:bg-white/[0.08] dark:text-slate-100 dark:hover:bg-white/[0.14]"
+          } disabled:cursor-not-allowed disabled:opacity-60`}
+        >
+          <Icon icon="mdi:text-box-outline" className="h-4 w-4" />
+          {t("mode.text")}
+        </button>
+        <button
+          type="button"
+          onClick={() => onChangeInputMode?.("docx")}
+          disabled={locked}
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] font-semibold transition ${
+            inputMode === "docx"
+              ? "border-blue-600 bg-blue-600 text-white dark:border-blue-400 dark:bg-blue-400 dark:text-slate-900"
+              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/25 dark:bg-white/[0.08] dark:text-slate-100 dark:hover:bg-white/[0.14]"
+          } disabled:cursor-not-allowed disabled:opacity-60`}
+        >
+          <Icon icon="mdi:file-word-box" className="h-4 w-4" />
+          {t("mode.docx")}
+        </button>
+      </div>
+
       {/* ✅ 한도 초과 배너 (잠금과 무관하게 표시) */}
       {isTooLarge && (
         <div
@@ -160,8 +203,58 @@ export default function ScriptInputCard({
         </div>
       )}
 
-      <div className="space-y-2">
-        <textarea
+      {inputMode === "docx" ? (
+        <div className="space-y-2 rounded-2xl border border-blue-200 bg-white/85 p-4 dark:border-white/15 dark:bg-slate-950/65">
+          <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+            {t("docx.title")}
+          </p>
+          <p className="text-xs text-neutral-600 dark:text-neutral-300">{t("docx.hint")}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <label
+              className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-[13px] font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-white/25 dark:bg-white/[0.08] dark:text-slate-100 dark:hover:bg-white/[0.14] ${
+                locked ? "pointer-events-none opacity-60" : ""
+              }`}
+            >
+              <Icon icon="mdi:upload" className="h-4 w-4" />
+              {t("docx.select")}
+              <input
+                type="file"
+                accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) onSelectDocxFile?.(file);
+                  e.currentTarget.value = "";
+                }}
+                disabled={locked}
+              />
+            </label>
+            <span className="text-xs text-neutral-500 dark:text-neutral-300">{t("docx.support")}</span>
+          </div>
+
+          {docxUploadState === "uploading" ? (
+            <p className="text-xs font-semibold text-blue-700 dark:text-blue-300">
+              {t("docx.uploading")}
+            </p>
+          ) : null}
+
+          {docxUploadState === "success" && docxFileName ? (
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800 dark:border-emerald-300/25 dark:bg-emerald-400/10 dark:text-emerald-200">
+              <p className="font-semibold">{t("docx.success")}</p>
+              <p>{docxFileName}</p>
+              {typeof docxCharCount === "number" ? (
+                <p>{t("docx.charCount", { count: docxCharCount })}</p>
+              ) : null}
+            </div>
+          ) : null}
+
+          {docxUploadState === "error" && docxError ? (
+            <p className="text-xs font-semibold text-red-600 dark:text-red-300">{docxError}</p>
+          ) : null}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <textarea
           className="
             w-full min-h-[260px] md:min-h-[300px] resize-y
             rounded-2xl border-2 border-indigo-600 bg-white
@@ -220,7 +313,8 @@ export default function ScriptInputCard({
           readOnly={textareaReadOnly}
           disabled={locked}
         />
-      </div>
+        </div>
+      )}
 
       {error && !showInsufficientCreditsCard ? (
         <p className="text-[13px] sm:text-sm text-red-500 whitespace-pre-line">{error}</p>

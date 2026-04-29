@@ -82,6 +82,19 @@
   "ScriptInputCard": {
     "lockedMessage": "This task is in progress. Please wait a moment.",
     "title": "Paste your content",
+    "mode": {
+      "text": "Paste text",
+      "docx": "Word upload (.docx)"
+    },
+    "docx": {
+      "title": "Extract text from a Word document",
+      "hint": "Tables and styling are skipped. Only text is extracted and applied to the input automatically.",
+      "select": "Select Word file",
+      "support": "Supported format: .docx",
+      "uploading": "Extracting text from the document...",
+      "success": "Text extraction is complete.",
+      "charCount": "Extracted length: {count} characters"
+    },
     "youtubeHelp": "How to get a YouTube script",
     "tooLargeTitle": "The input is too large to process.",
     "billingLength": "Billing length: {count} characters",

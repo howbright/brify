@@ -230,6 +230,13 @@ export default function VideoToMapPage() {
   const router = useRouter();
 
   const [scriptText, setScriptText] = useState("");
+  const [inputMode, setInputMode] = useState<"text" | "docx">("text");
+  const [docxUploadState, setDocxUploadState] = useState<
+    "idle" | "uploading" | "success" | "error"
+  >("idle");
+  const [docxFileName, setDocxFileName] = useState<string | null>(null);
+  const [docxCharCount, setDocxCharCount] = useState<number | null>(null);
+  const [docxError, setDocxError] = useState<string | null>(null);
 
   const [showCreditDialog, setShowCreditDialog] = useState(false);
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
@@ -320,6 +327,59 @@ export default function VideoToMapPage() {
         current: current.toLocaleString(),
       }),
     ].join("\n");
+
+  const handleSelectDocxFile = async (file: File) => {
+    setDocxUploadState("uploading");
+    setDocxError(null);
+    setDocxFileName(null);
+    setDocxCharCount(null);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/docx/extract", {
+        method: "POST",
+        body: formData,
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json?.success) {
+        const message =
+          json?.error || t("errors.processingFailed");
+        throw new Error(message);
+      }
+
+      const extractedText =
+        typeof json.extractedText === "string" ? json.extractedText : "";
+      if (!extractedText.trim()) {
+        throw new Error(
+          "문서에서 텍스트를 추출하지 못했습니다. 다른 .docx 파일로 다시 시도해 주세요."
+        );
+      }
+
+      const nextCharCount =
+        typeof json.charCount === "number" ? json.charCount : extractedText.length;
+      const nextFileName =
+        typeof json.fileName === "string" && json.fileName.trim()
+          ? json.fileName.trim()
+          : file.name;
+
+      setScriptText(extractedText);
+      setDocxFileName(nextFileName);
+      setDocxCharCount(nextCharCount);
+      setDocxUploadState("success");
+      setInputMode("text");
+      openToast("텍스트 추출이 완료되었습니다.");
+    } catch (e) {
+      const message =
+        e instanceof Error ? e.message : "문서 처리 중 오류가 발생했습니다. 다시 시도해 주세요.";
+      setDocxUploadState("error");
+      setDocxError(message);
+      setError(message);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -927,6 +987,13 @@ export default function VideoToMapPage() {
           {/* ✅ 입력영역 ↔ 결과패널 */}
           {viewMode === "input" ? (
             <ScriptInputCard
+              inputMode={inputMode}
+              onChangeInputMode={setInputMode}
+              onSelectDocxFile={handleSelectDocxFile}
+              docxUploadState={docxUploadState}
+              docxFileName={docxFileName}
+              docxCharCount={docxCharCount}
+              docxError={docxError}
               scriptText={scriptText}
               setScriptText={setScriptText}
               error={error}
