@@ -9,7 +9,7 @@ type Props = {
       <section className="rounded-3xl border bg-blue-50 p-4">
         <p className="font-semibold mb-2">{title}</p>
         <p className="text-sm mb-3">{message}...</p>
-        <ul className="list-disc list-inside text-xs space-y-1">
+        <ul className="flex flex-col gap-1 list-disc list-inside text-xs">
           {bullets.map((b) => (
             <li key={b}>{b}</li>
           ))}

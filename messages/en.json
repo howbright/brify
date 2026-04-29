@@ -51,6 +51,7 @@
     "errors": {
       "emptyScript": "Please paste the video script into the field below first.",
       "insufficientCredits": "You don’t have enough credits to create this mind map. Please top up your credits first.",
+      "creditAvailabilityMismatch": "Your total credits and usable credits are different. Usable: {usable} / Total: {raw}. Some credits may be expired, or credit lot synchronization may be needed.",
       "requestFailed": "The request to the server failed. Please try again in a moment.",
       "unknown": "An unknown error occurred.",
       "processingFailed": "Something went wrong while processing.",
@@ -60,10 +61,20 @@
       "tooLargeLine2": "Maximum: {max} characters (billing length)",
       "tooLargeLine3": "Current: {current} characters (billing length)",
       "youtubeUrlRequired": "Please enter a YouTube URL.",
+      "fileRequired": "Please select a file to upload.",
+      "fileTooLarge": "The file is too large. Please upload a file up to {maxMb}MB.",
+      "docxUnsupportedType": "Only .docx files are supported.",
+      "pdfUnsupportedType": "Only .pdf files are supported.",
+      "encryptedPdf": "Encrypted PDFs are not supported yet. Please remove the password and try again.",
+      "moduleNotInstalled": "The file extraction module is not installed. Please contact the administrator.",
       "sessionFailed": "Failed to get the session: {message}",
       "loginRequired": "Please sign in first.",
       "missingApiBase": "NEXT_PUBLIC_API_BASE_URL is missing.",
       "youtubeFetchFailed": "Failed to fetch the script.",
+      "docxNoText": "Could not extract text from the document. Please try another .docx file.",
+      "docxProcessFailed": "An error occurred while processing the document. Please try again.",
+      "pdfNoText": "Could not extract text from the PDF. It may be an image-based (scanned) PDF, and some PDFs created via print features can be hard to extract.",
+      "pdfProcessFailed": "An error occurred while processing the PDF. Please try again.",
       "noTranscriptFound": "Could not find subtitles or a transcript. (The video may not have subtitles.)",
       "missingMapId": "mapId is missing.",
       "createFailed": "Failed to create the mind map.",
@@ -71,7 +82,10 @@
     },
     "messages": {
       "youtubeFilled": "We filled the input with the fetched script. You can create the map right away.",
-      "insufficientCreditsToast": "Not enough credits."
+      "insufficientCreditsToast": "Not enough credits.",
+      "docxExtractSuccess": "Text extraction is complete.",
+      "pdfExtractSuccess": "PDF text extraction is complete.",
+      "pdfExtractWithWarning": "Text extraction is complete, but some content may be missing. It may be an image-based PDF or a PDF created via print features."
     },
     "labels": {
       "untitled": "Untitled",
@@ -92,6 +106,7 @@
       "hint": "Tables and styling are skipped. Only text is extracted and applied to the input automatically.",
       "select": "Select Word file",
       "support": "Supported format: .docx",
+      "dropHint": "Or drag and drop a .docx file here.",
       "uploading": "Extracting text from the document...",
       "success": "Text extraction is complete.",
       "charCount": "Extracted length: {count} characters"
@@ -101,6 +116,7 @@
       "hint": "Layout is ignored and only text is extracted. Image-based PDFs may have lower extraction quality.",
       "select": "Select PDF file",
       "support": "Supported format: .pdf",
+      "dropHint": "Or drag and drop a .pdf file here.",
       "uploading": "Extracting text from PDF...",
       "success": "PDF text extraction is complete.",
       "charCount": "Extracted length: {count} characters"

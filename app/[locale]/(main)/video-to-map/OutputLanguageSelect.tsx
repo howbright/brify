@@ -251,7 +251,7 @@ export default function OutputLanguageSelect({
               />
               <div className="relative">
               <div className="flex items-start justify-between gap-3">
-                <div className="space-y-1">
+                <div className="flex flex-col gap-1">
                   <h3 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
                     {t("title")}
                   </h3>

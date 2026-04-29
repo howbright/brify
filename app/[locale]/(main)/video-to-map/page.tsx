@@ -26,6 +26,7 @@ type BalanceResponse = {
   total: number;
   paid: number;
   free: number;
+  paidRaw?: number;
 };
 
 /**
@@ -275,6 +276,7 @@ export default function VideoToMapPage() {
   // const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const [currentCredits, setCurrentCredits] = useState(0);
+  const [creditMismatchNotice, setCreditMismatchNotice] = useState<string | null>(null);
 
   // ✅ 렌더에서는 안전 계산만
   const creditInfo = useMemo(
@@ -353,17 +355,28 @@ export default function VideoToMapPage() {
 
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json?.success) {
+        const code = typeof json?.errorCode === "string" ? json.errorCode : "";
         const message =
-          json?.error || t("errors.processingFailed");
+          code === "FILE_REQUIRED"
+            ? t("errors.fileRequired")
+            : code === "UNSUPPORTED_FILE_TYPE"
+            ? t("errors.docxUnsupportedType")
+            : code === "FILE_TOO_LARGE"
+            ? t("errors.fileTooLarge", { maxMb: Number(json?.maxFileSizeMb) || 50 })
+            : code === "NO_EXTRACTED_TEXT"
+            ? t("errors.docxNoText")
+            : code === "MODULE_NOT_INSTALLED"
+            ? t("errors.moduleNotInstalled")
+            : code === "PROCESSING_FAILED"
+            ? t("errors.docxProcessFailed")
+            : json?.error || t("errors.processingFailed");
         throw new Error(message);
       }
 
       const extractedText =
         typeof json.extractedText === "string" ? json.extractedText : "";
       if (!extractedText.trim()) {
-        throw new Error(
-          "문서에서 텍스트를 추출하지 못했습니다. 다른 .docx 파일로 다시 시도해 주세요."
-        );
+        throw new Error(t("errors.docxNoText"));
       }
 
       const nextCharCount =
@@ -378,10 +391,10 @@ export default function VideoToMapPage() {
       setDocxCharCount(nextCharCount);
       setDocxUploadState("success");
       setInputMode("text");
-      openToast("텍스트 추출이 완료되었습니다.");
+      openToast(t("messages.docxExtractSuccess"));
     } catch (e) {
       const message =
-        e instanceof Error ? e.message : "문서 처리 중 오류가 발생했습니다. 다시 시도해 주세요.";
+        e instanceof Error ? e.message : t("errors.docxProcessFailed");
       setDocxUploadState("error");
       setDocxError(message);
     }
@@ -406,18 +419,33 @@ export default function VideoToMapPage() {
 
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json?.success) {
+        const code = typeof json?.errorCode === "string" ? json.errorCode : "";
         const detail =
           typeof json?.detail === "string" && json.detail.trim() ? ` (${json.detail})` : "";
-        const message = (json?.error || t("errors.processingFailed")) + detail;
+        const baseMessage =
+          code === "FILE_REQUIRED"
+            ? t("errors.fileRequired")
+            : code === "UNSUPPORTED_FILE_TYPE"
+            ? t("errors.pdfUnsupportedType")
+            : code === "FILE_TOO_LARGE"
+            ? t("errors.fileTooLarge", { maxMb: Number(json?.maxFileSizeMb) || 50 })
+            : code === "NO_EXTRACTED_TEXT"
+            ? t("errors.pdfNoText")
+            : code === "ENCRYPTED_PDF"
+            ? t("errors.encryptedPdf")
+            : code === "MODULE_NOT_INSTALLED"
+            ? t("errors.moduleNotInstalled")
+            : code === "PROCESSING_FAILED"
+            ? t("errors.pdfProcessFailed")
+            : json?.error || t("errors.processingFailed");
+        const message = baseMessage + detail;
         throw new Error(message);
       }
 
       const extractedText =
         typeof json.extractedText === "string" ? json.extractedText : "";
       if (!extractedText.trim()) {
-        throw new Error(
-          "PDF에서 텍스트를 추출하지 못했습니다. 이미지 기반 PDF(스캔본)일 수 있으며, 프린트 기능으로 만든 PDF는 일부 텍스트 추출이 어려울 수 있습니다."
-        );
+        throw new Error(t("errors.pdfNoText"));
       }
 
       const nextCharCount =
@@ -439,12 +467,12 @@ export default function VideoToMapPage() {
       setInputMode("text");
       openToast(
         nextWarning
-          ? "텍스트 추출은 완료됐지만 일부 누락될 수 있어요. 이미지 기반 PDF이거나 프린트로 만든 PDF일 수 있습니다."
-          : "PDF 텍스트 추출이 완료되었습니다."
+          ? t("messages.pdfExtractWithWarning")
+          : t("messages.pdfExtractSuccess")
       );
     } catch (e) {
       const message =
-        e instanceof Error ? e.message : "PDF 처리 중 오류가 발생했습니다. 다시 시도해 주세요.";
+        e instanceof Error ? e.message : t("errors.pdfProcessFailed");
       setPdfUploadState("error");
       setPdfError(message);
     }
@@ -464,7 +492,24 @@ export default function VideoToMapPage() {
         if (!res.ok) return;
 
         const data: BalanceResponse = await res.json();
-        if (!cancelled) setCurrentCredits(data.total ?? 0);
+        if (!cancelled) {
+          const total = Number(data.total ?? 0);
+          const paidRaw = Number(data.paidRaw ?? data.paid ?? 0);
+          const free = Number(data.free ?? 0);
+          setCurrentCredits(total);
+
+          const rawTotal = paidRaw + free;
+          if (rawTotal > total) {
+            setCreditMismatchNotice(
+              t("errors.creditAvailabilityMismatch", {
+                usable: total.toLocaleString(),
+                raw: rawTotal.toLocaleString(),
+              })
+            );
+          } else {
+            setCreditMismatchNotice(null);
+          }
+        }
       } catch (err) {
         console.error("Error while loading balance:", err);
       }
@@ -520,7 +565,7 @@ export default function VideoToMapPage() {
     if (!pendingAutoOpenMapId) return;
     const targetDraft = drafts.find((draft) => draft.id === pendingAutoOpenMapId);
     if (!targetDraft) return;
-    if (targetDraft.status !== "done" && targetDraft.status !== "processing_metadata") return;
+    if (targetDraft.status !== "done") return;
     setPendingAutoOpenMapId(null);
     router.push(`/${locale}/maps/${pendingAutoOpenMapId}`);
   }, [drafts, locale, pendingAutoOpenMapId, router]);
@@ -668,9 +713,9 @@ export default function VideoToMapPage() {
 
     if (currentCredits < creditsNow) {
       setShowCreditDialog(false);
-      setError(t("errors.insufficientCredits"));
+      setError(creditMismatchNotice ?? t("errors.insufficientCredits"));
       setShowInsufficientCreditsCard(true);
-      openToast(t("messages.insufficientCreditsToast"));
+      openToast(creditMismatchNotice ?? t("messages.insufficientCreditsToast"));
       return;
     }
 
@@ -730,7 +775,12 @@ export default function VideoToMapPage() {
       const json = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        const msg = json?.message || json?.error || t("errors.requestFailed");
+        const isInsufficient =
+          json?.code === "INSUFFICIENT_CREDITS" ||
+          String(json?.message ?? "").toLowerCase().includes("not enough available credits");
+        const msg = isInsufficient
+          ? t("errors.insufficientCredits")
+          : json?.message || json?.error || t("errors.requestFailed");
         throw new Error(
           typeof msg === "string" ? msg : msg?.[0] || t("errors.requestFailed")
         );
@@ -976,6 +1026,10 @@ export default function VideoToMapPage() {
         return [draft, ...prev];
       });
 
+      if (shouldAutoOpenWhenReady) {
+        setPendingAutoOpenMapId(targetId);
+      }
+
       setShowMetadataDialog(false);
       setYoutubeMeta(null);
       setIsProcessing(false);
@@ -988,10 +1042,6 @@ export default function VideoToMapPage() {
       setCreatedMapId(null);
       setEditingDraft(null);
       setSavingMetaId(null);
-
-      if (shouldAutoOpenWhenReady) {
-        setPendingAutoOpenMapId(targetId);
-      }
     } catch (e: any) {
       setIsProcessing(false);
       const msg = e?.message ?? t("errors.createFailed");
@@ -1037,7 +1087,7 @@ export default function VideoToMapPage() {
       )}
 
       <div className="max-w-6xl mx-auto px-2 md:px-10 flex flex-col gap-3 relative">
-        <header className="mt-7 space-y-2">
+        <header className="mt-7 flex flex-col gap-2">
           <h1 className="text-2xl sm:text-2xl md:text-2xl font-extrabold leading-tight tracking-tight text-neutral-900 dark:text-white">
             {t("title.prefix")}{" "}
             <span className="text-blue-700 dark:text-[rgb(var(--hero-b))]">
@@ -1114,7 +1164,7 @@ export default function VideoToMapPage() {
         </div>
 
         {drafts.length > 0 && (
-          <section ref={draftsSectionRef} className="mt-2 space-y-3">
+          <section ref={draftsSectionRef} className="mt-2 flex flex-col gap-3">
             <div className="flex items-end justify-between gap-2">
               <h2 className="text-base md:text-lg font-semibold">{t("labels.draftsTitle")}</h2>
             </div>

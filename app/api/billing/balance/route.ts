@@ -28,13 +28,35 @@ export async function GET() {
     );
   }
 
-  const paid = profile.credits_paid ?? 0;
-  const free = profile.credits_free ?? 0;
-  const total = paid + free;
+  const paidRaw = Number(profile.credits_paid ?? 0);
+  const free = Number(profile.credits_free ?? 0);
+
+  const { data: lots, error: lotsError } = await supabase
+    .from("credit_lots")
+    .select("remaining_credits, expires_at, status")
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .gt("remaining_credits", 0)
+    .gt("expires_at", new Date().toISOString());
+
+  if (lotsError) {
+    console.error("Failed to load usable paid credits:", lotsError.message);
+    return NextResponse.json(
+      { error: "Failed to load usable paid credits" },
+      { status: 500 }
+    );
+  }
+
+  const paid = (lots ?? []).reduce(
+    (sum, lot) => sum + Number(lot.remaining_credits ?? 0),
+    0
+  );
+  const total = free + paid;
 
   return NextResponse.json({
     total,
     paid,
     free,
+    paidRaw,
   });
 }

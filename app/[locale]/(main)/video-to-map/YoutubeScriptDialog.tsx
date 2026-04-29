@@ -83,7 +83,7 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_240px_at_20%_0%,rgba(59,130,246,0.12),transparent_58%)] dark:bg-[radial-gradient(900px_240px_at_20%_0%,rgba(56,189,248,0.14),transparent_58%)]" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-300/90 to-transparent dark:via-white/18" />
         <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1">
+          <div className="flex flex-col gap-1">
             <h2 className="text-xl md:text-2xl font-bold text-blue-700 dark:text-[rgb(var(--hero-b))] flex items-center gap-2">
               <Icon icon="mdi:youtube" className="h-6 w-6 text-blue-700 dark:text-[rgb(var(--hero-b))]" />
               {t("title")}
@@ -107,7 +107,7 @@ export default function YoutubeScriptDialog({ open, onClose }: Props) {
           </button>
         </div>
 
-        <div className="mt-4 space-y-2">
+        <div className="mt-4 flex flex-col gap-2">
           {GUIDE_STEPS.map((step) => {
             const expanded = openStep === step.number;
             const isAccent = step.accent === "indigo";

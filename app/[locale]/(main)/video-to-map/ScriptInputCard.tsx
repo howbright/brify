@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useTranslations } from "next-intl";
+import type { DragEventHandler } from "react";
 import OutputLanguageSelect from "./OutputLanguageSelect";
 
 type Props = {
@@ -88,6 +89,29 @@ export default function ScriptInputCard({
 
   // ✅ 생성 버튼 차단 조건: 입력 없음 / 잠금 / 한도초과
   const canGenerate = Boolean(scriptText.trim()) && !locked && !isTooLarge;
+  const handleDragOver: DragEventHandler<HTMLDivElement> = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDropDocx: DragEventHandler<HTMLDivElement> = (e) => {
+    e.preventDefault();
+    if (locked) return;
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    const name = file.name.toLowerCase();
+    if (!name.endsWith(".docx")) return;
+    onSelectDocxFile?.(file);
+  };
+
+  const handleDropPdf: DragEventHandler<HTMLDivElement> = (e) => {
+    e.preventDefault();
+    if (locked) return;
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    const name = file.name.toLowerCase();
+    if (!name.endsWith(".pdf")) return;
+    onSelectPdfFile?.(file);
+  };
 
   return (
     <section
@@ -229,7 +253,7 @@ export default function ScriptInputCard({
       )}
 
       {inputMode === "docx" ? (
-        <div className="space-y-2 rounded-2xl border border-blue-200 bg-white/85 p-4 dark:border-white/15 dark:bg-slate-950/65">
+        <div className="flex flex-col gap-2 rounded-2xl border border-blue-200 bg-white/85 p-4 dark:border-white/15 dark:bg-slate-950/65">
           <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
             {t("docx.title")}
           </p>
@@ -256,6 +280,13 @@ export default function ScriptInputCard({
             </label>
             <span className="text-xs text-neutral-500 dark:text-neutral-300">{t("docx.support")}</span>
           </div>
+          <div
+            onDragOver={handleDragOver}
+            onDrop={handleDropDocx}
+            className="rounded-xl border border-dashed border-slate-300 bg-slate-50/80 px-3 py-2 text-xs text-slate-600 dark:border-white/20 dark:bg-white/[0.04] dark:text-slate-300"
+          >
+            {t("docx.dropHint")}
+          </div>
 
           {docxUploadState === "uploading" ? (
             <p className="text-xs font-semibold text-blue-700 dark:text-blue-300">
@@ -278,7 +309,7 @@ export default function ScriptInputCard({
           ) : null}
         </div>
       ) : inputMode === "pdf" ? (
-        <div className="space-y-2 rounded-2xl border border-blue-200 bg-white/85 p-4 dark:border-white/15 dark:bg-slate-950/65">
+        <div className="flex flex-col gap-2 rounded-2xl border border-blue-200 bg-white/85 p-4 dark:border-white/15 dark:bg-slate-950/65">
           <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
             {t("pdf.title")}
           </p>
@@ -304,6 +335,13 @@ export default function ScriptInputCard({
               />
             </label>
             <span className="text-xs text-neutral-500 dark:text-neutral-300">{t("pdf.support")}</span>
+          </div>
+          <div
+            onDragOver={handleDragOver}
+            onDrop={handleDropPdf}
+            className="rounded-xl border border-dashed border-slate-300 bg-slate-50/80 px-3 py-2 text-xs text-slate-600 dark:border-white/20 dark:bg-white/[0.04] dark:text-slate-300"
+          >
+            {t("pdf.dropHint")}
           </div>
 
           {pdfUploadState === "uploading" ? (
@@ -331,7 +369,7 @@ export default function ScriptInputCard({
           ) : null}
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <textarea
           className="
             w-full min-h-[260px] md:min-h-[300px] resize-y

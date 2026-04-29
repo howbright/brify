@@ -18,7 +18,7 @@ type Props = {
           AI
         </div>
   
-        <div className="flex-1 space-y-2">
+        <div className="flex flex-1 flex-col gap-2">
           <p className="text-sm md:text-[15px] font-semibold text-neutral-900 dark:text-neutral-50">
             {title}
           </p>
@@ -31,7 +31,7 @@ type Props = {
                 <span className="animate-pulse delay-300">.</span>
               </span>
             </p>
-            <ul className="mt-1 list-disc list-inside space-y-0.5 text-[11px] md:text-xs text-neutral-500 dark:text-neutral-400">
+            <ul className="mt-1 flex flex-col gap-0.5 list-disc list-inside text-[11px] md:text-xs text-neutral-500 dark:text-neutral-400">
               {bullets.map((b) => (
                 <li key={b}>{b}</li>
               ))}

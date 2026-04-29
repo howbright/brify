@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 function normalizeExtractedText(text: string) {
   return text
@@ -26,7 +26,11 @@ export async function POST(req: NextRequest) {
 
     if (!(uploaded instanceof File)) {
       return NextResponse.json(
-        { success: false, error: "업로드할 Word 파일을 선택해 주세요." },
+        {
+          success: false,
+          errorCode: "FILE_REQUIRED",
+          error: "업로드할 Word 파일을 선택해 주세요.",
+        },
         { status: 400 }
       );
     }
@@ -36,6 +40,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
+          errorCode: "UNSUPPORTED_FILE_TYPE",
           error:
             "현재는 .docx 파일만 지원합니다. Word에서 .docx로 저장한 뒤 업로드해 주세요.",
         },
@@ -45,7 +50,12 @@ export async function POST(req: NextRequest) {
 
     if (uploaded.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { success: false, error: "파일 용량이 너무 큽니다. 20MB 이하로 업로드해 주세요." },
+        {
+          success: false,
+          errorCode: "FILE_TOO_LARGE",
+          maxFileSizeMb: 50,
+          error: "파일 용량이 너무 큽니다. 50MB 이하로 업로드해 주세요.",
+        },
         { status: 400 }
       );
     }
@@ -65,6 +75,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
+          errorCode: "NO_EXTRACTED_TEXT",
           error: "문서에서 텍스트를 추출하지 못했습니다. 다른 .docx 파일로 다시 시도해 주세요.",
         },
         { status: 422 }
@@ -86,15 +97,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
+          errorCode: "MODULE_NOT_INSTALLED",
           error: "docx 추출 모듈(mammoth)이 설치되지 않았습니다. 관리자에게 문의해 주세요.",
         },
         { status: 500 }
       );
     }
     return NextResponse.json(
-      { success: false, error: "문서 처리 중 오류가 발생했습니다. 다시 시도해 주세요." },
+      {
+        success: false,
+        errorCode: "PROCESSING_FAILED",
+        error: "문서 처리 중 오류가 발생했습니다. 다시 시도해 주세요.",
+      },
       { status: 500 }
     );
   }
 }
-

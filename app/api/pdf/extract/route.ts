@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const LOW_TEXT_THRESHOLD = 300;
 const LOW_TEXT_MIN_PAGES = 2;
 
@@ -29,7 +29,11 @@ export async function POST(req: NextRequest) {
 
     if (!(uploaded instanceof File)) {
       return NextResponse.json(
-        { success: false, error: "업로드할 PDF 파일을 선택해 주세요." },
+        {
+          success: false,
+          errorCode: "FILE_REQUIRED",
+          error: "업로드할 PDF 파일을 선택해 주세요.",
+        },
         { status: 400 }
       );
     }
@@ -37,14 +41,23 @@ export async function POST(req: NextRequest) {
     const extension = getFileExtension(uploaded.name);
     if (extension !== "pdf") {
       return NextResponse.json(
-        { success: false, error: "현재는 .pdf 파일만 지원합니다." },
+        {
+          success: false,
+          errorCode: "UNSUPPORTED_FILE_TYPE",
+          error: "현재는 .pdf 파일만 지원합니다.",
+        },
         { status: 400 }
       );
     }
 
     if (uploaded.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { success: false, error: "파일 용량이 너무 큽니다. 20MB 이하로 업로드해 주세요." },
+        {
+          success: false,
+          errorCode: "FILE_TOO_LARGE",
+          maxFileSizeMb: 50,
+          error: "파일 용량이 너무 큽니다. 50MB 이하로 업로드해 주세요.",
+        },
         { status: 400 }
       );
     }
@@ -55,7 +68,7 @@ export async function POST(req: NextRequest) {
     const requireFn = eval("require") as NodeRequire;
     const pdfParseModule = requireFn("pdf-parse") as {
       PDFParse?: new (options: { data: Buffer }) => {
-        getText: () => Promise<{ text?: string; total?: number }>;
+        getText: (params?: { pageJoiner?: string }) => Promise<{ text?: string; total?: number }>;
         destroy?: () => Promise<void> | void;
       };
     };
@@ -68,7 +81,7 @@ export async function POST(req: NextRequest) {
     let result: { text?: string; total?: number; pages?: Array<{ text?: string }> };
     let parser:
       | {
-          getText: () => Promise<{ text?: string; total?: number }>;
+          getText: (params?: { pageJoiner?: string }) => Promise<{ text?: string; total?: number }>;
           destroy?: () => Promise<void> | void;
         }
       | null = null;
@@ -103,6 +116,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
+          errorCode: "NO_EXTRACTED_TEXT",
           error:
             "PDF에서 텍스트를 추출하지 못했습니다. 이미지 기반 PDF(스캔본)일 수 있으며, 프린트 기능으로 만든 PDF는 일부 텍스트 추출이 어려울 수 있습니다.",
           likelyScanned: true,
@@ -135,6 +149,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
+          errorCode: "ENCRYPTED_PDF",
           error: "암호화된 PDF는 현재 지원하지 않습니다. 암호를 제거한 PDF로 다시 시도해 주세요.",
           detail: process.env.NODE_ENV !== "production" ? message : undefined,
         },
@@ -145,6 +160,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
+          errorCode: "MODULE_NOT_INSTALLED",
           error: "pdf 추출 모듈(pdf-parse)이 설치되지 않았습니다. 관리자에게 문의해 주세요.",
         },
         { status: 500 }
@@ -153,6 +169,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
+        errorCode: "PROCESSING_FAILED",
         error: "PDF 처리 중 오류가 발생했습니다. 다시 시도해 주세요.",
         detail: process.env.NODE_ENV !== "production" ? message : undefined,
       },
