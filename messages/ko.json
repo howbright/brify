@@ -84,7 +84,8 @@
     "title": "콘텐츠를 붙여넣으세요",
     "mode": {
       "text": "텍스트 붙여넣기",
-      "docx": "Word 업로드 (.docx)"
+      "docx": "Word 업로드 (.docx)",
+      "pdf": "PDF 업로드 (.pdf)"
     },
     "docx": {
       "title": "Word 문서에서 텍스트 추출",
@@ -93,6 +94,15 @@
       "support": "지원 형식: .docx",
       "uploading": "문서에서 텍스트를 추출하는 중입니다...",
       "success": "텍스트 추출이 완료되었습니다.",
+      "charCount": "추출 분량: {count}자"
+    },
+    "pdf": {
+      "title": "PDF 문서에서 텍스트 추출",
+      "hint": "레이아웃은 제외하고 텍스트만 추출됩니다. 이미지 기반 PDF(스캔본)이나 프린트 기능으로 만든 PDF는 추출 품질이 낮을 수 있어요.",
+      "select": "PDF 파일 선택",
+      "support": "지원 형식: .pdf",
+      "uploading": "PDF에서 텍스트를 추출하는 중입니다...",
+      "success": "PDF 텍스트 추출이 완료되었습니다.",
       "charCount": "추출 분량: {count}자"
     },
     "youtubeHelp": "유튜브 스크립트 가져오는 방법 안내",

@@ -230,13 +230,20 @@ export default function VideoToMapPage() {
   const router = useRouter();
 
   const [scriptText, setScriptText] = useState("");
-  const [inputMode, setInputMode] = useState<"text" | "docx">("text");
+  const [inputMode, setInputMode] = useState<"text" | "docx" | "pdf">("text");
   const [docxUploadState, setDocxUploadState] = useState<
     "idle" | "uploading" | "success" | "error"
   >("idle");
   const [docxFileName, setDocxFileName] = useState<string | null>(null);
   const [docxCharCount, setDocxCharCount] = useState<number | null>(null);
   const [docxError, setDocxError] = useState<string | null>(null);
+  const [pdfUploadState, setPdfUploadState] = useState<
+    "idle" | "uploading" | "success" | "error"
+  >("idle");
+  const [pdfFileName, setPdfFileName] = useState<string | null>(null);
+  const [pdfCharCount, setPdfCharCount] = useState<number | null>(null);
+  const [pdfError, setPdfError] = useState<string | null>(null);
+  const [pdfWarning, setPdfWarning] = useState<string | null>(null);
 
   const [showCreditDialog, setShowCreditDialog] = useState(false);
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
@@ -377,7 +384,69 @@ export default function VideoToMapPage() {
         e instanceof Error ? e.message : "문서 처리 중 오류가 발생했습니다. 다시 시도해 주세요.";
       setDocxUploadState("error");
       setDocxError(message);
-      setError(message);
+    }
+  };
+
+  const handleSelectPdfFile = async (file: File) => {
+    setPdfUploadState("uploading");
+    setPdfError(null);
+    setPdfWarning(null);
+    setPdfFileName(null);
+    setPdfCharCount(null);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/pdf/extract", {
+        method: "POST",
+        body: formData,
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json?.success) {
+        const detail =
+          typeof json?.detail === "string" && json.detail.trim() ? ` (${json.detail})` : "";
+        const message = (json?.error || t("errors.processingFailed")) + detail;
+        throw new Error(message);
+      }
+
+      const extractedText =
+        typeof json.extractedText === "string" ? json.extractedText : "";
+      if (!extractedText.trim()) {
+        throw new Error(
+          "PDF에서 텍스트를 추출하지 못했습니다. 이미지 기반 PDF(스캔본)일 수 있으며, 프린트 기능으로 만든 PDF는 일부 텍스트 추출이 어려울 수 있습니다."
+        );
+      }
+
+      const nextCharCount =
+        typeof json.charCount === "number" ? json.charCount : extractedText.length;
+      const nextFileName =
+        typeof json.fileName === "string" && json.fileName.trim()
+          ? json.fileName.trim()
+          : file.name;
+      const nextWarning =
+        typeof json.warning === "string" && json.warning.trim()
+          ? json.warning.trim()
+          : null;
+
+      setScriptText(extractedText);
+      setPdfFileName(nextFileName);
+      setPdfCharCount(nextCharCount);
+      setPdfWarning(nextWarning);
+      setPdfUploadState("success");
+      setInputMode("text");
+      openToast(
+        nextWarning
+          ? "텍스트 추출은 완료됐지만 일부 누락될 수 있어요. 이미지 기반 PDF이거나 프린트로 만든 PDF일 수 있습니다."
+          : "PDF 텍스트 추출이 완료되었습니다."
+      );
+    } catch (e) {
+      const message =
+        e instanceof Error ? e.message : "PDF 처리 중 오류가 발생했습니다. 다시 시도해 주세요.";
+      setPdfUploadState("error");
+      setPdfError(message);
     }
   };
 
@@ -990,10 +1059,16 @@ export default function VideoToMapPage() {
               inputMode={inputMode}
               onChangeInputMode={setInputMode}
               onSelectDocxFile={handleSelectDocxFile}
+              onSelectPdfFile={handleSelectPdfFile}
               docxUploadState={docxUploadState}
               docxFileName={docxFileName}
               docxCharCount={docxCharCount}
               docxError={docxError}
+              pdfUploadState={pdfUploadState}
+              pdfFileName={pdfFileName}
+              pdfCharCount={pdfCharCount}
+              pdfError={pdfError}
+              pdfWarning={pdfWarning}
               scriptText={scriptText}
               setScriptText={setScriptText}
               error={error}

@@ -5,13 +5,19 @@ import { useTranslations } from "next-intl";
 import OutputLanguageSelect from "./OutputLanguageSelect";
 
 type Props = {
-  inputMode?: "text" | "docx";
-  onChangeInputMode?: (mode: "text" | "docx") => void;
+  inputMode?: "text" | "docx" | "pdf";
+  onChangeInputMode?: (mode: "text" | "docx" | "pdf") => void;
   onSelectDocxFile?: (file: File) => void;
+  onSelectPdfFile?: (file: File) => void;
   docxUploadState?: "idle" | "uploading" | "success" | "error";
   docxFileName?: string | null;
   docxCharCount?: number | null;
   docxError?: string | null;
+  pdfUploadState?: "idle" | "uploading" | "success" | "error";
+  pdfFileName?: string | null;
+  pdfCharCount?: number | null;
+  pdfError?: string | null;
+  pdfWarning?: string | null;
   scriptText: string;
   setScriptText: (v: string) => void;
   error: string | null;
@@ -45,10 +51,16 @@ export default function ScriptInputCard({
   inputMode = "text",
   onChangeInputMode,
   onSelectDocxFile,
+  onSelectPdfFile,
   docxUploadState = "idle",
   docxFileName = null,
   docxCharCount = null,
   docxError = null,
+  pdfUploadState = "idle",
+  pdfFileName = null,
+  pdfCharCount = null,
+  pdfError = null,
+  pdfWarning = null,
   scriptText,
   setScriptText,
   error,
@@ -175,6 +187,19 @@ export default function ScriptInputCard({
           <Icon icon="mdi:file-word-box" className="h-4 w-4" />
           {t("mode.docx")}
         </button>
+        <button
+          type="button"
+          onClick={() => onChangeInputMode?.("pdf")}
+          disabled={locked}
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] font-semibold transition ${
+            inputMode === "pdf"
+              ? "border-blue-600 bg-blue-600 text-white dark:border-blue-400 dark:bg-blue-400 dark:text-slate-900"
+              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/25 dark:bg-white/[0.08] dark:text-slate-100 dark:hover:bg-white/[0.14]"
+          } disabled:cursor-not-allowed disabled:opacity-60`}
+        >
+          <Icon icon="mdi:file-pdf-box" className="h-4 w-4" />
+          {t("mode.pdf")}
+        </button>
       </div>
 
       {/* ✅ 한도 초과 배너 (잠금과 무관하게 표시) */}
@@ -250,6 +275,59 @@ export default function ScriptInputCard({
 
           {docxUploadState === "error" && docxError ? (
             <p className="text-xs font-semibold text-red-600 dark:text-red-300">{docxError}</p>
+          ) : null}
+        </div>
+      ) : inputMode === "pdf" ? (
+        <div className="space-y-2 rounded-2xl border border-blue-200 bg-white/85 p-4 dark:border-white/15 dark:bg-slate-950/65">
+          <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+            {t("pdf.title")}
+          </p>
+          <p className="text-xs text-neutral-600 dark:text-neutral-300">{t("pdf.hint")}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <label
+              className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-[13px] font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-white/25 dark:bg-white/[0.08] dark:text-slate-100 dark:hover:bg-white/[0.14] ${
+                locked ? "pointer-events-none opacity-60" : ""
+              }`}
+            >
+              <Icon icon="mdi:upload" className="h-4 w-4" />
+              {t("pdf.select")}
+              <input
+                type="file"
+                accept=".pdf,application/pdf"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) onSelectPdfFile?.(file);
+                  e.currentTarget.value = "";
+                }}
+                disabled={locked}
+              />
+            </label>
+            <span className="text-xs text-neutral-500 dark:text-neutral-300">{t("pdf.support")}</span>
+          </div>
+
+          {pdfUploadState === "uploading" ? (
+            <p className="text-xs font-semibold text-blue-700 dark:text-blue-300">
+              {t("pdf.uploading")}
+            </p>
+          ) : null}
+
+          {pdfUploadState === "success" && pdfFileName ? (
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800 dark:border-emerald-300/25 dark:bg-emerald-400/10 dark:text-emerald-200">
+              <p className="font-semibold">{t("pdf.success")}</p>
+              <p>{pdfFileName}</p>
+              {typeof pdfCharCount === "number" ? (
+                <p>{t("pdf.charCount", { count: pdfCharCount })}</p>
+              ) : null}
+            </div>
+          ) : null}
+
+          {pdfWarning ? (
+            <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">{pdfWarning}</p>
+          ) : null}
+
+          {pdfUploadState === "error" && pdfError ? (
+            <p className="text-xs font-semibold text-red-600 dark:text-red-300">{pdfError}</p>
           ) : null}
         </div>
       ) : (
