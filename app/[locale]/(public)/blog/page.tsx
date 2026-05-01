@@ -14,27 +14,31 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const isKo = locale === "ko";
+  const isFr = locale === "fr";
   return {
-    title: isKo ? "브라이피 블로그 | Brify" : "Brify Blog",
+    title: isKo ? "브라이피 블로그 | Brify" : isFr ? "Blog Brify" : "Brify Blog",
     description: isKo
       ? "복잡한 정보를 마인드맵으로 구조화하는 방법을 다루는 Brify 블로그입니다."
-      : "Brify blog on turning complex information into structured mind maps.",
+      : isFr
+        ? "Le blog Brify sur la transformation d'informations complexes en cartes mentales structurées."
+        : "Brify blog on turning complex information into structured mind maps.",
   };
 }
 
 export default async function BlogPage({ params }: { params: Promise<Params> }) {
   const { locale } = await params;
   const isKo = locale === "ko";
+  const isFr = locale === "fr";
   const posts = await getBlogPostsByLocale(locale);
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 pb-20 pt-28 md:px-10 md:pt-32">
       <section className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 md:text-4xl dark:text-white">
-          {isKo ? "Brify 블로그" : "Brify Blog"}
+          {isKo ? "Brify 블로그" : isFr ? "Blog Brify" : "Brify Blog"}
         </h1>
         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-          {isKo ? `총 ${posts.length}개의 글` : `${posts.length} posts`}
+          {isKo ? `총 ${posts.length}개의 글` : isFr ? `${posts.length} articles` : `${posts.length} posts`}
         </p>
       </section>
 

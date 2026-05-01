@@ -62,19 +62,46 @@ const PAGE_COPY = {
     demoHref: "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e",
     relatedHref: "/en/youtube-summary",
   },
+  fr: {
+    title: "Notes YouTube et organisation des vidéos | Brify",
+    description:
+      "Brify vous aide à organiser les vidéos YouTube en notes structurées et en cartes mentales pour revoir facilement les contenus longs.",
+    pageUrl: "https://www.brify.app/fr/youtube-notes",
+    heading: "Une meilleure façon d'organiser vos vidéos YouTube",
+    lead:
+      "Si vous enregistrez beaucoup de vidéos utiles sans les revoir, Brify vous aide à organiser les notes, le flux et la structure.",
+    body: [
+      "Organiser du contenu YouTube est difficile, car les idées importantes sont souvent répétées et dispersées dans différentes parties.",
+      "Brify transforme les transcriptions YouTube en notes structurées et en cartes mentales pour voir rapidement les idées centrales et leurs liens.",
+      "C'est donc plus utile qu'un simple résumé pour les personnes qui veulent revoir la structure du contenu plus tard.",
+    ],
+    bullets: [
+      "Personnes qui enregistrent des vidéos longues sans les revoir",
+      "Personnes qui veulent des notes YouTube mieux structurées",
+      "Personnes qui veulent le flux et les connexions, pas seulement un résumé",
+      "Personnes qui veulent réouvrir et réviser facilement le contenu",
+    ],
+    ctaTitle: "Si vous voulez des notes YouTube plus structurées",
+    ctaBody:
+      "Brify transforme les transcriptions YouTube en cartes mentales pour comprendre plus vite les informations complexes.",
+    primaryCta: "Voir la démo",
+    secondaryCta: "Voir la page résumé YouTube",
+    demoHref: "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e",
+    relatedHref: "/fr/youtube-summary",
+  },
 } as const;
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  const copy = locale === "en" ? PAGE_COPY.en : PAGE_COPY.ko;
+  const copy = locale === "ko" ? PAGE_COPY.ko : locale === "fr" ? PAGE_COPY.fr : PAGE_COPY.en;
 
   return {
     title: copy.title,
     description: copy.description,
     keywords:
-      locale === "en"
+      locale !== "ko"
         ? ["youtube notes", "youtube organization", "organize youtube videos", "youtube mind map", "Brify"]
         : ["유튜브 정리", "유튜브 내용 정리", "유튜브 메모", "유튜브 마인드맵", "브리피", "브라이피"],
     alternates: {
@@ -82,6 +109,7 @@ export async function generateMetadata({
       languages: {
         ko: PAGE_COPY.ko.pageUrl,
         en: PAGE_COPY.en.pageUrl,
+        fr: "https://www.brify.app/fr/youtube-notes",
       },
     },
     openGraph: {
@@ -93,7 +121,7 @@ export async function generateMetadata({
       images: [
         {
           url:
-            locale === "en"
+            locale !== "ko"
               ? "https://www.brify.app/images/sns_en.png"
               : "https://www.brify.app/images/sns_ko.png",
           width: 1200,
@@ -107,7 +135,7 @@ export async function generateMetadata({
       title: copy.title,
       description: copy.description,
       images: [
-        locale === "en"
+        locale !== "ko"
           ? "https://www.brify.app/images/sns_en.png"
           : "https://www.brify.app/images/sns_ko.png",
       ],
@@ -117,7 +145,7 @@ export async function generateMetadata({
 
 export default async function YoutubeNotesPage({ params }: PageProps) {
   const { locale } = await params;
-  const copy = locale === "en" ? PAGE_COPY.en : PAGE_COPY.ko;
+  const copy = locale === "ko" ? PAGE_COPY.ko : locale === "fr" ? PAGE_COPY.fr : PAGE_COPY.en;
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#f8fbff_0%,#eef4fb_100%)] text-slate-950 dark:bg-[#020617] dark:text-white">

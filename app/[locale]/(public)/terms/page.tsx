@@ -341,8 +341,163 @@ const EN_COPY: TermsCopy = {
   ],
 };
 
+const FR_COPY: TermsCopy = {
+  badge: "Conditions d’utilisation Brify",
+  title: "Merci de lire ces conditions avant d’utiliser Brify",
+  subtitle:
+    "Brify aide à organiser des textes, pages web et transcriptions vidéo en résumés et cartes structurées. Ces conditions expliquent les règles principales concernant le compte, le contenu saisi, les résultats IA, les crédits et le partage.",
+  updatedAt: "Dernière mise à jour : 30 mars 2026",
+  summaryTitle: "En bref",
+  summaryBody:
+    "Brify est un service à crédits (sans abonnement). Vous restez responsable du contenu saisi, et les résultats générés par l’IA doivent être vérifiés avant utilisation.",
+  quickFacts: [
+    { label: "Accès", value: "Certaines fonctionnalités nécessitent un compte et l’acceptation des conditions." },
+    { label: "Facturation", value: "Les crédits payants sont achetés en packs et déduits selon l’utilisation." },
+    { label: "Partage", value: "Toute personne disposant d’un lien actif peut consulter le contenu en lecture seule." },
+  ],
+  sectionNavLabel: "Accéder rapidement aux sections",
+  sections: [
+    {
+      id: "purpose",
+      title: "1. Objet et champ d’application",
+      paragraphs: [
+        "Ces conditions définissent les droits, obligations et responsabilités entre Brify (la « Société » ou le « Service ») et les utilisateurs concernant la structuration, la création de cartes, l’enregistrement, l’édition et le partage.",
+        "Elles s’appliquent à l’ensemble du Service : inscription, connexion, achat de crédits, traitement des entrées, stockage des résultats et fonctionnalités de partage.",
+      ],
+    },
+    {
+      id: "service",
+      title: "2. Description du service",
+      paragraphs: [
+        "La Société peut fournir des résumés, mots-clés, cartes structurées et autres résultats organisés à partir de textes, URL web, liens YouTube, notes et contenus similaires fournis par l’utilisateur.",
+        "La Société peut ajouter, modifier, suspendre ou interrompre tout ou partie du Service pour des raisons de qualité, de stabilité, de politique interne ou d’intégration tierce.",
+      ],
+      items: [
+        "Extraction et organisation de contenus textuels et de liens",
+        "Structuration, mots-clés et cartes assistés par IA",
+        "Enregistrement, édition et consultation des résultats",
+        "Partage public en lecture seule via lien",
+        "Achat de crédits, historique d’utilisation et fonctions associées",
+      ],
+    },
+    {
+      id: "account",
+      title: "3. Inscription et gestion du compte",
+      paragraphs: [
+        "Les utilisateurs peuvent s’inscrire selon la procédure prévue par la Société. Une fois approuvés, ils peuvent utiliser le Service en tant que membres.",
+        "Certaines fonctionnalités peuvent nécessiter l’acceptation des présentes conditions et de la Politique de confidentialité.",
+        "L’utilisateur doit protéger ses identifiants et informer rapidement la Société en cas de suspicion d’accès non autorisé.",
+      ],
+    },
+    {
+      id: "content",
+      title: "4. Contenu utilisateur et droits",
+      paragraphs: [
+        "L’utilisateur reste responsable des textes, URL, notes, cartes, titres, descriptions, tags et autres contenus qu’il saisit, enregistre ou partage via le Service.",
+        "L’utilisateur doit disposer des droits légaux ou autorisations nécessaires pour tout contenu fourni.",
+        "En cas de violation avérée ou raisonnablement suspectée de la loi, des droits de tiers ou des politiques du Service, la Société peut limiter l’accès, supprimer le contenu ou désactiver le partage.",
+      ],
+      items: [
+        "Contenus portant atteinte aux droits d’auteur, marques, droit à l’image ou secrets d’affaires",
+        "Contenus incluant illégalement des données personnelles ou confidentielles de tiers",
+        "Contenus illégaux, nuisibles, diffamatoires, haineux ou criminels",
+        "Malware, spam, abus d’automatisation ou comportements nuisant au Service",
+      ],
+    },
+    {
+      id: "ai",
+      title: "5. Résultats générés par IA",
+      paragraphs: [
+        "Brify utilise des systèmes IA/automatisés pour produire des résumés, mots-clés et cartes.",
+        "Les résultats peuvent être inexacts, incomplets ou inadaptés selon les entrées, les sources et le comportement du modèle.",
+        "L’utilisateur doit vérifier les résultats avant usage, en particulier dans les domaines professionnels (juridique, médical, fiscal, investissement, etc.).",
+      ],
+    },
+    {
+      id: "credits",
+      title: "6. Achat et utilisation des crédits",
+      paragraphs: [
+        "Certaines fonctionnalités sont fournies sur la base d’une consommation de crédits. Les crédits peuvent être payants ou gratuits (événements, bonus d’inscription, promotions).",
+        "Les prix, unités, moyens de paiement et conditions d’utilisation des crédits payants suivent les informations affichées dans le Service.",
+        "Le nombre de crédits requis dépend de la fonctionnalité, du volume d’entrée et du mode de traitement.",
+      ],
+      items: [
+        "Les crédits payants sont valables 1 an à compter de la date de paiement.",
+        "Les crédits ne peuvent pas être transférés, prêtés ou cédés à un autre membre.",
+        "Le remboursement est en principe effectué via le moyen de paiement d’origine.",
+        "Les crédits gratuits ne sont pas remboursables en numéraire.",
+        "La Société peut modifier la politique de crédits et informera les utilisateurs en cas de changement important.",
+      ],
+    },
+    {
+      id: "payments",
+      title: "7. Annulation et remboursement",
+      paragraphs: [
+        "Les annulations et remboursements sont soumis à la loi applicable, à la politique de remboursement de la Société et aux politiques des prestataires de paiement.",
+      ],
+      items: [
+        "L’utilisateur peut demander une annulation/remboursement selon la loi applicable et la politique de remboursement de la Société.",
+        "Un remboursement pour simple changement d’avis est possible sous 7 jours si aucun crédit de la commande n’a été utilisé.",
+        "Les crédits déjà utilisés ne sont pas remboursables.",
+        "En cas de double paiement, d’erreur système imputable à la Société ou d’obligation légale, la Société peut traiter le remboursement après examen.",
+      ],
+    },
+    {
+      id: "sharing",
+      title: "8. Liens de partage et portée de publication",
+      paragraphs: [
+        "Le membre peut générer des liens de partage pour ses cartes/résultats.",
+        "Lorsque le lien de partage est activé, toute personne disposant du lien peut consulter le contenu en lecture seule dans les limites fixées par la Société.",
+        "Le membre est responsable de la création, gestion, diffusion et désactivation du lien partagé.",
+      ],
+    },
+    {
+      id: "restrictions",
+      title: "9. Usages interdits et restrictions",
+      paragraphs: [
+        "L’utilisateur ne doit pas utiliser le Service en violation de la loi, des présentes conditions ou des politiques du Service.",
+        "En cas de violation grave/répétée, atteinte aux droits de tiers ou risque majeur pour le Service, la Société peut limiter l’accès après notification préalable ou ultérieure.",
+      ],
+      items: [
+        "Usurpation de compte ou atteinte aux droits d’autrui",
+        "Tentatives de contournement de sécurité, atteinte réseau/système",
+        "Automatisation abusive, trafic excessif, spam",
+        "Utilisation à des fins illégales, frauduleuses ou nuisibles",
+      ],
+    },
+    {
+      id: "liability",
+      title: "10. Interruption de service et limitation de responsabilité",
+      paragraphs: [
+        "La Société peut suspendre temporairement le Service pour maintenance, incident, problème d’intégration tierce, interruption réseau ou force majeure.",
+        "La Société ne garantit pas la légalité, l’exactitude, l’exhaustivité ou la fiabilité du contenu fourni par l’utilisateur ni des sources externes.",
+        "La Société ne garantit pas l’exactitude/exhaustivité des résultats générés ni l’atteinte d’un résultat spécifique.",
+      ],
+    },
+    {
+      id: "law",
+      title: "11. Droit applicable et contact",
+      paragraphs: [
+        "Les présentes conditions sont régies et interprétées selon le droit de la République de Corée.",
+        "En cas de litige, la juridiction compétente est déterminée selon la loi applicable.",
+        "Pour toute question concernant les conditions ou le Service, contactez-nous à l’adresse ci-dessous.",
+      ],
+    },
+  ],
+  contactTitle: "Contact",
+  contactBody:
+    "Pour toute question sur les conditions, la facturation, le compte ou le partage, contactez-nous par e-mail.",
+  contactEmailLabel: "E-mail",
+  relatedLinks: [
+    { href: "/privacy", label: "Politique de confidentialité" },
+    { href: "/refund-policy", label: "Politique de remboursement" },
+  ],
+};
+
 function getCopy(locale: string): TermsCopy {
-  return locale === "ko" ? KO_COPY : EN_COPY;
+  if (locale === "ko") return KO_COPY;
+  if (locale === "fr") return FR_COPY;
+  return EN_COPY;
 }
 
 export default function TermsPage() {

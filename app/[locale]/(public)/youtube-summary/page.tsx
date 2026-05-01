@@ -134,19 +134,70 @@ const PAGE_COPY = {
     demoHref: "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e",
     signupHref: "/en/signup",
   },
+  fr: {
+    title: "Outil de résumé YouTube | Transformer YouTube en carte mentale | Brify",
+    description:
+      "Brify transforme les transcriptions YouTube en cartes mentales pour vous aider à comprendre les vidéos longues et les informations complexes d'un coup d'oeil.",
+    pageUrl: "https://www.brify.app/fr/youtube-summary",
+    heading: "Un outil de résumé YouTube qui crée des cartes mentales",
+    lead:
+      "Si vous voulez résumer YouTube plus vite et structurer les transcriptions en carte mentale, Brify vous aide à comprendre le flux sans tout regarder.",
+    section1Title: "Pourquoi Brify est efficace pour résumer et organiser YouTube",
+    section1Body: [
+      "YouTube contient beaucoup d'informations utiles, mais les vidéos longues sont difficiles à résumer rapidement.",
+      "Brify convertit les transcriptions YouTube en cartes mentales pour afficher le flux principal, les idées répétées et les connexions.",
+      "Au lieu d'un résumé plat, vous obtenez une structure réutilisable pour réviser et comprendre plus clairement.",
+    ],
+    section2Title: "Pour qui c'est utile",
+    bullets: [
+      "Celles et ceux qui veulent comprendre plus vite les longues vidéos YouTube",
+      "Celles et ceux qui veulent des notes et résumés plus structurés",
+      "Celles et ceux qui préfèrent une carte mentale visuelle",
+      "Celles et ceux qui veulent aussi organiser des pages web et des textes longs",
+    ],
+    section3Title: "Ce que vous pouvez faire avec Brify",
+    cards: [
+      { title: "Résumés YouTube", body: "Comprenez plus vite le flux principal des vidéos longues." },
+      { title: "Notes YouTube", body: "Organisez concepts et détails dans une carte mentale réutilisable." },
+      { title: "Cartes mentales YouTube", body: "Transformez la transcription en structure visuelle claire." },
+      { title: "Textes longs", body: "Appliquez le même workflow aux pages web et longs contenus." },
+    ],
+    faqTitle: "Questions fréquentes",
+    faqs: [
+      {
+        question: "Brify est-il un outil de résumé YouTube ?",
+        answer:
+          "Oui. Brify accélère le résumé YouTube, et surtout transforme la transcription en carte mentale réutilisable.",
+      },
+      {
+        question: "Puis-je organiser des vidéos YouTube en cartes mentales ?",
+        answer:
+          "Oui. Brify convertit les transcriptions YouTube en cartes mentales pour mieux comparer et comprendre les informations complexes.",
+      },
+      {
+        question: "Puis-je aussi organiser des pages web et des textes longs ?",
+        answer:
+          "Oui. Brify prend en charge les transcriptions YouTube, les pages web et les textes longs avec le même workflow.",
+      },
+    ],
+    primaryCta: "Voir la démo",
+    secondaryCta: "Commencer Brify",
+    demoHref: "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e",
+    signupHref: "/fr/signup",
+  },
 } as const;
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  const copy = locale === "en" ? PAGE_COPY.en : PAGE_COPY.ko;
+  const copy = locale === "ko" ? PAGE_COPY.ko : locale === "fr" ? PAGE_COPY.fr : PAGE_COPY.en;
 
   return {
     title: copy.title,
     description: copy.description,
     keywords:
-      locale === "en"
+      locale !== "ko"
         ? [
             "youtube summary",
             "youtube summary tool",
@@ -172,6 +223,7 @@ export async function generateMetadata({
       languages: {
         ko: PAGE_COPY.ko.pageUrl,
         en: PAGE_COPY.en.pageUrl,
+        fr: "https://www.brify.app/fr/youtube-summary",
       },
     },
     openGraph: {
@@ -182,7 +234,7 @@ export async function generateMetadata({
       type: "website",
       images: [
         {
-          url: locale === "en"
+          url: locale !== "ko"
             ? "https://www.brify.app/images/sns_en.png"
             : "https://www.brify.app/images/sns_ko.png",
           width: 1200,
@@ -196,7 +248,7 @@ export async function generateMetadata({
       title: copy.title,
       description: copy.description,
       images: [
-        locale === "en"
+        locale !== "ko"
           ? "https://www.brify.app/images/sns_en.png"
           : "https://www.brify.app/images/sns_ko.png",
       ],
@@ -206,7 +258,7 @@ export async function generateMetadata({
 
 export default async function YoutubeSummaryPage({ params }: PageProps) {
   const { locale } = await params;
-  const copy = locale === "en" ? PAGE_COPY.en : PAGE_COPY.ko;
+  const copy = locale === "ko" ? PAGE_COPY.ko : locale === "fr" ? PAGE_COPY.fr : PAGE_COPY.en;
 
   const faqStructuredData = {
     "@context": "https://schema.org",
@@ -229,12 +281,12 @@ export default async function YoutubeSummaryPage({ params }: PageProps) {
         "@type": "ListItem",
         position: 1,
         name: "Brify",
-        item: locale === "en" ? "https://www.brify.app/en" : "https://www.brify.app/ko",
+        item: locale === "ko" ? "https://www.brify.app/ko" : `https://www.brify.app/${locale === "fr" ? "fr" : "en"}`,
       },
       {
         "@type": "ListItem",
         position: 2,
-        name: locale === "en" ? "YouTube Summary" : "유튜브 요약",
+        name: locale === "ko" ? "유튜브 요약" : locale === "fr" ? "Résumé YouTube" : "YouTube Summary",
         item: copy.pageUrl,
       },
     ],

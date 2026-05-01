@@ -19,7 +19,12 @@ export async function generateMetadata({
 
   if (!post) {
     return {
-      title: locale === "ko" ? "블로그 글을 찾을 수 없습니다 | Brify" : "Post not found | Brify",
+      title:
+        locale === "ko"
+          ? "블로그 글을 찾을 수 없습니다 | Brify"
+          : locale === "fr"
+            ? "Article introuvable | Brify"
+            : "Post not found | Brify",
     };
   }
 

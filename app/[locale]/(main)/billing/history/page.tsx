@@ -380,7 +380,7 @@ export default function BillingHistoryPage() {
 
               {loading ? (
                 <div className="py-8 text-center text-sm text-neutral-500 dark:text-neutral-400">
-                  {locale === "ko" ? "결제 내역을 불러오는 중이에요." : "Loading your billing history."}
+                  {t("list.loading")}
                 </div>
               ) : visiblePayments.length === 0 ? (
                 <div className="py-8 text-center text-sm text-neutral-500 dark:text-neutral-400">
@@ -391,15 +391,12 @@ export default function BillingHistoryPage() {
                   {visiblePayments.map((p) => {
                     const providerName =
                       p.provider === "toss"
-                        ? locale === "ko"
-                          ? "토스페이먼츠"
-                          : "Toss Payments"
-                        : "LemonSqueezy";
+                        ? t("list.provider.toss")
+                        : t("list.provider.lemon");
 
-                    const packLabel =
-                      locale === "ko"
-                        ? `${p.credits.toLocaleString()} 크레딧 팩`
-                        : `${p.credits.toLocaleString()} credits pack`;
+                    const packLabel = t("list.packLabel", {
+                      credits: p.credits.toLocaleString(),
+                    });
 
                     return (
                       <article

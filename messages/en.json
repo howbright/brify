@@ -851,7 +851,8 @@
     "reassurance": {
       "line1": "No subscriptions · No auto-renewals."
     },
-    "positioningText": "No subscription — pay only for what you use."
+    "positioningText": "No subscription — pay only for what you use.",
+    "cardLabel": "Credit Pack"
   },
   "FinalCTA": {
     "title": "Don’t get pulled around by scattered information,",
@@ -1058,9 +1059,15 @@
     "list": {
       "title": "Payment history",
       "caption": "Showing {visible} of {total} payments.",
+      "loading": "Loading your billing history.",
       "empty": "No payment history yet. Try purchasing a credit pack first.",
       "meta": "{date} · Payment ID: {id}",
-      "creditsAndProvider": "+ {credits} credits · {provider}"
+      "creditsAndProvider": "+ {credits} credits · {provider}",
+      "packLabel": "{credits} credits pack",
+      "provider": {
+        "toss": "Toss Payments",
+        "lemon": "LemonSqueezy"
+      }
     },
     "button": {
       "goToBilling": "Go to credit top-up page",
@@ -1082,6 +1089,26 @@
       "item4": "• Failed payments do not add any credits, and you can try the payment again if needed.",
       "note": "Paid credits are valid for 1 year from the payment date, and you can review the refund criteria on the refund policy page. A full refund is available within 7 days of purchase if the credits from that order have not been used."
     }
+  },
+  "BillingTossFailPage": {
+    "titleCanceled": "Payment was canceled.",
+    "titleFailed": "Payment did not complete.",
+    "descCanceled": "The payment window was closed or canceled before completion.",
+    "descFailed": "Please check the error code and try again.",
+    "backToBilling": "Back to billing",
+    "viewHistory": "View billing history"
+  },
+  "BillingTossSuccessPage": {
+    "missingData": "Payment completion data is missing.",
+    "alreadyConfirmed": "This payment was already confirmed. You can check it in billing history.",
+    "chargedCredits": "{credits} credits have been added to your balance.",
+    "confirmError": "Something went wrong while confirming the payment.",
+    "titleLoading": "Confirming your payment.",
+    "titleSuccess": "Payment completed.",
+    "titleError": "Payment confirmation failed.",
+    "pleaseWait": "Please wait a moment.",
+    "viewHistory": "View billing history",
+    "backToBilling": "Back to billing"
   },
   "BillingCreditsPage": {
     "badge": "Free and paid credit activity",
@@ -1897,6 +1924,15 @@
   "MapsPage": {
     "title": "My Maps",
     "tagOrganizeExit": "Exit",
+    "tabs": {
+      "maps": "Maps",
+      "notes": "Notes",
+      "terms": "Terms"
+    },
+    "openBlocked": {
+      "failed": "Failed maps can't be opened.",
+      "processing": "This map is still being generated and can't be opened yet."
+    },
     "previewEmpty": {
       "loading": "Loading the list.",
       "noMaps": "You have not created any mind maps yet.",
@@ -1961,5 +1997,60 @@
       "confirm": "Merge"
     },
     "close": "Close"
+  },
+  "RefundPolicyPage": {
+    "badge": "BRIFY REFUND POLICY",
+    "title": "Refund Policy",
+    "intro": "This page explains the validity period, refund eligibility, and refund limitations for Brify paid credits. Please review the rules below before purchasing.",
+    "facts": {
+      "validityTitle": "Validity",
+      "validityValue": "1 year from payment",
+      "changeOfMindTitle": "Change-of-mind Refund",
+      "changeOfMindValue": "Within 7 days if unused",
+      "methodTitle": "Refund Method",
+      "methodValue": "Original payment method"
+    },
+    "sections": {
+      "scope": {
+        "title": "1. Scope",
+        "body": "This refund policy applies to paid credit products sold by Brify."
+      },
+      "validity": {
+        "title": "2. Validity Period",
+        "body": "Paid credits are valid for 1 year from each payment date.",
+        "note": "This period refers to the validity period for using paid credits. Refund eligibility and refund scope are determined separately under the rules below and applicable law."
+      },
+      "eligibility": {
+        "title": "3. Eligibility",
+        "body1": "Paid credits are eligible for a full refund within 7 days of purchase if none of the credits charged by that order have been used.",
+        "body2": "Refunds for unused paid credits are processed based on the amount paid at the time of purchase.",
+        "note": "Refunds are in principle made through the same payment method originally used for the purchase."
+      },
+      "limitations": {
+        "title": "4. Limitations",
+        "body1": "Used paid credits cannot be canceled or refunded.",
+        "body2": "Once credit usage has started or map generation has begun, change-of-mind refunds for that order are restricted.",
+        "note1": "Unused paid credits remaining after 7 days from purchase are not eligible for refunds due to a change of mind, and may only be used within the 1-year validity period from the payment date.",
+        "note2": "Purchased paid credits may not be transferred, assigned, or lent to another member."
+      },
+      "exceptions": {
+        "title": "5. Exception Cases",
+        "body": "Duplicate charges, system errors, or cases where a refund is required by applicable law may be reviewed separately for a refund."
+      },
+      "request": {
+        "title": "6. How to Request a Refund",
+        "body": "If you need a refund review, please email hello@brify.app with your purchase date, account email, and payment details.",
+        "note": "To speed up the review, please also include your order ID, payment amount, payment method, and reason for the refund request."
+      },
+      "processing": {
+        "title": "7. Refund Processing",
+        "body": "After a refund is approved, the actual cancellation and refund posting time may vary depending on your card issuer, bank, or payment provider, and it may take several business days."
+      },
+      "contact": {
+        "title": "8. Contact",
+        "email": "hello@brify.app",
+        "note": "The interpretation and application of this refund policy may vary depending on applicable law, payment provider standards, and the status of the individual transaction."
+      }
+    }
   }
 }

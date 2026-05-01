@@ -62,19 +62,46 @@ const PAGE_COPY = {
     signupHref: "/en/signup",
     relatedHref: "/en/youtube-notes",
   },
+  fr: {
+    title: "Carte mentale YouTube | Convertir une transcription YouTube en carte mentale | Brify",
+    description:
+      "Brify convertit les transcriptions YouTube, les pages web et les textes longs en cartes mentales pour comprendre rapidement le flux et la structure.",
+    pageUrl: "https://www.brify.app/fr/mind-map",
+    heading: "Transformez les transcriptions YouTube en cartes mentales",
+    lead:
+      "Si vous cherchez un workflow YouTube vers carte mentale, Brify vous aide à structurer et revoir les contenus complexes plus facilement.",
+    paragraphs: [
+      "Une carte mentale n'est pas seulement jolie: elle aide à comprendre les relations, la hiérarchie et le flux des informations complexes.",
+      "Brify transforme les transcriptions YouTube en cartes mentales pour rendre les idées clés et leurs liens plus visibles.",
+      "C'est particulièrement utile pour l'étude, la recherche, la comparaison de sources et les contenus longs.",
+    ],
+    bullets: [
+      "Personnes qui veulent convertir YouTube en carte mentale",
+      "Personnes qui veulent voir des textes longs d'un seul coup d'oeil",
+      "Personnes qui veulent une compréhension visuelle du flux",
+      "Personnes qui comparent plusieurs sources et idées",
+    ],
+    ctaTitle: "Commencez à organiser avec Brify",
+    ctaBody:
+      "Convertissez les transcriptions YouTube, pages web et textes longs en cartes mentales pour comprendre plus vite.",
+    primaryCta: "Commencer Brify",
+    secondaryCta: "Voir la page notes YouTube",
+    signupHref: "/fr/signup",
+    relatedHref: "/fr/youtube-notes",
+  },
 } as const;
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  const copy = locale === "en" ? PAGE_COPY.en : PAGE_COPY.ko;
+  const copy = locale === "ko" ? PAGE_COPY.ko : locale === "fr" ? PAGE_COPY.fr : PAGE_COPY.en;
 
   return {
     title: copy.title,
     description: copy.description,
     keywords:
-      locale === "en"
+      locale !== "ko"
         ? ["mind map", "youtube mind map", "youtube to mind map", "convert youtube to mind map", "text mind map", "Brify"]
         : ["마인드맵", "유튜브 마인드맵", "텍스트 마인드맵", "정보 정리", "브리피", "브라이피"],
     alternates: {
@@ -82,6 +109,7 @@ export async function generateMetadata({
       languages: {
         ko: PAGE_COPY.ko.pageUrl,
         en: PAGE_COPY.en.pageUrl,
+        fr: "https://www.brify.app/fr/mind-map",
       },
     },
     openGraph: {
@@ -93,7 +121,7 @@ export async function generateMetadata({
       images: [
         {
           url:
-            locale === "en"
+            locale !== "ko"
               ? "https://www.brify.app/images/sns_en.png"
               : "https://www.brify.app/images/sns_ko.png",
           width: 1200,
@@ -107,7 +135,7 @@ export async function generateMetadata({
       title: copy.title,
       description: copy.description,
       images: [
-        locale === "en"
+        locale !== "ko"
           ? "https://www.brify.app/images/sns_en.png"
           : "https://www.brify.app/images/sns_ko.png",
       ],
@@ -117,7 +145,7 @@ export async function generateMetadata({
 
 export default async function MindMapPage({ params }: PageProps) {
   const { locale } = await params;
-  const copy = locale === "en" ? PAGE_COPY.en : PAGE_COPY.ko;
+  const copy = locale === "ko" ? PAGE_COPY.ko : locale === "fr" ? PAGE_COPY.fr : PAGE_COPY.en;
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#f8fbff_0%,#eef4fb_100%)] text-slate-950 dark:bg-[#020617] dark:text-white">

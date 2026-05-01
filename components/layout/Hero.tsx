@@ -335,7 +335,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
 
           {/* title + slide handle */}
           <div className="mt-3 flex items-start gap-3">
-            <div className="relative min-w-0 flex-1 h-[6.6rem] sm:h-[8rem] md:h-[10.5rem]">
+            <div className="relative min-w-0 flex-1 min-h-[6.6rem] sm:min-h-[8rem] md:min-h-[10.5rem]">
               <AnimatePresence mode="wait">
                 <motion.h1
                   key={safeIdx}
@@ -344,7 +344,6 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
                   exit={{ opacity: 0, x: -28 }}
                   transition={{ duration: 0.35, ease: "easeOut" }}
                   className="
-                    absolute inset-0
                     text-3xl sm:text-4xl md:text-5xl
                     font-extrabold leading-[1.1]
                     text-neutral-900 [overflow-wrap:anywhere] dark:text-white

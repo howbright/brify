@@ -292,7 +292,7 @@ export default function PricingGrid({
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="text-[10px] font-black uppercase tracking-[0.16em] text-blue-900/80 dark:text-sky-200/90">
-                        Credit Pack
+                        {t("cardLabel")}
                       </div>
                       <div className="mt-1 text-[30px] font-extrabold leading-none tracking-[-0.04em] text-slate-950 dark:text-white">
                         {p.credits.toLocaleString()}

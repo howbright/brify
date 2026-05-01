@@ -852,7 +852,8 @@
     "reassurance": {
       "line1": "정기구독 없음 · 자동결제 없음"
     },
-    "positioningText": "구독 없이, 사용한 만큼만 결제하세요."
+    "positioningText": "구독 없이, 사용한 만큼만 결제하세요.",
+    "cardLabel": "크레딧 팩"
   },
   "FinalCTA": {
     "title": "흩어진 정보에 휘둘리지 말고,",
@@ -1058,9 +1059,15 @@
     "list": {
       "title": "결제 내역 목록",
       "caption": "총 {total}건 중 {visible}건을 보고 있어요.",
+      "loading": "결제 내역을 불러오는 중이에요.",
       "empty": "아직 결제 내역이 없습니다. 먼저 크레딧 팩을 한 번 충전해 보세요.",
       "meta": "{date} · 결제 ID: {id}",
-      "creditsAndProvider": "+ {credits} 크레딧 · {provider}"
+      "creditsAndProvider": "+ {credits} 크레딧 · {provider}",
+      "packLabel": "{credits} 크레딧 팩",
+      "provider": {
+        "toss": "토스페이먼츠",
+        "lemon": "LemonSqueezy"
+      }
     },
     "button": {
       "goToBilling": "크레딧 충전 페이지로 이동",
@@ -1082,6 +1089,26 @@
       "item4": "• 결제 실패 건은 실제로 크레딧이 충전되지 않으며, 필요 시 다시 결제를 시도할 수 있어요.",
       "note": "유료 크레딧의 이용기간은 결제일로부터 1년이며, 환불 기준은 환불정책 페이지에서 확인할 수 있습니다. 구매 후 7일 이내 해당 주문 크레딧을 사용하지 않은 경우 전액 환불이 가능합니다."
     }
+  },
+  "BillingTossFailPage": {
+    "titleCanceled": "결제가 취소되었어요.",
+    "titleFailed": "결제가 완료되지 않았어요.",
+    "descCanceled": "결제창을 닫거나 취소하여 결제가 진행되지 않았어요.",
+    "descFailed": "에러 코드를 확인한 뒤 다시 시도해주세요.",
+    "backToBilling": "크레딧 충전으로 돌아가기",
+    "viewHistory": "결제 내역 보기"
+  },
+  "BillingTossSuccessPage": {
+    "missingData": "결제 완료 정보를 확인할 수 없어요.",
+    "alreadyConfirmed": "이미 승인된 결제예요. 결제 내역에서 확인할 수 있어요.",
+    "chargedCredits": "{credits}크레딧이 충전되었어요.",
+    "confirmError": "결제 승인 중 문제가 발생했어요.",
+    "titleLoading": "결제를 확인하고 있어요.",
+    "titleSuccess": "결제가 완료되었어요.",
+    "titleError": "결제 확인이 완료되지 않았어요.",
+    "pleaseWait": "잠시만 기다려 주세요.",
+    "viewHistory": "결제 내역 보기",
+    "backToBilling": "크레딧 충전으로 돌아가기"
   },
   "BillingCreditsPage": {
     "badge": "무료 · 유료 크레딧 변동 내역",
@@ -1897,6 +1924,15 @@
   "MapsPage": {
     "title": "나의 맵",
     "tagOrganizeExit": "종료",
+    "tabs": {
+      "maps": "맵",
+      "notes": "노트",
+      "terms": "용어"
+    },
+    "openBlocked": {
+      "failed": "실패한 맵은 열 수 없어요.",
+      "processing": "아직 생성 중인 맵이라 열 수 없어요."
+    },
     "previewEmpty": {
       "loading": "목록을 불러오는 중이에요.",
       "noMaps": "아직 생성한 마인드맵이 없어요.",
@@ -1961,5 +1997,60 @@
       "confirm": "합치기"
     },
     "close": "닫기"
+  },
+  "RefundPolicyPage": {
+    "badge": "BRIFY REFUND POLICY",
+    "title": "환불 정책",
+    "intro": "Brify 유료 크레딧의 사용기간, 환불 가능 기준, 환불 제한 사유를 안내합니다. 결제 전 아래 기준을 확인해 주세요.",
+    "facts": {
+      "validityTitle": "사용 가능 기간",
+      "validityValue": "결제일로부터 1년",
+      "changeOfMindTitle": "단순 변심 환불",
+      "changeOfMindValue": "7일 이내, 미사용 시",
+      "methodTitle": "환불 방식",
+      "methodValue": "원 결제수단 환불"
+    },
+    "sections": {
+      "scope": {
+        "title": "1. 적용 대상",
+        "body": "본 환불 정책은 Brify에서 판매하는 유료 크레딧 상품에 적용됩니다."
+      },
+      "validity": {
+        "title": "2. 이용기간",
+        "body": "유료 크레딧의 이용기간은 각 결제일로부터 1년입니다.",
+        "note": "위 기간은 유료 크레딧의 사용 가능 기간을 의미합니다. 환불 가능 여부와 환불 범위는 아래 기준 및 관련 법령에 따라 별도로 판단됩니다."
+      },
+      "eligibility": {
+        "title": "3. 환불 가능 기준",
+        "body1": "유료 크레딧은 구매 후 7일 이내이고, 해당 주문으로 충전된 크레딧을 전혀 사용하지 않은 경우 전액 환불이 가능합니다.",
+        "body2": "미사용 유료 크레딧에 대한 환불은 구매 시점에 결제된 금액을 기준으로 처리됩니다.",
+        "note": "환불은 원칙적으로 결제에 사용한 동일한 결제수단으로 진행됩니다."
+      },
+      "limitations": {
+        "title": "4. 환불 제한",
+        "body1": "이미 사용한 유료 크레딧은 취소 또는 환불이 불가합니다.",
+        "body2": "크레딧 사용이 시작되었거나 맵 생성이 진행된 이후에는 해당 주문에 대한 단순 변심 환불이 제한됩니다.",
+        "note1": "구매 후 7일이 지난 미사용 유료 크레딧은 단순 변심에 의한 환불 대상이 아니며, 결제일로부터 1년의 유효기간 내에서만 사용할 수 있습니다.",
+        "note2": "구매한 유료 크레딧은 회원 간 양도, 대여 또는 이전이 불가합니다."
+      },
+      "exceptions": {
+        "title": "5. 예외 환불",
+        "body": "중복 결제, 시스템 오류, 관계 법령상 환불이 필요한 경우에는 별도 검토 후 환불될 수 있습니다."
+      },
+      "request": {
+        "title": "6. 환불 요청 방법",
+        "body": "환불 검토가 필요하시면 결제일, 계정 이메일, 결제 내역을 함께 적어 hello@brify.app으로 이메일을 보내 주세요.",
+        "note": "원활한 확인을 위해 주문번호, 결제 금액, 결제 수단, 환불 사유를 함께 보내 주시면 검토가 더 빠르게 진행됩니다."
+      },
+      "processing": {
+        "title": "7. 환불 처리 안내",
+        "body": "환불 승인 후 실제 결제 취소 및 환불 반영 시점은 카드사, 은행, 결제대행사 정책에 따라 달라질 수 있으며, 영업일 기준 수일이 소요될 수 있습니다."
+      },
+      "contact": {
+        "title": "8. 문의처",
+        "email": "hello@brify.app",
+        "note": "환불 정책의 해석 및 적용은 관련 법령, 결제대행사 기준, 개별 결제 상태에 따라 달라질 수 있습니다."
+      }
+    }
   }
 }

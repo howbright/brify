@@ -273,11 +273,12 @@ export default function MapsPage() {
   const params = useParams();
   const locale = typeof params?.locale === "string" ? params.locale : null;
   const tabLabels = useMemo(
-    () =>
-      locale === "ko"
-        ? { maps: "맵", notes: "노트", terms: "용어" }
-        : { maps: "Maps", notes: "Notes", terms: "Terms" },
-    [locale]
+    () => ({
+      maps: tPage("tabs.maps"),
+      notes: tPage("tabs.notes"),
+      terms: tPage("tabs.terms"),
+    }),
+    [tPage]
   );
   const statusLabels = useMemo<Record<MapStatusFilter, string>>(
     () => ({
@@ -302,10 +303,10 @@ export default function MapsPage() {
   );
   const contentLabels = useMemo(
     () => ({
-      notes: locale === "ko" ? "노트" : "Notes",
-      terms: locale === "ko" ? "용어" : "Terms",
+      notes: tPage("tabs.notes"),
+      terms: tPage("tabs.terms"),
     }),
-    [locale]
+    [tPage]
   );
 
   useEffect(() => {
@@ -342,13 +343,9 @@ export default function MapsPage() {
   const handleOpenDetail = (item: MapDraft) => {
     if (item.status !== "done" && item.status !== "processing_metadata") {
       const blockedMessage =
-        locale === "ko"
-          ? item.status === "failed"
-            ? "실패한 맵은 열 수 없어요."
-            : "아직 생성 중인 맵이라 열 수 없어요."
-          : item.status === "failed"
-          ? "Failed maps can't be opened."
-          : "This map is still being generated and can't be opened yet.";
+        item.status === "failed"
+          ? tPage("openBlocked.failed")
+          : tPage("openBlocked.processing");
       toast.message(blockedMessage);
       return;
     }
