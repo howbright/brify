@@ -190,7 +190,6 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
     ? "3a805093-2bcf-484c-8a2d-e9d4f676d88e"
     : "0eb4b0cd-ef56-4078-ba9d-f37cbdc43aad";
   const demoShareHref = `/share/${demoShareToken}`;
-  const iframePreviewHref = `/${locale}/share/${demoShareToken}`;
   const [idx, setIdx] = useState(0);
 
   const titles = (() => {
@@ -481,7 +480,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
         <div className="rounded-3xl border border-slate-300/90 bg-white/82 p-4 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.36)] backdrop-blur-sm dark:border-white/15 dark:bg-white/[0.04]">
           <div className="mb-4 flex items-center justify-between gap-4">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 md:text-xl">
-              {isKo ? "실제 결과 미리보기" : "See a real output"}
+              {isKo ? "예시 구조맵 이미지" : "Sample mind map image"}
             </h2>
             <Link
               href={isAuthed ? "/video-to-map" : "/signup?next=%2Fvideo-to-map"}
@@ -490,19 +489,14 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
               {isKo ? "내 맵 만들기" : "Sign up to create your own"}
             </Link>
           </div>
-          <p className="mb-3 text-xs text-slate-600 dark:text-slate-300/85">
-            {isKo
-              ? "마우스 우클릭, 트랙패드, 미니맵 영역 드래그로 구조맵을 자유롭게 이동할 수 있어요"
-              : "Use right-click, trackpad gestures, or drag the minimap area to move around the map."}
-          </p>
 
           <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
-            <iframe
-              src={iframePreviewHref}
-              title={isKo ? "브라이피 데모 미리보기" : "Brify demo preview"}
-              loading="lazy"
-              className="h-full w-full border-0"
-              referrerPolicy="strict-origin-when-cross-origin"
+            <Image
+              src="/images/example.png"
+              alt={isKo ? "브라이피 구조맵 예시 이미지" : "Brify mind map example image"}
+              fill
+              sizes="(max-width: 1024px) 100vw, 1100px"
+              className="object-cover"
             />
           </div>
         </div>
