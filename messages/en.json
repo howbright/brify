@@ -158,8 +158,19 @@
   "YoutubeScriptDialog": {
     "dialogAria": "Fetch a script from YouTube",
     "title": "How to get a YouTube transcript",
-    "subtitle": "Copy the full YouTube transcript in one go.",
+    "subtitle": "You can copy the full transcript in under a minute.",
     "close": "Close",
+    "gifAlt": "How to quickly copy a YouTube transcript",
+    "guide": {
+      "intro": "Brify does not auto-extract transcripts from a YouTube URL because we respect YouTube's policies. Instead, you can copy the full transcript quickly and reliably with the method below.",
+      "desktopOnly": "Note: On mobile, YouTube may not fully support transcript copy workflows. We recommend doing this on desktop.",
+      "stepsTitle": "The easiest way to copy it",
+      "step1": "Click the first word in the transcript (or start selecting there)",
+      "step2": "Scroll all the way down",
+      "step3": "Hold Shift and click the last character",
+      "step4": "Once everything is selected, copy and paste it into the input box",
+      "encourage": "Don’t let useful videos slip by just because you’re short on time. Paste the transcript and turn key ideas into a clear mind map in minutes."
+    },
     "pastePrefix": "In the input field,",
     "shiftHold": "keep holding it",
     "imagePlaceholder": "You can place a related image here.",
