@@ -344,6 +344,10 @@ export default function FullscreenMapDetailScreen({
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(false);
   const [showTimestamps, setShowTimestamps] = useState(false);
   const [isLikelyInAppBrowser, setIsLikelyInAppBrowser] = useState(false);
+  const [isEmbeddedFrame] = useState(
+    () => typeof window !== "undefined" && window.self !== window.top
+  );
+  const shouldHideFramedSharedChrome = isSharedView && isEmbeddedFrame;
   const desktopMoreRef = useRef<HTMLDivElement | null>(null);
   const mobileMapActionsRef = useRef<HTMLDivElement | null>(null);
   const mobileThemeRef = useRef<HTMLDivElement | null>(null);
@@ -560,13 +564,13 @@ export default function FullscreenMapDetailScreen({
     if (loading || !draft) return;
     if (initializedMapIdRef.current === draft.id) return;
     initializedMapIdRef.current = draft.id;
-    setLeftOpen(!isTutorialMobile);
+    setLeftOpen(!(isSharedView && isEmbeddedFrame) && !isTutorialMobile);
     const tutorialCompleted = getMapTutorialCompleted(
       isTutorialMobile ? "mobile" : "desktop"
     );
     setTutorialOpen(!tutorialCompleted);
     setTutorialStepIndex(0);
-  }, [loading, draft?.id, isTutorialMobile, isSharedView]);
+  }, [loading, draft?.id, isTutorialMobile, isSharedView, isEmbeddedFrame]);
 
   useEffect(() => {
     if (!mapId || !draft) return;
@@ -1507,6 +1511,7 @@ export default function FullscreenMapDetailScreen({
         title={title}
         onClose={() => router.push(isSharedView ? `/${locale}` : backToMapsUrl)}
         closeLabel={t("actions.closeMap")}
+        hideCloseButton={shouldHideFramedSharedChrome}
         titleBadge={
           isSharedView ? (
             <span className="hidden h-5 items-center rounded-full border border-blue-300/35 bg-blue-500/15 px-2 text-[10px] font-semibold tracking-normal text-blue-50/95 dark:border-blue-300/35 dark:bg-blue-500/15 dark:text-blue-50/95 sm:inline-flex">
@@ -2335,7 +2340,8 @@ export default function FullscreenMapDetailScreen({
           />
         )}
 
-        <div className="pointer-events-none absolute bottom-4 left-4 z-[22]">
+        {!shouldHideFramedSharedChrome ? (
+          <div className="pointer-events-none absolute bottom-4 left-4 z-[22]">
           <div className="hidden pointer-events-auto sm:block">
             <Link
               href={`/${locale}`}
@@ -2433,7 +2439,8 @@ export default function FullscreenMapDetailScreen({
               </div>
             </div>
           </div>
-        </div>
+          </div>
+        ) : null}
 
         {tutorialOpen ? (
           <MapTutorialOverlay

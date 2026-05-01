@@ -108,15 +108,11 @@ export default function ClientMobileUserMenu({
               <button
                 onClick={() => {
                   setOpen(false);
-                  router.push(
-                    locale === "en"
-                      ? "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e"
-                      : "/share/0eb4b0cd-ef56-4078-ba9d-f37cbdc43aad"
-                  );
+                  router.push("/blog");
                 }}
                 className="w-full text-left py-2 text-sm"
               >
-                {t("nav.samples")}
+                {t("nav.blog")}
               </button>
 
               <button

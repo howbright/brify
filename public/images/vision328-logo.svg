@@ -1,0 +1,19 @@
+<svg width="1200" height="320" viewBox="0 0 1200 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="v328Gradient" x1="40" y1="40" x2="280" y2="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0EA5E9"/>
+      <stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="v328Accent" x1="96" y1="96" x2="224" y2="224" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#22D3EE"/>
+      <stop offset="1" stop-color="#60A5FA"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="20" y="20" width="280" height="280" rx="64" fill="url(#v328Gradient)"/>
+  <path d="M84 98L160 230L236 98" stroke="white" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="160" cy="160" r="56" fill="url(#v328Accent)" fill-opacity="0.22"/>
+
+  <text x="350" y="142" fill="#0F172A" font-size="84" font-weight="800" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" letter-spacing="1.5">Vision328</text>
+  <text x="352" y="196" fill="#334155" font-size="30" font-weight="500" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" letter-spacing="0.4">Build useful ideas into real products</text>
+</svg>

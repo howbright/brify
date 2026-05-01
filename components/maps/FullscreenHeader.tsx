@@ -3,6 +3,7 @@ type Props = {
   title: string;
   onClose: () => void;
   closeLabel: string;
+  hideCloseButton?: boolean;
   titleBadge?: ReactNode;
   mobileTitleBadge?: ReactNode;
   left?: ReactNode;
@@ -13,6 +14,7 @@ export default function FullscreenHeader({
   title,
   onClose,
   closeLabel,
+  hideCloseButton = false,
   titleBadge,
   mobileTitleBadge,
   left,
@@ -34,22 +36,26 @@ export default function FullscreenHeader({
               <div className="mt-0.5 sm:hidden">{mobileTitleBadge}</div>
             ) : null}
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="
-              inline-flex h-8 w-8 items-center justify-center
-              rounded-full bg-white/8
-              text-white/85 transition-colors
-              hover:bg-white/14 hover:text-white
-              dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/16 dark:hover:text-white
-            "
-            aria-label={closeLabel}
-            title={closeLabel}
-          >
-            <span className="sr-only">{closeLabel}</span>
-            <span className="text-[16px] leading-none">×</span>
-          </button>
+          {hideCloseButton ? (
+            <div className="h-8 w-8" aria-hidden="true" />
+          ) : (
+            <button
+              type="button"
+              onClick={onClose}
+              className="
+                inline-flex h-8 w-8 items-center justify-center
+                rounded-full bg-white/8
+                text-white/85 transition-colors
+                hover:bg-white/14 hover:text-white
+                dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/16 dark:hover:text-white
+              "
+              aria-label={closeLabel}
+              title={closeLabel}
+            >
+              <span className="sr-only">{closeLabel}</span>
+              <span className="text-[16px] leading-none">×</span>
+            </button>
+          )}
         </div>
         <div className="flex h-[40px] items-center justify-between gap-2 border-b border-slate-500 bg-[linear-gradient(180deg,#f4f7fb_0%,#edf3fb_100%)] px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(148,163,184,0.45)] dark:border-white/25 dark:bg-[linear-gradient(180deg,rgba(20,29,45,0.98)_0%,rgba(13,20,33,0.98)_100%)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-1px_0_rgba(255,255,255,0.08)] sm:h-[40px]">
           <div className="-ml-3 min-w-0 flex flex-1 items-center gap-2">{left}</div>

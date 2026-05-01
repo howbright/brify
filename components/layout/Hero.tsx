@@ -185,10 +185,12 @@ function HeroDiagramImage({
 export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boolean }) {
   const t = useTranslations("LandingBlueHero");
   const locale = useLocale();
+  const isKo = locale === "ko";
   const demoShareToken = locale === "en"
     ? "3a805093-2bcf-484c-8a2d-e9d4f676d88e"
     : "0eb4b0cd-ef56-4078-ba9d-f37cbdc43aad";
   const demoShareHref = `/share/${demoShareToken}`;
+  const iframePreviewHref = `/${locale}/share/${demoShareToken}`;
   const [idx, setIdx] = useState(0);
 
   const titles = (() => {
@@ -472,6 +474,32 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
           "hidden md:max-[1125px]:col-span-2 md:max-[1125px]:mt-1 md:max-[1125px]:block",
           "grid gap-y-3",
         )}
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 pb-16 md:px-10 md:pb-20">
+        <div className="rounded-3xl border border-slate-300/90 bg-white/82 p-4 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.36)] backdrop-blur-sm dark:border-white/15 dark:bg-white/[0.04]">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 md:text-xl">
+              {isKo ? "실제 결과 미리보기" : "See a real output"}
+            </h2>
+            <Link
+              href={isAuthed ? "/video-to-map" : "/signup?next=%2Fvideo-to-map"}
+              className="inline-flex items-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+            >
+              {isKo ? "내 맵 만들기" : "Sign up to create your own"}
+            </Link>
+          </div>
+
+          <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
+            <iframe
+              src={iframePreviewHref}
+              title={isKo ? "브라이피 데모 미리보기" : "Brify demo preview"}
+              loading="lazy"
+              className="h-full w-full border-0"
+              referrerPolicy="strict-origin-when-cross-origin"
+            />
+          </div>
+        </div>
       </section>
     </main>
   );

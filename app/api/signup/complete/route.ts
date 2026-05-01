@@ -81,8 +81,8 @@ export async function POST(req: NextRequest) {
       uid = uidFromBody;
     }
 
-    // ✅ 2) "이번 요청에서 terms가 false -> true로 바뀌는지" 판단
-    const { data: beforeProfile, error: beforeErr } = await adminSupabase
+    // ✅ 2) profiles 접근 가능 여부 확인
+    const { error: beforeErr } = await adminSupabase
       .from("profiles")
       .select("terms_accepted, email")
       .eq("id", uid)
@@ -94,8 +94,6 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
-
-    const wasTermsAccepted = beforeProfile?.terms_accepted === true;
 
     // ✅ 3) terms_accepted upsert (서비스롤)
     let lastErr: any = null;
@@ -141,28 +139,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ✅ 4) 보상 지급 조건: "이전에는 terms=true가 아니었는데, 이번에 true로 만든 경우"
+    // ✅ 4) 보상 지급 시도 (항상 호출)
+    // - grantSignupReward 내부가 credit_transactions(reason='signup_reward')로 중복 방지
+    // - terms 상태가 예상과 다르게 이미 true여도, 보상 tx가 없다면 여기서 복구 가능
     let rewardInfo: any = null;
+    const rewardResult = await grantSignupReward({
+      userId: uid,
+      locale,
+      reward: 15,
+    });
 
-    if (!wasTermsAccepted) {
-      const rewardResult = await grantSignupReward({
-        userId: uid,
-        locale,
-        reward: 15,
-      });
-
-      // 보상 실패여도 "동의 완료"는 성공 처리
-      if (!rewardResult.ok) {
-        console.error(
-          "signup reward error:",
-          rewardResult.error,
-          rewardResult.detail
-        );
-      } else {
-        rewardInfo = rewardResult;
-      }
+    // 보상 실패여도 "동의 완료"는 성공 처리
+    if (!rewardResult.ok) {
+      console.error(
+        "signup reward error:",
+        rewardResult.error,
+        rewardResult.detail
+      );
     } else {
-      rewardInfo = { ok: true, alreadyGranted: true, granted: 0 };
+      rewardInfo = rewardResult;
     }
 
     return NextResponse.json({ ok: true, reward: rewardInfo });
