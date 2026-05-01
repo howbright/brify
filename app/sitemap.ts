@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
+import { getBlogPostsByLocale } from "@/app/lib/blog";
 
 const BASE_URL = "https://www.brify.app";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-
-  return [
+  const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: `${BASE_URL}/ko`,
       lastModified: now,
@@ -90,5 +90,39 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.2,
     },
+    {
+      url: `${BASE_URL}/ko/blog`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${BASE_URL}/en/blog`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.6,
+    },
   ];
+
+  const [koPosts, enPosts] = await Promise.all([
+    getBlogPostsByLocale("ko"),
+    getBlogPostsByLocale("en"),
+  ]);
+
+  const blogRoutes: MetadataRoute.Sitemap = [
+    ...koPosts.map((post) => ({
+      url: `${BASE_URL}/ko/blog/${post.slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.65,
+    })),
+    ...enPosts.map((post) => ({
+      url: `${BASE_URL}/en/blog/${post.slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.55,
+    })),
+  ];
+
+  return [...staticRoutes, ...blogRoutes];
 }
