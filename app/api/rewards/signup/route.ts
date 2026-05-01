@@ -1,12 +1,13 @@
 // app/api/rewards/signup/route.ts
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { grantSignupReward } from "@/app/lib/rewards/grantSignupReward";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
     const {
@@ -20,9 +21,8 @@ export async function POST() {
 
     const userId = user.id;
 
-    // locale은 쿠키나 프로필 기반으로 넣어도 되고, 일단 cookie 기준으로
-    // (원하면 profiles.locale 읽어오는 걸로 바꿔도 됨)
-    const locale = "ko"; // 필요하면 req cookies 기반으로 변경(현재 POST()는 req가 없어서 고정/또는 createClient에서 읽기)
+    const cookieLocale = req.cookies.get("NEXT_LOCALE")?.value;
+    const locale = cookieLocale === "ko" || cookieLocale === "en" ? cookieLocale : undefined;
 
     const result = await grantSignupReward({ userId, locale, reward: 15 });
 

@@ -35,34 +35,37 @@ export async function POST(req: NextRequest) {
     const uidFromBody = String(body?.uid ?? "");
     const sig = String(body?.sig ?? "");
     const next = String(body?.next ?? "/");
+    const hasSignedFlow = Boolean(uidFromBody && sig);
 
-    const locale = req.cookies.get("NEXT_LOCALE")?.value ?? "ko";
+    const cookieLocale = req.cookies.get("NEXT_LOCALE")?.value;
+    const locale = cookieLocale === "ko" || cookieLocale === "en" ? cookieLocale : "en";
 
-    // ✅ 0) 세션 유저 확인 (세션 모드/보안 강화에 사용)
+    // ✅ 0) 세션 유저 확인
+    // - signed flow(uid+sig)에서는 세션이 일시적으로 없어도 진행 가능
+    // - 일반 flow에서는 세션 필수
     const supabase = await createClient();
     const {
       data: { user },
       error: userError,
     } = await supabase.auth.getUser();
 
-    if (userError || !user) {
+    if (!hasSignedFlow && (userError || !user)) {
       return NextResponse.json(
         { ok: false, error: "UNAUTHORIZED" },
         { status: 401 }
       );
     }
 
-    const userEmail = user.email ?? null;
+    const userEmail = user?.email ?? null;
 
     // ✅ 1) uid 결정
     // - signed flow(uid+sig 있으면): uidFromBody 사용 (단, 세션 유저와 일치 체크)
     // - session flow(없으면): 세션 유저 id 사용
-    let uid = user.id;
-    const hasSignedFlow = Boolean(uidFromBody && sig);
+    let uid = user?.id ?? "";
 
     if (hasSignedFlow) {
-      // ✅ 보안 강화: 세션 유저와 uid가 다르면 거절
-      if (uidFromBody !== user.id) {
+      // ✅ 보안 강화: 세션이 존재하고 uid가 다르면 거절
+      if (user?.id && uidFromBody !== user.id) {
         return NextResponse.json(
           { ok: false, error: "UID_MISMATCH" },
           { status: 403 }

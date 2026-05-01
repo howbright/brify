@@ -18,7 +18,6 @@ export async function grantSignupReward(params: {
   reward?: number; // 기본 15
 }): Promise<GrantSignupRewardResult> {
   const userId = params.userId;
-  const locale = params.locale ?? "en";
   const reward = Number(params.reward ?? 15);
 
   if (!userId) return { ok: false, error: "MISSING_USER_ID" };
@@ -66,7 +65,7 @@ export async function grantSignupReward(params: {
   // 3) profiles 업데이트
   const { error: updateErr } = await adminSupabase
     .from("profiles")
-    .update({ credits_free: nextFree, credits_paid: nextPaid, locale })
+    .update({ credits_free: nextFree, credits_paid: nextPaid })
     .eq("id", userId);
 
   if (updateErr) {
