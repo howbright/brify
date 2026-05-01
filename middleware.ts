@@ -6,7 +6,7 @@ import { updateSession } from "./utils/supabase/middleware";
 // 🌍 i18n 라우팅 미들웨어 생성
 const handleI18nRouting = createMiddleware({
   ...routing,
-  localeDetection: true,
+  localeDetection: false,
   localeCookie: true,
 });
 
