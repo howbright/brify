@@ -78,7 +78,7 @@ export default function ScriptHelpSection({
         {/* 실제 스크롤이 생기는 영역 */}
         <div className="max-h-[380px] md:max-h-[430px] overflow-y-auto pr-1">
           <div className="flex flex-col gap-5 text-[13px] md:text-sm text-neutral-700 dark:text-neutral-200">
-            {/* 블럭 A: YouTube에서 스크립트 가져오기 */}
+            {/* 블럭 A: YouTube에서 영상 대본 가져오기 */}
             <div className="flex flex-col gap-3">
               <div>
                 {/* <h3 className="text-sm md:text-[15px] font-semibold text-neutral-900 dark:text-neutral-50">
@@ -269,7 +269,7 @@ export default function ScriptHelpSection({
             {/* 구분선 */}
             <div className="h-px bg-neutral-200/80 dark:bg-white/10" />
 
-            {/* 블럭 B: 자막 파일 / 편집툴 / 이미 있는 스크립트 */}
+            {/* 블럭 B: 자막 파일 / 편집툴 / 이미 있는 영상 대본 */}
             <div className="flex flex-col gap-3">
               <div>
                 <h3 className="text-sm md:text-[15px] font-semibold text-neutral-900 dark:text-neutral-50">

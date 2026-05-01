@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import { getBlogPostByLocaleAndSlug } from "@/app/lib/blog";
@@ -34,7 +34,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
   const post = await getBlogPostByLocaleAndSlug(locale, slug);
 
   if (!post) {
-    notFound();
+    redirect(`/${locale}/blog`);
   }
 
   const paragraphs = post.content ?? [];

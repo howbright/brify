@@ -78,7 +78,7 @@ export default function InputSection({
         console.log("캐시 결과 사용");
         if (typeof data.result === "string") {
           onExtracted(
-            `🔗 유튜브 영상에서 추출한 스크립트입니다.\n\n${data.result}`,
+            `🔗 유튜브 영상에서 추출한 영상 대본입니다.\n\n${data.result}`,
             true
           );
           setIsLoading(false);
@@ -111,7 +111,7 @@ export default function InputSection({
           if (pollRes.ok && pollData.status === "completed") {
             if (typeof pollData.result === "string") {
               onExtracted(
-                `🔗 유튜브 영상에서 추출한 스크립트입니다.\n\n${pollData.result}`,
+                `🔗 유튜브 영상에서 추출한 영상 대본입니다.\n\n${pollData.result}`,
                 true
               );
               setIsLoading(false);
@@ -120,7 +120,7 @@ export default function InputSection({
               setIsLoading(false);
             }
           } else if (pollData.status === "failed") {
-            onExtracted("❌ 유튜브 스크립트 추출에 실패했습니다.", false);
+            onExtracted("❌ 유튜브 영상 대본 추출에 실패했습니다.", false);
             setIsLoading(false);
           } else if (pollData.status === "error") {
             onExtracted("❌ 요청 처리 중 오류가 발생했습니다.", false);

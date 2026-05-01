@@ -600,7 +600,7 @@ export default function VideoToMapPage() {
   };
 
   /**
-   * ✅ URL로 스크립트 채우기 (모달에서 실행)
+   * ✅ URL로 영상 대본 채우기 (모달에서 실행)
    */
   const handleFetchYoutube = async () => {
     setYoutubeError(null);

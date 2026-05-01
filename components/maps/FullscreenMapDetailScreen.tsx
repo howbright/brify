@@ -189,6 +189,18 @@ type AdminInspectMapResponse = {
   thumbnailUrl: string | null;
   channelName: string | null;
   mindElixir: MapRow["mind_elixir"] | null;
+  mindThemeOverride: string | null;
+  notes?: Array<{
+    id: string;
+    text: string;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+  terms?: Array<{
+    term: string;
+    meaning: string;
+    updatedAt: string | null;
+  }>;
 };
 
 type SharedMapResponse = {
@@ -344,9 +356,7 @@ export default function FullscreenMapDetailScreen({
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(false);
   const [showTimestamps, setShowTimestamps] = useState(false);
   const [isLikelyInAppBrowser, setIsLikelyInAppBrowser] = useState(false);
-  const [isEmbeddedFrame] = useState(
-    () => typeof window !== "undefined" && window.self !== window.top
-  );
+  const [isEmbeddedFrame, setIsEmbeddedFrame] = useState(false);
   const shouldHideFramedSharedChrome = isSharedView && isEmbeddedFrame;
   const desktopMoreRef = useRef<HTMLDivElement | null>(null);
   const mobileMapActionsRef = useRef<HTMLDivElement | null>(null);
@@ -354,6 +364,7 @@ export default function FullscreenMapDetailScreen({
   const mobileLanguageRef = useRef<HTMLDivElement | null>(null);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
+  const [showExpandHint, setShowExpandHint] = useState(false);
   const initializedMapIdRef = useRef<string | null>(null);
 
   const MUTATING_OPS = useMemo(
@@ -384,6 +395,11 @@ export default function FullscreenMapDetailScreen({
       ]),
     []
   );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setIsEmbeddedFrame(window.self !== window.top);
+  }, []);
 
   useEffect(() => {
     if (!mapId) return;
@@ -500,9 +516,36 @@ export default function FullscreenMapDetailScreen({
           }
           setMapData(data.mindElixir);
           setPanelMindData(data.mindElixir);
-          setSharedNotes([]);
-          setSharedTerms([]);
-          setThemeName(profileThemeName ? PROFILE_THEME_NAME : DEFAULT_THEME_NAME);
+          setSharedNotes(
+            Array.isArray(data.notes)
+              ? data.notes.map((item) => {
+                  const createdAt = new Date(item.createdAt).getTime();
+                  return {
+                    id: String(item.id),
+                    text: String(item.text ?? ""),
+                    createdAt,
+                    createdAtLabel: new Date(createdAt).toLocaleString(),
+                  };
+                })
+              : []
+          );
+          setSharedTerms(
+            Array.isArray(data.terms)
+              ? data.terms.map((item) => ({
+                  term: String(item.term ?? ""),
+                  meaning: String(item.meaning ?? ""),
+                  updatedAt: item.updatedAt
+                    ? new Date(item.updatedAt).getTime()
+                    : undefined,
+                  isNew: false,
+                }))
+              : []
+          );
+          if (data.mindThemeOverride) {
+            setThemeName(data.mindThemeOverride);
+          } else {
+            setThemeName(SHARED_DEFAULT_THEME_NAME);
+          }
           themeInitRef.current = true;
         } else {
           const supabase = createClient();
@@ -565,6 +608,11 @@ export default function FullscreenMapDetailScreen({
     if (initializedMapIdRef.current === draft.id) return;
     initializedMapIdRef.current = draft.id;
     setLeftOpen(!(isSharedView && isEmbeddedFrame) && !isTutorialMobile);
+    if (isEmbeddedFrame) {
+      setTutorialOpen(false);
+      setTutorialStepIndex(0);
+      return;
+    }
     const tutorialCompleted = getMapTutorialCompleted(
       isTutorialMobile ? "mobile" : "desktop"
     );
@@ -615,6 +663,37 @@ export default function FullscreenMapDetailScreen({
           setDraft(toDraftFromAdminInspect(data));
           if (data?.mindElixir) {
             setMapData((prev) => prev ?? data.mindElixir);
+          }
+          setSharedNotes(
+            Array.isArray(data.notes)
+              ? data.notes.map((item) => {
+                  const createdAt = new Date(item.createdAt).getTime();
+                  return {
+                    id: String(item.id),
+                    text: String(item.text ?? ""),
+                    createdAt,
+                    createdAtLabel: new Date(createdAt).toLocaleString(),
+                  };
+                })
+              : []
+          );
+          setSharedTerms(
+            Array.isArray(data.terms)
+              ? data.terms.map((item) => ({
+                  term: String(item.term ?? ""),
+                  meaning: String(item.meaning ?? ""),
+                  updatedAt: item.updatedAt
+                    ? new Date(item.updatedAt).getTime()
+                    : undefined,
+                  isNew: false,
+                }))
+              : []
+          );
+          if (data?.mindThemeOverride) {
+            setThemeName(data.mindThemeOverride);
+          } else if (!themeInitRef.current) {
+            setThemeName(SHARED_DEFAULT_THEME_NAME);
+            themeInitRef.current = true;
           }
           return;
         }
@@ -885,6 +964,17 @@ export default function FullscreenMapDetailScreen({
       window.clearTimeout(timeout);
     };
   }, [mapData, loading]);
+
+  useEffect(() => {
+    if (loading || !mapData || tutorialOpen) return;
+    setShowExpandHint(true);
+    const timer = window.setTimeout(() => {
+      setShowExpandHint(false);
+    }, 5000);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [loading, mapData, tutorialOpen]);
 
   const scheduleAutoSave = () => {
     if (!mapId) return;
@@ -2231,6 +2321,39 @@ export default function FullscreenMapDetailScreen({
             </>
           ) : null}
         </div>
+        {showExpandHint ? (
+          <div className="pointer-events-none absolute left-1/2 top-1/2 z-[24] -translate-x-1/2 -translate-y-[120px] sm:-translate-y-[140px]">
+            <div className="pointer-events-auto inline-flex items-start gap-2 rounded-2xl border border-sky-200/90 bg-sky-50/95 px-3 py-2 text-[11px] font-semibold text-sky-900 shadow-[0_12px_28px_-20px_rgba(15,23,42,0.7)] backdrop-blur-sm dark:border-sky-200/20 dark:bg-[#10243a]/92 dark:text-sky-100">
+              <Icon icon="mdi:plus-circle-outline" className="mt-0.5 h-5 w-5 shrink-0" />
+              <span className="leading-4">
+                {locale === "ko" ? (
+                  <>
+                    <span className="block">내용이 더 있어요.</span>
+                    <span className="block">
+                      아이콘이 있는 노드를 눌러 펼치면, 숨겨진 가지까지 이어서 읽을 수 있어요.
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="block">There is more content.</span>
+                    <span className="block">
+                      Tap nodes with the + icon to expand and continue reading hidden branches.
+                    </span>
+                  </>
+                )}
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowExpandHint(false)}
+                className="inline-flex h-5 w-5 items-center justify-center rounded-full text-sky-700/80 hover:bg-sky-100 dark:text-sky-100/80 dark:hover:bg-white/10"
+                aria-label={locale === "ko" ? "안내 닫기" : "Dismiss hint"}
+                title={locale === "ko" ? "안내 닫기" : "Dismiss hint"}
+              >
+                <Icon icon="mdi:close" className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        ) : null}
         <div className="absolute inset-0 bg-[#f6f7fb] dark:bg-[#070c16]" />
         <div
           className="pointer-events-none absolute inset-0 opacity-60 [background-image:linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)] [background-size:28px_28px] dark:opacity-30 dark:[background-image:linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)]"
@@ -2329,14 +2452,25 @@ export default function FullscreenMapDetailScreen({
             deleteLabel={isReadOnlyView ? undefined : t("actions.delete")}
             map={draft}
             mapId={isSharedView ? undefined : isReadOnlyView ? undefined : mapId}
-            readOnly={isSharedView}
-            sharedNotes={isSharedView ? sharedNotes : undefined}
-            sharedTerms={isSharedView ? sharedTerms : undefined}
+            readOnly={isReadOnlyView}
+            sharedNotes={isReadOnlyView ? sharedNotes : undefined}
+            sharedTerms={isReadOnlyView ? sharedTerms : undefined}
             mindData={panelMindData}
             onSelectNodeNote={handleSelectNodeNote}
             tab={leftTab}
             onTabChange={setLeftTab}
             termsTabId={FULLSCREEN_PAGE_TERMS_TAB_ID}
+            readOnlyBadgeLabel={
+              isAdminView
+                ? locale === "ko"
+                  ? "관리자 조회 모드"
+                  : "Admin view mode"
+                : isSharedView
+                ? locale === "ko"
+                  ? "공유 읽기 모드"
+                  : "Shared read-only"
+                : undefined
+            }
           />
         )}
 
@@ -2442,7 +2576,7 @@ export default function FullscreenMapDetailScreen({
           </div>
         ) : null}
 
-        {tutorialOpen ? (
+        {tutorialOpen && !isEmbeddedFrame ? (
           <MapTutorialOverlay
             stepIndex={tutorialStepIndex}
             steps={tutorialSteps}

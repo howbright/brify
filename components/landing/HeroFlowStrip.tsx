@@ -47,7 +47,7 @@ export default function HeroFlowStrip() {
     const raw = t.raw("flowItems");
     return Array.isArray(raw)
       ? (raw as string[])
-      : ["스크립트 입력", "구조맵 생성", "읽기 · 편집 · 비교", "나만의 기준 세우기"];
+      : ["영상 대본 입력", "구조맵 생성", "읽기 · 편집 · 비교", "나만의 기준 세우기"];
   })();
 
   return (

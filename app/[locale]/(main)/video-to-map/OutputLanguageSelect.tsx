@@ -19,7 +19,7 @@ type Props = {
 };
 
 const DEFAULT_QUICK: LangOption[] = [
-  { code: "auto", label: "스크립트 언어와 같은 언어" },
+  { code: "auto", label: "영상 대본 언어와 같은 언어" },
   { code: "ko", label: "한국어" },
   { code: "en", label: "English" },
   { code: "ja", label: "日本語" },
@@ -33,7 +33,7 @@ const DEFAULT_QUICK: LangOption[] = [
 ];
 
 const DEFAULT_ALL: LangOption[] = [
-  { code: "auto", label: "스크립트 언어와 같은 언어" },
+  { code: "auto", label: "영상 대본 언어와 같은 언어" },
 
   { code: "ko", label: "한국어" },
   { code: "en", label: "English" },

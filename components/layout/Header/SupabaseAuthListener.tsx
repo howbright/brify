@@ -1,21 +1,30 @@
 // components/layout/Header/SupabaseAuthListener.tsx
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
 export default function SupabaseAuthListener() {
   const router = useRouter();
   const supabase = createClient();
+  const didReceiveFirstEventRef = useRef(false);
 
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, _session) => {
-      // 로그인/로그아웃/OTP 인증/구글 로그인 등 auth 상태가 바뀔 때마다
-      // 서버 컴포넌트들을 다시 불러오게 함 → Header도 다시 렌더
-      router.refresh();
+    } = supabase.auth.onAuthStateChange((event, _session) => {
+      // 모바일 첫 진입 2~3초 뒤 재로딩 방지:
+      // 초기 auth 이벤트(INITIAL_SESSION 등)는 한 번 무시한다.
+      if (!didReceiveFirstEventRef.current) {
+        didReceiveFirstEventRef.current = true;
+        return;
+      }
+
+      // 실제 화면 동기화가 필요한 경우만 refresh
+      if (event === "SIGNED_OUT") {
+        router.refresh();
+      }
     });
 
     return () => {

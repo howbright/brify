@@ -197,7 +197,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
     const raw = t.raw("titles");
     return Array.isArray(raw)
       ? (raw as string[])
-      : ["유튜브 스크립트를", "어떤 긴 글도"];
+      : ["유튜브 영상 대본본을", "어떤 긴 글도"];
   })();
 
   const features = (() => {
@@ -336,7 +336,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
 
           {/* title + slide handle */}
           <div className="mt-3 flex items-start gap-3">
-            <div className="min-w-0 flex-1">
+            <div className="relative min-w-0 flex-1 h-[6.6rem] sm:h-[8rem] md:h-[10.5rem]">
               <AnimatePresence mode="wait">
                 <motion.h1
                   key={safeIdx}
@@ -345,6 +345,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
                   exit={{ opacity: 0, x: -28 }}
                   transition={{ duration: 0.35, ease: "easeOut" }}
                   className="
+                    absolute inset-0
                     text-3xl sm:text-4xl md:text-5xl
                     font-extrabold leading-[1.1]
                     text-neutral-900 [overflow-wrap:anywhere] dark:text-white
@@ -476,7 +477,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
         )}
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 pb-16 md:px-10 md:pb-20">
+      <section className="mx-auto hidden max-w-7xl px-6 pb-16 md:block md:px-10 md:pb-20">
         <div className="rounded-3xl border border-slate-300/90 bg-white/82 p-4 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.36)] backdrop-blur-sm dark:border-white/15 dark:bg-white/[0.04]">
           <div className="mb-4 flex items-center justify-between gap-4">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 md:text-xl">
@@ -489,6 +490,11 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
               {isKo ? "내 맵 만들기" : "Sign up to create your own"}
             </Link>
           </div>
+          <p className="mb-3 text-xs text-slate-600 dark:text-slate-300/85">
+            {isKo
+              ? "마우스 우클릭, 트랙패드, 미니맵 영역 드래그로 구조맵을 자유롭게 이동할 수 있어요"
+              : "Use right-click, trackpad gestures, or drag the minimap area to move around the map."}
+          </p>
 
           <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
             <iframe

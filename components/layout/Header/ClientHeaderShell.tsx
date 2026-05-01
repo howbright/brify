@@ -8,7 +8,6 @@ import LanguageSelector from "@/components/LanguageSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Icon } from "@iconify/react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 
 type Props = {
   isAuthed: boolean;
@@ -49,13 +48,14 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
         <div className="flex h-[64px] items-center justify-between min-[971px]:h-[64px]">
           {/* 좌측 로고 */}
           <Link href="/" className="flex min-w-0 items-center gap-2.5 min-[971px]:gap-3">
-            <Image
+            <img
               src="/images/newlogo.png"
               alt="Brify"
-              width={512}
-              height={512}
+              width={40}
+              height={40}
               className="h-8 w-8 transition-transform hover:scale-[1.02] min-[971px]:h-10 min-[971px]:w-10"
-              priority
+              loading="eager"
+              decoding="async"
             />
             <span className="truncate text-[20px] font-extrabold tracking-tight text-slate-900 dark:text-slate-100 min-[971px]:text-[25px]">
               Brify

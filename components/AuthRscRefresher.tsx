@@ -2,17 +2,26 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
 export default function AuthRscRefresher() {
   const router = useRouter();
+  const didReceiveFirstEventRef = useRef(false);
 
   useEffect(() => {
     const supabase = createClient();
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT" || event === "TOKEN_REFRESHED") {
-        // 서버 RSC 스냅샷 다시 뽑아오게
+      // 모바일 첫 진입 직후 INITIAL_SESSION/TOKEN_REFRESHED로 인한
+      // 불필요한 refresh(체감상 자동 재로딩)를 방지한다.
+      if (!didReceiveFirstEventRef.current) {
+        didReceiveFirstEventRef.current = true;
+        return;
+      }
+
+      if (event === "SIGNED_OUT") {
+        // 로그아웃 시에만 서버 RSC 스냅샷 갱신
         router.refresh();
       }
     });

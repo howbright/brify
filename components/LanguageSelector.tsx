@@ -52,7 +52,11 @@ export default function LanguageSelector({ compact = false }: Props) {
       new RegExp(`^/(${localeCodes})`),
       ""
     );
-    const newPath = `/${locale}${pathWithoutLocale || "/"}`;
+
+    const isBlogPostDetailPath = /^\/blog\/[^/]+$/.test(pathWithoutLocale);
+    const newPath = isBlogPostDetailPath
+      ? `/${locale}/blog`
+      : `/${locale}${pathWithoutLocale || "/"}`;
 
     router.push(newPath);
   };

@@ -12,15 +12,11 @@ export default async function Header() {
       data: { user: fetchedUser },
       error,
     } = await supabase.auth.getUser();
-    if (error) {
-      console.error("[Header] auth.getUser failed:", error.message);
-    } else {
+    if (!error) {
       user = fetchedUser;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "unknown error";
-    console.error("[Header] auth bootstrap failed:", message);
+    // 퍼블릭 페이지 렌더를 위해 인증 부트스트랩 실패는 무시
   }
 
   const isAuthed = !!user;

@@ -50,6 +50,7 @@ export default function LeftPanel({
   tab,
   onTabChange,
   termsTabId,
+  readOnlyBadgeLabel,
 }: {
   open: boolean;
   onClose: () => void;
@@ -67,6 +68,7 @@ export default function LeftPanel({
   tab?: LeftPanelTab;
   onTabChange?: (next: LeftPanelTab) => void;
   termsTabId?: string;
+  readOnlyBadgeLabel?: string;
 }) {
   const t = useTranslations("LeftPanel");
   const tRight = useTranslations("RightPanel");
@@ -698,6 +700,11 @@ export default function LeftPanel({
                     if (!termsLoading && terms.length === 0) fetchTerms();
                   }}
                 />
+                {readOnly && readOnlyBadgeLabel ? (
+                  <span className="inline-flex h-6 items-center rounded-full border border-slate-300 bg-slate-100 px-2 text-[10px] font-semibold text-slate-700 dark:border-white/20 dark:bg-white/10 dark:text-white/80">
+                    {readOnlyBadgeLabel}
+                  </span>
+                ) : null}
               </div>
             ) : (
               <div className="text-sm font-semibold text-neutral-900 dark:text-white/90 truncate">
