@@ -112,7 +112,7 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
           className="text-sm"
           onSelect={(e) => {
             e.preventDefault();
-            router.push("/maps");
+            router.push(`/${locale}/maps`);
           }}
         >
           <span>{t("cta.myMaps")}</span>
@@ -122,7 +122,7 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
           className="text-sm"
           onSelect={(e) => {
             e.preventDefault();
-            router.push("/billing");
+            router.push(`/${locale}/billing`);
           }}
         >
           <span>{t("userMenu.items.billing")}</span>
@@ -132,7 +132,7 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
           className="text-sm"
           onSelect={(e) => {
             e.preventDefault();
-            router.push("/billing/history");
+            router.push(`/${locale}/billing/history`);
           }}
         >
           <span>{t("userMenu.items.billingHistory")}</span>

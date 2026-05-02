@@ -128,7 +128,7 @@ export default function ClientMobileUserMenu({
               <button
                 onClick={() => {
                   setOpen(false);
-                  router.push("/#pricing");
+                  router.push(`/${locale}#pricing`);
                 }}
                 className="w-full text-left py-2 text-sm"
               >
@@ -138,7 +138,7 @@ export default function ClientMobileUserMenu({
               <button
                 onClick={() => {
                   setOpen(false);
-                  router.push("/support");
+                  router.push(`/${locale}/support`);
                 }}
                 className="w-full text-left py-2 text-sm"
               >
@@ -162,7 +162,7 @@ export default function ClientMobileUserMenu({
                     <button
                       onClick={() => {
                         setOpen(false);
-                        router.push("/maps");
+                        router.push(`/${locale}/maps`);
                       }}
                       className="w-full text-left py-2"
                     >
@@ -171,7 +171,7 @@ export default function ClientMobileUserMenu({
                     <button
                       onClick={() => {
                         setOpen(false);
-                        router.push("/billing");
+                        router.push(`/${locale}/billing`);
                       }}
                       className="w-full text-left py-2"
                     >
@@ -180,7 +180,7 @@ export default function ClientMobileUserMenu({
                     <button
                       onClick={() => {
                         setOpen(false);
-                        router.push("/billing/history");
+                        router.push(`/${locale}/billing/history`);
                       }}
                       className="w-full text-left py-2"
                     >

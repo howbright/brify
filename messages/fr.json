@@ -632,6 +632,13 @@
       "successDescription": "Le paiement a bien été pris en compte. Vous pouvez continuer à créer des structure maps.",
       "delayedTitle": "Paiement effectué, synchronisation des crédits un peu retardée",
       "delayedDescription": "Rafraîchissez dans un instant. Si le solde n’apparaît toujours pas, nous vérifierons la commande."
+    },
+    "errors": {
+      "missingTossClientKey": "La clé client Toss n’est pas configurée.",
+      "tossSdkNotLoaded": "Le SDK de paiement Toss n’est pas encore chargé.",
+      "paymentCanceled": "Le paiement a été annulé.",
+      "tossPrepareFailed": "Un problème est survenu lors de la préparation du paiement Toss.",
+      "missingCheckoutUrl": "L’URL de paiement n’est pas configurée."
     }
   },
   "BillingHistoryPage": {
@@ -956,13 +963,58 @@
       "title": "Rédigez votre demande",
       "subtitle": "Plus vous donnez de détails, plus l’aide sera rapide et précise.",
       "categoryLabel": "Catégorie",
+      "category": {
+        "bug": "Signaler un bug",
+        "idea": "Demande de fonctionnalité",
+        "billing": "Paiement / Crédits",
+        "other": "Autre"
+      },
+      "field": {
+        "titleLabel": "Titre",
+        "titlePlaceholder": "Ex. : Je ne vois pas le résultat du résumé",
+        "messageLabel": "Détails",
+        "messagePlaceholder": "Décrivez ce qui s’est passé,\ny compris votre navigateur/OS et les messages d’erreur éventuels.\nS’il s’agit d’une demande de fonctionnalité, dites-nous ce que vous souhaitez faire plus facilement.",
+        "emailLabel": "E-mail pour la réponse (optionnel)",
+        "emailPlaceholder": "Nous répondrons à l’e-mail de votre compte. Saisissez une autre adresse si vous préférez.",
+        "needsReply": "Je souhaite recevoir une réponse à cette demande"
+      },
+      "validation": {
+        "titleRequired": "Merci d’indiquer un titre.",
+        "messageRequired": "Merci d’indiquer les détails.",
+        "emailInvalid": "Merci d’indiquer une adresse e-mail valide."
+      },
       "status": {
         "success": "Votre demande a bien été reçue. Nous vous répondrons rapidement.",
-        "error": "Veuillez vérifier le titre et le contenu, puis réessayer."
+        "warnFallback": "Votre demande a bien été reçue, mais un problème est survenu lors de la mise en file de l’envoi d’e-mail. Nous allons vérifier cela rapidement.",
+        "error": "Merci de vérifier le titre et le contenu, puis de réessayer.",
+        "warnPrefix": "Votre demande a bien été reçue, mais la mise en file de l’envoi d’e-mail a échoué.",
+        "warnWithError": "Votre demande a bien été reçue, mais la mise en file de l’envoi d’e-mail a échoué. ({error})"
       },
       "button": {
         "submitting": "Envoi...",
         "submit": "Envoyer"
+      }
+    },
+    "aside": {
+      "speed": {
+        "title": "Délai de réponse",
+        "descBefore": "Nous répondons généralement sous ",
+        "descStrong": "24 heures",
+        "descAfter": ".\nLe délai peut être plus long les week-ends et jours fériés."
+      },
+      "tips": {
+        "title": "Conseils pour un support plus rapide",
+        "items": [
+          "Si possible, indiquez les étapes de reproduction dans l’ordre.",
+          "Si cela se produit uniquement sur un navigateur/appareil précis, ajoutez cette information.",
+          "Si vous avez des captures d’écran, répondez à notre e-mail et joignez-les."
+        ]
+      },
+      "faq": {
+        "title": "FAQ",
+        "descBefore": "Pour les crédits, les tarifs et les reçus, consultez la ",
+        "linkText": "page Tarifs",
+        "descAfter": "."
       }
     }
   },

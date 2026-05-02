@@ -1043,6 +1043,13 @@
       "successDescription": "결제 정보가 반영되었어요. 지금 바로 구조맵 생성을 이어갈 수 있습니다.",
       "delayedTitle": "결제는 완료되었지만 반영이 조금 늦어지고 있어요",
       "delayedDescription": "잠시 후 새로고침해 보세요. 계속 반영되지 않으면 주문 상태를 확인해 드릴게요."
+    },
+    "errors": {
+      "missingTossClientKey": "토스 클라이언트 키가 설정되어 있지 않습니다.",
+      "tossSdkNotLoaded": "토스 결제 SDK를 아직 불러오지 못했습니다.",
+      "paymentCanceled": "결제가 취소되었습니다.",
+      "tossPrepareFailed": "토스 결제를 준비하는 중 문제가 발생했습니다.",
+      "missingCheckoutUrl": "체크아웃 URL이 설정되어 있지 않습니다."
     }
   },
   "BillingHistoryPage": {

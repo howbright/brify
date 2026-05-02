@@ -1043,6 +1043,13 @@
       "successDescription": "Your payment has been reflected. You can continue creating Structure Maps right away.",
       "delayedTitle": "Your payment is complete, but credit sync is taking a little longer",
       "delayedDescription": "Please refresh in a moment. If it still doesn't show up, we can check the order status for you."
+    },
+    "errors": {
+      "missingTossClientKey": "The Toss client key is not configured.",
+      "tossSdkNotLoaded": "Toss payment SDK has not loaded yet.",
+      "paymentCanceled": "Payment was canceled.",
+      "tossPrepareFailed": "Something went wrong while preparing Toss payment.",
+      "missingCheckoutUrl": "Checkout URL is not configured."
     }
   },
   "BillingHistoryPage": {
