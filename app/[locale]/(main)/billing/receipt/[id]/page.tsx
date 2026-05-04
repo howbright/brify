@@ -188,9 +188,9 @@ export default function BillingReceiptPage({
   // 로그인 안 되어 있으면 로그인 페이지로
   useEffect(() => {
     if (!session) {
-      router.push("/login");
+      router.push(`/${locale}/login?next=${encodeURIComponent(`/${locale}/billing/receipt/${id}`)}`);
     }
-  }, [session, router]);
+  }, [session, router, locale, id]);
 
   // id로 결제내역 찾기
   const payment = useMemo(

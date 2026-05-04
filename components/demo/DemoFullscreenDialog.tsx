@@ -114,7 +114,8 @@ function getDemoTerms(t: ReturnType<typeof useTranslations>): DemoTermItem[] {
 function safeDateLabel(value: number | undefined, locale: string) {
   if (!value) return "-";
   try {
-    return new Date(value).toLocaleDateString(locale === "ko" ? "ko-KR" : "en-US", {
+    const normalizedLocale = locale === "ko" ? "ko-KR" : locale === "fr" ? "fr-FR" : "en-US";
+    return new Date(value).toLocaleDateString(normalizedLocale, {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
@@ -791,21 +792,11 @@ export default function DemoFullscreenDialog({
   };
 
   const shareDialogMessages = messages.DemoFullscreenDialog?.shareDialog;
-  const shareDialogTitle =
-    shareDialogMessages?.title ??
-    (language === "ko"
-      ? "이 구조맵은 예시용입니다"
-      : "This Structure Map is for demo only");
+  const shareDialogTitle = shareDialogMessages?.title ?? t("shareDialog.title");
   const shareDialogDescription =
-    shareDialogMessages?.description ??
-    (language === "ko"
-      ? "실제 서비스에서는 구조맵을 링크로 공유하고 다른 사람과 함께 볼 수 있어요. 서비스를 시작하면 내 구조맵의 공유 링크를 바로 만들 수 있습니다."
-      : "In the full service, you can share your Structure Map by link and view it together with others. Start using Brify to create a share link for your own map.");
-  const shareDialogAction =
-    shareDialogMessages?.action ??
-    (language === "ko" ? "서비스 시작하기" : "Start Using Brify");
-  const shareDialogCancel =
-    shareDialogMessages?.cancel ?? (language === "ko" ? "닫기" : "Close");
+    shareDialogMessages?.description ?? t("shareDialog.description");
+  const shareDialogAction = shareDialogMessages?.action ?? t("shareDialog.action");
+  const shareDialogCancel = shareDialogMessages?.cancel ?? t("shareDialog.cancel");
   const searchShellClass =
     "relative z-[40] flex h-8 w-[228px] items-center gap-2 rounded-lg border border-slate-400 bg-white px-2.5 text-[11px] text-slate-700 shadow-[0_8px_20px_-18px_rgba(15,23,42,0.14)] dark:border-white/28 dark:bg-[#0b1220] dark:text-white dark:shadow-[0_16px_36px_-30px_rgba(2,6,23,0.7)]";
   const mobileSearchShellClass =
@@ -1261,7 +1252,7 @@ export default function DemoFullscreenDialog({
                   className="object-contain"
                 />
               </div>
-              <span>{language === "ko" ? "브라이피" : "Brify"}</span>
+              <span>{t("brand")}</span>
             </button>
           </div>
 
@@ -1270,8 +1261,12 @@ export default function DemoFullscreenDialog({
               type="button"
               onClick={() => setMobileToolbarCollapsed((prev) => !prev)}
               className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-400 bg-white/95 text-neutral-700 shadow-md dark:border-white/20 dark:bg-[#0b1220]/85 dark:text-white/80"
-              aria-label={mobileToolbarCollapsed ? "도구 펼치기" : "도구 접기"}
-              title={mobileToolbarCollapsed ? "도구 펼치기" : "도구 접기"}
+              aria-label={
+                mobileToolbarCollapsed ? t("mobile.openTools") : t("mobile.closeTools")
+              }
+              title={
+                mobileToolbarCollapsed ? t("mobile.openTools") : t("mobile.closeTools")
+              }
             >
               <Icon
                 icon={mobileToolbarCollapsed ? "mdi:chevron-left" : "mdi:chevron-right"}

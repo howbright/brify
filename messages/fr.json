@@ -131,6 +131,10 @@
     "generateTitle": "Générer la carte",
     "creditsInfo": "{current} crédits disponibles · cette génération utilise {required} crédit(s)",
     "generateButton": "Générer la mind map",
+    "freeBadge": "Gratuit",
+    "blankMapButton": "Commencer avec une carte vide",
+    "blankMapStarting": "Ouverture de la carte vide...",
+    "blankMapDescription": "Les cartes vides pour le brainstorming démarrent immédiatement sans consommer de crédits.",
     "insufficientCreditsCard": {
       "title": "Vous n’avez pas assez de crédits pour créer une mind map",
       "description": "Rechargez vos crédits et continuez immédiatement.",
@@ -261,15 +265,53 @@
       "Générez les résultats dans la langue de votre choix",
       "Comparez plusieurs cartes pour repérer les différences d’un coup d’œil"
     ],
+    "sampleSection": {
+      "title": "Image d’exemple de mind map",
+      "cta": "Créer ma carte",
+      "imageAlt": "Image d’exemple de mind map Brify"
+    },
     "visualAlt": "Aperçu de la structure Brify",
     "videoLabel": "Lire la vidéo de démonstration",
     "videoLoadingLabel": "Chargement de la démo…"
   },
   "Header": {
-    "login": "Se connecter",
-    "signup": "S’inscrire",
-    "logout": "Se déconnecter",
-    "dashboard": "Mes cartes"
+    "userMenu": {
+      "triggerLabel": "Mon compte",
+      "sectionTitle": "Compte connecté",
+      "greeting": "Bonjour",
+      "greetingWithEmail": "Bonjour, {email}",
+      "items": {
+        "myMaps": "Mes cartes",
+        "billing": "Recharger des crédits",
+        "billingHistory": "Historique des paiements",
+        "accountSettings": "Paramètres du compte",
+        "mapTheme": "Thème de carte par défaut"
+      },
+      "theme": "Thème",
+      "language": "Langue",
+      "logout": "Se déconnecter"
+    },
+    "nav": {
+      "blog": "Blog",
+      "about": "À propos",
+      "pricing": "Tarifs",
+      "contactFeedback": "Contact / Retour"
+    },
+    "auth": {
+      "login": "Se connecter",
+      "signup": "Commencer gratuitement"
+    },
+    "cta": {
+      "newMap": "Nouveau Structure Map",
+      "myMaps": "Mes cartes",
+      "fromTextTitle": "Convertir du texte en structure map",
+      "fromTextDesc": "Collez une transcription ou un texte de document pour générer la carte",
+      "blankStartTitle": "Commencer à partir d’une carte vide",
+      "blankStartDesc": "Pour le brainstorming, démarrez sans utiliser de crédits",
+      "blankCreating": "Création de la carte vide...",
+      "freeBadge": "Gratuit",
+      "blankMapDefaultTitle": "Sans titre"
+    }
   },
   "Footer": {
     "description": "Un service qui structure les contenus longs pour comprendre l'information rapidement et construire votre propre cadre d'analyse.",
@@ -539,7 +581,142 @@
     "eyebrow": "Avis",
     "title": "Ce que les utilisateurs trouvent particulièrement utile",
     "featuredLabel": "Avis mis en avant",
-    "cta": "Commencer avec Brify"
+    "cta": "Commencer avec Brify",
+    "items": {
+      "one": {
+        "quote": "Je cherchais des contenus sur la bourse pour commencer à investir. Transformer les transcriptions YouTube en mind maps et organiser automatiquement les termes difficiles m’a permis de comprendre beaucoup plus facilement. C’était une méthode vraiment utile pour saisir et comparer le contenu rapidement.",
+        "role": "Passionné de bourse"
+      },
+      "two": {
+        "quote": "Je dois souvent lire des documents longs et complexes pour mon travail. Les organiser en mind maps et suivre le fil m’a aidé à traiter l’information beaucoup plus facilement, et j’ai clairement gagné en vitesse dans mon travail.",
+        "role": "Professionnel gérant des documents complexes"
+      },
+      "three": {
+        "quote": "J’avais tellement de vidéos YouTube que je voulais regarder, mais faute de temps je finissais souvent par ne voir que la miniature, voire à les oublier complètement. Maintenant, grâce à Brify, je peux repérer beaucoup plus vite les points importants sans passer à côté.",
+        "role": "Apprenant YouTube très occupé"
+      }
+    }
+  },
+  "MapTutorial": {
+    "overlay": {
+      "label": "TUTORIEL",
+      "skip": "Passer",
+      "next": "Suivant",
+      "start": "Commencer"
+    },
+    "illustrations": {
+      "mode": {
+        "view": "Lecture",
+        "edit": "Édition"
+      },
+      "mouse": {
+        "alt": "Guide de navigation de la carte",
+        "label": "Clic droit + glisser / deux doigts / mini-carte"
+      },
+      "trackpad": {
+        "alt": "Guide du trackpad à deux doigts",
+        "label": "Déplacement à deux doigts"
+      },
+      "context": {
+        "alt": "Guide du menu contextuel"
+      },
+      "expand": {
+        "label": "Déplier / Replier",
+        "description": "Utilisez le bouton + pour afficher les nœuds enfants"
+      }
+    },
+    "steps": {
+      "edit": {
+        "title": "Passez en mode Édition avant de modifier",
+        "description": "Vous êtes actuellement en mode Lecture. Passez en mode Édition en haut avant de modifier les nœuds ou la structure.",
+        "calloutTitle": "Mode Lecture / Édition",
+        "calloutDescription": "Commencez ici quand vous voulez modifier la carte."
+      },
+      "mouse": {
+        "title": "Voici comment vous déplacer dans la carte",
+        "description": "Utilisez le clic droit + glisser avec la souris, le geste à deux doigts sur trackpad, ou la mini-carte pour naviguer.",
+        "calloutTitle": "Navigation dans la carte",
+        "calloutDescription": "Utilisez le clic droit, deux doigts ou la mini-carte pour aller vite au bon endroit."
+      },
+      "trackpad": {
+        "title": "Utilisez deux doigts sur le trackpad pour déplacer la carte",
+        "description": "Sur un ordinateur portable, glissez avec deux doigts sur le trackpad pour vous déplacer naturellement dans la carte.",
+        "calloutTitle": "Déplacement au trackpad",
+        "calloutDescription": "Utilisez un geste à deux doigts pour vous déplacer."
+      },
+      "context": {
+        "title": "Sélectionnez un nœud puis faites un clic droit",
+        "description": "Sélectionnez d’abord un nœud, puis faites un clic droit pour ouvrir le menu contextuel avec les actions disponibles.",
+        "calloutTitle": "Menu contextuel",
+        "calloutDescription": "Le menu s’ouvre après la sélection d’un nœud."
+      },
+      "highlight": {
+        "title": "Utilisez le surlignage pour marquer l’essentiel",
+        "description": "Cliquez sur l’icône du milieu pour surligner un nœud. Marquez les éléments importants pour les retrouver plus facilement ensuite.",
+        "calloutTitle": "Surlignage",
+        "calloutDescription": "Surlignez les points clés pendant la lecture."
+      },
+      "expand": {
+        "title": "Dépliez et repliez les nœuds pour lire plus confortablement",
+        "description": "Cliquez sur le bouton + dans le cercle pour afficher le contenu enfant. Vous pouvez ensuite le replier et ne suivre que ce dont vous avez besoin.",
+        "calloutTitle": "Déplier / Replier",
+        "calloutDescription": "Cliquez sur le bouton + pour afficher le contenu enfant."
+      },
+      "terms": {
+        "title": "L’IA organise les termes difficiles pour vous",
+        "description": "Dans l’onglet Termes du panneau de gauche, l’IA peut extraire les mots difficiles et les expliquer clairement.",
+        "calloutTitle": "Termes",
+        "calloutDescription": "L’IA repère les termes difficiles et les organise pour vous."
+      },
+      "shortcuts": {
+        "title": "Tout devient plus simple avec les raccourcis",
+        "description": "Une fois les raccourcis les plus utiles mémorisés, l’utilisation de la carte devient beaucoup plus rapide. Vous pouvez revoir cela via Plus > Raccourcis."
+      }
+    },
+    "mobile": {
+      "edit": {
+        "title": "Sur mobile, l’édition est prête par défaut",
+        "description": "Sur mobile, la carte s’ouvre directement en mode modifiable.",
+        "calloutTitle": "Mode Édition",
+        "calloutDescription": "Vous pouvez commencer à modifier immédiatement sur mobile."
+      },
+      "move": {
+        "title": "Sur mobile, vous pouvez déplacer la carte directement",
+        "description": "Sur mobile, pas besoin de mode déplacement séparé. Faites simplement glisser avec un doigt sur une zone vide ou hors des contrôles de nœud.",
+        "calloutTitle": "Déplacer la carte",
+        "calloutDescription": "Essayez de faire glisser avec un doigt pour déplacer la carte."
+      },
+      "select": {
+        "title": "Touchez un nœud pour le sélectionner, appui long pour le menu d’édition",
+        "description": "Sur mobile, un simple toucher sélectionne un nœud. Les actions rapides apparaissent à côté, et en mode Édition un appui long ouvre la barre d’édition en bas.",
+        "calloutTitle": "Sélection d’un nœud",
+        "calloutDescription": "Touchez un nœud pour le sélectionner, puis faites un appui long pour ouvrir le menu d’édition."
+      },
+      "highlight": {
+        "title": "Surlignez les nœuds importants pendant la lecture",
+        "description": "Quand un nœud est sélectionné, des boutons d’action rapide apparaissent. Utilisez le bouton de surlignage pour marquer les éléments importants.",
+        "calloutTitle": "Surlignage",
+        "calloutDescription": "Sélectionnez un nœud puis touchez le bouton de surlignage."
+      },
+      "expand": {
+        "title": "Dépliez et repliez les nœuds pour lire plus confortablement",
+        "description": "Touchez le bouton + dans le cercle pour afficher le contenu enfant. Vous pouvez le replier ensuite pour ne suivre que l’essentiel.",
+        "calloutTitle": "Déplier / Replier",
+        "calloutDescription": "Touchez le bouton + pour afficher le contenu enfant."
+      },
+      "panel": {
+        "title": "Ouvrez le panneau gauche pour plus de contexte",
+        "description": "Touchez le bouton du panneau gauche pour ouvrir les onglets Infos, Notes et Termes. Vous pouvez y vérifier rapidement ce dont vous avez besoin.",
+        "calloutTitle": "Panneau gauche",
+        "calloutDescription": "Ce bouton ouvre les onglets Infos, Notes et Termes."
+      },
+      "terms": {
+        "title": "L’IA organise les termes difficiles pour vous",
+        "description": "Dans l’onglet Termes du panneau gauche, l’IA peut extraire les mots difficiles et les expliquer clairement.",
+        "calloutTitle": "Termes",
+        "calloutDescription": "Vous pouvez consulter les termes difficiles ici."
+      }
+    }
   },
   "FinalCTA": {
     "title": "Ne vous laissez plus emporter par des informations dispersées,",
@@ -552,6 +729,12 @@
     "secondary": {
       "label": "Voir les tarifs"
     }
+  },
+  "CreatorSection": {
+    "imageAlt": "Créatrice de Brify",
+    "label": "Créatrice",
+    "name": "Lina",
+    "quote": "« Il y avait toujours plus de vidéos à regarder, et jamais assez de temps.\nJe terminais une vidéo en me disant qu’elle était vraiment utile, mais le soir <strong>j’en oubliais déjà la moitié</strong>.\nIl y avait aussi beaucoup de vidéos que je voulais regarder plus tard, mais que je ne regardais finalement jamais.\nAvec la <strong>santé</strong>, l’<strong>éducation des enfants</strong> et les <strong>finances personnelles</strong> à gérer en même temps, il devenait encore plus facile de perdre le fil.\nAlors <heavy>j’ai créé mon propre outil</heavy>. Si j’organise ce que je viens de regarder dans une <strong>mind map structurée</strong>, je peux la rouvrir plus tard et retrouver clairement <strong>le flux et les points clés</strong>. »"
   },
   "MapLibrarySection": {
     "eyebrow": "Construisez votre propre cadre",
@@ -579,6 +762,12 @@
         "description": "Partagez la carte via un lien et exportez-la pour la conserver ou la présenter."
       }
     }
+  },
+  "ConfirmShareDialog": {
+    "title": "Publier avant de partager",
+    "description": "Publier les modifications actuelles et générer un lien de partage ?",
+    "actionLabel": "Publier et partager",
+    "cancelLabel": "Annuler"
   },
   "BillingPage": {
     "badge": "Payez uniquement quand nécessaire · Sans abonnement",
@@ -818,6 +1007,16 @@
       "file": "Fichier",
       "manual": "Manuel"
     },
+    "datePreset": {
+      "7d": "7 derniers jours",
+      "30d": "30 derniers jours",
+      "90d": "90 derniers jours",
+      "1y": "1 dernière année",
+      "all": "Tout",
+      "customEmpty": "Sélectionner une période",
+      "after": "après",
+      "before": "avant"
+    },
     "selectionBar": {
       "selectedCount": "{count} sélectionné(s)",
       "mergeMaps": "Fusionner les cartes",
@@ -828,6 +1027,12 @@
     "toolbar": {
       "searchPlaceholder": "Rechercher par titre ou tag",
       "clearSearch": "Effacer la recherche",
+      "summary": {
+        "status": "Statut {value}",
+        "source": "Source {value}",
+        "content": "Contenu {value}",
+        "tag": "Tag {value}"
+      },
       "previewOn": "Aperçu activé",
       "previewOff": "Aperçu désactivé",
       "tagOrganize": "Organiser les tags",
@@ -837,6 +1042,12 @@
       "card": "Carte",
       "table": "Tableau",
       "sortLabel": "Trier",
+      "sort": {
+        "createdDesc": "Créés récemment",
+        "createdAsc": "Créés en premier",
+        "updatedDesc": "Récemment mis à jour",
+        "titleAsc": "Titre"
+      },
       "refresh": "Actualiser la liste",
       "refreshing": "Actualisation...",
       "filterOpen": "Ouvrir les filtres",
@@ -1090,8 +1301,56 @@
       "share": "Partager",
       "shortcuts": "Raccourcis",
       "tutorial": "Tutoriel",
-      "closeMap": "Fermer la carte"
+      "closeMap": "Fermer la carte",
+      "timestampsShow": "Afficher les horodatages",
+      "timestampsHide": "Masquer les horodatages"
+    },
+    "hint": {
+      "label": "Astuce",
+      "toggleAria": "Afficher/masquer l’astuce des raccourcis"
     }
+  },
+  "MapNotesTab": {
+    "title": "Bibliothèque de notes",
+    "leftDescription": "Consultez les cartes qui contiennent déjà des notes en un seul endroit.",
+    "rightDescription": "Vérifiez les mémos, les notes de nœud et les surlignages ensemble.",
+    "empty": "Il n’y a pas encore de cartes avec des notes.",
+    "emptyDetail": "Aucune note à afficher pour cette carte.",
+    "noSearchResults": "Aucune carte ne correspond à votre recherche.",
+    "searchPlaceholder": "Rechercher des cartes avec notes",
+    "sortUpdatedDesc": "Récemment modifié",
+    "sortTitleAsc": "Titre",
+    "previewSample": "Aperçu d’exemple",
+    "opening": "Ouverture",
+    "open": "Ouvrir la carte",
+    "selectedMap": "Sélectionnez une carte",
+    "sampleMapLabel": "Données d’exemple affichées sans connexion.",
+    "untitled": "Sans titre",
+    "loadError": "Impossible de charger les notes.",
+    "sections": {
+      "memo": "Mémos",
+      "annotations": "Notes de nœud",
+      "highlights": "Surlignages"
+    }
+  },
+  "MapTermsTab": {
+    "title": "Bibliothèque de termes",
+    "leftDescription": "Consultez les cartes qui ont déjà des termes extraits.",
+    "rightDescription": "Vérifiez les termes extraits et leurs explications pour la carte sélectionnée.",
+    "empty": "Il n’y a pas encore de cartes avec des termes.",
+    "emptyTerms": "Aucun terme à afficher pour cette carte.",
+    "noSearchResults": "Aucune carte ne correspond à votre recherche.",
+    "searchPlaceholder": "Rechercher des cartes avec termes",
+    "sortUpdatedDesc": "Récemment modifié",
+    "sortTitleAsc": "Titre",
+    "previewSample": "Aperçu d’exemple",
+    "opening": "Ouverture",
+    "open": "Ouvrir la carte",
+    "selectedMap": "Sélectionnez une carte",
+    "summary": "Termes",
+    "sampleMapLabel": "Données d’exemple affichées sans connexion.",
+    "untitled": "Sans titre",
+    "loadError": "Impossible de charger les termes."
   },
   "LeftPanel": {
     "title": "Détails",
@@ -1119,7 +1378,209 @@
     "requestFailed": "La requête a échoué",
     "metadataPending": "Génération des métadonnées en cours.",
     "metadataPendingSummary": "Génération du résumé en un paragraphe.",
-    "metadataPendingTags": "Génération des tags en cours."
+    "metadataPendingTags": "Génération des tags en cours.",
+    "tooltips": {
+      "editMetadata": "Modifier les métadonnées",
+      "editTags": "Modifier les tags"
+    },
+    "notesSubtabs": {
+      "memo": "Notes",
+      "annotations": "Annotations",
+      "highlights": "Surlignages",
+      "annotationsEmpty": "Aucune annotation pour l’instant.",
+      "annotationsHelper": "Consultez les annotations des nœuds et allez directement au nœud en un clic.",
+      "highlightsEmpty": "Aucun nœud surligné pour l’instant.",
+      "highlightsHelper": "Consultez les nœuds surlignés et allez-y directement en un clic."
+    }
+  },
+  "RightPanel": {
+    "tabs": {
+      "notes": "Notes",
+      "terms": "Termes"
+    },
+    "closeAria": "Fermer le panneau",
+    "closeTitle": "Fermer",
+    "notes": {
+      "helper": "Notez les idées importantes au fil de la lecture.",
+      "placeholder": "Écrivez une note… (Entrée pour ajouter)",
+      "add": "Ajouter",
+      "loading": "Chargement des notes…",
+      "empty": "Aucune note pour le moment."
+    },
+    "errors": {
+      "notes": {
+        "fetch": "Impossible de charger les notes.",
+        "add": "Impossible d’ajouter la note.",
+        "delete": "Impossible de supprimer la note.",
+        "update": "Impossible de modifier la note."
+      },
+      "terms": {
+        "fetch": "Impossible de charger les termes.",
+        "statusFetch": "Impossible de récupérer l’état des termes.",
+        "generateFail": "Échec de la génération des explications de termes.",
+        "statusFail": "Impossible de vérifier l’état des termes.",
+        "autoStartFail": "Impossible de lancer l’extraction des termes.",
+        "customStartFail": "Impossible de lancer les explications de termes.",
+        "requestFail": "Échec de la demande d’explications de termes.",
+        "deleteFail": "Impossible de supprimer le terme."
+      },
+      "auth": {
+        "session": "Impossible de récupérer la session : {message}",
+        "login": "Veuillez d’abord vous connecter."
+      },
+      "env": {
+        "missingApiBase": "NEXT_PUBLIC_API_BASE_URL est manquant."
+      }
+    }
+  },
+  "TermsBlock": {
+    "helper": "",
+    "loading": "Génération des explications de termes…",
+    "delete": "Supprimer",
+    "cta": "Obtenir des explications IA des termes",
+    "usedCount": "Utilisé {count} fois dans cette session.",
+    "customInline": {
+      "toggle": "Ajouter d’autres termes à expliquer",
+      "title": "Expliquez uniquement les termes souhaités",
+      "description": "Séparez les termes par des virgules pour expliquer uniquement ceux-ci.",
+      "placeholder": "ex. JWT, CORS, OAuth",
+      "submit": "Obtenir les explications"
+    },
+    "picker": {
+      "title": "Comment souhaitez-vous obtenir les explications ?",
+      "auto": {
+        "title": "Expliquer tous les termes",
+        "description": "L’IA extrait automatiquement les termes et résume l’essentiel."
+      },
+      "custom": {
+        "title": "Choisir les termes à expliquer",
+        "description": "Saisissez seulement les termes dont vous voulez une explication.",
+        "placeholder": "ex. JWT, CORS, OAuth"
+      },
+      "cancel": "Annuler",
+      "submit": "Demander des explications"
+    }
+  },
+  "FullscreenMapPage": {
+    "fallbackTitle": "Mind Map",
+    "backToList": "Retour",
+    "mode": {
+      "editing": "Édition",
+      "view": "Lecture"
+    },
+    "tabs": {
+      "info": "Infos",
+      "notes": "Notes",
+      "terms": "Termes"
+    },
+    "status": {
+      "loading": "Chargement",
+      "loadFailed": "Échec du chargement",
+      "fetchError": "Impossible de charger la mind map."
+    },
+    "modeBadge": {
+      "edit": "Mode édition : vous pouvez modifier/ajouter des nœuds",
+      "view": "Mode lecture : concentrez-vous sur le flux"
+    },
+    "actions": {
+      "delete": "Supprimer",
+      "tutorial": "Tutoriel",
+      "closeMap": "Fermer la carte",
+      "discardDraft": "Ignorer le brouillon",
+      "publish": "Terminer / Publier",
+      "searchPlaceholder": "Rechercher",
+      "clearSearch": "Effacer la recherche",
+      "previousSearchResult": "Résultat précédent",
+      "nextSearchResult": "Résultat suivant",
+      "more": "Plus"
+    },
+    "moreMenu": {
+      "layoutLeft": "Disposition à gauche",
+      "layoutRight": "Disposition à droite",
+      "layoutBoth": "Disposition bilatérale",
+      "theme": "Thème",
+      "profileTheme": "Mon thème",
+      "defaultTheme": "Thème classique",
+      "showTimestamps": "Afficher les horodatages",
+      "hideTimestamps": "Masquer les horodatages",
+      "savePng": "Enregistrer en PNG",
+      "print": "Imprimer / Enregistrer en PDF",
+      "shortcuts": "Raccourcis clavier",
+      "share": "Partager"
+    },
+    "draftStatus": {
+      "autoSaving": "Enregistrement automatique…",
+      "saved": "Enregistré",
+      "hasDraft": "Modifications non enregistrées"
+    },
+    "share": {
+      "statusLoadFailed": "Impossible de charger l’état du partage.",
+      "enableFailed": "Impossible de créer le lien de partage.",
+      "enabled": "Lien de partage créé.",
+      "disableFailed": "Impossible de désactiver le partage.",
+      "disabled": "Partage désactivé.",
+      "copied": "Lien copié.",
+      "copyFailed": "Impossible de copier le lien.",
+      "copyLink": "Copier le lien",
+      "inAppHint": "Les Structure Maps peuvent ne pas fonctionner correctement dans les navigateurs intégrés. Copiez le lien et ouvrez-le dans un navigateur séparé."
+    },
+    "shareDialog": {
+      "title": "Lien de partage",
+      "description": "Toute personne disposant du lien peut afficher en lecture seule.",
+      "close": "Fermer",
+      "copy": "Copier",
+      "empty": "Une fois le lien de partage créé, vous pourrez le copier ici.",
+      "cancel": "Annuler",
+      "disable": "Désactiver le lien",
+      "enable": "Créer le lien"
+    },
+    "publishToast": {
+      "success": "Publication réussie.",
+      "failed": "Échec de la publication."
+    },
+    "discardToast": {
+      "success": "Les modifications brouillon ont été ignorées.",
+      "failed": "Impossible d’ignorer les modifications brouillon."
+    },
+    "selectedMap": "Carte sélectionnée",
+    "export": {
+      "failed": "Impossible d’enregistrer l’image."
+    },
+    "deleteConfirm": {
+      "title": "Supprimer cette mind map ?",
+      "description": "Cette action est irréversible. Voulez-vous continuer ?",
+      "action": "Supprimer",
+      "actionDeleting": "Suppression..."
+    },
+    "mobile": {
+      "collapseOneLevel": "Replier d’un niveau",
+      "expandOneLevel": "Déplier d’un niveau",
+      "openTools": "Ouvrir les outils",
+      "closeTools": "Fermer les outils",
+      "layouts": "Mises en page"
+    },
+    "sharedMissing": {
+      "title": "Carte partagée introuvable",
+      "description": "Le lien est peut-être invalide, ou le partage a été désactivé.",
+      "action": "Retour à l’accueil"
+    },
+    "readOnlyBadge": "Lecture seule",
+    "expandHint": {
+      "line1": "Il y a plus de contenu.",
+      "line2": "Appuyez sur les nœuds avec l’icône + pour afficher les branches cachées.",
+      "dismiss": "Fermer l’info"
+    },
+    "toasts": {
+      "savingNote": "Enregistrement des notes en cours...",
+      "sharedReadOnly": "Les pages partagées sont en lecture seule.",
+      "highlightReadOnly": "Les surlignages ne sont pas enregistrés en lecture seule."
+    },
+    "readOnlyMode": {
+      "admin": "Mode consultation admin",
+      "shared": "Partagé en lecture seule"
+    },
+    "brand": "Brify",
+    "cancel": "Annuler"
   },
   "FullscreenDialog": {
     "fallbackTitle": "Mind Map",
@@ -1220,6 +1681,326 @@
       "missingMapId": "mapId manquant. Impossible de téléverser la miniature.",
       "thumbnailUploadFailed": "Échec du téléversement de la miniature."
     }
+  },
+  "SummarizePage": {
+    "hero": {
+      "title": "Quel contenu souhaitez-vous organiser ?",
+      "subtitle": "Choisissez d’abord la source."
+    },
+    "dialog": {
+      "cancel": "Annuler"
+    },
+    "toast": {
+      "summaryFailed": "La génération du résumé a échoué.",
+      "missingSummaryId": "ID de résumé introuvable.",
+      "keywordsSaved": "Les mots-clés ont été enregistrés.",
+      "keywordsSaveFailed": "Échec de l’enregistrement des mots-clés."
+    },
+    "button": {
+      "loading": "Génération du résumé...",
+      "submit": "Créer le résumé"
+    },
+    "result": {
+      "title": "Finalisez maintenant le résumé dans votre propre style.",
+      "placeholder": "Le résultat du résumé s’affichera ici."
+    },
+    "sourceTabs": {
+      "manual": "Texte direct",
+      "file": "Document",
+      "website": "Site web"
+    },
+    "editor": {
+      "copied": "Copié",
+      "copy": "Copier",
+      "manualTitle": "Saisissez ou collez le contenu à résumer.",
+      "manualSubtitle": "Quand c’est prêt, lancez le résumé.",
+      "readyTitle": "Le contenu est prêt.",
+      "readySubtitle": "Modifiez-le si nécessaire avant de résumer.",
+      "sourceLabel": "Texte source",
+      "manualPlaceholder": "Saisissez ici le contenu à organiser.",
+      "manualPlaceholderWithIcon": "✍️ Saisissez ici le contenu à organiser.",
+      "extractedPlaceholder": "Vérifiez ou modifiez le texte extrait.",
+      "retentionHint": "Le texte saisi est conservé temporairement 24 h pour générer le résumé, puis supprimé automatiquement.",
+      "minLengthHint": "Saisissez au moins 300 caractères pour créer un résumé.",
+      "loadingTitle": "✏️ Analyse des points clés en cours...",
+      "loadingDescription": "L’IA sélectionne et organise les phrases importantes.",
+      "loadingDuration": "Cela peut prendre 5 à 15 secondes."
+    },
+    "tags": {
+      "doubleClickToEdit": "Double-cliquez pour modifier",
+      "addTag": "Ajouter un tag"
+    },
+    "extractedText": {
+      "copied": "Copié",
+      "copy": "Copier",
+      "sourceLabel": "Texte source",
+      "placeholder": "Vérifiez ou modifiez le texte extrait.",
+      "hint": "Le texte source n’est pas stocké séparément."
+    },
+    "upload": {
+      "title": "Importer un fichier",
+      "dropLine1": "Glissez un fichier ici, ou",
+      "dropLine2": "cliquez sur le bouton ci-dessous pour en choisir un.",
+      "chooseFile": "Choisir un fichier",
+      "supported": "Formats pris en charge : PDF, DOCX, TXT.",
+      "imageProOnly": "Les fichiers image (JPG, PNG) sont réservés à l’offre Pro."
+    },
+    "ocrHelp": {
+      "title": "Pourquoi l’extraction de texte a-t-elle échoué ?",
+      "subtitle": "Voici les raisons les plus courantes pour lesquelles l’OCR peut être nécessaire.",
+      "reasonsTitle": "Même pour un PDF, l’extraction peut échouer dans les cas suivants :",
+      "reason1": "Le document est enregistré uniquement comme image scannée",
+      "reason2": "L’encodage interne du document est non standard",
+      "reason3": "Des restrictions de sécurité empêchent la copie",
+      "reason4": "Le document utilise des polices ou une mise en page particulières",
+      "footer": "Dans ces cas, vous pouvez extraire le texte avec <strong>l’OCR (reconnaissance de texte sur image)</strong>.",
+      "close": "Fermer"
+    },
+    "ocrSuggest": {
+      "cancel": "Annuler",
+      "title": "Impossible d’extraire le texte du PDF",
+      "line1": "Le texte n’a pas pu être extrait directement du PDF.",
+      "line2": "Selon le format ou l’encodage du document, une extraction via OCR peut être nécessaire.",
+      "line3": "Voulez-vous essayer l’extraction OCR ?",
+      "helpLink": "*Voir pourquoi l’extraction PDF peut échouer",
+      "confirm": "Essayer l’extraction OCR"
+    },
+    "loginRequired": {
+      "title": "Connexion requise",
+      "description": "Pour utiliser cette fonctionnalité, connectez-vous ou créez un compte.",
+      "loginTab": "Connexion",
+      "signupTab": "Inscription"
+    },
+    "actions": {
+      "highlight": "Surligner",
+      "shorter": "Résumer plus simplement",
+      "detailed": "Résumer en détail",
+      "terms": "Expliquer les termes",
+      "exportPdf": "Exporter en PDF",
+      "askGpt": "Demander à GPT",
+      "copy": "Copier",
+      "diagramSoon": "🧠 La vue diagramme arrive bientôt."
+    },
+    "input": {
+      "noFile": "Aucun fichier sélectionné.",
+      "invalidYoutube": "Lien YouTube invalide.",
+      "processingError": "⚠️ Une erreur est survenue pendant le traitement.",
+      "extractButton": "Extraire le texte source",
+      "processing": "Traitement en cours...",
+      "youtubeLabel": "URL de la vidéo YouTube",
+      "websiteLabel": "URL du site web",
+      "websiteHint": "La plupart des sites web sont pris en charge, mais certains sites protégés ou nécessitant une connexion peuvent ne pas fonctionner.",
+      "youtubeExtractPrefix": "🔗 Transcription extraite depuis la vidéo YouTube.",
+      "websiteExtractPrefix": "🌐 Contenu extrait du site web.",
+      "ocrExtractPrefix": "📷 Contenu extrait via OCR.",
+      "fileExtractPrefix": "📄 Contenu extrait du fichier importé.",
+      "fetchResultFailed": "❌ Impossible de charger le résultat.",
+      "youtubeTranscriptFailed": "❌ Échec de l’extraction de la transcription YouTube.",
+      "requestFailed": "❌ Échec du traitement de la requête.",
+      "requestError": "❌ Une erreur est survenue pendant le traitement de la requête.",
+      "networkError": "❌ Erreur réseau. Veuillez réessayer.",
+      "websiteExtractFailed": "❌ Échec de l’extraction du contenu du site web.",
+      "requestNotFound": "❌ Requête introuvable (Job ID manquant).",
+      "websiteErrorRetry": "❌ Une erreur est survenue lors de la requête du site web. Veuillez réessayer.",
+      "ocrFailed": "❌ Échec du traitement OCR.",
+      "ocrUploadFailed": "❌ Erreur lors de l’envoi OCR.",
+      "fileProcessFailed": "❌ Échec du traitement du fichier.",
+      "fileUploadFailed": "❌ Erreur lors de l’envoi du fichier."
+    }
+  },
+  "ConfirmDialog": {
+    "title": "Réinitialiser ?",
+    "description": "Votre progression actuelle sera supprimée.",
+    "action": "Réinitialiser",
+    "cancel": "Annuler"
+  },
+  "SummaryEditor": {
+    "cancel": "Annuler",
+    "save": "Enregistrer"
+  },
+  "SummarizeOptionsDialog": {
+    "title": "Choisir les options du résumé",
+    "enterTextAlert": "Veuillez saisir le texte à résumer.",
+    "sourceOptional": "Source (optionnel)",
+    "sourcePlaceholder": "ex. lien YouTube, URL d’article",
+    "viewTypeTitle": "Affichage du résultat",
+    "viewText": "📝 Texte résumé",
+    "viewDiagram": "📊 Diagramme",
+    "viewBoth": "📝+📊 Les deux",
+    "loading": "Résumé en cours...",
+    "submit": "Demander le résumé",
+    "cancel": "Annuler"
+  },
+  "BlogPage": {
+    "title": "Blog Brify",
+    "count": "{count} articles",
+    "meta": {
+      "title": "Blog Brify",
+      "description": "Le blog Brify sur la transformation d'informations complexes en cartes mentales structurées."
+    }
+  },
+  "TagEditDialog": {
+    "title": "Modifier les tags",
+    "description": "Saisissez un tag puis appuyez sur Entrée pour l'ajouter.",
+    "removeTagAria": "Supprimer le tag",
+    "addTagPlaceholder": "Ajouter un tag",
+    "addFromExisting": "Ajouter depuis les tags existants",
+    "selectedCount": "{count} sélectionnés",
+    "searchPlaceholder": "Rechercher des tags",
+    "noTagsToAdd": "Aucun tag à ajouter.",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement..."
+  },
+  "MapsDialogs": {
+    "tagMerge": {
+      "title": "Fusionner les tags",
+      "description": "Fusionnez les tags sélectionnés en un seul.",
+      "targetLabel": "Tag cible",
+      "targetPlaceholder": "Nom du tag de destination",
+      "confirm": "Fusionner",
+      "cancel": "Annuler"
+    }
+  },
+  "ClientMindElixir": {
+    "miniMap": {
+      "label": "Mini-carte",
+      "center": "Centrer",
+      "zoomIn": "Zoom avant (⌘+)",
+      "zoomOut": "Zoom arrière (⌘-)",
+      "collapseOneLevel": "Réduire d'un niveau",
+      "expandOneLevel": "Développer d'un niveau"
+    },
+    "mobileEdit": {
+      "title": "Modifier le nœud",
+      "moreActions": "Plus"
+    },
+    "annotation": {
+      "title": "Annotation",
+      "placeholder": "Saisissez une annotation",
+      "add": "Ajouter une annotation",
+      "delete": "Supprimer l’annotation"
+    },
+    "highlight": "Surligner",
+    "focusMode": {
+      "label": "Mode focus",
+      "exit": "Quitter"
+    },
+    "common": {
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "contextMenu": {
+      "copyMarkdown": "Copier en Markdown",
+      "copyExpandedMarkdown": "Copier les nœuds développés en Markdown",
+      "copySuccess": "Markdown copié.",
+      "copyFail": "Échec de la copie."
+    },
+    "timestamp": {
+      "hms": "{h}h {m}m {s}s",
+      "ms": "{m}m {s}s",
+      "s": "{s}s"
+    }
+  },
+  "NoteButton": {
+    "label": "Notes",
+    "withCount": "Notes ({count})"
+  },
+  "ProTooltipButton": {
+    "description": "Disponible avec l’offre Pro.",
+    "cta": "Voir les tarifs"
+  },
+  "SummaryViewer": {
+    "edit": "Modifier"
+  },
+  "YoutubeNotesPage": {
+    "title": "Notes YouTube et organisation des vidéos YouTube | Brify",
+    "description": "Brify vous aide à organiser les vidéos YouTube en notes structurées et en mind maps pour revoir plus facilement les contenus longs.",
+    "keywords": ["notes youtube", "organisation youtube", "organiser videos youtube", "mind map youtube", "Brify"],
+    "ogImage": "https://www.brify.app/images/sns_en.png",
+    "heading": "Une meilleure façon d'organiser vos vidéos YouTube et vos notes",
+    "lead": "Si vous enregistrez souvent des vidéos YouTube utiles sans les revoir ensuite, Brify vous aide à organiser les notes, le fil conducteur et la structure dans un format plus facile à consulter.",
+    "body": [
+      "Organiser le contenu YouTube est difficile, non seulement parce que les vidéos sont longues, mais aussi parce que les idées importantes sont répétées et dispersées dans plusieurs sections.",
+      "Brify vous aide à transformer les transcriptions YouTube en notes structurées et en mind maps, pour voir d'un coup d'œil l'essentiel et les liens entre les idées.",
+      "Brify convient particulièrement à celles et ceux qui veulent plus qu'un simple résumé, et qui souhaitent revoir la structure du contenu plus tard."
+    ],
+    "bullets": [
+      "Les personnes qui enregistrent de longues vidéos YouTube sans les revoir",
+      "Les personnes qui veulent des notes YouTube mieux structurées",
+      "Les personnes qui ont besoin de flux et de liens, au-delà des résumés",
+      "Les personnes qui veulent rouvrir et réviser ce qu'elles ont regardé"
+    ],
+    "ctaTitle": "Pour des notes YouTube plus structurées",
+    "ctaBody": "Brify transforme les transcriptions YouTube en mind maps pour comprendre des informations complexes plus vite et les revoir plus facilement.",
+    "primaryCta": "Voir la démo",
+    "secondaryCta": "Voir la page résumé YouTube",
+    "demoHref": "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e",
+    "relatedHref": "/fr/youtube-summary"
+  },
+  "YoutubeSummaryPage": {
+    "title": "Outil de résumé YouTube | Transformez les vidéos YouTube en mind maps | Brify",
+    "description": "Brify est un outil de résumé YouTube qui transforme les transcriptions YouTube en mind maps pour comprendre rapidement les vidéos longues et les informations complexes.",
+    "keywords": ["resume youtube", "outil resume youtube", "notes youtube", "mind map youtube", "youtube vers mind map", "convertir youtube en mind map", "mind map", "resume page web", "Brify"],
+    "ogImage": "https://www.brify.app/images/sns_en.png",
+    "breadcrumbName": "Résumé YouTube",
+    "heading": "Un outil de résumé YouTube qui transforme les vidéos en mind maps",
+    "lead": "Si vous cherchez une façon plus rapide de résumer des vidéos YouTube et de convertir des transcriptions en mind maps, Brify vous aide à comprendre le fil et la structure sans regarder chaque minute.",
+    "section1Title": "Pourquoi Brify fonctionne bien pour les résumés et notes YouTube",
+    "section1Body": [
+      "YouTube contient beaucoup d'informations utiles, mais les vidéos longues et les sujets complexes sont difficiles à résumer et à organiser rapidement.",
+      "Brify agit comme un outil de résumé YouTube en transformant les transcriptions en mind maps, pour visualiser d'un coup d'œil le fil principal, les idées répétées et les détails liés.",
+      "Au lieu de s'arrêter à un résumé linéaire, Brify vous aide à convertir le contenu YouTube en une structure claire que vous pouvez revoir facilement."
+    ],
+    "section2Title": "Pour qui c'est utile",
+    "bullets": [
+      "Les personnes qui veulent comprendre plus vite de longues vidéos YouTube",
+      "Les personnes qui veulent des notes et résumés YouTube mieux structurés",
+      "Les personnes qui préfèrent les mind maps visuelles pour les sujets complexes",
+      "Les personnes qui veulent aussi organiser des pages web et des textes longs"
+    ],
+    "section3Title": "Ce que vous pouvez faire avec Brify",
+    "cards": [
+      { "title": "Résumés YouTube", "body": "Comprendre plus rapidement le fil essentiel des vidéos longues." },
+      { "title": "Notes YouTube", "body": "Organiser plusieurs concepts et détails dans une mind map à revisiter plus tard." },
+      { "title": "Mind maps YouTube", "body": "Transformer les transcriptions en structure visuelle pour comparer et comprendre d'un coup d'œil." },
+      { "title": "Organisation de textes longs", "body": "Appliquer le même flux de travail aux pages web et textes longs pour simplifier les informations complexes." }
+    ],
+    "faqTitle": "Questions fréquentes",
+    "faqs": [
+      { "question": "Brify est-il un outil de résumé YouTube ?", "answer": "Oui. Brify vous aide à résumer du contenu YouTube plus vite. Sa force ne s'arrête pas au résumé : il transforme aussi les transcriptions YouTube en mind maps que vous pouvez revoir ensuite." },
+      { "question": "Puis-je organiser des vidéos YouTube en mind maps ?", "answer": "Oui. Brify vous aide à convertir des transcriptions YouTube en mind maps, ce qui rend les informations complexes plus faciles à comprendre et à comparer." },
+      { "question": "Brify peut-il aussi organiser des pages web et des textes longs ?", "answer": "Oui. Brify est conçu pour fonctionner avec les transcriptions YouTube, les pages web et les textes longs, afin d'utiliser le même flux de travail pour différentes sources." }
+    ],
+    "primaryCta": "Voir la démo",
+    "secondaryCta": "Commencer avec Brify",
+    "demoHref": "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e",
+    "signupHref": "/fr/signup"
+  },
+  "MindMapPage": {
+    "title": "YouTube vers Mind Map | Convertir des transcriptions YouTube en mind maps | Brify",
+    "description": "Brify vous aide à convertir des transcriptions YouTube, des pages web et des textes longs en mind maps pour comprendre immédiatement le flux et la structure.",
+    "keywords": ["mind map", "mind map youtube", "youtube vers mind map", "convertir youtube en mind map", "mind map texte", "Brify"],
+    "ogImage": "https://www.brify.app/images/sns_en.png",
+    "heading": "Convertissez des transcriptions YouTube en mind maps",
+    "lead": "Si vous cherchez un flux YouTube vers mind map, Brify vous aide à convertir des transcriptions YouTube en mind maps et à revoir plus facilement des contenus complexes.",
+    "paragraphs": [
+      "Une mind map n'est pas seulement un format visuel propre : c'est une façon de comprendre les relations, la hiérarchie et le fil d'une information complexe.",
+      "Brify vous aide à convertir les transcriptions YouTube en mind maps pour rendre les idées clés et leurs liens beaucoup plus visibles.",
+      "Brify est particulièrement utile si vous cherchez à transformer des vidéos YouTube en mind maps pour l'étude, la recherche, la comparaison et des entrées complexes."
+    ],
+    "bullets": [
+      "Les personnes qui veulent convertir du contenu YouTube en mind maps",
+      "Les personnes qui veulent visualiser rapidement des textes longs",
+      "Les personnes qui veulent une structure et un flux visuels",
+      "Les personnes qui comparent plusieurs sources et idées"
+    ],
+    "ctaTitle": "Commencez à organiser avec les mind maps Brify",
+    "ctaBody": "Convertissez des transcriptions YouTube, des pages web et des textes longs en mind maps pour comprendre plus vite les informations complexes.",
+    "primaryCta": "Commencer avec Brify",
+    "secondaryCta": "Voir la page notes YouTube",
+    "signupHref": "/fr/signup",
+    "relatedHref": "/fr/youtube-notes"
   },
   "RefundPolicyPage": {
     "badge": "POLITIQUE DE REMBOURSEMENT BRIFY",

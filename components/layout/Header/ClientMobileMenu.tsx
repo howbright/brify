@@ -27,9 +27,8 @@ export default function ClientMobileUserMenu({
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("Header");
-  const greeting = locale === "ko" ? "안녕하세요" : "Hello";
-  const greetingWithEmail =
-    locale === "ko" && email ? `${email}님, 안녕하세요` : email ? `Hello, ${email}` : greeting;
+  const greeting = t("userMenu.greeting");
+  const greetingWithEmail = email ? t("userMenu.greetingWithEmail", { email }) : greeting;
 
   useEffect(() => {
     if (!isAuthed) return;
@@ -108,7 +107,7 @@ export default function ClientMobileUserMenu({
               <button
                 onClick={() => {
                   setOpen(false);
-                  router.push("/blog");
+                  router.push(`/${locale}/blog`);
                 }}
                 className="w-full text-left py-2 text-sm"
               >
@@ -118,7 +117,7 @@ export default function ClientMobileUserMenu({
               <button
                 onClick={() => {
                   setOpen(false);
-                  router.push("/#about");
+                  router.push(`/${locale}#about`);
                 }}
                 className="w-full text-left py-2 text-sm"
               >
@@ -240,7 +239,7 @@ export default function ClientMobileUserMenu({
                     </Link>
                   </>
                 ) : (
-                  <form action="/auth/signout" method="POST" className="w-full">
+                  <form action={`/auth/signout?locale=${locale}`} method="POST" className="w-full">
                     <button
                       type="submit"
                       className="w-full text-white bg-primary hover:bg-primary-hover font-medium 

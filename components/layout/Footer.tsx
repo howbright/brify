@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
 
@@ -30,10 +30,9 @@ function FooterLink({ href, label }: { href: string; label: string }) {
 
 export default async function Footer() {
   const t = await getTranslations("Footer");
-  const locale = await getLocale();
-  const contactEmailLabel = locale === "ko" ? "이메일" : "Email";
-  const contactPhoneLabel = locale === "ko" ? "전화" : "Phone";
-  const contactAddressLabel = locale === "ko" ? "주소" : "Address";
+  const contactEmailLabel = t("contactEmail");
+  const contactPhoneLabel = t("contactPhone");
+  const contactAddressLabel = t("contactAddress");
   const emailLine = `${contactEmailLabel}: hello@brify.app`;
   const phoneLine = `${contactPhoneLabel}: 031-701-0274`;
   const addressLine = `${contactAddressLabel}: ${t("contact.address")}`;

@@ -1157,6 +1157,7 @@ export default function MapsPage() {
         title={tPage("dialogs.deleteMap.title")}
         description={tPage("dialogs.deleteMap.description")}
         actionLabel={tPage("dialogs.deleteMap.action")}
+        cancelLabel={tPage("close")}
       />
 
       <ConfirmDialog
@@ -1166,6 +1167,7 @@ export default function MapsPage() {
         title={tPage("dialogs.deleteSelected.title")}
         description={tPage("dialogs.deleteSelected.description")}
         actionLabel={tPage("dialogs.deleteSelected.action")}
+        cancelLabel={tPage("close")}
       />
 
       <ConfirmDialog
@@ -1195,6 +1197,7 @@ export default function MapsPage() {
             ? tPage("dialogs.deleteTag.actionLoading")
             : tPage("dialogs.deleteTag.action")
         }
+        cancelLabel={tPage("close")}
       />
 
       <TagEditDialog

@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+import { useTranslations } from "next-intl";
 
 interface NoteButtonProps {
   noteCount: number;
@@ -6,12 +7,16 @@ interface NoteButtonProps {
 }
 
 export default function NoteButton({ noteCount, onClick }: NoteButtonProps) {
+  const t = useTranslations("NoteButton");
   const hasNotes = noteCount > 0;
+  const label = hasNotes
+    ? t("withCount", { count: noteCount })
+    : t("label");
 
   return (
     <button
       onClick={onClick}
-      title="노트"
+      title={t("label")}
       className={`
           flex items-center gap-1 px-3 py-1.5 shadow rounded-full transition
           ${
@@ -26,7 +31,7 @@ export default function NoteButton({ noteCount, onClick }: NoteButtonProps) {
         className="w-5 h-5"
       />
       <span className="text-sm font-medium">
-        노트{hasNotes ? ` (${noteCount})` : ""}
+        {label}
       </span>
     </button>
   );

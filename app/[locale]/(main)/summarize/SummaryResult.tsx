@@ -2,12 +2,16 @@
 
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
+import { useTranslations } from "next-intl";
 
 interface Props {
   text: string;
 }
 
 export default function SummaryResult({ text }: Props) {
+  const t = useTranslations("SummarizePage.result");
+  const placeholder = t("placeholder");
+
   return (
     <div className="mt-10 space-y-4">
       <div
@@ -55,7 +59,7 @@ export default function SummaryResult({ text }: Props) {
             },
           }}
         >
-          {text || "요약 결과가 여기에 표시됩니다."}
+          {text || placeholder}
         </ReactMarkdown>
       </div>
     </div>

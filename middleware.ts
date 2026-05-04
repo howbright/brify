@@ -24,6 +24,22 @@ export async function middleware(request: NextRequest) {
     return await updateSession(request, res);
   }
 
+  // When locale prefix is missing (e.g. "/maps"), prefer NEXT_LOCALE cookie
+  // so users stay on their selected language after auth redirects.
+  const hasLocalePrefix = routing.locales.some(
+    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
+  );
+  if (!hasLocalePrefix) {
+    const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
+    const isSupportedLocale =
+      !!cookieLocale && routing.locales.includes(cookieLocale as (typeof routing.locales)[number]);
+    if (isSupportedLocale) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = `/${cookieLocale}${pathname === "/" ? "" : pathname}`;
+      return NextResponse.redirect(redirectUrl);
+    }
+  }
+
   const response = handleI18nRouting(request);
   response.headers.set("x-pathname", currentPath); // ✅ 추가
   return await updateSession(request, response);

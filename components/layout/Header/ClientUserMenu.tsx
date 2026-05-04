@@ -51,11 +51,12 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
 
   async function handleSignOut() {
     try {
-      await fetch("/auth/signout", {
+      await fetch(`/auth/signout?locale=${locale}`, {
         method: "POST",
         cache: "no-store",
       });
     } finally {
+      router.replace(`/${locale}`);
       router.refresh();
     }
   }
@@ -145,7 +146,7 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
           }}
         >
           <span>
-            {locale === "ko" ? "기본 맵 테마" : "Default map theme"}
+            {t("userMenu.items.mapTheme")}
           </span>
         </DropdownMenuItem>
 

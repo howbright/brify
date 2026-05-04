@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import MarkdownEditor from "./ui/MarkdownEditor";
 
 interface SummaryEditorProps {
@@ -17,6 +18,7 @@ export default function SummaryEditor({
   onSave,
   fullMode = false,
 }: SummaryEditorProps) {
+  const t = useTranslations("SummaryEditor");
   const [editedMarkdown, setEditedMarkdown] = useState(initialContent);
 
   return (
@@ -31,13 +33,13 @@ export default function SummaryEditor({
             className="px-4 py-2 text-sm font-medium rounded bg-gray-300 hover:bg-gray-400 mr-2"
             onClick={onCancel}
           >
-            취소
+            {t("cancel")}
           </button>
           <button
             className="px-4 py-2 text-sm font-medium rounded bg-blue-600 hover:bg-blue-700 text-white"
             onClick={() => onSave(editedMarkdown)}
           >
-            저장
+            {t("save")}
           </button>
         </div>
       )}
@@ -50,13 +52,13 @@ export default function SummaryEditor({
           className="px-4 py-2 text-sm font-medium rounded bg-gray-300 hover:bg-gray-400 mr-2"
           onClick={onCancel}
         >
-          취소
+          {t("cancel")}
         </button>
         <button
           className="px-4 py-2 text-sm font-medium rounded bg-blue-600 hover:bg-blue-700 text-white"
           onClick={() => onSave(editedMarkdown)}
         >
-          저장
+          {t("save")}
         </button>
       </div>
     </div>

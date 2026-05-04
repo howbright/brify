@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import SummarizeButton from "./SummarizeButton";
 
 interface Props {
@@ -27,8 +28,10 @@ export default function EditExtractedSection({
   extractionSucceeded,
   onSummarize,
 }: Props) {
+  const t = useTranslations("SummarizePage.editor");
   const [copied, setCopied] = useState(false);
   const isTooShort = rawText.trim().length < 300;
+  const copyLabel = copied ? t("copied") : t("copy");
 
   const handleCopy = async () => {
     try {
@@ -45,15 +48,15 @@ export default function EditExtractedSection({
       <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-6 text-center">
         {isManual ? (
           <>
-            요약할 내용을 입력하거나 붙여넣어 보세요.
+            {t("manualTitle")}
             <br className="hidden sm:block" />
-            내용이 준비되면 핵심정리를 진행하세요.
+            {t("manualSubtitle")}
           </>
         ) : (
           <>
-            내용이 준비됐어요.
+            {t("readyTitle")}
             <br className="hidden sm:block" />
-            요약하기 전에 편집이 필요하다면 수정해보세요.
+            {t("readySubtitle")}
           </>
         )}
       </h3>
@@ -64,26 +67,30 @@ export default function EditExtractedSection({
           className="absolute top-4 right-4 flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 transition"
         >
           {copied ? <Check size={14} /> : <Copy size={14} />}
-          {copied ? "복사됨" : "복사"}
+          {copyLabel}
         </button>
 
         <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
-          원문 내용
+          {t("sourceLabel")}
         </label>
         <textarea
           rows={10}
           value={rawText}
           onChange={(e) => setRawText(e.target.value)}
           className="w-full border border-gray-300 dark:border-white/20 p-4 rounded-lg bg-white dark:bg-black text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-          placeholder={isManual ? "여기에 정리할 내용을 입력해주세요." : "추출된 내용을 확인하거나 수정할 수 있습니다."}
+          placeholder={
+            isManual
+              ? t("manualPlaceholder")
+              : t("extractedPlaceholder")
+          }
         />
 
         <p className="text-xs text-gray-400 text-right mt-2">
-          요약 결과를 위해 입력한 원문은 하루 동안 임시 보관되며 이후 자동 삭제돼요.
+          {t("retentionHint")}
         </p>
         {isTooShort && (
           <p className="text-xs text-red-500 text-right">
-            요약을 위해 최소 300자 이상의 내용을 입력해주세요.
+            {t("minLengthHint")}
           </p>
         )}
       </div>
@@ -97,11 +104,11 @@ export default function EditExtractedSection({
         >
           <div className="animate-pulse text-center flex flex-col gap-2">
             <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
-              ✏️ 핵심 내용을 분석 중이에요...
+              {t("loadingTitle")}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              AI가 중요한 문장을 고르고 정리하는 중입니다.
-              <br /> 5~15초 정도 걸릴 수 있어요.
+              {t("loadingDescription")}
+              <br /> {t("loadingDuration")}
             </p>
           </div>
 

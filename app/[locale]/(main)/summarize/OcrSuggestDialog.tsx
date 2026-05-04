@@ -2,6 +2,7 @@
 
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { FileWarning, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import * as React from "react";
 
 interface OcrSuggestDialogProps {
@@ -17,6 +18,9 @@ export default function OcrSuggestDialog({
   onOcrConfirm,
   onOpenOcrHelp,
 }: OcrSuggestDialogProps) {
+  const t = useTranslations("SummarizePage.ocrSuggest");
+  const cancelLabel = t("cancel");
+
   // ✨ 모달이 열릴 때 스크롤 막기
   React.useEffect(() => {
     if (open) {
@@ -57,32 +61,31 @@ export default function OcrSuggestDialog({
           <div className="relative flex items-center gap-3">
             <FileWarning className="h-5 w-5 text-blue-700 dark:text-[rgb(var(--hero-b))]" />
             <AlertDialog.Title className="text-xl font-bold text-blue-700 dark:text-[rgb(var(--hero-b))]">
-              PDF에서 텍스트를 추출할 수 없습니다
+              {t("title")}
             </AlertDialog.Title>
           </div>
 
           <AlertDialog.Description className="mt-4 text-base font-medium leading-7 text-neutral-800 dark:text-neutral-100">
-            PDF에서 텍스트를 직접 추출할 수 없습니다.
+            {t("line1")}
             <br />
             <br />
-            문서 형식이나 인코딩 문제로 인해 OCR(이미지 인식)을 통해 텍스트를
-            추출해야 할 수 있습니다.
+            {t("line2")}
             <br />
             <br />
-            OCR(이미지 인식)으로 텍스트를 추출해보시겠어요?
+            {t("line3")}
             <br />
             <button
               onClick={onOpenOcrHelp}
               className="mt-3 inline-block text-sm font-semibold text-blue-700 underline underline-offset-4 hover:text-blue-800 dark:text-[rgb(var(--hero-b))]"
             >
-              *PDF 텍스트 추출 실패 이유 알아보기
+              {t("helpLink")}
             </button>
           </AlertDialog.Description>
 
           <div className="mt-6 flex justify-end gap-3">
             <AlertDialog.Cancel asChild>
               <button className="rounded-2xl border border-slate-400 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-800 transition hover:bg-neutral-100 dark:border-white/20 dark:bg-white/[0.04] dark:text-white dark:hover:bg-white/10">
-                취소
+                {cancelLabel}
               </button>
             </AlertDialog.Cancel>
             <AlertDialog.Action asChild>
@@ -90,7 +93,7 @@ export default function OcrSuggestDialog({
                 onClick={onOcrConfirm}
                 className="rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_12px_30px_-18px_rgba(37,99,235,0.9)] transition hover:bg-blue-700 dark:bg-[rgb(var(--hero-b))] dark:text-[#081120] dark:hover:bg-[rgb(var(--hero-a))]"
               >
-                OCR로 추출 시도하기
+                {t("confirm")}
               </button>
             </AlertDialog.Action>
           </div>

@@ -3,20 +3,34 @@
 import { SourceType } from "@/app/types/sourceType";
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 interface Props {
   selected: SourceType;
   onChange: (type: SourceType) => void;
 }
 
-const tabList: { type: SourceType; label: string; icon: string }[] = [
-  { type: SourceType.YOUTUBE, label: "YouTube", icon: "mdi:youtube" },
-  { type: SourceType.MANUAL, label: "직접입력", icon: "mdi:pencil" },
-  { type: SourceType.FILE, label: "문서", icon: "mdi:file-document" },
-  { type: SourceType.WEBSITE, label: "웹사이트", icon: "mdi:web" },
-];
-
 export default function SourceTabs({ selected, onChange }: Props) {
+  const t = useTranslations("SummarizePage.sourceTabs");
+  const tabList: { type: SourceType; label: string; icon: string }[] = [
+    { type: SourceType.YOUTUBE, label: "YouTube", icon: "mdi:youtube" },
+    {
+      type: SourceType.MANUAL,
+      label: t("manual"),
+      icon: "mdi:pencil",
+    },
+    {
+      type: SourceType.FILE,
+      label: t("file"),
+      icon: "mdi:file-document",
+    },
+    {
+      type: SourceType.WEBSITE,
+      label: t("website"),
+      icon: "mdi:web",
+    },
+  ];
+
   return (
     <div className="flex justify-center gap-2 flex-wrap mb-3 p-4 rounded-2xl">
       {tabList.map((tab) => (

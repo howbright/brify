@@ -131,6 +131,10 @@
     "generateTitle": "Generate the map",
     "creditsInfo": "{current} credits available · this run uses {required} credit(s)",
     "generateButton": "Generate mind map",
+    "freeBadge": "Free",
+    "blankMapButton": "Start with a blank map",
+    "blankMapStarting": "Opening blank map...",
+    "blankMapDescription": "Blank maps for brainstorming start instantly with no credit usage.",
     "insufficientCreditsCard": {
       "title": "You don’t have enough credits to create a mind map",
       "description": "Top up your credits and you can continue right away.",
@@ -899,7 +903,14 @@
     },
     "cta": {
       "newMap": "New Structure Map",
-      "myMaps": "My Maps"
+      "myMaps": "My Maps",
+      "fromTextTitle": "Convert text to a structure map",
+      "fromTextDesc": "Paste a transcript or document text to generate a map",
+      "blankStartTitle": "Start from blank",
+      "blankStartDesc": "For brainstorming, start with zero credit usage",
+      "blankCreating": "Creating blank map...",
+      "freeBadge": "Free",
+      "blankMapDefaultTitle": "Untitled"
     }
   },
   "MapControls": {
@@ -935,8 +946,56 @@
       "share": "Share",
       "shortcuts": "Shortcuts",
       "tutorial": "Tutorial",
-      "closeMap": "Close map"
+      "closeMap": "Close map",
+      "timestampsShow": "Show timestamps",
+      "timestampsHide": "Hide timestamps"
+    },
+    "hint": {
+      "label": "Hint",
+      "toggleAria": "Toggle shortcut hint"
     }
+  },
+  "MapNotesTab": {
+    "title": "Notes Library",
+    "leftDescription": "Browse maps that already have notes in one place.",
+    "rightDescription": "Review memos, node notes, and highlights together.",
+    "empty": "There are no maps with notes yet.",
+    "emptyDetail": "There are no notes to show for this map yet.",
+    "noSearchResults": "No maps matched your search.",
+    "searchPlaceholder": "Search maps with notes",
+    "sortUpdatedDesc": "Recently updated",
+    "sortTitleAsc": "Title",
+    "previewSample": "Preview sample",
+    "opening": "Opening",
+    "open": "Open map",
+    "selectedMap": "Select a map",
+    "sampleMapLabel": "This is sample data shown without sign-in.",
+    "untitled": "Untitled",
+    "loadError": "Failed to load notes.",
+    "sections": {
+      "memo": "Memos",
+      "annotations": "Node notes",
+      "highlights": "Highlights"
+    }
+  },
+  "MapTermsTab": {
+    "title": "Terms Library",
+    "leftDescription": "Browse maps that already have extracted terms.",
+    "rightDescription": "Review the extracted terms and explanations for the selected map.",
+    "empty": "There are no maps with terms yet.",
+    "emptyTerms": "There are no terms to show for this map yet.",
+    "noSearchResults": "No maps matched your search.",
+    "searchPlaceholder": "Search maps with terms",
+    "sortUpdatedDesc": "Recently updated",
+    "sortTitleAsc": "Title",
+    "previewSample": "Preview sample",
+    "opening": "Opening",
+    "open": "Open map",
+    "selectedMap": "Select a map",
+    "summary": "Terms",
+    "sampleMapLabel": "This is sample data shown without sign-in.",
+    "untitled": "Untitled",
+    "loadError": "Failed to load terms."
   },
   "ShortcutsDialog": {
     "title": "Keyboard Shortcuts",
@@ -976,7 +1035,8 @@
   "ConfirmShareDialog": {
     "title": "Publish before sharing",
     "description": "Publish the current changes and generate a share link?",
-    "actionLabel": "Publish and share"
+    "actionLabel": "Publish and share",
+    "cancelLabel": "Cancel"
   },
   "ThemeToggle": {
     "label": {
@@ -1230,6 +1290,11 @@
       "Generate results from foreign-language content in your native language",
         "Not just a simple summary. It helps you keep the important details"
     ],
+    "sampleSection": {
+      "title": "Sample mind map image",
+      "cta": "Sign up to create your own",
+      "imageAlt": "Brify mind map example image"
+    },
     "flowItems": ["Paste a script", "Create a mind map", "Read · Edit · Compare", "Build your own standard"],
     "videoLabel": "View workflow",
     "videoLoadingLabel": "Loading...",
@@ -1424,7 +1489,20 @@
     "requestFailed": "Request failed",
     "metadataPending": "Generating metadata now.",
     "metadataPendingSummary": "Generating the one-paragraph summary.",
-    "metadataPendingTags": "Generating tags now."
+    "metadataPendingTags": "Generating tags now.",
+    "tooltips": {
+      "editMetadata": "Edit metadata",
+      "editTags": "Edit tags"
+    },
+    "notesSubtabs": {
+      "memo": "Notes",
+      "annotations": "Annotations",
+      "highlights": "Highlights",
+      "annotationsEmpty": "No annotations yet.",
+      "annotationsHelper": "Browse annotations attached to nodes and jump to that node with one click.",
+      "highlightsEmpty": "No highlighted nodes yet.",
+      "highlightsHelper": "Browse highlighted nodes and jump to them with one click."
+    }
   },
   "RightPanel": {
     "tabs": {
@@ -1492,6 +1570,14 @@
       },
       "cancel": "Cancel",
       "submit": "Start"
+    }
+  },
+  "BlogPage": {
+    "title": "Brify Blog",
+    "count": "{count} posts",
+    "meta": {
+      "title": "Brify Blog",
+      "description": "Brify blog on turning complex information into structured mind maps."
     }
   },
   "TagEditDialog": {
@@ -1597,7 +1683,35 @@
       "description": "This action can’t be undone. Do you want to continue?",
       "action": "Delete",
       "actionDeleting": "Deleting..."
-    }
+    },
+    "mobile": {
+      "collapseOneLevel": "Collapse one level",
+      "expandOneLevel": "Expand one level",
+      "openTools": "Open tools",
+      "closeTools": "Close tools",
+      "layouts": "Layouts"
+    },
+    "sharedMissing": {
+      "title": "Shared map not found",
+      "description": "The link may be invalid, or sharing may have been turned off.",
+      "action": "Back to home"
+    },
+    "readOnlyBadge": "Read only",
+    "expandHint": {
+      "line1": "There is more content.",
+      "line2": "Tap nodes with the + icon to expand and continue reading hidden branches.",
+      "dismiss": "Dismiss hint"
+    },
+    "toasts": {
+      "savingNote": "Saving note changes...",
+      "sharedReadOnly": "Shared pages are read-only.",
+      "highlightReadOnly": "Highlights are not saved in read-only mode."
+    },
+    "readOnlyMode": {
+      "admin": "Admin view mode",
+      "shared": "Shared read-only"
+    },
+    "brand": "Brify"
   },
   "DiscardDraftDialog": {
     "title": "Discard draft changes",
@@ -1713,6 +1827,95 @@
       "save": "Save",
       "closeTagPicker": "Close tag list"
     }
+  },
+  "YoutubeNotesPage": {
+    "title": "YouTube Notes and YouTube Video Organization | Brify",
+    "description": "Brify helps you organize YouTube videos into structured notes and mind maps so you can revisit long content more easily.",
+    "keywords": ["youtube notes", "youtube organization", "organize youtube videos", "youtube mind map", "Brify"],
+    "ogImage": "https://www.brify.app/images/sns_en.png",
+    "heading": "A better way to organize YouTube videos and notes",
+    "lead": "If you keep saving useful YouTube videos but rarely revisit them, Brify helps you organize YouTube notes, flow, and structure into something easier to review later.",
+    "body": [
+      "Organizing YouTube content is hard not only because videos are long, but also because important ideas are repeated and scattered across different sections.",
+      "Brify helps you turn YouTube transcripts into structured notes and mind maps, so you can see what is central and how ideas connect at a glance.",
+      "That makes Brify a better fit for people who want more than a short summary and want to revisit the structure of the content later."
+    ],
+    "bullets": [
+      "People who save long YouTube videos but rarely revisit them",
+      "People who want YouTube notes in a clearer structure",
+      "People who want more than summaries and need flow and connections",
+      "People who want to reopen and review what they watched"
+    ],
+    "ctaTitle": "If you want more structured YouTube notes",
+    "ctaBody": "Brify turns YouTube transcripts into mind maps so you can understand complex information faster and revisit it more easily.",
+    "primaryCta": "View demo",
+    "secondaryCta": "See YouTube summary page",
+    "demoHref": "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e",
+    "relatedHref": "/en/youtube-summary"
+  },
+  "YoutubeSummaryPage": {
+    "title": "YouTube Summary Tool | Turn YouTube Videos into Mind Maps | Brify",
+    "description": "Brify is a YouTube summary tool that turns YouTube transcripts into mind maps, helping you understand long videos and complex information at a glance.",
+    "keywords": ["youtube summary", "youtube summary tool", "youtube notes", "youtube mind map", "youtube to mind map", "convert youtube to mind map", "mind map", "webpage summary", "Brify"],
+    "ogImage": "https://www.brify.app/images/sns_en.png",
+    "breadcrumbName": "YouTube Summary",
+    "heading": "A YouTube summary tool that turns videos into mind maps",
+    "lead": "If you want a faster way to summarize YouTube videos and turn YouTube transcripts into mind maps, Brify helps you grasp the flow and structure without watching every minute.",
+    "section1Title": "Why Brify works well for YouTube summaries and notes",
+    "section1Body": [
+      "YouTube is full of useful information, but long videos and complex topics are hard to summarize and organize quickly.",
+      "Brify works as a YouTube summary tool by turning YouTube transcripts into mind maps, so you can see the main flow, repeated ideas, and connected details at a glance.",
+      "Instead of ending with a plain summary, Brify helps you convert YouTube content into a structure you can revisit and understand more clearly."
+    ],
+    "section2Title": "Who this is for",
+    "bullets": [
+      "People who want to understand long YouTube videos faster",
+      "People who want more structured YouTube notes and summaries",
+      "People who prefer visual mind maps for complex information",
+      "People who also want to organize webpages and long text"
+    ],
+    "section3Title": "What you can do with Brify",
+    "cards": [
+      { "title": "YouTube summaries", "body": "Understand the key flow of long videos more quickly." },
+      { "title": "YouTube notes", "body": "Organize multiple concepts and details into a mind map you can revisit later." },
+      { "title": "YouTube mind maps", "body": "Turn transcripts into a visual structure you can compare and understand at a glance." },
+      { "title": "Long-text organization", "body": "Use the same workflow for webpages and long text to make complex information easier to digest." }
+    ],
+    "faqTitle": "Frequently asked questions",
+    "faqs": [
+      { "question": "Is Brify a YouTube summary tool?", "answer": "Yes. Brify helps you summarize YouTube content faster. Its strength is not only summarizing, but also turning YouTube transcripts into mind maps you can revisit later." },
+      { "question": "Can I organize YouTube videos as mind maps?", "answer": "Yes. Brify helps you convert YouTube transcripts into mind maps, making complex information easier to grasp and compare." },
+      { "question": "Can Brify also organize webpages and long text?", "answer": "Yes. Brify is designed to work with YouTube transcripts, webpages, and long text so you can use the same workflow across different sources." }
+    ],
+    "primaryCta": "View demo",
+    "secondaryCta": "Start Brify",
+    "demoHref": "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e",
+    "signupHref": "/en/signup"
+  },
+  "MindMapPage": {
+    "title": "YouTube to Mind Map | Convert YouTube Transcripts into Mind Maps | Brify",
+    "description": "Brify helps you convert YouTube transcripts, webpages, and long text into mind maps so you can understand flow and structure at a glance.",
+    "keywords": ["mind map", "youtube mind map", "youtube to mind map", "convert youtube to mind map", "text mind map", "Brify"],
+    "ogImage": "https://www.brify.app/images/sns_en.png",
+    "heading": "Convert YouTube transcripts into mind maps",
+    "lead": "If you want a YouTube to mind map workflow, Brify helps you convert YouTube transcripts into mind maps and revisit complex content more easily.",
+    "paragraphs": [
+      "A mind map is not only a neat format. It is a way to understand relationships, hierarchy, and flow inside complex information.",
+      "Brify helps you convert YouTube transcripts into mind maps so key ideas and their connections become easier to see.",
+      "That makes Brify especially useful if you are searching for a way to turn YouTube videos into mind maps for study, research, comparison, and complex inputs."
+    ],
+    "bullets": [
+      "People who want to convert YouTube content into mind maps",
+      "People who want long text at a glance",
+      "People who want visual flow and structure",
+      "People who compare multiple sources and ideas"
+    ],
+    "ctaTitle": "Start organizing with Brify mind maps",
+    "ctaBody": "Convert YouTube transcripts, webpages, and long text into mind maps and understand complex information faster.",
+    "primaryCta": "Start Brify",
+    "secondaryCta": "See YouTube notes page",
+    "signupHref": "/en/signup",
+    "relatedHref": "/en/youtube-notes"
   },
   "Footer": {
     "description": "A service that helps you structure long content, understand information quickly, and build your own standard.",
@@ -2004,6 +2207,216 @@
       "confirm": "Merge"
     },
     "close": "Close"
+  },
+  "SummarizePage": {
+    "hero": {
+      "title": "What would you like to organize?",
+      "subtitle": "Choose the source first."
+    },
+    "dialog": {
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "summaryFailed": "Summary generation failed.",
+      "missingSummaryId": "Summary ID is missing.",
+      "keywordsSaved": "Keywords have been saved.",
+      "keywordsSaveFailed": "Failed to save keywords."
+    },
+    "button": {
+      "loading": "Summarizing...",
+      "submit": "Create summary"
+    },
+    "result": {
+      "title": "Now refine your summary in your own style.",
+      "placeholder": "Your summary result will appear here."
+    },
+    "sourceTabs": {
+      "manual": "Manual input",
+      "file": "Document",
+      "website": "Website"
+    },
+    "editor": {
+      "copied": "Copied",
+      "copy": "Copy",
+      "manualTitle": "Type or paste the content you want to summarize.",
+      "manualSubtitle": "Once ready, generate your summary.",
+      "readyTitle": "Your content is ready.",
+      "readySubtitle": "Edit it if needed before summarizing.",
+      "sourceLabel": "Source text",
+      "manualPlaceholder": "Enter the content you want to organize here.",
+      "manualPlaceholderWithIcon": "✍️ Enter the content you want to organize here.",
+      "extractedPlaceholder": "Review or edit the extracted text.",
+      "retentionHint": "The source text is temporarily stored for up to 24 hours to generate your summary, then automatically deleted.",
+      "minLengthHint": "Please enter at least 300 characters to create a summary.",
+      "loadingTitle": "✏️ Analyzing key points...",
+      "loadingDescription": "AI is selecting and organizing the most important sentences.",
+      "loadingDuration": "This may take about 5 to 15 seconds."
+    },
+    "tags": {
+      "doubleClickToEdit": "Double-click to edit",
+      "addTag": "Add a tag"
+    },
+    "extractedText": {
+      "copied": "Copied",
+      "copy": "Copy",
+      "sourceLabel": "Source text",
+      "placeholder": "Review or edit the extracted text.",
+      "hint": "The source text is not stored separately."
+    },
+    "upload": {
+      "title": "Upload file",
+      "dropLine1": "Drag a file here, or",
+      "dropLine2": "click the button below to choose one.",
+      "chooseFile": "Choose file",
+      "supported": "Supported formats: PDF, DOCX, TXT.",
+      "imageProOnly": "Image files (JPG, PNG) are available on Pro only."
+    },
+    "ocrHelp": {
+      "title": "Why did text extraction fail?",
+      "subtitle": "Here are the most common reasons OCR may be needed.",
+      "reasonsTitle": "Even with a PDF, text extraction can fail in cases like these:",
+      "reason1": "The document is saved only as scanned images",
+      "reason2": "The document uses non-standard internal encoding",
+      "reason3": "Security restrictions prevent text copying",
+      "reason4": "The document uses unusual fonts or layout",
+      "footer": "In these cases, you can extract text with <strong>OCR (image text recognition)</strong>.",
+      "close": "Close"
+    },
+    "ocrSuggest": {
+      "cancel": "Cancel",
+      "title": "We couldn’t extract text from this PDF",
+      "line1": "We couldn’t extract text directly from this PDF.",
+      "line2": "Depending on the document format or encoding, OCR extraction may be needed.",
+      "line3": "Would you like to try OCR extraction?",
+      "helpLink": "*Learn why PDF text extraction can fail",
+      "confirm": "Try OCR extraction"
+    },
+    "loginRequired": {
+      "title": "Login required",
+      "description": "To use this feature, please sign in or create an account.",
+      "loginTab": "Login",
+      "signupTab": "Sign up"
+    },
+    "actions": {
+      "highlight": "Highlight",
+      "shorter": "Make it shorter",
+      "detailed": "Make it more detailed",
+      "terms": "Explain terms",
+      "exportPdf": "Save as PDF",
+      "askGpt": "Ask GPT",
+      "copy": "Copy",
+      "diagramSoon": "🧠 Diagram mode is coming soon."
+    },
+    "input": {
+      "noFile": "No file selected.",
+      "invalidYoutube": "This is not a valid YouTube link.",
+      "processingError": "⚠️ An error occurred during processing.",
+      "extractButton": "Extract source text",
+      "processing": "Processing...",
+      "youtubeLabel": "YouTube video URL",
+      "websiteLabel": "Website URL",
+      "websiteHint": "Most websites are supported, but some protected or login-required sites may not work.",
+      "youtubeExtractPrefix": "🔗 Transcript extracted from the YouTube video.",
+      "websiteExtractPrefix": "🌐 Content extracted from the website.",
+      "ocrExtractPrefix": "📷 Content extracted with OCR.",
+      "fileExtractPrefix": "📄 Content extracted from the uploaded file.",
+      "fetchResultFailed": "❌ There was a problem loading the result.",
+      "youtubeTranscriptFailed": "❌ Failed to extract the YouTube transcript.",
+      "requestFailed": "❌ Failed to process the request.",
+      "requestError": "❌ An error occurred while processing the request.",
+      "networkError": "❌ Network error. Please try again.",
+      "websiteExtractFailed": "❌ Failed to extract website content.",
+      "requestNotFound": "❌ Request not found (missing job ID).",
+      "websiteErrorRetry": "❌ A website request error occurred. Please try again.",
+      "ocrFailed": "❌ OCR processing failed.",
+      "ocrUploadFailed": "❌ Error during OCR upload.",
+      "fileProcessFailed": "❌ Failed to process the file.",
+      "fileUploadFailed": "❌ Error during file upload."
+    }
+  },
+  "ConfirmDialog": {
+    "title": "Reset?",
+    "description": "Your current progress will be removed.",
+    "action": "Reset",
+    "cancel": "Cancel"
+  },
+  "SummaryEditor": {
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "SummarizeOptionsDialog": {
+    "title": "Choose summary options",
+    "enterTextAlert": "Please enter the text to summarize.",
+    "sourceOptional": "Source (optional)",
+    "sourcePlaceholder": "e.g., YouTube link, news URL",
+    "viewTypeTitle": "How to view the summary result",
+    "viewText": "📝 Summary text",
+    "viewDiagram": "📊 Diagram",
+    "viewBoth": "📝+📊 Both",
+    "loading": "Summarizing...",
+    "submit": "Request summary",
+    "cancel": "Cancel"
+  },
+  "MapsDialogs": {
+    "tagMerge": {
+      "title": "Merge tags",
+      "description": "Merge selected tags into one.",
+      "targetLabel": "Target tag",
+      "targetPlaceholder": "Tag name to merge into",
+      "confirm": "Merge",
+      "cancel": "Cancel"
+    }
+  },
+  "ClientMindElixir": {
+    "miniMap": {
+      "label": "Mini map",
+      "center": "Center",
+      "zoomIn": "Zoom in (⌘+)",
+      "zoomOut": "Zoom out (⌘-)",
+      "collapseOneLevel": "Collapse one level",
+      "expandOneLevel": "Expand one level"
+    },
+    "mobileEdit": {
+      "title": "Edit node",
+      "moreActions": "More"
+    },
+    "annotation": {
+      "title": "Annotation",
+      "placeholder": "Write an annotation",
+      "add": "Add annotation",
+      "delete": "Delete annotation"
+    },
+    "highlight": "Highlight",
+    "focusMode": {
+      "label": "Focus mode",
+      "exit": "Exit"
+    },
+    "common": {
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "contextMenu": {
+      "copyMarkdown": "Copy as Markdown",
+      "copyExpandedMarkdown": "Copy expanded nodes as Markdown",
+      "copySuccess": "Copied the markdown.",
+      "copyFail": "Failed to copy."
+    },
+    "timestamp": {
+      "hms": "{h}h {m}m {s}s",
+      "ms": "{m}m {s}s",
+      "s": "{s}s"
+    }
+  },
+  "NoteButton": {
+    "label": "Notes",
+    "withCount": "Notes ({count})"
+  },
+  "ProTooltipButton": {
+    "description": "Available on the Pro plan.",
+    "cta": "View pricing"
+  },
+  "SummaryViewer": {
+    "edit": "Edit"
   },
   "RefundPolicyPage": {
     "badge": "BRIFY REFUND POLICY",

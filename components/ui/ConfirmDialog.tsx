@@ -2,6 +2,7 @@
 
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { Icon } from "@iconify/react";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 interface ConfirmDialogProps {
@@ -21,14 +22,20 @@ export default function ConfirmDialog({
   open,
   onOpenChange,
   onConfirm,
-  title = "초기화할까요?",
-  description = "진행 중이던 내용이 모두 사라집니다.",
-  actionLabel = "초기화",
-  cancelLabel = "취소",
+  title,
+  description,
+  actionLabel,
+  cancelLabel,
   tone = "danger",
   titleClassName,
   descriptionClassName,
 }: ConfirmDialogProps) {
+  const t = useTranslations("ConfirmDialog");
+  const resolvedTitle = title ?? t("title");
+  const resolvedDescription = description ?? t("description");
+  const resolvedActionLabel = actionLabel ?? t("action");
+  const resolvedCancelLabel = cancelLabel ?? t("cancel");
+
   const actionClasses =
     tone === "danger"
       ? "bg-rose-600 hover:bg-rose-700 text-white shadow-[0_10px_30px_-18px_rgba(225,29,72,0.8)] dark:bg-rose-500 dark:hover:bg-rose-400 dark:text-white"
@@ -52,7 +59,7 @@ export default function ConfirmDialog({
           <AlertDialog.Cancel asChild>
             <button
               type="button"
-              aria-label={cancelLabel}
+              aria-label={resolvedCancelLabel}
               className="
                 absolute right-4 top-4 z-10
                 inline-flex items-center justify-center
@@ -83,7 +90,7 @@ export default function ConfirmDialog({
                 .filter(Boolean)
                 .join(" ")}
             >
-              {title}
+              {resolvedTitle}
             </AlertDialog.Title>
           </div>
 
@@ -95,7 +102,7 @@ export default function ConfirmDialog({
               .filter(Boolean)
               .join(" ")}
           >
-            {description}
+            {resolvedDescription}
           </AlertDialog.Description>
 
           <div className="relative mt-5 flex justify-end gap-2">
@@ -107,7 +114,7 @@ export default function ConfirmDialog({
                   dark:border-white/20 dark:bg-white/[0.08] dark:text-white/90 dark:hover:bg-white/[0.12]
                 "
               >
-                {cancelLabel}
+                {resolvedCancelLabel}
               </button>
             </AlertDialog.Cancel>
             <AlertDialog.Action asChild>
@@ -118,7 +125,7 @@ export default function ConfirmDialog({
                   ${actionClasses}
                 `}
               >
-                {actionLabel}
+                {resolvedActionLabel}
               </button>
             </AlertDialog.Action>
           </div>

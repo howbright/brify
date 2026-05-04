@@ -13,7 +13,7 @@ export default function SignupForm() {
   const supabase = createClient();
   const t = useTranslations("signup");
   const locale = useLocale();
-  const lang = locale === "ko" ? "ko" : "en";
+  const lang = locale;
 
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");

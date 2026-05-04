@@ -3,6 +3,7 @@
 import { Icon } from "@iconify/react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface Props {
   tags: string[];
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function EditableTags({ tags, onChange, isLoading }: Props) {
+  const t = useTranslations("SummarizePage.tags");
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [newTag, setNewTag] = useState("");
   const [editValue, setEditValue] = useState("");
@@ -94,7 +96,7 @@ export default function EditableTags({ tags, onChange, isLoading }: Props) {
                 side="top"
                 className="bg-black text-white text-xs rounded px-2 py-1 shadow-md"
               >
-                더블 클릭하여 수정
+                {t("doubleClickToEdit")}
                 <Tooltip.Arrow className="fill-black" />
               </Tooltip.Content>
             </Tooltip.Portal>
@@ -108,7 +110,7 @@ export default function EditableTags({ tags, onChange, isLoading }: Props) {
           value={newTag}
           onChange={(e) => setNewTag(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
-          placeholder="태그 추가"
+          placeholder={t("addTag")}
           className="px-3 py-1 text-sm rounded-full border border-gray-300 dark:border-white/20 bg-white dark:bg-black text-gray-800 dark:text-white"
         />
         <Tooltip.Root>
@@ -125,7 +127,7 @@ export default function EditableTags({ tags, onChange, isLoading }: Props) {
               side="top"
               className="bg-black text-white text-xs rounded px-2 py-1 shadow-md"
             >
-              태그 추가
+              {t("addTag")}
               <Tooltip.Arrow className="fill-black" />
             </Tooltip.Content>
           </Tooltip.Portal>
