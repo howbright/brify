@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import ShortcutsDialog from "@/components/maps/ShortcutsDialog";
 import ConfirmShareDialog from "@/components/maps/ConfirmShareDialog";
-import { useLocale, useMessages } from "next-intl";
+import { useTranslations } from "next-intl";
 
 type ShortcutMap = Partial<
   Record<
@@ -22,44 +22,6 @@ type ShortcutMap = Partial<
   >
 >;
 
-type MapControlsMessages = {
-  mode?: {
-    view?: string;
-    viewAria?: string;
-    edit?: string;
-    editAria?: string;
-  };
-  pan?: {
-    select?: string;
-    selectAria?: string;
-    move?: string;
-    moveAria?: string;
-  };
-  menus?: {
-    mapActions?: string;
-    theme?: string;
-    more?: string;
-  };
-  actions?: {
-    center?: string;
-    zoomIn?: string;
-    zoomOut?: string;
-    collapseAll?: string;
-    expandAll?: string;
-    expandLevel?: string;
-    collapseLevel?: string;
-    alignLeft?: string;
-    alignRight?: string;
-    alignCenter?: string;
-    exportPng?: string;
-    share?: string;
-    shortcuts?: string;
-    tutorial?: string;
-    closeMap?: string;
-    timestampsShow?: string;
-    timestampsHide?: string;
-  };
-};
 
 export default function MapControls({
   editMode,
@@ -126,116 +88,56 @@ export default function MapControls({
   hidePanToggle?: boolean;
   hideEditToggle?: boolean;
 }) {
-  const locale = useLocale();
-  const messages = useMessages() as { MapControls?: MapControlsMessages };
-  const fallback =
-    locale === "ko"
-      ? {
-          mode: {
-            view: "보기",
-            viewAria: "보기 모드",
-            edit: "편집",
-            editAria: "편집 모드",
-          },
-          pan: {
-            select: "선택",
-            selectAria: "선택 모드",
-            move: "이동",
-            moveAria: "이동 모드",
-          },
-          menus: {
-            mapActions: "맵 조작",
-            theme: "테마",
-            more: "더보기",
-          },
-          actions: {
-            center: "가운데로",
-            zoomIn: "확대",
-            zoomOut: "축소",
-            collapseAll: "전체 접기",
-            expandAll: "전체 펴기",
-            expandLevel: "한단계 펴기",
-            collapseLevel: "한단계 접기",
-            alignLeft: "왼쪽 정렬",
-            alignRight: "오른쪽 정렬",
-            alignCenter: "가운데 정렬",
-            exportPng: "이미지로 저장 (PNG)",
-            share: "공유",
-            shortcuts: "단축키",
-            tutorial: "튜토리얼",
-            closeMap: "맵 닫기",
-            timestampsShow: "타임스탬프 보기",
-            timestampsHide: "타임스탬프 숨기기",
-          },
-        }
-      : {
-          mode: {
-            view: "View",
-            viewAria: "View mode",
-            edit: "Edit",
-            editAria: "Edit mode",
-          },
-          pan: {
-            select: "Select",
-            selectAria: "Select mode",
-            move: "Pan",
-            moveAria: "Pan mode",
-          },
-          menus: {
-            mapActions: "Map actions",
-            theme: "Theme",
-            more: "More",
-          },
-          actions: {
-            center: "Center",
-            zoomIn: "Zoom in",
-            zoomOut: "Zoom out",
-            collapseAll: "Collapse all",
-            expandAll: "Expand all",
-            expandLevel: "Expand one level",
-            collapseLevel: "Collapse one level",
-            alignLeft: "Align left",
-            alignRight: "Align right",
-            alignCenter: "Center align",
-            exportPng: "Save as image (PNG)",
-            share: "Share",
-            shortcuts: "Shortcuts",
-            tutorial: "Tutorial",
-            closeMap: "Close map",
-            timestampsShow: "Show timestamps",
-            timestampsHide: "Hide timestamps",
-          },
-        };
+  const t = useTranslations("MapControls");
   const copy = {
-    mode: { ...fallback.mode, ...messages.MapControls?.mode },
-    pan: { ...fallback.pan, ...messages.MapControls?.pan },
-    menus: { ...fallback.menus, ...messages.MapControls?.menus },
-    actions: { ...fallback.actions, ...messages.MapControls?.actions },
+    mode: {
+      view: t("mode.view"),
+      viewAria: t("mode.viewAria"),
+      edit: t("mode.edit"),
+      editAria: t("mode.editAria"),
+    },
+    pan: {
+      select: t("pan.select"),
+      selectAria: t("pan.selectAria"),
+      move: t("pan.move"),
+      moveAria: t("pan.moveAria"),
+    },
+    menus: {
+      mapActions: t("menus.mapActions"),
+      theme: t("menus.theme"),
+      more: t("menus.more"),
+    },
+    actions: {
+      center: t("actions.center"),
+      zoomIn: t("actions.zoomIn"),
+      zoomOut: t("actions.zoomOut"),
+      collapseAll: t("actions.collapseAll"),
+      expandAll: t("actions.expandAll"),
+      expandLevel: t("actions.expandLevel"),
+      collapseLevel: t("actions.collapseLevel"),
+      alignLeft: t("actions.alignLeft"),
+      alignRight: t("actions.alignRight"),
+      alignCenter: t("actions.alignCenter"),
+      exportPng: t("actions.exportPng"),
+      share: t("actions.share"),
+      shortcuts: t("actions.shortcuts"),
+      tutorial: t("actions.tutorial"),
+      closeMap: t("actions.closeMap"),
+      timestampsShow: t("actions.timestampsShow"),
+      timestampsHide: t("actions.timestampsHide"),
+    },
   };
-  const shortcuts: ShortcutMap =
-    locale === "ko"
-      ? {
-          center: "F1",
-          zoomIn: "Ctrl + +",
-          zoomOut: "Ctrl + -",
-          collapseAll: "Ctrl + K, Ctrl + 0",
-          expandAll: "Ctrl + K, Ctrl + =",
-          expandLevel: "Ctrl + K",
-          alignLeft: "Ctrl + ←",
-          alignRight: "Ctrl + →",
-          alignCenter: "Ctrl + ↑",
-        }
-      : {
-          center: "F1",
-          zoomIn: "Ctrl + +",
-          zoomOut: "Ctrl + -",
-          collapseAll: "Ctrl + K, Ctrl + 0",
-          expandAll: "Ctrl + K, Ctrl + =",
-          expandLevel: "Ctrl + K",
-          alignLeft: "Ctrl + ←",
-          alignRight: "Ctrl + →",
-          alignCenter: "Ctrl + ↑",
-        };
+  const shortcuts: ShortcutMap = {
+    center: "F1",
+    zoomIn: "Ctrl + +",
+    zoomOut: "Ctrl + -",
+    collapseAll: "Ctrl + K, Ctrl + 0",
+    expandAll: "Ctrl + K, Ctrl + =",
+    expandLevel: "Ctrl + K",
+    alignLeft: "Ctrl + ←",
+    alignRight: "Ctrl + →",
+    alignCenter: "Ctrl + ↑",
+  };
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [confirmShareOpen, setConfirmShareOpen] = useState(false);
   const [mapActionsOpen, setMapActionsOpen] = useState(false);
@@ -246,19 +148,12 @@ export default function MapControls({
   const moreRef = useRef<HTMLDivElement>(null);
   const themeRef = useRef<HTMLDivElement>(null);
   const shortcutHintRef = useRef<HTMLDivElement>(null);
-  const shortcutHintItems =
-    locale === "ko"
-      ? [
-          { label: "가운데로", value: shortcuts.center },
-          { label: "확대", value: shortcuts.zoomIn },
-          { label: "축소", value: shortcuts.zoomOut },
-        ]
-      : [
-          { label: "Center", value: shortcuts.center },
-          { label: "Zoom in", value: shortcuts.zoomIn },
-          { label: "Zoom out", value: shortcuts.zoomOut },
-        ];
-  const shortcutHintLabel = locale === "ko" ? "힌트" : "Hint";
+  const shortcutHintItems = [
+    { label: copy.actions.center, value: shortcuts.center },
+    { label: copy.actions.zoomIn, value: shortcuts.zoomIn },
+    { label: copy.actions.zoomOut, value: shortcuts.zoomOut },
+  ];
+  const shortcutHintLabel = t("hint.label");
 
   useEffect(() => {
     if (!mapActionsOpen && !moreOpen && !themeOpen && !shortcutHintOpen) return;
@@ -419,7 +314,7 @@ export default function MapControls({
                       dark:hover:bg-[#63ffae]
                     "
                     aria-expanded={shortcutHintOpen}
-                    aria-label={locale === "ko" ? "단축키 힌트 토글" : "Toggle shortcut hint"}
+                    aria-label={t("hint.toggleAria")}
                   >
                     {shortcutHintLabel}
                   </button>

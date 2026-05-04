@@ -59,8 +59,8 @@ function cx(...xs: (string | false | null | undefined)[]) {
 export default function PricingGrid({
   packs,
   isAuthed,
-  signedInHref = "/billing",
-  signedOutHref = "/login",
+  signedInHref,
+  signedOutHref,
   signedInLabel,
   signedOutLabel,
   showFooterNote = true,
@@ -85,6 +85,8 @@ export default function PricingGrid({
   const t = useTranslations("PricingGrid");
   const tLanding = useTranslations("LandingPricingSection");
   const locale = useLocale();
+  const resolvedSignedInHref = signedInHref ?? `/${locale}/billing`;
+  const resolvedSignedOutHref = signedOutHref ?? `/${locale}/login`;
 
   const isCompact = variant === "compact";
   const [openDetails, setOpenDetails] = useState(showCreditRuleByDefault);
@@ -292,7 +294,7 @@ export default function PricingGrid({
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="text-[10px] font-black uppercase tracking-[0.16em] text-blue-900/80 dark:text-sky-200/90">
-                        Credit Pack
+                        {t("cardLabel")}
                       </div>
                       <div className="mt-1 text-[30px] font-extrabold leading-none tracking-[-0.04em] text-slate-950 dark:text-white">
                         {p.credits.toLocaleString()}
@@ -364,11 +366,11 @@ export default function PricingGrid({
               <div className="mt-4 flex-1" />
 
               {isAuthed ? (
-                <Link href={signedInHref} className={ctaBtn}>
+                <Link href={resolvedSignedInHref} className={ctaBtn}>
                   {labelSignedIn}
                 </Link>
               ) : (
-                <Link href={signedOutHref} className={ctaBtn}>
+                <Link href={resolvedSignedOutHref} className={ctaBtn}>
                   {labelSignedOut}
                 </Link>
               )}

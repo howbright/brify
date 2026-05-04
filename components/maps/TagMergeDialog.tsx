@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 type TagMergeDialogProps = {
@@ -16,6 +17,7 @@ export default function TagMergeDialog({
   selectedTags,
   onConfirm,
 }: TagMergeDialogProps) {
+  const t = useTranslations("MapsDialogs.tagMerge");
   const [target, setTarget] = useState("");
 
   useEffect(() => {
@@ -29,10 +31,10 @@ export default function TagMergeDialog({
         <div className="flex flex-col gap-4">
           <div>
             <h3 className="text-lg md:text-xl font-bold text-blue-700 dark:text-[rgb(var(--hero-b))]">
-              태그 합치기
+              {t("title")}
             </h3>
             <p className="mt-3 text-base font-semibold text-neutral-900 dark:text-white">
-              선택한 태그를 하나로 통합합니다.
+              {t("description")}
             </p>
           </div>
 
@@ -55,12 +57,12 @@ export default function TagMergeDialog({
 
           <div className="flex flex-col gap-2">
               <label className="text-base font-semibold text-neutral-900 dark:text-white">
-              기준 태그
+              {t("targetLabel")}
             </label>
             <input
               value={target}
               onChange={(event) => setTarget(event.target.value)}
-              placeholder="합칠 태그 이름"
+              placeholder={t("targetPlaceholder")}
               className="w-full rounded-2xl border border-slate-400 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-200/70 dark:border-white/20 dark:bg-white/[0.08] dark:text-white dark:placeholder:text-white/40 dark:focus:border-white dark:focus:ring-white/20"
             />
           </div>
@@ -71,7 +73,7 @@ export default function TagMergeDialog({
               onClick={() => onOpenChange(false)}
               className="rounded-2xl border border-slate-400 bg-white px-3 py-1.5 text-xs md:text-sm font-semibold text-neutral-700 hover:bg-neutral-100 dark:border-white/20 dark:bg-white/[0.08] dark:text-white/90 dark:hover:bg-white/[0.12]"
             >
-              취소
+              {t("cancel")}
             </button>
             <button
               type="button"
@@ -79,7 +81,7 @@ export default function TagMergeDialog({
               onClick={() => onConfirm(target.trim())}
               className="rounded-2xl bg-blue-600 px-3.5 py-1.5 text-xs md:text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[rgb(var(--hero-b))] dark:hover:bg-[rgb(var(--hero-a))] dark:text-neutral-950"
             >
-              합치기
+              {t("confirm")}
             </button>
           </div>
         </div>

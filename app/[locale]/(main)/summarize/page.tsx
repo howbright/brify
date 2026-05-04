@@ -9,7 +9,7 @@ import { useSession } from "@/components/SessionProvider";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { motion, type Variants, easeOut } from "framer-motion";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import EditableTags from "./EditableTags";
@@ -36,6 +36,8 @@ const fadeInUp: Variants = {
 
 export default function SummarizePage() {
   const locale = useLocale();
+  const t = useTranslations("SummarizePage");
+  const cancelLabel = t("dialog.cancel");
   const { session } = useSession();
   const [sourceType, setSourceType] = useState<SourceType>(SourceType.YOUTUBE);
   const [rawText, setRawText] = useState("");
@@ -77,10 +79,10 @@ export default function SummarizePage() {
 
   useEffect(() => {
     if (sourceType === SourceType.MANUAL && !rawText) {
-      setRawText("✍️ 여기에 정리할 내용을 입력해주세요.");
+      setRawText(t("editor.manualPlaceholderWithIcon"));
       setExtractionSucceeded(true);
     }
-  }, [sourceType, rawText]);
+  }, [sourceType, rawText, t]);
 
   useEffect(() => {
     if (!summaryStatus.data) return;
@@ -92,9 +94,11 @@ export default function SummarizePage() {
       setTextSummary(summaryStatus.data.detailedSummaryText ?? "");
       setHasSummarized(true);
     } else if (summaryStatus.data.status === "failed") {
-      toast.error(summaryStatus.data.errorMessage || "요약에 실패했습니다.");
+      toast.error(
+        summaryStatus.data.errorMessage || t("toast.summaryFailed")
+      );
     }
-  }, [summaryStatus.data]);
+  }, [summaryStatus.data, t]);
 
   useEffect(() => {
     const runPendingSummarization = async () => {
@@ -184,8 +188,9 @@ export default function SummarizePage() {
           animate="animate"
         >
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-6 text-center">
-            어떤 내용을 정리할까요? <br className="hidden sm:block" />
-            먼저 출처를 골라주세요.
+            {t("hero.title")}{" "}
+            <br className="hidden sm:block" />
+            {t("hero.subtitle")}
           </h3>
 
           <div className="flex justify-center">
@@ -204,6 +209,7 @@ export default function SummarizePage() {
               open={confirmDialogOpen}
               onOpenChange={setConfirmDialogOpen}
               onConfirm={handleConfirmInit}
+              cancelLabel={cancelLabel}
             />
           </div>
         </motion.section>
@@ -236,14 +242,18 @@ export default function SummarizePage() {
                   setTags(newTags); // optimistic update
 
                   if (!summaryId) {
-                    toast.error("요약 ID가 없습니다.");
+                    toast.error(
+                      t("toast.missingSummaryId")
+                    );
                     return;
                   }
                   updateKeywords(
                     { summaryId, keywords: newTags },
                     {
-                      onSuccess: () => toast.success("키워드가 저장되었습니다."),
-                      onError: () => toast.error("키워드 저장 실패"),
+                      onSuccess: () =>
+                        toast.success(t("toast.keywordsSaved")),
+                      onError: () =>
+                        toast.error(t("toast.keywordsSaveFailed")),
                     }
                   );
                 }}
@@ -252,7 +262,7 @@ export default function SummarizePage() {
             </div>
 
             <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-white mb-4 text-center">
-              이제 요약 결과를 나만의 정리 스타일로 완성해보세요.
+              {t("result.title")}
             </h3>
 
             <div className="w-full">

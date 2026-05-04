@@ -599,6 +599,7 @@ export default function VideoToMapPage() {
     setShowCreditDialog(true);
   };
 
+
   /**
    * ✅ URL로 영상 대본 채우기 (모달에서 실행)
    */
@@ -1105,7 +1106,7 @@ export default function VideoToMapPage() {
         >
           {/* ✅ 입력영역 ↔ 결과패널 */}
           {viewMode === "input" ? (
-            <ScriptInputCard
+        <ScriptInputCard
               inputMode={inputMode}
               onChangeInputMode={setInputMode}
               onSelectDocxFile={handleSelectDocxFile}
@@ -1126,8 +1127,8 @@ export default function VideoToMapPage() {
               isProcessing={inputLocked}
               currentCredits={currentCredits}
               requiredCredits={requiredCredits}
-              onGenerate={handleClickGenerate}
-              onOpenBilling={() => router.push(`/${locale}/billing`)}
+          onGenerate={handleClickGenerate}
+          onOpenBilling={() => router.push(`/${locale}/billing`)}
               onOpenYoutubeDialog={() => {
                 setYoutubeError(null);
                 setYoutubeSuccess(null);

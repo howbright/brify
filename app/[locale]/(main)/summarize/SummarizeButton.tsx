@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 interface Props {
   onSummarize: () => void;
@@ -10,7 +11,10 @@ interface Props {
 }
 
 export default function SummarizeButton({ onSummarize, loading, disabled }: Props) {
+  const t = useTranslations("SummarizePage.button");
   const isDisabled = loading || disabled;
+  const loadingLabel = t("loading");
+  const actionLabel = t("submit");
 
   return (
     <div className="flex justify-center">
@@ -26,11 +30,11 @@ export default function SummarizeButton({ onSummarize, loading, disabled }: Prop
         {loading ? (
           <>
             <Icon icon="lucide:loader" className="animate-spin" width={18} />
-            요약 중...
+            {loadingLabel}
           </>
         ) : (
           <>
-            <span>핵심정리하기</span>
+            <span>{actionLabel}</span>
             <Icon
               icon="lucide:sparkles"
               width={18}

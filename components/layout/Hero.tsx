@@ -185,7 +185,6 @@ function HeroDiagramImage({
 export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boolean }) {
   const t = useTranslations("LandingBlueHero");
   const locale = useLocale();
-  const isKo = locale === "ko";
   const demoShareToken = locale === "en"
     ? "3a805093-2bcf-484c-8a2d-e9d4f676d88e"
     : "0eb4b0cd-ef56-4078-ba9d-f37cbdc43aad";
@@ -335,7 +334,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
 
           {/* title + slide handle */}
           <div className="mt-3 flex items-start gap-3">
-            <div className="relative min-w-0 flex-1 h-[6.6rem] sm:h-[8rem] md:h-[10.5rem]">
+            <div className="relative min-w-0 flex-1 min-h-[6.6rem] sm:min-h-[8rem] md:min-h-[10.5rem]">
               <AnimatePresence mode="wait">
                 <motion.h1
                   key={safeIdx}
@@ -344,7 +343,6 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
                   exit={{ opacity: 0, x: -28 }}
                   transition={{ duration: 0.35, ease: "easeOut" }}
                   className="
-                    absolute inset-0
                     text-3xl sm:text-4xl md:text-5xl
                     font-extrabold leading-[1.1]
                     text-neutral-900 [overflow-wrap:anywhere] dark:text-white
@@ -480,20 +478,20 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
         <div className="rounded-3xl border border-slate-300/90 bg-white/82 p-4 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.36)] backdrop-blur-sm dark:border-white/15 dark:bg-white/[0.04]">
           <div className="mb-4 flex items-center justify-between gap-4">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 md:text-xl">
-              {isKo ? "예시 구조맵 이미지" : "Sample mind map image"}
+              {t("sampleSection.title")}
             </h2>
             <Link
               href={isAuthed ? "/video-to-map" : "/signup?next=%2Fvideo-to-map"}
               className="inline-flex items-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
             >
-              {isKo ? "내 맵 만들기" : "Sign up to create your own"}
+              {t("sampleSection.cta")}
             </Link>
           </div>
 
           <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
             <Image
               src="/images/example.png"
-              alt={isKo ? "브라이피 구조맵 예시 이미지" : "Brify mind map example image"}
+              alt={t("sampleSection.imageAlt")}
               fill
               sizes="(max-width: 1024px) 100vw, 1100px"
               className="object-cover"

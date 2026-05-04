@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 export interface SummaryActionsProps {
   mode: "text" | "diagram";
@@ -24,43 +25,45 @@ export default function SummaryActions({
   onCopy,
   text
 }: SummaryActionsProps) {
+  const t = useTranslations("SummarizePage.actions");
+
   return (
     <div className="mt-4 border-t pt-4 border-gray-200 dark:border-white/10">
       <div className="flex flex-wrap gap-3 justify-center text-sm">
         {mode === "text" && (
           <>
             <ActionButton
-              label="하이라이트"
+              label={t("highlight")}
               icon="mdi:highlighter"
               onClick={onHighlight}
             />
             <ActionButton
-              label="더 간단하게 요약"
+              label={t("shorter")}
               icon="lucide:sparkles"
               onClick={() => onRegenerate?.("short")}
             />
             <ActionButton
-              label="더 자세히 요약"
+              label={t("detailed")}
               icon="lucide:scan-line"
               onClick={() => onRegenerate?.("detailed")}
             />
             <ActionButton
-              label="전문용어 정리"
+              label={t("terms")}
               icon="material-symbols:translate"
               onClick={onExplainTerms}
             />
             <ActionButton
-              label="PDF로 저장"
+              label={t("exportPdf")}
               icon="mdi:file-pdf-box"
               onClick={onExportPDF}
             />
             <ActionButton
-              label="GPT에게 질문하기"
+              label={t("askGpt")}
               icon="lucide:bot"
               onClick={onAskGPT}
             />
             <ActionButton
-              label="복사하기"
+              label={t("copy")}
               icon="mdi:content-copy"
               onClick={() => onCopy?.(text)} 
             />
@@ -69,7 +72,7 @@ export default function SummaryActions({
 
         {mode === "diagram" && (
           <p className="text-gray-500 dark:text-gray-400">
-            🧠 다이어그램 기능은 준비 중이에요!
+            {t("diagramSoon")}
           </p>
         )}
       </div>

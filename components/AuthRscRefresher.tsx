@@ -9,9 +9,14 @@ import { createClient } from "@/utils/supabase/client";
 export default function AuthRscRefresher() {
   const router = useRouter();
   const didReceiveFirstEventRef = useRef(false);
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
+
+  if (!supabaseRef.current) {
+    supabaseRef.current = createClient();
+  }
 
   useEffect(() => {
-    const supabase = createClient();
+    const supabase = supabaseRef.current!;
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       // 모바일 첫 진입 직후 INITIAL_SESSION/TOKEN_REFRESHED로 인한
       // 불필요한 refresh(체감상 자동 재로딩)를 방지한다.

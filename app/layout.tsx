@@ -21,8 +21,10 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const v = cookieStore.get("NEXT_LOCALE")?.value;
 
-  // 관리자는 한국인 기본값 ko
-  const locale: "en" | "ko" = v === "en" || v === "ko" ? v : "ko";
+  // Root html lang should support every public locale.
+  // (Admin locale policy is handled in admin routes.)
+  const locale: "en" | "ko" | "fr" =
+    v === "en" || v === "ko" || v === "fr" ? v : "en";
 
   return (
     <html lang={locale} suppressHydrationWarning>

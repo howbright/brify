@@ -13,10 +13,9 @@ export default function LoginForm() {
   const t = useTranslations("login");
   const locale = useLocale(); // e.g. "ko", "en", ...
   const router = useRouter();
-  const lang = locale === "ko" ? "ko" : "en";
-  const signupQuestion =
-    locale === "ko" ? "아직 계정이 없으신가요?" : "Don’t have an account yet?";
-  const signupLinkLabel = locale === "ko" ? "회원가입 하기" : "Sign up";
+  const lang = locale;
+  const signupQuestion = t("signup.question");
+  const signupLinkLabel = t("signup.link");
 
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");

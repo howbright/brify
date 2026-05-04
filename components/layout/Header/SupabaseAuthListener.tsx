@@ -7,10 +7,15 @@ import { createClient } from "@/utils/supabase/client";
 
 export default function SupabaseAuthListener() {
   const router = useRouter();
-  const supabase = createClient();
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
   const didReceiveFirstEventRef = useRef(false);
 
+  if (!supabaseRef.current) {
+    supabaseRef.current = createClient();
+  }
+
   useEffect(() => {
+    const supabase = supabaseRef.current!;
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, _session) => {
@@ -30,7 +35,7 @@ export default function SupabaseAuthListener() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [router, supabase]);
+  }, [router]);
 
   return null;
 }

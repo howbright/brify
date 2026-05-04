@@ -188,9 +188,9 @@ export default function BillingReceiptPage({
   // 로그인 안 되어 있으면 로그인 페이지로
   useEffect(() => {
     if (!session) {
-      router.push("/login");
+      router.push(`/${locale}/login?next=${encodeURIComponent(`/${locale}/billing/receipt/${id}`)}`);
     }
-  }, [session, router]);
+  }, [session, router, locale, id]);
 
   // id로 결제내역 찾기
   const payment = useMemo(
@@ -254,7 +254,7 @@ export default function BillingReceiptPage({
       <header className="mx-auto max-w-5xl px-6 md:px-10 pt-20">
         <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
           <Link
-            href="/billing/history"
+            href={`/${locale}/billing/history`}
             className="hover:underline hover:text-neutral-800 dark:hover:text-neutral-200"
           >
             {historyLabel}
@@ -277,7 +277,7 @@ export default function BillingReceiptPage({
 
           <div className="mt-3 md:mt-0 flex gap-2 justify-start md:justify-end">
             <Link
-              href="/billing/history"
+              href={`/${locale}/billing/history`}
               className="
                 inline-flex items-center justify-center rounded-2xl
                 border border-neutral-200/80 bg-white/80 px-4 py-2 text-xs sm:text-sm font-medium
@@ -323,7 +323,7 @@ export default function BillingReceiptPage({
               </p>
               <div className="mt-4">
                 <Link
-                  href="/billing/history"
+                  href={`/${locale}/billing/history`}
                   className="
                     inline-flex items-center justify-center rounded-2xl
                     border border-neutral-200/80 bg-white px-4 py-2 text-xs sm:text-sm font-medium

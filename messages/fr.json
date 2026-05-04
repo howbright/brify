@@ -1,0 +1,2067 @@
+{
+  "VideoToMapPage": {
+    "title": {
+      "prefix": "Transformez le texte",
+      "highlight": "en mind map"
+    },
+    "description": {
+      "beforeBold": "Collez la transcription complète de votre vidéo",
+      "bold": "telle quelle,",
+      "afterBold": "et nous la transformerons en mind map pour visualiser d’un coup d’œil le flux et la hiérarchie."
+    },
+    "inputSection": {
+      "title": "Collez la transcription de votre vidéo",
+      "placeholder": "Collez ici la transcription complète de votre vidéo YouTube, cours ou sermon..."
+    },
+    "credits": {
+      "label": "Mes crédits",
+      "unit": "crédits",
+      "rule": "Par défaut, 1 crédit couvre jusqu’à {threshold, number} caractères. Au-delà, 2 crédits sont nécessaires."
+    },
+    "buttons": {
+      "generate": "Créer une mind map à partir de cette transcription",
+      "generating": "Création de votre mind map..."
+    },
+    "status": {
+      "reading": "Lecture du contenu...",
+      "splittingFlow": "Découpage en sections principales...",
+      "arrangingStructure": "Organisation en mind map...",
+      "almostThere": "Presque terminé. Encore un instant !"
+    },
+    "processing": {
+      "title": "Nous organisons votre contenu en mind map...",
+      "bullet1": "Nous ne faisons pas qu’un résumé : nous analysons d’abord le flux, les étapes et les branches.",
+      "bullet2": "Selon la longueur de la vidéo, cela peut prendre plusieurs dizaines de secondes ou plus.",
+      "bullet3": "Tant que vous gardez cette page ouverte, le traitement continue automatiquement."
+    },
+    "result": {
+      "title": "Mind map générée",
+      "hint": "Plus tard, vous pourrez brancher ici votre composant de mind map réel.",
+      "description": "Pour l’instant, nous affichons la réponse API brute en JSON. À terme, cette zone affichera une vue React Flow / mind map."
+    },
+    "modal": {
+      "title": "Confirmer l’utilisation des crédits",
+      "usageText": "Transformer cette transcription en mind map utilisera {credits} crédit(s).",
+      "bullet1": "Plus la vidéo est longue, plus le traitement peut prendre du temps.",
+      "bullet2": "Une fois lancé, ce traitement ne peut pas être annulé et les crédits utilisés ne sont pas remboursables.",
+      "bullet3": "Nous recommandons de garder cette page ouverte pendant le traitement.",
+      "cancel": "Annuler",
+      "confirmButton": "Utiliser {credits} crédit(s) et continuer"
+    },
+    "errors": {
+      "emptyScript": "Veuillez d’abord coller la transcription dans le champ ci-dessous.",
+      "insufficientCredits": "Vous n’avez pas assez de crédits pour créer cette mind map. Veuillez recharger vos crédits.",
+      "creditAvailabilityMismatch": "Le total de vos crédits et vos crédits utilisables diffèrent. Utilisables : {usable} / Total : {raw}. Certains crédits peuvent être expirés ou nécessiter une resynchronisation.",
+      "requestFailed": "La requête vers le serveur a échoué. Veuillez réessayer dans un instant.",
+      "unknown": "Une erreur inconnue est survenue.",
+      "processingFailed": "Une erreur est survenue pendant le traitement.",
+      "openMapFailed": "Impossible de charger la mind map.",
+      "missingMindData": "Les données mind_elixir sont manquantes.",
+      "tooLargeLine1": "La taille de l’entrée est trop grande pour être traitée pour le moment.",
+      "tooLargeLine2": "Maximum : {max} caractères (longueur de facturation)",
+      "tooLargeLine3": "Actuel : {current} caractères (longueur de facturation)",
+      "youtubeUrlRequired": "Veuillez saisir une URL YouTube.",
+      "fileRequired": "Veuillez sélectionner un fichier à téléverser.",
+      "fileTooLarge": "Le fichier est trop volumineux. Veuillez téléverser un fichier de {maxMb}MB maximum.",
+      "docxUnsupportedType": "Seuls les fichiers .docx sont pris en charge.",
+      "pdfUnsupportedType": "Seuls les fichiers .pdf sont pris en charge.",
+      "encryptedPdf": "Les PDF chiffrés ne sont pas encore pris en charge. Retirez le mot de passe puis réessayez.",
+      "moduleNotInstalled": "Le module d’extraction de fichier n’est pas installé. Veuillez contacter l’administrateur.",
+      "sessionFailed": "Impossible de récupérer la session : {message}",
+      "loginRequired": "Veuillez d’abord vous connecter.",
+      "missingApiBase": "NEXT_PUBLIC_API_BASE_URL est manquant.",
+      "youtubeFetchFailed": "Échec de récupération de la transcription.",
+      "docxNoText": "Impossible d’extraire du texte depuis le document. Veuillez essayer un autre fichier .docx.",
+      "docxProcessFailed": "Une erreur est survenue pendant le traitement du document. Veuillez réessayer.",
+      "pdfNoText": "Impossible d’extraire du texte du PDF. Il peut s’agir d’un PDF image (scan), et certains PDF créés via l’impression s’extraient mal.",
+      "pdfProcessFailed": "Une erreur est survenue pendant le traitement du PDF. Veuillez réessayer.",
+      "noTranscriptFound": "Impossible de trouver des sous-titres ou une transcription. (La vidéo peut ne pas avoir de sous-titres.)",
+      "missingMapId": "mapId est manquant.",
+      "createFailed": "Échec de création de la mind map.",
+      "createTimedOut": "La création de la carte prend trop de temps. Le serveur peut être ralenti, veuillez réessayer dans un instant."
+    },
+    "messages": {
+      "youtubeFilled": "La transcription récupérée a été insérée dans le champ. Vous pouvez créer la carte immédiatement.",
+      "insufficientCreditsToast": "Crédits insuffisants.",
+      "docxExtractSuccess": "Extraction du texte terminée.",
+      "pdfExtractSuccess": "Extraction du texte PDF terminée.",
+      "pdfExtractWithWarning": "Extraction terminée, mais certains contenus peuvent manquer. Il peut s’agir d’un PDF image ou d’un PDF créé via impression."
+    },
+    "labels": {
+      "untitled": "Sans titre",
+      "draftsTitle": "Mind maps créées",
+      "previewTitle": "Aperçu de la mind map"
+    }
+  },
+  "ScriptInputCard": {
+    "lockedMessage": "Cette tâche est en cours. Veuillez patienter un instant.",
+    "title": "Collez votre contenu",
+    "mode": {
+      "text": "Coller du texte",
+      "docx": "Importer Word (.docx)",
+      "pdf": "Importer PDF (.pdf)"
+    },
+    "docx": {
+      "title": "Extraire le texte d’un document Word",
+      "hint": "Les tableaux et styles sont ignorés. Seul le texte est extrait et appliqué automatiquement au champ.",
+      "select": "Choisir un fichier Word",
+      "support": "Format pris en charge : .docx",
+      "dropHint": "Ou glissez-déposez un fichier .docx ici.",
+      "uploading": "Extraction du texte du document...",
+      "success": "Extraction du texte terminée.",
+      "charCount": "Longueur extraite : {count} caractères"
+    },
+    "pdf": {
+      "title": "Extraire le texte d’un PDF",
+      "hint": "La mise en page est ignorée et seul le texte est extrait. Les PDF image peuvent avoir une extraction moins précise.",
+      "select": "Choisir un fichier PDF",
+      "support": "Format pris en charge : .pdf",
+      "dropHint": "Ou glissez-déposez un fichier .pdf ici.",
+      "uploading": "Extraction du texte du PDF...",
+      "success": "Extraction du texte PDF terminée.",
+      "charCount": "Longueur extraite : {count} caractères"
+    },
+    "youtubeHelp": "Comment copier une transcription YouTube",
+    "tooLargeTitle": "L’entrée est trop volumineuse pour être traitée.",
+    "billingLength": "Longueur de facturation : {count} caractères",
+    "maxLength": "Maximum autorisé : {count} caractères",
+    "maxExceeded": "Vous avez dépassé la longueur maximale autorisée",
+    "placeholder": "Collez le texte ici tel quel. (Les horodatages comme 0:03 ou 12:45 sont acceptés.)",
+    "languageTitle": "Quelle langue utiliser pour la carte ?",
+    "generateTitle": "Générer la carte",
+    "creditsInfo": "{current} crédits disponibles · cette génération utilise {required} crédit(s)",
+    "generateButton": "Générer la mind map",
+    "freeBadge": "Gratuit",
+    "blankMapButton": "Commencer avec une carte vide",
+    "blankMapStarting": "Ouverture de la carte vide...",
+    "blankMapDescription": "Les cartes vides pour le brainstorming démarrent immédiatement sans consommer de crédits.",
+    "insufficientCreditsCard": {
+      "title": "Vous n’avez pas assez de crédits pour créer une mind map",
+      "description": "Rechargez vos crédits et continuez immédiatement.",
+      "balance": "Solde actuel : {current} crédits",
+      "action": "Recharger des crédits"
+    }
+  },
+  "OutputLanguageSelect": {
+    "labels": {
+      "auto": "Même langue que la transcription",
+      "ko": "Coréen",
+      "en": "Anglais"
+    },
+    "currentSelectedOption": "Sélection actuelle : {label} ({code})",
+    "more": "Plus…",
+    "dialogAria": "Sélectionner la langue de sortie",
+    "title": "Choisissez la langue de sortie",
+    "description": "Nous générerons la mind map dans la langue sélectionnée."
+    ,
+    "close": "Fermer",
+    "searchPlaceholder": "Rechercher des langues (ex. English, Korean, ja, zh...)",
+    "noResults": "Aucun résultat. Essayez un autre mot-clé.",
+    "currentSelection": "Sélection actuelle",
+    "code": "Code"
+  },
+  "YoutubeScriptDialog": {
+    "dialogAria": "Récupérer une transcription YouTube",
+    "title": "Comment récupérer une transcription YouTube",
+    "subtitle": "Vous pouvez copier la transcription complète en moins d'une minute.",
+    "close": "Fermer",
+    "gifAlt": "Comment copier rapidement une transcription YouTube",
+    "guide": {
+      "intro": "Brify n’extrait pas automatiquement la transcription depuis une URL YouTube afin de respecter les règles de YouTube. À la place, vous pouvez copier la transcription complète rapidement et de manière fiable avec la méthode ci-dessous.",
+      "desktopOnly": "Remarque : sur mobile, YouTube peut limiter la copie de transcription. Nous recommandons de le faire sur ordinateur.",
+      "stepsTitle": "La méthode la plus simple",
+      "step1": "Cliquez sur le premier mot de la transcription (ou commencez la sélection à cet endroit)",
+      "step2": "Faites défiler jusqu’en bas",
+      "step3": "Maintenez Shift et cliquez sur le dernier caractère",
+      "step4": "Une fois tout sélectionné, copiez puis collez dans le champ d’entrée",
+      "encourage": "Ne laissez plus de bonnes vidéos vous échapper faute de temps. Collez la transcription et transformez les idées clés en une mind map claire en quelques minutes."
+    },
+    "pastePrefix": "Dans le champ de saisie,",
+    "shiftHold": "gardez Shift enfoncé",
+    "imagePlaceholder": "Vous pouvez placer ici une image liée.",
+    "steps": {
+      "1": { "title": "Ouvrez « Plus » sous la vidéo", "imageLabel": "Image étape 1" },
+      "2": { "title": "Ouvrez la transcription", "imageLabel": "Image étape 2" },
+      "3": { "title": "Commencez la sélection depuis le début", "imageLabel": "Image étape 3" },
+      "4": { "title": "Faites défiler jusqu’en bas", "imageLabel": "Image étape 4" },
+      "5": { "title": "Gardez Shift enfoncé", "description": "Ne le relâchez pas, puis cliquez immédiatement sur le dernier mot.", "imageLabel": "Image étape 5" },
+      "6": { "title": "Cliquez sur le dernier mot", "imageLabel": "Image étape 6" },
+      "7": { "title": "Ctrl + C", "imageLabel": "Image étape 7" },
+      "8": { "title": "Collez dans le champ de saisie", "imageLabel": "Image étape 8" }
+    }
+  },
+  "CreditConfirmModal": {
+    "dialogAria": "Confirmer l’utilisation des crédits",
+    "title": "Utilisation des crédits",
+    "usage": "{credits} crédit sera utilisé.",
+    "notice": "Une fois lancé, ce traitement ne peut plus être annulé.",
+    "splitNotice": "Cette entrée est longue : nous allons d’abord générer {count} cartes de structure puis les fusionner en une seule.",
+    "cancel": "Annuler",
+    "confirm": "Utiliser {credits} crédit(s) et démarrer"
+  },
+  "DraftMapCard": {
+    "processingMessages": {
+      "1": "Génération de votre carte de structure.",
+      "2": "Veuillez patienter encore un instant.",
+      "3": "Le contenu long est pris en charge. Nous construisons étape par étape.",
+      "4": "Nous organisons actuellement le flux principal.",
+      "5": "Presque terminé. Nous vous l’afficherons bientôt."
+    },
+    "status": {
+      "done": "Terminé",
+      "failed": "Échec",
+      "chunkQueued": "En attente pour la carte {current}/{total}",
+      "chunkRetrying": "Nouvelle tentative pour la carte {current}/{total}",
+      "chunkProcessing": "Génération de la carte {current}/{total}",
+      "mergeQueued": "En attente de fusion",
+      "merging": "Fusion des cartes de structure"
+    },
+    "titles": {
+      "chunk": "Carte de structure {current}/{total}",
+      "merge": "Fusion finale de la carte de structure"
+    },
+    "helpers": {
+      "longInput": "Nous traitons cette entrée longue en plusieurs sections.",
+      "chunkProcessing": "Nous générons actuellement la carte de structure {current}/{total}.",
+      "chunkRetrying": "Nous régénérons la carte de structure {current}/{total} avec des consignes plus strictes.",
+      "mergeProcessing": "Nous combinons les cartes générées en un flux final unique."
+    },
+    "thumbnailAlt": "Miniature",
+    "noSource": "Aucune source",
+    "hasUrl": "URL incluse",
+    "saving": "Enregistrement...",
+    "editMetadata": "Modifier les infos",
+    "viewMap": "Voir la carte de structure"
+  },
+  "ResultReadyPanel": {
+    "title": "Génération terminée",
+    "fallbackDescription": "Veuillez consulter la carte de structure qui vient d’être créée.",
+    "nextTitle": "Étapes suivantes",
+    "nextDescription": "Ouvrez la carte de structure pour la vérifier, ou créez-en une nouvelle à partir d’un autre contenu.",
+    "createAnother": "Créer une autre carte de structure",
+    "openMap": "Ouvrir la carte de structure"
+  },
+  "LandingBlueHero": {
+    "eyebrow": "Créé pour comprendre l’essentiel plus vite, sans perdre les détails.",
+    "titles": [
+      "Transformez les textes longs et complexes",
+      "Transformez les transcriptions YouTube"
+    ],
+    "flowItems": [
+      "Collez une transcription",
+      "Créez une mind map",
+      "Lisez · modifiez · comparez",
+      "Construisez votre propre cadre"
+    ],
+    "titleHighlight": "en mind maps",
+    "titleSuffix": "",
+    "helper": "Comprenez les informations complexes plus rapidement et visualisez leur structure en un coup d’œil.",
+    "switchTitleAria": "Changer le titre",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "Voir un exemple",
+    "featureItems": [
+      "Résumez rapidement même des vidéos de plusieurs heures",
+      "Organisation automatique des termes difficiles",
+      "Générez les résultats dans la langue de votre choix",
+      "Comparez plusieurs cartes pour repérer les différences d’un coup d’œil"
+    ],
+    "sampleSection": {
+      "title": "Image d’exemple de mind map",
+      "cta": "Créer ma carte",
+      "imageAlt": "Image d’exemple de mind map Brify"
+    },
+    "visualAlt": "Aperçu de la structure Brify",
+    "videoLabel": "Lire la vidéo de démonstration",
+    "videoLoadingLabel": "Chargement de la démo…"
+  },
+  "Header": {
+    "userMenu": {
+      "triggerLabel": "Mon compte",
+      "sectionTitle": "Compte connecté",
+      "greeting": "Bonjour",
+      "greetingWithEmail": "Bonjour, {email}",
+      "items": {
+        "myMaps": "Mes cartes",
+        "billing": "Recharger des crédits",
+        "billingHistory": "Historique des paiements",
+        "accountSettings": "Paramètres du compte",
+        "mapTheme": "Thème de carte par défaut"
+      },
+      "theme": "Thème",
+      "language": "Langue",
+      "logout": "Se déconnecter"
+    },
+    "nav": {
+      "blog": "Blog",
+      "about": "À propos",
+      "pricing": "Tarifs",
+      "contactFeedback": "Contact / Retour"
+    },
+    "auth": {
+      "login": "Se connecter",
+      "signup": "Commencer gratuitement"
+    },
+    "cta": {
+      "newMap": "Nouveau Structure Map",
+      "myMaps": "Mes cartes",
+      "fromTextTitle": "Convertir du texte en structure map",
+      "fromTextDesc": "Collez une transcription ou un texte de document pour générer la carte",
+      "blankStartTitle": "Commencer à partir d’une carte vide",
+      "blankStartDesc": "Pour le brainstorming, démarrez sans utiliser de crédits",
+      "blankCreating": "Création de la carte vide...",
+      "freeBadge": "Gratuit",
+      "blankMapDefaultTitle": "Sans titre"
+    }
+  },
+  "Footer": {
+    "description": "Un service qui structure les contenus longs pour comprendre l'information rapidement et construire votre propre cadre d'analyse.",
+    "contactEmail": "E-mail",
+    "contactPhone": "Téléphone",
+    "contactAddress": "Adresse",
+    "company": {
+      "companyName": "Société : vision328",
+      "representative": "Représentante : Nahyun Lee",
+      "businessNumber": "Numéro d’immatriculation : 726-22-01928",
+      "mailOrderNumber": "Vente à distance déclarée : 2026-Seongnam BundangA-0280"
+    },
+    "contact": {
+      "title": "Contact",
+      "address": "556, B1-dong, 28 Yatap-ro, Bundang-gu, Seongnam-si, Gyeonggi-do (Yatap-dong, Udang Plaza)"
+    },
+    "support": {
+      "title": "Support",
+      "links": {
+        "terms": "Conditions d’utilisation",
+        "privacy": "Politique de confidentialité",
+        "refundPolicy": "Politique de remboursement",
+        "support": "Support client",
+        "pricing": "Tarifs"
+      }
+    },
+    "copyright": "Tous droits réservés.",
+    "operatedBy": "Brify est un service exploité par vision328."
+  },
+  "login": {
+    "title": "Connexion",
+    "google": "Continuer avec Google",
+    "or": "ou",
+    "signup": {
+      "question": "Vous n’avez pas encore de compte ?",
+      "link": "S’inscrire"
+    },
+    "email": {
+      "label": "Adresse e-mail",
+      "placeholder": "Saisissez votre adresse e-mail",
+      "errors": {
+        "required": "Veuillez saisir votre adresse e-mail.",
+        "invalid": "Veuillez saisir une adresse e-mail valide."
+      }
+    },
+    "submit": "Envoyer le code de vérification",
+    "otp": {
+      "label": "Code de vérification",
+      "hint": "Terminez la vérification pour commencer immédiatement.",
+      "placeholder": "Saisissez le code à 6 chiffres envoyé par e-mail",
+      "submit": "Continuer",
+      "loading": "Vérification..."
+    },
+    "googleLoading": "Redirection vers Google...",
+    "loading": "Traitement...",
+    "messages": {
+      "googleFail": "Échec de la connexion Google : {message}",
+      "googleError": "Une erreur est survenue lors de la connexion Google.",
+      "googleInAppBrowser": "La connexion Google peut être bloquée dans certains navigateurs intégrés (KakaoTalk, Instagram, etc.). Ouvrez Brify dans Chrome ou Safari, ou utilisez la connexion par code e-mail.",
+      "signupsNotAllowed": "Les inscriptions ne sont pas autorisées.",
+      "genericError": "Une erreur est survenue : {message}",
+      "codeSent": "Nous avons envoyé un code de vérification à votre e-mail.",
+      "verifyFail": "Échec de la vérification : {message}",
+      "verifySuccessMoving": "Vérification réussie ! Redirection..."
+    }
+  },
+  "signup": {
+    "title": "Inscription",
+    "subtitle": "Inscrivez-vous facilement avec un code e-mail ou avec votre compte Google.",
+    "google": "Continuer avec Google",
+    "googleLoading": "Connexion avec Google...",
+    "or": "ou",
+    "email": {
+      "label": "Adresse e-mail",
+      "placeholder": "Saisissez votre adresse e-mail",
+      "errors": {
+        "required": "Veuillez saisir votre adresse e-mail.",
+        "invalid": "Veuillez saisir une adresse e-mail valide."
+      }
+    },
+    "otp": {
+      "label": "Code de vérification",
+      "placeholder": "Saisissez le code à 6 chiffres envoyé par e-mail"
+    },
+    "errors": {
+      "googlePrefix": "Échec de la connexion Google :",
+      "googleGeneric": "Une erreur est survenue lors de la connexion Google.",
+      "googleInAppBrowser": "La connexion Google peut être bloquée dans certains navigateurs intégrés (KakaoTalk, Instagram, etc.). Ouvrez Brify dans Chrome ou Safari, ou utilisez la connexion par code e-mail.",
+      "agreeRequired": "Vous devez accepter les conditions obligatoires pour vous inscrire.",
+      "alreadyRegistered": "Cette adresse e-mail est déjà utilisée. Veuillez vous connecter.",
+      "defaultPrefix": "Une erreur est survenue :",
+      "otpFailedPrefix": "Échec de la vérification :"
+    },
+    "success": {
+      "otpSent": "Le code de vérification a été envoyé à votre e-mail.",
+      "otpVerified": "Vérification réussie ! Bienvenue."
+    },
+    "buttons": {
+      "sendCode": "Envoyer le code",
+      "sendingCode": "Envoi du code...",
+      "verifying": "Vérification...",
+      "verify": "Terminer la vérification"
+    },
+    "terms": {
+      "agreePrefix": "J’accepte les ",
+      "agreeSuffix": " (obligatoire)",
+      "agreePrivacyPrefix": "J’accepte la ",
+      "agreePrivacySuffix": " (obligatoire)",
+      "termsLink": "Conditions d’utilisation",
+      "privacyLink": "Politique de confidentialité"
+    },
+    "login": {
+      "question": "Vous avez déjà un compte ?",
+      "link": "Se connecter"
+    }
+  },
+  "loginPage": {
+    "brand": "Brify",
+    "prelaunchTitle": "Le service est encore en préparation.",
+    "launchNotice": "Brify n’a pas encore été lancé officiellement. Nous finalisons actuellement le service.",
+    "signup": {
+      "question": "Vous n’avez pas encore de compte ?",
+      "link": "S’inscrire"
+    }
+  },
+  "signupPage": {
+    "brand": "Brify",
+    "tagline": "Créez un nouveau compte et commencez à organiser vos résumés et vos structure maps."
+  },
+  "signupComplete": {
+    "loading": "Préparation en cours...",
+    "checking": "Vérification...",
+    "title": "Encore une étape 🙌",
+    "subtitle": "Dernière étape : veuillez lire et accepter les conditions pour commencer.",
+    "agree": {
+      "terms": "J’accepte les Conditions d’utilisation",
+      "privacy": "J’accepte la Politique de confidentialité",
+      "view": "(Voir)"
+    },
+    "helper": "Vous pouvez consulter ces politiques à tout moment via les liens ci-dessus.",
+    "button": {
+      "submit": "Accepter et commencer",
+      "submitting": "Traitement..."
+    },
+    "messages": {
+      "needAllAgreements": "Veuillez cocher les deux cases 🙂",
+      "missingFlow": "Impossible de vérifier cette étape. Veuillez recommencer depuis le début.",
+      "sessionNotFound": "Session introuvable. Veuillez réessayer dans un instant.",
+      "successMove": "Parfait — on y va 🚀",
+      "failed": "Une erreur est survenue. ({error})",
+      "network": "Erreur réseau. ({message})"
+    }
+  },
+  "LandingPricingSection": {
+    "title": "Des crédits simples et faciles à comprendre",
+    "subtitle": "Commencez gratuitement, puis payez uniquement quand vous en avez besoin.",
+    "freeCreditsBadge": "15 crédits offerts à l’inscription",
+    "cards": {
+      "free": {
+        "eyebrow": "Démarrage gratuit",
+        "title": "15 crédits offerts dès l’inscription"
+      },
+      "main": {
+        "eyebrow": "Le plus important",
+        "title": "La plupart des cartes ne demandent qu’1 crédit",
+        "description": ""
+      },
+      "pay": {
+        "eyebrow": "Sans abonnement",
+        "title": "Payez uniquement quand vous en avez besoin"
+      },
+      "noSubscription": {
+        "title": "Sans abonnement · Sans renouvellement automatique"
+      }
+    },
+    "positioningText": "Sans abonnement — payez seulement ce que vous utilisez.",
+    "refundText": "Les crédits non utilisés sont remboursables intégralement sous 7 jours après achat.",
+    "seeDetails": "Voir les détails tarifaires",
+    "packs": {
+      "50": {
+        "badgeText": "Débutant",
+        "tagline": "Un petit pack pour commencer facilement."
+      },
+      "150": {
+        "badgeText": "Le plus populaire",
+        "tagline": "Un pack standard pour un usage fréquent."
+      },
+      "300": {
+        "badgeText": "Grand pack",
+        "tagline": "Un pack généreux pour l’étude et les projets."
+      }
+    },
+    "creditRule": {
+      "title": "La plupart des contenus utilisent seulement 1 crédit",
+      "desc": "Les contenus plus longs peuvent nécessiter 2 ou 3 crédits selon la longueur",
+      "details": {
+        "small": "Jusqu’à 50 000 caractères",
+        "medium": "50 001 à 150 000 caractères",
+        "large": "150 001 à 200 000 caractères",
+        "blocked": "Plus de 200 000 caractères"
+      },
+      "result": {
+        "one": "1 crédit",
+        "two": "2 crédits",
+        "three": "3 crédits",
+        "blocked": "Non pris en charge"
+      }
+    },
+    "toggles": {
+      "details": "Détails",
+      "collapse": "Réduire"
+    },
+    "paymentToggle": {
+      "krw": "Paiement en KRW (Toss Payments)",
+      "usd": "Paiement en USD (LemonSqueezy)"
+    }
+  },
+  "PricingGrid": {
+    "cta": {
+      "signedIn": "Acheter",
+      "signedOut": "Se connecter pour acheter"
+    },
+    "badge": {
+      "mostPopular": "Le plus populaire",
+      "starter": "Débutant"
+    },
+    "units": {
+      "credits": "crédits",
+      "perCredit": "/ crédit"
+    },
+    "unit": {
+      "effective": "coût réel"
+    },
+    "bonus": {
+      "tag": "bonus"
+    },
+    "refund": {
+      "text": "Remboursement intégral des crédits non utilisés sous 7 jours après achat"
+    },
+    "refundTooltip": {
+      "title": "Politique de remboursement",
+      "ariaLabel": "Voir les détails de la politique de remboursement",
+      "linkLabel": "Voir les détails",
+      "line1": "Remboursement intégral sous 7 jours si les crédits de cette commande n’ont pas été utilisés",
+      "line2": "Le remboursement est limité dès qu’un crédit est utilisé ou que la génération de carte a commencé",
+      "line3": "Les doubles paiements, erreurs système ou obligations légales sont traités séparément"
+    },
+    "footer": {
+      "note": "Les paiements sont traités en USD via LemonSqueezy."
+    },
+    "creditRule": {
+      "label": "Seules les entrées très volumineuses demandent des crédits supplémentaires.",
+      "itemSuffix": "Utilise {credits} crédits."
+    },
+    "priceNote": "TVA incluse",
+    "toggles": {
+      "details": "Détails",
+      "hide": "Masquer"
+    },
+    "reassurance": {
+      "line1": "Sans abonnement · Sans renouvellement automatique"
+    },
+    "positioningText": "Sans abonnement — payez seulement ce que vous utilisez.",
+    "cardLabel": "Pack de crédits"
+  },
+  "LandingTestimonialsSection": {
+    "eyebrow": "Avis",
+    "title": "Ce que les utilisateurs trouvent particulièrement utile",
+    "featuredLabel": "Avis mis en avant",
+    "cta": "Commencer avec Brify",
+    "items": {
+      "one": {
+        "quote": "Je cherchais des contenus sur la bourse pour commencer à investir. Transformer les transcriptions YouTube en mind maps et organiser automatiquement les termes difficiles m’a permis de comprendre beaucoup plus facilement. C’était une méthode vraiment utile pour saisir et comparer le contenu rapidement.",
+        "role": "Passionné de bourse"
+      },
+      "two": {
+        "quote": "Je dois souvent lire des documents longs et complexes pour mon travail. Les organiser en mind maps et suivre le fil m’a aidé à traiter l’information beaucoup plus facilement, et j’ai clairement gagné en vitesse dans mon travail.",
+        "role": "Professionnel gérant des documents complexes"
+      },
+      "three": {
+        "quote": "J’avais tellement de vidéos YouTube que je voulais regarder, mais faute de temps je finissais souvent par ne voir que la miniature, voire à les oublier complètement. Maintenant, grâce à Brify, je peux repérer beaucoup plus vite les points importants sans passer à côté.",
+        "role": "Apprenant YouTube très occupé"
+      }
+    }
+  },
+  "MapTutorial": {
+    "overlay": {
+      "label": "TUTORIEL",
+      "skip": "Passer",
+      "next": "Suivant",
+      "start": "Commencer"
+    },
+    "illustrations": {
+      "mode": {
+        "view": "Lecture",
+        "edit": "Édition"
+      },
+      "mouse": {
+        "alt": "Guide de navigation de la carte",
+        "label": "Clic droit + glisser / deux doigts / mini-carte"
+      },
+      "trackpad": {
+        "alt": "Guide du trackpad à deux doigts",
+        "label": "Déplacement à deux doigts"
+      },
+      "context": {
+        "alt": "Guide du menu contextuel"
+      },
+      "expand": {
+        "label": "Déplier / Replier",
+        "description": "Utilisez le bouton + pour afficher les nœuds enfants"
+      }
+    },
+    "steps": {
+      "edit": {
+        "title": "Passez en mode Édition avant de modifier",
+        "description": "Vous êtes actuellement en mode Lecture. Passez en mode Édition en haut avant de modifier les nœuds ou la structure.",
+        "calloutTitle": "Mode Lecture / Édition",
+        "calloutDescription": "Commencez ici quand vous voulez modifier la carte."
+      },
+      "mouse": {
+        "title": "Voici comment vous déplacer dans la carte",
+        "description": "Utilisez le clic droit + glisser avec la souris, le geste à deux doigts sur trackpad, ou la mini-carte pour naviguer.",
+        "calloutTitle": "Navigation dans la carte",
+        "calloutDescription": "Utilisez le clic droit, deux doigts ou la mini-carte pour aller vite au bon endroit."
+      },
+      "trackpad": {
+        "title": "Utilisez deux doigts sur le trackpad pour déplacer la carte",
+        "description": "Sur un ordinateur portable, glissez avec deux doigts sur le trackpad pour vous déplacer naturellement dans la carte.",
+        "calloutTitle": "Déplacement au trackpad",
+        "calloutDescription": "Utilisez un geste à deux doigts pour vous déplacer."
+      },
+      "context": {
+        "title": "Sélectionnez un nœud puis faites un clic droit",
+        "description": "Sélectionnez d’abord un nœud, puis faites un clic droit pour ouvrir le menu contextuel avec les actions disponibles.",
+        "calloutTitle": "Menu contextuel",
+        "calloutDescription": "Le menu s’ouvre après la sélection d’un nœud."
+      },
+      "highlight": {
+        "title": "Utilisez le surlignage pour marquer l’essentiel",
+        "description": "Cliquez sur l’icône du milieu pour surligner un nœud. Marquez les éléments importants pour les retrouver plus facilement ensuite.",
+        "calloutTitle": "Surlignage",
+        "calloutDescription": "Surlignez les points clés pendant la lecture."
+      },
+      "expand": {
+        "title": "Dépliez et repliez les nœuds pour lire plus confortablement",
+        "description": "Cliquez sur le bouton + dans le cercle pour afficher le contenu enfant. Vous pouvez ensuite le replier et ne suivre que ce dont vous avez besoin.",
+        "calloutTitle": "Déplier / Replier",
+        "calloutDescription": "Cliquez sur le bouton + pour afficher le contenu enfant."
+      },
+      "terms": {
+        "title": "L’IA organise les termes difficiles pour vous",
+        "description": "Dans l’onglet Termes du panneau de gauche, l’IA peut extraire les mots difficiles et les expliquer clairement.",
+        "calloutTitle": "Termes",
+        "calloutDescription": "L’IA repère les termes difficiles et les organise pour vous."
+      },
+      "shortcuts": {
+        "title": "Tout devient plus simple avec les raccourcis",
+        "description": "Une fois les raccourcis les plus utiles mémorisés, l’utilisation de la carte devient beaucoup plus rapide. Vous pouvez revoir cela via Plus > Raccourcis."
+      }
+    },
+    "mobile": {
+      "edit": {
+        "title": "Sur mobile, l’édition est prête par défaut",
+        "description": "Sur mobile, la carte s’ouvre directement en mode modifiable.",
+        "calloutTitle": "Mode Édition",
+        "calloutDescription": "Vous pouvez commencer à modifier immédiatement sur mobile."
+      },
+      "move": {
+        "title": "Sur mobile, vous pouvez déplacer la carte directement",
+        "description": "Sur mobile, pas besoin de mode déplacement séparé. Faites simplement glisser avec un doigt sur une zone vide ou hors des contrôles de nœud.",
+        "calloutTitle": "Déplacer la carte",
+        "calloutDescription": "Essayez de faire glisser avec un doigt pour déplacer la carte."
+      },
+      "select": {
+        "title": "Touchez un nœud pour le sélectionner, appui long pour le menu d’édition",
+        "description": "Sur mobile, un simple toucher sélectionne un nœud. Les actions rapides apparaissent à côté, et en mode Édition un appui long ouvre la barre d’édition en bas.",
+        "calloutTitle": "Sélection d’un nœud",
+        "calloutDescription": "Touchez un nœud pour le sélectionner, puis faites un appui long pour ouvrir le menu d’édition."
+      },
+      "highlight": {
+        "title": "Surlignez les nœuds importants pendant la lecture",
+        "description": "Quand un nœud est sélectionné, des boutons d’action rapide apparaissent. Utilisez le bouton de surlignage pour marquer les éléments importants.",
+        "calloutTitle": "Surlignage",
+        "calloutDescription": "Sélectionnez un nœud puis touchez le bouton de surlignage."
+      },
+      "expand": {
+        "title": "Dépliez et repliez les nœuds pour lire plus confortablement",
+        "description": "Touchez le bouton + dans le cercle pour afficher le contenu enfant. Vous pouvez le replier ensuite pour ne suivre que l’essentiel.",
+        "calloutTitle": "Déplier / Replier",
+        "calloutDescription": "Touchez le bouton + pour afficher le contenu enfant."
+      },
+      "panel": {
+        "title": "Ouvrez le panneau gauche pour plus de contexte",
+        "description": "Touchez le bouton du panneau gauche pour ouvrir les onglets Infos, Notes et Termes. Vous pouvez y vérifier rapidement ce dont vous avez besoin.",
+        "calloutTitle": "Panneau gauche",
+        "calloutDescription": "Ce bouton ouvre les onglets Infos, Notes et Termes."
+      },
+      "terms": {
+        "title": "L’IA organise les termes difficiles pour vous",
+        "description": "Dans l’onglet Termes du panneau gauche, l’IA peut extraire les mots difficiles et les expliquer clairement.",
+        "calloutTitle": "Termes",
+        "calloutDescription": "Vous pouvez consulter les termes difficiles ici."
+      }
+    }
+  },
+  "FinalCTA": {
+    "title": "Ne vous laissez plus emporter par des informations dispersées,",
+    "subtitle": "Organisez l’information en mind maps pour comprendre plus vite.",
+    "body": "Construisez votre propre cadre d’analyse, même lorsque les avis divergent.",
+    "primary": {
+      "signedOut": "Commencer gratuitement",
+      "signedIn": "Commencer"
+    },
+    "secondary": {
+      "label": "Voir les tarifs"
+    }
+  },
+  "CreatorSection": {
+    "imageAlt": "Créatrice de Brify",
+    "label": "Créatrice",
+    "name": "Lina",
+    "quote": "« Il y avait toujours plus de vidéos à regarder, et jamais assez de temps.\nJe terminais une vidéo en me disant qu’elle était vraiment utile, mais le soir <strong>j’en oubliais déjà la moitié</strong>.\nIl y avait aussi beaucoup de vidéos que je voulais regarder plus tard, mais que je ne regardais finalement jamais.\nAvec la <strong>santé</strong>, l’<strong>éducation des enfants</strong> et les <strong>finances personnelles</strong> à gérer en même temps, il devenait encore plus facile de perdre le fil.\nAlors <heavy>j’ai créé mon propre outil</heavy>. Si j’organise ce que je viens de regarder dans une <strong>mind map structurée</strong>, je peux la rouvrir plus tard et retrouver clairement <strong>le flux et les points clés</strong>. »"
+  },
+  "MapLibrarySection": {
+    "eyebrow": "Construisez votre propre cadre",
+    "title": "Structurez l’information complexe et voyez le flux et les points clés d’un coup d’œil",
+    "subtitle": "Ne vous contentez pas de collecter des informations dispersées. Comparez-les, structurez-les et transformez-les en un cadre fiable pour vos décisions.",
+    "cards": {
+      "tags": {
+        "title": "Organisation par tags",
+        "description": "Classez les cartes par tags et retrouvez immédiatement les sujets liés."
+      },
+      "merge": {
+        "title": "Fusion de cartes",
+        "description": "Combinez plusieurs cartes en une seule structure pour comparer les points de vue."
+      },
+      "edit": {
+        "title": "Édition libre",
+        "description": "Modifiez, ajoutez et réorganisez les nœuds selon votre propre logique."
+      },
+      "read": {
+        "title": "Surlignage et notes",
+        "description": "Mettez en avant les points importants et ajoutez vos réflexions directement dans la carte."
+      },
+      "share": {
+        "title": "Partage et téléchargement",
+        "description": "Partagez la carte via un lien et exportez-la pour la conserver ou la présenter."
+      }
+    }
+  },
+  "ConfirmShareDialog": {
+    "title": "Publier avant de partager",
+    "description": "Publier les modifications actuelles et générer un lien de partage ?",
+    "actionLabel": "Publier et partager",
+    "cancelLabel": "Annuler"
+  },
+  "BillingPage": {
+    "badge": "Payez uniquement quand nécessaire · Sans abonnement",
+    "title": "Recharger des crédits",
+    "balance": {
+      "label": "Solde actuel de crédits",
+      "unit": "crédits",
+      "mainButton": "Retour à l’accueil",
+      "historyButton": "Voir l’historique des paiements",
+      "creditHistoryButton": "Voir l’historique des crédits",
+      "paidLabel": "Crédits payants",
+      "freeLabel": "Crédits bonus"
+    },
+    "packs": {
+      "title": "Choisissez un pack de crédits",
+      "info": {
+        "refund": "• Les crédits sont entièrement remboursables sous 7 jours après achat, si aucun crédit de cette commande n’a été utilisé.",
+        "refundPolicy": "Voir la politique de remboursement"
+      }
+    },
+    "faq": {
+      "title": "FAQ",
+      "q2": "Combien de crédits consomme une vidéo ?",
+      "a2": "La plupart des contenus utilisent 1 crédit. Jusqu’à 50 000 caractères : 1 crédit, 50 001 à 150 000 : 2 crédits, 150 001 à 200 000 : 3 crédits, au-delà de 200 000 : non pris en charge.",
+      "q3": "Les crédits expirent-ils ?",
+      "a3": "Les crédits payants sont valables 1 an à partir de la date de paiement. Le remboursement est possible sous 7 jours si les crédits de la commande n’ont pas été utilisés.",
+      "q4": "Reçois-je un reçu ?",
+      "a4": "Oui. LemonSqueezy envoie un reçu après paiement. Si vous ne le trouvez pas ou en cas de problème, contactez-nous."
+    },
+    "card": {
+      "badge": {
+        "popular": "Le plus populaire",
+        "starter": "Idéal pour commencer",
+        "large": "Idéal pour un usage fréquent"
+      },
+      "creditsUnit": "crédits",
+      "unitPricePrefix": "≈",
+      "unitPriceMiddle": "/ crédit · environ",
+      "unitPriceSuffix": "structure maps",
+      "vatIncluded": "TVA incluse",
+      "cta": "Acheter",
+      "loading": "Préparation de la commande..."
+    },
+    "bullets": {
+      "missionCredits": "Gagnez des crédits gratuits via les missions"
+    },
+    "lemonCheckout": {
+      "pendingTitle": "Paiement terminé, vérification de vos crédits en cours",
+      "pendingDescription": "Patientez un instant. Le solde sera actualisé automatiquement après confirmation.",
+      "successTitle": "Crédits ajoutés",
+      "successDescription": "Le paiement a bien été pris en compte. Vous pouvez continuer à créer des structure maps.",
+      "delayedTitle": "Paiement effectué, synchronisation des crédits un peu retardée",
+      "delayedDescription": "Rafraîchissez dans un instant. Si le solde n’apparaît toujours pas, nous vérifierons la commande."
+    },
+    "errors": {
+      "missingTossClientKey": "La clé client Toss n’est pas configurée.",
+      "tossSdkNotLoaded": "Le SDK de paiement Toss n’est pas encore chargé.",
+      "paymentCanceled": "Le paiement a été annulé.",
+      "tossPrepareFailed": "Un problème est survenu lors de la préparation du paiement Toss.",
+      "missingCheckoutUrl": "L’URL de paiement n’est pas configurée."
+    }
+  },
+  "BillingHistoryPage": {
+    "badge": "Historique des paiements · Reçus",
+    "title": "Historique des paiements",
+    "subtitle": "Consultez vos recharges de crédits et vos reçus en un seul endroit.",
+    "summary": {
+      "title": "Résumé des crédits payants",
+      "totalCharged": "Total des crédits payants achetés",
+      "currentBalance": "Solde actuel des crédits payants",
+      "used": "Crédits payants déjà utilisés",
+      "unit": "crédits"
+    },
+    "list": {
+      "title": "Historique",
+      "caption": "{visible} sur {total} paiements affichés.",
+      "loading": "Chargement de votre historique de paiements.",
+      "empty": "Aucun historique de paiement pour le moment.",
+      "meta": "{date} · ID paiement : {id}",
+      "creditsAndProvider": "+ {credits} crédits · {provider}",
+      "packLabel": "Pack de {credits} crédits",
+      "provider": {
+        "toss": "Toss Payments",
+        "lemon": "LemonSqueezy"
+      }
+    },
+    "button": {
+      "goToBilling": "Aller à la page de recharge",
+      "loadMore": "Afficher plus",
+      "viewReceipt": "Voir le reçu",
+      "retryPayment": "Réessayer le paiement"
+    },
+    "status": {
+      "success": "Terminé",
+      "pending": "En attente",
+      "refunded": "Remboursé",
+      "failed": "Échoué"
+    },
+    "info": {
+      "title": "Infos paiement et remboursement",
+      "item1": "• Les paiements KRW sont traités via Toss Payments.",
+      "item2": "• Les paiements USD sont traités via LemonSqueezy ; des frais internationaux peuvent s’appliquer selon votre banque.",
+      "item3": "• Les paiements remboursés apparaissent avec le statut « Remboursé ».",
+      "item4": "• Les paiements échoués n’ajoutent aucun crédit ; vous pouvez réessayer.",
+      "note": "Les crédits payants sont valables 1 an. Le remboursement intégral est possible sous 7 jours si les crédits de la commande n’ont pas été utilisés."
+    }
+  },
+  "BillingTossFailPage": {
+    "titleCanceled": "Le paiement a été annulé.",
+    "titleFailed": "Le paiement n’a pas abouti.",
+    "descCanceled": "La fenêtre de paiement a été fermée ou annulée avant la fin.",
+    "descFailed": "Vérifiez le code d’erreur puis réessayez.",
+    "backToBilling": "Retour à la facturation",
+    "viewHistory": "Voir l’historique des paiements"
+  },
+  "BillingTossSuccessPage": {
+    "missingData": "Les données de confirmation du paiement sont manquantes.",
+    "alreadyConfirmed": "Ce paiement a déjà été confirmé. Vous pouvez le vérifier dans l’historique.",
+    "chargedCredits": "{credits} crédits ont été ajoutés à votre solde.",
+    "confirmError": "Une erreur est survenue lors de la confirmation du paiement.",
+    "titleLoading": "Confirmation de votre paiement.",
+    "titleSuccess": "Paiement effectué.",
+    "titleError": "Échec de la confirmation du paiement.",
+    "pleaseWait": "Veuillez patienter un instant.",
+    "viewHistory": "Voir l’historique des paiements",
+    "backToBilling": "Retour à la facturation"
+  },
+  "BillingCreditsPage": {
+    "badge": "Activité des crédits gratuits et payants",
+    "title": "Historique des crédits",
+    "subtitle": "Consultez toutes les variations : achats, bonus, utilisation et remboursements.",
+    "buttons": {
+      "paymentHistory": "Voir l’historique des paiements",
+      "backToBilling": "Retour à la facturation"
+    },
+    "summary": {
+      "title": "Solde actuel",
+      "total": "Total des crédits",
+      "paid": "Crédits payants",
+      "free": "Crédits bonus",
+      "unit": "crédits"
+    },
+    "list": {
+      "title": "Activité des crédits",
+      "loading": "Chargement de l’historique...",
+      "empty": "Aucune activité de crédits pour le moment.",
+      "balanceAfter": "{total} {unit} après ce mouvement",
+      "breakdown": "Payants {paid} · Bonus {free}"
+    },
+    "types": {
+      "purchase": "Recharge payante",
+      "spend": "Crédit utilisé",
+      "bonus": "Bonus attribué",
+      "refund": "Remboursement rétabli",
+      "adjustment": "Ajustement manuel",
+      "expire": "Expiré"
+    },
+    "sources": {
+      "toss": "Toss Payments",
+      "lemon_squeezy": "LemonSqueezy",
+      "system": "Système",
+      "admin": "Admin",
+      "migration": "Migration"
+    }
+  },
+  "BillingReceiptPage": {
+    "breadcrumb": {
+      "history": "Historique des paiements",
+      "receipt": "Reçu"
+    },
+    "title": "Reçu de paiement",
+    "subtitle": "Consultez les détails complets de cette recharge.",
+    "buttons": {
+      "backToHistory": "Retour à l’historique",
+      "print": "Imprimer / Enregistrer en PDF"
+    },
+    "notFound": {
+      "title": "Reçu introuvable.",
+      "description": "L’ID de paiement est peut-être invalide ou les informations ne sont plus disponibles."
+    },
+    "summary": {
+      "paymentId": "ID de paiement",
+      "paidAt": "Date de paiement",
+      "amountLabel": "Montant",
+      "chargedCredits": "+ {credits} crédits ajoutés"
+    },
+    "section": {
+      "paymentInfo": "Détails du paiement",
+      "creditInfo": "Détails des crédits",
+      "notice": "Informations reçu et remboursement"
+    },
+    "paymentInfo": {
+      "method": "Méthode de paiement",
+      "processor": "Prestataire",
+      "currency": "Devise",
+      "status": "Statut",
+      "processorLabel": {
+        "toss": "Toss Payments",
+        "lemon": "Lemon Squeezy"
+      },
+      "currencyLabel": {
+        "krw": "KRW (won coréen)",
+        "usd": "USD (dollar américain)"
+      }
+    },
+    "creditInfo": {
+      "chargedCredits": "Crédits ajoutés",
+      "estimatedMaps": "Nombre estimé de structure maps",
+      "estimatedMapsValue": "Env. {count} structure maps",
+      "ruleLabel": "Règle d’utilisation",
+      "ruleText": "Par défaut, 1 crédit est déduit par structure map générée."
+    },
+    "status": {
+      "success": "Payé",
+      "pending": "En attente",
+      "refunded": "Remboursé",
+      "failed": "Paiement échoué"
+    },
+    "notice": {
+      "item1": "• Cette page est un reçu in-app à titre informatif.",
+      "item2": "• Le montant et la date sur votre relevé bancaire peuvent différer.",
+      "item3": "• Après remboursement, l’apparition sur le relevé peut prendre quelques jours selon votre banque.",
+      "footnote": "En cas de question, contactez-nous via la page support avec l’ID de paiement."
+    }
+  },
+  "MapsCommon": {
+    "status": {
+      "idle": "Inactif",
+      "queued": "En file d’attente",
+      "processing": "En cours",
+      "done": "Terminé",
+      "failed": "Échoué"
+    },
+    "source": {
+      "youtube": "YouTube",
+      "website": "Web",
+      "file": "Fichier",
+      "manual": "Manuel"
+    },
+    "datePreset": {
+      "7d": "7 derniers jours",
+      "30d": "30 derniers jours",
+      "90d": "90 derniers jours",
+      "1y": "1 dernière année",
+      "all": "Tout",
+      "customEmpty": "Sélectionner une période",
+      "after": "après",
+      "before": "avant"
+    },
+    "selectionBar": {
+      "selectedCount": "{count} sélectionné(s)",
+      "mergeMaps": "Fusionner les cartes",
+      "deleting": "Suppression...",
+      "deleteSelected": "Supprimer la sélection",
+      "cancel": "Annuler"
+    },
+    "toolbar": {
+      "searchPlaceholder": "Rechercher par titre ou tag",
+      "clearSearch": "Effacer la recherche",
+      "summary": {
+        "status": "Statut {value}",
+        "source": "Source {value}",
+        "content": "Contenu {value}",
+        "tag": "Tag {value}"
+      },
+      "previewOn": "Aperçu activé",
+      "previewOff": "Aperçu désactivé",
+      "tagOrganize": "Organiser les tags",
+      "tagOrganizeExit": "Quitter le mode tags",
+      "selection": "Sélection",
+      "selectionExit": "Quitter la sélection",
+      "card": "Carte",
+      "table": "Tableau",
+      "sortLabel": "Trier",
+      "sort": {
+        "createdDesc": "Créés récemment",
+        "createdAsc": "Créés en premier",
+        "updatedDesc": "Récemment mis à jour",
+        "titleAsc": "Titre"
+      },
+      "refresh": "Actualiser la liste",
+      "refreshing": "Actualisation...",
+      "filterOpen": "Ouvrir les filtres",
+      "filterClose": "Fermer les filtres",
+      "resetFilters": "Réinitialiser les filtres"
+    },
+    "filterPopover": {
+      "presets": {
+        "7d": "7 derniers jours",
+        "30d": "30 derniers jours",
+        "90d": "90 derniers jours",
+        "1y": "1 dernière année",
+        "all": "Tout"
+      },
+      "sections": {
+        "date": "Période",
+        "status": "Statut",
+        "source": "Type de source",
+        "content": "Contenu",
+        "tag": "Tag"
+      },
+      "custom": "Personnalisé",
+      "status": {
+        "processing": "En cours",
+        "done": "Terminé",
+        "failed": "Échoué"
+      },
+      "source": {
+        "youtube": "YouTube",
+        "website": "Web",
+        "file": "Fichier",
+        "manual": "Manuel"
+      },
+      "content": {
+        "notes": "Notes",
+        "terms": "Termes"
+      },
+      "tagLoading": "Chargement des tags…",
+      "tagEmpty": "Aucun tag disponible."
+    },
+    "tagPanel": {
+      "title": "Tags",
+      "sortAria": "Trier les tags",
+      "sort": {
+        "recent": "Récents",
+        "name": "Nom",
+        "countDesc": "Les plus utilisés",
+        "countAsc": "Les moins utilisés"
+      },
+      "selectedFilters": "Filtres sélectionnés",
+      "filterTitle": "Filtres de tags",
+      "noTag": "Sans tag",
+      "deselectTag": "Retirer {tag}",
+      "filterHint": "Cocher des tags filtre immédiatement la liste des cartes ci-dessous selon ces tags.",
+      "selectedCount": "{count} sélectionné(s)",
+      "mergeTags": "Fusionner les tags",
+      "searchPlaceholder": "Rechercher des tags",
+      "clearSearch": "Effacer la recherche",
+      "empty": "Aucun tag trouvé.",
+      "deleteTagAria": "Supprimer le tag"
+    },
+    "mobileTagSheet": {
+      "closeAria": "Fermer l’organisateur de tags",
+      "reopen": "Liste des tags"
+    },
+    "listItem": {
+      "selectAria": "Sélectionner {title}",
+      "deleting": "Suppression...",
+      "delete": "Supprimer",
+      "editTags": "Modifier les tags",
+      "noTag": "Aucun tag",
+      "noSummary": "Pas encore de résumé.",
+      "notesCount": "Notes {count}",
+      "termsCount": "Termes {count}",
+      "opening": "Ouverture...",
+      "open": "Ouvrir"
+    },
+    "recent": {
+      "recentMaps": "Cartes récentes",
+      "recentInterestTags": "Tags d’intérêt récents",
+      "expandAria": "Développer les sections récentes",
+      "expand": "Développer",
+      "collapseAria": "Réduire les sections récentes",
+      "collapse": "Réduire",
+      "emptyInterestTags": "Il n’y a pas encore assez de tags collectés depuis les cartes récentes."
+    }
+  },
+  "MapsPage": {
+    "title": "Mes cartes",
+    "tagOrganizeExit": "Quitter",
+    "tabs": {
+      "maps": "Cartes",
+      "notes": "Notes",
+      "terms": "Termes"
+    },
+    "openBlocked": {
+      "failed": "Impossible d’ouvrir une carte en échec.",
+      "processing": "Cette carte est encore en cours de génération et ne peut pas être ouverte."
+    },
+    "empty": {
+      "noMaps": "Vous n’avez encore créé aucune mind map.",
+      "noMapsForFilters": "Aucune mind map ne correspond aux filtres sélectionnés.",
+      "noSearchResults": "Aucun résultat. Essayez un autre mot-clé.",
+      "noMapsForSelectedTags": "Aucune carte avec les tags sélectionnés."
+    },
+    "pagination": {
+      "totalCount": "{count} au total",
+      "prev": "Précédent",
+      "next": "Suivant"
+    },
+    "dialogs": {
+      "deleteMap": {
+        "title": "Supprimer cette mind map ?",
+        "description": "Cette action est irréversible. Continuer ?",
+        "action": "Supprimer"
+      }
+    },
+    "close": "Fermer"
+  },
+  "Support": {
+    "badge": "Support / Retour",
+    "title": "Envoyer un message à Brify",
+    "form": {
+      "title": "Rédigez votre demande",
+      "subtitle": "Plus vous donnez de détails, plus l’aide sera rapide et précise.",
+      "categoryLabel": "Catégorie",
+      "category": {
+        "bug": "Signaler un bug",
+        "idea": "Demande de fonctionnalité",
+        "billing": "Paiement / Crédits",
+        "other": "Autre"
+      },
+      "field": {
+        "titleLabel": "Titre",
+        "titlePlaceholder": "Ex. : Je ne vois pas le résultat du résumé",
+        "messageLabel": "Détails",
+        "messagePlaceholder": "Décrivez ce qui s’est passé,\ny compris votre navigateur/OS et les messages d’erreur éventuels.\nS’il s’agit d’une demande de fonctionnalité, dites-nous ce que vous souhaitez faire plus facilement.",
+        "emailLabel": "E-mail pour la réponse (optionnel)",
+        "emailPlaceholder": "Nous répondrons à l’e-mail de votre compte. Saisissez une autre adresse si vous préférez.",
+        "needsReply": "Je souhaite recevoir une réponse à cette demande"
+      },
+      "validation": {
+        "titleRequired": "Merci d’indiquer un titre.",
+        "messageRequired": "Merci d’indiquer les détails.",
+        "emailInvalid": "Merci d’indiquer une adresse e-mail valide."
+      },
+      "status": {
+        "success": "Votre demande a bien été reçue. Nous vous répondrons rapidement.",
+        "warnFallback": "Votre demande a bien été reçue, mais un problème est survenu lors de la mise en file de l’envoi d’e-mail. Nous allons vérifier cela rapidement.",
+        "error": "Merci de vérifier le titre et le contenu, puis de réessayer.",
+        "warnPrefix": "Votre demande a bien été reçue, mais la mise en file de l’envoi d’e-mail a échoué.",
+        "warnWithError": "Votre demande a bien été reçue, mais la mise en file de l’envoi d’e-mail a échoué. ({error})"
+      },
+      "button": {
+        "submitting": "Envoi...",
+        "submit": "Envoyer"
+      }
+    },
+    "aside": {
+      "speed": {
+        "title": "Délai de réponse",
+        "descBefore": "Nous répondons généralement sous ",
+        "descStrong": "24 heures",
+        "descAfter": ".\nLe délai peut être plus long les week-ends et jours fériés."
+      },
+      "tips": {
+        "title": "Conseils pour un support plus rapide",
+        "items": [
+          "Si possible, indiquez les étapes de reproduction dans l’ordre.",
+          "Si cela se produit uniquement sur un navigateur/appareil précis, ajoutez cette information.",
+          "Si vous avez des captures d’écran, répondez à notre e-mail et joignez-les."
+        ]
+      },
+      "faq": {
+        "title": "FAQ",
+        "descBefore": "Pour les crédits, les tarifs et les reçus, consultez la ",
+        "linkText": "page Tarifs",
+        "descAfter": "."
+      }
+    }
+  },
+  "notifications": {
+    "signup_reward": {
+      "title": "Bonus d’inscription accordé",
+      "message": "{credits} crédits ont été ajoutés en bonus d’inscription."
+    },
+    "payment_completed": {
+      "title": "Paiement confirmé",
+      "message": "Votre paiement pour {pack} a réussi, et {credits} crédits ont été ajoutés. (Montant : {amount} {currency})"
+    },
+    "payment_failed": {
+      "title": "Paiement échoué",
+      "message": "Le paiement n’a pas abouti. Vérifiez votre moyen de paiement et réessayez. (Code : {code})"
+    },
+    "refund_completed": {
+      "title": "Remboursement effectué",
+      "message": "Votre remboursement a été traité. Son apparition sur votre relevé peut prendre un peu de temps."
+    },
+    "ui": {
+      "aria_label": "Notifications",
+      "dismiss": "Fermer",
+      "dismiss_one": "Masquer la notification",
+      "dismiss_all": "Tout masquer",
+      "header_count": "Notifications {count}"
+    }
+  },
+  "notification_status": {
+    "approved": "Approuvé",
+    "rejected": "Refusé",
+    "completed": "Terminé",
+    "failed": "Échoué",
+    "refunded": "Remboursé",
+    "insufficient": "Insuffisant",
+    "info": "Info"
+  },
+  "notification_category": {
+    "mission": "Mission",
+    "billing": "Paiement",
+    "system": "Système"
+  },
+  "MapControls": {
+    "mode": {
+      "view": "Voir",
+      "viewAria": "Mode consultation",
+      "edit": "Modifier",
+      "editAria": "Mode édition"
+    },
+    "pan": {
+      "select": "Sélection",
+      "selectAria": "Mode sélection",
+      "move": "Déplacer",
+      "moveAria": "Mode déplacement"
+    },
+    "menus": {
+      "mapActions": "Actions de la carte",
+      "theme": "Thème",
+      "more": "Plus"
+    },
+    "actions": {
+      "center": "Centrer",
+      "zoomIn": "Zoom avant",
+      "zoomOut": "Zoom arrière",
+      "collapseAll": "Tout replier",
+      "expandAll": "Tout déplier",
+      "expandLevel": "Déplier d’un niveau",
+      "collapseLevel": "Replier d’un niveau",
+      "alignLeft": "Aligner à gauche",
+      "alignRight": "Aligner à droite",
+      "alignCenter": "Centrer la mise en page",
+      "exportPng": "Enregistrer en image (PNG)",
+      "share": "Partager",
+      "shortcuts": "Raccourcis",
+      "tutorial": "Tutoriel",
+      "closeMap": "Fermer la carte",
+      "timestampsShow": "Afficher les horodatages",
+      "timestampsHide": "Masquer les horodatages"
+    },
+    "hint": {
+      "label": "Astuce",
+      "toggleAria": "Afficher/masquer l’astuce des raccourcis"
+    }
+  },
+  "MapNotesTab": {
+    "title": "Bibliothèque de notes",
+    "leftDescription": "Consultez les cartes qui contiennent déjà des notes en un seul endroit.",
+    "rightDescription": "Vérifiez les mémos, les notes de nœud et les surlignages ensemble.",
+    "empty": "Il n’y a pas encore de cartes avec des notes.",
+    "emptyDetail": "Aucune note à afficher pour cette carte.",
+    "noSearchResults": "Aucune carte ne correspond à votre recherche.",
+    "searchPlaceholder": "Rechercher des cartes avec notes",
+    "sortUpdatedDesc": "Récemment modifié",
+    "sortTitleAsc": "Titre",
+    "previewSample": "Aperçu d’exemple",
+    "opening": "Ouverture",
+    "open": "Ouvrir la carte",
+    "selectedMap": "Sélectionnez une carte",
+    "sampleMapLabel": "Données d’exemple affichées sans connexion.",
+    "untitled": "Sans titre",
+    "loadError": "Impossible de charger les notes.",
+    "sections": {
+      "memo": "Mémos",
+      "annotations": "Notes de nœud",
+      "highlights": "Surlignages"
+    }
+  },
+  "MapTermsTab": {
+    "title": "Bibliothèque de termes",
+    "leftDescription": "Consultez les cartes qui ont déjà des termes extraits.",
+    "rightDescription": "Vérifiez les termes extraits et leurs explications pour la carte sélectionnée.",
+    "empty": "Il n’y a pas encore de cartes avec des termes.",
+    "emptyTerms": "Aucun terme à afficher pour cette carte.",
+    "noSearchResults": "Aucune carte ne correspond à votre recherche.",
+    "searchPlaceholder": "Rechercher des cartes avec termes",
+    "sortUpdatedDesc": "Récemment modifié",
+    "sortTitleAsc": "Titre",
+    "previewSample": "Aperçu d’exemple",
+    "opening": "Ouverture",
+    "open": "Ouvrir la carte",
+    "selectedMap": "Sélectionnez une carte",
+    "summary": "Termes",
+    "sampleMapLabel": "Données d’exemple affichées sans connexion.",
+    "untitled": "Sans titre",
+    "loadError": "Impossible de charger les termes."
+  },
+  "LeftPanel": {
+    "title": "Détails",
+    "infoTab": "Infos",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "close": "Fermer",
+    "untitled": "Sans titre",
+    "created": "Créé le",
+    "updated": "Mis à jour le",
+    "credits": "Crédits utilisés",
+    "summarySection": "Résumé en un paragraphe",
+    "sourceSection": "Source",
+    "thumbnailPlaceholder": "Miniature",
+    "sourceType": "Type de source",
+    "sourceTitle": "Titre original",
+    "channel": "Chaîne / Auteur",
+    "none": "Aucun",
+    "sourceLink": "Lien original",
+    "tagsSection": "Tags",
+    "noTags": "Aucun tag",
+    "descriptionSection": "Description",
+    "noDescription": "Aucune description",
+    "termsIntro": "L’IA extrait automatiquement les termes clés pour faciliter la compréhension du contenu.",
+    "requestFailed": "La requête a échoué",
+    "metadataPending": "Génération des métadonnées en cours.",
+    "metadataPendingSummary": "Génération du résumé en un paragraphe.",
+    "metadataPendingTags": "Génération des tags en cours.",
+    "tooltips": {
+      "editMetadata": "Modifier les métadonnées",
+      "editTags": "Modifier les tags"
+    },
+    "notesSubtabs": {
+      "memo": "Notes",
+      "annotations": "Annotations",
+      "highlights": "Surlignages",
+      "annotationsEmpty": "Aucune annotation pour l’instant.",
+      "annotationsHelper": "Consultez les annotations des nœuds et allez directement au nœud en un clic.",
+      "highlightsEmpty": "Aucun nœud surligné pour l’instant.",
+      "highlightsHelper": "Consultez les nœuds surlignés et allez-y directement en un clic."
+    }
+  },
+  "RightPanel": {
+    "tabs": {
+      "notes": "Notes",
+      "terms": "Termes"
+    },
+    "closeAria": "Fermer le panneau",
+    "closeTitle": "Fermer",
+    "notes": {
+      "helper": "Notez les idées importantes au fil de la lecture.",
+      "placeholder": "Écrivez une note… (Entrée pour ajouter)",
+      "add": "Ajouter",
+      "loading": "Chargement des notes…",
+      "empty": "Aucune note pour le moment."
+    },
+    "errors": {
+      "notes": {
+        "fetch": "Impossible de charger les notes.",
+        "add": "Impossible d’ajouter la note.",
+        "delete": "Impossible de supprimer la note.",
+        "update": "Impossible de modifier la note."
+      },
+      "terms": {
+        "fetch": "Impossible de charger les termes.",
+        "statusFetch": "Impossible de récupérer l’état des termes.",
+        "generateFail": "Échec de la génération des explications de termes.",
+        "statusFail": "Impossible de vérifier l’état des termes.",
+        "autoStartFail": "Impossible de lancer l’extraction des termes.",
+        "customStartFail": "Impossible de lancer les explications de termes.",
+        "requestFail": "Échec de la demande d’explications de termes.",
+        "deleteFail": "Impossible de supprimer le terme."
+      },
+      "auth": {
+        "session": "Impossible de récupérer la session : {message}",
+        "login": "Veuillez d’abord vous connecter."
+      },
+      "env": {
+        "missingApiBase": "NEXT_PUBLIC_API_BASE_URL est manquant."
+      }
+    }
+  },
+  "TermsBlock": {
+    "helper": "",
+    "loading": "Génération des explications de termes…",
+    "delete": "Supprimer",
+    "cta": "Obtenir des explications IA des termes",
+    "usedCount": "Utilisé {count} fois dans cette session.",
+    "customInline": {
+      "toggle": "Ajouter d’autres termes à expliquer",
+      "title": "Expliquez uniquement les termes souhaités",
+      "description": "Séparez les termes par des virgules pour expliquer uniquement ceux-ci.",
+      "placeholder": "ex. JWT, CORS, OAuth",
+      "submit": "Obtenir les explications"
+    },
+    "picker": {
+      "title": "Comment souhaitez-vous obtenir les explications ?",
+      "auto": {
+        "title": "Expliquer tous les termes",
+        "description": "L’IA extrait automatiquement les termes et résume l’essentiel."
+      },
+      "custom": {
+        "title": "Choisir les termes à expliquer",
+        "description": "Saisissez seulement les termes dont vous voulez une explication.",
+        "placeholder": "ex. JWT, CORS, OAuth"
+      },
+      "cancel": "Annuler",
+      "submit": "Demander des explications"
+    }
+  },
+  "FullscreenMapPage": {
+    "fallbackTitle": "Mind Map",
+    "backToList": "Retour",
+    "mode": {
+      "editing": "Édition",
+      "view": "Lecture"
+    },
+    "tabs": {
+      "info": "Infos",
+      "notes": "Notes",
+      "terms": "Termes"
+    },
+    "status": {
+      "loading": "Chargement",
+      "loadFailed": "Échec du chargement",
+      "fetchError": "Impossible de charger la mind map."
+    },
+    "modeBadge": {
+      "edit": "Mode édition : vous pouvez modifier/ajouter des nœuds",
+      "view": "Mode lecture : concentrez-vous sur le flux"
+    },
+    "actions": {
+      "delete": "Supprimer",
+      "tutorial": "Tutoriel",
+      "closeMap": "Fermer la carte",
+      "discardDraft": "Ignorer le brouillon",
+      "publish": "Terminer / Publier",
+      "searchPlaceholder": "Rechercher",
+      "clearSearch": "Effacer la recherche",
+      "previousSearchResult": "Résultat précédent",
+      "nextSearchResult": "Résultat suivant",
+      "more": "Plus"
+    },
+    "moreMenu": {
+      "layoutLeft": "Disposition à gauche",
+      "layoutRight": "Disposition à droite",
+      "layoutBoth": "Disposition bilatérale",
+      "theme": "Thème",
+      "profileTheme": "Mon thème",
+      "defaultTheme": "Thème classique",
+      "showTimestamps": "Afficher les horodatages",
+      "hideTimestamps": "Masquer les horodatages",
+      "savePng": "Enregistrer en PNG",
+      "print": "Imprimer / Enregistrer en PDF",
+      "shortcuts": "Raccourcis clavier",
+      "share": "Partager"
+    },
+    "draftStatus": {
+      "autoSaving": "Enregistrement automatique…",
+      "saved": "Enregistré",
+      "hasDraft": "Modifications non enregistrées"
+    },
+    "share": {
+      "statusLoadFailed": "Impossible de charger l’état du partage.",
+      "enableFailed": "Impossible de créer le lien de partage.",
+      "enabled": "Lien de partage créé.",
+      "disableFailed": "Impossible de désactiver le partage.",
+      "disabled": "Partage désactivé.",
+      "copied": "Lien copié.",
+      "copyFailed": "Impossible de copier le lien.",
+      "copyLink": "Copier le lien",
+      "inAppHint": "Les Structure Maps peuvent ne pas fonctionner correctement dans les navigateurs intégrés. Copiez le lien et ouvrez-le dans un navigateur séparé."
+    },
+    "shareDialog": {
+      "title": "Lien de partage",
+      "description": "Toute personne disposant du lien peut afficher en lecture seule.",
+      "close": "Fermer",
+      "copy": "Copier",
+      "empty": "Une fois le lien de partage créé, vous pourrez le copier ici.",
+      "cancel": "Annuler",
+      "disable": "Désactiver le lien",
+      "enable": "Créer le lien"
+    },
+    "publishToast": {
+      "success": "Publication réussie.",
+      "failed": "Échec de la publication."
+    },
+    "discardToast": {
+      "success": "Les modifications brouillon ont été ignorées.",
+      "failed": "Impossible d’ignorer les modifications brouillon."
+    },
+    "selectedMap": "Carte sélectionnée",
+    "export": {
+      "failed": "Impossible d’enregistrer l’image."
+    },
+    "deleteConfirm": {
+      "title": "Supprimer cette mind map ?",
+      "description": "Cette action est irréversible. Voulez-vous continuer ?",
+      "action": "Supprimer",
+      "actionDeleting": "Suppression..."
+    },
+    "mobile": {
+      "collapseOneLevel": "Replier d’un niveau",
+      "expandOneLevel": "Déplier d’un niveau",
+      "openTools": "Ouvrir les outils",
+      "closeTools": "Fermer les outils",
+      "layouts": "Mises en page"
+    },
+    "sharedMissing": {
+      "title": "Carte partagée introuvable",
+      "description": "Le lien est peut-être invalide, ou le partage a été désactivé.",
+      "action": "Retour à l’accueil"
+    },
+    "readOnlyBadge": "Lecture seule",
+    "expandHint": {
+      "line1": "Il y a plus de contenu.",
+      "line2": "Appuyez sur les nœuds avec l’icône + pour afficher les branches cachées.",
+      "dismiss": "Fermer l’info"
+    },
+    "toasts": {
+      "savingNote": "Enregistrement des notes en cours...",
+      "sharedReadOnly": "Les pages partagées sont en lecture seule.",
+      "highlightReadOnly": "Les surlignages ne sont pas enregistrés en lecture seule."
+    },
+    "readOnlyMode": {
+      "admin": "Mode consultation admin",
+      "shared": "Partagé en lecture seule"
+    },
+    "brand": "Brify",
+    "cancel": "Annuler"
+  },
+  "FullscreenDialog": {
+    "fallbackTitle": "Mind Map",
+    "title": "Aperçu de la mind map",
+    "close": "Fermer",
+    "goList": "Mes cartes",
+    "mode": {
+      "editing": "Édition",
+      "view": "Lecture"
+    },
+    "tabs": {
+      "info": "Infos",
+      "notes": "Notes",
+      "terms": "Termes"
+    },
+    "actions": {
+      "centerMap": "Centrer",
+      "collapseAll": "Tout replier",
+      "zoomIn": "Zoom avant",
+      "zoomOut": "Zoom arrière",
+      "tutorial": "Tutoriel"
+    },
+    "status": {
+      "fetchError": "Impossible de charger la mind map."
+    },
+    "modeBadge": {
+      "edit": "Mode édition : vous pouvez modifier/ajouter des nœuds",
+      "view": "Mode lecture : concentrez-vous sur le flux"
+    }
+  },
+  "MetadataDialog": {
+    "title": "Détails du contenu",
+    "subtitle": "Le titre est obligatoire ; le reste est optionnel.",
+    "fields": {
+      "sourceQuestion": "Cette mind map est-elle basée sur une vidéo YouTube ?",
+      "sourceTypeYes": "Oui",
+      "sourceTypeNo": "Non",
+      "url": "URL YouTube",
+      "youtubeTitle": "Titre YouTube",
+      "title": "Titre",
+      "sameAsYoutubeTitle": "Identique au titre YouTube",
+      "channel": "Chaîne / Source (optionnel)",
+      "thumbnail": "Miniature (optionnel)",
+      "tags": "Tags (optionnel)",
+      "description": "Description (optionnel)"
+    },
+    "placeholders": {
+      "url": "https://youtube.com/watch?v=...",
+      "youtubeTitle": "Titre YouTube original",
+      "title": "ex. Saisissez un titre de contenu",
+      "channel": "Chaîne / Auteur / Source",
+      "thumbnailUrl": "(optionnel) URL de la miniature",
+      "tags": "Tapez un tag puis appuyez sur Entrée",
+      "description": "Ajoutez des notes, un résumé ou une description pour cette mind map."
+    },
+    "buttons": {
+      "youtubeAutofill": "Récupérer les infos YouTube",
+      "youtubeLoading": "Chargement...",
+      "uploadThumbnail": "Téléverser une miniature",
+      "close": "Fermer",
+      "save": "Continuer"
+    },
+    "hints": {
+      "youtubeOptional": "Si vous ajoutez une URL YouTube, nous pouvons remplir automatiquement le titre, la chaîne et la miniature. Vous pouvez aussi ignorer cette étape et saisir les informations manuellement.",
+      "youtubeUrl": "Saisissez une URL YouTube pour remplir automatiquement le titre, la chaîne et la miniature.",
+      "youtubeSkip": "Vous pouvez continuer sans URL.",
+      "nonYoutubeUrl": "Si ce n’est pas une URL YouTube, veuillez remplir les champs ci-dessous.",
+      "tags": ""
+    },
+    "tags": {
+      "removeTagAria": "Supprimer le tag",
+      "addTagAria": "Ajouter un tag",
+      "addTagPlaceholder": "Ajouter un tag",
+      "enterHint": "Tapez un tag puis appuyez sur Entrée pour l’ajouter.",
+      "addFromExisting": "Ajouter depuis les tags existants",
+      "selectedCount": "{count} sélectionné(s)",
+      "searchPlaceholder": "Rechercher des tags",
+      "noTagsToAdd": "Aucun tag à ajouter."
+    },
+    "thumbnail": {
+      "empty": "Aucune image",
+      "uploadHint": "L’image sélectionnée sera téléversée à l’enregistrement. (<=5MB, conversion webp)"
+    },
+    "status": {
+      "uploading": "Téléversement..."
+    },
+    "footerHint": "Après avoir saisi un titre et enregistré, vous pourrez gérer la carte dans votre liste.",
+    "errors": {
+      "youtubeUrlRequired": "Veuillez saisir une URL YouTube.",
+      "sessionFailed": "Impossible de récupérer la session : {message}",
+      "loginRequired": "Connexion requise.",
+      "missingApiBase": "NEXT_PUBLIC_API_BASE_URL manquant.",
+      "youtubeFetchFailed": "Échec de récupération des métadonnées YouTube.",
+      "youtubeRestricted": "Remplissage automatique impossible pour cette vidéo (privée ou restreinte). Vous pouvez continuer en saisissant les détails manuellement.",
+      "requestFailed": "La requête a échoué.",
+      "invalidImage": "Le fichier image n’est pas valide.",
+      "titleRequired": "Le titre est obligatoire. Veuillez saisir un titre.",
+      "missingMapId": "mapId manquant. Impossible de téléverser la miniature.",
+      "thumbnailUploadFailed": "Échec du téléversement de la miniature."
+    }
+  },
+  "SummarizePage": {
+    "hero": {
+      "title": "Quel contenu souhaitez-vous organiser ?",
+      "subtitle": "Choisissez d’abord la source."
+    },
+    "dialog": {
+      "cancel": "Annuler"
+    },
+    "toast": {
+      "summaryFailed": "La génération du résumé a échoué.",
+      "missingSummaryId": "ID de résumé introuvable.",
+      "keywordsSaved": "Les mots-clés ont été enregistrés.",
+      "keywordsSaveFailed": "Échec de l’enregistrement des mots-clés."
+    },
+    "button": {
+      "loading": "Génération du résumé...",
+      "submit": "Créer le résumé"
+    },
+    "result": {
+      "title": "Finalisez maintenant le résumé dans votre propre style.",
+      "placeholder": "Le résultat du résumé s’affichera ici."
+    },
+    "sourceTabs": {
+      "manual": "Texte direct",
+      "file": "Document",
+      "website": "Site web"
+    },
+    "editor": {
+      "copied": "Copié",
+      "copy": "Copier",
+      "manualTitle": "Saisissez ou collez le contenu à résumer.",
+      "manualSubtitle": "Quand c’est prêt, lancez le résumé.",
+      "readyTitle": "Le contenu est prêt.",
+      "readySubtitle": "Modifiez-le si nécessaire avant de résumer.",
+      "sourceLabel": "Texte source",
+      "manualPlaceholder": "Saisissez ici le contenu à organiser.",
+      "manualPlaceholderWithIcon": "✍️ Saisissez ici le contenu à organiser.",
+      "extractedPlaceholder": "Vérifiez ou modifiez le texte extrait.",
+      "retentionHint": "Le texte saisi est conservé temporairement 24 h pour générer le résumé, puis supprimé automatiquement.",
+      "minLengthHint": "Saisissez au moins 300 caractères pour créer un résumé.",
+      "loadingTitle": "✏️ Analyse des points clés en cours...",
+      "loadingDescription": "L’IA sélectionne et organise les phrases importantes.",
+      "loadingDuration": "Cela peut prendre 5 à 15 secondes."
+    },
+    "tags": {
+      "doubleClickToEdit": "Double-cliquez pour modifier",
+      "addTag": "Ajouter un tag"
+    },
+    "extractedText": {
+      "copied": "Copié",
+      "copy": "Copier",
+      "sourceLabel": "Texte source",
+      "placeholder": "Vérifiez ou modifiez le texte extrait.",
+      "hint": "Le texte source n’est pas stocké séparément."
+    },
+    "upload": {
+      "title": "Importer un fichier",
+      "dropLine1": "Glissez un fichier ici, ou",
+      "dropLine2": "cliquez sur le bouton ci-dessous pour en choisir un.",
+      "chooseFile": "Choisir un fichier",
+      "supported": "Formats pris en charge : PDF, DOCX, TXT.",
+      "imageProOnly": "Les fichiers image (JPG, PNG) sont réservés à l’offre Pro."
+    },
+    "ocrHelp": {
+      "title": "Pourquoi l’extraction de texte a-t-elle échoué ?",
+      "subtitle": "Voici les raisons les plus courantes pour lesquelles l’OCR peut être nécessaire.",
+      "reasonsTitle": "Même pour un PDF, l’extraction peut échouer dans les cas suivants :",
+      "reason1": "Le document est enregistré uniquement comme image scannée",
+      "reason2": "L’encodage interne du document est non standard",
+      "reason3": "Des restrictions de sécurité empêchent la copie",
+      "reason4": "Le document utilise des polices ou une mise en page particulières",
+      "footer": "Dans ces cas, vous pouvez extraire le texte avec <strong>l’OCR (reconnaissance de texte sur image)</strong>.",
+      "close": "Fermer"
+    },
+    "ocrSuggest": {
+      "cancel": "Annuler",
+      "title": "Impossible d’extraire le texte du PDF",
+      "line1": "Le texte n’a pas pu être extrait directement du PDF.",
+      "line2": "Selon le format ou l’encodage du document, une extraction via OCR peut être nécessaire.",
+      "line3": "Voulez-vous essayer l’extraction OCR ?",
+      "helpLink": "*Voir pourquoi l’extraction PDF peut échouer",
+      "confirm": "Essayer l’extraction OCR"
+    },
+    "loginRequired": {
+      "title": "Connexion requise",
+      "description": "Pour utiliser cette fonctionnalité, connectez-vous ou créez un compte.",
+      "loginTab": "Connexion",
+      "signupTab": "Inscription"
+    },
+    "actions": {
+      "highlight": "Surligner",
+      "shorter": "Résumer plus simplement",
+      "detailed": "Résumer en détail",
+      "terms": "Expliquer les termes",
+      "exportPdf": "Exporter en PDF",
+      "askGpt": "Demander à GPT",
+      "copy": "Copier",
+      "diagramSoon": "🧠 La vue diagramme arrive bientôt."
+    },
+    "input": {
+      "noFile": "Aucun fichier sélectionné.",
+      "invalidYoutube": "Lien YouTube invalide.",
+      "processingError": "⚠️ Une erreur est survenue pendant le traitement.",
+      "extractButton": "Extraire le texte source",
+      "processing": "Traitement en cours...",
+      "youtubeLabel": "URL de la vidéo YouTube",
+      "websiteLabel": "URL du site web",
+      "websiteHint": "La plupart des sites web sont pris en charge, mais certains sites protégés ou nécessitant une connexion peuvent ne pas fonctionner.",
+      "youtubeExtractPrefix": "🔗 Transcription extraite depuis la vidéo YouTube.",
+      "websiteExtractPrefix": "🌐 Contenu extrait du site web.",
+      "ocrExtractPrefix": "📷 Contenu extrait via OCR.",
+      "fileExtractPrefix": "📄 Contenu extrait du fichier importé.",
+      "fetchResultFailed": "❌ Impossible de charger le résultat.",
+      "youtubeTranscriptFailed": "❌ Échec de l’extraction de la transcription YouTube.",
+      "requestFailed": "❌ Échec du traitement de la requête.",
+      "requestError": "❌ Une erreur est survenue pendant le traitement de la requête.",
+      "networkError": "❌ Erreur réseau. Veuillez réessayer.",
+      "websiteExtractFailed": "❌ Échec de l’extraction du contenu du site web.",
+      "requestNotFound": "❌ Requête introuvable (Job ID manquant).",
+      "websiteErrorRetry": "❌ Une erreur est survenue lors de la requête du site web. Veuillez réessayer.",
+      "ocrFailed": "❌ Échec du traitement OCR.",
+      "ocrUploadFailed": "❌ Erreur lors de l’envoi OCR.",
+      "fileProcessFailed": "❌ Échec du traitement du fichier.",
+      "fileUploadFailed": "❌ Erreur lors de l’envoi du fichier."
+    }
+  },
+  "ConfirmDialog": {
+    "title": "Réinitialiser ?",
+    "description": "Votre progression actuelle sera supprimée.",
+    "action": "Réinitialiser",
+    "cancel": "Annuler"
+  },
+  "SummaryEditor": {
+    "cancel": "Annuler",
+    "save": "Enregistrer"
+  },
+  "SummarizeOptionsDialog": {
+    "title": "Choisir les options du résumé",
+    "enterTextAlert": "Veuillez saisir le texte à résumer.",
+    "sourceOptional": "Source (optionnel)",
+    "sourcePlaceholder": "ex. lien YouTube, URL d’article",
+    "viewTypeTitle": "Affichage du résultat",
+    "viewText": "📝 Texte résumé",
+    "viewDiagram": "📊 Diagramme",
+    "viewBoth": "📝+📊 Les deux",
+    "loading": "Résumé en cours...",
+    "submit": "Demander le résumé",
+    "cancel": "Annuler"
+  },
+  "BlogPage": {
+    "title": "Blog Brify",
+    "count": "{count} articles",
+    "meta": {
+      "title": "Blog Brify",
+      "description": "Le blog Brify sur la transformation d'informations complexes en cartes mentales structurées."
+    }
+  },
+  "TagEditDialog": {
+    "title": "Modifier les tags",
+    "description": "Saisissez un tag puis appuyez sur Entrée pour l'ajouter.",
+    "removeTagAria": "Supprimer le tag",
+    "addTagPlaceholder": "Ajouter un tag",
+    "addFromExisting": "Ajouter depuis les tags existants",
+    "selectedCount": "{count} sélectionnés",
+    "searchPlaceholder": "Rechercher des tags",
+    "noTagsToAdd": "Aucun tag à ajouter.",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement..."
+  },
+  "MapsDialogs": {
+    "tagMerge": {
+      "title": "Fusionner les tags",
+      "description": "Fusionnez les tags sélectionnés en un seul.",
+      "targetLabel": "Tag cible",
+      "targetPlaceholder": "Nom du tag de destination",
+      "confirm": "Fusionner",
+      "cancel": "Annuler"
+    }
+  },
+  "ClientMindElixir": {
+    "miniMap": {
+      "label": "Mini-carte",
+      "center": "Centrer",
+      "zoomIn": "Zoom avant (⌘+)",
+      "zoomOut": "Zoom arrière (⌘-)",
+      "collapseOneLevel": "Réduire d'un niveau",
+      "expandOneLevel": "Développer d'un niveau"
+    },
+    "mobileEdit": {
+      "title": "Modifier le nœud",
+      "moreActions": "Plus"
+    },
+    "annotation": {
+      "title": "Annotation",
+      "placeholder": "Saisissez une annotation",
+      "add": "Ajouter une annotation",
+      "delete": "Supprimer l’annotation"
+    },
+    "highlight": "Surligner",
+    "focusMode": {
+      "label": "Mode focus",
+      "exit": "Quitter"
+    },
+    "common": {
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "contextMenu": {
+      "copyMarkdown": "Copier en Markdown",
+      "copyExpandedMarkdown": "Copier les nœuds développés en Markdown",
+      "copySuccess": "Markdown copié.",
+      "copyFail": "Échec de la copie."
+    },
+    "timestamp": {
+      "hms": "{h}h {m}m {s}s",
+      "ms": "{m}m {s}s",
+      "s": "{s}s"
+    }
+  },
+  "NoteButton": {
+    "label": "Notes",
+    "withCount": "Notes ({count})"
+  },
+  "ProTooltipButton": {
+    "description": "Disponible avec l’offre Pro.",
+    "cta": "Voir les tarifs"
+  },
+  "SummaryViewer": {
+    "edit": "Modifier"
+  },
+  "YoutubeNotesPage": {
+    "title": "Notes YouTube et organisation des vidéos YouTube | Brify",
+    "description": "Brify vous aide à organiser les vidéos YouTube en notes structurées et en mind maps pour revoir plus facilement les contenus longs.",
+    "keywords": ["notes youtube", "organisation youtube", "organiser videos youtube", "mind map youtube", "Brify"],
+    "ogImage": "https://www.brify.app/images/sns_en.png",
+    "heading": "Une meilleure façon d'organiser vos vidéos YouTube et vos notes",
+    "lead": "Si vous enregistrez souvent des vidéos YouTube utiles sans les revoir ensuite, Brify vous aide à organiser les notes, le fil conducteur et la structure dans un format plus facile à consulter.",
+    "body": [
+      "Organiser le contenu YouTube est difficile, non seulement parce que les vidéos sont longues, mais aussi parce que les idées importantes sont répétées et dispersées dans plusieurs sections.",
+      "Brify vous aide à transformer les transcriptions YouTube en notes structurées et en mind maps, pour voir d'un coup d'œil l'essentiel et les liens entre les idées.",
+      "Brify convient particulièrement à celles et ceux qui veulent plus qu'un simple résumé, et qui souhaitent revoir la structure du contenu plus tard."
+    ],
+    "bullets": [
+      "Les personnes qui enregistrent de longues vidéos YouTube sans les revoir",
+      "Les personnes qui veulent des notes YouTube mieux structurées",
+      "Les personnes qui ont besoin de flux et de liens, au-delà des résumés",
+      "Les personnes qui veulent rouvrir et réviser ce qu'elles ont regardé"
+    ],
+    "ctaTitle": "Pour des notes YouTube plus structurées",
+    "ctaBody": "Brify transforme les transcriptions YouTube en mind maps pour comprendre des informations complexes plus vite et les revoir plus facilement.",
+    "primaryCta": "Voir la démo",
+    "secondaryCta": "Voir la page résumé YouTube",
+    "demoHref": "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e",
+    "relatedHref": "/fr/youtube-summary"
+  },
+  "YoutubeSummaryPage": {
+    "title": "Outil de résumé YouTube | Transformez les vidéos YouTube en mind maps | Brify",
+    "description": "Brify est un outil de résumé YouTube qui transforme les transcriptions YouTube en mind maps pour comprendre rapidement les vidéos longues et les informations complexes.",
+    "keywords": ["resume youtube", "outil resume youtube", "notes youtube", "mind map youtube", "youtube vers mind map", "convertir youtube en mind map", "mind map", "resume page web", "Brify"],
+    "ogImage": "https://www.brify.app/images/sns_en.png",
+    "breadcrumbName": "Résumé YouTube",
+    "heading": "Un outil de résumé YouTube qui transforme les vidéos en mind maps",
+    "lead": "Si vous cherchez une façon plus rapide de résumer des vidéos YouTube et de convertir des transcriptions en mind maps, Brify vous aide à comprendre le fil et la structure sans regarder chaque minute.",
+    "section1Title": "Pourquoi Brify fonctionne bien pour les résumés et notes YouTube",
+    "section1Body": [
+      "YouTube contient beaucoup d'informations utiles, mais les vidéos longues et les sujets complexes sont difficiles à résumer et à organiser rapidement.",
+      "Brify agit comme un outil de résumé YouTube en transformant les transcriptions en mind maps, pour visualiser d'un coup d'œil le fil principal, les idées répétées et les détails liés.",
+      "Au lieu de s'arrêter à un résumé linéaire, Brify vous aide à convertir le contenu YouTube en une structure claire que vous pouvez revoir facilement."
+    ],
+    "section2Title": "Pour qui c'est utile",
+    "bullets": [
+      "Les personnes qui veulent comprendre plus vite de longues vidéos YouTube",
+      "Les personnes qui veulent des notes et résumés YouTube mieux structurés",
+      "Les personnes qui préfèrent les mind maps visuelles pour les sujets complexes",
+      "Les personnes qui veulent aussi organiser des pages web et des textes longs"
+    ],
+    "section3Title": "Ce que vous pouvez faire avec Brify",
+    "cards": [
+      { "title": "Résumés YouTube", "body": "Comprendre plus rapidement le fil essentiel des vidéos longues." },
+      { "title": "Notes YouTube", "body": "Organiser plusieurs concepts et détails dans une mind map à revisiter plus tard." },
+      { "title": "Mind maps YouTube", "body": "Transformer les transcriptions en structure visuelle pour comparer et comprendre d'un coup d'œil." },
+      { "title": "Organisation de textes longs", "body": "Appliquer le même flux de travail aux pages web et textes longs pour simplifier les informations complexes." }
+    ],
+    "faqTitle": "Questions fréquentes",
+    "faqs": [
+      { "question": "Brify est-il un outil de résumé YouTube ?", "answer": "Oui. Brify vous aide à résumer du contenu YouTube plus vite. Sa force ne s'arrête pas au résumé : il transforme aussi les transcriptions YouTube en mind maps que vous pouvez revoir ensuite." },
+      { "question": "Puis-je organiser des vidéos YouTube en mind maps ?", "answer": "Oui. Brify vous aide à convertir des transcriptions YouTube en mind maps, ce qui rend les informations complexes plus faciles à comprendre et à comparer." },
+      { "question": "Brify peut-il aussi organiser des pages web et des textes longs ?", "answer": "Oui. Brify est conçu pour fonctionner avec les transcriptions YouTube, les pages web et les textes longs, afin d'utiliser le même flux de travail pour différentes sources." }
+    ],
+    "primaryCta": "Voir la démo",
+    "secondaryCta": "Commencer avec Brify",
+    "demoHref": "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e",
+    "signupHref": "/fr/signup"
+  },
+  "MindMapPage": {
+    "title": "YouTube vers Mind Map | Convertir des transcriptions YouTube en mind maps | Brify",
+    "description": "Brify vous aide à convertir des transcriptions YouTube, des pages web et des textes longs en mind maps pour comprendre immédiatement le flux et la structure.",
+    "keywords": ["mind map", "mind map youtube", "youtube vers mind map", "convertir youtube en mind map", "mind map texte", "Brify"],
+    "ogImage": "https://www.brify.app/images/sns_en.png",
+    "heading": "Convertissez des transcriptions YouTube en mind maps",
+    "lead": "Si vous cherchez un flux YouTube vers mind map, Brify vous aide à convertir des transcriptions YouTube en mind maps et à revoir plus facilement des contenus complexes.",
+    "paragraphs": [
+      "Une mind map n'est pas seulement un format visuel propre : c'est une façon de comprendre les relations, la hiérarchie et le fil d'une information complexe.",
+      "Brify vous aide à convertir les transcriptions YouTube en mind maps pour rendre les idées clés et leurs liens beaucoup plus visibles.",
+      "Brify est particulièrement utile si vous cherchez à transformer des vidéos YouTube en mind maps pour l'étude, la recherche, la comparaison et des entrées complexes."
+    ],
+    "bullets": [
+      "Les personnes qui veulent convertir du contenu YouTube en mind maps",
+      "Les personnes qui veulent visualiser rapidement des textes longs",
+      "Les personnes qui veulent une structure et un flux visuels",
+      "Les personnes qui comparent plusieurs sources et idées"
+    ],
+    "ctaTitle": "Commencez à organiser avec les mind maps Brify",
+    "ctaBody": "Convertissez des transcriptions YouTube, des pages web et des textes longs en mind maps pour comprendre plus vite les informations complexes.",
+    "primaryCta": "Commencer avec Brify",
+    "secondaryCta": "Voir la page notes YouTube",
+    "signupHref": "/fr/signup",
+    "relatedHref": "/fr/youtube-notes"
+  },
+  "RefundPolicyPage": {
+    "badge": "POLITIQUE DE REMBOURSEMENT BRIFY",
+    "title": "Politique de remboursement",
+    "intro": "Cette page présente la durée de validité, les conditions d’éligibilité au remboursement et les limites de remboursement des crédits payants Brify. Merci de lire ces règles avant l’achat.",
+    "facts": {
+      "validityTitle": "Validité",
+      "validityValue": "1 an à compter du paiement",
+      "changeOfMindTitle": "Remboursement (changement d’avis)",
+      "changeOfMindValue": "Sous 7 jours si non utilisé",
+      "methodTitle": "Méthode de remboursement",
+      "methodValue": "Moyen de paiement d’origine"
+    },
+    "sections": {
+      "scope": {
+        "title": "1. Champ d’application",
+        "body": "Cette politique de remboursement s’applique aux produits de crédits payants vendus par Brify."
+      },
+      "validity": {
+        "title": "2. Durée de validité",
+        "body": "Les crédits payants sont valables 1 an à compter de chaque date de paiement.",
+        "note": "Cette période correspond à la durée d’utilisation des crédits payants. L’éligibilité au remboursement et son périmètre sont déterminés séparément selon les règles ci-dessous et la loi applicable."
+      },
+      "eligibility": {
+        "title": "3. Conditions d’éligibilité",
+        "body1": "Les crédits payants peuvent être intégralement remboursés sous 7 jours après l’achat, si aucun crédit de cette commande n’a été utilisé.",
+        "body2": "Le remboursement des crédits payants non utilisés est calculé sur la base du montant payé lors de l’achat.",
+        "note": "Le remboursement est en principe effectué via le même moyen de paiement que celui utilisé lors de l’achat."
+      },
+      "limitations": {
+        "title": "4. Limitations",
+        "body1": "Les crédits payants déjà utilisés ne peuvent pas être annulés ni remboursés.",
+        "body2": "Une fois l’utilisation des crédits commencée ou la génération de carte lancée, le remboursement pour simple changement d’avis est limité pour cette commande.",
+        "note1": "Les crédits payants non utilisés au-delà de 7 jours après l’achat ne sont pas remboursables pour changement d’avis et ne peuvent être utilisés que pendant 1 an à compter du paiement.",
+        "note2": "Les crédits payants achetés ne peuvent pas être transférés, cédés ou prêtés à un autre membre."
+      },
+      "exceptions": {
+        "title": "5. Cas exceptionnels",
+        "body": "Les paiements en double, erreurs système, ou cas où la loi impose un remboursement peuvent faire l’objet d’un examen séparé."
+      },
+      "request": {
+        "title": "6. Comment demander un remboursement",
+        "body": "Pour demander un examen de remboursement, merci d’envoyer un e-mail à hello@brify.app avec la date d’achat, l’e-mail du compte et les détails du paiement.",
+        "note": "Pour accélérer le traitement, ajoutez également l’ID de commande, le montant, le moyen de paiement et le motif de la demande."
+      },
+      "processing": {
+        "title": "7. Traitement du remboursement",
+        "body": "Après approbation, le délai réel d’annulation et d’apparition du remboursement peut varier selon la banque, l’émetteur de carte ou le prestataire de paiement."
+      },
+      "contact": {
+        "title": "8. Contact",
+        "email": "hello@brify.app",
+        "note": "L’interprétation et l’application de cette politique peuvent varier selon la loi applicable, les règles du prestataire de paiement et l’état de la transaction."
+      }
+    }
+  },
+  "common": {
+    "loading": "Chargement...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "retry": "Réessayer"
+  }
+}

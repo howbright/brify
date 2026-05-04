@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 import type { Database } from "@/app/types/database.types";
@@ -15,23 +15,6 @@ type TermItem = {
   updatedAt?: number;
 };
 
-type TermsTabCopy = {
-  title: string;
-  leftDescription: string;
-  rightDescription: string;
-  empty: string;
-  emptyTerms: string;
-  noSearchResults: string;
-  searchPlaceholder: string;
-  sortUpdatedDesc: string;
-  sortTitleAsc: string;
-  previewSample: string;
-  opening: string;
-  open: string;
-  selectedMap: string;
-  summary: string;
-  sampleMapLabel: string;
-};
 
 const TERMS_LIST_FIELDS =
   "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,terms_count";
@@ -71,44 +54,6 @@ const MOCK_TERMS: Record<string, TermItem[]> = {
   ],
 };
 
-function getCopy(locale: string): TermsTabCopy {
-  if (locale === "ko") {
-    return {
-      title: "용어 모아보기",
-      leftDescription: "용어가 정리된 맵만 따로 모아 빠르게 다시 볼 수 있어요.",
-      rightDescription: "선택한 맵에서 추출된 용어와 뜻을 확인합니다.",
-      empty: "아직 용어가 정리된 맵이 없습니다.",
-      emptyTerms: "선택한 맵에 표시할 용어가 없습니다.",
-      noSearchResults: "검색 조건에 맞는 맵이 없습니다.",
-      searchPlaceholder: "용어가 있는 맵 검색",
-      sortUpdatedDesc: "최근 수정순",
-      sortTitleAsc: "제목순",
-      previewSample: "프리뷰 샘플",
-      opening: "여는 중",
-      open: "맵 열기",
-      selectedMap: "맵을 선택해 주세요",
-      summary: "용어 수",
-      sampleMapLabel: "로그인 없이 미리보기 가능한 샘플 데이터입니다.",
-    };
-  }
-  return {
-    title: "Terms Library",
-    leftDescription: "Browse maps that already have extracted terms.",
-    rightDescription: "Review the extracted terms and explanations for the selected map.",
-    empty: "There are no maps with terms yet.",
-    emptyTerms: "There are no terms to show for this map yet.",
-    noSearchResults: "No maps matched your search.",
-    searchPlaceholder: "Search maps with terms",
-    sortUpdatedDesc: "Recently updated",
-    sortTitleAsc: "Title",
-    previewSample: "Preview sample",
-    opening: "Opening",
-    open: "Open map",
-    selectedMap: "Select a map",
-    summary: "Terms",
-    sampleMapLabel: "This is sample data shown without sign-in.",
-  };
-}
 
 function coerceMapStatus(status?: string | null) {
   if (
@@ -175,8 +120,8 @@ function getDisplayTitle(draft: MapDraft, untitled: string) {
 export default function MapTermsTab() {
   const router = useRouter();
   const locale = useLocale();
-  const copy = useMemo(() => getCopy(locale), [locale]);
-  const untitled = locale === "ko" ? "제목없음" : "Untitled";
+  const t = useTranslations("MapTermsTab");
+  const untitled = t("untitled");
 
   const [termsDrafts, setTermsDrafts] = useState<MapDraft[]>([]);
   const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
@@ -328,7 +273,7 @@ export default function MapTermsTab() {
         );
       } catch {
         if (cancelled) return;
-        setError(locale === "ko" ? "용어를 불러오지 못했습니다." : "Failed to load terms.");
+        setError(t("loadError"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -338,7 +283,7 @@ export default function MapTermsTab() {
     return () => {
       cancelled = true;
     };
-  }, [isMockMode, locale, selectedMapId]);
+  }, [isMockMode, selectedMapId, t]);
 
   if (listLoading) {
     return (
@@ -363,8 +308,8 @@ export default function MapTermsTab() {
   if (!error && termsDrafts.length === 0) {
     return (
       <section className="rounded-3xl border border-neutral-200 bg-white p-7 text-sm text-neutral-600 shadow-sm dark:border-white/10 dark:bg-white/[0.04] dark:text-white/70">
-        <h2 className="text-base font-semibold text-neutral-900 dark:text-white">{copy.title}</h2>
-        <p className="mt-2 leading-7">{copy.empty}</p>
+        <h2 className="text-base font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
+        <p className="mt-2 leading-7">{t("empty")}</p>
       </section>
     );
   }
@@ -375,8 +320,8 @@ export default function MapTermsTab() {
         <div className="lg:h-full lg:overflow-y-auto">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">{copy.title}</h2>
-              <p className="mt-1 text-[13px] text-neutral-500 dark:text-white/55">{copy.leftDescription}</p>
+              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
+              <p className="mt-1 text-[13px] text-neutral-500 dark:text-white/55">{t("leftDescription")}</p>
             </div>
             <span className="inline-flex items-center rounded-full border border-blue-200/80 bg-blue-50 px-2.5 py-1 text-[12px] font-semibold text-blue-700 dark:border-blue-300/18 dark:bg-blue-400/10 dark:text-blue-200">
               {termsDrafts.length}
@@ -386,7 +331,7 @@ export default function MapTermsTab() {
           {isMockMode ? (
             <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[12px] font-medium text-amber-700 dark:border-amber-300/18 dark:bg-amber-400/10 dark:text-amber-200">
               <Icon icon="mdi:flask-outline" className="h-3.5 w-3.5" />
-              {copy.previewSample}
+              {t("previewSample")}
             </div>
           ) : null}
 
@@ -396,7 +341,7 @@ export default function MapTermsTab() {
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={copy.searchPlaceholder}
+                placeholder={t("searchPlaceholder")}
                 className="w-full rounded-2xl border border-slate-400 bg-neutral-50 py-2.5 pl-9 pr-3 text-[14px] text-neutral-800 outline-none transition focus:border-slate-500 focus:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/85 dark:focus:border-white/20 dark:focus:bg-white/[0.07]"
               />
             </div>
@@ -407,8 +352,8 @@ export default function MapTermsTab() {
                   onChange={(e) => setSort(e.target.value as "updatedDesc" | "titleAsc")}
                   className="w-full appearance-none rounded-2xl border border-neutral-200 bg-neutral-50 py-1 pl-2 pr-10 text-[14px] font-medium text-neutral-700 outline-none transition focus:border-neutral-300 focus:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/80 dark:focus:border-white/20 dark:focus:bg-white/[0.07]"
                 >
-                  <option value="updatedDesc">{copy.sortUpdatedDesc}</option>
-                  <option value="titleAsc">{copy.sortTitleAsc}</option>
+                  <option value="updatedDesc">{t("sortUpdatedDesc")}</option>
+                  <option value="titleAsc">{t("sortTitleAsc")}</option>
                 </select>
                 <Icon icon="mdi:chevron-down" className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500 dark:text-white/55" />
               </div>
@@ -418,7 +363,7 @@ export default function MapTermsTab() {
           <div className="mt-4 flex flex-col gap-2">
             {filteredDrafts.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50/70 p-4 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/[0.02] dark:text-white/50">
-                {copy.noSearchResults}
+                {t("noSearchResults")}
               </div>
             ) : (
               filteredDrafts.map((draft) => {
@@ -447,7 +392,7 @@ export default function MapTermsTab() {
                           : "bg-neutral-100 text-[color:var(--color-primary-700)] dark:bg-white/10 dark:text-sky-200/80"
                       }`}>
                         <Icon icon="mdi:book-education-outline" className="h-3.5 w-3.5" />
-                        {copy.summary} {draft.termsCount ?? 0}
+                        {t("summary")} {draft.termsCount ?? 0}
                       </span>
                     </div>
                   </button>
@@ -464,9 +409,9 @@ export default function MapTermsTab() {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
-                  {selectedDraft ? getDisplayTitle(selectedDraft, untitled) : copy.selectedMap}
+                  {selectedDraft ? getDisplayTitle(selectedDraft, untitled) : t("selectedMap")}
                 </h2>
-                <p className="mt-1 text-[13px] text-neutral-500 dark:text-white/55">{copy.rightDescription}</p>
+                <p className="mt-1 text-[13px] text-neutral-500 dark:text-white/55">{t("rightDescription")}</p>
               </div>
               {selectedDraft?.status === "done" && !isMockMode ? (
                 <button
@@ -479,7 +424,7 @@ export default function MapTermsTab() {
                     icon={openingDetailId === selectedDraft.id ? "mdi:loading" : "mdi:open-in-new"}
                     className={`h-3.5 w-3.5 ${openingDetailId === selectedDraft.id ? "animate-spin" : ""}`}
                   />
-                  {openingDetailId === selectedDraft.id ? copy.opening : copy.open}
+                  {openingDetailId === selectedDraft.id ? t("opening") : t("open")}
                 </button>
               ) : null}
             </div>
@@ -487,13 +432,13 @@ export default function MapTermsTab() {
               <div className="mt-3">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/80 bg-neutral-50 px-2.5 py-1 text-[12px] text-blue-700 dark:border-blue-300/14 dark:bg-white/[0.05] dark:text-blue-200">
                   <Icon icon="mdi:book-education-outline" className="h-3.5 w-3.5" />
-                  <span className="font-medium">{copy.summary}</span>
+                  <span className="font-medium">{t("summary")}</span>
                   <span className="font-semibold">{terms.length}</span>
                 </span>
               </div>
             ) : null}
             {isMockMode ? (
-              <p className="mt-3 text-[12px] text-neutral-500 dark:text-white/50">{copy.sampleMapLabel}</p>
+              <p className="mt-3 text-[12px] text-neutral-500 dark:text-white/50">{t("sampleMapLabel")}</p>
             ) : null}
           </div>
 
@@ -509,7 +454,7 @@ export default function MapTermsTab() {
             </div>
           ) : terms.length === 0 ? (
             <div className="mt-5 rounded-2xl border border-dashed border-neutral-200 bg-neutral-50/70 p-4 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/[0.02] dark:text-white/50">
-              {copy.emptyTerms}
+              {t("emptyTerms")}
             </div>
           ) : (
             <div className="mt-5 flex flex-col gap-3">

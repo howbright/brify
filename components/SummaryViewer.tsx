@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import { Icon } from "@iconify/react";
 import { Fuzzy_Bubbles } from "next/font/google";
+import { useTranslations } from "next-intl";
 
 interface SummaryViewerProps {
   text: string;
@@ -26,12 +27,13 @@ export default function SummaryViewer({
   onFullView,
   fullMode = false,
 }: SummaryViewerProps) {
+  const t = useTranslations("SummaryViewer");
   return (
     <div className="relative mb-10">
         <div className="absolute flex flex-row gap-2 right-3 top-7">
           <button
             onClick={onEdit}
-            title="수정하기"
+            title={t("edit")}
             className={`p-2 rounded-full border shadow hover:bg-gray-100 bg-accent-blue`}
           >
             <Icon icon="mdi:pencil-outline" className="w-5 h-5 text-gray-700" />

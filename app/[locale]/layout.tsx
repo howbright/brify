@@ -60,6 +60,24 @@ const SEO_COPY = {
       "Brify",
     ],
   },
+  fr: {
+    title: "Brify – Transformez YouTube, les pages web et les longs textes en mind maps",
+    ogTitle: "Brify | Mind maps pour résumer YouTube",
+    description:
+      "Brify vous aide à organiser les longues vidéos et les textes en cartes visuelles pour comprendre rapidement les informations complexes.",
+    imageUrl: "https://www.brify.app/images/sns_en.png",
+    ogLocale: "fr_FR",
+    keywords: [
+      "résumé youtube",
+      "notes youtube",
+      "mind map youtube",
+      "mind map",
+      "résumé de texte long",
+      "résumé de page web",
+      "organisation d'information",
+      "Brify",
+    ],
+  },
 } as const;
 
 export async function generateMetadata({
@@ -68,9 +86,10 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const isEnglish = locale === "en";
-  const copy = isEnglish ? SEO_COPY.en : SEO_COPY.ko;
-  const pageUrl = `https://www.brify.app/${isEnglish ? "en" : "ko"}`;
+  const copy =
+    locale === "ko" ? SEO_COPY.ko : locale === "fr" ? SEO_COPY.fr : SEO_COPY.en;
+  const pageLocale = locale === "ko" ? "ko" : locale === "fr" ? "fr" : "en";
+  const pageUrl = `https://www.brify.app/${pageLocale}`;
 
   return {
     title: copy.title,
@@ -82,6 +101,7 @@ export async function generateMetadata({
       languages: {
         ko: "https://www.brify.app/ko",
         en: "https://www.brify.app/en",
+        fr: "https://www.brify.app/fr",
       },
     },
     openGraph: {

@@ -8,10 +8,13 @@ import {
   TooltipTrigger,
 } from "@radix-ui/react-tooltip";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 
 export function ProTooltipButton({ label }: { label: string }) {
   const { session } = useSession();
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations("ProTooltipButton");
 
   const isPro = session?.user?.user_metadata?.role === "pro";
 
@@ -37,12 +40,12 @@ export function ProTooltipButton({ label }: { label: string }) {
             side="top"
             className="text-sm bg-primary-50 text-primary border border-primary px-4 py-2 rounded-lg shadow-xl w-max flex flex-col gap-1"
           >
-            <p className="font-medium">Pro 요금제에서 사용할 수 있어요.</p>
+            <p className="font-medium">{t("description")}</p>
             <button
-              onClick={() => router.push("/billing")}
+              onClick={() => router.push(`/${locale}/billing`)}
               className="bg-primary hover:bg-primary-hover text-white text-xs font-semibold px-3 py-1 rounded transition"
             >
-              요금제 보러가기
+              {t("cta")}
             </button>
           </TooltipContent>
         )}

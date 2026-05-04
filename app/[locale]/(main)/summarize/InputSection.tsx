@@ -9,7 +9,7 @@ import { useState } from "react";
 import OcrHelpDialog from "./OcrHelpDialog";
 import OcrSuggestDialog from "./OcrSuggestDialog";
 import UploadCard from "./UploadCard";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 interface Props {
   type: SourceType;
@@ -32,10 +32,37 @@ export default function InputSection({
   const [alertText, setAlertText] = useState<string>("");
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const locale = useLocale();
+  const t = useTranslations("SummarizePage.input");
+  const labels = {
+    noFile: t("noFile"),
+    invalidYoutube: t("invalidYoutube"),
+    processingError: t("processingError"),
+    extractButton: t("extractButton"),
+    processing: t("processing"),
+    youtubeLabel: t("youtubeLabel"),
+    websiteLabel: t("websiteLabel"),
+    websiteHint: t("websiteHint"),
+    youtubeExtractPrefix: t("youtubeExtractPrefix"),
+    websiteExtractPrefix: t("websiteExtractPrefix"),
+    ocrExtractPrefix: t("ocrExtractPrefix"),
+    fileExtractPrefix: t("fileExtractPrefix"),
+    fetchResultFailed: t("fetchResultFailed"),
+    youtubeTranscriptFailed: t("youtubeTranscriptFailed"),
+    requestFailed: t("requestFailed"),
+    requestError: t("requestError"),
+    networkError: t("networkError"),
+    websiteExtractFailed: t("websiteExtractFailed"),
+    requestNotFound: t("requestNotFound"),
+    websiteErrorRetry: t("websiteErrorRetry"),
+    ocrFailed: t("ocrFailed"),
+    ocrUploadFailed: t("ocrUploadFailed"),
+    fileProcessFailed: t("fileProcessFailed"),
+    fileUploadFailed: t("fileUploadFailed"),
+  };
 
   const handleSubmit = async () => {
     if (type === SourceType.FILE && !fileInput) {
-      setAlertText("파일이 선택되지 않았습니다."); // ⚡ 추가: 업로드 전 파일 체크
+      setAlertText(labels.noFile); // ⚡ 추가: 업로드 전 파일 체크
       setOpenAlert(true);
       return;
     }
@@ -48,7 +75,7 @@ export default function InputSection({
       if (type === SourceType.FILE) return handleFileSubmit();
     } catch (err) {
       console.error(err);
-      onExtracted("⚠️ 처리 중 오류가 발생했습니다.", false);
+      onExtracted(labels.processingError, false);
       setIsLoading(false);
     } finally {
       // setIsLoading(false);
@@ -59,7 +86,7 @@ export default function InputSection({
     try {
       const videoId = getYouTubeVideoId(textInput);
       if (!videoId) {
-        setAlertText("유효한 Youtube 링크가 아닙니다.");
+        setAlertText(labels.invalidYoutube);
         setOpenAlert(true);
         setIsLoading(false);
         return;
@@ -78,12 +105,12 @@ export default function InputSection({
         console.log("캐시 결과 사용");
         if (typeof data.result === "string") {
           onExtracted(
-            `🔗 유튜브 영상에서 추출한 영상 대본입니다.\n\n${data.result}`,
+            `${labels.youtubeExtractPrefix}\n\n${data.result}`,
             true
           );
           setIsLoading(false);
         } else {
-          onExtracted("❌ 결과를 불러오는 데 문제가 발생했습니다.", false);
+          onExtracted(labels.fetchResultFailed, false);
           setIsLoading(false);
         }
       } else if (res.ok && data.status === "queued" && data.jobId) {
@@ -111,19 +138,19 @@ export default function InputSection({
           if (pollRes.ok && pollData.status === "completed") {
             if (typeof pollData.result === "string") {
               onExtracted(
-                `🔗 유튜브 영상에서 추출한 영상 대본입니다.\n\n${pollData.result}`,
+                `${labels.youtubeExtractPrefix}\n\n${pollData.result}`,
                 true
               );
               setIsLoading(false);
             } else {
-              onExtracted("❌ 결과를 불러오는 데 문제가 발생했습니다.", false);
+              onExtracted(labels.fetchResultFailed, false);
               setIsLoading(false);
             }
           } else if (pollData.status === "failed") {
-            onExtracted("❌ 유튜브 영상 대본 추출에 실패했습니다.", false);
+            onExtracted(labels.youtubeTranscriptFailed, false);
             setIsLoading(false);
           } else if (pollData.status === "error") {
-            onExtracted("❌ 요청 처리 중 오류가 발생했습니다.", false);
+            onExtracted(labels.requestError, false);
             setIsLoading(false);
           } else {
             setTimeout(poll, 1000); // 계속 폴링
@@ -132,12 +159,12 @@ export default function InputSection({
 
         poll();
       } else {
-        onExtracted("❌ 요청 처리에 실패했습니다.", false);
+        onExtracted(labels.requestFailed, false);
         setIsLoading(false);
       }
     } catch (error: unknown) {
       console.error("❌ 유튜브 요청 중 에러 발생:", error);
-      onExtracted("❌ 네트워크 오류가 발생했습니다. 다시 시도해주세요.", false);
+      onExtracted(labels.networkError, false);
       setIsLoading(false);
     }
   };
@@ -156,7 +183,7 @@ export default function InputSection({
       if (res.ok && data.status === "cached") {
         // ✅ 캐시된 결과 바로 사용
         onExtracted(
-          `🌐 웹사이트에서 추출한 본문입니다.\n\n${data.result}`,
+          `${labels.websiteExtractPrefix}\n\n${data.result}`,
           true
         );
         setIsLoading(false);
@@ -182,19 +209,19 @@ export default function InputSection({
 
           if (pollRes.ok && pollData.status === "completed") {
             onExtracted(
-              `🌐 웹사이트에서 추출한 본문입니다.\n\n${pollData.result}`,
+              `${labels.websiteExtractPrefix}\n\n${pollData.result}`,
               true
             );
             setIsLoading(false);
           } else if (pollData.status === "failed") {
-            onExtracted("❌ 웹사이트 본문 추출에 실패했습니다.", false);
+            onExtracted(labels.websiteExtractFailed, false);
             setIsLoading(false);
           } else if (pollData.status === "error") {
-            onExtracted("❌ 요청 처리 중 오류가 발생했습니다.", false);
+            onExtracted(labels.requestError, false);
             setIsLoading(false);
           } else if (pollData.status === "not_found") {
             // 🔥 추가!
-            onExtracted("❌ 요청을 찾을 수 없습니다. (Job ID 없음)", false);
+            onExtracted(labels.requestNotFound, false);
             setIsLoading(false);
           } else {
             setTimeout(poll, 1000); // 계속 폴링
@@ -203,7 +230,7 @@ export default function InputSection({
 
         poll();
       } else {
-        onExtracted("❌ 요청 처리에 실패했습니다.", false);
+        onExtracted(labels.requestFailed, false);
         setIsLoading(false);
         setIsLoading(false);
       }
@@ -211,7 +238,7 @@ export default function InputSection({
       console.error("❌ 웹사이트 요청 중 에러 발생:", error);
       setIsLoading(false);
       onExtracted(
-        "❌ 웹사이트 요청 중 에러 발생했습니다. 다시 시도해주세요.",
+        labels.websiteErrorRetry,
         false
       );
       setIsLoading(false);
@@ -220,7 +247,7 @@ export default function InputSection({
 
   const handleOcrFileUpload = async () => {
     if (!fileInput) {
-      setAlertText("파일이 선택되지 않았습니다.");
+      setAlertText(labels.noFile);
       setOpenAlert(true);
       return;
     }
@@ -242,14 +269,14 @@ export default function InputSection({
           setOpenOcrSuggest(true);
           return;
         }
-        onExtracted(`📷 OCR로 추출한 본문입니다.\n\n${data.result}`, true);
+        onExtracted(`${labels.ocrExtractPrefix}\n\n${data.result}`, true);
       } else {
         console.log(data);
-        onExtracted("❌ OCR 처리에 실패했습니다.", false);
+        onExtracted(labels.ocrFailed, false);
       }
     } catch (e) {
       console.error("OCR 업로드 에러:", e);
-      onExtracted("❌ OCR 업로드 중 오류 발생", false);
+      onExtracted(labels.ocrUploadFailed, false);
     } finally {
       setIsLoading(false);
     }
@@ -257,7 +284,7 @@ export default function InputSection({
 
   const handleFileSubmit = async () => {
     if (!fileInput) {
-      setAlertText("파일이 선택되지 않았습니다.");
+      setAlertText(labels.noFile);
       setOpenAlert(true);
       return;
     }
@@ -287,16 +314,16 @@ export default function InputSection({
           return;
         }
         onExtracted(
-          `📄 업로드한 파일에서 추출한 본문입니다.\n\n${data.result}`,
+          `${labels.fileExtractPrefix}\n\n${data.result}`,
           true
         );
       } else {
         console.log(data);
-        onExtracted("❌ 파일 처리에 실패했습니다.", false);
+        onExtracted(labels.fileProcessFailed, false);
       }
     } catch (e) {
       console.error("파일 업로드 에러:", e);
-      onExtracted("❌ 파일 업로드 중 오류 발생", false);
+      onExtracted(labels.fileUploadFailed, false);
     } finally {
       setIsLoading(false);
     }
@@ -308,7 +335,7 @@ export default function InputSection({
     (type === SourceType.FILE && !fileInput);
 
   const handleOcrConfirm = async () => {
-    alert("ocr신청함");
+    await handleOcrFileUpload();
   };
 
   const renderInputField = () => {
@@ -318,7 +345,7 @@ export default function InputSection({
           <div className="rounded-xl bg-primary/5 dark:bg-[#18181c] p-6 space-y-4">
             <div className="text-left">
               <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
-                {type === SourceType.YOUTUBE ? "YouTube 영상 주소" : "웹사이트 주소"}
+                {type === SourceType.YOUTUBE ? labels.youtubeLabel : labels.websiteLabel}
               </label>
               <input
                 type="text"
@@ -335,8 +362,7 @@ export default function InputSection({
 
             {type === SourceType.WEBSITE && (
               <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                대부분의 웹사이트는 요약이 가능하지만, 일부 로그인 필요하거나
-                보안 설정된 사이트는 지원되지 않을 수 있어요.
+                {labels.websiteHint}
               </p>
             )}
           </div>
@@ -384,11 +410,11 @@ export default function InputSection({
                   className="animate-spin"
                   width={18}
                 />
-                처리 중...
+                {labels.processing}
               </>
             ) : (
               <>
-                <span>원문 추출하기</span>
+                <span>{labels.extractButton}</span>
                 <Icon
                   icon="lucide:arrow-right"
                   width={18}

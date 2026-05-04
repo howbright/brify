@@ -1490,16 +1490,11 @@ export default function FullscreenMapDetailScreen({
   const mobileCenterLabel = tFullscreenDialog("actions.centerMap");
   const mobileZoomInLabel = tFullscreenDialog("actions.zoomIn");
   const mobileZoomOutLabel = tFullscreenDialog("actions.zoomOut");
-  const mobileCollapseLevelLabel =
-    locale === "ko" ? "한 단계 접기" : "Collapse one level";
-  const mobileExpandLevelLabel =
-    locale === "ko" ? "한 단계 펴기" : "Expand one level";
-  const mobileToolbarOpenLabel =
-    locale === "ko" ? "도구 펼치기" : "Open tools";
-  const mobileToolbarCloseLabel =
-    locale === "ko" ? "도구 접기" : "Close tools";
-  const mobileMapActionsLabel =
-    locale === "ko" ? "레이아웃" : "Layouts";
+  const mobileCollapseLevelLabel = t("mobile.collapseOneLevel");
+  const mobileExpandLevelLabel = t("mobile.expandOneLevel");
+  const mobileToolbarOpenLabel = t("mobile.openTools");
+  const mobileToolbarCloseLabel = t("mobile.closeTools");
+  const mobileMapActionsLabel = t("mobile.layouts");
   const statusTone = isSavingDraft ? "warning" : savedPulse ? "success" : "neutral";
   const controlIconButtonClass =
     "inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 text-white shadow-[0_10px_24px_-16px_rgba(15,23,42,0.36)] transition hover:bg-sky-600 dark:bg-[#1f3b72] dark:text-white dark:shadow-[0_16px_32px_-22px_rgba(2,6,23,0.82)] dark:hover:bg-[#2a56a5]";
@@ -1525,14 +1520,9 @@ export default function FullscreenMapDetailScreen({
   const mobileVerticalTooltipClass =
     "pointer-events-none absolute right-full top-1/2 mr-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100 group-focus-within:opacity-100 dark:bg-[#020817]";
   const mobileLanguageLabel = tHeader("userMenu.language");
-  const sharedMissingTitle =
-    locale === "ko" ? "공유된 구조맵을 찾을 수 없어요" : "Shared map not found";
-  const sharedMissingDescription =
-    locale === "ko"
-      ? "링크가 잘못되었거나, 공유가 종료되었을 수 있어요."
-      : "The link may be invalid, or sharing may have been turned off.";
-  const sharedMissingAction =
-    locale === "ko" ? "홈으로 돌아가기" : "Back to home";
+  const sharedMissingTitle = t("sharedMissing.title");
+  const sharedMissingDescription = t("sharedMissing.description");
+  const sharedMissingAction = t("sharedMissing.action");
 
   const handleLocaleChange = async (nextLocale: string) => {
     if (nextLocale === locale) {
@@ -1605,14 +1595,14 @@ export default function FullscreenMapDetailScreen({
         titleBadge={
           isSharedView ? (
             <span className="hidden h-5 items-center rounded-full border border-blue-300/35 bg-blue-500/15 px-2 text-[10px] font-semibold tracking-normal text-blue-50/95 dark:border-blue-300/35 dark:bg-blue-500/15 dark:text-blue-50/95 sm:inline-flex">
-              {locale === "ko" ? "읽기전용" : "Read only"}
+              {t("readOnlyBadge")}
             </span>
           ) : undefined
         }
         mobileTitleBadge={
           isSharedView ? (
             <span className="inline-flex items-center rounded-full border border-blue-300/35 bg-blue-500/15 px-1.5 py-[1px] text-[9px] font-semibold leading-none tracking-normal text-blue-50/95 dark:border-blue-300/35 dark:bg-blue-500/15 dark:text-blue-50/95">
-              {locale === "ko" ? "읽기전용" : "Read only"}
+              {t("readOnlyBadge")}
             </span>
           ) : undefined
         }
@@ -2326,28 +2316,17 @@ export default function FullscreenMapDetailScreen({
             <div className="pointer-events-auto inline-flex items-start gap-2 rounded-2xl border border-sky-200/90 bg-sky-50/95 px-3 py-2 text-[11px] font-semibold text-sky-900 shadow-[0_12px_28px_-20px_rgba(15,23,42,0.7)] backdrop-blur-sm dark:border-sky-200/20 dark:bg-[#10243a]/92 dark:text-sky-100">
               <Icon icon="mdi:plus-circle-outline" className="mt-0.5 h-5 w-5 shrink-0" />
               <span className="leading-4">
-                {locale === "ko" ? (
-                  <>
-                    <span className="block">내용이 더 있어요.</span>
-                    <span className="block">
-                      아이콘이 있는 노드를 눌러 펼치면, 숨겨진 가지까지 이어서 읽을 수 있어요.
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span className="block">There is more content.</span>
-                    <span className="block">
-                      Tap nodes with the + icon to expand and continue reading hidden branches.
-                    </span>
-                  </>
-                )}
+                <>
+                  <span className="block">{t("expandHint.line1")}</span>
+                  <span className="block">{t("expandHint.line2")}</span>
+                </>
               </span>
               <button
                 type="button"
                 onClick={() => setShowExpandHint(false)}
                 className="inline-flex h-5 w-5 items-center justify-center rounded-full text-sky-700/80 hover:bg-sky-100 dark:text-sky-100/80 dark:hover:bg-white/10"
-                aria-label={locale === "ko" ? "안내 닫기" : "Dismiss hint"}
-                title={locale === "ko" ? "안내 닫기" : "Dismiss hint"}
+                aria-label={t("expandHint.dismiss")}
+                title={t("expandHint.dismiss")}
               >
                 <Icon icon="mdi:close" className="h-3.5 w-3.5" />
               </button>
@@ -2381,7 +2360,7 @@ export default function FullscreenMapDetailScreen({
                         const now = Date.now();
                         if (now - lastHighlightToastRef.current > 2000) {
                           lastHighlightToastRef.current = now;
-                          toast.message("노트 변경을 저장 중...");
+                          toast.message(t("toasts.savingNote"));
                         }
                         scheduleAutoSave();
                         return;
@@ -2393,11 +2372,7 @@ export default function FullscreenMapDetailScreen({
               onViewModeEditAttempt={
                 isSharedView
                   ? () =>
-                      toast.message(
-                        locale === "ko"
-                          ? "공유 페이지는 읽기전용이에요."
-                          : "Shared pages are read-only."
-                      )
+                      toast.message(t("toasts.sharedReadOnly"))
                   : undefined
               }
               theme={
@@ -2422,11 +2397,7 @@ export default function FullscreenMapDetailScreen({
               onReadOnlyHighlight={
                 isSharedView
                   ? () =>
-                      toast.message(
-                        locale === "ko"
-                          ? "읽기전용에서는 하이라이트가 저장되지 않습니다."
-                          : "Highlights are not saved in read-only mode."
-                      )
+                      toast.message(t("toasts.highlightReadOnly"))
                   : undefined
               }
             />
@@ -2462,13 +2433,9 @@ export default function FullscreenMapDetailScreen({
             termsTabId={FULLSCREEN_PAGE_TERMS_TAB_ID}
             readOnlyBadgeLabel={
               isAdminView
-                ? locale === "ko"
-                  ? "관리자 조회 모드"
-                  : "Admin view mode"
+                ? t("readOnlyMode.admin")
                 : isSharedView
-                ? locale === "ko"
-                  ? "공유 읽기 모드"
-                  : "Shared read-only"
+                ? t("readOnlyMode.shared")
                 : undefined
             }
           />
@@ -2490,7 +2457,7 @@ export default function FullscreenMapDetailScreen({
                   className="object-contain"
                 />
               </div>
-              <span>{locale === "ko" ? "브라이피" : "Brify"}</span>
+              <span>{t("brand")}</span>
             </Link>
           </div>
           <div className="pointer-events-auto flex items-center gap-2 sm:hidden">
@@ -2507,7 +2474,7 @@ export default function FullscreenMapDetailScreen({
                   className="object-contain"
                 />
               </div>
-              <span>{locale === "ko" ? "브라이피" : "Brify"}</span>
+              <span>{t("brand")}</span>
             </Link>
 
             <div className="flex items-center gap-1.5 rounded-full bg-transparent px-2 py-1.5">
@@ -2636,6 +2603,7 @@ export default function FullscreenMapDetailScreen({
         actionLabel={
           isDeleting ? t("deleteConfirm.actionDeleting") : t("deleteConfirm.action")
         }
+        cancelLabel={t("cancel")}
       />
       ) : null}
 

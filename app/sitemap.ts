@@ -19,6 +19,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${BASE_URL}/fr`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
       url: `${BASE_URL}/ko/demo`,
       lastModified: now,
       changeFrequency: "monthly",
@@ -26,6 +32,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${BASE_URL}/en/demo`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${BASE_URL}/fr/demo`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.6,
@@ -55,13 +67,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
+      url: `${BASE_URL}/fr/youtube-summary`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
       url: `${BASE_URL}/en/youtube-notes`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.65,
     },
     {
+      url: `${BASE_URL}/fr/youtube-notes`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.65,
+    },
+    {
       url: `${BASE_URL}/en/mind-map`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.65,
+    },
+    {
+      url: `${BASE_URL}/fr/mind-map`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.65,
@@ -79,6 +109,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.2,
     },
     {
+      url: `${BASE_URL}/fr/terms`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.2,
+    },
+    {
       url: `${BASE_URL}/ko/privacy`,
       lastModified: now,
       changeFrequency: "yearly",
@@ -91,6 +127,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.2,
     },
     {
+      url: `${BASE_URL}/fr/privacy`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.2,
+    },
+    {
       url: `${BASE_URL}/ko/blog`,
       lastModified: now,
       changeFrequency: "weekly",
@@ -98,6 +140,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${BASE_URL}/en/blog`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.6,
+    },
+    {
+      url: `${BASE_URL}/fr/blog`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.6,
@@ -118,6 +166,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...enPosts.map((post) => ({
       url: `${BASE_URL}/en/blog/${post.slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.55,
+    })),
+    ...enPosts.map((post) => ({
+      url: `${BASE_URL}/fr/blog/${post.slug}`,
       lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.55,

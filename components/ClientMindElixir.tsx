@@ -10,7 +10,7 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { sampled } from "@/app/lib/mind-elixir/sampleData";
 import {
   DEFAULT_THEME_NAME,
@@ -481,29 +481,24 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
   const { resolvedTheme } = useTheme();
   const locale = useLocale();
-  const miniMapLabel = locale === "ko" ? "미니맵" : "Mini map";
-  const miniMapCenterLabel = locale === "ko" ? "중심으로 이동" : "Center";
-  const miniMapZoomInLabel =
-    locale === "ko" ? "줌인 (⌘+)" : "Zoom in (⌘+)";
-  const miniMapZoomOutLabel =
-    locale === "ko" ? "줌아웃 (⌘-)" : "Zoom out (⌘-)";
-  const miniMapCollapseLevelLabel =
-    locale === "ko" ? "한단계 접기" : "Collapse one level";
-  const miniMapExpandLevelLabel =
-    locale === "ko" ? "한단계 펴기" : "Expand one level";
-  const mobileEditMenuTitle = locale === "ko" ? "노드 편집" : "Edit node";
-  const moreActionsLabel = locale === "ko" ? "더보기" : "More";
-  const annotationAddLabel = locale === "ko" ? "주석 추가" : "Add annotation";
-  const highlightLabel = locale === "ko" ? "하이라이트" : "Highlight";
-  const focusModeLabel = locale === "ko" ? "포커스 모드" : "Focus Mode";
-  const focusModeExitLabel = locale === "ko" ? "나가기" : "Exit";
-  const annotationDialogTitle = locale === "ko" ? "주석" : "Annotation";
-  const annotationPlaceholder =
-    locale === "ko" ? "주석을 입력하세요" : "Write an annotation";
-  const annotationDeleteLabel =
-    locale === "ko" ? "주석 삭제" : "Delete annotation";
-  const cancelLabel = locale === "ko" ? "취소" : "Cancel";
-  const saveLabel = locale === "ko" ? "저장" : "Save";
+  const t = useTranslations("ClientMindElixir");
+  const miniMapLabel = t("miniMap.label");
+  const miniMapCenterLabel = t("miniMap.center");
+  const miniMapZoomInLabel = t("miniMap.zoomIn");
+  const miniMapZoomOutLabel = t("miniMap.zoomOut");
+  const miniMapCollapseLevelLabel = t("miniMap.collapseOneLevel");
+  const miniMapExpandLevelLabel = t("miniMap.expandOneLevel");
+  const mobileEditMenuTitle = t("mobileEdit.title");
+  const moreActionsLabel = t("mobileEdit.moreActions");
+  const annotationAddLabel = t("annotation.add");
+  const highlightLabel = t("highlight");
+  const focusModeLabel = t("focusMode.label");
+  const focusModeExitLabel = t("focusMode.exit");
+  const annotationDialogTitle = t("annotation.title");
+  const annotationPlaceholder = t("annotation.placeholder");
+  const annotationDeleteLabel = t("annotation.delete");
+  const cancelLabel = t("common.cancel");
+  const saveLabel = t("common.save");
   const {
     mounted,
     isTouchDevice,
@@ -1033,21 +1028,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   }, [locale]);
 
   const contextMenuText = useMemo(
-    () =>
-      mindLocale === "ko"
-        ? {
-            copyMarkdown: "마크다운 복사",
-            copyExpandedMarkdown: "펼쳐진 노드만 마크다운 복사",
-            copySuccess: "마크다운을 복사했어요.",
-            copyFail: "복사에 실패했습니다.",
-          }
-        : {
-            copyMarkdown: "Copy as Markdown",
-            copyExpandedMarkdown: "Copy expanded nodes as Markdown",
-            copySuccess: "Copied the markdown.",
-            copyFail: "Failed to copy.",
-          },
-    [mindLocale]
+    () => ({
+      copyMarkdown: t("contextMenu.copyMarkdown"),
+      copyExpandedMarkdown: t("contextMenu.copyExpandedMarkdown"),
+      copySuccess: t("contextMenu.copySuccess"),
+      copyFail: t("contextMenu.copyFail"),
+    }),
+    [t]
   );
 
   const {
@@ -1673,14 +1660,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         const hh = Math.floor(total / 3600);
         const mm = Math.floor((total % 3600) / 60);
         const ss = total % 60;
-        if (mindLocale === "ko") {
-          if (hh > 0) return `${hh}시간 ${mm}분 ${ss}초`;
-          if (mm > 0) return `${mm}분 ${ss}초`;
-          return `${ss}초`;
-        }
-        if (hh > 0) return `${hh}h ${mm}m ${ss}s`;
-        if (mm > 0) return `${mm}m ${ss}s`;
-        return `${ss}s`;
+        if (hh > 0) return t("timestamp.hms", { h: hh, m: mm, s: ss });
+        if (mm > 0) return t("timestamp.ms", { m: mm, s: ss });
+        return t("timestamp.s", { s: ss });
       };
       const syncNodeDecorations = () => {
         const host = elRef.current;

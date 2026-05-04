@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 import type { Database } from "@/app/types/database.types";
@@ -34,27 +34,6 @@ type MemoNoteItem = {
   updated_at: string;
 };
 
-type NoteTabCopy = {
-  title: string;
-  leftDescription: string;
-  rightDescription: string;
-  empty: string;
-  emptyDetail: string;
-  noSearchResults: string;
-  searchPlaceholder: string;
-  sortUpdatedDesc: string;
-  sortTitleAsc: string;
-  previewSample: string;
-  opening: string;
-  open: string;
-  selectedMap: string;
-  sections: {
-    memo: string;
-    annotations: string;
-    highlights: string;
-  };
-  sampleMapLabel: string;
-};
 
 const NOTES_LIST_FIELDS =
   "id,created_at,updated_at,title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,notes_count";
@@ -122,52 +101,6 @@ const MOCK_HIGHLIGHTS: Record<string, HighlightItem[]> = {
   "demo-startup-ops": [{ id: "hl-3", topic: "문제보다 상태 공유" }],
 };
 
-function getCopy(locale: string): NoteTabCopy {
-  if (locale === "ko") {
-    return {
-      title: "노트 모아보기",
-      leftDescription: "노트가 있는 맵만 따로 모아서 빠르게 다시 볼 수 있어요.",
-      rightDescription: "메모, 노드 노트, 하이라이트를 한 번에 확인합니다.",
-      empty: "아직 노트가 있는 맵이 없습니다.",
-      emptyDetail: "선택한 맵에 표시할 노트가 없습니다.",
-      noSearchResults: "검색 조건에 맞는 맵이 없습니다.",
-      searchPlaceholder: "노트가 있는 맵 검색",
-      sortUpdatedDesc: "최근 수정순",
-      sortTitleAsc: "제목순",
-      previewSample: "프리뷰 샘플",
-      opening: "여는 중",
-      open: "맵 열기",
-      selectedMap: "맵을 선택해 주세요",
-      sections: {
-        memo: "메모",
-        annotations: "노드 노트",
-        highlights: "하이라이트",
-      },
-      sampleMapLabel: "로그인 없이 미리보기 가능한 샘플 데이터입니다.",
-    };
-  }
-  return {
-    title: "Notes Library",
-    leftDescription: "Browse maps that already have notes in one place.",
-    rightDescription: "Review memos, node notes, and highlights together.",
-    empty: "There are no maps with notes yet.",
-    emptyDetail: "There are no notes to show for this map yet.",
-    noSearchResults: "No maps matched your search.",
-    searchPlaceholder: "Search maps with notes",
-    sortUpdatedDesc: "Recently updated",
-    sortTitleAsc: "Title",
-    previewSample: "Preview sample",
-    opening: "Opening",
-    open: "Open map",
-    selectedMap: "Select a map",
-    sections: {
-      memo: "Memos",
-      annotations: "Node notes",
-      highlights: "Highlights",
-    },
-    sampleMapLabel: "This is sample data shown without sign-in.",
-  };
-}
 
 function coerceMapStatus(status?: string | null) {
   if (
@@ -252,8 +185,8 @@ function SummaryPill({
 export default function MapNotesTab() {
   const router = useRouter();
   const locale = useLocale();
-  const copy = useMemo(() => getCopy(locale), [locale]);
-  const untitled = locale === "ko" ? "제목없음" : "Untitled";
+  const t = useTranslations("MapNotesTab");
+  const untitled = t("untitled");
 
   const [notesDrafts, setNotesDrafts] = useState<MapDraft[]>([]);
   const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
@@ -442,7 +375,7 @@ export default function MapNotesTab() {
         setHighlightItems(nextHighlights);
       } catch {
         if (cancelled) return;
-        setError(locale === "ko" ? "노트를 불러오지 못했습니다." : "Failed to load notes.");
+        setError(t("loadError"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -452,7 +385,7 @@ export default function MapNotesTab() {
     return () => {
       cancelled = true;
     };
-  }, [isMockMode, locale, selectedMapId, untitled]);
+  }, [isMockMode, selectedMapId, t, untitled]);
 
   if (listLoading) {
     return (
@@ -477,8 +410,8 @@ export default function MapNotesTab() {
   if (!error && notesDrafts.length === 0) {
     return (
       <section className="rounded-3xl border border-neutral-200 bg-white p-7 text-sm text-neutral-600 shadow-sm dark:border-white/10 dark:bg-white/[0.04] dark:text-white/70">
-        <h2 className="text-base font-semibold text-neutral-900 dark:text-white">{copy.title}</h2>
-        <p className="mt-2 leading-7">{copy.empty}</p>
+        <h2 className="text-base font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
+        <p className="mt-2 leading-7">{t("empty")}</p>
       </section>
     );
   }
@@ -489,8 +422,8 @@ export default function MapNotesTab() {
         <div className="lg:h-full lg:overflow-y-auto">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">{copy.title}</h2>
-              <p className="mt-1 text-[13px] text-neutral-500 dark:text-white/55">{copy.leftDescription}</p>
+              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
+              <p className="mt-1 text-[13px] text-neutral-500 dark:text-white/55">{t("leftDescription")}</p>
             </div>
             <span className="inline-flex items-center rounded-full border border-blue-200/80 bg-blue-50 px-2.5 py-1 text-[12px] font-semibold text-blue-700 dark:border-blue-300/18 dark:bg-blue-400/10 dark:text-blue-200">
               {notesDrafts.length}
@@ -500,7 +433,7 @@ export default function MapNotesTab() {
           {isMockMode ? (
             <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[12px] font-medium text-amber-700 dark:border-amber-300/18 dark:bg-amber-400/10 dark:text-amber-200">
               <Icon icon="mdi:flask-outline" className="h-3.5 w-3.5" />
-              {copy.previewSample}
+              {t("previewSample")}
             </div>
           ) : null}
 
@@ -510,7 +443,7 @@ export default function MapNotesTab() {
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={copy.searchPlaceholder}
+                placeholder={t("searchPlaceholder")}
                 className="w-full rounded-2xl border border-slate-400 bg-neutral-50 py-2.5 pl-9 pr-3 text-[14px] text-neutral-800 outline-none transition focus:border-slate-500 focus:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/85 dark:focus:border-white/20 dark:focus:bg-white/[0.07]"
               />
             </div>
@@ -521,8 +454,8 @@ export default function MapNotesTab() {
                   onChange={(e) => setSort(e.target.value as "updatedDesc" | "titleAsc")}
                   className="w-full appearance-none rounded-2xl border border-neutral-200 bg-neutral-50 py-1 pl-2 pr-10 text-[14px] font-medium text-neutral-700 outline-none transition focus:border-neutral-300 focus:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/80 dark:focus:border-white/20 dark:focus:bg-white/[0.07]"
                 >
-                  <option value="updatedDesc">{copy.sortUpdatedDesc}</option>
-                  <option value="titleAsc">{copy.sortTitleAsc}</option>
+                  <option value="updatedDesc">{t("sortUpdatedDesc")}</option>
+                  <option value="titleAsc">{t("sortTitleAsc")}</option>
                 </select>
                 <Icon icon="mdi:chevron-down" className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500 dark:text-white/55" />
               </div>
@@ -532,7 +465,7 @@ export default function MapNotesTab() {
           <div className="mt-4 flex flex-col gap-2">
             {filteredDrafts.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50/70 p-4 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/[0.02] dark:text-white/50">
-                {copy.noSearchResults}
+                {t("noSearchResults")}
               </div>
             ) : (
               filteredDrafts.map((draft) => {
@@ -561,7 +494,7 @@ export default function MapNotesTab() {
                           : "bg-neutral-100 text-[color:var(--color-primary-700)] dark:bg-white/10 dark:text-sky-200/80"
                       }`}>
                         <Icon icon="mdi:note-text-outline" className="h-3.5 w-3.5" />
-                        {copy.sections.memo} {draft.notesCount ?? 0}
+                        {t("sections.memo")} {draft.notesCount ?? 0}
                       </span>
                     </div>
                   </button>
@@ -578,9 +511,9 @@ export default function MapNotesTab() {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
-                  {selectedDraft ? getDisplayTitle(selectedDraft, untitled) : copy.selectedMap}
+                  {selectedDraft ? getDisplayTitle(selectedDraft, untitled) : t("selectedMap")}
                 </h2>
-                <p className="mt-1 text-[13px] text-neutral-500 dark:text-white/55">{copy.rightDescription}</p>
+                <p className="mt-1 text-[13px] text-neutral-500 dark:text-white/55">{t("rightDescription")}</p>
               </div>
               {selectedDraft?.status === "done" && !isMockMode ? (
                 <button
@@ -593,19 +526,19 @@ export default function MapNotesTab() {
                     icon={openingDetailId === selectedDraft.id ? "mdi:loading" : "mdi:open-in-new"}
                     className={`h-3.5 w-3.5 ${openingDetailId === selectedDraft.id ? "animate-spin" : ""}`}
                   />
-                  {openingDetailId === selectedDraft.id ? copy.opening : copy.open}
+                  {openingDetailId === selectedDraft.id ? t("opening") : t("open")}
                 </button>
               ) : null}
             </div>
             {!loading && !error ? (
               <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px]">
-                <SummaryPill icon="mdi:note-text-outline" label={copy.sections.memo} count={memoNotes.length} />
-                <SummaryPill icon="mdi:comment-text-outline" label={copy.sections.annotations} count={nodeNotes.length} />
-                <SummaryPill icon="mdi:marker" label={copy.sections.highlights} count={highlightItems.length} />
+                <SummaryPill icon="mdi:note-text-outline" label={t("sections.memo")} count={memoNotes.length} />
+                <SummaryPill icon="mdi:comment-text-outline" label={t("sections.annotations")} count={nodeNotes.length} />
+                <SummaryPill icon="mdi:marker" label={t("sections.highlights")} count={highlightItems.length} />
               </div>
             ) : null}
             {isMockMode ? (
-              <p className="mt-3 text-[12px] text-neutral-500 dark:text-white/50">{copy.sampleMapLabel}</p>
+              <p className="mt-3 text-[12px] text-neutral-500 dark:text-white/50">{t("sampleMapLabel")}</p>
             ) : null}
           </div>
 
@@ -621,13 +554,13 @@ export default function MapNotesTab() {
             </div>
           ) : memoNotes.length === 0 && nodeNotes.length === 0 && highlightItems.length === 0 ? (
             <div className="mt-5 rounded-2xl border border-dashed border-neutral-200 bg-neutral-50/70 p-4 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/[0.02] dark:text-white/50">
-              {copy.emptyDetail}
+              {t("emptyDetail")}
             </div>
           ) : (
             <div className="mt-5 space-y-5">
               {memoNotes.length > 0 ? (
                 <section>
-                  <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">{copy.sections.memo}</h3>
+                  <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("sections.memo")}</h3>
                   <div className="mt-3 space-y-3">
                     {memoNotes.map((item) => (
                       <div key={item.id} className="rounded-2xl border border-blue-200/55 bg-neutral-50/80 p-4 dark:border-blue-300/12 dark:bg-white/[0.03]">
@@ -641,7 +574,7 @@ export default function MapNotesTab() {
 
               {nodeNotes.length > 0 ? (
                 <section>
-                  <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">{copy.sections.annotations}</h3>
+                  <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("sections.annotations")}</h3>
                   <div className="mt-3 space-y-3">
                     {nodeNotes.map((item) => (
                       <div key={item.id} className="rounded-2xl border border-indigo-200/60 bg-neutral-50/80 p-4 dark:border-indigo-300/12 dark:bg-white/[0.03]">
@@ -655,7 +588,7 @@ export default function MapNotesTab() {
 
               {highlightItems.length > 0 ? (
                 <section>
-                  <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">{copy.sections.highlights}</h3>
+                  <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("sections.highlights")}</h3>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {highlightItems.map((item) => (
                       <span key={item.id} className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-[13px] font-medium text-amber-800 dark:border-amber-300/18 dark:bg-amber-400/10 dark:text-amber-100">

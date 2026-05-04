@@ -22,7 +22,8 @@ function isActiveStatus(status: MapDraft["status"]) {
 }
 
 function formatDraftTimestamp(value: number, locale: string) {
-  return new Intl.DateTimeFormat(locale === "ko" ? "ko-KR" : "en-US", {
+  const normalizedLocale = locale === "ko" ? "ko-KR" : locale === "fr" ? "fr-FR" : "en-US";
+  return new Intl.DateTimeFormat(normalizedLocale, {
     year: "numeric",
     month: "numeric",
     day: "numeric",

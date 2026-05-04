@@ -131,6 +131,10 @@
     "generateTitle": "맵을 생성해요",
     "creditsInfo": "보유 {current}크레딧 · 이번 생성 {required}크레딧",
     "generateButton": "마인드맵 생성하기",
+    "freeBadge": "무료",
+    "blankMapButton": "빈 구조맵으로 시작하기",
+    "blankMapStarting": "빈 구조맵 여는 중...",
+    "blankMapDescription": "브레인스토밍용 빈 구조맵은 크레딧 차감 없이 바로 시작할 수 있어요.",
     "insufficientCreditsCard": {
       "title": "크레딧이 부족해 마인드맵을 만들 수 없어요",
       "description": "크레딧을 충전하면 바로 계속할 수 있어요.",
@@ -852,7 +856,8 @@
     "reassurance": {
       "line1": "정기구독 없음 · 자동결제 없음"
     },
-    "positioningText": "구독 없이, 사용한 만큼만 결제하세요."
+    "positioningText": "구독 없이, 사용한 만큼만 결제하세요.",
+    "cardLabel": "크레딧 팩"
   },
   "FinalCTA": {
     "title": "흩어진 정보에 휘둘리지 말고,",
@@ -899,7 +904,14 @@
     },
     "cta": {
       "newMap": "새 구조맵",
-      "myMaps": "나의 맵"
+      "myMaps": "나의 맵",
+      "fromTextTitle": "텍스트를 구조맵으로 변환",
+      "fromTextDesc": "유튜브 대본·문서 텍스트를 붙여넣어 생성",
+      "blankStartTitle": "빈 상태에서 시작",
+      "blankStartDesc": "브레인스토밍용으로 크레딧 차감 없이 시작",
+      "blankCreating": "빈 구조맵 생성 중...",
+      "freeBadge": "무료",
+      "blankMapDefaultTitle": "제목없음"
     }
   },
   "MapControls": {
@@ -935,8 +947,56 @@
       "share": "공유",
       "shortcuts": "단축키",
       "tutorial": "튜토리얼",
-      "closeMap": "맵 닫기"
+      "closeMap": "맵 닫기",
+      "timestampsShow": "타임스탬프 보기",
+      "timestampsHide": "타임스탬프 숨기기"
+    },
+    "hint": {
+      "label": "힌트",
+      "toggleAria": "단축키 힌트 토글"
     }
+  },
+  "MapNotesTab": {
+    "title": "노트 모아보기",
+    "leftDescription": "노트가 있는 맵만 따로 모아서 빠르게 다시 볼 수 있어요.",
+    "rightDescription": "메모, 노드 노트, 하이라이트를 한 번에 확인합니다.",
+    "empty": "아직 노트가 있는 맵이 없습니다.",
+    "emptyDetail": "선택한 맵에 표시할 노트가 없습니다.",
+    "noSearchResults": "검색 조건에 맞는 맵이 없습니다.",
+    "searchPlaceholder": "노트가 있는 맵 검색",
+    "sortUpdatedDesc": "최근 수정순",
+    "sortTitleAsc": "제목순",
+    "previewSample": "프리뷰 샘플",
+    "opening": "여는 중",
+    "open": "맵 열기",
+    "selectedMap": "맵을 선택해 주세요",
+    "sampleMapLabel": "로그인 없이 미리보기 가능한 샘플 데이터입니다.",
+    "untitled": "제목없음",
+    "loadError": "노트를 불러오지 못했습니다.",
+    "sections": {
+      "memo": "메모",
+      "annotations": "노드 노트",
+      "highlights": "하이라이트"
+    }
+  },
+  "MapTermsTab": {
+    "title": "용어 모아보기",
+    "leftDescription": "용어가 정리된 맵만 따로 모아 빠르게 다시 볼 수 있어요.",
+    "rightDescription": "선택한 맵에서 추출된 용어와 뜻을 확인합니다.",
+    "empty": "아직 용어가 정리된 맵이 없습니다.",
+    "emptyTerms": "선택한 맵에 표시할 용어가 없습니다.",
+    "noSearchResults": "검색 조건에 맞는 맵이 없습니다.",
+    "searchPlaceholder": "용어가 있는 맵 검색",
+    "sortUpdatedDesc": "최근 수정순",
+    "sortTitleAsc": "제목순",
+    "previewSample": "프리뷰 샘플",
+    "opening": "여는 중",
+    "open": "맵 열기",
+    "selectedMap": "맵을 선택해 주세요",
+    "summary": "용어 수",
+    "sampleMapLabel": "로그인 없이 미리보기 가능한 샘플 데이터입니다.",
+    "untitled": "제목없음",
+    "loadError": "용어를 불러오지 못했습니다."
   },
   "ShortcutsDialog": {
     "title": "단축키 안내",
@@ -976,7 +1036,8 @@
   "ConfirmShareDialog": {
     "title": "발행 후 공유",
     "description": "현재 변경사항을 발행하고 공유 링크를 생성할까요?",
-    "actionLabel": "발행 후 공유"
+    "actionLabel": "발행 후 공유",
+    "cancelLabel": "취소"
   },
   "ThemeToggle": {
     "label": {
@@ -1042,6 +1103,13 @@
       "successDescription": "결제 정보가 반영되었어요. 지금 바로 구조맵 생성을 이어갈 수 있습니다.",
       "delayedTitle": "결제는 완료되었지만 반영이 조금 늦어지고 있어요",
       "delayedDescription": "잠시 후 새로고침해 보세요. 계속 반영되지 않으면 주문 상태를 확인해 드릴게요."
+    },
+    "errors": {
+      "missingTossClientKey": "토스 클라이언트 키가 설정되어 있지 않습니다.",
+      "tossSdkNotLoaded": "토스 결제 SDK를 아직 불러오지 못했습니다.",
+      "paymentCanceled": "결제가 취소되었습니다.",
+      "tossPrepareFailed": "토스 결제를 준비하는 중 문제가 발생했습니다.",
+      "missingCheckoutUrl": "체크아웃 URL이 설정되어 있지 않습니다."
     }
   },
   "BillingHistoryPage": {
@@ -1058,9 +1126,15 @@
     "list": {
       "title": "결제 내역 목록",
       "caption": "총 {total}건 중 {visible}건을 보고 있어요.",
+      "loading": "결제 내역을 불러오는 중이에요.",
       "empty": "아직 결제 내역이 없습니다. 먼저 크레딧 팩을 한 번 충전해 보세요.",
       "meta": "{date} · 결제 ID: {id}",
-      "creditsAndProvider": "+ {credits} 크레딧 · {provider}"
+      "creditsAndProvider": "+ {credits} 크레딧 · {provider}",
+      "packLabel": "{credits} 크레딧 팩",
+      "provider": {
+        "toss": "토스페이먼츠",
+        "lemon": "LemonSqueezy"
+      }
     },
     "button": {
       "goToBilling": "크레딧 충전 페이지로 이동",
@@ -1082,6 +1156,26 @@
       "item4": "• 결제 실패 건은 실제로 크레딧이 충전되지 않으며, 필요 시 다시 결제를 시도할 수 있어요.",
       "note": "유료 크레딧의 이용기간은 결제일로부터 1년이며, 환불 기준은 환불정책 페이지에서 확인할 수 있습니다. 구매 후 7일 이내 해당 주문 크레딧을 사용하지 않은 경우 전액 환불이 가능합니다."
     }
+  },
+  "BillingTossFailPage": {
+    "titleCanceled": "결제가 취소되었어요.",
+    "titleFailed": "결제가 완료되지 않았어요.",
+    "descCanceled": "결제창을 닫거나 취소하여 결제가 진행되지 않았어요.",
+    "descFailed": "에러 코드를 확인한 뒤 다시 시도해주세요.",
+    "backToBilling": "크레딧 충전으로 돌아가기",
+    "viewHistory": "결제 내역 보기"
+  },
+  "BillingTossSuccessPage": {
+    "missingData": "결제 완료 정보를 확인할 수 없어요.",
+    "alreadyConfirmed": "이미 승인된 결제예요. 결제 내역에서 확인할 수 있어요.",
+    "chargedCredits": "{credits}크레딧이 충전되었어요.",
+    "confirmError": "결제 승인 중 문제가 발생했어요.",
+    "titleLoading": "결제를 확인하고 있어요.",
+    "titleSuccess": "결제가 완료되었어요.",
+    "titleError": "결제 확인이 완료되지 않았어요.",
+    "pleaseWait": "잠시만 기다려 주세요.",
+    "viewHistory": "결제 내역 보기",
+    "backToBilling": "크레딧 충전으로 돌아가기"
   },
   "BillingCreditsPage": {
     "badge": "무료 · 유료 크레딧 변동 내역",
@@ -1196,6 +1290,11 @@
       "외국어 콘텐츠를 모국어로 결과 생성",
         "단순 요약이 아닙니다. 세부 정보도 놓치지 않아요"
     ],
+    "sampleSection": {
+      "title": "예시 구조맵 이미지",
+      "cta": "내 맵 만들기",
+      "imageAlt": "브라이피 구조맵 예시 이미지"
+    },
     "flowItems": ["영상 대본 입력", "마인드맵 생성", "읽기 · 편집 · 비교", "나만의 기준 세우기"],
     "videoLabel": "사용 흐름 보기",
     "videoLoadingLabel": "불러오는 중...",
@@ -1390,7 +1489,20 @@
     "requestFailed": "요청 실패",
     "metadataPending": "메타데이터를 생성하고 있어요.",
     "metadataPendingSummary": "한 문단 요약을 생성하고 있어요.",
-    "metadataPendingTags": "태그를 생성하고 있어요."
+    "metadataPendingTags": "태그를 생성하고 있어요.",
+    "tooltips": {
+      "editMetadata": "메타데이터 편집",
+      "editTags": "태그 편집"
+    },
+    "notesSubtabs": {
+      "memo": "메모",
+      "annotations": "주석",
+      "highlights": "하이라이트",
+      "annotationsEmpty": "작성된 주석이 아직 없어요.",
+      "annotationsHelper": "노드에 직접 달아둔 주석을 모아보고, 클릭해서 해당 노드로 바로 이동할 수 있어요.",
+      "highlightsEmpty": "하이라이트한 노드가 아직 없어요.",
+      "highlightsHelper": "하이라이트한 노드를 모아보고, 클릭해서 해당 노드로 바로 이동할 수 있어요."
+    }
   },
   "RightPanel": {
     "tabs": {
@@ -1458,6 +1570,14 @@
       },
       "cancel": "취소",
       "submit": "시작하기"
+    }
+  },
+  "BlogPage": {
+    "title": "Brify 블로그",
+    "count": "총 {count}개의 글",
+    "meta": {
+      "title": "브라이피 블로그 | Brify",
+      "description": "복잡한 정보를 마인드맵으로 구조화하는 방법을 다루는 Brify 블로그입니다."
     }
   },
   "TagEditDialog": {
@@ -1563,7 +1683,35 @@
       "description": "삭제하면 복구할 수 없어요. 계속 진행할까요?",
       "action": "삭제",
       "actionDeleting": "삭제 중..."
-    }
+    },
+    "mobile": {
+      "collapseOneLevel": "한 단계 접기",
+      "expandOneLevel": "한 단계 펴기",
+      "openTools": "도구 펼치기",
+      "closeTools": "도구 접기",
+      "layouts": "레이아웃"
+    },
+    "sharedMissing": {
+      "title": "공유된 구조맵을 찾을 수 없어요",
+      "description": "링크가 잘못되었거나, 공유가 종료되었을 수 있어요.",
+      "action": "홈으로 돌아가기"
+    },
+    "readOnlyBadge": "읽기전용",
+    "expandHint": {
+      "line1": "내용이 더 있어요.",
+      "line2": "아이콘이 있는 노드를 눌러 펼치면, 숨겨진 가지까지 이어서 읽을 수 있어요.",
+      "dismiss": "안내 닫기"
+    },
+    "toasts": {
+      "savingNote": "노트 변경을 저장 중...",
+      "sharedReadOnly": "공유 페이지는 읽기전용이에요.",
+      "highlightReadOnly": "읽기전용에서는 하이라이트가 저장되지 않습니다."
+    },
+    "readOnlyMode": {
+      "admin": "관리자 조회 모드",
+      "shared": "공유 읽기 모드"
+    },
+    "brand": "브라이피"
   },
   "DiscardDraftDialog": {
     "title": "임시 변경 버리기",
@@ -1679,6 +1827,95 @@
       "save": "저장",
       "closeTagPicker": "태그 목록 닫기"
     }
+  },
+  "YoutubeNotesPage": {
+    "title": "브라이피(Brify) | 유튜브 정리, 유튜브 내용 정리",
+    "description": "브라이피(Brify)는 긴 유튜브 대본을 마인드맵으로 정리해 복잡한 내용의 흐름과 구조를 더 빠르게 이해할 수 있게 도와줍니다.",
+    "keywords": ["유튜브 정리", "유튜브 내용 정리", "유튜브 메모", "유튜브 마인드맵", "브리피", "브라이피"],
+    "ogImage": "https://www.brify.app/images/sns_ko.png",
+    "heading": "긴 유튜브 내용을 더 쉽게 정리하는 방법",
+    "lead": "좋은 정보가 있는 유튜브를 저장만 해두고 끝내기 쉬웠다면, Brify로 핵심 흐름과 구조를 다시 펼쳐보기 쉬운 형태로 정리해보세요.",
+    "body": [
+      "유튜브 정리가 어려운 이유는 단순히 영상이 길어서만이 아닙니다. 비슷한 말이 반복되고, 중요한 개념이 여러 구간에 흩어져 있어서 나중에 다시 꺼내볼 때 더 복잡하게 느껴지기 때문입니다.",
+      "Brify는 유튜브 대본을 마인드맵 형태로 정리해, 어떤 내용이 중심이고 무엇이 연결되는지 한눈에 볼 수 있게 도와줍니다.",
+      "그래서 유튜브 요약만 보는 것보다, 정리된 흐름과 구조를 다시 보며 이해하고 싶은 분들에게 더 잘 맞습니다."
+    ],
+    "bullets": [
+      "긴 유튜브 영상을 저장만 하고 나중에 못 보는 사람",
+      "영상 내용을 메모처럼 정리하고 싶은 사람",
+      "요약보다 흐름과 연결 관계까지 보고 싶은 사람",
+      "한 번 본 유튜브 내용을 다시 펼쳐보고 싶은 사람"
+    ],
+    "ctaTitle": "유튜브 정리를 더 구조적으로 하고 싶다면",
+    "ctaBody": "Brify는 유튜브 대본을 마인드맵으로 정리해, 복잡한 정보를 더 빠르게 이해하고 다시 보기 쉽게 도와줍니다.",
+    "primaryCta": "데모 보기",
+    "secondaryCta": "유튜브 요약 페이지 보기",
+    "demoHref": "/share/0eb4b0cd-ef56-4078-ba9d-f37cbdc43aad",
+    "relatedHref": "/ko/youtube-summary"
+  },
+  "YoutubeSummaryPage": {
+    "title": "브라이피(Brify) | 유튜브 요약, 유튜브 정리, 유튜브 마인드맵",
+    "description": "브라이피(Brify)는 유튜브 대본, 웹페이지, 긴 텍스트를 마인드맵으로 정리해 복잡한 정보의 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다.",
+    "keywords": ["유튜브 요약", "유튜브 정리", "유튜브 마인드맵", "마인드맵", "유튜브 대본 정리", "브리피", "브라이피"],
+    "ogImage": "https://www.brify.app/images/sns_ko.png",
+    "breadcrumbName": "유튜브 요약",
+    "heading": "유튜브 요약과 정리, 마인드맵으로 더 빠르게",
+    "lead": "긴 유튜브 내용을 끝까지 다 보지 않아도 핵심 흐름과 구조를 한눈에 파악하고 싶다면, Brify가 더 빠른 이해를 도와줍니다.",
+    "section1Title": "Brify가 유튜브 요약과 정리에 잘 맞는 이유",
+    "section1Body": [
+      "유튜브에는 좋은 정보가 많지만, 영상이 길고 내용이 복잡할수록 핵심을 빠르게 정리하기가 쉽지 않습니다.",
+      "Brify는 유튜브 대본을 마인드맵 형태로 정리해 중요한 흐름, 반복되는 개념, 서로 연결되는 내용을 한눈에 볼 수 있게 도와줍니다.",
+      "단순한 요약만 보고 끝나는 것이 아니라, 나중에 다시 펼쳐보며 구조적으로 이해할 수 있다는 점이 Brify의 차이점입니다."
+    ],
+    "section2Title": "이런 분들에게 잘 맞습니다",
+    "bullets": [
+      "긴 유튜브 영상을 빠르게 이해하고 싶은 사람",
+      "유튜브 정리와 요약을 더 구조적으로 하고 싶은 사람",
+      "마인드맵 형태로 복잡한 내용을 시각적으로 보고 싶은 사람",
+      "웹페이지나 긴 텍스트도 함께 정리하고 싶은 사람"
+    ],
+    "section3Title": "Brify로 할 수 있는 일",
+    "cards": [
+      { "title": "유튜브 요약", "body": "긴 영상의 핵심 흐름을 더 빠르게 파악할 수 있습니다." },
+      { "title": "유튜브 정리", "body": "여러 개념과 세부정보를 마인드맵으로 정리해 다시 보기 쉽게 만듭니다." },
+      { "title": "유튜브 마인드맵", "body": "대본 내용을 시각적인 구조로 바꿔 한눈에 비교하고 이해할 수 있습니다." },
+      { "title": "긴 텍스트 정리", "body": "웹페이지와 긴 글도 같은 방식으로 구조화해 복잡한 정보를 더 쉽게 읽을 수 있습니다." }
+    ],
+    "faqTitle": "자주 묻는 질문",
+    "faqs": [
+      { "question": "Brify는 유튜브 요약 서비스인가요?", "answer": "네. Brify는 유튜브 내용을 빠르게 이해할 수 있도록 도와주는 서비스입니다. 다만 단순 요약에 그치지 않고, 흐름과 구조를 마인드맵처럼 정리해 다시 보기 쉽게 만드는 데 더 강점이 있습니다." },
+      { "question": "유튜브 정리와 마인드맵을 함께 할 수 있나요?", "answer": "할 수 있습니다. Brify는 유튜브 대본을 정리하면서 동시에 마인드맵 형태로 시각화해, 복잡한 정보를 한눈에 파악할 수 있게 도와줍니다." },
+      { "question": "유튜브 말고 웹페이지나 긴 글도 정리할 수 있나요?", "answer": "네. Brify는 유튜브 대본뿐 아니라 웹페이지와 긴 텍스트도 함께 정리할 수 있도록 설계되어 있습니다." }
+    ],
+    "primaryCta": "데모 보기",
+    "secondaryCta": "Brify 시작하기",
+    "demoHref": "/share/0eb4b0cd-ef56-4078-ba9d-f37cbdc43aad",
+    "signupHref": "/ko/signup"
+  },
+  "MindMapPage": {
+    "title": "브라이피(Brify) | 마인드맵으로 복잡한 정보 정리",
+    "description": "브라이피(Brify)는 유튜브 대본, 웹페이지, 긴 텍스트를 마인드맵으로 정리해 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다.",
+    "keywords": ["마인드맵", "유튜브 마인드맵", "텍스트 마인드맵", "정보 정리", "브리피", "브라이피"],
+    "ogImage": "https://www.brify.app/images/sns_ko.png",
+    "heading": "마인드맵으로 복잡한 정보를 더 쉽게 이해하세요",
+    "lead": "마인드맵은 많은 정보를 한눈에 정리하고 다시 펼쳐보기 좋은 방식입니다. Brify는 유튜브와 긴 텍스트를 이 흐름에 맞게 정리해줍니다.",
+    "paragraphs": [
+      "마인드맵은 단순히 예쁘게 정리하는 도구가 아니라, 복잡한 정보의 관계와 흐름을 더 선명하게 이해하도록 도와주는 방식입니다.",
+      "Brify는 유튜브 대본, 웹페이지, 긴 텍스트를 마인드맵으로 바꿔 주요 개념과 연결 관계를 한눈에 보이게 만듭니다.",
+      "그래서 공부, 리서치, 정보 비교, 긴 콘텐츠 정리처럼 복잡한 입력을 다루는 상황에서 특히 더 잘 맞습니다."
+    ],
+    "bullets": [
+      "유튜브를 마인드맵으로 정리하고 싶은 사람",
+      "긴 글을 한눈에 보고 싶은 사람",
+      "흐름과 구조를 시각적으로 이해하고 싶은 사람",
+      "여러 내용을 비교하며 차이를 보고 싶은 사람"
+    ],
+    "ctaTitle": "Brify로 시작하는 마인드맵 정리",
+    "ctaBody": "유튜브, 웹페이지, 긴 텍스트를 마인드맵으로 정리해 복잡한 정보를 더 빠르게 이해해보세요.",
+    "primaryCta": "Brify 시작하기",
+    "secondaryCta": "유튜브 정리 페이지 보기",
+    "signupHref": "/ko/signup",
+    "relatedHref": "/ko/youtube-notes"
   },
   "Footer": {
     "description": "긴 내용을 구조화해 정보를 빠르게 파악하고, 나만의 기준을 세울 수 있도록 돕는 서비스",
@@ -1897,6 +2134,15 @@
   "MapsPage": {
     "title": "나의 맵",
     "tagOrganizeExit": "종료",
+    "tabs": {
+      "maps": "맵",
+      "notes": "노트",
+      "terms": "용어"
+    },
+    "openBlocked": {
+      "failed": "실패한 맵은 열 수 없어요.",
+      "processing": "아직 생성 중인 맵이라 열 수 없어요."
+    },
     "previewEmpty": {
       "loading": "목록을 불러오는 중이에요.",
       "noMaps": "아직 생성한 마인드맵이 없어요.",
@@ -1961,5 +2207,270 @@
       "confirm": "합치기"
     },
     "close": "닫기"
+  },
+  "SummarizePage": {
+    "hero": {
+      "title": "어떤 내용을 정리할까요?",
+      "subtitle": "먼저 출처를 골라주세요."
+    },
+    "dialog": {
+      "cancel": "취소"
+    },
+    "toast": {
+      "summaryFailed": "요약에 실패했습니다.",
+      "missingSummaryId": "요약 ID가 없습니다.",
+      "keywordsSaved": "키워드가 저장되었습니다.",
+      "keywordsSaveFailed": "키워드 저장 실패"
+    },
+    "button": {
+      "loading": "요약 중...",
+      "submit": "핵심정리하기"
+    },
+    "result": {
+      "title": "이제 요약 결과를 나만의 정리 스타일로 완성해보세요.",
+      "placeholder": "요약 결과가 여기에 표시됩니다."
+    },
+    "sourceTabs": {
+      "manual": "직접입력",
+      "file": "문서",
+      "website": "웹사이트"
+    },
+    "editor": {
+      "copied": "복사됨",
+      "copy": "복사",
+      "manualTitle": "요약할 내용을 입력하거나 붙여넣어 보세요.",
+      "manualSubtitle": "내용이 준비되면 핵심정리를 진행하세요.",
+      "readyTitle": "내용이 준비됐어요.",
+      "readySubtitle": "요약하기 전에 편집이 필요하다면 수정해보세요.",
+      "sourceLabel": "원문 내용",
+      "manualPlaceholder": "여기에 정리할 내용을 입력해주세요.",
+      "manualPlaceholderWithIcon": "✍️ 여기에 정리할 내용을 입력해주세요.",
+      "extractedPlaceholder": "추출된 내용을 확인하거나 수정할 수 있습니다.",
+      "retentionHint": "요약 결과를 위해 입력한 원문은 하루 동안 임시 보관되며 이후 자동 삭제돼요.",
+      "minLengthHint": "요약을 위해 최소 300자 이상의 내용을 입력해주세요.",
+      "loadingTitle": "✏️ 핵심 내용을 분석 중이에요...",
+      "loadingDescription": "AI가 중요한 문장을 고르고 정리하는 중입니다.",
+      "loadingDuration": "5~15초 정도 걸릴 수 있어요."
+    },
+    "tags": {
+      "doubleClickToEdit": "더블 클릭하여 수정",
+      "addTag": "태그 추가"
+    },
+    "extractedText": {
+      "copied": "복사됨",
+      "copy": "복사",
+      "sourceLabel": "원문 내용",
+      "placeholder": "추출된 내용을 확인하거나 수정할 수 있습니다.",
+      "hint": "원문은 별도로 저장되지 않습니다."
+    },
+    "upload": {
+      "title": "파일 업로드",
+      "dropLine1": "이곳으로 파일을 드래그하거나",
+      "dropLine2": "아래 버튼을 클릭해 선택하세요",
+      "chooseFile": "파일 선택",
+      "supported": "PDF, DOCX, TXT 파일을 지원합니다.",
+      "imageProOnly": "이미지 파일(JPG, PNG)은 Pro 전용 기능입니다."
+    },
+    "ocrHelp": {
+      "title": "왜 텍스트 추출이 실패했을까요?",
+      "subtitle": "OCR이 필요한 대표적인 이유를 간단히 정리했어요.",
+      "reasonsTitle": "PDF 파일이어도 다음과 같은 이유로 텍스트 추출이 실패할 수 있습니다:",
+      "reason1": "문서가 이미지 스캔본으로만 저장된 경우",
+      "reason2": "문서 내부 인코딩이 비표준 방식으로 되어 있는 경우",
+      "reason3": "보안 설정(복사 방지 등)이 걸려 있는 경우",
+      "reason4": "특수한 폰트나 레이아웃이 사용된 경우",
+      "footer": "이런 경우에는 <strong>OCR(이미지 텍스트 인식)</strong>을 통해 문자를 추출할 수 있습니다.",
+      "close": "닫기"
+    },
+    "ocrSuggest": {
+      "cancel": "취소",
+      "title": "PDF에서 텍스트를 추출할 수 없습니다",
+      "line1": "PDF에서 텍스트를 직접 추출할 수 없습니다.",
+      "line2": "문서 형식이나 인코딩 문제로 인해 OCR(이미지 인식)을 통해 텍스트를 추출해야 할 수 있습니다.",
+      "line3": "OCR(이미지 인식)으로 텍스트를 추출해보시겠어요?",
+      "helpLink": "*PDF 텍스트 추출 실패 이유 알아보기",
+      "confirm": "OCR로 추출 시도하기"
+    },
+    "loginRequired": {
+      "title": "로그인 필요",
+      "description": "이 기능을 사용하려면 로그인 또는 회원가입이 필요합니다.",
+      "loginTab": "로그인",
+      "signupTab": "회원가입"
+    },
+    "actions": {
+      "highlight": "하이라이트",
+      "shorter": "더 간단하게 요약",
+      "detailed": "더 자세히 요약",
+      "terms": "전문용어 정리",
+      "exportPdf": "PDF로 저장",
+      "askGpt": "GPT에게 질문하기",
+      "copy": "복사하기",
+      "diagramSoon": "🧠 다이어그램 기능은 준비 중이에요!"
+    },
+    "input": {
+      "noFile": "파일이 선택되지 않았습니다.",
+      "invalidYoutube": "유효한 YouTube 링크가 아닙니다.",
+      "processingError": "⚠️ 처리 중 오류가 발생했습니다.",
+      "extractButton": "원문 추출하기",
+      "processing": "처리 중...",
+      "youtubeLabel": "YouTube 영상 주소",
+      "websiteLabel": "웹사이트 주소",
+      "websiteHint": "대부분의 웹사이트는 요약이 가능하지만, 일부 로그인 필요하거나 보안 설정된 사이트는 지원되지 않을 수 있어요.",
+      "youtubeExtractPrefix": "🔗 유튜브 영상에서 추출한 영상 대본입니다.",
+      "websiteExtractPrefix": "🌐 웹사이트에서 추출한 본문입니다.",
+      "ocrExtractPrefix": "📷 OCR로 추출한 본문입니다.",
+      "fileExtractPrefix": "📄 업로드한 파일에서 추출한 본문입니다.",
+      "fetchResultFailed": "❌ 결과를 불러오는 데 문제가 발생했습니다.",
+      "youtubeTranscriptFailed": "❌ 유튜브 영상 대본 추출에 실패했습니다.",
+      "requestFailed": "❌ 요청 처리에 실패했습니다.",
+      "requestError": "❌ 요청 처리 중 오류가 발생했습니다.",
+      "networkError": "❌ 네트워크 오류가 발생했습니다. 다시 시도해주세요.",
+      "websiteExtractFailed": "❌ 웹사이트 본문 추출에 실패했습니다.",
+      "requestNotFound": "❌ 요청을 찾을 수 없습니다. (Job ID 없음)",
+      "websiteErrorRetry": "❌ 웹사이트 요청 중 에러 발생했습니다. 다시 시도해주세요.",
+      "ocrFailed": "❌ OCR 처리에 실패했습니다.",
+      "ocrUploadFailed": "❌ OCR 업로드 중 오류 발생",
+      "fileProcessFailed": "❌ 파일 처리에 실패했습니다.",
+      "fileUploadFailed": "❌ 파일 업로드 중 오류 발생"
+    }
+  },
+  "ConfirmDialog": {
+    "title": "초기화할까요?",
+    "description": "진행 중이던 내용이 모두 사라집니다.",
+    "action": "초기화",
+    "cancel": "취소"
+  },
+  "SummaryEditor": {
+    "cancel": "취소",
+    "save": "저장"
+  },
+  "SummarizeOptionsDialog": {
+    "title": "핵심정리 옵션 선택",
+    "enterTextAlert": "핵심정리할 글을 입력해주세요.",
+    "sourceOptional": "출처 (선택)",
+    "sourcePlaceholder": "예: 유튜브 링크, 뉴스 URL 등",
+    "viewTypeTitle": "핵심정리 결과 보기 방식",
+    "viewText": "📝 핵심정리 글",
+    "viewDiagram": "📊 다이어그램",
+    "viewBoth": "📝+📊 둘 다",
+    "loading": "핵심정리 중...",
+    "submit": "핵심정리 요청",
+    "cancel": "취소"
+  },
+  "MapsDialogs": {
+    "tagMerge": {
+      "title": "태그 합치기",
+      "description": "선택한 태그를 하나로 통합합니다.",
+      "targetLabel": "기준 태그",
+      "targetPlaceholder": "합칠 태그 이름",
+      "confirm": "합치기",
+      "cancel": "취소"
+    }
+  },
+  "ClientMindElixir": {
+    "miniMap": {
+      "label": "미니맵",
+      "center": "중심으로 이동",
+      "zoomIn": "줌인 (⌘+)",
+      "zoomOut": "줌아웃 (⌘-)",
+      "collapseOneLevel": "한단계 접기",
+      "expandOneLevel": "한단계 펴기"
+    },
+    "mobileEdit": {
+      "title": "노드 편집",
+      "moreActions": "더보기"
+    },
+    "annotation": {
+      "title": "주석",
+      "placeholder": "주석을 입력하세요",
+      "add": "주석 추가",
+      "delete": "주석 삭제"
+    },
+    "highlight": "하이라이트",
+    "focusMode": {
+      "label": "포커스 모드",
+      "exit": "나가기"
+    },
+    "common": {
+      "cancel": "취소",
+      "save": "저장"
+    },
+    "contextMenu": {
+      "copyMarkdown": "마크다운 복사",
+      "copyExpandedMarkdown": "펼쳐진 노드만 마크다운 복사",
+      "copySuccess": "마크다운을 복사했어요.",
+      "copyFail": "복사에 실패했습니다."
+    },
+    "timestamp": {
+      "hms": "{h}시간 {m}분 {s}초",
+      "ms": "{m}분 {s}초",
+      "s": "{s}초"
+    }
+  },
+  "NoteButton": {
+    "label": "노트",
+    "withCount": "노트 ({count})"
+  },
+  "ProTooltipButton": {
+    "description": "Pro 요금제에서 사용할 수 있어요.",
+    "cta": "요금제 보러가기"
+  },
+  "SummaryViewer": {
+    "edit": "수정하기"
+  },
+  "RefundPolicyPage": {
+    "badge": "BRIFY REFUND POLICY",
+    "title": "환불 정책",
+    "intro": "Brify 유료 크레딧의 사용기간, 환불 가능 기준, 환불 제한 사유를 안내합니다. 결제 전 아래 기준을 확인해 주세요.",
+    "facts": {
+      "validityTitle": "사용 가능 기간",
+      "validityValue": "결제일로부터 1년",
+      "changeOfMindTitle": "단순 변심 환불",
+      "changeOfMindValue": "7일 이내, 미사용 시",
+      "methodTitle": "환불 방식",
+      "methodValue": "원 결제수단 환불"
+    },
+    "sections": {
+      "scope": {
+        "title": "1. 적용 대상",
+        "body": "본 환불 정책은 Brify에서 판매하는 유료 크레딧 상품에 적용됩니다."
+      },
+      "validity": {
+        "title": "2. 이용기간",
+        "body": "유료 크레딧의 이용기간은 각 결제일로부터 1년입니다.",
+        "note": "위 기간은 유료 크레딧의 사용 가능 기간을 의미합니다. 환불 가능 여부와 환불 범위는 아래 기준 및 관련 법령에 따라 별도로 판단됩니다."
+      },
+      "eligibility": {
+        "title": "3. 환불 가능 기준",
+        "body1": "유료 크레딧은 구매 후 7일 이내이고, 해당 주문으로 충전된 크레딧을 전혀 사용하지 않은 경우 전액 환불이 가능합니다.",
+        "body2": "미사용 유료 크레딧에 대한 환불은 구매 시점에 결제된 금액을 기준으로 처리됩니다.",
+        "note": "환불은 원칙적으로 결제에 사용한 동일한 결제수단으로 진행됩니다."
+      },
+      "limitations": {
+        "title": "4. 환불 제한",
+        "body1": "이미 사용한 유료 크레딧은 취소 또는 환불이 불가합니다.",
+        "body2": "크레딧 사용이 시작되었거나 맵 생성이 진행된 이후에는 해당 주문에 대한 단순 변심 환불이 제한됩니다.",
+        "note1": "구매 후 7일이 지난 미사용 유료 크레딧은 단순 변심에 의한 환불 대상이 아니며, 결제일로부터 1년의 유효기간 내에서만 사용할 수 있습니다.",
+        "note2": "구매한 유료 크레딧은 회원 간 양도, 대여 또는 이전이 불가합니다."
+      },
+      "exceptions": {
+        "title": "5. 예외 환불",
+        "body": "중복 결제, 시스템 오류, 관계 법령상 환불이 필요한 경우에는 별도 검토 후 환불될 수 있습니다."
+      },
+      "request": {
+        "title": "6. 환불 요청 방법",
+        "body": "환불 검토가 필요하시면 결제일, 계정 이메일, 결제 내역을 함께 적어 hello@brify.app으로 이메일을 보내 주세요.",
+        "note": "원활한 확인을 위해 주문번호, 결제 금액, 결제 수단, 환불 사유를 함께 보내 주시면 검토가 더 빠르게 진행됩니다."
+      },
+      "processing": {
+        "title": "7. 환불 처리 안내",
+        "body": "환불 승인 후 실제 결제 취소 및 환불 반영 시점은 카드사, 은행, 결제대행사 정책에 따라 달라질 수 있으며, 영업일 기준 수일이 소요될 수 있습니다."
+      },
+      "contact": {
+        "title": "8. 문의처",
+        "email": "hello@brify.app",
+        "note": "환불 정책의 해석 및 적용은 관련 법령, 결제대행사 기준, 개별 결제 상태에 따라 달라질 수 있습니다."
+      }
+    }
   }
 }

@@ -5,6 +5,9 @@ import { adminSupabase } from "@/utils/supabase/admin";
 import crypto from "crypto";
 import { grantSignupReward } from "@/app/lib/rewards/grantSignupReward";
 
+const SUPPORTED_LOCALES = ["en", "ko", "fr"] as const;
+type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
+
 function signSignup(uid: string, next: string) {
   const secret = process.env.SIGNUP_COMPLETE_SECRET!;
   return crypto.createHmac("sha256", secret).update(`${uid}|${next}`).digest("hex");
@@ -24,6 +27,25 @@ function normalizeNext(nextRaw: string | null) {
   return next;
 }
 
+function normalizeLocaleCandidate(value: string | null | undefined): SupportedLocale | null {
+  if (!value) return null;
+  const lower = value.toLowerCase();
+  if (SUPPORTED_LOCALES.includes(lower as SupportedLocale)) {
+    return lower as SupportedLocale;
+  }
+  const base = lower.split("-")[0];
+  if (SUPPORTED_LOCALES.includes(base as SupportedLocale)) {
+    return base as SupportedLocale;
+  }
+  return null;
+}
+
+function getLocaleFromPathname(pathname: string | null | undefined): SupportedLocale | null {
+  if (!pathname) return null;
+  const segment = pathname.split("/").filter(Boolean)[0];
+  return normalizeLocaleCandidate(segment);
+}
+
 // base(쿠키 심긴 응답) -> 최종 redirect 응답으로 쿠키 복사
 function redirectWithCookies(to: URL, base: NextResponse) {
   const r = NextResponse.redirect(to);
@@ -39,16 +61,31 @@ export async function GET(req: NextRequest) {
   // signup/complete에서 보낸 값들 (terms 완료 후 다시 callback로 보내는 흐름 포함)
   const flow = url.searchParams.get("flow"); // "signup" 기대
   const terms = url.searchParams.get("terms"); // "1" 기대
-  const localeFromQuery = url.searchParams.get("locale");
-
-  // locale 우선순위: query > cookie > en
-  const locale = localeFromQuery ?? req.cookies.get("NEXT_LOCALE")?.value ?? "en";
+  const localeFromQuery = normalizeLocaleCandidate(url.searchParams.get("locale"));
+  const localeFromCookie = normalizeLocaleCandidate(req.cookies.get("NEXT_LOCALE")?.value);
+  const localeFromReferer = (() => {
+    const referer = req.headers.get("referer");
+    if (!referer) return null;
+    try {
+      return getLocaleFromPathname(new URL(referer).pathname);
+    } catch {
+      return null;
+    }
+  })();
 
   // ✅ "/"도 정상 (미들웨어가 locale 붙임)
   const next = normalizeNext(url.searchParams.get("next"));
+  const localeFromNext = getLocaleFromPathname(next);
+  const locale =
+    localeFromQuery ?? localeFromCookie ?? localeFromReferer ?? localeFromNext ?? "en";
 
   // ✅ app route에서 NextResponse.next() 금지 → 쿠키 심을 base response 준비
   const base = NextResponse.redirect(new URL("/", req.nextUrl));
+  base.cookies.set("NEXT_LOCALE", locale, {
+    path: "/",
+    sameSite: "lax",
+    httpOnly: false,
+  });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

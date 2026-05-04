@@ -14,6 +14,7 @@ import { usePathname, useRouter } from "next/navigation";
 const locales = [
   { code: "en", label: "English" },
   { code: "ko", label: "한국어" },
+  { code: "fr", label: "Français" },
 ];
 
 type Props = {

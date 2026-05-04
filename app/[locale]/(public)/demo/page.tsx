@@ -20,7 +20,7 @@ export default async function DemoPage({ params }: DemoPageProps) {
   const { locale } = await params;
   const t = await getTranslations("DemoPage");
   const demoShareToken =
-    locale === "en" ? DEMO_SHARE_TOKENS.en : DEMO_SHARE_TOKENS.ko;
+    locale === "ko" ? DEMO_SHARE_TOKENS.ko : DEMO_SHARE_TOKENS.en;
   const demo = await getSharedMapMetaByToken(demoShareToken);
   const shareHref = `/${locale}/share/${demoShareToken}`;
   const videoTitle = demo?.youtubeTitle || demo?.title || t("meta.youtubeTitleFallback");

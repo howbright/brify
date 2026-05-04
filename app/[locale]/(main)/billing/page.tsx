@@ -86,7 +86,7 @@ function getTossErrorInfo(error: unknown): { code?: string; message: string } {
     return { message: error.message };
   }
 
-  return { message: "알 수 없는 오류가 발생했어요." };
+  return { message: "Unknown error occurred." };
 }
 
 async function syncTossFailedPayment(params: {
@@ -481,7 +481,7 @@ export default function BillingPage() {
               </Link>
 
               <Link
-                href="/missions"
+                href={`/${locale}/missions`}
                 className="
       group inline-flex w-full sm:w-auto items-center justify-center gap-1.5
       px-1 py-1
@@ -603,12 +603,12 @@ function CreditPackCard({
       const tossClientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
 
       if (!tossClientKey) {
-        toast.error("NEXT_PUBLIC_TOSS_CLIENT_KEY가 설정되지 않았어요.");
+        toast.error(t("errors.missingTossClientKey"));
         return;
       }
 
       if (typeof window === "undefined" || !window.TossPayments) {
-        toast.error("토스 결제 SDK를 아직 불러오지 못했어요.");
+        toast.error(t("errors.tossSdkNotLoaded"));
         return;
       }
 
@@ -678,10 +678,10 @@ function CreditPackCard({
         }
 
         if (isUserCanceled) {
-          toast.message("결제가 취소되었어요.");
+          toast.message(t("errors.paymentCanceled"));
         } else {
           console.error("Failed to open Toss payment window:", error);
-          toast.error("토스 결제를 준비하는 중 문제가 발생했어요.");
+          toast.error(t("errors.tossPrepareFailed"));
         }
 
         setIsSubmitting(false);
@@ -691,7 +691,7 @@ function CreditPackCard({
     }
 
     if (!resolvedCheckoutUrl) {
-      toast.error("Checkout URL이 설정되지 않았어요.");
+      toast.error(t("errors.missingCheckoutUrl"));
       return;
     }
 

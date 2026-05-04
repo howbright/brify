@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 
 type FailState = "loading" | "canceled" | "failed";
@@ -19,8 +19,8 @@ function isCanceled(code?: string | null, message?: string | null) {
 
 export default function BillingTossFailPage() {
   const locale = useLocale();
+  const t = useTranslations("BillingTossFailPage");
   const searchParams = useSearchParams();
-  const isKorean = locale === "ko";
   const [state, setState] = useState<FailState>("loading");
 
   const code = searchParams.get("code");
@@ -68,21 +68,13 @@ export default function BillingTossFailPage() {
       <div className="w-full rounded-3xl border border-slate-300 bg-white p-6 shadow-sm dark:border-white/12 dark:bg-slate-950">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
           {state === "canceled"
-            ? isKorean
-              ? "결제가 취소되었어요."
-              : "Payment was canceled."
-            : isKorean
-              ? "결제가 완료되지 않았어요."
-              : "Payment did not complete."}
+            ? t("titleCanceled")
+            : t("titleFailed")}
         </h1>
         <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
           {state === "canceled"
-            ? isKorean
-              ? "결제창을 닫거나 취소하여 결제가 진행되지 않았어요."
-              : "The payment window was closed or canceled before completion."
-            : isKorean
-              ? "에러 코드를 확인한 뒤 다시 시도해주세요."
-              : "Please check the error code and try again."}
+            ? t("descCanceled")
+            : t("descFailed")}
         </p>
 
         <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
@@ -96,13 +88,13 @@ export default function BillingTossFailPage() {
             href={billingHref}
             className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
           >
-            {isKorean ? "크레딧 충전으로 돌아가기" : "Back to billing"}
+            {t("backToBilling")}
           </Link>
           <Link
             href={historyHref}
             className="inline-flex items-center justify-center rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/15 dark:text-white dark:hover:bg-white/5"
           >
-            {isKorean ? "결제 내역 보기" : "View billing history"}
+            {t("viewHistory")}
           </Link>
         </div>
       </div>

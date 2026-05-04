@@ -92,10 +92,8 @@ export default function LeftPanel({
     [map.title, t]
   );
   const metadataPending = map.status === "processing_metadata";
-  const metadataEditTooltip =
-    locale === "ko" ? "메타데이터 편집" : "Edit metadata";
-  const tagsEditTooltip =
-    locale === "ko" ? "태그 편집" : "Edit tags";
+  const metadataEditTooltip = t("tooltips.editMetadata");
+  const tagsEditTooltip = t("tooltips.editTags");
 
   const [internalTab, setInternalTab] = useState<LeftPanelTab>(tab ?? "info");
   const [notesSubtab, setNotesSubtab] = useState<NotesSubtab>("highlight");
@@ -1230,26 +1228,14 @@ function NotesBlock({
   loadingLabel: string;
   emptyLabel: string;
 }) {
-  const locale = useLocale();
-  const memoTitle = locale === "ko" ? "메모" : "Notes";
-  const nodeNotesTitle = locale === "ko" ? "주석" : "Annotations";
-  const highlightsTitle = locale === "ko" ? "하이라이트" : "Highlights";
-  const nodeNotesEmpty =
-    locale === "ko"
-      ? "작성된 주석이 아직 없어요."
-      : "No annotations yet.";
-  const nodeNotesHelper =
-    locale === "ko"
-      ? "노드에 직접 달아둔 주석을 모아보고, 클릭해서 해당 노드로 바로 이동할 수 있어요."
-      : "Browse annotations attached to nodes and jump to that node with one click.";
-  const highlightsEmpty =
-    locale === "ko"
-      ? "하이라이트한 노드가 아직 없어요."
-      : "No highlighted nodes yet.";
-  const highlightsHelper =
-    locale === "ko"
-      ? "하이라이트한 노드를 모아보고, 클릭해서 해당 노드로 바로 이동할 수 있어요."
-      : "Browse highlighted nodes and jump to them with one click.";
+  const t = useTranslations("LeftPanel");
+  const memoTitle = t("notesSubtabs.memo");
+  const nodeNotesTitle = t("notesSubtabs.annotations");
+  const highlightsTitle = t("notesSubtabs.highlights");
+  const nodeNotesEmpty = t("notesSubtabs.annotationsEmpty");
+  const nodeNotesHelper = t("notesSubtabs.annotationsHelper");
+  const highlightsEmpty = t("notesSubtabs.highlightsEmpty");
+  const highlightsHelper = t("notesSubtabs.highlightsHelper");
 
   return (
     <div className="flex flex-col gap-3">

@@ -3,12 +3,14 @@
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface UploadCardProps {
   onFileSelected: (file: File) => void;
 }
 
 export default function UploadCard({ onFileSelected }: UploadCardProps) {
+  const t = useTranslations("SummarizePage.upload");
   const [dragOver, setDragOver] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null); // ✅ 추가
 
@@ -50,7 +52,7 @@ export default function UploadCard({ onFileSelected }: UploadCardProps) {
       >
         <div className="text-left">
           <label className="block text-sm font-semibold text-gray-800 dark:text-white mb-2">
-            파일 업로드
+            {t("title")}
           </label>
         </div>
 
@@ -62,7 +64,8 @@ export default function UploadCard({ onFileSelected }: UploadCardProps) {
             <p className="text-sm font-medium text-text dark:text-foreground">{selectedFileName}</p>
           ) : (
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              이곳으로 파일을 드래그하거나<br /> 아래 버튼을 클릭해 선택하세요
+              {t("dropLine1")}
+              <br /> {t("dropLine2")}
             </p>
           )}
 
@@ -77,14 +80,15 @@ export default function UploadCard({ onFileSelected }: UploadCardProps) {
             htmlFor="fileUpload"
             className="mt-2 inline-block px-5 py-2 rounded-lg bg-primary text-white text-sm font-semibold cursor-pointer hover:bg-primary-hover transition"
           >
-            파일 선택
+            {t("chooseFile")}
           </label>
         </div>
 
         <p className="mt-4 text-xs text-muted-foreground leading-relaxed text-center">
-          PDF, DOCX, TXT 파일을 지원합니다. <br />
+          {t("supported")}
+          <br />
           <span className="text-primary font-semibold">
-            이미지 파일(JPG, PNG)은 Pro 전용 기능입니다.
+            {t("imageProOnly")}
           </span>
         </p>
       </div>
