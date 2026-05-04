@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import { resizeToWebp, validateImageFile } from "@/utils/image";
+import { appendParsedTags, normalizeTags, shouldCommitTagKey } from "@/utils/tags";
 
 type Meta = {
   sourceUrl?: string;
@@ -33,13 +34,6 @@ type Props = {
 function getErrorMessage(error: unknown, fallback: string) {
   if (error instanceof Error && error.message) return error.message;
   return fallback;
-}
-
-function normalizeTags(tags: string[]) {
-  return Array.from(new Set(tags.map((tag) => tag.trim()).filter(Boolean))).slice(
-    0,
-    12
-  );
 }
 
 export default function MapMetadataEditDialog({
@@ -129,10 +123,10 @@ export default function MapMetadataEditDialog({
     setThumbPreviewUrl(null);
   };
 
-  const handleAddTag = () => {
-    const next = tagInput.trim();
-    if (!next) return;
-    setTagItems((prev) => normalizeTags([...prev, next]));
+  const handleAddTag = (rawValue?: unknown) => {
+    const next = String(rawValue ?? tagInput ?? "");
+    if (!next.trim()) return;
+    setTagItems((prev) => appendParsedTags(prev, next));
     setTagInput("");
   };
 
@@ -435,10 +429,21 @@ export default function MapMetadataEditDialog({
                   onCompositionStart={() => setTagComposing(true)}
                   onCompositionEnd={() => setTagComposing(false)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" && !tagComposing) {
-                      e.preventDefault();
-                      handleAddTag();
-                    }
+                    if (!shouldCommitTagKey(e.key)) return;
+                    e.preventDefault();
+                    if (tagComposing || e.nativeEvent.isComposing) return;
+                    handleAddTag(e.currentTarget.value);
+                  }}
+                  onBlur={(e) => {
+                    if (!e.currentTarget.value.trim()) return;
+                    handleAddTag(e.currentTarget.value);
+                  }}
+                  onPaste={(e) => {
+                    const pasted = e.clipboardData.getData("text");
+                    if (!pasted) return;
+                    if (!/[,\n\r;|#\t]/.test(pasted)) return;
+                    e.preventDefault();
+                    handleAddTag(pasted);
                   }}
                   placeholder={t("tags.addTagPlaceholder")}
                   className="min-w-[180px] flex-1 rounded-2xl border border-slate-400 bg-white px-3 py-2.5 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300/60 dark:border-white/30 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40"

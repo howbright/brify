@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import { resizeToWebp, validateImageFile } from "@/utils/image";
+import { appendParsedTags, normalizeTags, shouldCommitTagKey } from "@/utils/tags";
 
 type Meta = {
   sourceType: "youtube" | "manual";
@@ -25,13 +26,6 @@ function getErrorMessage(error: unknown, fallback: string) {
 function isYouTubeUrl(url: string) {
   const u = url.toLowerCase();
   return u.includes("youtube.com") || u.includes("youtu.be");
-}
-
-function normalizeTags(tags: string[]) {
-  return Array.from(new Set(tags.map((tag) => tag.trim()).filter(Boolean))).slice(
-    0,
-    12
-  );
 }
 
 function looksLikeRestrictedYoutubeError(message: string) {
@@ -263,9 +257,9 @@ export default function MetadataDialog({
   }, []);
 
   const handleAddTag = (rawValue?: unknown) => {
-    const next = String(rawValue ?? tagInput ?? "").trim();
-    if (!next) return;
-    setTagItems((prev) => normalizeTags([...prev, next]));
+    const next = String(rawValue ?? tagInput ?? "");
+    if (!next.trim()) return;
+    setTagItems((prev) => appendParsedTags(prev, next));
     setTagInput("");
   };
 
@@ -770,10 +764,21 @@ export default function MetadataDialog({
                         onCompositionStart={() => setTagComposing(true)}
                         onCompositionEnd={() => setTagComposing(false)}
                         onKeyDown={(e) => {
-                          if (e.key !== "Enter") return;
+                          if (!shouldCommitTagKey(e.key)) return;
                           e.preventDefault();
                           if (tagComposing || e.nativeEvent.isComposing) return;
                           handleAddTag(e.currentTarget.value);
+                        }}
+                        onBlur={(e) => {
+                          if (!e.currentTarget.value.trim()) return;
+                          handleAddTag(e.currentTarget.value);
+                        }}
+                        onPaste={(e) => {
+                          const pasted = e.clipboardData.getData("text");
+                          if (!pasted) return;
+                          if (!/[,\n\r;|#\t]/.test(pasted)) return;
+                          e.preventDefault();
+                          handleAddTag(pasted);
                         }}
                         placeholder={t("tags.addTagPlaceholder")}
                         className="min-w-[140px] flex-1 border-0 bg-transparent px-0 py-0 text-[16px] text-neutral-900 placeholder:text-neutral-400 focus:outline-none dark:text-white dark:placeholder:text-white/40"

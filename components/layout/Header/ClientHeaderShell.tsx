@@ -201,7 +201,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                       className="flex flex-col items-start gap-0.5 py-2.5"
                     >
                       <span className="text-sm font-semibold">{t("cta.fromTextTitle")}</span>
-                      <span className="text-xs text-muted-foreground">{t("cta.fromTextDesc")}</span>
+                      <span className="text-xs text-muted-foreground dark:text-slate-300">{t("cta.fromTextDesc")}</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onSelect={(e) => {
@@ -217,7 +217,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                         </span>
                         {isCreatingBlank ? t("cta.blankCreating") : t("cta.blankStartTitle")}
                       </span>
-                      <span className="text-xs text-muted-foreground">{t("cta.blankStartDesc")}</span>
+                      <span className="text-xs text-muted-foreground dark:text-slate-300">{t("cta.blankStartDesc")}</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -300,7 +300,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                     className="flex flex-col items-start gap-0.5 py-2.5"
                   >
                     <span className="text-sm font-semibold">{t("cta.fromTextTitle")}</span>
-                    <span className="text-xs text-muted-foreground">{t("cta.fromTextDesc")}</span>
+                    <span className="text-xs text-muted-foreground dark:text-slate-300">{t("cta.fromTextDesc")}</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={(e) => {
@@ -316,7 +316,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                       </span>
                       {isCreatingBlank ? t("cta.blankCreating") : t("cta.blankStartTitle")}
                     </span>
-                    <span className="text-xs text-muted-foreground">{t("cta.blankStartDesc")}</span>
+                    <span className="text-xs text-muted-foreground dark:text-slate-300">{t("cta.blankStartDesc")}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

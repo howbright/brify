@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { appendParsedTags, normalizeTags, shouldCommitTagKey } from "@/utils/tags";
 
 type TagEditDialogProps = {
   open: boolean;
@@ -35,16 +36,16 @@ export default function TagEditDialog({
 
   useEffect(() => {
     if (!open) return;
-    setItems(initialTags);
+    setItems(normalizeTags(initialTags));
     setInput("");
     setPickerOpen(false);
     setSearchTerm("");
   }, [open, initialKey, initialTags]);
 
-  const handleAdd = () => {
-    const next = input.trim();
-    if (!next) return;
-    setItems((prev) => (prev.includes(next) ? prev : [...prev, next]));
+  const handleAdd = (rawValue?: unknown) => {
+    const next = String(rawValue ?? input ?? "");
+    if (!next.trim()) return;
+    setItems((prev) => appendParsedTags(prev, next));
     setInput("");
   };
 
@@ -106,9 +107,20 @@ export default function TagEditDialog({
                   onCompositionEnd={() => setComposing(false)}
                   onKeyDown={(event) => {
                     if (composing || event.nativeEvent.isComposing) return;
-                    if (event.key !== "Enter" && event.key !== ",") return;
+                    if (!shouldCommitTagKey(event.key)) return;
                     event.preventDefault();
-                    handleAdd();
+                    handleAdd(event.currentTarget.value);
+                  }}
+                  onBlur={(event) => {
+                    if (!event.currentTarget.value.trim()) return;
+                    handleAdd(event.currentTarget.value);
+                  }}
+                  onPaste={(event) => {
+                    const pasted = event.clipboardData.getData("text");
+                    if (!pasted) return;
+                    if (!/[,\n\r;|#\t]/.test(pasted)) return;
+                    event.preventDefault();
+                    handleAdd(pasted);
                   }}
                   placeholder={t("addTagPlaceholder")}
                   className="min-w-[140px] flex-1 border-0 bg-transparent px-0 py-0 text-[15px] text-neutral-900 placeholder:text-neutral-400 focus:outline-none dark:text-white dark:placeholder:text-white/40"
