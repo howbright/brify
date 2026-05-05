@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject, type ReactNode } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
@@ -31,6 +31,13 @@ import TagEditDialog from "@/components/maps/TagEditDialog";
 import { createClient } from "@/utils/supabase/client";
 import LanguageSelector from "@/components/LanguageSelector";
 import type { Database } from "@/app/types/database.types";
+import type {
+  MapSourceExpiresAt,
+  MapSourceRetentionHours,
+  SourceFindCandidate,
+  SourceFindResponse,
+  SourceFindStatus,
+} from "@/app/types/mapSource";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 import { getLoadingMindElixir } from "@/app/lib/mind-elixir/sampleData";
 import {
@@ -135,6 +142,182 @@ function toFileSafeName(value: string) {
 
 function getErrorMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback;
+}
+
+type HighlightInterval = {
+  start: number;
+  end: number;
+  kind: "key" | "active" | "expand";
+};
+
+function buildHighlightIntervals(
+  text: string,
+  keys: string[],
+  activeStart: number,
+  activeEnd: number,
+  expandStart = -1,
+  expandEnd = -1
+) {
+  const intervals: HighlightInterval[] = [];
+  const lower = text.toLowerCase();
+  const normalizedKeys = Array.from(
+    new Set(
+      keys
+        .map((key) => key.trim())
+        .filter((key) => key.length >= 2)
+        .sort((a, b) => b.length - a.length)
+    )
+  );
+
+  for (const key of normalizedKeys) {
+    const needle = key.toLowerCase();
+    let from = 0;
+    while (from < lower.length) {
+      const idx = lower.indexOf(needle, from);
+      if (idx === -1) break;
+      intervals.push({ start: idx, end: idx + needle.length, kind: "key" });
+      from = idx + Math.max(1, Math.floor(needle.length / 2));
+    }
+  }
+
+  if (activeStart >= 0 && activeEnd > activeStart) {
+    intervals.push({
+      start: activeStart,
+      end: activeEnd,
+      kind: "active",
+    });
+  }
+
+  if (expandStart >= 0 && expandEnd > expandStart) {
+    intervals.push({
+      start: expandStart,
+      end: expandEnd,
+      kind: "expand",
+    });
+  }
+
+  return intervals;
+}
+
+function sanitizeAnchorTextCandidates(values: string[], maxCount: number) {
+  const splitIntoClauses = (value: string) =>
+    value
+      .split(/[·•\n]+/g)
+      .flatMap((chunk) => chunk.split(/[.!?]+/g))
+      .map((chunk) => chunk.trim())
+      .filter(Boolean);
+
+  const clauses = values
+    .map((value) => String(value ?? "").trim())
+    .flatMap(splitIntoClauses)
+    .map((value) => value.replace(/\s+/g, " ").trim())
+    .filter((value) => value.length >= 8)
+    .filter((value) => /[\p{L}\p{N}]/u.test(value))
+    .sort((a, b) => b.length - a.length);
+
+  return Array.from(new Set(clauses)).slice(0, maxCount);
+}
+
+function renderHighlightedText(
+  text: string,
+  intervals: HighlightInterval[],
+  markRef: RefObject<HTMLElement | null>
+) {
+  if (!text) return null;
+  if (!intervals.length) {
+    return <span className="select-text whitespace-pre-wrap break-words">{text}</span>;
+  }
+
+  const points = new Set<number>([0, text.length]);
+  for (const it of intervals) {
+    points.add(Math.max(0, Math.min(text.length, it.start)));
+    points.add(Math.max(0, Math.min(text.length, it.end)));
+  }
+  const sorted = Array.from(points).sort((a, b) => a - b);
+
+  const nodes: ReactNode[] = [];
+  let activeMarkBound = false;
+  for (let i = 0; i < sorted.length - 1; i += 1) {
+    const segStart = sorted[i];
+    const segEnd = sorted[i + 1];
+    if (segEnd <= segStart) continue;
+    const segText = text.slice(segStart, segEnd);
+
+    let hasKey = false;
+    let hasActive = false;
+    for (const it of intervals) {
+      if (it.start < segEnd && it.end > segStart) {
+        if (it.kind === "active") hasActive = true;
+        else if (it.kind === "key") hasKey = true;
+      }
+    }
+
+    if (hasActive) {
+      nodes.push(
+        <mark
+          key={`a-${segStart}-${segEnd}`}
+          ref={
+            activeMarkBound
+              ? undefined
+              : (el) => {
+                  markRef.current = el;
+                }
+          }
+          className="select-text whitespace-pre-wrap break-words rounded bg-amber-300 px-0.5 text-neutral-900 dark:bg-amber-300 dark:text-neutral-950"
+        >
+          {segText}
+        </mark>
+      );
+      activeMarkBound = true;
+    } else if (hasKey) {
+      nodes.push(
+        <mark
+          key={`k-${segStart}-${segEnd}`}
+          className="select-text whitespace-pre-wrap break-words rounded bg-yellow-100 px-0.5 text-neutral-900 dark:bg-yellow-200/60 dark:text-neutral-900"
+        >
+          {segText}
+        </mark>
+      );
+    } else {
+      const hasExpand = intervals.some(
+        (it) => it.kind === "expand" && it.start < segEnd && it.end > segStart
+      );
+      if (hasExpand) {
+        nodes.push(
+          <mark
+            key={`e-${segStart}-${segEnd}`}
+            className="select-text whitespace-pre-wrap break-words rounded bg-sky-100 px-0.5 text-neutral-900 dark:bg-sky-300/40 dark:text-neutral-100"
+          >
+            {segText}
+          </mark>
+        );
+        continue;
+      }
+      nodes.push(
+        <span
+          key={`t-${segStart}-${segEnd}`}
+          className="select-text whitespace-pre-wrap break-words"
+        >
+          {segText}
+        </span>
+      );
+    }
+  }
+
+  return nodes;
+}
+
+function getApiErrorMessage(
+  payload: { message?: unknown; error?: unknown } | null | undefined,
+  fallback: string
+) {
+  if (typeof payload?.message === "string" && payload.message.trim()) {
+    return payload.message;
+  }
+  if (typeof payload?.error === "string" && payload.error.trim()) {
+    return payload.error;
+  }
+  return fallback;
 }
 
 const FULLSCREEN_PAGE_TERMS_TAB_ID = "fullscreen-page-terms-tab";
@@ -353,8 +536,7 @@ export default function FullscreenMapDetailScreen({
   const [mobileMapActionsOpen, setMobileMapActionsOpen] = useState(false);
   const [mobileThemeOpen, setMobileThemeOpen] = useState(false);
   const [mobileLanguageOpen, setMobileLanguageOpen] = useState(false);
-  const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(false);
-  const [showTimestamps, setShowTimestamps] = useState(false);
+  const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(true);
   const [isLikelyInAppBrowser, setIsLikelyInAppBrowser] = useState(false);
   const [isEmbeddedFrame, setIsEmbeddedFrame] = useState(false);
   const shouldHideFramedSharedChrome = isSharedView && isEmbeddedFrame;
@@ -365,7 +547,62 @@ export default function FullscreenMapDetailScreen({
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
   const [showExpandHint, setShowExpandHint] = useState(false);
+  const [sourceFindOpen, setSourceFindOpen] = useState(false);
+  const [sourceFindLoading, setSourceFindLoading] = useState(false);
+  const [sourceFindStatus, setSourceFindStatus] = useState<"idle" | SourceFindStatus>(
+    "idle"
+  );
+  const [sourceFindMessage, setSourceFindMessage] = useState<string>("");
+  const [sourceFindNodeTopic, setSourceFindNodeTopic] = useState<string>("");
+  const [sourceFindExpiresAt, setSourceFindExpiresAt] = useState<MapSourceExpiresAt>(
+    null
+  );
+  const [sourceFindRetentionHours, setSourceFindRetentionHours] =
+    useState<MapSourceRetentionHours>(24);
+  const [sourceFindAllowedOptions, setSourceFindAllowedOptions] = useState<number[]>([24]);
+  const [sourceFindHasPaidAccess, setSourceFindHasPaidAccess] = useState(false);
+  const [sourceFindCandidates, setSourceFindCandidates] = useState<
+    SourceFindCandidate[]
+  >([]);
+  const [sourceFindActiveIndex, setSourceFindActiveIndex] = useState(0);
+  const [sourceFindFullText, setSourceFindFullText] = useState<string>("");
+  const [sourceFindViewStart, setSourceFindViewStart] = useState(0);
+  const [sourceFindViewEnd, setSourceFindViewEnd] = useState(0);
+  const [sourceFindExpandFlash, setSourceFindExpandFlash] = useState<{
+    start: number;
+    end: number;
+    key: number;
+  } | null>(null);
+  const [sourceReloadText, setSourceReloadText] = useState("");
+  const [sourceReloading, setSourceReloading] = useState(false);
+  const [sourceRetentionSaving, setSourceRetentionSaving] = useState(false);
+  const [sourceFindLastAnchors, setSourceFindLastAnchors] = useState<{
+    anchorText: string[];
+    anchorKeywords: string[];
+  } | null>(null);
+  const [sourceFindManualAnchor, setSourceFindManualAnchor] = useState("");
+  const sourceFindTrackedNodeIdRef = useRef<string | null>(null);
+  const sourceFindInFlightRef = useRef(false);
   const initializedMapIdRef = useRef<string | null>(null);
+  const sourceFindHighlightRef = useRef<HTMLElement | null>(null);
+  const sourceFindExpiresAtLabel = useMemo(() => {
+    if (!sourceFindExpiresAt) return null;
+    const date = new Date(sourceFindExpiresAt);
+    if (Number.isNaN(date.getTime())) return sourceFindExpiresAt;
+    try {
+      return new Intl.DateTimeFormat(locale, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      }).format(date);
+    } catch {
+      return date.toLocaleString();
+    }
+  }, [sourceFindExpiresAt, locale]);
+  const SOURCE_VIEW_STEP = 700;
+  const SOURCE_VIEW_FOCUS_CONTEXT = 260;
 
   const MUTATING_OPS = useMemo(
     () =>
@@ -791,10 +1028,7 @@ export default function FullscreenMapDetailScreen({
         : getInitialCollapsedMapData(mapData ?? null),
     [mapData, isTutorialMobile]
   );
-  const hasTimestampNodes = useMemo(
-    () => hasValidTimestampInMindData(mapData ?? null),
-    [mapData]
-  );
+  const showTimestamps = false;
 
   const openTab = (next: "info" | "notes" | "terms") => {
     setLeftTab(next);
@@ -1072,10 +1306,17 @@ export default function FullscreenMapDetailScreen({
         },
       });
 
-      const json = await res.json().catch(() => ({}));
+      const json: { message?: unknown; error?: unknown } = await res
+        .json()
+        .catch(() => ({}));
       if (!res.ok) {
-        const msg = json?.message || json?.error || "요청 실패";
-        throw new Error(typeof msg === "string" ? msg : msg?.[0] || "요청 실패");
+        const msg =
+          typeof json?.message === "string"
+            ? json.message
+            : typeof json?.error === "string"
+            ? json.error
+            : "요청 실패";
+        throw new Error(msg);
       }
 
       toast.success("삭제 완료");
@@ -1195,6 +1436,379 @@ export default function FullscreenMapDetailScreen({
       toast.error(message);
     } finally {
       setTagEditSubmitting(false);
+    }
+  };
+
+  const setSourceViewAroundCandidate = (
+    text: string,
+    candidate: SourceFindCandidate,
+    contextChars = SOURCE_VIEW_FOCUS_CONTEXT
+  ) => {
+    const start = Math.max(0, candidate.start - contextChars);
+    const end = Math.min(text.length, candidate.end + contextChars);
+    setSourceFindViewStart(start);
+    setSourceFindViewEnd(end);
+  };
+
+  const runSourceFindForNode = async (
+    selected: {
+      nodeId: string;
+      topic: string;
+      anchorText: string[];
+      anchorKeywords: string[];
+    },
+    options?: { suppressNoAnchorToast?: boolean; keepPanelOpen?: boolean }
+  ) => {
+    if (!mapId || isSharedView) return;
+    const anchorText = sanitizeAnchorTextCandidates(selected.anchorText, 2);
+    const anchorKeywords: string[] = [];
+    if (anchorText.length === 0) {
+      if (!options?.suppressNoAnchorToast) {
+        toast.message(t("toasts.noAnchorInSelectedNode"));
+      }
+      return;
+    }
+    if (!options?.keepPanelOpen) {
+      setSourceFindOpen(true);
+    }
+    setSourceFindLoading(true);
+    setSourceFindStatus("idle");
+    setSourceFindMessage("");
+    setSourceFindNodeTopic(selected.topic);
+    setSourceFindCandidates([]);
+    setSourceFindActiveIndex(0);
+    setSourceFindLastAnchors({ anchorText, anchorKeywords });
+    setSourceFindManualAnchor(anchorText[0] ?? "");
+    sourceFindTrackedNodeIdRef.current = selected.nodeId;
+    sourceFindInFlightRef.current = true;
+
+    try {
+      const { data: sessionData, error: sessionErr } =
+        await supabase.auth.getSession();
+      if (sessionErr) {
+        throw new Error(sessionErr.message || t("toasts.sourceFindFailed"));
+      }
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        throw new Error(t("toasts.loginRequired"));
+      }
+
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!base) {
+        throw new Error("NEXT_PUBLIC_API_BASE_URL is not set.");
+      }
+
+      const payload: { anchorText?: string[]; anchorKeywords?: string[] } = {};
+      if (anchorText.length > 0) payload.anchorText = anchorText;
+      if (anchorKeywords.length > 0) payload.anchorKeywords = anchorKeywords;
+
+      const res = await fetch(`${base}/maps/${mapId}/source-find`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(getApiErrorMessage(json, t("toasts.sourceFindFailed")));
+      }
+
+      const status = (json?.status ?? "not_found") as SourceFindStatus;
+      const candidates = Array.isArray(json?.candidates)
+        ? (json.candidates as SourceFindCandidate[])
+        : [];
+      const sourceText =
+        typeof json?.sourceText === "string" ? json.sourceText : "";
+
+      setSourceFindStatus(status);
+      setSourceFindCandidates(candidates);
+      setSourceFindExpiresAt(
+        typeof json?.expiresAt === "string" ? json.expiresAt : null
+      );
+      setSourceFindFullText(sourceText);
+      setSourceFindRetentionHours(
+        typeof json?.retentionHours === "number" ? json.retentionHours : 24
+      );
+      setSourceFindAllowedOptions(
+        Array.isArray(json?.allowedOptions)
+          ? json.allowedOptions.filter((value: unknown) => typeof value === "number")
+          : [24]
+      );
+      setSourceFindHasPaidAccess(Boolean(json?.hasPaidAccess));
+      if (sourceText) {
+        if (candidates.length > 0) {
+          setSourceFindActiveIndex(0);
+          setSourceViewAroundCandidate(sourceText, candidates[0]);
+        } else {
+          setSourceFindViewStart(0);
+          setSourceFindViewEnd(sourceText.length);
+        }
+      } else {
+        setSourceFindViewStart(0);
+        setSourceFindViewEnd(0);
+      }
+      setSourceFindMessage(
+        typeof json?.message === "string" ? json.message : ""
+      );
+    } catch (error) {
+      const message = getErrorMessage(error, t("toasts.sourceFindFailed"));
+      setSourceFindStatus("not_found");
+      setSourceFindMessage(message);
+      toast.error(message);
+    } finally {
+      setSourceFindLoading(false);
+      sourceFindInFlightRef.current = false;
+    }
+  };
+
+  const handleFindSourceFromSelectedNode = async () => {
+    if (!mapId || isSharedView) return;
+    const selected = mindRef.current?.getSelectedNodeSourceAnchors?.();
+    if (!selected) {
+      toast.message(t("toasts.selectNodeForSourceFind"));
+      return;
+    }
+    await runSourceFindForNode(selected);
+  };
+
+  const rerunSourceFindFromAnchors = async (anchors: {
+    anchorText: string[];
+    anchorKeywords: string[];
+  }) => {
+    if (!mapId || isSharedView) return;
+    const { data: sessionData, error: sessionErr } =
+      await supabase.auth.getSession();
+    if (sessionErr) {
+      throw new Error(sessionErr.message || t("toasts.sourceFindFailed"));
+    }
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) {
+      throw new Error(t("toasts.loginRequired"));
+    }
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!base) {
+      throw new Error("NEXT_PUBLIC_API_BASE_URL is not set.");
+    }
+    const payload: { anchorText?: string[]; anchorKeywords?: string[] } = {};
+    if (Array.isArray(anchors.anchorText) && anchors.anchorText.length > 0) {
+      payload.anchorText = anchors.anchorText;
+    }
+    if (Array.isArray(anchors.anchorKeywords) && anchors.anchorKeywords.length > 0) {
+      payload.anchorKeywords = anchors.anchorKeywords;
+    }
+    const res = await fetch(`${base}/maps/${mapId}/source-find`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    const json: SourceFindResponse = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(getApiErrorMessage(json, t("toasts.sourceFindFailed")));
+    }
+    const status = (json?.status ?? "not_found") as SourceFindStatus;
+    const candidates = Array.isArray(json?.candidates)
+      ? (json.candidates as SourceFindCandidate[])
+      : [];
+    const sourceText = typeof json?.sourceText === "string" ? json.sourceText : "";
+    setSourceFindStatus(status);
+    setSourceFindCandidates(candidates);
+    setSourceFindExpiresAt(
+      typeof json?.expiresAt === "string" ? json.expiresAt : null
+    );
+    setSourceFindFullText(sourceText);
+    setSourceFindRetentionHours(
+      typeof json?.retentionHours === "number" ? json.retentionHours : 24
+    );
+    setSourceFindAllowedOptions(
+      Array.isArray(json?.allowedOptions)
+        ? json.allowedOptions.filter((value: unknown) => typeof value === "number")
+        : [24]
+    );
+    setSourceFindHasPaidAccess(Boolean(json?.hasPaidAccess));
+    if (sourceText) {
+      if (candidates.length > 0) {
+        setSourceFindActiveIndex(0);
+        setSourceViewAroundCandidate(sourceText, candidates[0]);
+      } else {
+        setSourceFindViewStart(0);
+        setSourceFindViewEnd(sourceText.length);
+      }
+    } else {
+      setSourceFindViewStart(0);
+      setSourceFindViewEnd(0);
+    }
+    setSourceFindMessage(typeof json?.message === "string" ? json.message : "");
+  };
+
+  const handleReloadSourceText = async () => {
+    if (!mapId || isSharedView) return;
+    const text = sourceReloadText.trim();
+    if (!text) {
+      toast.message(t("sourceFind.reloadInputRequired"));
+      return;
+    }
+
+    setSourceReloading(true);
+    try {
+      const { data: sessionData, error: sessionErr } =
+        await supabase.auth.getSession();
+      if (sessionErr) throw new Error(sessionErr.message || t("toasts.sourceFindFailed"));
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) throw new Error(t("toasts.loginRequired"));
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!base) throw new Error("NEXT_PUBLIC_API_BASE_URL is not set.");
+
+      const res = await fetch(`${base}/maps/${mapId}/source-reload`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ extracted_text: text }),
+      });
+      const json: SourceFindResponse = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(getApiErrorMessage(json, t("toasts.sourceReloadFailed")));
+      }
+
+      setSourceFindExpiresAt(
+        typeof json?.expiresAt === "string" ? json.expiresAt : null
+      );
+      setSourceFindRetentionHours(
+        typeof json?.retentionHours === "number" ? json.retentionHours : 24
+      );
+      setSourceFindAllowedOptions(
+        Array.isArray(json?.allowedOptions)
+          ? json.allowedOptions.filter((value: unknown) => typeof value === "number")
+          : [24]
+      );
+      setSourceFindHasPaidAccess(Boolean(json?.hasPaidAccess));
+      setSourceFindMessage(t("sourceFind.reloadSuccess"));
+
+      if (sourceFindLastAnchors) {
+        await rerunSourceFindFromAnchors(sourceFindLastAnchors);
+      }
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("toasts.sourceReloadFailed")));
+    } finally {
+      setSourceReloading(false);
+    }
+  };
+
+  const handleMoveSourceCandidate = (dir: -1 | 1) => {
+    if (!sourceFindCandidates.length || !sourceFindFullText) return;
+    const len = sourceFindCandidates.length;
+    const next =
+      dir === 1
+        ? (sourceFindActiveIndex + 1) % len
+        : (sourceFindActiveIndex - 1 + len) % len;
+    setSourceFindActiveIndex(next);
+    setSourceViewAroundCandidate(sourceFindFullText, sourceFindCandidates[next]);
+  };
+
+  const handleRetrySourceFindWithManualAnchor = async () => {
+    const manual = sourceFindManualAnchor.trim();
+    if (!manual) {
+      toast.message(t("sourceFind.reloadInputRequired"));
+      return;
+    }
+    setSourceFindLoading(true);
+    setSourceFindStatus("idle");
+    setSourceFindMessage("");
+    setSourceFindLastAnchors({ anchorText: [manual], anchorKeywords: [] });
+    try {
+      await rerunSourceFindFromAnchors({ anchorText: [manual], anchorKeywords: [] });
+    } catch (error) {
+      const message = getErrorMessage(error, t("toasts.sourceFindFailed"));
+      setSourceFindStatus("not_found");
+      setSourceFindMessage(message);
+      toast.error(message);
+    } finally {
+      setSourceFindLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!sourceFindOpen) return;
+    if (sourceFindStatus !== "found") return;
+    const el = sourceFindHighlightRef.current;
+    if (!el) return;
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [sourceFindOpen, sourceFindStatus, sourceFindActiveIndex]);
+
+  useEffect(() => {
+    if (!sourceFindExpandFlash) return;
+    const timer = window.setTimeout(() => {
+      setSourceFindExpandFlash((prev) =>
+        prev && prev.key === sourceFindExpandFlash.key ? null : prev
+      );
+    }, 3000);
+    return () => window.clearTimeout(timer);
+  }, [sourceFindExpandFlash]);
+
+  useEffect(() => {
+    if (!sourceFindOpen || !mapId || isSharedView) return;
+    const interval = window.setInterval(() => {
+      if (sourceFindInFlightRef.current) return;
+      const selected = mindRef.current?.getSelectedNodeSourceAnchors?.();
+      if (!selected) return;
+      if (selected.nodeId === sourceFindTrackedNodeIdRef.current) return;
+      void runSourceFindForNode(selected, {
+        suppressNoAnchorToast: true,
+        keepPanelOpen: true,
+      });
+    }, 350);
+    return () => window.clearInterval(interval);
+  }, [sourceFindOpen, mapId, isSharedView]);
+
+  const handleUpdateSourceRetention = async (hours: number) => {
+    if (!mapId || isSharedView) return;
+    setSourceRetentionSaving(true);
+    try {
+      const { data: sessionData, error: sessionErr } =
+        await supabase.auth.getSession();
+      if (sessionErr) throw new Error(sessionErr.message || t("toasts.sourceFindFailed"));
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) throw new Error(t("toasts.loginRequired"));
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!base) throw new Error("NEXT_PUBLIC_API_BASE_URL is not set.");
+
+      const res = await fetch(`${base}/maps/${mapId}/source-retention`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ retention_hours: hours }),
+      });
+      const json: SourceFindResponse = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(getApiErrorMessage(json, t("toasts.sourceRetentionFailed")));
+      }
+
+      setSourceFindRetentionHours(
+        typeof json?.retentionHours === "number" ? json.retentionHours : hours
+      );
+      setSourceFindExpiresAt(
+        typeof json?.expiresAt === "string" ? json.expiresAt : null
+      );
+      setSourceFindAllowedOptions(
+        Array.isArray(json?.allowedOptions)
+          ? json.allowedOptions.filter((value: unknown) => typeof value === "number")
+          : [24]
+      );
+      setSourceFindHasPaidAccess(Boolean(json?.hasPaidAccess));
+      toast.success(t("sourceFind.retentionUpdated"));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("toasts.sourceRetentionFailed")));
+    } finally {
+      setSourceRetentionSaving(false);
     }
   };
 
@@ -1709,23 +2323,12 @@ export default function FullscreenMapDetailScreen({
               </div>
               <button
                 type="button"
-                onClick={() => setShowTimestamps((prev) => !prev)}
-                className={plainHeaderIconButtonClass}
-                aria-label={
-                  showTimestamps
-                    ? t("moreMenu.hideTimestamps")
-                    : t("moreMenu.showTimestamps")
-                }
-                title={
-                  showTimestamps
-                    ? t("moreMenu.hideTimestamps")
-                    : t("moreMenu.showTimestamps")
-                }
+                onClick={() => void handleFindSourceFromSelectedNode()}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 shadow-sm transition hover:border-sky-300 hover:text-sky-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 dark:hover:text-white"
+                aria-label={t("actions.findSource")}
+                title={t("actions.findSource")}
               >
-                <Icon
-                  icon="mdi:timeline-clock-outline"
-                  className={`h-4 w-4 ${showTimestamps ? "text-sky-700 dark:text-sky-200" : ""}`}
-                />
+                <Icon icon="mdi:file-search-outline" className="h-4 w-4" />
               </button>
             </div>
 
@@ -1844,23 +2447,13 @@ export default function FullscreenMapDetailScreen({
                 <Tooltip.Trigger asChild>
                   <button
                     type="button"
-                    onClick={() => setShowTimestamps((prev) => !prev)}
-                    className={plainHeaderIconButtonClass}
-                    aria-label={
-                      showTimestamps
-                        ? t("moreMenu.hideTimestamps")
-                        : t("moreMenu.showTimestamps")
-                    }
-                    title={
-                      showTimestamps
-                        ? t("moreMenu.hideTimestamps")
-                        : t("moreMenu.showTimestamps")
-                    }
+                    onClick={() => void handleFindSourceFromSelectedNode()}
+                    className={`${secondaryControlPillClass} h-7 px-2.5 text-[10px]`}
+                    aria-label={t("actions.findSource")}
+                    title={t("actions.findSource")}
                   >
-                    <Icon
-                      icon="mdi:timeline-clock-outline"
-                      className={`h-4 w-4 ${showTimestamps ? "text-sky-700 dark:text-sky-200" : ""}`}
-                    />
+                    <Icon icon="mdi:file-search-outline" className="h-3.5 w-3.5" />
+                    <span>{t("actions.findSource")}</span>
                   </button>
                 </Tooltip.Trigger>
                 <Tooltip.Portal>
@@ -1869,35 +2462,7 @@ export default function FullscreenMapDetailScreen({
                     sideOffset={8}
                     className="z-[260] rounded-xl bg-slate-950 px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-[0_14px_32px_-18px_rgba(15,23,42,0.65)] dark:bg-white dark:text-slate-950"
                   >
-                    {showTimestamps
-                      ? t("moreMenu.hideTimestamps")
-                      : t("moreMenu.showTimestamps")}
-                    <Tooltip.Arrow className="fill-slate-950 dark:fill-white" />
-                  </Tooltip.Content>
-                </Tooltip.Portal>
-              </Tooltip.Root>
-              <Tooltip.Root>
-                <Tooltip.Trigger asChild>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTutorialStepIndex(0);
-                      setTutorialOpen(true);
-                    }}
-                    className={plainHeaderIconButtonClass}
-                    aria-label={t("actions.tutorial")}
-                    title={t("actions.tutorial")}
-                  >
-                    <Icon icon="mdi:school-outline" className="h-4 w-4" />
-                  </button>
-                </Tooltip.Trigger>
-                <Tooltip.Portal>
-                  <Tooltip.Content
-                    side="bottom"
-                    sideOffset={8}
-                    className="z-[260] rounded-xl bg-slate-950 px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-[0_14px_32px_-18px_rgba(15,23,42,0.65)] dark:bg-white dark:text-slate-950"
-                  >
-                    {t("actions.tutorial")}
+                    {t("actions.findSource")}
                     <Tooltip.Arrow className="fill-slate-950 dark:fill-white" />
                   </Tooltip.Content>
                 </Tooltip.Portal>
@@ -1987,20 +2552,6 @@ export default function FullscreenMapDetailScreen({
                       </div>
                     </div>
                     <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
-                    {hasTimestampNodes ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setDesktopMoreOpen(false);
-                          setShowTimestamps((prev) => !prev);
-                        }}
-                        className={controlMenuItemClass}
-                      >
-                        {showTimestamps
-                          ? t("moreMenu.hideTimestamps")
-                          : t("moreMenu.showTimestamps")}
-                      </button>
-                    ) : null}
                     <button
                       type="button"
                       onClick={() => {
@@ -2038,6 +2589,33 @@ export default function FullscreenMapDetailScreen({
                       <span className={controlMenuItemContentClass}>
                         <Icon icon="mdi:keyboard-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
                         <span>{t("moreMenu.shortcuts")}</span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDesktopMoreOpen(false);
+                        setTutorialStepIndex(0);
+                        setTutorialOpen(true);
+                      }}
+                      className={controlMenuItemClass}
+                    >
+                      <span className={controlMenuItemContentClass}>
+                        <Icon icon="mdi:school-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                        <span>{t("actions.tutorial")}</span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDesktopMoreOpen(false);
+                        void handleFindSourceFromSelectedNode();
+                      }}
+                      className={controlMenuItemClass}
+                    >
+                      <span className={controlMenuItemContentClass}>
+                        <Icon icon="mdi:file-search-outline" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                        <span>{t("actions.findSource")}</span>
                       </span>
                     </button>
                     {!isReadOnlyView ? (
@@ -2157,6 +2735,18 @@ export default function FullscreenMapDetailScreen({
                     className={controlMenuItemClass}
                   >
                     {t("moreMenu.layoutBoth")}
+                </button>
+                <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMapActionsOpen(false);
+                    setTutorialStepIndex(0);
+                    setTutorialOpen(true);
+                  }}
+                  className={controlMenuItemClass}
+                >
+                  {t("actions.tutorial")}
                 </button>
               </div>
             )}
@@ -2291,22 +2881,6 @@ export default function FullscreenMapDetailScreen({
                   <span className={mobileVerticalTooltipClass}>{t("moreMenu.share")}</span>
                 </div>
               ) : null}
-
-              <div className="group relative">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTutorialStepIndex(0);
-                    setTutorialOpen(true);
-                  }}
-                  className={controlIconButtonClass}
-                  aria-label={t("actions.tutorial")}
-                  title={t("actions.tutorial")}
-                >
-                  <Icon icon="mdi:school-outline" className="h-4 w-4" />
-                </button>
-                <span className={mobileVerticalTooltipClass}>{t("actions.tutorial")}</span>
-              </div>
 
             </>
           ) : null}
@@ -2629,6 +3203,332 @@ export default function FullscreenMapDetailScreen({
         onDisable={handleDisableShare}
         onCopy={handleCopyShare}
       />
+      ) : null}
+
+      {sourceFindOpen ? (
+        <div className="pointer-events-none fixed inset-x-2 bottom-2 z-[220] sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-[calc(var(--header-h)+12px)] sm:w-[420px] sm:max-w-[min(92vw,420px)]">
+          <div className="pointer-events-auto flex h-[78vh] max-h-[700px] min-h-[420px] flex-col overflow-hidden rounded-2xl border border-neutral-300 bg-white/95 shadow-xl dark:border-white/20 dark:bg-[#0f172a]/95 sm:h-auto sm:max-h-[calc(100vh-var(--header-h)-24px)] sm:min-h-0">
+            <div className="flex justify-center border-b border-neutral-200/70 px-2 py-1.5 dark:border-white/10 sm:hidden">
+              <button
+                type="button"
+                onClick={() => setSourceFindOpen(false)}
+                className="inline-flex h-6 w-9 items-center justify-center rounded-full border border-neutral-300 bg-white text-neutral-600 shadow-sm transition hover:border-sky-300 hover:text-sky-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-neutral-200"
+                aria-label={t("cancel")}
+                title={t("cancel")}
+              >
+                <Icon icon="mdi:chevron-down" className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="flex items-center justify-between border-b border-neutral-200 px-3 py-2 dark:border-white/15">
+              <div className="text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+                {t("sourceFind.title")}
+              </div>
+              <button
+                type="button"
+                onClick={() => setSourceFindOpen(false)}
+                className="rounded-md px-2 py-1 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-white/10"
+              >
+                {t("cancel")}
+              </button>
+            </div>
+
+            <div className="min-h-0 flex-1 overflow-y-auto p-3">
+              <div className="flex flex-col gap-3">
+              {sourceFindLoading ? (
+                <p className="text-sm text-neutral-700 dark:text-neutral-200">
+                  {t("sourceFind.loading")}
+                </p>
+              ) : sourceFindStatus === "found" ? (
+                <>
+                  <p className="text-sm text-neutral-800 dark:text-neutral-100">
+                    {t("sourceFind.selectedNode", { topic: sourceFindNodeTopic || "-" })}
+                  </p>
+                  <div className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white/60 p-2 dark:border-white/15 dark:bg-white/[0.03]">
+                    <div className="text-[12px] font-semibold text-neutral-700 dark:text-neutral-200">
+                      {sourceFindCandidates.length > 0
+                        ? `${sourceFindActiveIndex + 1}/${sourceFindCandidates.length} · [${
+                            sourceFindCandidates[sourceFindActiveIndex]?.matchedAnchor ?? ""
+                          }]`
+                        : t("sourceFind.counterEmpty")}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleMoveSourceCandidate(-1)}
+                        disabled={sourceFindCandidates.length <= 1}
+                        className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-neutral-300 bg-white text-neutral-700 disabled:opacity-40 dark:border-white/20 dark:bg-white/[0.06] dark:text-neutral-200"
+                        aria-label={t("actions.previousSearchResult")}
+                        title={t("actions.previousSearchResult")}
+                      >
+                        <Icon icon="mdi:chevron-up" className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleMoveSourceCandidate(1)}
+                        disabled={sourceFindCandidates.length <= 1}
+                        className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-neutral-300 bg-white text-neutral-700 disabled:opacity-40 dark:border-white/20 dark:bg-white/[0.06] dark:text-neutral-200"
+                        aria-label={t("actions.nextSearchResult")}
+                        title={t("actions.nextSearchResult")}
+                      >
+                        <Icon icon="mdi:chevron-down" className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                  {sourceFindFullText ? (
+                    <div className="space-y-2 rounded-xl border border-neutral-200 bg-white/80 p-2 dark:border-white/15 dark:bg-white/[0.03]">
+                      <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                        {t("sourceFind.sourceLabel")}
+                      </div>
+                      <div className="mb-1 flex justify-center">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSourceFindViewStart((prev) => {
+                              const next = Math.max(0, prev - SOURCE_VIEW_STEP);
+                              if (next < prev) {
+                                setSourceFindExpandFlash({
+                                  start: next,
+                                  end: prev,
+                                  key: Date.now(),
+                                });
+                              }
+                              return next;
+                            });
+                          }}
+                          className="rounded-full border border-neutral-300/90 bg-neutral-50 px-3 py-1 text-[10px] font-semibold text-neutral-700 shadow-sm ring-1 ring-white/60 transition hover:border-sky-300 hover:bg-sky-50 dark:border-white/20 dark:bg-[#111827] dark:text-neutral-200 dark:ring-white/10 dark:hover:bg-[#162033]"
+                        >
+                          {t("sourceFind.showMoreAbove")}
+                        </button>
+                      </div>
+                      {(() => {
+                        const windowStart = Math.max(0, Math.min(sourceFindViewStart, sourceFindFullText.length));
+                        const windowEnd = Math.max(windowStart, Math.min(sourceFindViewEnd, sourceFindFullText.length));
+                        const active = sourceFindCandidates[sourceFindActiveIndex] ?? null;
+                        const activeStart = active ? Math.max(0, active.start) : -1;
+                        const activeEnd = active ? Math.max(activeStart, active.end) : -1;
+                        const sliceStart = windowStart;
+                        const sliceEnd = windowEnd;
+                        const highlightStart = active && activeStart < sliceEnd && activeEnd > sliceStart
+                          ? Math.max(activeStart, sliceStart)
+                          : -1;
+                        const highlightEnd = highlightStart >= 0
+                          ? Math.min(activeEnd, sliceEnd)
+                          : -1;
+                        const fullSliceText = sourceFindFullText.slice(sliceStart, sliceEnd);
+                        const activeLocalStart = highlightStart >= 0 ? highlightStart - sliceStart : -1;
+                        const activeLocalEnd = highlightEnd >= 0 ? highlightEnd - sliceStart : -1;
+                        const keyTerms = [
+                          ...(sourceFindLastAnchors?.anchorText ?? []),
+                          ...(sourceFindLastAnchors?.anchorKeywords ?? []),
+                        ];
+                        const intervals = buildHighlightIntervals(
+                          fullSliceText,
+                          keyTerms,
+                          activeLocalStart,
+                          activeLocalEnd,
+                          sourceFindExpandFlash
+                            ? Math.max(
+                                0,
+                                Math.min(
+                                  fullSliceText.length,
+                                  sourceFindExpandFlash.start - sliceStart
+                                )
+                              )
+                            : -1,
+                          sourceFindExpandFlash
+                            ? Math.max(
+                                0,
+                                Math.min(
+                                  fullSliceText.length,
+                                  sourceFindExpandFlash.end - sliceStart
+                                )
+                              )
+                            : -1
+                        );
+                        return (
+                          <div className="max-h-72 overflow-y-auto rounded-lg border border-neutral-200 bg-white p-2 text-[12px] leading-5 text-neutral-800 dark:border-white/10 dark:bg-white/[0.02] dark:text-neutral-100">
+                            {renderHighlightedText(
+                              fullSliceText,
+                              intervals,
+                              sourceFindHighlightRef
+                            )}
+                          </div>
+                        );
+                      })()}
+                      <div className="mt-1 flex justify-center">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSourceFindViewEnd((prev) => {
+                              const next = Math.min(
+                                sourceFindFullText.length,
+                                prev + SOURCE_VIEW_STEP
+                              );
+                              if (next > prev) {
+                                setSourceFindExpandFlash({
+                                  start: prev,
+                                  end: next,
+                                  key: Date.now(),
+                                });
+                              }
+                              return next;
+                            })
+                          }
+                          className="rounded-full border border-neutral-300/90 bg-neutral-50 px-3 py-1 text-[10px] font-semibold text-neutral-700 shadow-sm ring-1 ring-white/60 transition hover:border-sky-300 hover:bg-sky-50 dark:border-white/20 dark:bg-[#111827] dark:text-neutral-200 dark:ring-white/10 dark:hover:bg-[#162033]"
+                        >
+                          {t("sourceFind.showMoreBelow")}
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+                  {(sourceFindLastAnchors?.anchorText?.length ||
+                    sourceFindLastAnchors?.anchorKeywords?.length ||
+                    sourceFindExpiresAt) ? (
+                    <details className="rounded-lg border border-neutral-200 bg-white/70 px-2.5 py-1.5 text-xs text-neutral-700 dark:border-white/15 dark:bg-white/[0.03] dark:text-neutral-300">
+                      <summary className="cursor-pointer select-none font-medium">
+                        {t("sourceFind.criteriaTitle")}
+                      </summary>
+                      <div className="mt-2 flex flex-col gap-1 leading-5">
+                        {sourceFindLastAnchors?.anchorText?.length ? (
+                          <p>
+                            {t("sourceFind.anchorTextLabel")}:{" "}
+                            {sourceFindLastAnchors.anchorText.join(" · ")}
+                          </p>
+                        ) : null}
+                        {sourceFindLastAnchors?.anchorKeywords?.length ? (
+                          <p>
+                            {t("sourceFind.anchorKeywordsLabel")}:{" "}
+                            {sourceFindLastAnchors.anchorKeywords.join(", ")}
+                          </p>
+                        ) : null}
+                        {sourceFindExpiresAt ? (
+                          <p>
+                            {t("sourceFind.expiresAt", {
+                              value: sourceFindExpiresAtLabel ?? sourceFindExpiresAt,
+                            })}
+                          </p>
+                        ) : null}
+                      </div>
+                    </details>
+                  ) : null}
+                </>
+              ) : sourceFindStatus === "expired" ? (
+                <>
+                  <p className="text-sm text-neutral-800 dark:text-neutral-100">
+                    {t("sourceFind.expired")}
+                  </p>
+                  {sourceFindExpiresAt ? (
+                    <p className="text-xs text-neutral-600 dark:text-neutral-300">
+                      {t("sourceFind.expiresAt", {
+                        value: sourceFindExpiresAtLabel ?? sourceFindExpiresAt,
+                      })}
+                    </p>
+                  ) : null}
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                      {t("sourceFind.reloadInputLabel")}
+                    </label>
+                    <textarea
+                      value={sourceReloadText}
+                      onChange={(e) => setSourceReloadText(e.target.value)}
+                      rows={6}
+                      placeholder={t("sourceFind.reloadInputPlaceholder")}
+                      className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 outline-none focus:border-sky-400 dark:border-white/20 dark:bg-white/[0.04] dark:text-neutral-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => void handleReloadSourceText()}
+                      disabled={sourceReloading}
+                      className="inline-flex items-center rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-500 disabled:opacity-60"
+                    >
+                      {sourceReloading
+                        ? t("sourceFind.reloading")
+                        : t("sourceFind.reloadAction")}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-sm text-neutral-700 dark:text-neutral-200">
+                    {sourceFindMessage || t("sourceFind.notFound")}
+                  </p>
+                  <p className="text-xs text-neutral-600 dark:text-neutral-300">
+                    {t("sourceFind.editAnchorGuide")}
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    <textarea
+                      value={sourceFindManualAnchor}
+                      onChange={(e) => setSourceFindManualAnchor(e.target.value)}
+                      rows={2}
+                      placeholder={t("sourceFind.editAnchorPlaceholder")}
+                      className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 outline-none focus:border-sky-400 dark:border-white/20 dark:bg-white/[0.04] dark:text-neutral-100"
+                    />
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => void handleRetrySourceFindWithManualAnchor()}
+                        disabled={sourceFindLoading}
+                        className="inline-flex items-center rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-500 disabled:opacity-60"
+                      >
+                        {t("sourceFind.editAnchorAction")}
+                      </button>
+                      {sourceFindFullText ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSourceFindViewStart(0);
+                            setSourceFindViewEnd(sourceFindFullText.length);
+                          }}
+                          className="inline-flex items-center rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:border-sky-300 dark:border-white/20 dark:bg-white/[0.06] dark:text-neutral-200"
+                        >
+                          {t("sourceFind.showFullSource")}
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+                  {sourceFindFullText ? (
+                    <div className="max-h-72 overflow-y-auto rounded-lg border border-neutral-200 bg-white p-2 text-[12px] leading-5 text-neutral-800 dark:border-white/10 dark:bg-white/[0.02] dark:text-neutral-100">
+                      <span className="select-text whitespace-pre-wrap break-words">
+                        {sourceFindFullText.slice(
+                          Math.max(0, sourceFindViewStart),
+                          Math.min(sourceFindFullText.length, sourceFindViewEnd || sourceFindFullText.length)
+                        )}
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
+              )}
+              </div>
+            </div>
+
+            <div className="border-t border-neutral-200 px-3 py-2 dark:border-white/15">
+              <div className="mb-2 text-xs font-semibold text-neutral-700 dark:text-neutral-200">
+                {t("sourceFind.retentionTitle")} {sourceFindHasPaidAccess ? "" : t("sourceFind.freeOnlyHint")}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[24, 24 * 7, 24 * 30].map((hours) => {
+                  const allowed = sourceFindAllowedOptions.includes(hours);
+                  const selected = sourceFindRetentionHours === hours;
+                  return (
+                    <button
+                      key={hours}
+                      type="button"
+                      disabled={!allowed || sourceRetentionSaving}
+                      onClick={() => void handleUpdateSourceRetention(hours)}
+                      className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${
+                        selected
+                          ? "border-sky-500 bg-sky-50 text-sky-700 dark:border-sky-300 dark:bg-sky-500/15 dark:text-sky-100"
+                          : "border-neutral-300 bg-white text-neutral-700 dark:border-white/20 dark:bg-white/[0.04] dark:text-neutral-200"
+                      } ${!allowed ? "opacity-40" : "hover:border-sky-300"}`}
+                    >
+                      {hours === 24 ? "24h" : hours === 168 ? "7d" : "30d"}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
       ) : null}
 
     </div>

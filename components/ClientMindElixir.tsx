@@ -79,6 +79,12 @@ export type ClientMindElixirHandle = {
   setSearchActive: (id?: string | null) => void;
   clearSearchHighlights: () => void;
   focusNodeById: (id: string) => void;
+  getSelectedNodeSourceAnchors: () => {
+    nodeId: string;
+    topic: string;
+    anchorText: string[];
+    anchorKeywords: string[];
+  } | null;
 };
 
 type AnyNode = {
@@ -90,6 +96,10 @@ type AnyNode = {
   branchColor?: string;
   highlight?: { variant?: string } | null;
   note?: string | null;
+  meta?: {
+    anchorText?: string[];
+    anchorKeywords?: string[];
+  } | null;
   children?: AnyNode[];
   expanded?: boolean;
 };
@@ -1340,6 +1350,35 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       setSearchActive,
       clearSearchHighlights,
       focusNodeById,
+      getSelectedNodeSourceAnchors: () => {
+        const selectedId = selectedNodeIdRef.current;
+        if (!selectedId) return null;
+        const raw =
+          mindRef.current?.getData?.() ?? mindRef.current?.getAllData?.();
+        const normalized = normalizeMindData(raw);
+        if (!normalized) return null;
+
+        const node = findNodeById(normalized.node, selectedId);
+        if (!node || typeof node.topic !== "string") return null;
+
+        const anchorText = Array.isArray(node.meta?.anchorText)
+          ? node.meta!.anchorText
+              .map((item) => String(item).trim())
+              .filter((item) => item.length > 0)
+          : [];
+        const anchorKeywords = Array.isArray(node.meta?.anchorKeywords)
+          ? node.meta!.anchorKeywords
+              .map((item) => String(item).trim())
+              .filter((item) => item.length > 0)
+          : [];
+
+        return {
+          nodeId: node.id,
+          topic: node.topic,
+          anchorText,
+          anchorKeywords,
+        };
+      },
     }),
     []
   );
