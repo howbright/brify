@@ -1342,13 +1342,13 @@
     }
   },
   "LandingBlueHero": {
-    "eyebrow": "길고 복잡한 문서를 다루는 사람들을 위해 만들었습니다.",
+    "eyebrow": "더 나은 판단력과 시간의 여유를 드립니다.",
     "titles": [
-      "문서가 길어서 어려운 게 아니라,"
+      "문서를 구조화하면, 핵심을 파악하는 시간이"
     ],
-    "titleHighlight": "구조가 보이지 않아 어려운 것입니다.",
+    "titleHighlight": "눈에 띄게 단축됩니다.",
     "titleSuffix": "",
-    "helper": "우리는 더 많은 요약이 아니라, 더 정확한 이해가 필요하다고 믿습니다.",
+    "helper": "복잡한 문서를 구조화해, 더 빠르고 정확하게 판단할 수 있게 돕습니다.",
     "switchTitleAria": "타이틀 전환",
     "ctaPrimary": "문서로 시작하기",
     "ctaSecondary": "샘플 보기",

@@ -266,9 +266,9 @@
     "openMap": "Ouvrir la carte de structure"
   },
   "LandingBlueHero": {
-    "eyebrow": "Conçu pour celles et ceux qui travaillent sur des documents longs et complexes.",
+    "eyebrow": "Un meilleur jugement, avec plus de temps.",
     "titles": [
-      "Les documents ne sont pas difficiles parce qu’ils sont longs,"
+      "Quand les documents sont structurés, le temps nécessaire pour saisir l’essentiel"
     ],
     "flowItems": [
       "Collez le texte du document",
@@ -276,9 +276,9 @@
       "Lisez · modifiez · comparez",
       "Construisez votre propre cadre"
     ],
-    "titleHighlight": "ils le sont parce que leur structure reste invisible.",
+    "titleHighlight": "diminue nettement.",
     "titleSuffix": "",
-    "helper": "Nous pensons qu’il ne faut pas plus de résumés, mais une compréhension plus précise.",
+    "helper": "En structurant les documents complexes, Brify vous aide à décider plus vite et avec plus de précision.",
     "switchTitleAria": "Changer le titre",
     "ctaPrimary": "Commencer avec un document",
     "ctaSecondary": "Voir un exemple",

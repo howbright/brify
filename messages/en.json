@@ -1342,13 +1342,13 @@
     }
   },
   "LandingBlueHero": {
-    "eyebrow": "Built for people who work with long, complex documents.",
+    "eyebrow": "Better judgment, with more time to spare.",
     "titles": [
-      "Documents are not hard because they are long,"
+      "When documents are structured, the time to grasp key points"
     ],
-    "titleHighlight": "they are hard because their structure is invisible.",
+    "titleHighlight": "drops noticeably.",
     "titleSuffix": "",
-    "helper": "We believe what we need is not more summaries, but more accurate understanding.",
+    "helper": "By structuring complex documents, Brify helps you make decisions faster and with greater accuracy.",
     "switchTitleAria": "Switch title",
     "ctaPrimary": "Start with documents",
     "ctaSecondary": "View sample",
