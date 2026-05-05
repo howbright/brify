@@ -183,7 +183,6 @@ export default function ScriptInputCard({
           </button>
         ) : null}
       </div>
-
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
