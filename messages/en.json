@@ -729,18 +729,29 @@
     "cta": "Start using Brify",
     "items": {
       "one": {
-        "quote": "I was looking for stock-related lectures to get started with investing. Turning YouTube transcripts into mind maps and automatically organizing difficult terms made everything much easier to understand. It was a really helpful way to grasp and compare the content quickly.",
-        "role": "Stock enthusiast"
+        "quote": "I tested it with a theology paper full of Hebrew technical terms and complex chiastic structures. I was surprised by how clearly it organized the hierarchy of the core model and even subtle textual nuances. The mind map quality was absolutely top-tier.",
+        "role": "Theology researcher"
       },
       "two": {
-        "quote": "I often have to read long and complex documents for work. Organizing them into mind maps and following the flow made it much easier to process information, and it noticeably sped up how quickly I get through my work.",
-        "role": "Professional handling dense documents"
+        "quote": "When I converted major-related documents into structure maps, the experimental flow and relationships between key concepts became clear at a glance. I could quickly see where to look first when revisiting long documents, which improved my efficiency a lot.",
+        "role": "University student"
       },
       "three": {
-        "quote": "There were so many YouTube videos I wanted to watch, but I usually ended up only looking at the thumbnails or missing them altogether because I didn’t have time. Now, thanks to Brify, I can catch the important points much faster without missing them.",
-        "role": "Busy YouTube learner"
+        "quote": "When reviewing case law and legal opinions, the structure map was far more practical than a simple summary. Issues, reasoning, and conclusions were organized together, so I could quickly find what I needed and use it right away.",
+        "role": "Legal professional"
       }
     }
+  },
+  "LandingOutcomeSection": {
+    "eyebrow": "Outcome",
+    "title": "With consistent use of Brify, this is how you change",
+    "subtitle": "With the same amount of time, your depth of understanding and speed of judgment both improve.",
+    "badge": "Beyond processing information, toward designing better judgment",
+    "items": [
+      "Compare more materials in the same time and identify key issues faster",
+      "Move from just reading to clearly explaining evidence and setting decision criteria",
+      "Grow from an information processor into someone who designs standards for judgment"
+    ]
   },
   "LandingPricingSection": {
     "title": "Simple credits, easy to understand",
@@ -859,9 +870,9 @@
     "cardLabel": "Credit Pack"
   },
   "FinalCTA": {
-    "title": "Don’t get pulled around by scattered information,",
-    "subtitle": "Go beyond gathering scattered information and organize it into mind maps for faster understanding.",
-    "body": "Build a standard of your own that doesn’t waver, even when opinions differ.",
+    "title": "Structure complex documents faster,",
+    "subtitle": "Compare key evidence and make more accurate decisions.",
+    "body": "The more opinions there are, the clearer your standard needs to be.",
     "primary": {
       "signedOut": "Get started for free",
       "signedIn": "Get started"
@@ -1277,15 +1288,15 @@
   },
   "LandingBlueHero": {
     "eyebrow": "Built for people who work with long, complex documents.",
-    "titles": ["Don’t just summarize long documents,"],
-    "titleHighlight": "structure them",
+    "titles": ["Documents are not hard because they are long,"],
+    "titleHighlight": "they are hard because their structure is invisible.",
     "titleSuffix": "",
-    "helper": "Keep critical details, and understand complex content much faster.",
+    "helper": "We believe what we need is not more summaries, but more accurate understanding.",
     "switchTitleAria": "Switch title",
     "ctaPrimary": "Start with documents",
     "ctaSecondary": "View sample",
     "featureItems": [
-      "Quickly grasp the core structure of term-heavy documents",
+      "Quickly turn even 3-hour lectures into mind maps",
       "AI automatically organizes difficult terms to reduce cognitive load",
       "Convert foreign-language papers and documents into natural English",
       "More than a summary. It preserves key details in a usable structure"

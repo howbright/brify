@@ -37,7 +37,7 @@ function Highlight({ children }: { children: React.ReactNode }) {
   return (
     <span
       className="
-        break-words md:whitespace-nowrap
+        break-words
         bg-gradient-to-r from-blue-700 via-indigo-600 to-sky-600
         dark:from-indigo-400 dark:via-sky-400 dark:to-cyan-300
         bg-clip-text text-transparent
@@ -202,6 +202,8 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
   })();
 
   const safeIdx = titles.length ? idx % titles.length : 0;
+  const titleHighlight = t("titleHighlight");
+  const titleSuffix = t("titleSuffix");
 
   useEffect(() => {
     if (titles.length <= 1) return;
@@ -333,15 +335,16 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -28 }}
                   transition={{ duration: 0.35, ease: "easeOut" }}
-                  className="
-                    text-3xl sm:text-4xl md:text-5xl
-                    font-extrabold leading-[1.1]
-                    text-neutral-900 [overflow-wrap:anywhere] dark:text-white
-                    dark:[text-shadow:0_1px_14px_rgba(0,0,0,0.55)]
-                  "
+                  className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-[1.1] whitespace-normal [word-break:keep-all] [overflow-wrap:break-word] text-neutral-900 dark:text-white dark:[text-shadow:0_1px_14px_rgba(0,0,0,0.55)]"
                 >
-                  {titles[safeIdx] ?? ""} <Highlight>{t("titleHighlight")}</Highlight>
-                  {t("titleSuffix")}
+                  {titles[safeIdx] ?? ""}
+                  {titleHighlight ? (
+                    <>
+                      {" "}
+                      <Highlight>{titleHighlight}</Highlight>
+                    </>
+                  ) : null}
+                  {titleSuffix}
                 </motion.h1>
               </AnimatePresence>
             </div>

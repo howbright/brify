@@ -24,7 +24,7 @@ const SEO_COPY = {
     title: "AI 마인드맵 변환 | 텍스트·유튜브를 구조맵으로 - Brify",
     ogTitle: "AI 마인드맵 변환 | Brify",
     description:
-      "브라이피(Brify)는 길고 복잡한 문서·논문·리포트를 AI 마인드맵으로 구조화해 핵심 흐름과 세부 정보를 빠르게 파악할 수 있게 돕습니다.",
+      "길고 복잡한 문서를 요약이 아니라 구조화해, 핵심 흐름과 근거를 더 정확하게 이해하도록 돕는 서비스입니다.",
     imageUrl: "https://www.brify.app/images/sns_ko.png",
     ogLocale: "ko_KR",
     keywords: [
@@ -47,7 +47,7 @@ const SEO_COPY = {
     title: "AI mind map conversion | Turn text and YouTube into structured maps - Brify",
     ogTitle: "AI mind map conversion | Brify",
     description:
-      "Brify turns long, complex documents, papers, and reports into AI mind maps so you can quickly understand core logic and critical details.",
+      "Not just summaries. Brify structures long, complex documents so you can understand core logic and evidence with greater accuracy.",
     imageUrl: "https://www.brify.app/images/sns_en.png",
     ogLocale: "en_US",
     keywords: [
@@ -66,7 +66,7 @@ const SEO_COPY = {
     title: "Conversion IA en carte mentale | Transformez texte et YouTube en cartes structurées - Brify",
     ogTitle: "Conversion IA en carte mentale | Brify",
     description:
-      "Brify transforme des documents, articles et rapports longs et complexes en mind maps IA pour vous aider à comprendre rapidement la logique principale et les détails essentiels.",
+      "Pas seulement des résumés. Brify structure les documents longs et complexes pour comprendre la logique centrale et les preuves avec plus de précision.",
     imageUrl: "https://www.brify.app/images/sns_en.png",
     ogLocale: "fr_FR",
     keywords: [

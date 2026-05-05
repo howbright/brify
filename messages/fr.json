@@ -244,7 +244,7 @@
   "LandingBlueHero": {
     "eyebrow": "Conçu pour celles et ceux qui travaillent sur des documents longs et complexes.",
     "titles": [
-      "Ne résumez pas seulement les documents longs,"
+      "Les documents ne sont pas difficiles parce qu’ils sont longs,"
     ],
     "flowItems": [
       "Collez le texte du document",
@@ -252,14 +252,14 @@
       "Lisez · modifiez · comparez",
       "Construisez votre propre cadre"
     ],
-    "titleHighlight": "structurez-les",
+    "titleHighlight": "ils le sont parce que leur structure reste invisible.",
     "titleSuffix": "",
-    "helper": "Conservez les détails essentiels et comprenez les contenus complexes beaucoup plus vite.",
+    "helper": "Nous pensons qu’il ne faut pas plus de résumés, mais une compréhension plus précise.",
     "switchTitleAria": "Changer le titre",
     "ctaPrimary": "Commencer avec un document",
     "ctaSecondary": "Voir un exemple",
     "featureItems": [
-      "Repérez rapidement la structure clé des documents riches en termes spécialisés",
+      "Transformez rapidement même des cours de 3 heures en mind maps",
       "L’IA organise automatiquement les termes difficiles pour alléger la charge de lecture",
       "Convertissez des articles et documents en langue étrangère dans un français naturel",
       "Plus qu’un résumé : une structure exploitable qui conserve les détails essentiels"
@@ -583,18 +583,29 @@
     "cta": "Commencer avec Brify",
     "items": {
       "one": {
-        "quote": "Je cherchais des contenus sur la bourse pour commencer à investir. Transformer les transcriptions YouTube en mind maps et organiser automatiquement les termes difficiles m’a permis de comprendre beaucoup plus facilement. C’était une méthode vraiment utile pour saisir et comparer le contenu rapidement.",
-        "role": "Passionné de bourse"
+        "quote": "J’ai testé avec un article de théologie contenant des termes techniques en hébreu et une structure chiastique complexe. J’ai été surpris de voir à quel point la hiérarchie du modèle central et même les nuances textuelles étaient organisées de façon logique. La qualité de la mind map était vraiment excellente.",
+        "role": "Chercheur en théologie"
       },
       "two": {
-        "quote": "Je dois souvent lire des documents longs et complexes pour mon travail. Les organiser en mind maps et suivre le fil m’a aidé à traiter l’information beaucoup plus facilement, et j’ai clairement gagné en vitesse dans mon travail.",
-        "role": "Professionnel gérant des documents complexes"
+        "quote": "En transformant des documents de spécialité en cartes structurées, le déroulé expérimental et les relations entre les concepts clés sont devenus clairs d’un seul coup d’œil. Quand je relis de longs documents, je repère beaucoup plus vite où commencer, et mon efficacité a nettement augmenté.",
+        "role": "Étudiant universitaire"
       },
       "three": {
-        "quote": "J’avais tellement de vidéos YouTube que je voulais regarder, mais faute de temps je finissais souvent par ne voir que la miniature, voire à les oublier complètement. Maintenant, grâce à Brify, je peux repérer beaucoup plus vite les points importants sans passer à côté.",
-        "role": "Apprenant YouTube très occupé"
+        "quote": "Pour examiner des décisions de justice et des avis juridiques, la carte structurée était bien plus pratique qu’un simple résumé. Les enjeux, les fondements et les conclusions étant organisés ensemble, je pouvais trouver rapidement ce qu’il fallait et l’utiliser immédiatement.",
+        "role": "Professionnel du droit"
       }
     }
+  },
+  "LandingOutcomeSection": {
+    "eyebrow": "Outcome",
+    "title": "En utilisant Brify régulièrement, voici ce qui change",
+    "subtitle": "Avec le même temps, votre niveau de compréhension et votre vitesse de décision progressent ensemble.",
+    "badge": "Au-delà du traitement d’information, vers une meilleure conception du jugement",
+    "items": [
+      "Comparer plus de sources dans le même temps et repérer plus vite les enjeux clés",
+      "Passer de la simple lecture à une capacité claire d’expliquer les preuves et de poser des critères de décision",
+      "Évoluer du rôle de simple traitement d’information vers un rôle de conception des standards de jugement"
+    ]
   },
   "MapTutorial": {
     "overlay": {
@@ -718,9 +729,9 @@
     }
   },
   "FinalCTA": {
-    "title": "Ne vous laissez plus emporter par des informations dispersées,",
-    "subtitle": "Organisez l’information en mind maps pour comprendre plus vite.",
-    "body": "Construisez votre propre cadre d’analyse, même lorsque les avis divergent.",
+    "title": "Structurez plus vite les documents complexes,",
+    "subtitle": "Comparez les éléments clés et prenez des décisions plus précises.",
+    "body": "Plus il y a d’avis, plus votre cadre de décision doit être clair.",
     "primary": {
       "signedOut": "Commencer gratuitement",
       "signedIn": "Commencer"
