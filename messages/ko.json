@@ -278,19 +278,16 @@
       "title": "YouTube에서 영상 대본 가져오기 (PC 기준)",
       "description": "아래 순서를 천천히 따라오시면 1–2분 안에 영상 대본를 가져오실 수 있어요."
     },
-
     "step1": {
       "title": "영상 아래의 \"···\" 또는 \"더보기\" 버튼을 눌러 주세요.",
       "body": "영상 제목 아래, 좋아요/공유 버튼 옆에 있는 점 세 개(···) 버튼 또는 \"더보기\" 버튼을 찾으시면 돼요.",
       "imageAlt": "YouTube 재생 화면에서 더보기(···) 버튼 위치 안내"
     },
-
     "step2": {
       "title": "메뉴에서 \"대본 보기\" 또는 \"Transcript\"를 선택해 주세요.",
       "body": "펼쳐진 메뉴 안에서 \"대본 보기\", \"자막\", \"Transcript\"와 같은 이름의 항목을 눌러 주세요.",
       "imageAlt": "YouTube 메뉴에서 대본 보기(Transcript) 선택 화면"
     },
-
     "step3": {
       "title": "오른쪽에 열린 대본을 전체 선택해서 복사해 주세요.",
       "tip1": "1. 대본 첫 줄을 한 번 클릭합니다.",
@@ -301,33 +298,27 @@
       "tipNote": "※ Ctrl + A는 페이지 전체를 선택해 버려서, 대본만 복사할 때는 사용하지 않는 걸 추천드려요.",
       "imageAlt": "YouTube Transcript 패널 전체 선택 화면"
     },
-
     "step4": {
       "title": "이 페이지의 왼쪽 입력창에 붙여넣어 주세요.",
       "body": "\"영상 영상 대본 붙여넣기\" 입력창을 클릭하신 뒤, Ctrl + V (Mac은 ⌘ + V)로 붙여넣어 주시면 준비가 완료돼요.",
       "imageAlt": "영상 영상 대본 붙여넣기 입력창에 텍스트를 붙여넣는 화면"
     },
-
     "sectionB": {
       "title": "자막 파일이나 편집툴에서 가져오고 싶으신가요?",
       "description": "이미 작업 중인 프로젝트가 있어도, 텍스트만 복사해서 그대로 붙여넣으시면 괜찮아요."
     },
-
     "case1": {
       "title": "편집툴(프리미어, 캡컷 등)에서 자막·대본 복사",
       "body": "타임라인에 있는 자막 텍스트를 전체 선택해서 복사한 뒤, 왼쪽 입력창에 붙여넣어 주세요."
     },
-
     "case2": {
       "title": "자막 파일(srt, vtt 등)을 텍스트로 열기",
       "body": "srt·vtt 파일을 메모장/텍스트 편집기로 열면 시간 정보와 함께 대사가 들어 있어요. 필요한 부분의 대사 텍스트를 복사해서 붙여넣어 주시면 돼요."
     },
-
     "case3": {
       "title": "이미 정리해 두신 영상 대본 문서 사용",
       "body": "블로그, 워드, 노션 등 어디에 적어 두신 영상 대본든 상관없어요. 전체 텍스트를 복사해서 그대로 붙여넣어 주시면 됩니다."
     },
-
     "faq": {
       "title": "Q. \"대본 보기\" / \"Transcript\" 메뉴가 안 보여요.",
       "item1": "일부 영상은 제작자가 대본 노출을 막아 둔 경우일 수 있어요.",
@@ -422,7 +413,6 @@
       "link": "로그인 하기"
     }
   },
-
   "signupPage": {
     "brand": "Brify",
     "tagline": "새 계정을 만들고 요약과 구조맵 작업을 시작해요."
@@ -778,7 +768,6 @@
     "positioningText": "구독 없이, 사용한 만큼만 결제하세요.",
     "refundText": "구매 후 7일 이내, 미사용 크레딧은 전액 환불 가능합니다.",
     "seeDetails": "요금 자세히 보기",
-
     "packs": {
       "50": {
         "badgeText": "입문용",
@@ -793,7 +782,6 @@
         "tagline": "학습·프로젝트에 넉넉하게 쓰기 좋은 대용량 팩이에요."
       }
     },
-
     "creditRule": {
       "title": "대부분의 콘텐츠는 1크레딧만 사용돼요",
       "desc": "긴 입력은 분량에 따라 2~3크레딧이 필요할 수 있어요",
@@ -810,18 +798,15 @@
         "blocked": "처리 불가"
       }
     },
-
     "toggles": {
       "details": "자세히",
       "collapse": "접기"
     },
-
     "paymentToggle": {
       "krw": "원화 결제 (토스페이먼츠)",
       "usd": "USD 결제 (LemonSqueezy)"
     }
   },
-
   "PricingGrid": {
     "cta": {
       "signedIn": "구매하기",
@@ -1018,30 +1003,102 @@
       "action": "기능"
     },
     "items": [
-      { "key": "Enter", "description": "형제 노드 삽입" },
-      { "key": "Shift + Enter", "description": "앞쪽에 형제 노드 삽입" },
-      { "key": "Tab", "description": "자식 노드 삽입" },
-      { "key": "Ctrl + Enter", "description": "부모 노드 삽입" },
-      { "key": "F1", "description": "맵 중앙 정렬" },
-      { "key": "F2", "description": "현재 노드 편집" },
-      { "key": "↑", "description": "이전 노드 선택" },
-      { "key": "↓", "description": "다음 노드 선택" },
-      { "key": "← / →", "description": "좌/우 노드 선택" },
-      { "key": "PageUp / Alt + ↑", "description": "위로 이동" },
-      { "key": "PageDown / Alt + ↓", "description": "아래로 이동" },
-      { "key": "Ctrl + ↑", "description": "양쪽 레이아웃" },
-      { "key": "Ctrl + ←", "description": "좌측 레이아웃" },
-      { "key": "Ctrl + →", "description": "우측 레이아웃" },
-      { "key": "Ctrl + C", "description": "복사" },
-      { "key": "Ctrl + X", "description": "잘라내기" },
-      { "key": "Ctrl + V", "description": "붙여넣기" },
-      { "key": "Delete / Backspace", "description": "노드/화살표/요약 삭제" },
-      { "key": "Ctrl + +", "description": "확대" },
-      { "key": "Ctrl + -", "description": "축소" },
-      { "key": "Ctrl + 0", "description": "확대/축소 초기화" },
-      { "key": "Ctrl + K, Ctrl + 0", "description": "전체 접기" },
-      { "key": "Ctrl + K, Ctrl + =", "description": "전체 펼치기" },
-      { "key": "Ctrl + K, Ctrl + 1-9", "description": "N단계까지 펼치기" }
+      {
+        "key": "Enter",
+        "description": "형제 노드 삽입"
+      },
+      {
+        "key": "Shift + Enter",
+        "description": "앞쪽에 형제 노드 삽입"
+      },
+      {
+        "key": "Tab",
+        "description": "자식 노드 삽입"
+      },
+      {
+        "key": "Ctrl + Enter",
+        "description": "부모 노드 삽입"
+      },
+      {
+        "key": "F1",
+        "description": "맵 중앙 정렬"
+      },
+      {
+        "key": "F2",
+        "description": "현재 노드 편집"
+      },
+      {
+        "key": "↑",
+        "description": "이전 노드 선택"
+      },
+      {
+        "key": "↓",
+        "description": "다음 노드 선택"
+      },
+      {
+        "key": "← / →",
+        "description": "좌/우 노드 선택"
+      },
+      {
+        "key": "PageUp / Alt + ↑",
+        "description": "위로 이동"
+      },
+      {
+        "key": "PageDown / Alt + ↓",
+        "description": "아래로 이동"
+      },
+      {
+        "key": "Ctrl + ↑",
+        "description": "양쪽 레이아웃"
+      },
+      {
+        "key": "Ctrl + ←",
+        "description": "좌측 레이아웃"
+      },
+      {
+        "key": "Ctrl + →",
+        "description": "우측 레이아웃"
+      },
+      {
+        "key": "Ctrl + C",
+        "description": "복사"
+      },
+      {
+        "key": "Ctrl + X",
+        "description": "잘라내기"
+      },
+      {
+        "key": "Ctrl + V",
+        "description": "붙여넣기"
+      },
+      {
+        "key": "Delete / Backspace",
+        "description": "노드/화살표/요약 삭제"
+      },
+      {
+        "key": "Ctrl + +",
+        "description": "확대"
+      },
+      {
+        "key": "Ctrl + -",
+        "description": "축소"
+      },
+      {
+        "key": "Ctrl + 0",
+        "description": "확대/축소 초기화"
+      },
+      {
+        "key": "Ctrl + K, Ctrl + 0",
+        "description": "전체 접기"
+      },
+      {
+        "key": "Ctrl + K, Ctrl + =",
+        "description": "전체 펼치기"
+      },
+      {
+        "key": "Ctrl + K, Ctrl + 1-9",
+        "description": "N단계까지 펼치기"
+      }
     ]
   },
   "ConfirmShareDialog": {
@@ -1079,7 +1136,6 @@
         "refundPolicy": "환불정책 보기"
       }
     },
-
     "faq": {
       "title": "자주 묻는 질문",
       "q2": "영상 길이에 따라 몇 크레딧이 사용되나요?",
@@ -1089,7 +1145,6 @@
       "q4": "세금계산서는 어떻게 요청하나요?",
       "a4": "세금계산서 발급이 필요하시면 사업자등록번호, 이메일, 결제일, 결제 금액, 주문번호를 적고, 사업자등록증 사본을 함께 첨부해 hello@brify.app 으로 보내주세요."
     },
-
     "card": {
       "badge": {
         "popular": "가장 많이 선택해요",
@@ -1288,7 +1343,9 @@
   },
   "LandingBlueHero": {
     "eyebrow": "길고 복잡한 문서를 다루는 사람들을 위해 만들었습니다.",
-    "titles": ["문서가 길어서 어려운 게 아니라,"],
+    "titles": [
+      "문서가 길어서 어려운 게 아니라,"
+    ],
     "titleHighlight": "구조가 보이지 않아 어려운 것입니다.",
     "titleSuffix": "",
     "helper": "우리는 더 많은 요약이 아니라, 더 정확한 이해가 필요하다고 믿습니다.",
@@ -1306,7 +1363,12 @@
       "cta": "내 맵 만들기",
       "imageAlt": "브라이피 구조맵 예시 이미지"
     },
-    "flowItems": ["문서·텍스트 입력", "마인드맵 생성", "읽기 · 편집 · 비교", "나만의 기준 세우기"],
+    "flowItems": [
+      "문서·텍스트 입력",
+      "마인드맵 생성",
+      "읽기 · 편집 · 비교",
+      "나만의 기준 세우기"
+    ],
     "videoLabel": "사용 흐름 보기",
     "videoLoadingLabel": "불러오는 중...",
     "visualAlt": "구조화 다이어그램 미리보기"
@@ -1319,11 +1381,9 @@
   "Support": {
     "badge": "문의 / 피드백",
     "title": "브리피에게 한마디",
-
     "form": {
       "title": "문의 내용 작성",
       "subtitle": "최대한 구체적으로 작성해 주시면 더 빠르고 정확하게 도와드릴 수 있습니다.",
-
       "categoryLabel": "문의 유형",
       "category": {
         "bug": "버그 제보",
@@ -1331,7 +1391,6 @@
         "billing": "결제·크레딧",
         "other": "기타 문의"
       },
-
       "field": {
         "titleLabel": "제목",
         "titlePlaceholder": "예: 요약 결과가 보이지 않는 문제가 있습니다",
@@ -1341,13 +1400,11 @@
         "emailPlaceholder": "회원 이메일로 답장 드립니다. 다른 이메일로 받고 싶으시면 입력해 주세요.",
         "needsReply": "이 문의에 대한 답변이 필요합니다"
       },
-
       "validation": {
         "titleRequired": "제목을 입력해 주세요.",
         "messageRequired": "상세 내용을 입력해 주세요.",
         "emailInvalid": "이메일 형식이 올바르지 않습니다."
       },
-
       "status": {
         "success": "문의가 정상적으로 접수되었습니다. 빠르게 확인 후 답변드리겠습니다.",
         "warnFallback": "문의는 정상적으로 접수되었지만, 메일 발송 처리에 문제가 발생했습니다. 곧 확인 후 조치하겠습니다.",
@@ -1355,13 +1412,11 @@
         "warnPrefix": "문의는 정상적으로 접수되었지만, 메일 발송 큐 처리에 실패했습니다.",
         "warnWithError": "문의는 정상적으로 접수되었지만, 메일 발송 큐 처리에 실패했습니다. ({error})"
       },
-
       "button": {
         "submitting": "전송 중...",
         "submit": "문의 보내기"
       }
     },
-
     "aside": {
       "speed": {
         "title": "응답 속도 안내",
@@ -1444,27 +1499,24 @@
     "billing": "결제",
     "system": "시스템"
   },
-  "common": { "credits": "크레딧" },
+  "common": {
+    "credits": "크레딧"
+  },
   "signupComplete": {
     "loading": "준비 중이에요...",
     "checking": "확인 중입니다...",
-
     "title": "거의 다 됐어요 🙌",
     "subtitle": "마지막으로 약관만 확인하면 바로 시작할 수 있어요.",
-
     "agree": {
       "terms": "이용약관에 동의해요",
       "privacy": "개인정보 처리방침에 동의해요",
       "view": "(보기)"
     },
-
     "helper": "체크한 내용은 언제든지 약관 페이지에서 다시 볼 수 있어요.",
-
     "button": {
       "submit": "동의하고 시작하기",
       "submitting": "진행 중..."
     },
-
     "messages": {
       "needAllAgreements": "두 가지 모두 체크해 주세요 🙂",
       "missingFlow": "진행 정보를 확인할 수 없어요. 다시 처음부터 시도해 주세요.",
@@ -1627,6 +1679,7 @@
     },
     "actions": {
       "delete": "삭제",
+      "findSource": "원문 찾기",
       "tutorial": "튜토리얼",
       "closeMap": "맵 닫기",
       "discardDraft": "임시 변경 버리기",
@@ -1715,14 +1768,49 @@
     },
     "toasts": {
       "savingNote": "노트 변경을 저장 중...",
+      "selectNodeForSourceFind": "원문에서 찾기를 하시려면 먼저 노드를 선택해주세요.",
+      "noAnchorInSelectedNode": "이 노드에는 원문 탐색용 앵커가 아직 없습니다.",
+      "sourceFindFailed": "원문 탐색에 실패했습니다.",
+      "sourceReloadFailed": "원문 재로드에 실패했습니다.",
+      "sourceRetentionFailed": "보관 기간 변경에 실패했습니다.",
+      "loginRequired": "로그인이 필요합니다.",
       "sharedReadOnly": "공유 페이지는 읽기전용이에요.",
       "highlightReadOnly": "읽기전용에서는 하이라이트가 저장되지 않습니다."
+    },
+    "sourceFind": {
+      "title": "원문 구간 찾기",
+      "loading": "선택한 노드와 연결된 원문 구간을 찾는 중입니다...",
+      "selectedNode": "선택 노드: {topic}",
+      "counterEmpty": "0/0",
+      "criteriaTitle": "검색 기준",
+      "anchorTextLabel": "앵커 문장",
+      "anchorKeywordsLabel": "앵커 키워드",
+      "expiresAt": "원문 보관 만료 시각: {value}",
+      "expired": "원문 보관 기간(기본 24시간)이 지나 원문이 삭제되었습니다. 원문을 다시 불러온 뒤 다시 시도해주세요.",
+      "notFound": "보관된 원문에서 일치 구간을 찾지 못했습니다.",
+      "reloadInputLabel": "원문 다시 붙여넣기",
+      "reloadInputPlaceholder": "원문 전체를 붙여넣어 주세요.",
+      "reloadInputRequired": "재로드할 원문을 입력해주세요.",
+      "reloadAction": "원문 재로드",
+      "reloading": "재로드 중...",
+      "reloadSuccess": "원문을 다시 불러왔습니다. 앵커 기준으로 자동 재탐색합니다.",
+      "sourceLabel": "원문",
+      "showMoreAbove": "위로 더보기",
+      "showMoreBelow": "아래로 더보기",
+      "retentionTitle": "원문 보관 기간",
+      "freeOnlyHint": "(Free는 24시간)",
+      "retentionUpdated": "보관 기간을 업데이트했습니다.",
+      "editAnchorGuide": "필요하면 앵커 문장을 조금 짧게 바꿔 다시 찾아보세요.",
+      "editAnchorPlaceholder": "예: 색조에는 쉬움을 주자",
+      "editAnchorAction": "다시 찾기",
+      "showFullSource": "원문 전체 보기"
     },
     "readOnlyMode": {
       "admin": "관리자 조회 모드",
       "shared": "공유 읽기 모드"
     },
-    "brand": "브라이피"
+    "brand": "브라이피",
+    "cancel": "취소"
   },
   "DiscardDraftDialog": {
     "title": "임시 변경 버리기",
@@ -1842,7 +1930,14 @@
   "YoutubeNotesPage": {
     "title": "브라이피(Brify) | 유튜브 정리, 유튜브 내용 정리",
     "description": "브라이피(Brify)는 긴 유튜브 대본을 마인드맵으로 정리해 복잡한 내용의 흐름과 구조를 더 빠르게 이해할 수 있게 도와줍니다.",
-    "keywords": ["유튜브 정리", "유튜브 내용 정리", "유튜브 메모", "유튜브 마인드맵", "브리피", "브라이피"],
+    "keywords": [
+      "유튜브 정리",
+      "유튜브 내용 정리",
+      "유튜브 메모",
+      "유튜브 마인드맵",
+      "브리피",
+      "브라이피"
+    ],
     "ogImage": "https://www.brify.app/images/sns_ko.png",
     "heading": "긴 유튜브 내용을 더 쉽게 정리하는 방법",
     "lead": "좋은 정보가 있는 유튜브를 저장만 해두고 끝내기 쉬웠다면, Brify로 핵심 흐름과 구조를 다시 펼쳐보기 쉬운 형태로 정리해보세요.",
@@ -1867,7 +1962,15 @@
   "YoutubeSummaryPage": {
     "title": "브라이피(Brify) | 유튜브 요약, 유튜브 정리, 유튜브 마인드맵",
     "description": "브라이피(Brify)는 유튜브 대본, 웹페이지, 긴 텍스트를 마인드맵으로 정리해 복잡한 정보의 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다.",
-    "keywords": ["유튜브 요약", "유튜브 정리", "유튜브 마인드맵", "마인드맵", "유튜브 대본 정리", "브리피", "브라이피"],
+    "keywords": [
+      "유튜브 요약",
+      "유튜브 정리",
+      "유튜브 마인드맵",
+      "마인드맵",
+      "유튜브 대본 정리",
+      "브리피",
+      "브라이피"
+    ],
     "ogImage": "https://www.brify.app/images/sns_ko.png",
     "breadcrumbName": "유튜브 요약",
     "heading": "유튜브 요약과 정리, 마인드맵으로 더 빠르게",
@@ -1887,16 +1990,37 @@
     ],
     "section3Title": "Brify로 할 수 있는 일",
     "cards": [
-      { "title": "유튜브 요약", "body": "긴 영상의 핵심 흐름을 더 빠르게 파악할 수 있습니다." },
-      { "title": "유튜브 정리", "body": "여러 개념과 세부정보를 마인드맵으로 정리해 다시 보기 쉽게 만듭니다." },
-      { "title": "유튜브 마인드맵", "body": "대본 내용을 시각적인 구조로 바꿔 한눈에 비교하고 이해할 수 있습니다." },
-      { "title": "긴 텍스트 정리", "body": "웹페이지와 긴 글도 같은 방식으로 구조화해 복잡한 정보를 더 쉽게 읽을 수 있습니다." }
+      {
+        "title": "유튜브 요약",
+        "body": "긴 영상의 핵심 흐름을 더 빠르게 파악할 수 있습니다."
+      },
+      {
+        "title": "유튜브 정리",
+        "body": "여러 개념과 세부정보를 마인드맵으로 정리해 다시 보기 쉽게 만듭니다."
+      },
+      {
+        "title": "유튜브 마인드맵",
+        "body": "대본 내용을 시각적인 구조로 바꿔 한눈에 비교하고 이해할 수 있습니다."
+      },
+      {
+        "title": "긴 텍스트 정리",
+        "body": "웹페이지와 긴 글도 같은 방식으로 구조화해 복잡한 정보를 더 쉽게 읽을 수 있습니다."
+      }
     ],
     "faqTitle": "자주 묻는 질문",
     "faqs": [
-      { "question": "Brify는 유튜브 요약 서비스인가요?", "answer": "네. Brify는 유튜브 내용을 빠르게 이해할 수 있도록 도와주는 서비스입니다. 다만 단순 요약에 그치지 않고, 흐름과 구조를 마인드맵처럼 정리해 다시 보기 쉽게 만드는 데 더 강점이 있습니다." },
-      { "question": "유튜브 정리와 마인드맵을 함께 할 수 있나요?", "answer": "할 수 있습니다. Brify는 유튜브 대본을 정리하면서 동시에 마인드맵 형태로 시각화해, 복잡한 정보를 한눈에 파악할 수 있게 도와줍니다." },
-      { "question": "유튜브 말고 웹페이지나 긴 글도 정리할 수 있나요?", "answer": "네. Brify는 유튜브 대본뿐 아니라 웹페이지와 긴 텍스트도 함께 정리할 수 있도록 설계되어 있습니다." }
+      {
+        "question": "Brify는 유튜브 요약 서비스인가요?",
+        "answer": "네. Brify는 유튜브 내용을 빠르게 이해할 수 있도록 도와주는 서비스입니다. 다만 단순 요약에 그치지 않고, 흐름과 구조를 마인드맵처럼 정리해 다시 보기 쉽게 만드는 데 더 강점이 있습니다."
+      },
+      {
+        "question": "유튜브 정리와 마인드맵을 함께 할 수 있나요?",
+        "answer": "할 수 있습니다. Brify는 유튜브 대본을 정리하면서 동시에 마인드맵 형태로 시각화해, 복잡한 정보를 한눈에 파악할 수 있게 도와줍니다."
+      },
+      {
+        "question": "유튜브 말고 웹페이지나 긴 글도 정리할 수 있나요?",
+        "answer": "네. Brify는 유튜브 대본뿐 아니라 웹페이지와 긴 텍스트도 함께 정리할 수 있도록 설계되어 있습니다."
+      }
     ],
     "primaryCta": "데모 보기",
     "secondaryCta": "Brify 시작하기",
@@ -1906,7 +2030,15 @@
   "MindMapPage": {
     "title": "AI 마인드맵 변환 | 복잡한 정보를 구조로 정리 - Brify",
     "description": "브라이피(Brify)는 유튜브 대본, 웹페이지, 긴 텍스트를 AI 마인드맵 변환으로 정리해 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다.",
-    "keywords": ["AI 마인드맵 변환", "마인드맵", "유튜브 마인드맵", "텍스트 마인드맵", "정보 정리", "브리피", "브라이피"],
+    "keywords": [
+      "AI 마인드맵 변환",
+      "마인드맵",
+      "유튜브 마인드맵",
+      "텍스트 마인드맵",
+      "정보 정리",
+      "브리피",
+      "브라이피"
+    ],
     "ogImage": "https://www.brify.app/images/sns_ko.png",
     "heading": "마인드맵으로 복잡한 정보를 더 쉽게 이해하세요",
     "lead": "AI 마인드맵 변환은 많은 정보를 한눈에 정리하고 다시 펼쳐보기 좋은 방식입니다. Brify는 유튜브와 긴 텍스트를 이 흐름에 맞게 정리해줍니다.",
@@ -1955,8 +2087,7 @@
     },
     "copyright": "All rights reserved.",
     "operatedBy": "Brify는 vision328이 운영하는 서비스입니다."
-  }
-  ,
+  },
   "MapsCommon": {
     "status": {
       "idle": "대기중",

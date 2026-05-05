@@ -152,8 +152,7 @@
     "more": "Plus…",
     "dialogAria": "Sélectionner la langue de sortie",
     "title": "Choisissez la langue de sortie",
-    "description": "Nous générerons la mind map dans la langue sélectionnée."
-    ,
+    "description": "Nous générerons la mind map dans la langue sélectionnée.",
     "close": "Fermer",
     "searchPlaceholder": "Rechercher des langues (ex. English, Korean, ja, zh...)",
     "noResults": "Aucun résultat. Essayez un autre mot-clé.",
@@ -180,14 +179,39 @@
     "shiftHold": "gardez Shift enfoncé",
     "imagePlaceholder": "Vous pouvez placer ici une image liée.",
     "steps": {
-      "1": { "title": "Ouvrez « Plus » sous la vidéo", "imageLabel": "Image étape 1" },
-      "2": { "title": "Ouvrez la transcription", "imageLabel": "Image étape 2" },
-      "3": { "title": "Commencez la sélection depuis le début", "imageLabel": "Image étape 3" },
-      "4": { "title": "Faites défiler jusqu’en bas", "imageLabel": "Image étape 4" },
-      "5": { "title": "Gardez Shift enfoncé", "description": "Ne le relâchez pas, puis cliquez immédiatement sur le dernier mot.", "imageLabel": "Image étape 5" },
-      "6": { "title": "Cliquez sur le dernier mot", "imageLabel": "Image étape 6" },
-      "7": { "title": "Ctrl + C", "imageLabel": "Image étape 7" },
-      "8": { "title": "Collez dans le champ de saisie", "imageLabel": "Image étape 8" }
+      "1": {
+        "title": "Ouvrez « Plus » sous la vidéo",
+        "imageLabel": "Image étape 1"
+      },
+      "2": {
+        "title": "Ouvrez la transcription",
+        "imageLabel": "Image étape 2"
+      },
+      "3": {
+        "title": "Commencez la sélection depuis le début",
+        "imageLabel": "Image étape 3"
+      },
+      "4": {
+        "title": "Faites défiler jusqu’en bas",
+        "imageLabel": "Image étape 4"
+      },
+      "5": {
+        "title": "Gardez Shift enfoncé",
+        "description": "Ne le relâchez pas, puis cliquez immédiatement sur le dernier mot.",
+        "imageLabel": "Image étape 5"
+      },
+      "6": {
+        "title": "Cliquez sur le dernier mot",
+        "imageLabel": "Image étape 6"
+      },
+      "7": {
+        "title": "Ctrl + C",
+        "imageLabel": "Image étape 7"
+      },
+      "8": {
+        "title": "Collez dans le champ de saisie",
+        "imageLabel": "Image étape 8"
+      }
     }
   },
   "CreditConfirmModal": {
@@ -1494,6 +1518,7 @@
     },
     "actions": {
       "delete": "Supprimer",
+      "findSource": "Trouver la source",
       "tutorial": "Tutoriel",
       "closeMap": "Fermer la carte",
       "discardDraft": "Ignorer le brouillon",
@@ -1582,8 +1607,42 @@
     },
     "toasts": {
       "savingNote": "Enregistrement des notes en cours...",
+      "selectNodeForSourceFind": "Pour le retrouver dans le texte source, veuillez d’abord sélectionner un nœud.",
+      "noAnchorInSelectedNode": "Ce nœud n’a pas encore d’ancres de source.",
+      "sourceFindFailed": "Échec de la recherche dans le texte source.",
+      "sourceReloadFailed": "Échec du rechargement du texte source.",
+      "sourceRetentionFailed": "Échec de la mise à jour de la période de conservation.",
+      "loginRequired": "Connexion requise.",
       "sharedReadOnly": "Les pages partagées sont en lecture seule.",
       "highlightReadOnly": "Les surlignages ne sont pas enregistrés en lecture seule."
+    },
+    "sourceFind": {
+      "title": "Trouver le passage source",
+      "loading": "Recherche du passage source lié au nœud sélectionné...",
+      "selectedNode": "Nœud sélectionné : {topic}",
+      "counterEmpty": "0/0",
+      "criteriaTitle": "Critères de recherche",
+      "anchorTextLabel": "Phrase d’ancrage",
+      "anchorKeywordsLabel": "Mots-clés d’ancrage",
+      "expiresAt": "Expiration de la source : {value}",
+      "expired": "La période de conservation de la source (24 h par défaut) est expirée. Rechargez le texte source puis réessayez.",
+      "notFound": "Aucun passage correspondant n’a été trouvé dans la source conservée.",
+      "reloadInputLabel": "Recoller le texte source",
+      "reloadInputPlaceholder": "Collez ici le texte source complet.",
+      "reloadInputRequired": "Veuillez coller un texte source à recharger.",
+      "reloadAction": "Recharger la source",
+      "reloading": "Rechargement...",
+      "reloadSuccess": "Source rechargée. Nouvelle recherche automatique via les ancres.",
+      "sourceLabel": "Texte source",
+      "showMoreAbove": "Afficher plus haut",
+      "showMoreBelow": "Afficher plus bas",
+      "retentionTitle": "Période de conservation",
+      "freeOnlyHint": "(Gratuit : 24 h)",
+      "retentionUpdated": "Période de conservation mise à jour.",
+      "editAnchorGuide": "Si besoin, raccourcissez légèrement la phrase d’ancrage puis réessayez.",
+      "editAnchorPlaceholder": "ex. Simplifier le maquillage",
+      "editAnchorAction": "Réessayer",
+      "showFullSource": "Voir toute la source"
     },
     "readOnlyMode": {
       "admin": "Mode consultation admin",
@@ -1926,7 +1985,13 @@
   "YoutubeNotesPage": {
     "title": "Notes YouTube et organisation des vidéos YouTube | Brify",
     "description": "Brify vous aide à organiser les vidéos YouTube en notes structurées et en mind maps pour revoir plus facilement les contenus longs.",
-    "keywords": ["notes youtube", "organisation youtube", "organiser videos youtube", "mind map youtube", "Brify"],
+    "keywords": [
+      "notes youtube",
+      "organisation youtube",
+      "organiser videos youtube",
+      "mind map youtube",
+      "Brify"
+    ],
     "ogImage": "https://www.brify.app/images/sns_en.png",
     "heading": "Une meilleure façon d'organiser vos vidéos YouTube et vos notes",
     "lead": "Si vous enregistrez souvent des vidéos YouTube utiles sans les revoir ensuite, Brify vous aide à organiser les notes, le fil conducteur et la structure dans un format plus facile à consulter.",
@@ -1951,7 +2016,17 @@
   "YoutubeSummaryPage": {
     "title": "Outil de résumé YouTube | Transformez les vidéos YouTube en mind maps | Brify",
     "description": "Brify est un outil de résumé YouTube qui transforme les transcriptions YouTube en mind maps pour comprendre rapidement les vidéos longues et les informations complexes.",
-    "keywords": ["resume youtube", "outil resume youtube", "notes youtube", "mind map youtube", "youtube vers mind map", "convertir youtube en mind map", "mind map", "resume page web", "Brify"],
+    "keywords": [
+      "resume youtube",
+      "outil resume youtube",
+      "notes youtube",
+      "mind map youtube",
+      "youtube vers mind map",
+      "convertir youtube en mind map",
+      "mind map",
+      "resume page web",
+      "Brify"
+    ],
     "ogImage": "https://www.brify.app/images/sns_en.png",
     "breadcrumbName": "Résumé YouTube",
     "heading": "Un outil de résumé YouTube qui transforme les vidéos en mind maps",
@@ -1971,16 +2046,37 @@
     ],
     "section3Title": "Ce que vous pouvez faire avec Brify",
     "cards": [
-      { "title": "Résumés YouTube", "body": "Comprendre plus rapidement le fil essentiel des vidéos longues." },
-      { "title": "Notes YouTube", "body": "Organiser plusieurs concepts et détails dans une mind map à revisiter plus tard." },
-      { "title": "Mind maps YouTube", "body": "Transformer les transcriptions en structure visuelle pour comparer et comprendre d'un coup d'œil." },
-      { "title": "Organisation de textes longs", "body": "Appliquer le même flux de travail aux pages web et textes longs pour simplifier les informations complexes." }
+      {
+        "title": "Résumés YouTube",
+        "body": "Comprendre plus rapidement le fil essentiel des vidéos longues."
+      },
+      {
+        "title": "Notes YouTube",
+        "body": "Organiser plusieurs concepts et détails dans une mind map à revisiter plus tard."
+      },
+      {
+        "title": "Mind maps YouTube",
+        "body": "Transformer les transcriptions en structure visuelle pour comparer et comprendre d'un coup d'œil."
+      },
+      {
+        "title": "Organisation de textes longs",
+        "body": "Appliquer le même flux de travail aux pages web et textes longs pour simplifier les informations complexes."
+      }
     ],
     "faqTitle": "Questions fréquentes",
     "faqs": [
-      { "question": "Brify est-il un outil de résumé YouTube ?", "answer": "Oui. Brify vous aide à résumer du contenu YouTube plus vite. Sa force ne s'arrête pas au résumé : il transforme aussi les transcriptions YouTube en mind maps que vous pouvez revoir ensuite." },
-      { "question": "Puis-je organiser des vidéos YouTube en mind maps ?", "answer": "Oui. Brify vous aide à convertir des transcriptions YouTube en mind maps, ce qui rend les informations complexes plus faciles à comprendre et à comparer." },
-      { "question": "Brify peut-il aussi organiser des pages web et des textes longs ?", "answer": "Oui. Brify est conçu pour fonctionner avec les transcriptions YouTube, les pages web et les textes longs, afin d'utiliser le même flux de travail pour différentes sources." }
+      {
+        "question": "Brify est-il un outil de résumé YouTube ?",
+        "answer": "Oui. Brify vous aide à résumer du contenu YouTube plus vite. Sa force ne s'arrête pas au résumé : il transforme aussi les transcriptions YouTube en mind maps que vous pouvez revoir ensuite."
+      },
+      {
+        "question": "Puis-je organiser des vidéos YouTube en mind maps ?",
+        "answer": "Oui. Brify vous aide à convertir des transcriptions YouTube en mind maps, ce qui rend les informations complexes plus faciles à comprendre et à comparer."
+      },
+      {
+        "question": "Brify peut-il aussi organiser des pages web et des textes longs ?",
+        "answer": "Oui. Brify est conçu pour fonctionner avec les transcriptions YouTube, les pages web et les textes longs, afin d'utiliser le même flux de travail pour différentes sources."
+      }
     ],
     "primaryCta": "Voir la démo",
     "secondaryCta": "Commencer avec Brify",
@@ -1990,7 +2086,15 @@
   "MindMapPage": {
     "title": "Conversion IA en carte mentale | Transformez des informations complexes en cartes structurées - Brify",
     "description": "Brify vous aide à convertir des transcriptions YouTube, des pages web et des textes longs grâce à la conversion IA en carte mentale pour comprendre immédiatement le flux et la structure.",
-    "keywords": ["conversion IA en carte mentale", "mind map", "mind map youtube", "youtube vers mind map", "convertir youtube en mind map", "mind map texte", "Brify"],
+    "keywords": [
+      "conversion IA en carte mentale",
+      "mind map",
+      "mind map youtube",
+      "youtube vers mind map",
+      "convertir youtube en mind map",
+      "mind map texte",
+      "Brify"
+    ],
     "ogImage": "https://www.brify.app/images/sns_en.png",
     "heading": "Convertissez des transcriptions YouTube en mind maps",
     "lead": "La conversion IA en carte mentale vous aide à organiser des informations complexes en un seul écran. Brify transforme les transcriptions YouTube et les textes longs en cartes structurées faciles à réutiliser.",

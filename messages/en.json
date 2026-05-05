@@ -278,19 +278,16 @@
       "title": "Getting a transcript from YouTube on desktop",
       "description": "Follow these steps to copy the full transcript in about 1–2 minutes."
     },
-
     "step1": {
       "title": "Click the \"···\" or \"More\" button below the video.",
       "body": "Look under the video title, next to the Like/Share buttons, for the three dots (···) or a \"More\" button.",
       "imageAlt": "Location of the More (···) button on the YouTube watch page."
     },
-
     "step2": {
       "title": "In the menu, choose \"Show transcript\" or \"Transcript\".",
       "body": "In the menu that opens, click the item named \"Show transcript\", \"Captions\", or \"Transcript\".",
       "imageAlt": "YouTube menu showing the Show transcript option."
     },
-
     "step3": {
       "title": "Select the entire transcript on the right and copy it.",
       "tip1": "1. Click once on the first line of the transcript.",
@@ -301,33 +298,27 @@
       "tipNote": "※ Using Ctrl + A selects the whole page, so we don’t recommend it when you only want the transcript.",
       "imageAlt": "Selecting the entire transcript in the YouTube transcript panel."
     },
-
     "step4": {
       "title": "Paste it into the input box on the left of this page.",
       "body": "Click the \"Paste video script\" input area, then press Ctrl + V (or ⌘ + V on Mac) to paste. Now you’re ready.",
       "imageAlt": "Pasting text into the video script input field."
     },
-
     "sectionB": {
       "title": "Want to use subtitles or an editing tool instead?",
       "description": "If you already have a project in progress, you can simply copy the text and paste it here."
     },
-
     "case1": {
       "title": "Copying subtitles or script from an editor (Premiere, CapCut, etc.)",
       "body": "Select all subtitle text from the timeline, copy it, and paste it into the input on the left."
     },
-
     "case2": {
       "title": "Opening subtitle files (srt, vtt, etc.) as text",
       "body": "Open the srt/vtt file in a text editor like Notepad. It will contain timestamps with dialogue. Copy the lines you need and paste them here."
     },
-
     "case3": {
       "title": "Using a script document you’ve already written",
       "body": "It doesn’t matter where your script lives—blog, Word, Notion, etc. Just copy the full text and paste it as-is."
     },
-
     "faq": {
       "title": "Q. I don’t see a \"Show transcript\" / \"Transcript\" menu.",
       "item1": "Some videos may hide the transcript at the creator’s choice.",
@@ -422,7 +413,6 @@
       "link": "Log in"
     }
   },
-
   "signupPage": {
     "brand": "Brify",
     "tagline": "Create a new account and start organizing summaries and Structure Maps."
@@ -778,7 +768,6 @@
     "positioningText": "No subscription — pay only for what you use.",
     "refundText": "Unused credits are eligible for a full refund within 7 days of purchase.",
     "seeDetails": "View pricing details",
-
     "packs": {
       "50": {
         "badgeText": "Starter",
@@ -793,7 +782,6 @@
         "tagline": "A generous pack for study and projects."
       }
     },
-
     "creditRule": {
       "title": "Most content uses only 1 credit",
       "desc": "Longer inputs may require 2 or 3 credits depending on length",
@@ -810,12 +798,10 @@
         "blocked": "Not supported"
       }
     },
-
     "toggles": {
       "details": "Details",
       "collapse": "Collapse"
     },
-
     "paymentToggle": {
       "krw": "Pay in KRW (Toss Payments)",
       "usd": "Pay in USD (LemonSqueezy)"
@@ -1017,30 +1003,102 @@
       "action": "Action"
     },
     "items": [
-      { "key": "Enter", "description": "Insert sibling node" },
-      { "key": "Shift + Enter", "description": "Insert sibling node before" },
-      { "key": "Tab", "description": "Insert child node" },
-      { "key": "Ctrl + Enter", "description": "Insert parent node" },
-      { "key": "F1", "description": "Center the map" },
-      { "key": "F2", "description": "Edit current node" },
-      { "key": "↑", "description": "Select previous node" },
-      { "key": "↓", "description": "Select next node" },
-      { "key": "← / →", "description": "Select left/right node" },
-      { "key": "PageUp / Alt + ↑", "description": "Move up" },
-      { "key": "PageDown / Alt + ↓", "description": "Move down" },
-      { "key": "Ctrl + ↑", "description": "Both-side layout" },
-      { "key": "Ctrl + ←", "description": "Left-side layout" },
-      { "key": "Ctrl + →", "description": "Right-side layout" },
-      { "key": "Ctrl + C", "description": "Copy" },
-      { "key": "Ctrl + X", "description": "Cut" },
-      { "key": "Ctrl + V", "description": "Paste" },
-      { "key": "Delete / Backspace", "description": "Delete node/edge/summary" },
-      { "key": "Ctrl + +", "description": "Zoom in" },
-      { "key": "Ctrl + -", "description": "Zoom out" },
-      { "key": "Ctrl + 0", "description": "Reset zoom" },
-      { "key": "Ctrl + K, Ctrl + 0", "description": "Collapse all" },
-      { "key": "Ctrl + K, Ctrl + =", "description": "Expand all" },
-      { "key": "Ctrl + K, Ctrl + 1-9", "description": "Expand to level N" }
+      {
+        "key": "Enter",
+        "description": "Insert sibling node"
+      },
+      {
+        "key": "Shift + Enter",
+        "description": "Insert sibling node before"
+      },
+      {
+        "key": "Tab",
+        "description": "Insert child node"
+      },
+      {
+        "key": "Ctrl + Enter",
+        "description": "Insert parent node"
+      },
+      {
+        "key": "F1",
+        "description": "Center the map"
+      },
+      {
+        "key": "F2",
+        "description": "Edit current node"
+      },
+      {
+        "key": "↑",
+        "description": "Select previous node"
+      },
+      {
+        "key": "↓",
+        "description": "Select next node"
+      },
+      {
+        "key": "← / →",
+        "description": "Select left/right node"
+      },
+      {
+        "key": "PageUp / Alt + ↑",
+        "description": "Move up"
+      },
+      {
+        "key": "PageDown / Alt + ↓",
+        "description": "Move down"
+      },
+      {
+        "key": "Ctrl + ↑",
+        "description": "Both-side layout"
+      },
+      {
+        "key": "Ctrl + ←",
+        "description": "Left-side layout"
+      },
+      {
+        "key": "Ctrl + →",
+        "description": "Right-side layout"
+      },
+      {
+        "key": "Ctrl + C",
+        "description": "Copy"
+      },
+      {
+        "key": "Ctrl + X",
+        "description": "Cut"
+      },
+      {
+        "key": "Ctrl + V",
+        "description": "Paste"
+      },
+      {
+        "key": "Delete / Backspace",
+        "description": "Delete node/edge/summary"
+      },
+      {
+        "key": "Ctrl + +",
+        "description": "Zoom in"
+      },
+      {
+        "key": "Ctrl + -",
+        "description": "Zoom out"
+      },
+      {
+        "key": "Ctrl + 0",
+        "description": "Reset zoom"
+      },
+      {
+        "key": "Ctrl + K, Ctrl + 0",
+        "description": "Collapse all"
+      },
+      {
+        "key": "Ctrl + K, Ctrl + =",
+        "description": "Expand all"
+      },
+      {
+        "key": "Ctrl + K, Ctrl + 1-9",
+        "description": "Expand to level N"
+      }
     ]
   },
   "ConfirmShareDialog": {
@@ -1071,7 +1129,6 @@
       "paidLabel": "Paid credits",
       "freeLabel": "Reward credits"
     },
-
     "packs": {
       "title": "Choose a credit pack",
       "info": {
@@ -1079,7 +1136,6 @@
         "refundPolicy": "View refund policy"
       }
     },
-
     "faq": {
       "title": "FAQ",
       "q2": "How many credits does a video use?",
@@ -1089,7 +1145,6 @@
       "q4": "Will I receive a payment receipt?",
       "a4": "Yes. LemonSqueezy sends a receipt email after payment. If you can’t find it or need help with a billing issue, contact us and we’ll help you check the order details."
     },
-
     "card": {
       "badge": {
         "popular": "Most popular",
@@ -1288,7 +1343,9 @@
   },
   "LandingBlueHero": {
     "eyebrow": "Built for people who work with long, complex documents.",
-    "titles": ["Documents are not hard because they are long,"],
+    "titles": [
+      "Documents are not hard because they are long,"
+    ],
     "titleHighlight": "they are hard because their structure is invisible.",
     "titleSuffix": "",
     "helper": "We believe what we need is not more summaries, but more accurate understanding.",
@@ -1306,7 +1363,12 @@
       "cta": "Create your own map",
       "imageAlt": "Brify mind map example image"
     },
-    "flowItems": ["Paste document text", "Create a mind map", "Read · Edit · Compare", "Build your own standard"],
+    "flowItems": [
+      "Paste document text",
+      "Create a mind map",
+      "Read · Edit · Compare",
+      "Build your own standard"
+    ],
     "videoLabel": "View workflow",
     "videoLoadingLabel": "Loading...",
     "visualAlt": "Structure Map preview"
@@ -1319,11 +1381,9 @@
   "Support": {
     "badge": "Support / Feedback",
     "title": "Send a note to Brify",
-
     "form": {
       "title": "Write your message",
       "subtitle": "The more details you provide, the faster and more accurately we can help.",
-
       "categoryLabel": "Category",
       "category": {
         "bug": "Bug report",
@@ -1331,7 +1391,6 @@
         "billing": "Billing / Credits",
         "other": "Other"
       },
-
       "field": {
         "titleLabel": "Title",
         "titlePlaceholder": "e.g., I can’t see the summary result",
@@ -1341,13 +1400,11 @@
         "emailPlaceholder": "We’ll reply to your account email. Enter a different email if you prefer.",
         "needsReply": "I would like a reply to this request"
       },
-
       "validation": {
         "titleRequired": "Please enter a title.",
         "messageRequired": "Please enter details.",
         "emailInvalid": "Please enter a valid email."
       },
-
       "status": {
         "success": "Your request has been received. We’ll review it and reply as soon as possible.",
         "warnFallback": "Your request was received, but there was an issue enqueueing the email sending job. We’ll investigate soon.",
@@ -1355,13 +1412,11 @@
         "warnPrefix": "Your request was received, but failed to enqueue the email sending job.",
         "warnWithError": "Your request was received, but failed to enqueue the email sending job. ({error})"
       },
-
       "button": {
         "submitting": "Sending...",
         "submit": "Send"
       }
     },
-
     "aside": {
       "speed": {
         "title": "Response time",
@@ -1444,27 +1499,24 @@
     "billing": "Billing",
     "system": "System"
   },
-  "common": { "credits": "credits" },
+  "common": {
+    "credits": "credits"
+  },
   "signupComplete": {
     "loading": "Getting things ready...",
     "checking": "Checking...",
-
     "title": "Almost there 🙌",
     "subtitle": "One last step—please review and agree to the terms to get started.",
-
     "agree": {
       "terms": "I agree to the Terms of Service",
       "privacy": "I agree to the Privacy Policy",
       "view": "(View)"
     },
-
     "helper": "You can always review these policies later using the links above.",
-
     "button": {
       "submit": "Agree & Get Started",
       "submitting": "Working on it..."
     },
-
     "messages": {
       "needAllAgreements": "Please check both boxes 🙂",
       "missingFlow": "We couldn't verify this step. Please start again from the beginning.",
@@ -1627,6 +1679,7 @@
     },
     "actions": {
       "delete": "Delete",
+      "findSource": "Find source",
       "tutorial": "Tutorial",
       "closeMap": "Close map",
       "discardDraft": "Discard draft",
@@ -1715,14 +1768,49 @@
     },
     "toasts": {
       "savingNote": "Saving note changes...",
+      "selectNodeForSourceFind": "To find it in the source text, please select a node first.",
+      "noAnchorInSelectedNode": "This node does not have source anchors yet.",
+      "sourceFindFailed": "Failed to search source text.",
+      "sourceReloadFailed": "Failed to reload source text.",
+      "sourceRetentionFailed": "Failed to update retention period.",
+      "loginRequired": "Login is required.",
       "sharedReadOnly": "Shared pages are read-only.",
       "highlightReadOnly": "Highlights are not saved in read-only mode."
+    },
+    "sourceFind": {
+      "title": "Find source passage",
+      "loading": "Searching the source passage linked to the selected node...",
+      "selectedNode": "Selected node: {topic}",
+      "counterEmpty": "0/0",
+      "criteriaTitle": "Search criteria",
+      "anchorTextLabel": "Anchor sentence",
+      "anchorKeywordsLabel": "Anchor keywords",
+      "expiresAt": "Source expires at: {value}",
+      "expired": "The source retention window (default 24 hours) has passed, so the source text was deleted. Reload the source text and try again.",
+      "notFound": "No matching passage was found in retained source text.",
+      "reloadInputLabel": "Paste source text again",
+      "reloadInputPlaceholder": "Paste the full source text here.",
+      "reloadInputRequired": "Please paste source text to reload.",
+      "reloadAction": "Reload source",
+      "reloading": "Reloading...",
+      "reloadSuccess": "Source reloaded. Running anchor matching again.",
+      "sourceLabel": "Source text",
+      "showMoreAbove": "Show more above",
+      "showMoreBelow": "Show more below",
+      "retentionTitle": "Source retention period",
+      "freeOnlyHint": "(Free: 24 hours)",
+      "retentionUpdated": "Retention period updated.",
+      "editAnchorGuide": "If needed, shorten the anchor sentence a bit and try again.",
+      "editAnchorPlaceholder": "e.g., Keep makeup simple",
+      "editAnchorAction": "Try again",
+      "showFullSource": "View full source"
     },
     "readOnlyMode": {
       "admin": "Admin view mode",
       "shared": "Shared read-only"
     },
-    "brand": "Brify"
+    "brand": "Brify",
+    "cancel": "Cancel"
   },
   "DiscardDraftDialog": {
     "title": "Discard draft changes",
@@ -1842,7 +1930,13 @@
   "YoutubeNotesPage": {
     "title": "YouTube Notes and YouTube Video Organization | Brify",
     "description": "Brify helps you organize YouTube videos into structured notes and mind maps so you can revisit long content more easily.",
-    "keywords": ["youtube notes", "youtube organization", "organize youtube videos", "youtube mind map", "Brify"],
+    "keywords": [
+      "youtube notes",
+      "youtube organization",
+      "organize youtube videos",
+      "youtube mind map",
+      "Brify"
+    ],
     "ogImage": "https://www.brify.app/images/sns_en.png",
     "heading": "A better way to organize YouTube videos and notes",
     "lead": "If you keep saving useful YouTube videos but rarely revisit them, Brify helps you organize YouTube notes, flow, and structure into something easier to review later.",
@@ -1867,7 +1961,17 @@
   "YoutubeSummaryPage": {
     "title": "YouTube Summary Tool | Turn YouTube Videos into Mind Maps | Brify",
     "description": "Brify is a YouTube summary tool that turns YouTube transcripts into mind maps, helping you understand long videos and complex information at a glance.",
-    "keywords": ["youtube summary", "youtube summary tool", "youtube notes", "youtube mind map", "youtube to mind map", "convert youtube to mind map", "mind map", "webpage summary", "Brify"],
+    "keywords": [
+      "youtube summary",
+      "youtube summary tool",
+      "youtube notes",
+      "youtube mind map",
+      "youtube to mind map",
+      "convert youtube to mind map",
+      "mind map",
+      "webpage summary",
+      "Brify"
+    ],
     "ogImage": "https://www.brify.app/images/sns_en.png",
     "breadcrumbName": "YouTube Summary",
     "heading": "A YouTube summary tool that turns videos into mind maps",
@@ -1887,16 +1991,37 @@
     ],
     "section3Title": "What you can do with Brify",
     "cards": [
-      { "title": "YouTube summaries", "body": "Understand the key flow of long videos more quickly." },
-      { "title": "YouTube notes", "body": "Organize multiple concepts and details into a mind map you can revisit later." },
-      { "title": "YouTube mind maps", "body": "Turn transcripts into a visual structure you can compare and understand at a glance." },
-      { "title": "Long-text organization", "body": "Use the same workflow for webpages and long text to make complex information easier to digest." }
+      {
+        "title": "YouTube summaries",
+        "body": "Understand the key flow of long videos more quickly."
+      },
+      {
+        "title": "YouTube notes",
+        "body": "Organize multiple concepts and details into a mind map you can revisit later."
+      },
+      {
+        "title": "YouTube mind maps",
+        "body": "Turn transcripts into a visual structure you can compare and understand at a glance."
+      },
+      {
+        "title": "Long-text organization",
+        "body": "Use the same workflow for webpages and long text to make complex information easier to digest."
+      }
     ],
     "faqTitle": "Frequently asked questions",
     "faqs": [
-      { "question": "Is Brify a YouTube summary tool?", "answer": "Yes. Brify helps you summarize YouTube content faster. Its strength is not only summarizing, but also turning YouTube transcripts into mind maps you can revisit later." },
-      { "question": "Can I organize YouTube videos as mind maps?", "answer": "Yes. Brify helps you convert YouTube transcripts into mind maps, making complex information easier to grasp and compare." },
-      { "question": "Can Brify also organize webpages and long text?", "answer": "Yes. Brify is designed to work with YouTube transcripts, webpages, and long text so you can use the same workflow across different sources." }
+      {
+        "question": "Is Brify a YouTube summary tool?",
+        "answer": "Yes. Brify helps you summarize YouTube content faster. Its strength is not only summarizing, but also turning YouTube transcripts into mind maps you can revisit later."
+      },
+      {
+        "question": "Can I organize YouTube videos as mind maps?",
+        "answer": "Yes. Brify helps you convert YouTube transcripts into mind maps, making complex information easier to grasp and compare."
+      },
+      {
+        "question": "Can Brify also organize webpages and long text?",
+        "answer": "Yes. Brify is designed to work with YouTube transcripts, webpages, and long text so you can use the same workflow across different sources."
+      }
     ],
     "primaryCta": "View demo",
     "secondaryCta": "Start Brify",
@@ -1906,7 +2031,15 @@
   "MindMapPage": {
     "title": "AI mind map conversion | Turn complex information into structured maps - Brify",
     "description": "Brify helps you convert YouTube transcripts, webpages, and long text with AI mind map conversion so you can understand flow and structure at a glance.",
-    "keywords": ["AI mind map conversion", "mind map", "youtube mind map", "youtube to mind map", "convert youtube to mind map", "text mind map", "Brify"],
+    "keywords": [
+      "AI mind map conversion",
+      "mind map",
+      "youtube mind map",
+      "youtube to mind map",
+      "convert youtube to mind map",
+      "text mind map",
+      "Brify"
+    ],
     "ogImage": "https://www.brify.app/images/sns_en.png",
     "heading": "Convert YouTube transcripts into mind maps",
     "lead": "AI mind map conversion helps you organize complex information in one view. Brify converts YouTube transcripts and long text into structured maps you can revisit anytime.",
@@ -1955,8 +2088,7 @@
     },
     "copyright": "All rights reserved.",
     "operatedBy": "Brify is operated by vision328."
-  }
-  ,
+  },
   "MapsCommon": {
     "status": {
       "idle": "Idle",

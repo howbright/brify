@@ -94,15 +94,17 @@ export default function ConfirmDialog({
             </AlertDialog.Title>
           </div>
 
-          <AlertDialog.Description
-            className={[
-              "relative mt-3 text-base md:text-lg font-semibold text-neutral-900 dark:text-white",
-              descriptionClassName,
-            ]
-              .filter(Boolean)
-              .join(" ")}
-          >
-            {resolvedDescription}
+          <AlertDialog.Description asChild>
+            <div
+              className={[
+                "relative mt-3 text-base md:text-lg font-semibold text-neutral-900 dark:text-white",
+                descriptionClassName,
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            >
+              {resolvedDescription}
+            </div>
           </AlertDialog.Description>
 
           <div className="relative mt-5 flex justify-end gap-2">
