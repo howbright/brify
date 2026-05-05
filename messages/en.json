@@ -1276,26 +1276,26 @@
     }
   },
   "LandingBlueHero": {
-    "eyebrow": "We built this so you can understand important information quickly without missing what matters.",
-    "titles": ["Turn complex, long text", "Turn YouTube transcripts"],
-    "titleHighlight": "into a Mind Map",
+    "eyebrow": "Built for people who work with long, complex documents.",
+    "titles": ["Don’t just summarize long documents,"],
+    "titleHighlight": "structure them",
     "titleSuffix": "",
-    "helper": "Understand complex information faster and grasp the flow and structure at a glance.",
+    "helper": "Keep critical details, and understand complex content much faster.",
     "switchTitleAria": "Switch title",
-    "ctaPrimary": "Start for free",
-    "ctaSecondary": "View demo",
+    "ctaPrimary": "Start with documents",
+    "ctaSecondary": "View sample",
     "featureItems": [
-      "Quickly turn even 3-hour lectures into mind maps",
-      "Automatically organize difficult terms",
-      "Generate results from foreign-language content in your native language",
-        "Not just a simple summary. It helps you keep the important details"
+      "Quickly grasp the core structure of term-heavy documents",
+      "AI automatically organizes difficult terms to reduce cognitive load",
+      "Convert foreign-language papers and documents into natural English",
+      "More than a summary. It preserves key details in a usable structure"
     ],
     "sampleSection": {
       "title": "Sample mind map image",
-      "cta": "Sign up to create your own",
+      "cta": "Create your own map",
       "imageAlt": "Brify mind map example image"
     },
-    "flowItems": ["Paste a script", "Create a mind map", "Read · Edit · Compare", "Build your own standard"],
+    "flowItems": ["Paste document text", "Create a mind map", "Read · Edit · Compare", "Build your own standard"],
     "videoLabel": "View workflow",
     "videoLoadingLabel": "Loading...",
     "visualAlt": "Structure Map preview"
@@ -1893,12 +1893,12 @@
     "signupHref": "/en/signup"
   },
   "MindMapPage": {
-    "title": "YouTube to Mind Map | Convert YouTube Transcripts into Mind Maps | Brify",
-    "description": "Brify helps you convert YouTube transcripts, webpages, and long text into mind maps so you can understand flow and structure at a glance.",
-    "keywords": ["mind map", "youtube mind map", "youtube to mind map", "convert youtube to mind map", "text mind map", "Brify"],
+    "title": "AI mind map conversion | Turn complex information into structured maps - Brify",
+    "description": "Brify helps you convert YouTube transcripts, webpages, and long text with AI mind map conversion so you can understand flow and structure at a glance.",
+    "keywords": ["AI mind map conversion", "mind map", "youtube mind map", "youtube to mind map", "convert youtube to mind map", "text mind map", "Brify"],
     "ogImage": "https://www.brify.app/images/sns_en.png",
     "heading": "Convert YouTube transcripts into mind maps",
-    "lead": "If you want a YouTube to mind map workflow, Brify helps you convert YouTube transcripts into mind maps and revisit complex content more easily.",
+    "lead": "AI mind map conversion helps you organize complex information in one view. Brify converts YouTube transcripts and long text into structured maps you can revisit anytime.",
     "paragraphs": [
       "A mind map is not only a neat format. It is a way to understand relationships, hierarchy, and flow inside complex information.",
       "Brify helps you convert YouTube transcripts into mind maps so key ideas and their connections become easier to see.",
@@ -1918,7 +1918,7 @@
     "relatedHref": "/en/youtube-notes"
   },
   "Footer": {
-    "description": "A service that helps you structure long content, understand information quickly, and build your own standard.",
+    "description": "A knowledge-structuring service that turns long, complex text into mind maps for faster, more accurate understanding.",
     "contactEmail": "Email",
     "contactPhone": "Phone",
     "contactAddress": "Address",

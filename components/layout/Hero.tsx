@@ -193,21 +193,12 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
 
   const titles = (() => {
     const raw = t.raw("titles");
-    return Array.isArray(raw)
-      ? (raw as string[])
-      : ["유튜브 영상 대본본을", "어떤 긴 글도"];
+    return Array.isArray(raw) ? (raw as string[]) : [];
   })();
 
   const features = (() => {
     const raw = t.raw("featureItems");
-    return Array.isArray(raw)
-      ? (raw as string[])
-      : [
-          "세부내용도 놓치지 않고 정리",
-          "어려운 용어도 자동으로 정리",
-          "원하는 언어로 결과 생성",
-          "구조맵끼리 비교하며 차이를 한눈에",
-      ];
+    return Array.isArray(raw) ? (raw as string[]) : [];
   })();
 
   const safeIdx = titles.length ? idx % titles.length : 0;
@@ -327,14 +318,14 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
               md:text-base
             "
           >
-            <span className="border-b-2 border-sky-300/90 pb-0.5 dark:border-sky-300/70">
+            <span className="whitespace-pre-line border-b-2 border-sky-300/90 pb-0.5 dark:border-sky-300/70">
               {t("eyebrow")}
             </span>
           </div>
 
           {/* title + slide handle */}
           <div className="mt-3 flex items-start gap-3">
-            <div className="relative min-w-0 flex-1 min-h-[6.6rem] sm:min-h-[8rem] md:min-h-[10.5rem]">
+            <div className="relative min-w-0 flex-1">
               <AnimatePresence mode="wait">
                 <motion.h1
                   key={safeIdx}
@@ -349,48 +340,54 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
                     dark:[text-shadow:0_1px_14px_rgba(0,0,0,0.55)]
                   "
                 >
-                  {titles[safeIdx]} <Highlight>{t("titleHighlight")}</Highlight>
+                  {titles[safeIdx] ?? ""} <Highlight>{t("titleHighlight")}</Highlight>
                   {t("titleSuffix")}
                 </motion.h1>
               </AnimatePresence>
             </div>
 
-            <motion.button
-              type="button"
-              aria-label={t("switchTitleAria")}
-              onClick={() => setIdx((v) => (v + 1) % titles.length)}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="
-                group mt-1 inline-flex h-12 w-12 shrink-0 items-center justify-center
-                rounded-full border border-slate-400 bg-white text-blue-700 shadow-sm
-                transition-colors hover:border-blue-300 hover:bg-blue-50
-                dark:border-white/20 dark:bg-white/[0.08] dark:text-blue-300
-                dark:hover:border-white/30 dark:hover:bg-white/[0.12]
-              "
-            >
-              <span className="pointer-events-none flex items-center justify-center">
-                <span className="h-5 w-5 transition-transform group-hover:translate-x-0.5">
-                  <svg viewBox="0 0 24 24" fill="none" className="h-full w-full">
-                    <path
-                      d="M5 12h12"
-                      stroke="currentColor"
-                      strokeWidth="2.4"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M13 6l6 6-6 6"
-                      stroke="currentColor"
-                      strokeWidth="2.4"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+            {titles.length > 1 ? (
+              <motion.button
+                type="button"
+                aria-label={t("switchTitleAria")}
+                onClick={() => setIdx((v) => (v + 1) % titles.length)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="
+                  group mt-1 inline-flex h-12 w-12 shrink-0 items-center justify-center
+                  rounded-full border border-slate-400 bg-white text-blue-700 shadow-sm
+                  transition-colors hover:border-blue-300 hover:bg-blue-50
+                  dark:border-white/20 dark:bg-white/[0.08] dark:text-blue-300
+                  dark:hover:border-white/30 dark:hover:bg-white/[0.12]
+                "
+              >
+                <span className="pointer-events-none flex items-center justify-center">
+                  <span className="h-5 w-5 transition-transform group-hover:translate-x-0.5">
+                    <svg viewBox="0 0 24 24" fill="none" className="h-full w-full">
+                      <path
+                        d="M5 12h12"
+                        stroke="currentColor"
+                        strokeWidth="2.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M13 6l6 6-6 6"
+                        stroke="currentColor"
+                        strokeWidth="2.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
                 </span>
-              </span>
-            </motion.button>
+              </motion.button>
+            ) : null}
           </div>
+
+          <p className="mt-4 max-w-[42rem] text-[16px] leading-7 text-slate-700 dark:text-slate-200 md:text-[18px]">
+            {t("helper")}
+          </p>
 
           {/* mobile image */}
           <div className="mt-5 md:hidden">

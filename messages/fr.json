@@ -242,28 +242,27 @@
     "openMap": "Ouvrir la carte de structure"
   },
   "LandingBlueHero": {
-    "eyebrow": "Créé pour comprendre l’essentiel plus vite, sans perdre les détails.",
+    "eyebrow": "Conçu pour celles et ceux qui travaillent sur des documents longs et complexes.",
     "titles": [
-      "Transformez les textes longs et complexes",
-      "Transformez les transcriptions YouTube"
+      "Ne résumez pas seulement les documents longs,"
     ],
     "flowItems": [
-      "Collez une transcription",
+      "Collez le texte du document",
       "Créez une mind map",
       "Lisez · modifiez · comparez",
       "Construisez votre propre cadre"
     ],
-    "titleHighlight": "en mind maps",
+    "titleHighlight": "structurez-les",
     "titleSuffix": "",
-    "helper": "Comprenez les informations complexes plus rapidement et visualisez leur structure en un coup d’œil.",
+    "helper": "Conservez les détails essentiels et comprenez les contenus complexes beaucoup plus vite.",
     "switchTitleAria": "Changer le titre",
-    "ctaPrimary": "Commencer gratuitement",
+    "ctaPrimary": "Commencer avec un document",
     "ctaSecondary": "Voir un exemple",
     "featureItems": [
-      "Résumez rapidement même des vidéos de plusieurs heures",
-      "Organisation automatique des termes difficiles",
-      "Générez les résultats dans la langue de votre choix",
-      "Comparez plusieurs cartes pour repérer les différences d’un coup d’œil"
+      "Repérez rapidement la structure clé des documents riches en termes spécialisés",
+      "L’IA organise automatiquement les termes difficiles pour alléger la charge de lecture",
+      "Convertissez des articles et documents en langue étrangère dans un français naturel",
+      "Plus qu’un résumé : une structure exploitable qui conserve les détails essentiels"
     ],
     "sampleSection": {
       "title": "Image d’exemple de mind map",
@@ -314,7 +313,7 @@
     }
   },
   "Footer": {
-    "description": "Un service qui structure les contenus longs pour comprendre l'information rapidement et construire votre propre cadre d'analyse.",
+    "description": "Un service de structuration des connaissances qui transforme les textes longs et complexes en mind maps, pour une compréhension plus rapide et plus précise.",
     "contactEmail": "E-mail",
     "contactPhone": "Téléphone",
     "contactAddress": "Adresse",
@@ -1978,12 +1977,12 @@
     "signupHref": "/fr/signup"
   },
   "MindMapPage": {
-    "title": "YouTube vers Mind Map | Convertir des transcriptions YouTube en mind maps | Brify",
-    "description": "Brify vous aide à convertir des transcriptions YouTube, des pages web et des textes longs en mind maps pour comprendre immédiatement le flux et la structure.",
-    "keywords": ["mind map", "mind map youtube", "youtube vers mind map", "convertir youtube en mind map", "mind map texte", "Brify"],
+    "title": "Conversion IA en carte mentale | Transformez des informations complexes en cartes structurées - Brify",
+    "description": "Brify vous aide à convertir des transcriptions YouTube, des pages web et des textes longs grâce à la conversion IA en carte mentale pour comprendre immédiatement le flux et la structure.",
+    "keywords": ["conversion IA en carte mentale", "mind map", "mind map youtube", "youtube vers mind map", "convertir youtube en mind map", "mind map texte", "Brify"],
     "ogImage": "https://www.brify.app/images/sns_en.png",
     "heading": "Convertissez des transcriptions YouTube en mind maps",
-    "lead": "Si vous cherchez un flux YouTube vers mind map, Brify vous aide à convertir des transcriptions YouTube en mind maps et à revoir plus facilement des contenus complexes.",
+    "lead": "La conversion IA en carte mentale vous aide à organiser des informations complexes en un seul écran. Brify transforme les transcriptions YouTube et les textes longs en cartes structurées faciles à réutiliser.",
     "paragraphs": [
       "Une mind map n'est pas seulement un format visuel propre : c'est une façon de comprendre les relations, la hiérarchie et le fil d'une information complexe.",
       "Brify vous aide à convertir les transcriptions YouTube en mind maps pour rendre les idées clés et leurs liens beaucoup plus visibles.",

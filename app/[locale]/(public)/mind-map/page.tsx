@@ -25,6 +25,7 @@ export async function generateMetadata({
         ko: "https://www.brify.app/ko/mind-map",
         en: "https://www.brify.app/en/mind-map",
         fr: "https://www.brify.app/fr/mind-map",
+        "x-default": "https://www.brify.app/en/mind-map",
       },
     },
     openGraph: {

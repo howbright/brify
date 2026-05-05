@@ -20,6 +20,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     keywords: content.metaKeywords,
     alternates: {
       canonical: pageUrl,
+      languages: {
+        ko: "https://www.brify.app/ko/ai-mindmap-convert",
+        en: "https://www.brify.app/en/ai-mindmap-convert",
+        fr: "https://www.brify.app/fr/ai-mindmap-convert",
+        "x-default": "https://www.brify.app/en/ai-mindmap-convert",
+      },
     },
     openGraph: {
       title: content.metaTitle,

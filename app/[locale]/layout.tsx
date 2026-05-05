@@ -21,10 +21,10 @@ export const revalidate = 0;
 
 const SEO_COPY = {
   ko: {
-    title: "브라이피 Brify | 유튜브 요약·정리 마인드맵",
-    ogTitle: "브라이피 Brify | 유튜브 요약·정리",
+    title: "AI 마인드맵 변환 | 텍스트·유튜브를 구조맵으로 - Brify",
+    ogTitle: "AI 마인드맵 변환 | Brify",
     description:
-      "브라이피(Brify)는 유튜브 대본, 웹페이지, 긴 텍스트를 마인드맵으로 정리해 복잡한 정보의 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다.",
+      "브라이피(Brify)는 길고 복잡한 문서·논문·리포트를 AI 마인드맵으로 구조화해 핵심 흐름과 세부 정보를 빠르게 파악할 수 있게 돕습니다.",
     imageUrl: "https://www.brify.app/images/sns_ko.png",
     ogLocale: "ko_KR",
     keywords: [
@@ -37,22 +37,24 @@ const SEO_COPY = {
       "정보 정리",
       "유튜브 대본 요약",
       "유튜브 대본 정리",
+      "AI 마인드맵 변환",
       "브리피",
       "브라이피",
       "Brify",
     ],
   },
   en: {
-    title: "Brify – Turn YouTube, webpages, and long text into mind maps",
-    ogTitle: "Brify | YouTube summary mind maps",
+    title: "AI mind map conversion | Turn text and YouTube into structured maps - Brify",
+    ogTitle: "AI mind map conversion | Brify",
     description:
-      "Brify helps you organize long videos and text into visual maps so you can understand complex information at a glance.",
+      "Brify turns long, complex documents, papers, and reports into AI mind maps so you can quickly understand core logic and critical details.",
     imageUrl: "https://www.brify.app/images/sns_en.png",
     ogLocale: "en_US",
     keywords: [
       "youtube summary",
       "youtube notes",
       "youtube mind map",
+      "AI mind map conversion",
       "mind map",
       "long text summary",
       "webpage summary",
@@ -61,16 +63,17 @@ const SEO_COPY = {
     ],
   },
   fr: {
-    title: "Brify – Transformez YouTube, les pages web et les longs textes en mind maps",
-    ogTitle: "Brify | Mind maps pour résumer YouTube",
+    title: "Conversion IA en carte mentale | Transformez texte et YouTube en cartes structurées - Brify",
+    ogTitle: "Conversion IA en carte mentale | Brify",
     description:
-      "Brify vous aide à organiser les longues vidéos et les textes en cartes visuelles pour comprendre rapidement les informations complexes.",
+      "Brify transforme des documents, articles et rapports longs et complexes en mind maps IA pour vous aider à comprendre rapidement la logique principale et les détails essentiels.",
     imageUrl: "https://www.brify.app/images/sns_en.png",
     ogLocale: "fr_FR",
     keywords: [
       "résumé youtube",
       "notes youtube",
       "mind map youtube",
+      "conversion IA en carte mentale",
       "mind map",
       "résumé de texte long",
       "résumé de page web",
@@ -102,6 +105,7 @@ export async function generateMetadata({
         ko: "https://www.brify.app/ko",
         en: "https://www.brify.app/en",
         fr: "https://www.brify.app/fr",
+        "x-default": "https://www.brify.app/en",
       },
     },
     openGraph: {
