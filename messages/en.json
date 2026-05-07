@@ -1797,6 +1797,8 @@
       "sourceLabel": "Source text",
       "showMoreAbove": "Show more above",
       "showMoreBelow": "Show more below",
+      "viewExpanded": "Expand view",
+      "viewCompact": "Default size",
       "retentionTitle": "Source retention period",
       "freeOnlyHint": "(Free: 24 hours)",
       "retentionUpdated": "Retention period updated.",

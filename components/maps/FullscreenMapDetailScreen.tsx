@@ -548,6 +548,8 @@ export default function FullscreenMapDetailScreen({
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
   const [showExpandHint, setShowExpandHint] = useState(false);
   const [sourceFindOpen, setSourceFindOpen] = useState(false);
+  const [sourceFindExpanded, setSourceFindExpanded] = useState(false);
+  const [sourceFindFontSize, setSourceFindFontSize] = useState(13);
   const [sourceFindLoading, setSourceFindLoading] = useState(false);
   const [sourceFindStatus, setSourceFindStatus] = useState<"idle" | SourceFindStatus>(
     "idle"
@@ -603,6 +605,8 @@ export default function FullscreenMapDetailScreen({
   }, [sourceFindExpiresAt, locale]);
   const SOURCE_VIEW_STEP = 700;
   const SOURCE_VIEW_FOCUS_CONTEXT = 260;
+  const SOURCE_FIND_MIN_FONT_SIZE = 12;
+  const SOURCE_FIND_MAX_FONT_SIZE = 18;
 
   const MUTATING_OPS = useMemo(
     () =>
@@ -3206,8 +3210,18 @@ export default function FullscreenMapDetailScreen({
       ) : null}
 
       {sourceFindOpen ? (
-        <div className="pointer-events-none fixed inset-x-2 bottom-2 z-[220] sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-[calc(var(--header-h)+12px)] sm:w-[420px] sm:max-w-[min(92vw,420px)]">
-          <div className="pointer-events-auto flex h-[78vh] max-h-[700px] min-h-[420px] flex-col overflow-hidden rounded-2xl border border-neutral-300 bg-white/95 shadow-xl dark:border-white/20 dark:bg-[#0f172a]/95 sm:h-auto sm:max-h-[calc(100vh-var(--header-h)-24px)] sm:min-h-0">
+        <div
+          className={`pointer-events-none fixed inset-x-2 bottom-2 z-[220] sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-[calc(var(--header-h)+12px)] ${
+            sourceFindExpanded
+              ? "sm:w-[640px] sm:max-w-[min(96vw,640px)]"
+              : "sm:w-[420px] sm:max-w-[min(92vw,420px)]"
+          }`}
+        >
+          <div
+            className={`pointer-events-auto flex ${
+              sourceFindExpanded ? "h-[92vh]" : "h-[78vh]"
+            } max-h-[700px] min-h-[420px] flex-col overflow-hidden rounded-2xl border border-neutral-300 bg-white/95 shadow-xl dark:border-white/20 dark:bg-[#0f172a]/95 sm:h-auto sm:max-h-[calc(100vh-var(--header-h)-24px)] sm:min-h-0`}
+          >
             <div className="flex justify-center border-b border-neutral-200/70 px-2 py-1.5 dark:border-white/10 sm:hidden">
               <button
                 type="button"
@@ -3220,31 +3234,42 @@ export default function FullscreenMapDetailScreen({
               </button>
             </div>
             <div className="flex items-center justify-between border-b border-neutral-200 px-3 py-2 dark:border-white/15">
-              <div className="text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+              <div className="text-base font-semibold text-neutral-800 dark:text-neutral-100">
                 {t("sourceFind.title")}
               </div>
-              <button
-                type="button"
-                onClick={() => setSourceFindOpen(false)}
-                className="rounded-md px-2 py-1 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-white/10"
-              >
-                {t("cancel")}
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setSourceFindExpanded((prev) => !prev)}
+                  className="inline-flex h-8 items-center rounded-md border border-neutral-300 bg-white px-2.5 text-xs font-semibold text-neutral-700 hover:border-sky-300 dark:border-white/20 dark:bg-white/[0.06] dark:text-neutral-200"
+                >
+                  {sourceFindExpanded
+                    ? t("sourceFind.viewCompact")
+                    : t("sourceFind.viewExpanded")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSourceFindOpen(false)}
+                  className="rounded-md px-2.5 py-1.5 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-white/10"
+                >
+                  {t("cancel")}
+                </button>
+              </div>
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto p-3">
               <div className="flex flex-col gap-3">
               {sourceFindLoading ? (
-                <p className="text-sm text-neutral-700 dark:text-neutral-200">
+                <p className="text-[15px] text-neutral-700 dark:text-neutral-200">
                   {t("sourceFind.loading")}
                 </p>
               ) : sourceFindStatus === "found" ? (
                 <>
-                  <p className="text-sm text-neutral-800 dark:text-neutral-100">
+                  <p className="text-[15px] text-neutral-800 dark:text-neutral-100">
                     {t("sourceFind.selectedNode", { topic: sourceFindNodeTopic || "-" })}
                   </p>
                   <div className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white/60 p-2 dark:border-white/15 dark:bg-white/[0.03]">
-                    <div className="text-[12px] font-semibold text-neutral-700 dark:text-neutral-200">
+                    <div className="text-[13px] font-semibold text-neutral-700 dark:text-neutral-200">
                       {sourceFindCandidates.length > 0
                         ? `${sourceFindActiveIndex + 1}/${sourceFindCandidates.length} · [${
                             sourceFindCandidates[sourceFindActiveIndex]?.matchedAnchor ?? ""
@@ -3276,8 +3301,32 @@ export default function FullscreenMapDetailScreen({
                   </div>
                   {sourceFindFullText ? (
                     <div className="space-y-2 rounded-xl border border-neutral-200 bg-white/80 p-2 dark:border-white/15 dark:bg-white/[0.03]">
-                      <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                      <div className="text-[13px] font-semibold text-neutral-600 dark:text-neutral-300">
                         {t("sourceFind.sourceLabel")}
+                      </div>
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSourceFindFontSize((prev) =>
+                              Math.max(SOURCE_FIND_MIN_FONT_SIZE, prev - 1)
+                            )
+                          }
+                          className="inline-flex h-6 items-center rounded-md border border-neutral-300 bg-white px-2 text-[11px] font-semibold text-neutral-700 hover:border-sky-300 dark:border-white/20 dark:bg-white/[0.06] dark:text-neutral-200"
+                        >
+                          A-
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSourceFindFontSize((prev) =>
+                              Math.min(SOURCE_FIND_MAX_FONT_SIZE, prev + 1)
+                            )
+                          }
+                          className="inline-flex h-6 items-center rounded-md border border-neutral-300 bg-white px-2 text-[11px] font-semibold text-neutral-700 hover:border-sky-300 dark:border-white/20 dark:bg-white/[0.06] dark:text-neutral-200"
+                        >
+                          A+
+                        </button>
                       </div>
                       <div className="mb-1 flex justify-center">
                         <button
@@ -3346,7 +3395,10 @@ export default function FullscreenMapDetailScreen({
                             : -1
                         );
                         return (
-                          <div className="max-h-72 overflow-y-auto rounded-lg border border-neutral-200 bg-white p-2 text-[12px] leading-5 text-neutral-800 dark:border-white/10 dark:bg-white/[0.02] dark:text-neutral-100">
+                          <div
+                            className="max-h-72 overflow-y-auto rounded-lg border border-neutral-200 bg-white p-2 text-neutral-800 dark:border-white/10 dark:bg-white/[0.02] dark:text-neutral-100"
+                            style={{ fontSize: `${sourceFindFontSize}px`, lineHeight: 1.7 }}
+                          >
                             {renderHighlightedText(
                               fullSliceText,
                               intervals,
@@ -3384,7 +3436,7 @@ export default function FullscreenMapDetailScreen({
                   {(sourceFindLastAnchors?.anchorText?.length ||
                     sourceFindLastAnchors?.anchorKeywords?.length ||
                     sourceFindExpiresAt) ? (
-                    <details className="rounded-lg border border-neutral-200 bg-white/70 px-2.5 py-1.5 text-xs text-neutral-700 dark:border-white/15 dark:bg-white/[0.03] dark:text-neutral-300">
+                    <details className="rounded-lg border border-neutral-200 bg-white/70 px-2.5 py-1.5 text-[13px] text-neutral-700 dark:border-white/15 dark:bg-white/[0.03] dark:text-neutral-300">
                       <summary className="cursor-pointer select-none font-medium">
                         {t("sourceFind.criteriaTitle")}
                       </summary>
@@ -3414,18 +3466,18 @@ export default function FullscreenMapDetailScreen({
                 </>
               ) : sourceFindStatus === "expired" ? (
                 <>
-                  <p className="text-sm text-neutral-800 dark:text-neutral-100">
+                  <p className="text-[15px] text-neutral-800 dark:text-neutral-100">
                     {t("sourceFind.expired")}
                   </p>
                   {sourceFindExpiresAt ? (
-                    <p className="text-xs text-neutral-600 dark:text-neutral-300">
+                    <p className="text-[13px] text-neutral-600 dark:text-neutral-300">
                       {t("sourceFind.expiresAt", {
                         value: sourceFindExpiresAtLabel ?? sourceFindExpiresAt,
                       })}
                     </p>
                   ) : null}
                   <div className="flex flex-col gap-2">
-                    <label className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                    <label className="text-[13px] font-semibold text-neutral-600 dark:text-neutral-300">
                       {t("sourceFind.reloadInputLabel")}
                     </label>
                     <textarea
@@ -3449,10 +3501,10 @@ export default function FullscreenMapDetailScreen({
                 </>
               ) : (
                 <div className="space-y-2">
-                  <p className="text-sm text-neutral-700 dark:text-neutral-200">
+                  <p className="text-[15px] text-neutral-700 dark:text-neutral-200">
                     {sourceFindMessage || t("sourceFind.notFound")}
                   </p>
-                  <p className="text-xs text-neutral-600 dark:text-neutral-300">
+                  <p className="text-[13px] text-neutral-600 dark:text-neutral-300">
                     {t("sourceFind.editAnchorGuide")}
                   </p>
                   <div className="flex flex-col gap-2">
@@ -3487,7 +3539,10 @@ export default function FullscreenMapDetailScreen({
                     </div>
                   </div>
                   {sourceFindFullText ? (
-                    <div className="max-h-72 overflow-y-auto rounded-lg border border-neutral-200 bg-white p-2 text-[12px] leading-5 text-neutral-800 dark:border-white/10 dark:bg-white/[0.02] dark:text-neutral-100">
+                    <div
+                      className="max-h-72 overflow-y-auto rounded-lg border border-neutral-200 bg-white p-2 text-neutral-800 dark:border-white/10 dark:bg-white/[0.02] dark:text-neutral-100"
+                      style={{ fontSize: `${sourceFindFontSize}px`, lineHeight: 1.7 }}
+                    >
                       <span className="select-text whitespace-pre-wrap break-words">
                         {sourceFindFullText.slice(
                           Math.max(0, sourceFindViewStart),

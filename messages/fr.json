@@ -1636,6 +1636,8 @@
       "sourceLabel": "Texte source",
       "showMoreAbove": "Afficher plus haut",
       "showMoreBelow": "Afficher plus bas",
+      "viewExpanded": "Vue élargie",
+      "viewCompact": "Taille par défaut",
       "retentionTitle": "Période de conservation",
       "freeOnlyHint": "(Gratuit : 24 h)",
       "retentionUpdated": "Période de conservation mise à jour.",

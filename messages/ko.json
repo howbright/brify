@@ -1797,6 +1797,8 @@
       "sourceLabel": "원문",
       "showMoreAbove": "위로 더보기",
       "showMoreBelow": "아래로 더보기",
+      "viewExpanded": "넓게 보기",
+      "viewCompact": "기본 크기",
       "retentionTitle": "원문 보관 기간",
       "freeOnlyHint": "(Free는 24시간)",
       "retentionUpdated": "보관 기간을 업데이트했습니다.",
