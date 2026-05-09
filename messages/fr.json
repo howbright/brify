@@ -620,6 +620,29 @@
       }
     }
   },
+  "LandingFeatureListSection": {
+    "eyebrow": "Fonctionnalités",
+    "title": "Fonctionnalités clés de Brify",
+    "subtitle": "Structurez rapidement les informations utiles et retrouvez-les facilement ensuite.",
+    "items": [
+      "Prise en charge de plusieurs formats d’entrée : texte, PDF, DOCX",
+      "Récupération automatique des métadonnées via un lien YouTube",
+      "Génération automatique de tags",
+      "Choix de la langue de sortie (générez la carte dans la langue souhaitée)",
+      "Découpage/fusion automatiques des longues entrées (traitement stable des gros documents)",
+      "Interface responsive sur mobile, tablette et ordinateur",
+      "Génération de cartes structurées rapide et précise",
+      "Surlignage des nœuds importants",
+      "Accès direct au texte source depuis un nœud",
+      "Extraction automatique des termes par l’IA",
+      "Ajout de notes par nœud",
+      "Édition libre de la carte structurée",
+      "Classement et relecture via les tags",
+      "Copie de la carte au format Markdown",
+      "Page de partage en lecture seule",
+      "Téléchargement en impression, image ou PDF"
+    ]
+  },
   "LandingOutcomeSection": {
     "eyebrow": "Outcome",
     "title": "En utilisant Brify régulièrement, voici ce qui change",
@@ -1148,6 +1171,12 @@
       "reopen": "Liste des tags"
     },
     "listItem": {
+      "readState": {
+        "unread": "Non lu",
+        "inProgress": "En cours",
+        "read": "Lu",
+        "starred": "Important"
+      },
       "selectAria": "Sélectionner {title}",
       "deleting": "Suppression...",
       "delete": "Supprimer",
@@ -1527,12 +1556,18 @@
       "clearSearch": "Effacer la recherche",
       "previousSearchResult": "Résultat précédent",
       "nextSearchResult": "Résultat suivant",
+      "state": "Statut",
       "more": "Plus"
     },
     "moreMenu": {
       "layoutLeft": "Disposition à gauche",
       "layoutRight": "Disposition à droite",
       "layoutBoth": "Disposition bilatérale",
+      "markImportant": "Marquer comme importante",
+      "unmarkImportant": "Retirer le marquage important",
+      "markUnread": "Marquer comme non lue",
+      "markInProgress": "Marquer comme en cours",
+      "markRead": "Marquer comme lue",
       "theme": "Thème",
       "profileTheme": "Mon thème",
       "defaultTheme": "Thème classique",
@@ -1612,6 +1647,8 @@
       "sourceFindFailed": "Échec de la recherche dans le texte source.",
       "sourceReloadFailed": "Échec du rechargement du texte source.",
       "sourceRetentionFailed": "Échec de la mise à jour de la période de conservation.",
+      "stateUpdated": "État de la carte mis à jour.",
+      "stateUpdateFailed": "Impossible de mettre à jour l’état de la carte.",
       "loginRequired": "Connexion requise.",
       "sharedReadOnly": "Les pages partagées sont en lecture seule.",
       "highlightReadOnly": "Les surlignages ne sont pas enregistrés en lecture seule."

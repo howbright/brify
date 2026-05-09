@@ -80,6 +80,12 @@ function withCacheBuster(url: string) {
 }
 
 function toDraft(row: MapRow): MapDraft {
+  const rowWithState = row as MapRow & {
+    read_status?: "unread" | "in_progress" | "read";
+    starred?: boolean;
+    progress_percent?: number;
+    last_viewed_at?: string | null;
+  };
   return {
     id: row.id,
     createdAt: new Date(row.created_at).getTime(),
@@ -101,6 +107,15 @@ function toDraft(row: MapRow): MapDraft {
     status: coerceMapStatus(row.map_status),
     creditsCharged:
       typeof row.credits_charged === "number" ? row.credits_charged : undefined,
+    readStatus: rowWithState.read_status ?? "unread",
+    starred: Boolean(rowWithState.starred),
+    progressPercent:
+      typeof rowWithState.progress_percent === "number"
+        ? rowWithState.progress_percent
+        : 0,
+    lastViewedAt: rowWithState.last_viewed_at
+      ? new Date(rowWithState.last_viewed_at).getTime()
+      : undefined,
   };
 }
 

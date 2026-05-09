@@ -22,7 +22,7 @@ export default function FullscreenHeader({
 }: Props) {
   return (
     <header
-      className="relative z-[20] w-full"
+      className="relative z-[420] w-full"
       style={{ height: "var(--header-h)" }}
     >
       <div className="flex flex-col">

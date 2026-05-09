@@ -17,6 +17,7 @@ type MindNode = {
 };
 type SourceType = "youtube" | "website" | "file" | "manual";
 type ContentFilter = "notes" | "terms";
+type ReadStatus = "unread" | "in_progress" | "read";
 
 type UseMapsListQueryParams = {
   listFields: string;
@@ -126,6 +127,43 @@ async function withActualCounts(
     notes_count: (noteCounts.get(row.id) ?? 0) + (derivedNoteCounts.get(row.id) ?? 0),
     terms_count: termCounts.get(row.id) ?? 0,
   })) as MapRow[];
+}
+
+async function withUserStates(rows: MapRow[]) {
+  const mapIds = Array.from(
+    new Set(rows.map((row) => row.id).filter((id): id is string => Boolean(id)))
+  );
+  if (!mapIds.length) return rows;
+
+  const res = await fetch("/api/maps/states", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ mapIds }),
+  });
+  if (!res.ok) return rows;
+
+  const json = await res.json().catch(() => ({}));
+  const states = (json?.states ?? {}) as Record<
+    string,
+    {
+      readStatus?: ReadStatus;
+      starred?: boolean;
+      progressPercent?: number;
+      lastViewedAt?: string | null;
+    }
+  >;
+
+  return rows.map((row) => {
+    const state = states[row.id];
+    return {
+      ...row,
+      read_status: state?.readStatus ?? "unread",
+      starred: state?.starred ?? false,
+      progress_percent: typeof state?.progressPercent === "number" ? state.progressPercent : 0,
+      last_viewed_at: state?.lastViewedAt ?? null,
+    } as MapRow;
+  });
 }
 
 export default function useMapsListQuery({
@@ -263,19 +301,22 @@ export default function useMapsListQuery({
           });
           const pagedRows = sortedRows.slice(from, to + 1);
           const rowsWithCounts = await withActualCounts(supabase, pagedRows);
+          const rowsWithStates = await withUserStates(rowsWithCounts);
           if (cancelled) return;
-          setDrafts(rowsWithCounts.map(toDraft));
+          setDrafts(rowsWithStates.map(toDraft));
           setTotalCount(sortedRows.length);
         } else if (shouldFilterTagsClientSide) {
           const pagedRows = filteredRows.slice(from, to + 1);
           const rowsWithCounts = await withActualCounts(supabase, pagedRows);
+          const rowsWithStates = await withUserStates(rowsWithCounts);
           if (cancelled) return;
-          setDrafts(rowsWithCounts.map(toDraft));
+          setDrafts(rowsWithStates.map(toDraft));
           setTotalCount(filteredRows.length);
         } else {
           const rowsWithCounts = await withActualCounts(supabase, rows);
+          const rowsWithStates = await withUserStates(rowsWithCounts);
           if (cancelled) return;
-          setDrafts(rowsWithCounts.map(toDraft));
+          setDrafts(rowsWithStates.map(toDraft));
           setTotalCount(count ?? 0);
         }
       } catch (e: unknown) {

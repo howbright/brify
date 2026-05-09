@@ -612,6 +612,47 @@ export type Database = {
           },
         ]
       }
+      map_user_states: {
+        Row: {
+          created_at: string
+          last_viewed_at: string | null
+          map_id: string
+          progress_percent: number
+          read_status: Database["public"]["Enums"]["map_read_status"]
+          starred: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          last_viewed_at?: string | null
+          map_id: string
+          progress_percent?: number
+          read_status?: Database["public"]["Enums"]["map_read_status"]
+          starred?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          last_viewed_at?: string | null
+          map_id?: string
+          progress_percent?: number
+          read_status?: Database["public"]["Enums"]["map_read_status"]
+          starred?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "map_user_states_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maps: {
         Row: {
           ai_processing_ms: number | null
@@ -637,6 +678,8 @@ export type Database = {
           share_token: string | null
           short_title: string | null
           source_char_count: number | null
+          source_expires_at: string | null
+          source_retention_hours: number
           source_type: Database["public"]["Enums"]["map_source_type"]
           source_url: string | null
           summary: string | null
@@ -672,6 +715,8 @@ export type Database = {
           share_token?: string | null
           short_title?: string | null
           source_char_count?: number | null
+          source_expires_at?: string | null
+          source_retention_hours?: number
           source_type?: Database["public"]["Enums"]["map_source_type"]
           source_url?: string | null
           summary?: string | null
@@ -707,6 +752,8 @@ export type Database = {
           share_token?: string | null
           short_title?: string | null
           source_char_count?: number | null
+          source_expires_at?: string | null
+          source_retention_hours?: number
           source_type?: Database["public"]["Enums"]["map_source_type"]
           source_url?: string | null
           summary?: string | null
@@ -1034,6 +1081,7 @@ export type Database = {
       map_generation_chunk_status:
         | "queued"
         | "processing"
+        | "retrying"
         | "done"
         | "merged"
         | "failed"
@@ -1047,6 +1095,7 @@ export type Database = {
         | "done"
         | "failed"
         | "cancelled"
+      map_read_status: "unread" | "in_progress" | "read"
       map_source_type: "youtube" | "website" | "file" | "manual"
       map_status:
         | "queued"
@@ -1256,6 +1305,7 @@ export const Constants = {
       map_generation_chunk_status: [
         "queued",
         "processing",
+        "retrying",
         "done",
         "merged",
         "failed",
@@ -1271,6 +1321,7 @@ export const Constants = {
         "failed",
         "cancelled",
       ],
+      map_read_status: ["unread", "in_progress", "read"],
       map_source_type: ["youtube", "website", "file", "manual"],
       map_status: [
         "queued",

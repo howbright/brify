@@ -1,9 +1,7 @@
 import FinalCTA from "@/components/landing/FinalCTA";
-import HeroFlowStrip from "@/components/landing/HeroFlowStrip";
-import MapLibrarySection from "@/components/landing/MapLibrarySection";
+import LandingFeatureListSection from "@/components/landing/LandingFeatureListSection";
 import LandingPricingSection from "@/components/landing/LandingPricingSection";
 import LandingTestimonialsSection from "@/components/landing/LandingTestimonialsSection";
-import LandingOutcomeSection from "@/components/landing/LandingOutcomeSection";
 import CreatorSection from "@/components/layout/CreateorSection";
 import Hero from "@/components/layout/Hero";
 import { getBillingCurrencyByLocale } from "@/app/lib/billing/catalog";
@@ -58,10 +56,8 @@ export default async function Home({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <Hero isAuthed={isAuthed} />
-      <HeroFlowStrip />
+      <LandingFeatureListSection />
       <LandingTestimonialsSection />
-      <LandingOutcomeSection />
-      <MapLibrarySection />
       <LandingPricingSection isAuthed={isAuthed} packs={packs} />
       <FinalCTA isAuthed={isAuthed} />
       <CreatorSection />

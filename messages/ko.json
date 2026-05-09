@@ -732,6 +732,29 @@
       }
     }
   },
+  "LandingFeatureListSection": {
+    "eyebrow": "Features",
+    "title": "Brify 주요 기능",
+    "subtitle": "필요한 정보를 빠르게 정리하고, 다시 꺼내보기 쉽게 구성했습니다.",
+    "items": [
+      "텍스트·PDF·DOCX 등 다양한 입력 포맷 지원",
+      "유튜브 링크 기반 메타정보 자동 불러오기",
+      "자동 태그 생성",
+      "출력 언어 선택(원하는 언어로 구조맵 생성)",
+      "긴 입력 자동 분할·병합(대용량 문서 안정 처리)",
+      "모바일·태블릿·PC 반응형 지원",
+      "빠르고 정확한 구조맵 생성",
+      "중요 노드 하이라이트",
+      "노드 원문 바로 찾기",
+      "AI 전문용어 자동 추출",
+      "노드별 주석 달기",
+      "구조맵 자유 편집",
+      "태그 기반 분류·재탐색",
+      "구조맵 Markdown 복사",
+      "읽기 전용 공유 페이지 제공",
+      "프린트·이미지·PDF 다운로드"
+    ]
+  },
   "LandingOutcomeSection": {
     "eyebrow": "Outcome",
     "title": "Brify를 꾸준히 쓰면, 이렇게 달라집니다",
@@ -1688,12 +1711,18 @@
       "clearSearch": "검색 초기화",
       "previousSearchResult": "이전 결과",
       "nextSearchResult": "다음 결과",
+      "state": "상태",
       "more": "더보기"
     },
     "moreMenu": {
       "layoutLeft": "왼쪽 배치",
       "layoutRight": "오른쪽 배치",
       "layoutBoth": "양방향 배치",
+      "markImportant": "중요 맵으로 표시",
+      "unmarkImportant": "중요 표시 해제",
+      "markUnread": "읽지 않음으로 표시",
+      "markInProgress": "읽는 중으로 표시",
+      "markRead": "읽음으로 표시",
       "theme": "테마",
       "profileTheme": "내 설정 테마",
       "defaultTheme": "클래식 테마",
@@ -1773,6 +1802,8 @@
       "sourceFindFailed": "원문 탐색에 실패했습니다.",
       "sourceReloadFailed": "원문 재로드에 실패했습니다.",
       "sourceRetentionFailed": "보관 기간 변경에 실패했습니다.",
+      "stateUpdated": "맵 상태를 업데이트했습니다.",
+      "stateUpdateFailed": "맵 상태 업데이트에 실패했습니다.",
       "loginRequired": "로그인이 필요합니다.",
       "sharedReadOnly": "공유 페이지는 읽기전용이에요.",
       "highlightReadOnly": "읽기전용에서는 하이라이트가 저장되지 않습니다."
@@ -2220,6 +2251,12 @@
       "reopen": "태그 목록"
     },
     "listItem": {
+      "readState": {
+        "unread": "미읽음",
+        "inProgress": "읽는 중",
+        "read": "읽음",
+        "starred": "중요"
+      },
       "status": {
         "failed": "실패",
         "processing": "처리 중"

@@ -111,6 +111,7 @@ function getInitialFullyCollapsedMapData<T>(raw: T): T {
 }
 
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
+type ReadStatus = Database["public"]["Enums"]["map_read_status"];
 
 function coerceMapStatus(status?: string | null): MapJobStatus {
   if (
@@ -134,6 +135,23 @@ function withCacheBuster(url: string) {
   } catch {
     return url;
   }
+}
+
+function mergeDraftUserState(
+  prev: MapDraft | null,
+  next: MapDraft
+): MapDraft {
+  if (!prev) return next;
+  return {
+    ...next,
+    readStatus: prev.readStatus ?? next.readStatus,
+    starred: typeof prev.starred === "boolean" ? prev.starred : next.starred,
+    progressPercent:
+      typeof prev.progressPercent === "number"
+        ? prev.progressPercent
+        : next.progressPercent,
+    lastViewedAt: prev.lastViewedAt ?? next.lastViewedAt,
+  };
 }
 
 function toFileSafeName(value: string) {
@@ -451,6 +469,7 @@ export default function FullscreenMapDetailScreen({
   sharedToken = null,
 }: FullscreenMapDetailScreenProps) {
   const t = useTranslations("FullscreenMapPage");
+  const tReadState = useTranslations("MapsCommon.listItem.readState");
   const tFullscreenDialog = useTranslations("FullscreenDialog");
   const tHeader = useTranslations("Header");
   const tTutorial = useTranslations("MapTutorial");
@@ -536,6 +555,7 @@ export default function FullscreenMapDetailScreen({
   const [mobileMapActionsOpen, setMobileMapActionsOpen] = useState(false);
   const [mobileThemeOpen, setMobileThemeOpen] = useState(false);
   const [mobileLanguageOpen, setMobileLanguageOpen] = useState(false);
+  const [mobileStateOpen, setMobileStateOpen] = useState(false);
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(true);
   const [isLikelyInAppBrowser, setIsLikelyInAppBrowser] = useState(false);
   const [isEmbeddedFrame, setIsEmbeddedFrame] = useState(false);
@@ -544,6 +564,7 @@ export default function FullscreenMapDetailScreen({
   const mobileMapActionsRef = useRef<HTMLDivElement | null>(null);
   const mobileThemeRef = useRef<HTMLDivElement | null>(null);
   const mobileLanguageRef = useRef<HTMLDivElement | null>(null);
+  const mobileStateRef = useRef<HTMLDivElement | null>(null);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
   const [showExpandHint, setShowExpandHint] = useState(false);
@@ -585,6 +606,7 @@ export default function FullscreenMapDetailScreen({
   const [sourceFindManualAnchor, setSourceFindManualAnchor] = useState("");
   const sourceFindTrackedNodeIdRef = useRef<string | null>(null);
   const sourceFindInFlightRef = useRef(false);
+  const mapStateTouchedRef = useRef<string | null>(null);
   const initializedMapIdRef = useRef<string | null>(null);
   const sourceFindHighlightRef = useRef<HTMLElement | null>(null);
   const sourceFindExpiresAtLabel = useMemo(() => {
@@ -607,6 +629,16 @@ export default function FullscreenMapDetailScreen({
   const SOURCE_VIEW_FOCUS_CONTEXT = 260;
   const SOURCE_FIND_MIN_FONT_SIZE = 12;
   const SOURCE_FIND_MAX_FONT_SIZE = 18;
+  const currentReadStatus: ReadStatus = draft?.readStatus ?? "unread";
+  const currentStarred = Boolean(draft?.starred);
+  const stateActionLabel = t.has("actions.state")
+    ? t("actions.state")
+    : t("actions.more");
+  const readStateOptions = [
+    { value: "unread" as const, label: tReadState("unread"), icon: "mdi:bookmark-outline" },
+    { value: "in_progress" as const, label: tReadState("inProgress"), icon: "mdi:bookmark-clock-outline" },
+    { value: "read" as const, label: tReadState("read"), icon: "mdi:bookmark-check-outline" },
+  ];
 
   const MUTATING_OPS = useMemo(
     () =>
@@ -802,7 +834,7 @@ export default function FullscreenMapDetailScreen({
           if (error) throw error;
 
           const row = data as MapRow;
-          setDraft(toDraft(row));
+          setDraft((prev) => mergeDraftUserState(prev, toDraft(row)));
 
           const draftMind = row?.mind_elixir_draft ?? null;
           const mind = row?.mind_elixir ?? null;
@@ -951,7 +983,7 @@ export default function FullscreenMapDetailScreen({
         if (error || cancelled || !data) return;
 
         const row = data as MapRow;
-        setDraft(toDraft(row));
+        setDraft((prev) => mergeDraftUserState(prev, toDraft(row)));
         const effectiveMind = row?.mind_elixir_draft ?? row?.mind_elixir ?? null;
         setHasDraft(Boolean(row?.mind_elixir_draft));
         if (effectiveMind) {
@@ -1094,7 +1126,7 @@ export default function FullscreenMapDetailScreen({
   }, [searchOpen]);
 
   useEffect(() => {
-    if (!desktopMoreOpen && !mobileMapActionsOpen && !mobileThemeOpen && !mobileLanguageOpen) return;
+    if (!desktopMoreOpen && !mobileMapActionsOpen && !mobileThemeOpen && !mobileLanguageOpen && !mobileStateOpen) return;
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node | null;
       if (!target) return;
@@ -1110,14 +1142,18 @@ export default function FullscreenMapDetailScreen({
       if (mobileLanguageOpen && mobileLanguageRef.current?.contains(target)) {
         return;
       }
+      if (mobileStateOpen && mobileStateRef.current?.contains(target)) {
+        return;
+      }
       setMobileMapActionsOpen(false);
       setMobileThemeOpen(false);
       setMobileLanguageOpen(false);
+      setMobileStateOpen(false);
       setDesktopMoreOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [desktopMoreOpen, mobileLanguageOpen, mobileMapActionsOpen, mobileThemeOpen]);
+  }, [desktopMoreOpen, mobileLanguageOpen, mobileMapActionsOpen, mobileThemeOpen, mobileStateOpen]);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -1401,7 +1437,7 @@ export default function FullscreenMapDetailScreen({
 
       if (error) throw error;
       if (data) {
-        setDraft(toDraft(data as MapRow));
+        setDraft((prev) => mergeDraftUserState(prev, toDraft(data as MapRow)));
       }
 
       setShowMetadataDialog(false);
@@ -1816,6 +1852,80 @@ export default function FullscreenMapDetailScreen({
     }
   };
 
+  useEffect(() => {
+    if (!mapId || isReadOnlyView || !draft) return;
+    if (mapStateTouchedRef.current === mapId) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/maps/${encodeURIComponent(mapId)}/state`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            readStatus: "in_progress",
+            touchViewedAt: true,
+          }),
+        });
+        if (!cancelled && res.ok) {
+          mapStateTouchedRef.current = mapId;
+        }
+      } catch {
+        // ignore
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [mapId, isReadOnlyView, draft]);
+
+  const handleUpdateMapState = async (updates: {
+    readStatus?: ReadStatus;
+    starred?: boolean;
+    touchViewedAt?: boolean;
+  }) => {
+    if (!mapId || isReadOnlyView) return;
+    try {
+      const res = await fetch(`/api/maps/${encodeURIComponent(mapId)}/state`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          ...updates,
+          touchViewedAt: updates.touchViewedAt ?? true,
+        }),
+      });
+      if (!res.ok) {
+        toast.error(t("toasts.stateUpdateFailed"));
+        return;
+      }
+      const json = await res.json().catch(() => ({}));
+      const state = json?.state;
+      if (!state) return;
+      setDraft((prev) =>
+        prev
+          ? {
+              ...prev,
+              readStatus: state.readStatus ?? prev.readStatus,
+              starred: typeof state.starred === "boolean" ? state.starred : prev.starred,
+              progressPercent:
+                typeof state.progressPercent === "number"
+                  ? state.progressPercent
+                  : prev.progressPercent,
+              lastViewedAt: state.lastViewedAt
+                ? new Date(state.lastViewedAt).getTime()
+                : prev.lastViewedAt,
+            }
+          : prev
+      );
+      toast.success(t("toasts.stateUpdated"));
+    } catch {
+      toast.error(t("toasts.stateUpdateFailed"));
+    }
+  };
+
   const handlePublish = () => {
     (async () => {
       if (!mapId) return;
@@ -2128,7 +2238,7 @@ export default function FullscreenMapDetailScreen({
   const searchShellClass =
     "relative z-[40] flex h-8 w-[228px] items-center gap-2 rounded-lg border border-slate-400 bg-white px-2.5 text-[11px] text-slate-700 shadow-[0_8px_20px_-18px_rgba(15,23,42,0.14)] dark:border-white/28 dark:bg-[#0b1220] dark:text-white dark:shadow-[0_16px_36px_-30px_rgba(2,6,23,0.7)]";
   const mobileSearchShellClass =
-    "relative z-[40] flex h-8 w-[min(72vw,290px)] items-center gap-1.5 rounded-lg border border-slate-400 bg-white px-2 text-[11px] text-slate-700 dark:border-white/28 dark:bg-[#0b1220] dark:text-white";
+    "relative z-[40] flex h-8 w-[min(60vw,240px)] items-center gap-1.5 rounded-lg border border-slate-400 bg-white px-2 text-[11px] text-slate-700 dark:border-white/28 dark:bg-[#0b1220] dark:text-white";
   const plainHeaderIconButtonClass =
     "inline-flex h-8 w-8 items-center justify-center text-slate-500 transition hover:text-slate-900 dark:text-white/65 dark:hover:text-white";
   const mobileBottomControlButtonClass =
@@ -2334,6 +2444,11 @@ export default function FullscreenMapDetailScreen({
               >
                 <Icon icon="mdi:file-search-outline" className="h-4 w-4" />
               </button>
+              {currentStarred ? (
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-amber-300/55 bg-[#1f2937] text-amber-300 shadow-[0_10px_18px_-10px_rgba(217,119,6,0.55)] dark:border-amber-300/45 dark:bg-[#0f172a] dark:text-amber-300 dark:shadow-[0_10px_20px_-12px_rgba(251,191,36,0.35)]">
+                  <Icon icon="mdi:star" className="h-4 w-4" />
+                </span>
+              ) : null}
             </div>
 
             <div className="hidden sm:flex items-center gap-1.5">
@@ -2353,6 +2468,56 @@ export default function FullscreenMapDetailScreen({
                 >
                   {statusLabel}
                 </span>
+              ) : null}
+              {!isReadOnlyView ? (
+                <>
+                  <div className="inline-flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1 shadow-[0_8px_20px_-16px_rgba(15,23,42,0.25)] dark:border-white/10 dark:bg-[#121a29]">
+                    {readStateOptions.map(({ value, label, icon }) => {
+                      const active = currentReadStatus === value;
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => void handleUpdateMapState({ readStatus: value })}
+                          className={`inline-flex h-7 items-center gap-1 rounded-lg px-2.5 text-[10px] font-semibold transition ${
+                            active
+                              ? "bg-blue-600 text-white shadow-[0_10px_18px_-10px_rgba(37,99,235,0.8)]"
+                              : "text-slate-600 hover:bg-white hover:text-slate-900 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
+                          }`}
+                          aria-label={label}
+                          title={label}
+                        >
+                          <Icon icon={icon} className="h-3.5 w-3.5" />
+                          <span>{label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => void handleUpdateMapState({ starred: !currentStarred })}
+                    className={`inline-flex h-7 w-7 items-center justify-center rounded-xl border transition ${
+                      currentStarred
+                        ? "border-amber-300 bg-amber-50 text-amber-700 shadow-[0_10px_24px_-16px_rgba(217,119,6,0.55)] dark:border-amber-300/35 dark:bg-amber-500/14 dark:text-amber-100"
+                        : "border-slate-200 bg-white text-slate-500 hover:text-amber-600 dark:border-white/10 dark:bg-[#0f172a]/84 dark:text-white/70 dark:hover:bg-[#162033] dark:hover:text-white"
+                    }`}
+                    aria-label={
+                      currentStarred
+                        ? t("moreMenu.unmarkImportant")
+                        : t("moreMenu.markImportant")
+                    }
+                    title={
+                      currentStarred
+                        ? t("moreMenu.unmarkImportant")
+                        : t("moreMenu.markImportant")
+                    }
+                  >
+                    <Icon
+                      icon={currentStarred ? "mdi:star" : "mdi:star-outline"}
+                      className="h-3.5 w-3.5"
+                    />
+                  </button>
+                </>
               ) : null}
               {!isReadOnlyView && hasDraft ? (
                 <>
@@ -2482,7 +2647,9 @@ export default function FullscreenMapDetailScreen({
                   <Icon icon="mdi:dots-horizontal" className="h-4 w-4" />
                 </button>
                 {desktopMoreOpen && (
-                  <div className={`absolute right-0 mt-2 w-[210px] ${controlPanelClass}`}>
+                  <div
+                    className={`absolute right-0 mt-2 z-[340] w-[230px] max-h-[min(68vh,560px)] overflow-y-auto overscroll-contain ${controlPanelClass}`}
+                  >
                     <button
                       type="button"
                       onClick={() => {
@@ -2647,6 +2814,26 @@ export default function FullscreenMapDetailScreen({
       />
 
       <div className="relative w-full" style={{ height: "calc(100% - var(--header-h))" }}>
+        {currentReadStatus === "in_progress" ? (
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-[26] h-0.5 bg-amber-400/95 shadow-[0_1px_10px_rgba(245,158,11,0.45)] dark:bg-amber-300/90 dark:shadow-[0_1px_10px_rgba(251,191,36,0.35)]" />
+        ) : null}
+        {currentReadStatus === "in_progress" ? (
+          <div className="pointer-events-none absolute left-3 top-3 z-[26] sm:left-4 sm:top-4">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-amber-300/70 bg-amber-500 text-white shadow-[0_10px_20px_-12px_rgba(245,158,11,0.65)] dark:border-amber-300/35 dark:bg-amber-400 dark:text-slate-900 dark:shadow-[0_10px_20px_-12px_rgba(251,191,36,0.45)]">
+              <Icon icon="mdi:clock-time-four-outline" className="h-4 w-4" />
+            </span>
+          </div>
+        ) : null}
+        {currentReadStatus === "read" ? (
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-[26] h-0.5 bg-emerald-500/95 shadow-[0_1px_10px_rgba(16,185,129,0.4)] dark:bg-emerald-400/90 dark:shadow-[0_1px_10px_rgba(52,211,153,0.32)]" />
+        ) : null}
+        {currentStarred ? (
+          <div className="pointer-events-none absolute right-4 top-4 z-[26] hidden sm:block">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-amber-300/55 bg-[#1f2937] text-amber-300 shadow-[0_10px_18px_-10px_rgba(217,119,6,0.55)] dark:border-amber-300/45 dark:bg-[#0f172a] dark:text-amber-300 dark:shadow-[0_10px_20px_-12px_rgba(251,191,36,0.35)]">
+              <Icon icon="mdi:star" className="h-4 w-4" />
+            </span>
+          </div>
+        ) : null}
         {isSharedView && isLikelyInAppBrowser ? (
           <div className="pointer-events-auto absolute left-3 right-16 top-3 z-[24] sm:hidden">
             <div className="rounded-2xl border border-amber-200/90 bg-amber-50/96 px-3 py-2.5 text-[11px] text-amber-900 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.7)] backdrop-blur-sm dark:border-amber-300/20 dark:bg-[#1f1606]/92 dark:text-amber-100/92">
@@ -2678,6 +2865,7 @@ export default function FullscreenMapDetailScreen({
                 setMobileMapActionsOpen(false);
                 setMobileThemeOpen(false);
                 setMobileLanguageOpen(false);
+                setMobileStateOpen(false);
               }}
               className={controlIconButtonClass}
               aria-label={mobileToolbarCollapsed ? mobileToolbarOpenLabel : mobileToolbarCloseLabel}
@@ -2692,6 +2880,71 @@ export default function FullscreenMapDetailScreen({
               {mobileToolbarCollapsed ? mobileToolbarOpenLabel : mobileToolbarCloseLabel}
             </span>
           </div>
+          {!isReadOnlyView ? (
+            <div className="group relative" ref={mobileStateRef}>
+              <button
+                type="button"
+                onClick={() => setMobileStateOpen((prev) => !prev)}
+                className={controlIconButtonClass}
+                aria-label={stateActionLabel}
+                title={stateActionLabel}
+              >
+                <Icon icon="mdi:bookmark-multiple-outline" className="h-4 w-4" />
+              </button>
+              <span className={mobileVerticalTooltipClass}>{stateActionLabel}</span>
+              {mobileStateOpen ? (
+                <div
+                  className={`absolute right-full top-0 mr-2 z-[340] w-[210px] ${controlPanelClass}`}
+                >
+                  <div className="px-2 pb-1 pt-1 text-[11px] font-semibold text-slate-500 dark:text-white/60">
+                    {stateActionLabel}
+                  </div>
+                  <div className="space-y-1">
+                    {readStateOptions.map(({ value, label, icon }) => {
+                      const active = currentReadStatus === value;
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => {
+                            void handleUpdateMapState({ readStatus: value });
+                            setMobileStateOpen(false);
+                          }}
+                          className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[12px] font-semibold transition ${
+                            active
+                              ? "bg-blue-50 text-blue-700 dark:bg-blue-500/12 dark:text-blue-100"
+                              : "text-slate-700 hover:bg-slate-100 dark:text-white/80 dark:hover:bg-white/10"
+                          }`}
+                        >
+                          <span className="inline-flex items-center gap-2">
+                            <Icon icon={icon} className="h-4 w-4" />
+                            {label}
+                          </span>
+                          {active ? <Icon icon="mdi:check" className="h-4 w-4" /> : null}
+                        </button>
+                      );
+                    })}
+                    <div className="my-1 h-px bg-neutral-200 dark:bg-white/10" />
+                    <button
+                      type="button"
+                      onClick={() => void handleUpdateMapState({ starred: !currentStarred })}
+                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[12px] font-semibold transition ${
+                        currentStarred
+                          ? "bg-amber-50 text-amber-700 dark:bg-amber-500/14 dark:text-amber-100"
+                          : "text-slate-700 hover:bg-slate-100 dark:text-white/80 dark:hover:bg-white/10"
+                      }`}
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        <Icon icon={currentStarred ? "mdi:star" : "mdi:star-outline"} className="h-4 w-4" />
+                        {tReadState("starred")}
+                      </span>
+                      {currentStarred ? <Icon icon="mdi:check" className="h-4 w-4" /> : null}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
           {!mobileToolbarCollapsed ? (
             <>
               <div className="relative" ref={mobileMapActionsRef}>
@@ -2709,7 +2962,9 @@ export default function FullscreenMapDetailScreen({
                 </div>
 
             {mobileMapActionsOpen && (
-              <div className={`absolute right-full mr-2 top-0 w-[160px] ${controlPanelClass}`}>
+              <div
+                className={`absolute right-full mr-2 top-0 z-[340] max-h-[min(68vh,520px)] w-[180px] overflow-y-auto overscroll-contain ${controlPanelClass}`}
+              >
                   <button
                     type="button"
                     onClick={() => {
@@ -2764,6 +3019,7 @@ export default function FullscreenMapDetailScreen({
                       setMobileLanguageOpen((v) => !v);
                       setMobileMapActionsOpen(false);
                       setMobileThemeOpen(false);
+                      setMobileStateOpen(false);
                     }}
                     className={controlIconButtonClass}
                     aria-label={mobileLanguageLabel}
@@ -2805,7 +3061,10 @@ export default function FullscreenMapDetailScreen({
                 <div className="group relative">
                   <button
                     type="button"
-                    onClick={() => setMobileThemeOpen((v) => !v)}
+                    onClick={() => {
+                      setMobileThemeOpen((v) => !v);
+                      setMobileStateOpen(false);
+                    }}
                     className={controlIconButtonClass}
                     aria-label={t("moreMenu.theme")}
                     title={t("moreMenu.theme")}

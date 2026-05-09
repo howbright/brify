@@ -732,6 +732,29 @@
       }
     }
   },
+  "LandingFeatureListSection": {
+    "eyebrow": "Features",
+    "title": "Brify Key Features",
+    "subtitle": "Quickly structure what you need and make it easy to revisit later.",
+    "items": [
+      "Support for multiple input formats, including text, PDF, and DOCX",
+      "Auto-load metadata from YouTube links",
+      "Automatic tag generation",
+      "Output language selection (generate maps in your preferred language)",
+      "Automatic split-and-merge for long inputs (stable large-document processing)",
+      "Responsive support across mobile, tablet, and desktop",
+      "Fast and accurate structure map generation",
+      "Highlight important nodes",
+      "Jump back to original source text from nodes",
+      "Automatic AI term extraction",
+      "Add notes per node",
+      "Freeform structure map editing",
+      "Tag-based classification and rediscovery",
+      "Copy structure maps in Markdown format",
+      "Read-only share page support",
+      "Download as print, image, or PDF"
+    ]
+  },
   "LandingOutcomeSection": {
     "eyebrow": "Outcome",
     "title": "With consistent use of Brify, this is how you change",
@@ -1688,12 +1711,18 @@
       "clearSearch": "Clear search",
       "previousSearchResult": "Previous result",
       "nextSearchResult": "Next result",
+      "state": "Status",
       "more": "More"
     },
     "moreMenu": {
       "layoutLeft": "Left layout",
       "layoutRight": "Right layout",
       "layoutBoth": "Both-side layout",
+      "markImportant": "Mark as important",
+      "unmarkImportant": "Remove important mark",
+      "markUnread": "Mark as unread",
+      "markInProgress": "Mark as in progress",
+      "markRead": "Mark as read",
       "theme": "Theme",
       "profileTheme": "My theme",
       "defaultTheme": "Classic theme",
@@ -1773,6 +1802,8 @@
       "sourceFindFailed": "Failed to search source text.",
       "sourceReloadFailed": "Failed to reload source text.",
       "sourceRetentionFailed": "Failed to update retention period.",
+      "stateUpdated": "Map state updated.",
+      "stateUpdateFailed": "Failed to update map state.",
       "loginRequired": "Login is required.",
       "sharedReadOnly": "Shared pages are read-only.",
       "highlightReadOnly": "Highlights are not saved in read-only mode."
@@ -2221,6 +2252,12 @@
       "reopen": "Tag list"
     },
     "listItem": {
+      "readState": {
+        "unread": "Unread",
+        "inProgress": "In progress",
+        "read": "Read",
+        "starred": "Important"
+      },
       "status": {
         "failed": "Failed",
         "processing": "Processing"

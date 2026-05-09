@@ -38,6 +38,10 @@ export type MapDraft = {
   thumbnailUrl?: string;
   notesCount?: number;
   termsCount?: number;
+  readStatus?: "unread" | "in_progress" | "read";
+  starred?: boolean;
+  progressPercent?: number;
+  lastViewedAt?: number;
 
   // 작업 상태
   status: MapJobStatus;

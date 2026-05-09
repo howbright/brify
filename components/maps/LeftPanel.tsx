@@ -644,7 +644,7 @@ export default function LeftPanel({
     <aside
       ref={panelRef}
       className={`
-        absolute left-0 top-[-40px] z-[30]
+        absolute left-0 top-[-40px] z-[460]
         h-[calc(100%+40px)] w-[94vw] max-w-[550px]
         transition-transform duration-200 ease-out
         ${open ? "translate-x-0" : "-translate-x-full"}
@@ -714,7 +714,7 @@ export default function LeftPanel({
               type="button"
               onClick={onClose}
             className="
-                ml-auto -mr-4 sm:-mr-5 inline-flex -translate-y-1.5 items-center justify-center
+                relative z-[2] ml-auto -mr-4 sm:-mr-5 inline-flex -translate-y-1.5 items-center justify-center
                 h-8 w-10
                 rounded-l-full rounded-r-md
                 bg-blue-600 text-white

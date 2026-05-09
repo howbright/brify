@@ -130,6 +130,21 @@ export default function MapListItem({
           textCls: "text-blue-700 dark:text-blue-200",
         }
       : null;
+  const readStateBadge =
+    draft.readStatus === "read"
+      ? {
+          text: t("readState.read"),
+          cls: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/12 dark:text-emerald-200 dark:border-emerald-400/25",
+        }
+      : draft.readStatus === "in_progress"
+      ? {
+          text: t("readState.inProgress"),
+          cls: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/12 dark:text-blue-200 dark:border-blue-400/25",
+        }
+      : {
+          text: t("readState.unread"),
+          cls: "bg-neutral-100 text-neutral-700 border-neutral-200 dark:bg-white/10 dark:text-white/75 dark:border-white/15",
+        };
 
   const displayTitle = getDisplayTitle(draft);
   const visibleTags = draft.tags?.slice(0, 4) ?? [];
@@ -239,6 +254,15 @@ export default function MapListItem({
                     {statusBadge.text}
                   </span>
                 )}
+                <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${readStateBadge.cls}`}>
+                  {readStateBadge.text}
+                </span>
+                {draft.starred ? (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:border-amber-400/25 dark:bg-amber-500/12 dark:text-amber-200">
+                    <Icon icon="mdi:star" className="h-3 w-3" />
+                    {t("readState.starred")}
+                  </span>
+                ) : null}
                 <span className="text-[11px] font-medium text-slate-500 dark:text-white/52">
                   {formatDate(draft, locale)}
                 </span>
