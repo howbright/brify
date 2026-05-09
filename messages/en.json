@@ -683,7 +683,7 @@
     "imageAlt": "Creator of Brify",
     "label": "Creator",
     "name": "Lina",
-    "quote": "“There was always more to watch, and never enough time.\nI’d finish a video feeling it was genuinely helpful, but by the evening <strong>I could barely remember half of it</strong>.\nThere were also plenty of videos I meant to watch later, but never actually got around to.\nWith <strong>health</strong>, <strong>kids’ education</strong>, and <strong>personal finance</strong> all demanding attention, it became even easier to lose track.\nSo I <heavy>built a tool myself</heavy>. If I organize what I just watched into a <strong>structured mind map</strong>, I can reopen it later and still see the <strong>flow and the key points</strong> clearly.”"
+    "quote": "“There was always more to watch, and never enough time.\nI’d finish a video feeling it was genuinely helpful, but by the evening <strong>I could barely remember half of it</strong>.\nThere were also plenty of videos I meant to watch later, but never actually got around to.\nWith <strong>health</strong>, <strong>kids’ education</strong>, and <strong>personal finance</strong> all demanding attention, it became even easier to lose track.\nSo I <heavy>built a tool myself</heavy>. If I organize what I just watched into a <strong>structured map</strong>, I can reopen it later and still see the <strong>flow and the key points</strong> clearly.”"
   },
   "MapLibrarySection": {
     "eyebrow": "Build Your Own Standard",
@@ -719,7 +719,7 @@
     "cta": "Start using Brify",
     "items": {
       "one": {
-        "quote": "I tested it with a theology paper full of Hebrew technical terms and complex chiastic structures. I was surprised by how clearly it organized the hierarchy of the core model and even subtle textual nuances. The mind map quality was absolutely top-tier.",
+        "quote": "I tested it with a theology paper full of Hebrew technical terms and complex chiastic structures. I was surprised by how clearly it organized the hierarchy of the core model and even subtle textual nuances. The structure map quality was absolutely top-tier.",
         "role": "Theology researcher"
       },
       "two": {
@@ -1376,19 +1376,19 @@
     "ctaPrimary": "Start with documents",
     "ctaSecondary": "View sample",
     "featureItems": [
-      "Quickly turn even 3-hour lectures into mind maps",
+      "Quickly turn even 3-hour lectures into structure maps",
       "AI automatically organizes difficult terms to reduce cognitive load",
       "Convert foreign-language papers and documents into natural English",
       "More than a summary. It preserves key details in a usable structure"
     ],
     "sampleSection": {
-      "title": "Sample mind map image",
+      "title": "Sample structure map image",
       "cta": "Create your own map",
-      "imageAlt": "Brify mind map example image"
+      "imageAlt": "Brify structure map example image"
     },
     "flowItems": [
       "Paste document text",
-      "Create a mind map",
+      "Create a structure map",
       "Read · Edit · Compare",
       "Build your own standard"
     ],
@@ -2095,7 +2095,7 @@
     "relatedHref": "/en/youtube-notes"
   },
   "Footer": {
-    "description": "A knowledge-structuring service that turns long, complex text into mind maps for faster, more accurate understanding.",
+    "description": "A knowledge-structuring service that turns long, complex text into structure maps for faster, more accurate understanding.",
     "contactEmail": "Email",
     "contactPhone": "Phone",
     "contactAddress": "Address",

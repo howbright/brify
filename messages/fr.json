@@ -272,7 +272,7 @@
     ],
     "flowItems": [
       "Collez le texte du document",
-      "Créez une mind map",
+      "Créez une carte structurée",
       "Lisez · modifiez · comparez",
       "Construisez votre propre cadre"
     ],
@@ -283,15 +283,15 @@
     "ctaPrimary": "Commencer avec un document",
     "ctaSecondary": "Voir un exemple",
     "featureItems": [
-      "Transformez rapidement même des cours de 3 heures en mind maps",
+      "Transformez rapidement même des cours de 3 heures en cartes structurées",
       "L’IA organise automatiquement les termes difficiles pour alléger la charge de lecture",
       "Convertissez des articles et documents en langue étrangère dans un français naturel",
       "Plus qu’un résumé : une structure exploitable qui conserve les détails essentiels"
     ],
     "sampleSection": {
-      "title": "Image d’exemple de mind map",
+      "title": "Image d’exemple de carte structurée",
       "cta": "Créer ma carte",
-      "imageAlt": "Image d’exemple de mind map Brify"
+      "imageAlt": "Image d’exemple de carte structurée Brify"
     },
     "visualAlt": "Aperçu de la structure Brify",
     "videoLabel": "Lire la vidéo de démonstration",
@@ -337,7 +337,7 @@
     }
   },
   "Footer": {
-    "description": "Un service de structuration des connaissances qui transforme les textes longs et complexes en mind maps, pour une compréhension plus rapide et plus précise.",
+    "description": "Un service de structuration des connaissances qui transforme les textes longs et complexes en cartes structurées, pour une compréhension plus rapide et plus précise.",
     "contactEmail": "E-mail",
     "contactPhone": "Téléphone",
     "contactAddress": "Adresse",
@@ -791,7 +791,7 @@
     "imageAlt": "Créatrice de Brify",
     "label": "Créatrice",
     "name": "Lina",
-    "quote": "« Il y avait toujours plus de vidéos à regarder, et jamais assez de temps.\nJe terminais une vidéo en me disant qu’elle était vraiment utile, mais le soir <strong>j’en oubliais déjà la moitié</strong>.\nIl y avait aussi beaucoup de vidéos que je voulais regarder plus tard, mais que je ne regardais finalement jamais.\nAvec la <strong>santé</strong>, l’<strong>éducation des enfants</strong> et les <strong>finances personnelles</strong> à gérer en même temps, il devenait encore plus facile de perdre le fil.\nAlors <heavy>j’ai créé mon propre outil</heavy>. Si j’organise ce que je viens de regarder dans une <strong>mind map structurée</strong>, je peux la rouvrir plus tard et retrouver clairement <strong>le flux et les points clés</strong>. »"
+    "quote": "« Il y avait toujours plus de vidéos à regarder, et jamais assez de temps.\nJe terminais une vidéo en me disant qu’elle était vraiment utile, mais le soir <strong>j’en oubliais déjà la moitié</strong>.\nIl y avait aussi beaucoup de vidéos que je voulais regarder plus tard, mais que je ne regardais finalement jamais.\nAvec la <strong>santé</strong>, l’<strong>éducation des enfants</strong> et les <strong>finances personnelles</strong> à gérer en même temps, il devenait encore plus facile de perdre le fil.\nAlors <heavy>j’ai créé mon propre outil</heavy>. Si j’organise ce que je viens de regarder dans une <strong>carte structurée</strong>, je peux la rouvrir plus tard et retrouver clairement <strong>le flux et les points clés</strong>. »"
   },
   "MapLibrarySection": {
     "eyebrow": "Construisez votre propre cadre",
