@@ -681,9 +681,9 @@
   },
   "CreatorSection": {
     "imageAlt": "Creator of Brify",
-    "label": "Creator",
+    "label": "Why Brify Was Built",
     "name": "Lina",
-    "quote": "“There was always more to watch, and never enough time.\nI’d finish a video feeling it was genuinely helpful, but by the evening <strong>I could barely remember half of it</strong>.\nThere were also plenty of videos I meant to watch later, but never actually got around to.\nWith <strong>health</strong>, <strong>kids’ education</strong>, and <strong>personal finance</strong> all demanding attention, it became even easier to lose track.\nSo I <heavy>built a tool myself</heavy>. If I organize what I just watched into a <strong>structured map</strong>, I can reopen it later and still see the <strong>flow and the key points</strong> clearly.”"
+    "quote": "“The amount of material keeps growing, while <strong>decision time keeps shrinking</strong>.\nI built <heavy>Brify</heavy> to help people read high-risk documents faster and more accurately.\nNot just summaries, but <strong>structured understanding</strong> that preserves both <strong>key flow and critical details</strong>.”"
   },
   "MapLibrarySection": {
     "eyebrow": "Build Your Own Standard",
@@ -738,18 +738,18 @@
     "subtitle": "Quickly structure what you need and make it easy to revisit later.",
     "items": [
       "Support for multiple input formats, including text, PDF, and DOCX",
-      "Auto-load metadata from YouTube links",
+      "Fast and accurate structure map generation",
       "Automatic tag generation",
       "Output language selection (generate maps in your preferred language)",
       "Automatic split-and-merge for long inputs (stable large-document processing)",
       "Responsive support across mobile, tablet, and desktop",
-      "Fast and accurate structure map generation",
       "Highlight important nodes",
       "Jump back to original source text from nodes",
       "Automatic AI term extraction",
       "Add notes per node",
       "Freeform structure map editing",
       "Tag-based classification and rediscovery",
+      "Auto-load metadata from YouTube links",
       "Copy structure maps in Markdown format",
       "Read-only share page support",
       "Download as print, image, or PDF"
@@ -1365,7 +1365,7 @@
     }
   },
   "LandingBlueHero": {
-    "eyebrow": "Better judgment, with more time to spare.",
+    "eyebrow": "A structuring tool for people who need to read long documents quickly and make accurate decisions.",
     "titles": [
       "When documents are structured, the time to grasp key points"
     ],
@@ -1376,10 +1376,10 @@
     "ctaPrimary": "Start with documents",
     "ctaSecondary": "View sample",
     "featureItems": [
-      "Quickly turn even 3-hour lectures into structure maps",
-      "AI automatically organizes difficult terms to reduce cognitive load",
-      "Convert foreign-language papers and documents into natural English",
-      "More than a summary. It preserves key details in a usable structure"
+      "Turn long documents into structure maps so you can spot key issues faster",
+      "AI automatically organizes technical terms to reduce reading effort",
+      "Read foreign-language documents in your own language more naturally",
+      "Not just summaries. It structures critical details as well"
     ],
     "sampleSection": {
       "title": "Sample structure map image",

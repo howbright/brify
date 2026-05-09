@@ -266,7 +266,7 @@
     "openMap": "Ouvrir la carte de structure"
   },
   "LandingBlueHero": {
-    "eyebrow": "Un meilleur jugement, avec plus de temps.",
+    "eyebrow": "Un outil de structuration pour celles et ceux qui doivent lire rapidement de longs documents et prendre des décisions précises.",
     "titles": [
       "Quand les documents sont structurés, le temps nécessaire pour saisir l’essentiel"
     ],
@@ -283,10 +283,10 @@
     "ctaPrimary": "Commencer avec un document",
     "ctaSecondary": "Voir un exemple",
     "featureItems": [
-      "Transformez rapidement même des cours de 3 heures en cartes structurées",
-      "L’IA organise automatiquement les termes difficiles pour alléger la charge de lecture",
-      "Convertissez des articles et documents en langue étrangère dans un français naturel",
-      "Plus qu’un résumé : une structure exploitable qui conserve les détails essentiels"
+      "Transformez de longs documents en cartes structurées pour repérer plus vite les points clés",
+      "L’IA organise automatiquement les termes techniques pour alléger la lecture",
+      "Lisez plus naturellement les documents en langue étrangère dans votre propre langue",
+      "Pas seulement un résumé : les détails essentiels sont aussi structurés"
     ],
     "sampleSection": {
       "title": "Image d’exemple de carte structurée",
@@ -626,18 +626,18 @@
     "subtitle": "Structurez rapidement les informations utiles et retrouvez-les facilement ensuite.",
     "items": [
       "Prise en charge de plusieurs formats d’entrée : texte, PDF, DOCX",
-      "Récupération automatique des métadonnées via un lien YouTube",
+      "Génération de cartes structurées rapide et précise",
       "Génération automatique de tags",
       "Choix de la langue de sortie (générez la carte dans la langue souhaitée)",
       "Découpage/fusion automatiques des longues entrées (traitement stable des gros documents)",
       "Interface responsive sur mobile, tablette et ordinateur",
-      "Génération de cartes structurées rapide et précise",
       "Surlignage des nœuds importants",
       "Accès direct au texte source depuis un nœud",
       "Extraction automatique des termes par l’IA",
       "Ajout de notes par nœud",
       "Édition libre de la carte structurée",
       "Classement et relecture via les tags",
+      "Récupération automatique des métadonnées via un lien YouTube",
       "Copie de la carte au format Markdown",
       "Page de partage en lecture seule",
       "Téléchargement en impression, image ou PDF"
@@ -789,9 +789,9 @@
   },
   "CreatorSection": {
     "imageAlt": "Créatrice de Brify",
-    "label": "Créatrice",
+    "label": "Pourquoi Brify a été créé",
     "name": "Lina",
-    "quote": "« Il y avait toujours plus de vidéos à regarder, et jamais assez de temps.\nJe terminais une vidéo en me disant qu’elle était vraiment utile, mais le soir <strong>j’en oubliais déjà la moitié</strong>.\nIl y avait aussi beaucoup de vidéos que je voulais regarder plus tard, mais que je ne regardais finalement jamais.\nAvec la <strong>santé</strong>, l’<strong>éducation des enfants</strong> et les <strong>finances personnelles</strong> à gérer en même temps, il devenait encore plus facile de perdre le fil.\nAlors <heavy>j’ai créé mon propre outil</heavy>. Si j’organise ce que je viens de regarder dans une <strong>carte structurée</strong>, je peux la rouvrir plus tard et retrouver clairement <strong>le flux et les points clés</strong>. »"
+    "quote": "« Le volume de documents augmente, alors que <strong>le temps pour décider diminue</strong>.\nJ’ai créé <heavy>Brify</heavy> pour aider à lire plus vite et plus précisément les documents où une erreur coûte cher.\nPas seulement un résumé, mais une <strong>compréhension structurée</strong> qui conserve à la fois <strong>le fil logique et les détails essentiels</strong>. »"
   },
   "MapLibrarySection": {
     "eyebrow": "Construisez votre propre cadre",

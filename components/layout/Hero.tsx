@@ -312,15 +312,16 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
         <div className="min-w-0">
           <div
             className="
-              inline-flex max-w-full items-center rounded-full
-              border border-sky-200/90 bg-white/78 px-4 py-1.5
-              text-sm font-semibold text-sky-800 shadow-[0_10px_28px_-22px_rgba(14,116,144,0.55)]
+              inline-flex max-w-full items-center gap-2 rounded-full
+              border border-sky-300/90 bg-gradient-to-r from-sky-50/95 via-blue-50/90 to-indigo-50/90 px-4 py-1.5
+              text-sm font-semibold text-sky-900 shadow-[0_14px_34px_-22px_rgba(30,64,175,0.55)]
               [overflow-wrap:anywhere]
-              dark:border-sky-300/20 dark:bg-white/[0.08] dark:text-sky-200
+              dark:border-sky-300/30 dark:bg-[linear-gradient(90deg,rgba(56,189,248,0.16),rgba(59,130,246,0.14),rgba(99,102,241,0.14))] dark:text-sky-100
               md:text-base
             "
           >
-            <span className="whitespace-pre-line border-b-2 border-sky-300/90 pb-0.5 dark:border-sky-300/70">
+            <span className="h-2 w-2 shrink-0 rounded-full bg-sky-500 shadow-[0_0_0_4px_rgba(14,165,233,0.18)] dark:bg-sky-300 dark:shadow-[0_0_0_4px_rgba(56,189,248,0.2)]" />
+            <span className="whitespace-pre-line border-b-2 border-sky-400/95 pb-0.5 dark:border-sky-300/80">
               {t("eyebrow")}
             </span>
           </div>
