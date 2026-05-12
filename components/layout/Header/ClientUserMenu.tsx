@@ -18,7 +18,13 @@ import { createClient } from "@/utils/supabase/client";
 import { DEFAULT_THEME_NAME } from "@/components/maps/themes";
 import MindThemePreferenceModal from "@/components/maps/MindThemePreferenceModal";
 
-export default function ClientUserMenu({ email }: { email: string | null }) {
+export default function ClientUserMenu({
+  email,
+  onNavigateStart,
+}: {
+  email: string | null;
+  onNavigateStart?: (target: string, href?: string) => void;
+}) {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const t = useTranslations("Header");
@@ -113,6 +119,7 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
           className="text-sm"
           onSelect={(e) => {
             e.preventDefault();
+            onNavigateStart?.("maps", "/maps");
             router.push(`/${locale}/maps`);
           }}
         >
@@ -123,6 +130,7 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
           className="text-sm"
           onSelect={(e) => {
             e.preventDefault();
+            onNavigateStart?.("billing", "/billing");
             router.push(`/${locale}/billing`);
           }}
         >
@@ -133,6 +141,7 @@ export default function ClientUserMenu({ email }: { email: string | null }) {
           className="text-sm"
           onSelect={(e) => {
             e.preventDefault();
+            onNavigateStart?.("billing-history", "/billing/history");
             router.push(`/${locale}/billing/history`);
           }}
         >

@@ -176,16 +176,9 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
             </p>
           ) : null}
 
-          <div className="mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row sm:flex-wrap sm:gap-4">
-            <div className="inline-flex items-center justify-center gap-2 text-[14px] font-semibold text-slate-700 dark:text-slate-200">
-              <span className="h-1.5 w-1.5 rounded-full bg-blue-500 dark:bg-blue-300" />
-              <span>{t("cards.pay.title")}</span>
-            </div>
-            <div className="inline-flex items-center justify-center gap-2 text-[14px] font-semibold text-slate-700 dark:text-slate-200">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 dark:bg-indigo-300" />
-              <span>{t("cards.noSubscription.title")}</span>
-            </div>
-          </div>
+          <p className="mt-4 text-[13px] font-medium leading-6 text-slate-600 dark:text-slate-300 md:text-[14px]">
+            {t("cards.validity.title")}
+          </p>
         </motion.div>
 
         {/* ✅ Wrapper */}

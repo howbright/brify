@@ -1,13 +1,11 @@
 import FinalCTA from "@/components/landing/FinalCTA";
+import LandingAudienceSection from "@/components/landing/LandingAudienceSection";
 import LandingComparisonSection from "@/components/landing/LandingComparisonSection";
 import LandingFeatureListSection from "@/components/landing/LandingFeatureListSection";
-import LandingPricingSection from "@/components/landing/LandingPricingSection";
 import LandingSampleSection from "@/components/landing/LandingSampleSection";
 import LandingTestimonialsSection from "@/components/landing/LandingTestimonialsSection";
 import CreatorSection from "@/components/layout/CreateorSection";
 import Hero from "@/components/layout/Hero";
-import { getBillingCurrencyByLocale } from "@/app/lib/billing/catalog";
-import { fetchBillingCatalog } from "@/app/lib/billing/catalog.server";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function Home({
@@ -22,15 +20,6 @@ export default async function Home({
     data: { user },
   } = await supabase.auth.getUser();
   const isAuthed = !!user;
-  const billingCurrency = getBillingCurrencyByLocale(locale);
-  const billingCatalog = await fetchBillingCatalog(billingCurrency);
-  const packs = billingCatalog.map((pack) => ({
-    id: pack.id,
-    credits: pack.credits,
-    priceUSD: pack.price,
-    popular: pack.popular,
-    starter: pack.starter,
-  }));
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -59,10 +48,10 @@ export default async function Home({
       />
       <Hero isAuthed={isAuthed} />
       <LandingComparisonSection />
+      <LandingAudienceSection />
       <LandingSampleSection isAuthed={isAuthed} />
       <LandingFeatureListSection />
       <LandingTestimonialsSection />
-      <LandingPricingSection isAuthed={isAuthed} packs={packs} />
       <FinalCTA isAuthed={isAuthed} />
       <CreatorSection />
     </div>

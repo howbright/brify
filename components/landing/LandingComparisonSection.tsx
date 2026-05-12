@@ -33,7 +33,6 @@ type ComparisonFootnote = {
     label: string;
     text: string;
   };
-  note?: string;
 };
 
 function ComparisonCard({
@@ -279,11 +278,6 @@ export default function LandingComparisonSection() {
                   </div>
                 </div>
 
-                {structuredFootnote.note ? (
-                  <p className="mt-4 text-xs leading-6 text-slate-500 dark:text-slate-400 md:text-[13px]">
-                    {structuredFootnote.note}
-                  </p>
-                ) : null}
               </div>
             ) : (
               <div className="mt-5 rounded-2xl border border-slate-200/80 bg-white/80 px-5 py-4 text-sm font-semibold leading-6 text-slate-700 shadow-[0_14px_30px_-24px_rgba(15,23,42,0.16)] backdrop-blur dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 md:text-[15px]">

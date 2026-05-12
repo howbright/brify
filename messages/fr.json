@@ -266,9 +266,9 @@
     "openMap": "Ouvrir la carte de structure"
   },
   "LandingBlueHero": {
-    "eyebrow": "Un outil pour celles et ceux qui doivent lire, comparer, organiser et partager de longs documents.",
+    "eyebrow": "Un outil pour celles et ceux qui doivent lire, comparer, organiser et partager de longs documents",
     "titles": [
-      "Quand un long texte est structuré, l’essentiel et l’endroit précis des informations utiles"
+      "Quand un texte long est structuré, l’essentiel et l’emplacement des informations utiles"
     ],
     "flowItems": [
       "Ajoutez un document ou un texte",
@@ -278,11 +278,19 @@
     ],
     "titleHighlight": "apparaissent d’un seul coup d’œil.",
     "titleSuffix": "",
-    "helper": "Brify vous aide à éditer directement la structure générée par l’IA, à marquer les passages importants, à retrouver le texte d’origine, puis à en faire un résultat partageable en PDF ou en Markdown.",
+    "helper": "Brify vous permet de modifier directement la structure générée par l’IA, de marquer les passages importants, de retrouver le texte d’origine, puis d’en faire un résultat partageable en PDF ou en Markdown.",
     "switchTitleAria": "Changer le titre",
     "ctaPrimary": "Commencer gratuitement",
     "ctaSecondary": "Voir un exemple",
     "featureItems": [],
+    "pricingBadges": [
+      "15 crédits offerts à l’inscription",
+      "Sans abonnement"
+    ],
+    "pricingNotes": [
+      "Aucun abonnement mensuel : vous payez seulement quand vous en avez besoin.",
+      "Crédits offerts après validation d’une mission de partage ou de feedback"
+    ],
     "sampleSection": {
       "title": "Exemple de carte structurée",
       "cta": "Créer ma carte",
@@ -320,9 +328,9 @@
       "signup": "Commencer gratuitement"
     },
     "cta": {
-      "newMap": "Nouveau Structure Map",
+      "newMap": "Nouvelle carte structurée",
       "myMaps": "Mes cartes",
-      "fromTextTitle": "Convertir du texte en structure map",
+      "fromTextTitle": "Convertir du texte en carte structurée",
       "fromTextDesc": "Collez une transcription ou un texte de document pour générer la carte",
       "blankStartTitle": "Commencer à partir d’une carte vide",
       "blankStartDesc": "Pour le brainstorming, démarrez sans utiliser de crédits",
@@ -332,7 +340,7 @@
     }
   },
   "Footer": {
-    "description": "Un service de structuration des connaissances qui transforme les textes longs et complexes en cartes structurées pour une compréhension plus rapide et plus précise.",
+    "description": "Un service qui transforme les textes longs et complexes en cartes structurées pour les lire plus vite et avec plus de précision.",
     "contactEmail": "E-mail",
     "contactPhone": "Téléphone",
     "contactAddress": "Adresse",
@@ -497,12 +505,8 @@
         "title": "La plupart des cartes ne demandent qu’1 crédit",
         "description": ""
       },
-      "pay": {
-        "eyebrow": "Sans abonnement",
-        "title": "Payez seulement quand vous en avez besoin"
-      },
-      "noSubscription": {
-        "title": "Sans abonnement · Sans renouvellement automatique"
+      "validity": {
+        "title": "Les crédits payants sont valables pendant 1 an à partir de la date de paiement."
       }
     },
     "positioningText": "Sans abonnement. Payez seulement ce que vous utilisez.",
@@ -624,24 +628,24 @@
       "Génération de cartes structurées rapide et précise",
       "Génération automatique de tags",
       "Choisissez la langue de sortie de la carte structurée",
-      "Découpage et fusion automatiques des longues entrées pour un traitement stable des gros documents",
-      "Compatible mobile, tablette et ordinateur",
+      "Découpe et fusion automatiques des contenus longs pour un traitement plus fiable des gros documents",
+      "Compatible sur mobile, tablette et ordinateur",
       "Surligner les nœuds importants",
       "Retrouver directement le texte d’origine depuis un nœud",
-      "Extraction automatique des termes par l’IA",
+      "Extraction automatique des termes clés par l’IA",
       "Ajouter des notes tout en lisant chaque nœud",
       "Modifier librement la carte structurée",
       "Classer et retrouver les cartes avec des tags",
       "Charger automatiquement les métadonnées depuis un lien YouTube",
       "Copier la carte structurée en Markdown",
       "Page de partage en lecture seule",
-      "Téléchargement en impression, image ou PDF"
+      "Export en impression, image ou PDF"
     ]
   },
   "LandingComparisonSection": {
     "eyebrow": "Comparaison avec NotebookLM",
     "title": "Quelle est la différence avec NotebookLM ?",
-    "subtitle": "Si votre priorité est de comprendre rapidement, NotebookLM peut mieux convenir. Si vous devez retravailler le résultat et le gérer dans la durée, Brify conviendra mieux.",
+    "subtitle": "Si votre priorité est de comprendre rapidement, NotebookLM peut être plus adapté. Si vous devez retravailler le résultat et le gérer dans la durée, Brify conviendra mieux.",
     "matrix": {
       "headers": {
         "feature": "Fonction",
@@ -655,7 +659,7 @@
       },
       "rows": [
         {
-          "feature": "Éditer librement la carte structurée elle-même",
+          "feature": "Modifier librement la carte structurée",
           "notebooklm": {
             "label": "Non disponible",
             "tone": "none"
@@ -666,7 +670,7 @@
           }
         },
         {
-          "feature": "Lire en marquant les nœuds importants",
+          "feature": "Marquer les nœuds importants pendant la lecture",
           "notebooklm": {
             "label": "Non disponible",
             "tone": "none"
@@ -677,7 +681,7 @@
           }
         },
         {
-          "feature": "Lire en ajoutant des notes aux nœuds",
+          "feature": "Ajouter des notes aux nœuds pendant la lecture",
           "notebooklm": {
             "label": "Non disponible",
             "tone": "none"
@@ -688,7 +692,7 @@
           }
         },
         {
-          "feature": "Depuis le nœud lui-même, retrouver l’emplacement dans la source et modifier",
+          "feature": "Retrouver l’emplacement dans le texte d’origine et modifier directement depuis le nœud",
           "notebooklm": {
             "label": "Texte source uniquement depuis la réponse du chat ; nœuds non modifiables",
             "tone": "partial"
@@ -699,10 +703,10 @@
           }
         },
         {
-          "feature": "Partager la carte structurée elle-même et poursuivre vers des sorties PDF ou Markdown",
-          "detail": "NotebookLM permet de partager un notebook et de télécharger un Slide Deck (.pptx), mais sa documentation officielle ne confirme ni le partage de la carte elle-même ni une conversion directe de la carte en présentation.",
+          "feature": "Partager directement la carte et la transformer en PDF ou en Markdown",
+          "detail": "NotebookLM permet de partager un notebook et de télécharger un Slide Deck (.pptx), mais sa documentation officielle ne confirme ni le partage direct de la carte elle-même ni sa conversion directe en présentation.",
           "notebooklm": {
-            "label": "Centré notebook / Slide Deck",
+            "label": "Via notebook / Slide Deck",
             "tone": "partial"
           },
           "brify": {
@@ -711,7 +715,7 @@
           }
         },
         {
-          "feature": "Classer, rouvrir et gérer les cartes structurées avec des tags et des statuts de lecture",
+          "feature": "Classer, rouvrir et gérer les cartes avec des tags et des statuts de lecture",
           "detail": "Vous pouvez marquer chaque carte comme « En cours », « Important » ou « Vérifié », puis la gérer dans la continuité de votre flux de travail.",
           "notebooklm": {
             "label": "Non disponible",
@@ -725,7 +729,7 @@
       ]
     },
     "notebooklm": {
-      "badge": "Compréhension d’abord",
+      "badge": "Compréhension avant tout",
       "title": "NotebookLM",
       "description": "Très efficace pour poser des questions sur plusieurs sources et les comprendre rapidement.",
       "items": [
@@ -733,18 +737,18 @@
         "Revenir rapidement aux passages pertinents grâce aux citations"
       ],
       "limitations": [
-        "Peu adapté à l’édition directe de la carte générée ou au marquage des parties importantes",
-        "Pas de flux pour classer et gérer les cartes elles-mêmes avec des tags et des statuts de lecture"
+        "Peu adapté à la modification directe de la carte générée ou au marquage des points importants",
+        "Pas de véritable flux pour classer et gérer les cartes elles-mêmes avec des tags et des statuts de lecture"
       ]
     },
     "brify": {
-      "badge": "Travail concret d’abord",
+      "badge": "Travail concret avant tout",
       "title": "Brify",
-      "description": "Brify n’est pas un résumé qui compresse seulement l’essentiel. Il conserve dans la carte structurée l’emplacement des détails que vous devrez peut-être retrouver.",
+      "description": "Brify ne se limite pas à résumer l’essentiel. Il conserve dans la carte l’emplacement des détails que vous devrez peut-être retrouver plus tard.",
       "items": [
-        "Modifier librement la structure et marquer les passages importants",
+        "Modifier librement la carte et marquer ce qui compte",
         "Revenir au texte d’origine depuis la carte et continuer à l’affiner",
-        "Poursuivre vers un lien de partage et des sorties PDF ou Markdown",
+        "Transformer la carte en lien de partage, en PDF ou en Markdown",
         "Rouvrir et gérer les cartes avec des tags et des statuts de lecture"
       ]
     },
@@ -767,10 +771,33 @@
       },
       "brify": {
         "label": "Brify",
-        "text": "Il convient mieux si vous voulez une carte structurée vraiment manipulable — marquer les nœuds, ajouter des notes en lisant et conserver exactement les informations dont vous avez besoin sous forme de résultat."
-      },
-      "note": "« Partiellement » signifie que NotebookLM peut couvrir une partie du flux via les citations, les notes, le partage ou les Slide Decks, plutôt que directement sur la carte structurée elle-même."
+        "text": "Il convient mieux si vous voulez une carte vraiment manipulable : marquer des nœuds, ajouter des notes en lisant, retrouver les informations qui comptent, les modifier et les transformer en résultat concret."
+      }
     }
+  },
+  "LandingAudienceSection": {
+    "eyebrow": "Pour qui",
+    "title": "Brify est particulièrement utile pour ces profils",
+    "subtitle": "Plus vous avez besoin de lire de longs documents, de revenir à des informations précises et de transformer vos lectures en livrables réutilisables, plus Brify devient utile.",
+    "items": [
+      {
+        "title": "Chercheurs et étudiants en master ou doctorat",
+        "description": "Quand vous devez lire des articles, des documents spécialisés ou des sources en langue étrangère, tout en gardant à la fois l’idée centrale et les détails importants"
+      },
+      {
+        "title": "Métiers juridiques, politiques ou d'évaluation",
+        "description": "Quand vous devez retrouver rapidement les points clés et l’emplacement des informations dans de longs documents, puis les rouvrir pour poursuivre l’analyse"
+      },
+      {
+        "title": "Stratégie, planification et recherche",
+        "description": "Quand vous devez lire plusieurs rapports et sources, les restructurer selon vos propres critères et en faire des livrables partageables"
+      },
+      {
+        "title": "Professionnels qui lisent souvent des documents complexes",
+        "description": "Quand vous voulez marquer, annoter et suivre l’état de lecture au lieu de simplement lire une fois puis passer à autre chose"
+      }
+    ],
+    "footnote": "Brify est encore plus utile lorsque vos documents doivent être rouverts, retravaillés et réutilisés."
   },
   "LandingOutcomeSection": {
     "eyebrow": "Outcome",
@@ -905,9 +932,9 @@
     }
   },
   "FinalCTA": {
-    "title": "Structurez plus vite les documents complexes,",
+    "title": "Structurez plus vite les documents complexes",
     "subtitle": "Comparez les éléments clés et prenez des décisions plus précises.",
-    "body": "Plus vous devez prendre en compte de points de vue, plus votre propre critère doit être clair.",
+    "body": "Plus vous devez prendre en compte de points de vue, plus vos critères doivent être clairs.",
     "primary": {
       "signedOut": "Commencer gratuitement",
       "signedIn": "Commencer"
@@ -924,7 +951,7 @@
     "imageAlt": "Créatrice de Brify",
     "label": "Pourquoi j’ai créé Brify",
     "name": "Lina",
-    "quote": "« Il y a toujours plus à lire, alors que <strong>le temps pour décider diminue</strong>.\nJ’ai créé <heavy>Brify</heavy> pour aider à lire plus vite et plus précisément des documents où manquer quelque chose comporte un vrai risque.\nNon pas par le résumé, mais par la <strong>structuration</strong>, pour vous aider à saisir à la fois <strong>l’essentiel et les détails</strong>. »"
+    "quote": "« Il y a toujours plus à lire, alors que <strong>le temps pour décider se réduit</strong>.\nJ’ai créé <heavy>Brify</heavy> pour aider à lire plus vite et plus précisément des documents où passer à côté d’un détail peut avoir de vraies conséquences.\nNon pas par le résumé, mais par la <strong>structuration</strong>, pour vous aider à saisir à la fois <strong>l’essentiel et les détails</strong>. »"
   },
   "MapLibrarySection": {
     "eyebrow": "Construisez votre propre cadre",

@@ -556,6 +556,7 @@ export default function DemoFullscreenDialog({
 }) {
   const router = useRouter();
   const locale = useLocale();
+  const [pendingStartService, setPendingStartService] = useState(false);
   const t = useTranslations("DemoFullscreenDialog");
   const tMap = useTranslations("FullscreenMapPage");
   const tTutorial = useTranslations("MapTutorial");
@@ -779,8 +780,18 @@ export default function DemoFullscreenDialog({
   };
 
   const handleStartService = () => {
+    setPendingStartService(true);
+    window.dispatchEvent(
+      new CustomEvent("brify:navigation-start", {
+        detail: { target: "demo-start-service" },
+      }),
+    );
     router.push(`/${language}/video-to-map`);
   };
+
+  useEffect(() => {
+    void router.prefetch(`/${language}/video-to-map`);
+  }, [language, router]);
 
   const handleOpenDemoShareGuide = () => {
     setShareGuideOpen(true);
@@ -1232,6 +1243,12 @@ export default function DemoFullscreenDialog({
             onClick={handleStartService}
             className="absolute bottom-[228px] right-5 z-[20] hidden items-center gap-2 rounded-[22px] bg-[linear-gradient(135deg,#2563eb_0%,#0ea5e9_42%,#14b8a6_100%)] px-6 py-4 text-[17px] font-black tracking-[-0.02em] text-white shadow-[0_28px_60px_-24px_rgba(14,165,233,0.78)] transition-transform hover:scale-[1.03] hover:shadow-[0_32px_70px_-24px_rgba(37,99,235,0.82)] sm:inline-flex"
             title={t("actions.startService")}
+            aria-busy={pendingStartService ? "true" : "false"}
+            style={
+              pendingStartService
+                ? { transform: "scale(0.985)", filter: "brightness(0.96)" }
+                : undefined
+            }
           >
             <Icon icon="mdi:rocket-launch" className="h-5 w-5" />
             {t("actions.startService")}

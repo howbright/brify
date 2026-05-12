@@ -2,15 +2,16 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 
 type Props = {
   isAuthed?: boolean;
   primaryHrefSignedOut?: string; // default: /signup
   primaryHrefSignedIn?: string; // default: /summarize
   showSecondary?: boolean;
-  secondaryHref?: string; // default: /#pricing
+  secondaryHref?: string; // default: /pricing
   className?: string;
 };
 
@@ -19,16 +20,39 @@ export default function FinalCTA({
   primaryHrefSignedOut = "/signup",
   primaryHrefSignedIn = "/video-to-map",
   showSecondary = true,
-  secondaryHref = "/#pricing",
+  secondaryHref = "/pricing",
   className = "",
 }: Props) {
   const t = useTranslations("FinalCTA");
+  const router = useRouter();
+  const pathname = usePathname();
+  const [pendingCta, setPendingCta] = useState<"primary" | "secondary" | null>(null);
 
   const primaryHref = isAuthed ? primaryHrefSignedIn : primaryHrefSignedOut;
   const primaryLabel = isAuthed
     ? t("primary.signedIn")
     : t("primary.signedOut");
   const subLabel = showSecondary ? t("secondary.label") : "";
+
+  useEffect(() => {
+    setPendingCta(null);
+  }, [pathname]);
+
+  useEffect(() => {
+    void router.prefetch(primaryHref);
+    if (showSecondary) {
+      void router.prefetch(secondaryHref);
+    }
+  }, [primaryHref, router, secondaryHref, showSecondary]);
+
+  const startNavigationFeedback = (target: "primary" | "secondary") => {
+    setPendingCta(target);
+    window.dispatchEvent(
+      new CustomEvent("brify:navigation-start", {
+        detail: { target: `final-cta-${target}` },
+      }),
+    );
+  };
 
   return (
     // ✅ 섹션 자체는 full-bleed (w-full) + no max-width + no rounding
@@ -108,13 +132,23 @@ export default function FinalCTA({
               {/* Primary */}
               <Link
                 href={primaryHref}
-                className="
-                  px-6 py-3 rounded-2xl
-                  bg-white text-[#0b1224] font-bold
-                  shadow-[0_18px_42px_-24px_rgba(255,255,255,0.55)] hover:shadow-[0_22px_48px_-24px_rgba(255,255,255,0.65)]
-                  transition-transform hover:scale-[1.03] active:scale-100
-                  focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60
-                "
+                onClick={() => startNavigationFeedback("primary")}
+                className={[
+                  "px-6 py-3 rounded-2xl font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
+                  "transition-all active:scale-100",
+                  pendingCta === "primary"
+                    ? "bg-white text-[#0b1224] shadow-[0_10px_24px_-18px_rgba(255,255,255,0.45)] opacity-95 cursor-progress"
+                    : "bg-white text-[#0b1224] shadow-[0_18px_42px_-24px_rgba(255,255,255,0.55)] hover:shadow-[0_22px_48px_-24px_rgba(255,255,255,0.65)] hover:scale-[1.03]",
+                ].join(" ")}
+                aria-busy={pendingCta === "primary" ? "true" : "false"}
+                style={
+                  pendingCta === "primary"
+                    ? {
+                        transform: "translateY(1px) scale(0.985)",
+                        filter: "brightness(0.93)",
+                      }
+                    : undefined
+                }
               >
                 {primaryLabel}
               </Link>
@@ -123,11 +157,23 @@ export default function FinalCTA({
               {showSecondary && (
                 <Link
                   href={secondaryHref}
-                  className="
-                    px-5 py-3 rounded-2xl
-                    bg-white/[0.12] border border-white/30 text-white font-semibold hover:-translate-y-0.5 hover:bg-white/[0.16] hover:shadow-md transition-all
-                    focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30
-                  "
+                  onClick={() => startNavigationFeedback("secondary")}
+                  className={[
+                    "px-5 py-3 rounded-2xl border text-white font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30",
+                    "transition-all",
+                    pendingCta === "secondary"
+                      ? "bg-white/[0.22] border-white/45 shadow-[0_10px_24px_-18px_rgba(255,255,255,0.22)] cursor-progress"
+                      : "bg-white/[0.12] border-white/30 hover:-translate-y-0.5 hover:bg-white/[0.16] hover:shadow-md",
+                  ].join(" ")}
+                  aria-busy={pendingCta === "secondary" ? "true" : "false"}
+                  style={
+                    pendingCta === "secondary"
+                      ? {
+                          transform: "translateY(1px) scale(0.985)",
+                          filter: "brightness(0.94)",
+                        }
+                      : undefined
+                  }
                 >
                   {subLabel}
                 </Link>

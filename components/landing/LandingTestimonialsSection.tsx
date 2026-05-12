@@ -3,7 +3,8 @@
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { useEffect, useState } from "react";
 
 function ReviewCard({
   quote,
@@ -40,6 +41,27 @@ function ReviewCard({
 
 export default function LandingTestimonialsSection() {
   const t = useTranslations("LandingTestimonialsSection");
+  const router = useRouter();
+  const pathname = usePathname();
+  const [pendingCta, setPendingCta] = useState(false);
+  const ctaHref = "/signup?next=%2Fvideo-to-map";
+
+  useEffect(() => {
+    setPendingCta(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    void router.prefetch("/signup");
+  }, [router]);
+
+  const startNavigationFeedback = () => {
+    setPendingCta(true);
+    window.dispatchEvent(
+      new CustomEvent("brify:navigation-start", {
+        detail: { target: "testimonials-cta" },
+      }),
+    );
+  };
 
   return (
     <section className="relative overflow-hidden border-y border-[#dbe4ef] bg-[#0c1525] px-6 py-14 dark:border-[#1f2b3d] md:px-10 md:py-18">
@@ -99,8 +121,15 @@ export default function LandingTestimonialsSection() {
 
         <div className="mt-8 flex justify-center md:mt-10">
           <Link
-            href="/signup?next=%2Fvideo-to-map"
+            href={ctaHref}
+            onClick={startNavigationFeedback}
             className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,#2563eb_0%,#0ea5e9_48%,#22c55e_100%)] px-6 py-3.5 text-[15px] font-extrabold tracking-[-0.01em] text-white shadow-[0_22px_48px_-22px_rgba(14,165,233,0.85)] transition-transform duration-200 hover:scale-[1.03] hover:brightness-[1.05] md:px-7 md:py-4 md:text-base"
+            aria-busy={pendingCta ? "true" : "false"}
+            style={
+              pendingCta
+                ? { transform: "scale(0.985)", filter: "brightness(0.96)" }
+                : undefined
+            }
           >
             <span>{t("cta")}</span>
             <Icon icon="mdi:arrow-right" className="h-5 w-5" />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import ClientUserMenu from "./ClientUserMenu";
 import ClientMobileUserMenu from "./ClientMobileMenu";
 import LanguageSelector from "@/components/LanguageSelector";
@@ -24,9 +24,11 @@ type Props = {
 export default function ClientHeaderShell({ isAuthed, email }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const [isCreatingBlank, setIsCreatingBlank] = useState(false);
+  const [pendingNavTarget, setPendingNavTarget] = useState<string | null>(null);
   const t = useTranslations("Header");
   const locale = useLocale();
   const router = useRouter();
+  const pathname = usePathname();
   const desktopHeaderClass = "hidden min-[971px]:flex";
   const mobileHeaderClass = "hidden max-[970px]:flex";
 
@@ -36,6 +38,42 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    setPendingNavTarget(null);
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleNavigationStart = (event: Event) => {
+      const detail = (event as CustomEvent<{ target?: string }>).detail;
+      if (detail?.target) {
+        setPendingNavTarget(detail.target);
+      }
+    };
+
+    window.addEventListener("brify:navigation-start", handleNavigationStart as EventListener);
+    return () => {
+      window.removeEventListener("brify:navigation-start", handleNavigationStart as EventListener);
+    };
+  }, []);
+
+  useEffect(() => {
+    void router.prefetch(`/${locale}`);
+    void router.prefetch(`/${locale}/blog`);
+    void router.prefetch(`/${locale}/pricing`);
+    void router.prefetch(`/${locale}/support`);
+    void router.prefetch(`/${locale}/signup`);
+    void router.prefetch(`/${locale}/login`);
+    if (isAuthed) {
+      void router.prefetch(`/${locale}/maps`);
+      void router.prefetch(`/${locale}/billing`);
+    }
+  }, [isAuthed, locale, router]);
+
+  const startNavigationFeedback = (target: string, href?: string) => {
+    if (href && pathname === href) return;
+    setPendingNavTarget(target);
+  };
 
   const startBlankMap = async () => {
     if (isCreatingBlank) return;
@@ -78,11 +116,34 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
   ].join(" ");
 
   return (
-    <header className={headerClassName} role="banner">
+    <header className={headerClassName} role="banner" aria-busy={pendingNavTarget ? "true" : "false"}>
+      <div
+        aria-hidden
+        className={[
+          "pointer-events-none absolute inset-x-0 bottom-0 h-[3px] overflow-hidden transition-opacity duration-200",
+          pendingNavTarget ? "opacity-100" : "opacity-0",
+        ].join(" ")}
+      >
+        <div className="h-full w-full origin-left animate-pulse bg-[linear-gradient(90deg,transparent_0%,#2563eb_18%,#38bdf8_48%,#2563eb_82%,transparent_100%)] dark:bg-[linear-gradient(90deg,transparent_0%,#60a5fa_18%,#67e8f9_48%,#60a5fa_82%,transparent_100%)]" />
+      </div>
       <div className="mx-auto max-w-7xl px-6 md:px-10">
         <div className="flex h-[64px] items-center justify-between min-[971px]:h-[64px]">
           {/* 좌측 로고 */}
-          <Link href="/" className="flex min-w-0 items-center gap-2.5 min-[971px]:gap-3">
+          <Link
+            href="/"
+            onClick={() => startNavigationFeedback("home", "/")}
+            className={[
+              "flex min-w-0 items-center gap-2.5 rounded-2xl transition-all min-[971px]:gap-3",
+              pendingNavTarget === "home"
+                ? "scale-[0.985] opacity-90"
+                : "hover:opacity-95",
+            ].join(" ")}
+            style={
+              pendingNavTarget === "home"
+                ? { filter: "brightness(0.97)" }
+                : undefined
+            }
+          >
             <img
               src="/images/newlogo.png"
               alt="Brify"
@@ -101,7 +162,13 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
           <nav className={`${desktopHeaderClass} items-center gap-2`}>
             <Link
               href="/blog"
-              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 border border-slate-400 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+              onClick={() => startNavigationFeedback("blog", "/blog")}
+              className={[
+                "text-sm px-3 py-2 rounded-full border transition-all hover:-translate-y-0.5",
+                pendingNavTarget === "blog"
+                  ? "border-blue-300 bg-blue-100/90 text-blue-800 shadow-md dark:border-blue-300/40 dark:bg-blue-400/10 dark:text-blue-200"
+                  : "bg-white/60 border-slate-400 dark:bg-white/10 dark:border-white/20 hover:shadow-md",
+              ].join(" ")}
             >
               {t("nav.blog")}
             </Link>
@@ -112,14 +179,26 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
               {t("nav.about")}
             </Link>
             <Link
-              href={{ pathname: "/", hash: "pricing" }}
-              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 border border-slate-400 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+              href="/pricing"
+              onClick={() => startNavigationFeedback("pricing", "/pricing")}
+              className={[
+                "text-sm px-3 py-2 rounded-full border transition-all hover:-translate-y-0.5",
+                pendingNavTarget === "pricing"
+                  ? "border-blue-300 bg-blue-100/90 text-blue-800 shadow-md dark:border-blue-300/40 dark:bg-blue-400/10 dark:text-blue-200"
+                  : "bg-white/60 border-slate-400 dark:bg-white/10 dark:border-white/20 hover:shadow-md",
+              ].join(" ")}
             >
               {t("nav.pricing")}
             </Link>
             <Link
               href="/support"
-              className="text-sm px-3 py-2 rounded-full bg-white/60 dark:bg-white/10 border border-slate-400 dark:border-white/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+              onClick={() => startNavigationFeedback("support", "/support")}
+              className={[
+                "text-sm px-3 py-2 rounded-full border transition-all hover:-translate-y-0.5",
+                pendingNavTarget === "support"
+                  ? "border-blue-300 bg-blue-100/90 text-blue-800 shadow-md dark:border-blue-300/40 dark:bg-blue-400/10 dark:text-blue-200"
+                  : "bg-white/60 border-slate-400 dark:bg-white/10 dark:border-white/20 hover:shadow-md",
+              ].join(" ")}
             >
               {t("nav.contactFeedback")}
             </Link>
@@ -138,25 +217,25 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
               <div className="flex items-center gap-1.5">
                 <Link
                   href="/login?next=%2Fmaps"
-                  className="
-                    text-sm px-2 py-1.5 rounded-full
-                    text-slate-700 hover:text-slate-900 hover:bg-slate-100
-                    transition-colors
-                    dark:text-slate-200 dark:hover:text-white dark:hover:bg-white/10
-                  "
+                  onClick={() => startNavigationFeedback("login", "/login")}
+                  className={[
+                    "text-sm px-2 py-1.5 rounded-full transition-colors dark:text-slate-200 dark:hover:text-white dark:hover:bg-white/10",
+                    pendingNavTarget === "login"
+                      ? "bg-slate-100 text-slate-900 dark:bg-white/10 dark:text-white"
+                      : "text-slate-700 hover:text-slate-900 hover:bg-slate-100",
+                  ].join(" ")}
                 >
                   {t("auth.login")}
                 </Link>
                 <Link
                   href="/signup?next=%2Fvideo-to-map"
-                  className="
-                    text-sm px-4 py-2 rounded-full
-                    bg-blue-600 text-white
-                    hover:bg-blue-700
-                    hover:shadow-lg
-                    transition-transform hover:scale-[1.03] active:scale-100
-                    dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]
-                  "
+                  onClick={() => startNavigationFeedback("signup", "/signup")}
+                  className={[
+                    "text-sm px-4 py-2 rounded-full text-white transition-all active:scale-100 dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]",
+                    pendingNavTarget === "signup"
+                      ? "bg-blue-700 shadow-lg scale-[0.985]"
+                      : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg hover:scale-[1.03]",
+                  ].join(" ")}
                 >
                   {t("auth.signup")}
                 </Link>
@@ -225,20 +304,21 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                 {/* 나의 맵 – 세컨더리 텍스트 버튼 스타일 */}
                 <Link
                   href="/maps"
-                  className="
-                    text-sm font-medium
-                    px-2.5 py-1.5 rounded-lg
-                    text-neutral-700 dark:text-neutral-200
-                    hover:text-neutral-900 dark:hover:text-white
-                    hover:bg-white/70 dark:hover:bg-white/5
-                    border border-transparent hover:border-slate-400 dark:hover:border-white/20
-                    transition-colors
-                  "
+                  onClick={() => startNavigationFeedback("maps", "/maps")}
+                  className={[
+                    "text-sm font-medium px-2.5 py-1.5 rounded-lg border transition-colors dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/5 dark:hover:border-white/20",
+                    pendingNavTarget === "maps"
+                      ? "border-blue-300 bg-blue-50/90 text-blue-800 dark:border-blue-300/40 dark:bg-blue-400/10 dark:text-blue-200"
+                      : "text-neutral-700 hover:text-neutral-900 hover:bg-white/70 border-transparent hover:border-slate-400",
+                  ].join(" ")}
                 >
                   {t("cta.myMaps")}
                 </Link>
 
-                <ClientUserMenu email={email} />
+                <ClientUserMenu
+                  email={email}
+                  onNavigateStart={startNavigationFeedback}
+                />
               </div>
             )}
           </div>
@@ -249,6 +329,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
             {!isAuthed && (
               <Link
                 href="/signup?next=%2Fvideo-to-map"
+                onClick={() => startNavigationFeedback("signup", "/signup")}
                 className="
                   inline-flex h-8 shrink-0 items-center rounded-xl
                   bg-blue-600 px-3 text-[12px] font-semibold text-white
@@ -322,7 +403,11 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
               </DropdownMenu>
             )}
 
-            <ClientMobileUserMenu isAuthed={isAuthed} email={email} />
+            <ClientMobileUserMenu
+              isAuthed={isAuthed}
+              email={email}
+              onNavigateStart={startNavigationFeedback}
+            />
           </div>
         </div>
       </div>

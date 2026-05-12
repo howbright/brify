@@ -3,7 +3,7 @@
 import type { Variants } from "framer-motion";
 import { AnimatePresence, motion } from "framer-motion";
 import { Icon } from "@iconify/react";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
@@ -185,11 +185,13 @@ function HeroDiagramImage({
 export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boolean }) {
   const t = useTranslations("LandingBlueHero");
   const locale = useLocale();
+  const router = useRouter();
   const demoShareToken = locale === "en"
     ? "3a805093-2bcf-484c-8a2d-e9d4f676d88e"
     : "0eb4b0cd-ef56-4078-ba9d-f37cbdc43aad";
   const demoShareHref = `/share/${demoShareToken}`;
   const [idx, setIdx] = useState(0);
+  const [pendingCta, setPendingCta] = useState<"primary" | "secondary" | null>(null);
 
   const titles = (() => {
     const raw = t.raw("titles");
@@ -200,6 +202,22 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
     const raw = t.raw("featureItems");
     return Array.isArray(raw) ? (raw as string[]) : [];
   })();
+  const pricingBadges = (() => {
+    const raw = t.raw("pricingBadges");
+    return Array.isArray(raw) ? (raw as string[]) : [];
+  })();
+  const pricingNotes = (() => {
+    const raw = t.raw("pricingNotes");
+    return Array.isArray(raw) ? (raw as string[]) : [];
+  })();
+  const primaryPricingBadges = pricingBadges.slice(0, 2);
+  const [primaryPricingNote, ...secondaryPricingNotes] = pricingNotes;
+
+  const pricingBadgeIcons = [
+    "mdi:gift-outline",
+    "mdi:calendar-remove-outline",
+    "mdi:share-variant-outline",
+  ] as const;
 
   const safeIdx = titles.length ? idx % titles.length : 0;
   const titleHighlight = t("titleHighlight");
@@ -213,6 +231,20 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
 
     return () => window.clearInterval(timer);
   }, [titles.length]);
+
+  useEffect(() => {
+    void router.prefetch(isAuthed ? "/video-to-map" : "/signup");
+    void router.prefetch(demoShareHref);
+  }, [demoShareHref, isAuthed, router]);
+
+  const startHeroNavigation = (target: "primary" | "secondary") => {
+    setPendingCta(target);
+    window.dispatchEvent(
+      new CustomEvent("brify:navigation-start", {
+        detail: { target: `hero-${target}` },
+      }),
+    );
+  };
 
   const renderFeatures = (
     className?: string,
@@ -408,18 +440,28 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
           <div className="mt-7 flex gap-4">
             <Link
               href={isAuthed ? "/video-to-map" : "/signup?next=%2Fvideo-to-map"}
+              onClick={() => startHeroNavigation("primary")}
               className="
-                px-6 py-3 rounded-2xl
+                inline-flex px-6 py-3 rounded-2xl
                 bg-[linear-gradient(135deg,#1d4ed8_0%,#2563eb_45%,#3b82f6_100%)] text-white font-semibold
                 shadow-[0_18px_40px_-18px_rgba(37,99,235,0.7)] hover:shadow-[0_22px_46px_-18px_rgba(37,99,235,0.82)]
-                transition-transform hover:scale-[1.03]
+                transition-all hover:scale-[1.03]
+                aria-busy:opacity-90
               "
+              aria-busy={pendingCta === "primary" ? "true" : "false"}
+              data-pending={pendingCta === "primary" ? "true" : "false"}
+              style={
+                pendingCta === "primary"
+                  ? { transform: "scale(0.985)", filter: "brightness(0.96)" }
+                  : undefined
+              }
             >
               {t("ctaPrimary")}
             </Link>
 
             <Link
               href={demoShareHref}
+              onClick={() => startHeroNavigation("secondary")}
               className="
                 group inline-flex items-center gap-2
                 rounded-2xl border border-slate-600 bg-white px-5 py-3 font-semibold
@@ -431,6 +473,13 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
                 dark:hover:border-blue-300/55 dark:hover:bg-blue-400/10
                 dark:hover:text-white dark:hover:shadow-[0_18px_38px_-22px_rgba(59,130,246,0.38)]
               "
+              aria-busy={pendingCta === "secondary" ? "true" : "false"}
+              data-pending={pendingCta === "secondary" ? "true" : "false"}
+              style={
+                pendingCta === "secondary"
+                  ? { transform: "scale(0.985)", filter: "brightness(0.97)" }
+                  : undefined
+              }
             >
               {t("ctaSecondary")}
               <svg
@@ -455,6 +504,70 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
               </svg>
             </Link>
           </div>
+
+          {pricingBadges.length > 0 || pricingNotes.length > 0 ? (
+            <div
+              className="
+                mt-5 max-w-[42rem] rounded-[24px] border border-slate-200/80
+                bg-white/78 px-4 py-4 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.18)]
+                backdrop-blur
+                dark:border-white/12 dark:bg-white/[0.05]
+                md:px-5 md:py-4
+              "
+            >
+              {primaryPricingBadges.length > 0 ? (
+                <div className="flex flex-wrap items-center gap-2.5">
+                  {primaryPricingBadges.map((badge, index) => (
+                    <div
+                      key={`${badge}-${index}`}
+                      className="
+                        inline-flex items-center gap-1.5 rounded-full
+                        border border-slate-200 bg-white px-3 py-1.5
+                        text-[12px] font-semibold text-slate-700
+                        shadow-[0_10px_24px_-18px_rgba(15,23,42,0.18)]
+                        dark:border-white/12 dark:bg-white/[0.06] dark:text-slate-200
+                      "
+                    >
+                      <Icon
+                        icon={pricingBadgeIcons[index] ?? "mdi:check-circle-outline"}
+                        className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-300"
+                      />
+                      {badge}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+
+              {primaryPricingNote ? (
+                <div className="mt-3 grid gap-2">
+                  <div
+                    className="flex items-start gap-2.5 rounded-2xl bg-slate-50/90 px-3 py-2 text-sm leading-6 text-slate-600 dark:bg-white/[0.04] dark:text-slate-300"
+                  >
+                    <span className="mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700 dark:bg-blue-400/15 dark:text-blue-200">
+                      <Icon icon="mdi:check" className="h-3.5 w-3.5" />
+                    </span>
+                    <p>{primaryPricingNote}</p>
+                  </div>
+                </div>
+              ) : null}
+
+              {secondaryPricingNotes.length > 0 ? (
+                <div className="mt-2 grid gap-1.5">
+                  {secondaryPricingNotes.map((note, index) => (
+                    <div
+                      key={`${note}-${index}`}
+                      className="flex items-start gap-2 text-xs leading-5 text-slate-500 dark:text-slate-400"
+                    >
+                      <span className="mt-2 inline-flex h-1.5 w-1.5 shrink-0 rounded-full bg-slate-400/70 dark:bg-slate-500/80" />
+                      <p className="tracking-[0.01em]">
+                        {note}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
           {/* features */}
           {renderFeatures("mt-6 md:hidden")}

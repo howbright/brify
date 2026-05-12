@@ -16,9 +16,11 @@ import MindThemePreferenceModal from "@/components/maps/MindThemePreferenceModal
 export default function ClientMobileUserMenu({
   isAuthed,
   email,
+  onNavigateStart,
 }: {
   isAuthed: boolean;
   email: string | null;
+  onNavigateStart?: (target: string, href?: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
@@ -107,6 +109,7 @@ export default function ClientMobileUserMenu({
               <button
                 onClick={() => {
                   setOpen(false);
+                  onNavigateStart?.("blog", "/blog");
                   router.push(`/${locale}/blog`);
                 }}
                 className="w-full text-left py-2 text-sm"
@@ -127,7 +130,8 @@ export default function ClientMobileUserMenu({
               <button
                 onClick={() => {
                   setOpen(false);
-                  router.push(`/${locale}#pricing`);
+                  onNavigateStart?.("pricing", "/pricing");
+                  router.push(`/${locale}/pricing`);
                 }}
                 className="w-full text-left py-2 text-sm"
               >
@@ -137,6 +141,7 @@ export default function ClientMobileUserMenu({
               <button
                 onClick={() => {
                   setOpen(false);
+                  onNavigateStart?.("support", "/support");
                   router.push(`/${locale}/support`);
                 }}
                 className="w-full text-left py-2 text-sm"
@@ -161,6 +166,7 @@ export default function ClientMobileUserMenu({
                     <button
                       onClick={() => {
                         setOpen(false);
+                        onNavigateStart?.("maps", "/maps");
                         router.push(`/${locale}/maps`);
                       }}
                       className="w-full text-left py-2"
@@ -170,6 +176,7 @@ export default function ClientMobileUserMenu({
                     <button
                       onClick={() => {
                         setOpen(false);
+                        onNavigateStart?.("billing", "/billing");
                         router.push(`/${locale}/billing`);
                       }}
                       className="w-full text-left py-2"
@@ -179,6 +186,7 @@ export default function ClientMobileUserMenu({
                     <button
                       onClick={() => {
                         setOpen(false);
+                        onNavigateStart?.("billing-history", "/billing/history");
                         router.push(`/${locale}/billing/history`);
                       }}
                       className="w-full text-left py-2"
@@ -225,7 +233,10 @@ export default function ClientMobileUserMenu({
                       href="/login?next=%2Fmaps"
                       className="w-full text-primary border border-slate-400 hover:bg-primary/10 font-medium 
                         rounded-lg text-sm px-4 py-2 text-center"
-                      onClick={() => setOpen(false)}
+                      onClick={() => {
+                        setOpen(false);
+                        onNavigateStart?.("login", "/login");
+                      }}
                     >
                       {t("auth.login")}
                     </Link>
@@ -233,7 +244,10 @@ export default function ClientMobileUserMenu({
                       href="/signup?next=%2Fvideo-to-map"
                       className="w-full text-white bg-primary hover:bg-primary-hover font-medium 
                         rounded-lg text-sm px-4 py-2 text-center"
-                      onClick={() => setOpen(false)}
+                      onClick={() => {
+                        setOpen(false);
+                        onNavigateStart?.("signup", "/signup");
+                      }}
                     >
                       {t("auth.signup")}
                     </Link>
