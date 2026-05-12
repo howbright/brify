@@ -1,6 +1,8 @@
 import FinalCTA from "@/components/landing/FinalCTA";
+import LandingComparisonSection from "@/components/landing/LandingComparisonSection";
 import LandingFeatureListSection from "@/components/landing/LandingFeatureListSection";
 import LandingPricingSection from "@/components/landing/LandingPricingSection";
+import LandingSampleSection from "@/components/landing/LandingSampleSection";
 import LandingTestimonialsSection from "@/components/landing/LandingTestimonialsSection";
 import CreatorSection from "@/components/layout/CreateorSection";
 import Hero from "@/components/layout/Hero";
@@ -56,6 +58,8 @@ export default async function Home({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <Hero isAuthed={isAuthed} />
+      <LandingComparisonSection />
+      <LandingSampleSection isAuthed={isAuthed} />
       <LandingFeatureListSection />
       <LandingTestimonialsSection />
       <LandingPricingSection isAuthed={isAuthed} packs={packs} />

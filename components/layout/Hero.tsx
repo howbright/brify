@@ -218,26 +218,28 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
     className?: string,
     gridClassName = "grid gap-y-3",
   ) => (
-    <div className={className}>
-      <motion.div
-        className={gridClassName}
-        variants={listV}
-        initial="hidden"
-        animate="show"
-      >
-        {features.map((text, i) => (
-          <motion.div key={i} variants={itemV} className="flex min-w-0 items-center gap-3">
-            <span
-              aria-hidden
-              className="h-2.5 w-2.5 shrink-0 self-center rounded-full bg-gradient-to-br from-blue-600 via-sky-500 to-cyan-400 shadow-[0_0_0_5px_rgba(59,130,246,0.10)] dark:from-sky-300 dark:via-blue-300 dark:to-cyan-200 dark:shadow-[0_0_0_5px_rgba(125,211,252,0.10)]"
-            />
-            <span className="min-w-0 text-[15px] font-normal leading-6 text-neutral-900 [overflow-wrap:anywhere] dark:text-neutral-100 md:text-[17px] md:leading-7">
-              {text}
-            </span>
-          </motion.div>
-        ))}
-      </motion.div>
-    </div>
+    features.length > 0 ? (
+      <div className={className}>
+        <motion.div
+          className={gridClassName}
+          variants={listV}
+          initial="hidden"
+          animate="show"
+        >
+          {features.map((text, i) => (
+            <motion.div key={i} variants={itemV} className="flex min-w-0 items-center gap-3">
+              <span
+                aria-hidden
+                className="h-2.5 w-2.5 shrink-0 self-center rounded-full bg-gradient-to-br from-blue-600 via-sky-500 to-cyan-400 shadow-[0_0_0_5px_rgba(59,130,246,0.10)] dark:from-sky-300 dark:via-blue-300 dark:to-cyan-200 dark:shadow-[0_0_0_5px_rgba(125,211,252,0.10)]"
+              />
+              <span className="min-w-0 text-[15px] font-normal leading-6 text-neutral-900 [overflow-wrap:anywhere] dark:text-neutral-100 md:text-[17px] md:leading-7">
+                {text}
+              </span>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    ) : null
   );
 
   return (
@@ -475,31 +477,6 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
         )}
       </section>
 
-      <section className="mx-auto hidden max-w-7xl px-6 pb-16 md:block md:px-10 md:pb-20">
-        <div className="rounded-3xl border border-slate-300/90 bg-white/82 p-4 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.36)] backdrop-blur-sm dark:border-white/15 dark:bg-white/[0.04]">
-          <div className="mb-4 flex items-center justify-between gap-4">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 md:text-xl">
-              {t("sampleSection.title")}
-            </h2>
-            <Link
-              href={isAuthed ? "/video-to-map" : "/signup?next=%2Fvideo-to-map"}
-              className="inline-flex items-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
-            >
-              {t("sampleSection.cta")}
-            </Link>
-          </div>
-
-          <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
-            <Image
-              src="/images/example.png"
-              alt={t("sampleSection.imageAlt")}
-              fill
-              sizes="(max-width: 1024px) 100vw, 1100px"
-              className="object-cover"
-            />
-          </div>
-        </div>
-      </section>
     </main>
   );
 }
