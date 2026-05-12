@@ -1,7 +1,32 @@
-import type { BillingCatalogItem, BillingCurrency, BillingPackCode, BillingProductCode, BillingProvider } from "@/app/lib/billing/catalog";
+import type {
+  BillingCatalogItem,
+  BillingCurrency,
+  BillingPackCode,
+  BillingProductCode,
+  BillingProvider,
+} from "@/app/lib/billing/catalog";
 import { adminSupabase } from "@/utils/supabase/admin";
 
 const LEMON_CHECKOUT_URL = process.env.NEXT_PUBLIC_LEMON_CHECKOUT || null;
+export const FIRST_PURCHASE_TRIAL_PACK_ID: BillingPackCode = "30_kr_trial";
+
+const FIRST_PURCHASE_TRIAL_PACK: BillingCatalogItem = {
+  id: FIRST_PURCHASE_TRIAL_PACK_ID,
+  productCode: "credit_pack_30_trial",
+  credits: 30,
+  price: 3000,
+  currency: "krw",
+  provider: "toss",
+  orderName: "Brify first purchase trial pack",
+  checkoutUrl: null,
+  firstPurchaseOnly: true,
+};
+
+const COMPLETED_PAYMENT_STATUSES = ["paid", "refunded", "part_refunded"] as const;
+
+type FetchBillingCatalogOptions = {
+  userId?: string | null;
+};
 
 function getProvider(currency: BillingCurrency): BillingProvider {
   return currency === "krw" ? "toss" : "lemon_squeezy";
@@ -29,6 +54,7 @@ function getOrderName(credits: number) {
 }
 
 function decoratePack(item: BillingCatalogItem): BillingCatalogItem {
+  if (item.firstPurchaseOnly) return item;
   return {
     ...item,
     starter: item.credits === 50,
@@ -36,7 +62,35 @@ function decoratePack(item: BillingCatalogItem): BillingCatalogItem {
   };
 }
 
-export async function fetchBillingCatalog(currency: BillingCurrency): Promise<BillingCatalogItem[]> {
+function buildTrialPack(eligible: boolean): BillingCatalogItem {
+  return {
+    ...FIRST_PURCHASE_TRIAL_PACK,
+    trialEligible: eligible,
+  };
+}
+
+export async function isFirstPurchaseTrialEligible(userId: string): Promise<boolean> {
+  const normalizedUserId = userId.trim();
+  if (!normalizedUserId) return false;
+
+  const { data, error } = await adminSupabase
+    .from("payments")
+    .select("id")
+    .eq("user_id", normalizedUserId)
+    .in("status", [...COMPLETED_PAYMENT_STATUSES])
+    .limit(1);
+
+  if (error) {
+    throw new Error(`Failed to verify first purchase eligibility: ${error.message}`);
+  }
+
+  return !data || data.length === 0;
+}
+
+export async function fetchBillingCatalog(
+  currency: BillingCurrency,
+  options?: FetchBillingCatalogOptions
+): Promise<BillingCatalogItem[]> {
   const { data, error } = await adminSupabase
     .from("credit_packs")
     .select("id, credits, price, currency, is_active")
@@ -48,7 +102,7 @@ export async function fetchBillingCatalog(currency: BillingCurrency): Promise<Bi
     throw new Error(`Failed to load credit packs: ${error.message}`);
   }
 
-  return (data ?? [])
+  const items = (data ?? [])
     .map((row) => {
       const productCode = getProductCode(row.credits);
       const packId = getPackId(row.credits, row.currency);
@@ -69,16 +123,50 @@ export async function fetchBillingCatalog(currency: BillingCurrency): Promise<Bi
       });
     })
     .filter((item): item is BillingCatalogItem => item !== null);
+
+  if (currency !== "krw") {
+    return items;
+  }
+
+  const userId = options?.userId ?? null;
+  if (userId) {
+    try {
+      const eligible = await isFirstPurchaseTrialEligible(userId);
+      return [buildTrialPack(eligible), ...items];
+    } catch (error) {
+      console.error("[billing/catalog] trial eligibility check failed:", error);
+      return [buildTrialPack(false), ...items];
+    }
+  }
+
+  return [buildTrialPack(true), ...items];
 }
 
-export async function fetchBillingCatalogItemById(packId: string): Promise<BillingCatalogItem | null> {
+export async function fetchBillingCatalogItemById(
+  packId: string,
+  options?: FetchBillingCatalogOptions
+): Promise<BillingCatalogItem | null> {
   const normalized = packId.trim().toLowerCase();
+
+  if (normalized === FIRST_PURCHASE_TRIAL_PACK_ID) {
+    const userId = options?.userId ?? null;
+    if (!userId) return null;
+
+    try {
+      const eligible = await isFirstPurchaseTrialEligible(userId);
+      return eligible ? buildTrialPack(true) : null;
+    } catch (error) {
+      console.error("[billing/catalog] trial pack lookup failed:", error);
+      return null;
+    }
+  }
+
   const currency = normalized.endsWith("_kr") ? "krw" : normalized.endsWith("_us") ? "usd" : null;
 
   if (!currency) {
     return null;
   }
 
-  const items = await fetchBillingCatalog(currency);
+  const items = await fetchBillingCatalog(currency, options);
   return items.find((item) => item.id === normalized) ?? null;
 }

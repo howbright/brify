@@ -34,6 +34,16 @@
       "bullet2": "Depending on the length of the video, this can take tens of seconds or more.",
       "bullet3": "As long as you keep this page open, the process will continue automatically."
     },
+    "nextGuide": {
+      "title": "After generation, try this workflow first",
+      "subtitle": "Once processing finishes, these steps help you turn the map into your own working output faster.",
+      "subtitleAutoOpen": "When processing is done, we will move to the detail page automatically. Start with these three actions.",
+      "items": [
+        "Mark 3 important nodes first while reading",
+        "Add 1-2 notes to key nodes",
+        "Save your output via share link or PDF/Markdown export"
+      ]
+    },
     "result": {
       "title": "Generated mind map",
       "hint": "Later, you can plug your actual mind map component into this area.",
@@ -144,8 +154,8 @@
   },
   "OutputLanguageSelect": {
     "labels": {
-      "auto": "Same as the script language",
-      "ko": "Korean",
+      "auto": "Same as the source language",
+      "ko": "한국어",
       "en": "English"
     },
     "currentSelectedOption": "Current selection: {label} ({code})",
@@ -734,25 +744,15 @@
   },
   "LandingFeatureListSection": {
     "eyebrow": "Features",
-    "title": "Key Brify Features",
-    "subtitle": "Built to organize the information you need quickly and make it easy to come back to later.",
+    "title": "Core Brify Features",
+    "subtitle": "A single workflow from reading to refining and sharing.",
     "items": [
-      "Supports multiple input formats, including text, PDF, and DOCX",
+      "Supports multiple input formats: text, PDF, and DOCX",
       "Fast, accurate structure map generation",
-      "Automatic tag generation",
-      "Choose the output language for your structure map",
-      "Automatically splits and merges long inputs for more reliable large-document processing",
-      "Responsive across mobile, tablet, and desktop",
-      "Highlight important nodes",
-      "Jump back to the original text from a node",
-      "AI-powered term extraction",
-      "Add notes while reading each node",
-      "Freely edit the structure map",
-      "Organize and revisit maps with tags",
-      "Auto-load metadata from YouTube links",
-      "Copy structure maps in Markdown",
-      "Read-only share pages",
-      "Print, image, and PDF export"
+      "Stable generation with automatic split-and-merge for large inputs",
+      "Direct map editing with node highlights and notes",
+      "Recheck original source locations and manage maps with tags and reading status",
+      "Share links and export results as PDF or Markdown"
     ]
   },
   "LandingComparisonSection": {
@@ -816,10 +816,22 @@
           }
         },
         {
-          "feature": "Share the structure map itself and turn it into PDF or Markdown outputs",
-          "detail": "NotebookLM supports notebook sharing and Slide Deck (.pptx) downloads, but its official documentation does not confirm sharing the mind map itself or turning the mind map directly into these outputs.",
+          "feature": "Organize, reopen, and manage structure maps with tags and reading status",
+          "detail": "You can mark each structure map as In progress, Important, or Reviewed and keep managing it as part of your workflow.",
           "notebooklm": {
-            "label": "Notebook / Slide Deck based",
+            "label": "Not available",
+            "tone": "none"
+          },
+          "brify": {
+            "label": "Directly in Brify",
+            "tone": "brify"
+          }
+        },
+        {
+          "feature": "Combine multiple structure maps and view them in a single structure map",
+          "detail": "Brify lets you merge generated structure maps and reorganize them into a single flow.",
+          "notebooklm": {
+            "label": "Can explore combined sources, but no structure-map merge flow",
             "tone": "partial"
           },
           "brify": {
@@ -828,11 +840,11 @@
           }
         },
         {
-          "feature": "Organize, reopen, and manage structure maps with tags and reading status",
-          "detail": "You can mark each structure map as In progress, Important, or Reviewed and keep managing it as part of your workflow.",
+          "feature": "Generate reliably with automatic split-and-merge for large inputs",
+          "detail": "Large text is automatically split, generated, and merged again to reduce mid-process failures and stabilize final output.",
           "notebooklm": {
-            "label": "Not available",
-            "tone": "none"
+            "label": "You can split sources manually, but there is no automatic split-and-merge workflow",
+            "tone": "partial"
           },
           "brify": {
             "label": "Directly in Brify",
@@ -887,6 +899,42 @@
         "text": "A better fit if you want a hands-on structure map—one where you can mark nodes, add notes as you read, revise what matters, and turn it into an output."
       }
     }
+  },
+  "LandingUsageGuideSection": {
+    "eyebrow": "Usage Flow",
+    "title": "App Usage Guide",
+    "subtitle": "From input to sharing, here is the real 6-step workflow.",
+    "flowAlt": "Visual guide of the Brify usage flow",
+    "stepLabel": "Step",
+    "steps": [
+      {
+        "title": "Add document or text",
+        "description": "Paste text directly, or upload a PDF/DOCX file."
+      },
+      {
+        "title": "Choose output language",
+        "description": "Select the language you want for the result."
+      },
+      {
+        "title": "Generate structure map",
+        "description": "Click generate to start processing, then move to the result view when it is ready."
+      },
+      {
+        "title": "Edit and highlight nodes",
+        "description": "Highlight key nodes, add notes, and edit the structure where needed."
+      },
+      {
+        "title": "Manage tags and reading status",
+        "description": "Organize maps with tags and reading status so you can reopen and continue later."
+      },
+      {
+        "title": "Share and export outputs",
+        "description": "Create a share link and export your result as PDF or Markdown."
+      }
+    ],
+    "badge": "Built for doing, not just browsing",
+    "footnote": "This flow is designed to help you create your own map right away, not just look at examples.",
+    "cta": "Start for free"
   },
   "LandingAudienceSection": {
     "eyebrow": "Best For",
@@ -945,6 +993,11 @@
     "refundText": "Unused credits are eligible for a full refund within 7 days of purchase.",
     "seeDetails": "View pricing details",
     "packs": {
+      "30": {
+        "badgeText": "First-purchase trial",
+        "tagline": "Start at ₩3,000 with a one-time first-purchase trial pack.",
+        "note": "First purchase only"
+      },
       "50": {
         "badgeText": "Starter",
         "tagline": "A lightweight starter credit pack to try Brify out."
@@ -1333,6 +1386,7 @@
       "unitPriceSuffix": "Structure Maps",
       "vatIncluded": "VAT included",
       "cta": "Buy now",
+      "ctaTrialUsed": "Trial already used",
       "loading": "Preparing order..."
     },
     "bullets": {
@@ -1351,7 +1405,8 @@
       "tossSdkNotLoaded": "Toss payment SDK has not loaded yet.",
       "paymentCanceled": "Payment was canceled.",
       "tossPrepareFailed": "Something went wrong while preparing Toss payment.",
-      "missingCheckoutUrl": "Checkout URL is not configured."
+      "missingCheckoutUrl": "Checkout URL is not configured.",
+      "trialPackAlreadyUsed": "The first-purchase trial pack can only be purchased once per account."
     }
   },
   "BillingHistoryPage": {

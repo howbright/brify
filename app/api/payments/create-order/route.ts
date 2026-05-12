@@ -1,6 +1,9 @@
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { fetchBillingCatalogItemById } from "@/app/lib/billing/catalog.server";
+import {
+  FIRST_PURCHASE_TRIAL_PACK_ID,
+  fetchBillingCatalogItemById,
+} from "@/app/lib/billing/catalog.server";
 import { createClient } from "@/utils/supabase/server";
 import { adminSupabase } from "@/utils/supabase/admin";
 
@@ -38,27 +41,42 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "packId is required" }, { status: 400 });
   }
 
-  const catalogItem = await fetchBillingCatalogItemById(packId);
+  const normalizedPackId = packId.toLowerCase();
+  const catalogItem = await fetchBillingCatalogItemById(normalizedPackId, {
+    userId: user.id,
+  });
   if (!catalogItem) {
+    if (normalizedPackId === FIRST_PURCHASE_TRIAL_PACK_ID) {
+      return NextResponse.json(
+        { error: "FIRST_PURCHASE_TRIAL_NOT_ELIGIBLE" },
+        { status: 409 }
+      );
+    }
     return NextResponse.json({ error: "Unknown pack" }, { status: 404 });
   }
 
-  const { data: dbPack, error: dbPackError } = await adminSupabase
-    .from("credit_packs")
-    .select("id, credits, price, currency, is_active")
-    .eq("id", packId)
-    .eq("is_active", true)
-    .single();
+  let dbPackId: string | null = null;
 
-  if (dbPackError || !dbPack) {
-    console.error("Active credit pack not found:", packId, dbPackError?.message);
-    return NextResponse.json(
-      { error: "Credit pack is not available" },
-      { status: 400 }
-    );
+  if (catalogItem.id !== FIRST_PURCHASE_TRIAL_PACK_ID) {
+    const { data: dbPack, error: dbPackError } = await adminSupabase
+      .from("credit_packs")
+      .select("id, credits, price, currency, is_active")
+      .eq("id", normalizedPackId)
+      .eq("is_active", true)
+      .single();
+
+    if (dbPackError || !dbPack) {
+      console.error("Active credit pack not found:", normalizedPackId, dbPackError?.message);
+      return NextResponse.json(
+        { error: "Credit pack is not available" },
+        { status: 400 }
+      );
+    }
+
+    dbPackId = dbPack.id;
   }
 
-  const providerOrderId = buildProviderOrderId(packId);
+  const providerOrderId = buildProviderOrderId(catalogItem.id);
 
   const { data: payment, error: paymentError } = await adminSupabase
     .from("payments")
@@ -70,11 +88,12 @@ export async function POST(req: NextRequest) {
       amount: catalogItem.price,
       currency: catalogItem.currency,
       credits: catalogItem.credits,
-      credit_pack_id: dbPack.id,
+      credit_pack_id: dbPackId,
       raw_payload: {
         source: "create-order",
         pack_id: catalogItem.id,
         product_code: catalogItem.productCode,
+        first_purchase_only: Boolean(catalogItem.firstPurchaseOnly),
       },
     })
     .select("id, amount, credits, currency, provider, provider_order_id, status")

@@ -52,6 +52,8 @@ declare global {
   }
 }
 
+const FIRST_PURCHASE_TRIAL_PACK_ID = "30_kr_trial";
+
 function formatPrice(amount: number, currency: BillingCurrency) {
   if (currency === "krw") {
     return new Intl.NumberFormat("ko-KR", {
@@ -520,7 +522,12 @@ export default function BillingPage() {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div
+              className={[
+                "grid gap-4",
+                packs.length > 3 ? "sm:grid-cols-2 2xl:grid-cols-4" : "sm:grid-cols-3",
+              ].join(" ")}
+            >
               {packs.map((pack) => (
                 <CreditPackCard
                   key={pack.id}
@@ -583,7 +590,18 @@ function CreditPackCard({
 }) {
   const t = useTranslations("BillingPage");
   const tLanding = useTranslations("LandingPricingSection");
-  const { credits, price, currency, checkoutUrl, popular, starter, provider } = pack;
+  const {
+    id,
+    credits,
+    price,
+    currency,
+    checkoutUrl,
+    popular,
+    starter,
+    provider,
+    firstPurchaseOnly,
+    trialEligible,
+  } = pack;
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const envCheckoutUrlByCredits: Record<number, string | undefined> = {
@@ -594,6 +612,11 @@ function CreditPackCard({
   const resolvedCheckoutUrl = envCheckoutUrlByCredits[credits] ?? checkoutUrl;
 
   const handleBuy = async () => {
+    if (firstPurchaseOnly && trialEligible === false) {
+      toast.error(t("errors.trialPackAlreadyUsed"));
+      return;
+    }
+
     if (!userId) {
       router.push(`/${locale}/login?next=${encodeURIComponent(`/${locale}/billing`)}`);
       return;
@@ -663,6 +686,9 @@ function CreditPackCard({
       } catch (error) {
         const { code, message } = getTossErrorInfo(error);
         const normalizedMessage = message.trim();
+        const isTrialPackNotEligible =
+          normalizedMessage === "FIRST_PURCHASE_TRIAL_NOT_ELIGIBLE" ||
+          normalizedMessage.includes("FIRST_PURCHASE_TRIAL_NOT_ELIGIBLE");
         const isUserCanceled =
           code === "USER_CANCEL" ||
           code === "PAY_PROCESS_CANCELED" ||
@@ -677,7 +703,9 @@ function CreditPackCard({
           });
         }
 
-        if (isUserCanceled) {
+        if (isTrialPackNotEligible) {
+          toast.error(t("errors.trialPackAlreadyUsed"));
+        } else if (isUserCanceled) {
           toast.message(t("errors.paymentCanceled"));
         } else {
           console.error("Failed to open Toss payment window:", error);
@@ -711,7 +739,9 @@ function CreditPackCard({
   const unit = price / credits;
   const isLargePack = !popular && !starter && credits >= 300;
   const badgeText =
-    credits === 50
+    firstPurchaseOnly || id === FIRST_PURCHASE_TRIAL_PACK_ID || credits === 30
+      ? tLanding("packs.30.badgeText")
+      : credits === 50
       ? tLanding("packs.50.badgeText")
       : credits === 150
         ? tLanding("packs.150.badgeText")
@@ -784,8 +814,15 @@ function CreditPackCard({
         </div>
       </div>
 
-      <div className="mt-2 text-2xl font-bold text-neutral-900 dark:text-[var(--color-card-foreground,#e5e7eb)] md:text-[28px]">
-        {formatPrice(price, currency)}
+      <div className="mt-2 flex items-end gap-2">
+        <div className="text-2xl font-bold text-neutral-900 dark:text-[var(--color-card-foreground,#e5e7eb)] md:text-[28px]">
+          {formatPrice(price, currency)}
+        </div>
+        {firstPurchaseOnly ? (
+          <span className="mb-[3px] inline-flex h-5 items-center whitespace-nowrap rounded-full border border-slate-200/90 bg-white/80 px-2 text-[10px] font-medium tracking-[0.01em] text-slate-600 dark:border-slate-500/40 dark:bg-slate-800/45 dark:text-slate-300">
+            {tLanding("packs.30.note")}
+          </span>
+        ) : null}
       </div>
       <div className="mt-1 text-[11px] font-medium tracking-[0.01em] text-slate-500 dark:text-slate-400">
         {t("card.vatIncluded")}
@@ -800,19 +837,23 @@ function CreditPackCard({
 
       <div className="mt-5 flex-1" />
 
-	      <button
-	        onClick={handleBuy}
-	        disabled={isSubmitting}
-	        className="
-	          block w-full cursor-pointer rounded-[var(--radius-lg)] px-4 py-3 text-center text-[16px] font-semibold shadow-sm
-	          bg-[var(--color-primary-500,#2563eb)] text-[var(--color-primary-foreground,#ffffff)]
+      <button
+        onClick={handleBuy}
+        disabled={isSubmitting || (firstPurchaseOnly && trialEligible === false)}
+        className="
+          block w-full cursor-pointer rounded-[var(--radius-lg)] px-4 py-3 text-center text-[16px] font-semibold shadow-sm
+          bg-[var(--color-primary-500,#2563eb)] text-[var(--color-primary-foreground,#ffffff)]
 	          hover:bg-[var(--color-primary-hover,#1d4ed8)] hover:text-[var(--color-primary-foreground,#ffffff)]
 	          dark:bg-[var(--color-primary-500,#3758f9)] dark:hover:bg-[var(--color-primary-hover,#2f49d1)] dark:text-white
 	          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring,#93c5fd)]
 	          disabled:cursor-not-allowed disabled:opacity-65
-	        "
-	      >
-        {isSubmitting ? t("card.loading") : t("card.cta")}
+        "
+      >
+        {isSubmitting
+          ? t("card.loading")
+          : firstPurchaseOnly && trialEligible === false
+            ? t("card.ctaTrialUsed")
+            : t("card.cta")}
       </button>
         </div>
       </div>

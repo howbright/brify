@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchBillingCatalog } from "@/app/lib/billing/catalog.server";
 import type { BillingCurrency } from "@/app/lib/billing/catalog";
+import { createClient } from "@/utils/supabase/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function GET(req: NextRequest) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const currencyParam = req.nextUrl.searchParams.get("currency")?.trim().toLowerCase();
   const currency: BillingCurrency | null =
     currencyParam === "krw" || currencyParam === "usd" ? currencyParam : null;
@@ -16,7 +22,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const items = await fetchBillingCatalog(currency);
+    const items = await fetchBillingCatalog(currency, { userId: user?.id ?? null });
     return NextResponse.json({ items });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to load billing catalog";

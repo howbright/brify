@@ -322,9 +322,14 @@ export default function VideoToMapPage() {
     ],
     [t]
   );
+  const nextGuideItems = useMemo(() => {
+    const raw = t.raw("nextGuide.items");
+    return Array.isArray(raw) ? (raw as string[]) : [];
+  }, [t]);
 
   const hasPendingGeneratedMap = Boolean(pendingAutoOpenMapId);
   const inputLocked = isProcessing || hasPendingGeneratedMap;
+  const showNextGuide = isProcessing || showMetadataDialog || hasPendingGeneratedMap;
 
   const buildTooLargeMessage = (current: number) =>
     [
@@ -1096,6 +1101,41 @@ export default function VideoToMapPage() {
             </span>
           </h1>
         </header>
+
+        {showNextGuide ? (
+          <section
+            className="
+              rounded-2xl border border-blue-200 bg-[linear-gradient(180deg,#eef5ff_0%,#f8fbff_100%)]
+              px-4 py-4 shadow-[0_18px_40px_-26px_rgba(15,23,42,0.24)]
+              dark:border-blue-300/25 dark:bg-[linear-gradient(180deg,rgba(37,99,235,0.16),rgba(15,23,42,0.88))]
+            "
+          >
+            <p className="text-sm font-bold text-blue-800 dark:text-blue-200">
+              {t("nextGuide.title")}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-blue-900/85 dark:text-blue-100/85">
+              {hasPendingGeneratedMap
+                ? t("nextGuide.subtitleAutoOpen")
+                : t("nextGuide.subtitle")}
+            </p>
+
+            {nextGuideItems.length > 0 ? (
+              <div className="mt-3 grid gap-2 md:grid-cols-3">
+                {nextGuideItems.map((item, index) => (
+                  <div
+                    key={`${item}-${index}`}
+                    className="flex items-start gap-2 rounded-xl border border-blue-200/80 bg-white/85 px-3 py-2.5 text-xs leading-5 text-slate-700 dark:border-blue-200/20 dark:bg-white/[0.04] dark:text-slate-200"
+                  >
+                    <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[11px] font-bold text-white dark:bg-blue-300 dark:text-slate-900">
+                      {index + 1}
+                    </span>
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </section>
+        ) : null}
 
         <div
           className="

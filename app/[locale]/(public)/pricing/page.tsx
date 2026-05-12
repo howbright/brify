@@ -17,14 +17,20 @@ export default async function PricingPage({
   const isAuthed = !!user;
 
   const billingCurrency = getBillingCurrencyByLocale(locale);
-  const billingCatalog = await fetchBillingCatalog(billingCurrency);
-  const packs = billingCatalog.map((pack) => ({
-    id: pack.id,
-    credits: pack.credits,
-    priceUSD: pack.price,
-    popular: pack.popular,
-    starter: pack.starter,
-  }));
+  const billingCatalog = await fetchBillingCatalog(billingCurrency, {
+    userId: user?.id ?? null,
+  });
+  const packs = billingCatalog
+    .filter((pack) => pack.credits !== 300)
+    .map((pack) => ({
+      id: pack.id,
+      credits: pack.credits,
+      priceUSD: pack.price,
+      popular: pack.popular,
+      starter: pack.starter,
+      firstPurchaseOnly: pack.firstPurchaseOnly,
+      trialEligible: pack.trialEligible,
+    }));
 
   return (
     <div className="pt-[72px] md:pt-[84px]">

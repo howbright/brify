@@ -34,6 +34,16 @@
       "bullet2": "Selon la longueur de la vidéo, cela peut prendre plusieurs dizaines de secondes ou plus.",
       "bullet3": "Tant que vous gardez cette page ouverte, le traitement continue automatiquement."
     },
+    "nextGuide": {
+      "title": "Après la génération, commencez par ce parcours",
+      "subtitle": "Une fois le traitement terminé, ces étapes vous aident à transformer la carte en livrable utilisable plus rapidement.",
+      "subtitleAutoOpen": "Une fois le traitement terminé, vous serez redirigé automatiquement vers la page de détail. Commencez par ces trois actions.",
+      "items": [
+        "Marquez d’abord 3 nœuds importants pendant la lecture",
+        "Ajoutez 1 à 2 notes sur les nœuds clés",
+        "Enregistrez le résultat via un lien de partage ou un export PDF/Markdown"
+      ]
+    },
     "result": {
       "title": "Mind map générée",
       "hint": "Plus tard, vous pourrez brancher ici votre composant de mind map réel.",
@@ -144,9 +154,9 @@
   },
   "OutputLanguageSelect": {
     "labels": {
-      "auto": "Même langue que la transcription",
-      "ko": "Coréen",
-      "en": "Anglais"
+      "auto": "Même langue que la source",
+      "ko": "한국어",
+      "en": "English"
     },
     "currentSelectedOption": "Sélection actuelle : {label} ({code})",
     "more": "Plus…",
@@ -513,6 +523,11 @@
     "refundText": "Les crédits non utilisés sont remboursables intégralement sous 7 jours après achat.",
     "seeDetails": "Voir les détails tarifaires",
     "packs": {
+      "30": {
+        "badgeText": "Pack essai premier achat",
+        "tagline": "Commencez à 3 000 KRW avec un pack d’essai réservé au premier achat.",
+        "note": "Premier achat uniquement"
+      },
       "50": {
         "badgeText": "Débutant",
         "tagline": "Un pack léger pour essayer Brify."
@@ -621,25 +636,15 @@
   },
   "LandingFeatureListSection": {
     "eyebrow": "Fonctionnalités",
-    "title": "Fonctionnalités clés de Brify",
-    "subtitle": "Pensé pour organiser rapidement les informations utiles et les retrouver facilement ensuite.",
+    "title": "Fonctionnalités essentielles de Brify",
+    "subtitle": "Un seul flux de travail, de la lecture à la révision puis au partage.",
     "items": [
-      "Prend en charge plusieurs formats d’entrée : texte, PDF et DOCX",
+      "Prise en charge de plusieurs formats d’entrée : texte, PDF et DOCX",
       "Génération de cartes structurées rapide et précise",
-      "Génération automatique de tags",
-      "Choisissez la langue de sortie de la carte structurée",
-      "Découpe et fusion automatiques des contenus longs pour un traitement plus fiable des gros documents",
-      "Compatible sur mobile, tablette et ordinateur",
-      "Surligner les nœuds importants",
-      "Retrouver directement le texte d’origine depuis un nœud",
-      "Extraction automatique des termes clés par l’IA",
-      "Ajouter des notes tout en lisant chaque nœud",
-      "Modifier librement la carte structurée",
-      "Classer et retrouver les cartes avec des tags",
-      "Charger automatiquement les métadonnées depuis un lien YouTube",
-      "Copier la carte structurée en Markdown",
-      "Page de partage en lecture seule",
-      "Export en impression, image ou PDF"
+      "Génération stable grâce au découpage/fusion automatiques des contenus volumineux",
+      "Édition directe de la carte avec surlignage des nœuds et notes",
+      "Vérification des emplacements dans la source et gestion par tags et statut de lecture",
+      "Partage par lien et export des résultats en PDF ou Markdown"
     ]
   },
   "LandingComparisonSection": {
@@ -703,10 +708,22 @@
           }
         },
         {
-          "feature": "Partager directement la carte et la transformer en PDF ou en Markdown",
-          "detail": "NotebookLM permet de partager un notebook et de télécharger un Slide Deck (.pptx), mais sa documentation officielle ne confirme ni le partage direct de la carte elle-même ni sa conversion directe en présentation.",
+          "feature": "Classer, rouvrir et gérer les cartes avec des tags et des statuts de lecture",
+          "detail": "Vous pouvez marquer chaque carte comme « En cours », « Important » ou « Vérifié », puis la gérer dans la continuité de votre flux de travail.",
           "notebooklm": {
-            "label": "Via notebook / Slide Deck",
+            "label": "Non disponible",
+            "tone": "none"
+          },
+          "brify": {
+            "label": "Directement dans Brify",
+            "tone": "brify"
+          }
+        },
+        {
+          "feature": "Combiner plusieurs cartes structurées et les voir dans une seule carte structurée",
+          "detail": "Brify permet de fusionner les cartes générées pour les réorganiser en un flux unique.",
+          "notebooklm": {
+            "label": "Exploration de sources combinées possible, mais pas de flux de fusion de cartes",
             "tone": "partial"
           },
           "brify": {
@@ -715,11 +732,11 @@
           }
         },
         {
-          "feature": "Classer, rouvrir et gérer les cartes avec des tags et des statuts de lecture",
-          "detail": "Vous pouvez marquer chaque carte comme « En cours », « Important » ou « Vérifié », puis la gérer dans la continuité de votre flux de travail.",
+          "feature": "Générer de façon stable grâce au découpage/fusion automatiques des entrées volumineuses",
+          "detail": "Les textes volumineux sont automatiquement découpés, générés puis fusionnés pour réduire les échecs en cours de traitement et stabiliser le résultat final.",
           "notebooklm": {
-            "label": "Non disponible",
-            "tone": "none"
+            "label": "Découpage manuel des sources possible, mais pas de workflow automatique de découpage/fusion",
+            "tone": "partial"
           },
           "brify": {
             "label": "Directement dans Brify",
@@ -774,6 +791,42 @@
         "text": "Il convient mieux si vous voulez une carte vraiment manipulable : marquer des nœuds, ajouter des notes en lisant, retrouver les informations qui comptent, les modifier et les transformer en résultat concret."
       }
     }
+  },
+  "LandingUsageGuideSection": {
+    "eyebrow": "Parcours d’utilisation",
+    "title": "Guide d’utilisation de l’app",
+    "subtitle": "De la saisie au partage, voici le flux réel en 6 étapes.",
+    "flowAlt": "Guide visuel du parcours d’utilisation Brify",
+    "stepLabel": "Étape",
+    "steps": [
+      {
+        "title": "Ajouter un document ou du texte",
+        "description": "Collez votre texte directement, ou importez un fichier PDF/DOCX."
+      },
+      {
+        "title": "Choisir la langue de sortie",
+        "description": "Choisissez la langue dans laquelle vous voulez obtenir le résultat."
+      },
+      {
+        "title": "Générer la carte structurée",
+        "description": "Lancez la génération pour suivre l’avancement, puis passez à l’écran de résultat une fois prêt."
+      },
+      {
+        "title": "Éditer et marquer les nœuds",
+        "description": "Surlignez les nœuds importants, ajoutez des notes, et modifiez la structure si besoin."
+      },
+      {
+        "title": "Gérer tags et statut de lecture",
+        "description": "Classez les cartes avec des tags et un statut de lecture pour les rouvrir plus tard."
+      },
+      {
+        "title": "Partager et exporter",
+        "description": "Créez un lien de partage et exportez le résultat en PDF ou en Markdown."
+      }
+    ],
+    "badge": "Conçu pour l’usage réel, pas seulement pour regarder",
+    "footnote": "Ce parcours est pensé pour vous faire créer votre propre carte immédiatement, pas seulement consulter un exemple.",
+    "cta": "Commencer gratuitement"
   },
   "LandingAudienceSection": {
     "eyebrow": "Pour qui",
@@ -1026,6 +1079,7 @@
       "unitPriceSuffix": "structure maps",
       "vatIncluded": "TVA incluse",
       "cta": "Acheter",
+      "ctaTrialUsed": "Pack essai déjà utilisé",
       "loading": "Préparation de la commande..."
     },
     "bullets": {
@@ -1044,7 +1098,8 @@
       "tossSdkNotLoaded": "Le SDK de paiement Toss n’est pas encore chargé.",
       "paymentCanceled": "Le paiement a été annulé.",
       "tossPrepareFailed": "Un problème est survenu lors de la préparation du paiement Toss.",
-      "missingCheckoutUrl": "L’URL de paiement n’est pas configurée."
+      "missingCheckoutUrl": "L’URL de paiement n’est pas configurée.",
+      "trialPackAlreadyUsed": "Le pack d’essai premier achat ne peut être acheté qu’une seule fois par compte."
     }
   },
   "BillingHistoryPage": {

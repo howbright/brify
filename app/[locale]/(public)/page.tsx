@@ -2,8 +2,8 @@ import FinalCTA from "@/components/landing/FinalCTA";
 import LandingAudienceSection from "@/components/landing/LandingAudienceSection";
 import LandingComparisonSection from "@/components/landing/LandingComparisonSection";
 import LandingFeatureListSection from "@/components/landing/LandingFeatureListSection";
-import LandingSampleSection from "@/components/landing/LandingSampleSection";
 import LandingTestimonialsSection from "@/components/landing/LandingTestimonialsSection";
+import LandingUsageGuideSection from "@/components/landing/LandingUsageGuideSection";
 import CreatorSection from "@/components/layout/CreateorSection";
 import Hero from "@/components/layout/Hero";
 import { createClient } from "@/utils/supabase/server";
@@ -48,8 +48,8 @@ export default async function Home({
       />
       <Hero isAuthed={isAuthed} />
       <LandingComparisonSection />
+      <LandingUsageGuideSection isAuthed={isAuthed} />
       <LandingAudienceSection />
-      <LandingSampleSection isAuthed={isAuthed} />
       <LandingFeatureListSection />
       <LandingTestimonialsSection />
       <FinalCTA isAuthed={isAuthed} />

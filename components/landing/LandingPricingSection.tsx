@@ -66,7 +66,15 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
         }
 
         const data = (await res.json()) as {
-          items: Array<{ id: string; credits: number; price: number; popular?: boolean; starter?: boolean }>;
+          items: Array<{
+            id: string;
+            credits: number;
+            price: number;
+            popular?: boolean;
+            starter?: boolean;
+            firstPurchaseOnly?: boolean;
+            trialEligible?: boolean;
+          }>;
         };
 
         if (cancelled) return;
@@ -78,6 +86,8 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
             priceUSD: pack.price,
             popular: pack.popular,
             starter: pack.starter,
+            firstPurchaseOnly: pack.firstPurchaseOnly,
+            trialEligible: pack.trialEligible,
           }))
         );
       } catch (error) {
