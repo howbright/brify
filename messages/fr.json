@@ -172,7 +172,7 @@
   "YoutubeScriptDialog": {
     "dialogAria": "Récupérer une transcription YouTube",
     "title": "Comment récupérer une transcription YouTube",
-    "subtitle": "Vous pouvez copier la transcription complète en moins d'une minute.",
+    "subtitle": "Suivez tranquillement les étapes ci-dessous et vous pourrez copier la transcription en 1 à 2 minutes.",
     "close": "Fermer",
     "gifAlt": "Comment copier rapidement une transcription YouTube",
     "guide": {
@@ -182,10 +182,10 @@
       "step1": "Cliquez sur le premier mot de la transcription (ou commencez la sélection à cet endroit)",
       "step2": "Faites défiler jusqu’en bas",
       "step3": "Maintenez Shift et cliquez sur le dernier caractère",
-      "step4": "Une fois tout sélectionné, copiez puis collez dans le champ d’entrée",
+      "step4": "Une fois tout sélectionné, copiez le texte puis collez-le dans le champ de texte source.",
       "encourage": "Ne laissez plus de bonnes vidéos vous échapper faute de temps. Collez la transcription et transformez les idées clés en une mind map claire en quelques minutes."
     },
-    "pastePrefix": "Dans le champ de saisie,",
+    "pastePrefix": "Dans le champ « Collez le texte source »,",
     "shiftHold": "gardez Shift enfoncé",
     "imagePlaceholder": "Vous pouvez placer ici une image liée.",
     "steps": {
@@ -219,7 +219,7 @@
         "imageLabel": "Image étape 7"
       },
       "8": {
-        "title": "Collez dans le champ de saisie",
+        "title": "Collez dans le champ « Collez le texte source »",
         "imageLabel": "Image étape 8"
       }
     }
@@ -341,7 +341,7 @@
       "newMap": "Nouvelle carte structurée",
       "myMaps": "Mes cartes",
       "fromTextTitle": "Convertir du texte en carte structurée",
-      "fromTextDesc": "Collez une transcription ou un texte de document pour générer la carte",
+      "fromTextDesc": "Collez le texte source pour générer",
       "blankStartTitle": "Commencer à partir d’une carte vide",
       "blankStartDesc": "Pour le brainstorming, démarrez sans utiliser de crédits",
       "blankCreating": "Création de la carte vide...",
@@ -930,7 +930,7 @@
       },
       "terms": {
         "title": "L’IA organise les termes difficiles pour vous",
-        "description": "Dans l’onglet Termes du panneau de gauche, l’IA peut extraire les mots difficiles et les expliquer clairement.",
+        "description": "Dans l’onglet Termes du panneau de gauche, l’IA peut organiser les expressions peu familières ou les termes difficiles du document pour les rendre plus faciles à comprendre.",
         "calloutTitle": "Termes",
         "calloutDescription": "L’IA repère les termes difficiles et les organise pour vous."
       },
@@ -978,7 +978,7 @@
       },
       "terms": {
         "title": "L’IA organise les termes difficiles pour vous",
-        "description": "Dans l’onglet Termes du panneau gauche, l’IA peut extraire les mots difficiles et les expliquer clairement.",
+        "description": "Dans l’onglet Termes du panneau gauche, l’IA peut organiser les expressions peu familières ou les termes difficiles du document pour les rendre plus faciles à comprendre.",
         "calloutTitle": "Termes",
         "calloutDescription": "Vous pouvez consulter les termes difficiles ici."
       }
@@ -1060,7 +1060,7 @@
     },
     "faq": {
       "title": "FAQ",
-      "q2": "Combien de crédits consomme une vidéo ?",
+      "q2": "Combien de crédits faut-il selon la longueur du document ?",
       "a2": "La plupart des contenus utilisent 1 crédit. Jusqu’à 50 000 caractères : 1 crédit, 50 001 à 150 000 : 2 crédits, 150 001 à 200 000 : 3 crédits, au-delà de 200 000 : non pris en charge.",
       "q3": "Les crédits expirent-ils ?",
       "a3": "Les crédits payants sont valables 1 an à partir de la date de paiement. Le remboursement est possible sous 7 jours si les crédits de la commande n’ont pas été utilisés.",
@@ -1948,7 +1948,7 @@
       "sourceQuestion": "Cette mind map est-elle basée sur une vidéo YouTube ?",
       "sourceTypeYes": "Oui",
       "sourceTypeNo": "Non",
-      "url": "URL YouTube",
+      "url": "URL",
       "youtubeTitle": "Titre YouTube",
       "title": "Titre",
       "sameAsYoutubeTitle": "Identique au titre YouTube",
@@ -2152,7 +2152,7 @@
     "title": "Choisir les options du résumé",
     "enterTextAlert": "Veuillez saisir le texte à résumer.",
     "sourceOptional": "Source (optionnel)",
-    "sourcePlaceholder": "ex. lien YouTube, URL d’article",
+    "sourcePlaceholder": "ex. lien de référence, URL d’article",
     "viewTypeTitle": "Affichage du résultat",
     "viewText": "📝 Texte résumé",
     "viewDiagram": "📊 Diagramme",
@@ -2358,22 +2358,22 @@
     ],
     "ogImage": "https://www.brify.app/images/snsEn.png",
     "heading": "Convertissez des transcriptions YouTube en mind maps",
-    "lead": "La conversion IA en carte mentale vous aide à organiser des informations complexes en un seul écran. Brify transforme les transcriptions YouTube et les textes longs en cartes structurées faciles à réutiliser.",
+    "lead": "La conversion IA en carte mentale vous aide à organiser des informations complexes sur un seul écran. Brify transforme les textes longs en cartes structurées faciles à réutiliser.",
     "paragraphs": [
       "Une mind map n'est pas seulement un format visuel propre : c'est une façon de comprendre les relations, la hiérarchie et le fil d'une information complexe.",
-      "Brify vous aide à convertir les transcriptions YouTube en mind maps pour rendre les idées clés et leurs liens beaucoup plus visibles.",
+      "Brify transforme les textes longs en cartes structurées pour rendre les idées clés et leurs liens beaucoup plus visibles d’un seul coup d’œil.",
       "Brify est particulièrement utile si vous cherchez à transformer des vidéos YouTube en mind maps pour l'étude, la recherche, la comparaison et des entrées complexes."
     ],
     "bullets": [
-      "Les personnes qui veulent convertir du contenu YouTube en mind maps",
+      "Les personnes qui veulent transformer le fil d’un texte long en carte structurée",
       "Les personnes qui veulent visualiser rapidement des textes longs",
       "Les personnes qui veulent une structure et un flux visuels",
       "Les personnes qui comparent plusieurs sources et idées"
     ],
     "ctaTitle": "Commencez à organiser avec les mind maps Brify",
-    "ctaBody": "Convertissez des transcriptions YouTube, des pages web et des textes longs en mind maps pour comprendre plus vite les informations complexes.",
+    "ctaBody": "Transformez des pages web et des textes longs en cartes structurées pour comprendre plus vite les informations complexes.",
     "primaryCta": "Commencer avec Brify",
-    "secondaryCta": "Voir la page notes YouTube",
+    "secondaryCta": "Voir un autre cas d’usage",
     "signupHref": "/fr/signup",
     "relatedHref": "/fr/youtube-notes"
   },

@@ -286,7 +286,7 @@
     "headerTitle": "How to copy a YouTube transcript",
     "sectionA": {
       "title": "Getting a transcript from YouTube on desktop",
-      "description": "Follow these steps to copy the full transcript in about 1–2 minutes."
+      "description": "Follow these steps, and you can copy the transcript in about 1–2 minutes."
     },
     "step1": {
       "title": "Click the \"···\" or \"More\" button below the video.",
@@ -310,8 +310,8 @@
     },
     "step4": {
       "title": "Paste it into the input box on the left of this page.",
-      "body": "Click the \"Paste video script\" input area, then press Ctrl + V (or ⌘ + V on Mac) to paste. Now you’re ready.",
-      "imageAlt": "Pasting text into the video script input field."
+      "body": "Click the \"Paste source text\" input field, then press Ctrl + V (or ⌘ + V on Mac) to paste. Once that’s done, you’re ready.",
+      "imageAlt": "Pasting text into the \"Paste source text\" input field."
     },
     "sectionB": {
       "title": "Want to use subtitles or an editing tool instead?",
@@ -327,7 +327,7 @@
     },
     "case3": {
       "title": "Using a script document you’ve already written",
-      "body": "It doesn’t matter where your script lives—blog, Word, Notion, etc. Just copy the full text and paste it as-is."
+      "body": "It doesn’t matter where you’ve saved or organized it—blog, Word, Notion, and so on. Just copy the full text and paste it as-is."
     },
     "faq": {
       "title": "Q. I don’t see a \"Show transcript\" / \"Transcript\" menu.",
@@ -436,96 +436,6 @@
       "link": "Sign up"
     }
   },
-  "DemoFullscreenDialog": {
-    "dialog": {
-      "title": "Mind Map Preview"
-    },
-    "actions": {
-      "close": "Close",
-      "closeMap": "Close map",
-      "infoPanel": "Info panel",
-      "startService": "Start using Brify",
-      "centerMap": "Center",
-      "collapseAll": "Collapse all",
-      "zoomIn": "Zoom in",
-      "zoomOut": "Zoom out",
-      "tutorial": "Tutorial"
-    },
-    "badges": {
-      "editMode": "Edit mode",
-      "viewMode": "View mode"
-    },
-    "toasts": {
-      "demoFinished": "The demo is over. Returning to the home page.",
-      "editModeRequired": "Switch to Edit mode to modify nodes."
-    },
-    "shareDialog": {
-      "title": "This mind map is for demo only",
-      "description": "In the full service, you can share your mind map by link and view it together with others. Start using Brify to create a share link for your own map.",
-      "action": "Start Using Brify",
-      "cancel": "Close"
-    },
-    "tabs": {
-      "info": "Info",
-      "notes": "Notes",
-      "terms": "Terms"
-    },
-    "sourceTypes": {
-      "youtube": "YouTube",
-      "website": "Website",
-      "file": "File",
-      "manual": "Manual"
-    },
-    "info": {
-      "created": "Created",
-      "updated": "Updated",
-      "credits": "Credits",
-      "summary": "One-paragraph summary",
-      "source": "Source",
-      "thumbnail": "Thumbnail",
-      "sourceType": "Source Type",
-      "channel": "Channel",
-      "originalLink": "Original Link",
-      "tags": "Tags",
-      "description": "Description"
-    },
-    "notes": {
-      "justNow": "Just now",
-      "helper": "You can jot down quick thoughts while reading important nodes.",
-      "placeholder": "Write down what comes to mind from this node.",
-      "add": "Add note",
-      "empty": "There are no notes yet.",
-      "items": [
-        {
-          "text": "The meal timing makes the daily fasting rhythm easy to follow at a glance.",
-          "createdAtLabel": "Just now"
-        },
-        {
-          "text": "A key takeaway is that he avoids OMAD to maintain weight, not because of hunger.",
-          "createdAtLabel": "Just now"
-        }
-      ]
-    },
-    "terms": {
-      "autoAddedXylitol": "Mentioned in the video as the sweetener added to coffee.",
-      "customAdded": "A custom term added in the demo view.",
-      "helper": "AI automatically extracts key terms to make the content easier to understand.",
-      "items": [
-        {
-          "term": "OMAD",
-          "meaning": "A one-meal-a-day eating pattern."
-        },
-        {
-          "term": "grass-fed",
-          "meaning": "Used as a quality standard for animal-based foods in the video."
-        },
-        {
-          "term": "pasture-raised",
-          "meaning": "A sourcing standard for eggs and livestock that is emphasized throughout the routine."
-        }
-      ]
-    }
-  },
   "MapTutorial": {
     "overlay": {
       "label": "TUTORIAL",
@@ -593,7 +503,7 @@
       },
       "terms": {
         "title": "AI organizes difficult terms for you",
-        "description": "In the Terms tab on the left panel, AI can gather unfamiliar words from the content and explain them clearly.",
+        "description": "In the Terms tab on the left panel, AI can organize unfamiliar expressions or difficult terms used in the document so they are easier to understand.",
         "calloutTitle": "Terms",
         "calloutDescription": "AI finds difficult terms and organizes them for you."
       },
@@ -641,7 +551,7 @@
       },
       "terms": {
         "title": "AI organizes difficult terms for you",
-        "description": "In the Terms tab on the left panel, AI can gather unfamiliar words from the content and explain them clearly.",
+        "description": "In the Terms tab on the left panel, AI can organize unfamiliar expressions or difficult terms used in the document so they are easier to understand.",
         "calloutTitle": "Terms",
         "calloutDescription": "You can review difficult terms here."
       }
@@ -1089,7 +999,7 @@
       "newMap": "New Structure Map",
       "myMaps": "My Maps",
       "fromTextTitle": "Convert text to a structure map",
-      "fromTextDesc": "Paste a transcript or document text to generate a map",
+      "fromTextDesc": "Paste source text to generate",
       "blankStartTitle": "Start from blank",
       "blankStartDesc": "For brainstorming, start with zero credit usage",
       "blankCreating": "Creating blank map...",
@@ -1325,7 +1235,7 @@
     },
     "faq": {
       "title": "FAQ",
-      "q2": "How many credits does a video use?",
+      "q2": "How many credits do I need based on document length?",
       "a2": "For typical documents, about 30-40 pages are covered by 1 credit. The exact rule is based on original character count: up to 50,000 characters uses 1 credit, 50,001 to 150,000 characters uses 2 credits, 150,001 to 200,000 characters uses 3 credits, and anything over 200,000 characters can't be processed right now.",
       "q3": "Do credits expire?",
       "a3": "Paid credits are valid for 1 year from the payment date. Refund requests are available within 7 days of purchase, and only orders whose credited amount has not been used are eligible for a full refund.",
@@ -2056,7 +1966,7 @@
       "sourceQuestion": "Is this mind map based on a YouTube video?",
       "sourceTypeYes": "Yes",
       "sourceTypeNo": "No",
-      "url": "YouTube URL",
+      "url": "URL",
       "youtubeTitle": "YouTube title",
       "title": "Title",
       "sameAsYoutubeTitle": "Same as YouTube title",
@@ -2244,22 +2154,22 @@
     ],
     "ogImage": "https://www.brify.app/images/snsEn.png",
     "heading": "Convert YouTube transcripts into mind maps",
-    "lead": "AI mind map conversion helps you organize complex information in one view. Brify converts YouTube transcripts and long text into structured maps you can revisit anytime.",
+    "lead": "AI mind map conversion helps you organize complex information in one view. Brify turns long text into structured maps you can revisit anytime.",
     "paragraphs": [
       "A mind map is not only a neat format. It is a way to understand relationships, hierarchy, and flow inside complex information.",
-      "Brify helps you convert YouTube transcripts into mind maps so key ideas and their connections become easier to see.",
+      "Brify turns long text into structure maps so key ideas and their connections become easier to see at a glance.",
       "That makes Brify especially useful if you are searching for a way to turn YouTube videos into mind maps for study, research, comparison, and complex inputs."
     ],
     "bullets": [
-      "People who want to convert YouTube content into mind maps",
+      "People who want to turn the flow of long text into a structure map",
       "People who want long text at a glance",
       "People who want visual flow and structure",
       "People who compare multiple sources and ideas"
     ],
     "ctaTitle": "Start organizing with Brify mind maps",
-    "ctaBody": "Convert YouTube transcripts, webpages, and long text into mind maps and understand complex information faster.",
+    "ctaBody": "Turn webpages and long text into structure maps to understand complex information faster.",
     "primaryCta": "Start Brify",
-    "secondaryCta": "See YouTube notes page",
+    "secondaryCta": "See another use case",
     "signupHref": "/en/signup",
     "relatedHref": "/en/youtube-notes"
   },
@@ -2706,7 +2616,7 @@
     "title": "Choose summary options",
     "enterTextAlert": "Please enter the text to summarize.",
     "sourceOptional": "Source (optional)",
-    "sourcePlaceholder": "e.g., YouTube link, news URL",
+    "sourcePlaceholder": "e.g., reference link, news URL",
     "viewTypeTitle": "How to view the summary result",
     "viewText": "📝 Summary text",
     "viewDiagram": "📊 Diagram",
