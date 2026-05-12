@@ -9,12 +9,27 @@ type AnyNode = {
   parent?: { id?: string } | null;
 };
 
+type MindNodeElement = HTMLElement & { nodeObj?: AnyNode };
+
+type MindNodeActionInstance = {
+  currentNode?: MindNodeElement | null;
+  currentNodes?: MindNodeElement[] | null;
+  selectNode?: (node: MindNodeElement) => void;
+  addChild: (node: MindNodeElement) => void | Promise<unknown>;
+  insertSibling: (
+    position: "before" | "after",
+    node: MindNodeElement
+  ) => void | Promise<unknown>;
+  beginEdit: (node: MindNodeElement) => void | Promise<unknown>;
+  removeNodes: (nodes: MindNodeElement[]) => void | Promise<unknown>;
+};
+
 type MobileAction = "addChild" | "addSibling" | "rename" | "remove";
 
 type Params = {
   editMode: "view" | "edit";
   showMobileControls: boolean;
-  mindRef: React.RefObject<any>;
+  mindRef: React.RefObject<MindNodeActionInstance | null>;
   selectedNodeElRef: React.RefObject<HTMLElement | null>;
   selectedNodeId: string | null;
   selectedNodeIdRef: React.RefObject<string | null>;
@@ -62,15 +77,15 @@ export function useMindElixirNodeActions({
   const runMobileNodeAction = async (action: MobileAction) => {
     const mind = mindRef.current;
     const selectedEl =
-      (selectedNodeElRef.current as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
+      (selectedNodeElRef.current as MindNodeElement | null) ??
       (selectedNodeIdRef.current
         ? ((getNodeElById(selectedNodeIdRef.current) as
-            | (HTMLElement & { nodeObj?: AnyNode })
+            | MindNodeElement
             | null) ?? null)
         : null);
     const currentNode =
       (selectedEl?.nodeObj ? selectedEl : null) ??
-      ((mind?.currentNode as (HTMLElement & { nodeObj?: AnyNode }) | null) ?? null);
+      (mind?.currentNode ?? null);
     if (!mind || !currentNode) return;
 
     try {
@@ -78,9 +93,7 @@ export function useMindElixirNodeActions({
       if (typeof mind.selectNode === "function") {
         mind.selectNode(currentNode);
         await waitForSelectionFrame();
-        activeNode =
-          (mind.currentNode as (HTMLElement & { nodeObj?: AnyNode }) | null) ??
-          currentNode;
+        activeNode = mind.currentNode ?? currentNode;
       }
       if (action === "addChild") {
         await mind.addChild(activeNode);

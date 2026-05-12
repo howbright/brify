@@ -28,9 +28,13 @@ export default function LandingUsageGuideSection({ isAuthed = false }: { isAuthe
   ] as const;
 
   return (
-    <section className="relative px-6 py-10 md:px-10 md:py-12">
-      <div className="mx-auto max-w-6xl">
-        <div className="rounded-3xl border border-slate-200/90 bg-white/86 p-5 shadow-[0_26px_66px_-46px_rgba(30,64,175,0.5)] backdrop-blur dark:border-white/12 dark:bg-slate-950/68 md:p-7">
+    <section className="relative overflow-hidden bg-[linear-gradient(180deg,#f5f8fc_0%,#eef3fa_100%)] px-6 py-10 md:px-10 md:py-12 dark:bg-[linear-gradient(180deg,#0b1222_0%,#060b16_100%)]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.18),transparent_48%),radial-gradient(circle_at_bottom_right,rgba(14,165,233,0.12),transparent_52%)] dark:hidden" />
+      <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(rgba(148,163,184,0.18)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.18)_1px,transparent_1px)] [background-size:26px_26px] opacity-45 dark:hidden" />
+      <div className="pointer-events-none absolute inset-0 hidden dark:block dark:bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_48%),radial-gradient(circle_at_bottom_right,rgba(99,102,241,0.14),transparent_52%)]" />
+      <div className="pointer-events-none absolute inset-0 hidden dark:block [background-image:linear-gradient(rgba(148,163,184,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.12)_1px,transparent_1px)] [background-size:26px_26px] opacity-35" />
+      <div className="relative mx-auto max-w-6xl">
+        <div className="rounded-3xl border border-slate-200/90 bg-white/92 p-5 shadow-[0_26px_66px_-46px_rgba(37,99,235,0.3)] backdrop-blur dark:border-slate-700 dark:bg-slate-900/86 dark:shadow-[0_26px_66px_-46px_rgba(15,23,42,0.72)] md:p-7">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700 dark:text-sky-300">
               {t("eyebrow")}
@@ -47,7 +51,7 @@ export default function LandingUsageGuideSection({ isAuthed = false }: { isAuthe
             {steps.map((step, index) => (
               <article
                 key={`${step.title}-${index}`}
-                className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 transition-colors hover:border-blue-300 hover:bg-white dark:border-white/12 dark:bg-white/[0.04] dark:hover:border-sky-300/35 dark:hover:bg-white/[0.07] md:p-5"
+                className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 transition-colors hover:border-blue-300 hover:bg-white dark:border-slate-600 dark:bg-slate-800/84 dark:hover:border-sky-300/35 dark:hover:bg-slate-800 md:p-5"
               >
                 <div className="flex items-center gap-3">
                   <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-lg bg-slate-900 text-sm font-extrabold text-white shadow-sm ring-1 ring-slate-900/10 dark:bg-white dark:text-slate-900 dark:ring-white/30">
@@ -60,7 +64,7 @@ export default function LandingUsageGuideSection({ isAuthed = false }: { isAuthe
                 <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
                   {step.description}
                 </p>
-                <div className="relative mt-3 aspect-[16/9] overflow-hidden rounded-xl border border-slate-200/90 bg-white dark:border-white/10 dark:bg-slate-900">
+                <div className="relative mt-3 aspect-[16/9] overflow-hidden rounded-xl border border-slate-200/90 bg-white dark:border-slate-700 dark:bg-slate-900">
                   <Image
                     src={stepVisuals[index] ?? stepVisuals[0]}
                     alt={step.title}
@@ -68,7 +72,7 @@ export default function LandingUsageGuideSection({ isAuthed = false }: { isAuthe
                     sizes="(max-width: 768px) 100vw, 50vw"
                     className={`${index === 1 ? "object-contain bg-slate-50 dark:bg-slate-900" : "object-cover"} saturate-[0.78] contrast-[0.92] brightness-[0.96]`}
                   />
-                  <div className="pointer-events-none absolute inset-0 bg-white/12 dark:bg-slate-950/18" />
+                  <div className="pointer-events-none absolute inset-0 bg-white/12 dark:bg-slate-950/28" />
                 </div>
               </article>
             ))}

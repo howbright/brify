@@ -724,6 +724,10 @@ export default function DemoFullscreenDialog({
     }
   }, [searchOpen, searchQuery]);
 
+  useEffect(() => {
+    void router.prefetch(`/${language}/video-to-map`);
+  }, [language, router]);
+
   if (!open || !draft || !mounted) return null;
 
   const headerTitle = title ?? draft.title ?? t("dialog.title");
@@ -788,10 +792,6 @@ export default function DemoFullscreenDialog({
     );
     router.push(`/${language}/video-to-map`);
   };
-
-  useEffect(() => {
-    void router.prefetch(`/${language}/video-to-map`);
-  }, [language, router]);
 
   const handleOpenDemoShareGuide = () => {
     setShareGuideOpen(true);

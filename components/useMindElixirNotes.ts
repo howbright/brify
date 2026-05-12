@@ -8,15 +8,28 @@ type AnyNode = {
   note?: string | null;
 };
 
+type MindDataSnapshot = {
+  data: unknown;
+  node: AnyNode;
+};
+
+type NoteUpdateOperation = {
+  name: "updateNote";
+  id: string;
+  value: string | null;
+};
+
 type Params = {
   selectedNodeIdRef: React.RefObject<string | null>;
   selectedNodeElRef: React.RefObject<HTMLElement | null>;
-  latestMindDataRef: React.RefObject<any>;
+  latestMindDataRef: React.RefObject<unknown>;
   noteBadgeSvg: string;
-  normalizeMindData: (raw: any) => { data: any; node: AnyNode } | null;
+  normalizeMindData: (raw: unknown) => MindDataSnapshot | null;
   findNodeById: (node: AnyNode, id: string) => AnyNode | null;
   normalizeNodeId: (id: string) => string;
-  onChangeRef: React.RefObject<((op: any) => void) | null | undefined>;
+  onChangeRef: React.RefObject<
+    ((op: NoteUpdateOperation) => void) | null | undefined
+  >;
   setSelectedNoteText: React.Dispatch<React.SetStateAction<string | null>>;
 };
 

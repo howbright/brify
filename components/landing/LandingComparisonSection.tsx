@@ -51,7 +51,7 @@ function ComparisonCard({
         "rounded-[28px] border p-6 md:p-7",
         isBlue
           ? "border-blue-200 bg-[linear-gradient(180deg,#eef6ff_0%,#ffffff_100%)] shadow-[0_24px_48px_-30px_rgba(37,99,235,0.28)] dark:border-blue-300/20 dark:bg-[linear-gradient(180deg,rgba(30,64,175,0.18),rgba(10,17,30,0.92))]"
-          : "border-slate-200 bg-white/85 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.18)] backdrop-blur dark:border-white/10 dark:bg-white/[0.04]",
+          : "border-slate-200 bg-white/85 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.18)] backdrop-blur dark:border-slate-700 dark:bg-slate-900/80",
       ].join(" ")}
     >
       <div
@@ -208,7 +208,7 @@ export default function LandingComparisonSection() {
               </div>
             ) : null}
 
-            <div className="mt-8 overflow-x-auto rounded-[28px] border border-slate-200 bg-white/90 shadow-[0_24px_48px_-32px_rgba(15,23,42,0.16)] backdrop-blur dark:border-white/10 dark:bg-white/[0.04]">
+            <div className="mt-8 overflow-x-auto rounded-[28px] border border-slate-200 bg-white/90 shadow-[0_24px_48px_-32px_rgba(15,23,42,0.16)] backdrop-blur dark:border-slate-700 dark:bg-slate-900/82 dark:shadow-[0_24px_48px_-30px_rgba(2,6,23,0.65)]">
               <table className="min-w-[720px] w-full table-fixed border-collapse">
                 <colgroup>
                   <col className="w-[48%]" />
@@ -257,9 +257,9 @@ export default function LandingComparisonSection() {
             </div>
 
             {structuredFootnote ? (
-              <div className="mt-5 rounded-[24px] border border-slate-200/80 bg-white/85 p-4 shadow-[0_14px_30px_-24px_rgba(15,23,42,0.16)] backdrop-blur dark:border-white/10 dark:bg-white/[0.04]">
+              <div className="mt-5 rounded-[24px] border border-slate-200/80 bg-white/85 p-4 shadow-[0_14px_30px_-24px_rgba(15,23,42,0.16)] backdrop-blur dark:border-slate-700 dark:bg-slate-900/82 dark:shadow-[0_14px_30px_-22px_rgba(2,6,23,0.58)]">
                 <div className="grid gap-3 md:grid-cols-2">
-                  <div className="rounded-2xl border border-slate-200/80 bg-slate-50/90 p-4 dark:border-white/10 dark:bg-white/[0.03]">
+                  <div className="rounded-2xl border border-slate-200/80 bg-slate-50/90 p-4 dark:border-slate-700 dark:bg-slate-900/78">
                     <div className="inline-flex rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white dark:bg-white dark:text-slate-950">
                       {structuredFootnote.notebooklm.label}
                     </div>
@@ -280,7 +280,7 @@ export default function LandingComparisonSection() {
 
               </div>
             ) : (
-              <div className="mt-5 rounded-2xl border border-slate-200/80 bg-white/80 px-5 py-4 text-sm font-semibold leading-6 text-slate-700 shadow-[0_14px_30px_-24px_rgba(15,23,42,0.16)] backdrop-blur dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 md:text-[15px]">
+              <div className="mt-5 rounded-2xl border border-slate-200/80 bg-white/80 px-5 py-4 text-sm font-semibold leading-6 text-slate-700 shadow-[0_14px_30px_-24px_rgba(15,23,42,0.16)] backdrop-blur dark:border-slate-700 dark:bg-slate-900/82 dark:text-slate-200 md:text-[15px]">
                 {t("footnote")}
               </div>
             )}
@@ -305,7 +305,7 @@ export default function LandingComparisonSection() {
               />
             </div>
 
-            <div className="mt-6 rounded-2xl border border-slate-200/80 bg-white/80 px-5 py-4 text-sm font-semibold leading-6 text-slate-700 shadow-[0_14px_30px_-24px_rgba(15,23,42,0.16)] backdrop-blur dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 md:text-[15px]">
+            <div className="mt-6 rounded-2xl border border-slate-200/80 bg-white/80 px-5 py-4 text-sm font-semibold leading-6 text-slate-700 shadow-[0_14px_30px_-24px_rgba(15,23,42,0.16)] backdrop-blur dark:border-slate-700 dark:bg-slate-900/82 dark:text-slate-200 md:text-[15px]">
               {t("footnote")}
             </div>
           </>
