@@ -758,7 +758,7 @@
   "LandingComparisonSection": {
     "eyebrow": "NotebookLM 비교",
     "title": "NotebookLM과 무엇이 다른가요?",
-    "subtitle": "빠른 이해가 우선이면 NotebookLM이, 직접 손보고 관리해야 하면 Brify가 더 잘 맞습니다.",
+    "subtitle": "빠른 이해가 우선이면 NotebookLM이, 구조를 직접 손보고 관리해야 하면 Brify가 더 잘 맞습니다.",
     "matrix": {
       "headers": {
         "feature": "기능",

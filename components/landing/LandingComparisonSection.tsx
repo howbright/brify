@@ -143,6 +143,35 @@ function StatusPill({ label, tone }: ComparisonMatrixCell) {
   );
 }
 
+function MobileStatusBadge({ cell }: { cell: ComparisonMatrixCell }) {
+  if (cell.tone === "brify") {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700 dark:border-blue-300/30 dark:bg-blue-500/12 dark:text-blue-200">
+        <Icon icon="mdi:check" className="h-3.5 w-3.5" />
+        {cell.label}
+      </span>
+    );
+  }
+
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300">
+      <span
+        className={[
+          "relative h-2.5 w-2.5 shrink-0 rounded-full",
+          cell.tone === "none"
+            ? "border border-slate-300 bg-white dark:border-slate-500 dark:bg-transparent"
+            : "overflow-hidden bg-amber-200 dark:bg-amber-200/40",
+        ].join(" ")}
+      >
+        {cell.tone === "partial" ? (
+          <span className="absolute inset-y-0 right-0 w-1/2 bg-amber-500 dark:bg-amber-300" />
+        ) : null}
+      </span>
+      {cell.label}
+    </span>
+  );
+}
+
 export default function LandingComparisonSection() {
   const t = useTranslations("LandingComparisonSection");
   const hasMatrix = t.has("matrix.headers.feature");
@@ -188,7 +217,7 @@ export default function LandingComparisonSection() {
         {hasMatrix ? (
           <>
             {hasMatrixLegend ? (
-              <div className="mt-6 flex flex-wrap items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400 md:text-[13px]">
+              <div className="mt-6 hidden flex-wrap items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400 md:flex md:text-[13px]">
                 <div className="inline-flex items-center gap-2">
                   <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-blue-600 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200">
                     <Icon icon="mdi:check" className="h-4 w-4" />
@@ -208,7 +237,54 @@ export default function LandingComparisonSection() {
               </div>
             ) : null}
 
-            <div className="mt-8 overflow-x-auto rounded-[28px] border border-slate-200 bg-white/90 shadow-[0_24px_48px_-32px_rgba(15,23,42,0.16)] backdrop-blur dark:border-slate-700 dark:bg-slate-900/82 dark:shadow-[0_24px_48px_-30px_rgba(2,6,23,0.65)]">
+            <div className="mt-6 space-y-3 md:hidden">
+              {matrixRows.map((row, index) => (
+                <details
+                  key={`${row.feature}-mobile-${index}`}
+                  className="group rounded-2xl border border-slate-200 bg-white/94 shadow-[0_16px_34px_-28px_rgba(15,23,42,0.26)] backdrop-blur dark:border-slate-700 dark:bg-slate-900/86"
+                >
+                  <summary className="flex cursor-pointer list-none items-start gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold leading-6 text-slate-900 dark:text-white">
+                        {row.feature}
+                      </p>
+                    </div>
+                    <Icon
+                      icon="mdi:chevron-down"
+                      className="mt-0.5 h-5 w-5 shrink-0 text-slate-500 transition-transform group-open:rotate-180 dark:text-slate-300"
+                    />
+                  </summary>
+
+                  <div className="space-y-3 border-t border-slate-200 px-4 pb-4 pt-3 dark:border-slate-700">
+                    {row.detail ? (
+                      <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">
+                        {row.detail}
+                      </p>
+                    ) : null}
+
+                    <div className="rounded-xl border border-slate-200/90 bg-slate-50/70 px-3 py-2 dark:border-slate-700 dark:bg-slate-800/72">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
+                          {t("matrix.headers.notebooklm")}
+                        </span>
+                        <MobileStatusBadge cell={row.notebooklm} />
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-blue-200/80 bg-blue-50/70 px-3 py-2 dark:border-blue-400/30 dark:bg-blue-500/10">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-blue-700 dark:text-blue-200">
+                          {t("matrix.headers.brify")}
+                        </span>
+                        <MobileStatusBadge cell={row.brify} />
+                      </div>
+                    </div>
+                  </div>
+                </details>
+              ))}
+            </div>
+
+            <div className="mt-8 hidden overflow-x-auto rounded-[28px] border border-slate-200 bg-white/90 shadow-[0_24px_48px_-32px_rgba(15,23,42,0.16)] backdrop-blur dark:border-slate-700 dark:bg-slate-900/82 dark:shadow-[0_24px_48px_-30px_rgba(2,6,23,0.65)] md:block">
               <table className="min-w-[720px] w-full table-fixed border-collapse">
                 <colgroup>
                   <col className="w-[48%]" />

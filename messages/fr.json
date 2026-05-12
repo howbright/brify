@@ -650,7 +650,7 @@
   "LandingComparisonSection": {
     "eyebrow": "Comparaison avec NotebookLM",
     "title": "Quelle est la différence avec NotebookLM ?",
-    "subtitle": "Si votre priorité est de comprendre rapidement, NotebookLM peut être plus adapté. Si vous devez retravailler le résultat et le gérer dans la durée, Brify conviendra mieux.",
+    "subtitle": "Si votre priorité est de comprendre rapidement, NotebookLM peut être plus adapté. Si vous devez retravailler directement la structure et la gérer dans la durée, Brify conviendra mieux.",
     "matrix": {
       "headers": {
         "feature": "Fonction",
