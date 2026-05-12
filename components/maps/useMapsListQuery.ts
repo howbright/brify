@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/app/types/database.types";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
-import type { MapStatusFilter } from "./useMapsListControls";
+import type { MapStatusFilter, ReadStateFilter } from "./useMapsListControls";
 
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
 type MapNoteRow = Database["public"]["Tables"]["map_notes"]["Row"];
@@ -32,6 +32,7 @@ type UseMapsListQueryParams = {
   statusFilters: MapStatusFilter[];
   sourceFilters: SourceType[];
   contentFilters: ContentFilter[];
+  readStateFilters: ReadStateFilter[];
   locale?: string | null;
   toDraft: (row: MapRow) => MapDraft;
 };
@@ -179,6 +180,7 @@ export default function useMapsListQuery({
   statusFilters,
   sourceFilters,
   contentFilters,
+  readStateFilters,
   locale,
   toDraft,
 }: UseMapsListQueryParams) {
@@ -211,22 +213,27 @@ export default function useMapsListQuery({
 
         const shouldFilterTagsClientSide =
           effectiveTagFilters.length > 0 || includesNoTagFilter;
+        const shouldFilterReadStateClientSide = readStateFilters.length > 0;
+        const shouldPageOnServer =
+          !shouldFilterTagsClientSide &&
+          !shouldFilterReadStateClientSide &&
+          sort !== "title_asc";
 
         if (sort === "created_desc") {
-          if (!shouldFilterTagsClientSide) request = request.range(from, to);
+          if (shouldPageOnServer) request = request.range(from, to);
           request = request.order("created_at", { ascending: false });
         } else if (sort === "created_asc") {
-          if (!shouldFilterTagsClientSide) request = request.range(from, to);
+          if (shouldPageOnServer) request = request.range(from, to);
           request = request.order("created_at", { ascending: true });
         } else if (sort === "updated_desc") {
-          if (!shouldFilterTagsClientSide) request = request.range(from, to);
+          if (shouldPageOnServer) request = request.range(from, to);
           request = request.order("updated_at", {
             ascending: false,
             nullsFirst: false,
           });
-        } else if (sort === "title_asc" && !shouldFilterTagsClientSide) {
+        } else if (sort === "title_asc" && !shouldFilterTagsClientSide && !shouldFilterReadStateClientSide) {
           // handled on client after fetch
-        } else if (shouldFilterTagsClientSide) {
+        } else if (shouldFilterTagsClientSide || shouldFilterReadStateClientSide) {
           // full result set for client-side OR filtering with empty-tag pseudo filter
         }
 
@@ -299,6 +306,22 @@ export default function useMapsListQuery({
             if (compared !== 0) return compared;
             return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
           });
+          if (shouldFilterReadStateClientSide) {
+            const rowsWithStates = await withUserStates(sortedRows);
+            if (cancelled) return;
+            const allowedReadStates = new Set<ReadStateFilter>(readStateFilters);
+            const filteredByReadState = rowsWithStates.filter((row) =>
+              allowedReadStates.has(
+                ((row as MapRow & { read_status?: ReadStateFilter }).read_status ?? "unread") as ReadStateFilter
+              )
+            );
+            const pagedRows = filteredByReadState.slice(from, to + 1);
+            const rowsWithCounts = await withActualCounts(supabase, pagedRows);
+            if (cancelled) return;
+            setDrafts(rowsWithCounts.map(toDraft));
+            setTotalCount(filteredByReadState.length);
+            return;
+          }
           const pagedRows = sortedRows.slice(from, to + 1);
           const rowsWithCounts = await withActualCounts(supabase, pagedRows);
           const rowsWithStates = await withUserStates(rowsWithCounts);
@@ -307,11 +330,41 @@ export default function useMapsListQuery({
           setTotalCount(sortedRows.length);
         } else if (shouldFilterTagsClientSide) {
           const pagedRows = filteredRows.slice(from, to + 1);
+          if (shouldFilterReadStateClientSide) {
+            const rowsWithStates = await withUserStates(filteredRows);
+            if (cancelled) return;
+            const allowedReadStates = new Set<ReadStateFilter>(readStateFilters);
+            const filteredByReadState = rowsWithStates.filter((row) =>
+              allowedReadStates.has(
+                ((row as MapRow & { read_status?: ReadStateFilter }).read_status ?? "unread") as ReadStateFilter
+              )
+            );
+            const pagedByReadState = filteredByReadState.slice(from, to + 1);
+            const rowsWithCounts = await withActualCounts(supabase, pagedByReadState);
+            if (cancelled) return;
+            setDrafts(rowsWithCounts.map(toDraft));
+            setTotalCount(filteredByReadState.length);
+            return;
+          }
           const rowsWithCounts = await withActualCounts(supabase, pagedRows);
           const rowsWithStates = await withUserStates(rowsWithCounts);
           if (cancelled) return;
           setDrafts(rowsWithStates.map(toDraft));
           setTotalCount(filteredRows.length);
+        } else if (shouldFilterReadStateClientSide) {
+          const rowsWithStates = await withUserStates(rows);
+          if (cancelled) return;
+          const allowedReadStates = new Set<ReadStateFilter>(readStateFilters);
+          const filteredByReadState = rowsWithStates.filter((row) =>
+            allowedReadStates.has(
+              ((row as MapRow & { read_status?: ReadStateFilter }).read_status ?? "unread") as ReadStateFilter
+            )
+          );
+          const pagedRows = filteredByReadState.slice(from, to + 1);
+          const rowsWithCounts = await withActualCounts(supabase, pagedRows);
+          if (cancelled) return;
+          setDrafts(rowsWithCounts.map(toDraft));
+          setTotalCount(filteredByReadState.length);
         } else {
           const rowsWithCounts = await withActualCounts(supabase, rows);
           const rowsWithStates = await withUserStates(rowsWithCounts);
@@ -346,6 +399,7 @@ export default function useMapsListQuery({
     statusFilters,
     sourceFilters,
     contentFilters,
+    readStateFilters,
     locale,
     toDraft,
     refreshNonce,

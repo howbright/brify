@@ -1,37 +1,37 @@
 {
   "VideoToMapPage": {
     "title": {
-      "prefix": "Transformez le texte",
-      "highlight": "en mind map"
+      "prefix": "Avec la structuration IA des documents,",
+      "highlight": "transformez le texte en carte structurée"
     },
     "description": {
-      "beforeBold": "Collez la transcription complète de votre vidéo",
-      "bold": "telle quelle,",
-      "afterBold": "et nous la transformerons en mind map pour visualiser d’un coup d’œil le flux et la hiérarchie."
+      "beforeBold": "Collez un document long ou du texte source",
+      "bold": "tel quel,",
+      "afterBold": "et nous le structurerons pour rendre le flux principal et la hiérarchie lisibles d’un coup d’œil."
     },
     "inputSection": {
-      "title": "Collez la transcription de votre vidéo",
-      "placeholder": "Collez ici la transcription complète de votre vidéo YouTube, cours ou sermon..."
+      "title": "Collez le texte source",
+      "placeholder": "Collez ici le texte source de rapports, articles, avis juridiques, contrats et documents similaires..."
     },
     "credits": {
       "label": "Mes crédits",
       "unit": "crédits",
-      "rule": "Par défaut, 1 crédit couvre jusqu’à {threshold, number} caractères. Au-delà, 2 crédits sont nécessaires."
+      "rule": "Par défaut, 1 crédit couvre jusqu’à {threshold, number} caractères. Au-delà, 2 crédits sont nécessaires pour le texte source."
     },
     "buttons": {
-      "generate": "Créer une mind map à partir de cette transcription",
-      "generating": "Création de votre mind map..."
+      "generate": "Créer une carte structurée à partir de ce texte",
+      "generating": "Création de votre carte structurée..."
     },
     "status": {
       "reading": "Lecture du contenu...",
       "splittingFlow": "Découpage en sections principales...",
-      "arrangingStructure": "Organisation en mind map...",
+      "arrangingStructure": "Organisation en carte structurée...",
       "almostThere": "Presque terminé. Encore un instant !"
     },
     "processing": {
-      "title": "Nous organisons votre contenu en mind map...",
+      "title": "Nous organisons votre contenu en carte structurée...",
       "bullet1": "Nous ne faisons pas qu’un résumé : nous analysons d’abord le flux, les étapes et les branches.",
-      "bullet2": "Selon la longueur de la vidéo, cela peut prendre plusieurs dizaines de secondes ou plus.",
+      "bullet2": "Selon la longueur du document, cela peut prendre plusieurs dizaines de secondes ou plus.",
       "bullet3": "Tant que vous gardez cette page ouverte, le traitement continue automatiquement."
     },
     "nextGuide": {
@@ -45,27 +45,27 @@
       ]
     },
     "result": {
-      "title": "Mind map générée",
-      "hint": "Plus tard, vous pourrez brancher ici votre composant de mind map réel.",
-      "description": "Pour l’instant, nous affichons la réponse API brute en JSON. À terme, cette zone affichera une vue React Flow / mind map."
+      "title": "Carte structurée générée",
+      "hint": "Plus tard, vous pourrez brancher ici votre composant de carte structurée réel.",
+      "description": "Pour l’instant, nous affichons la réponse API brute en JSON. À terme, cette zone affichera une vue React Flow / carte structurée."
     },
     "modal": {
       "title": "Confirmer l’utilisation des crédits",
-      "usageText": "Transformer cette transcription en mind map utilisera {credits} crédit(s).",
-      "bullet1": "Plus la vidéo est longue, plus le traitement peut prendre du temps.",
+      "usageText": "Transformer ce texte source en carte structurée utilisera {credits} crédit(s).",
+      "bullet1": "Plus le document est long, plus le traitement peut prendre du temps.",
       "bullet2": "Une fois lancé, ce traitement ne peut pas être annulé et les crédits utilisés ne sont pas remboursables.",
       "bullet3": "Nous recommandons de garder cette page ouverte pendant le traitement.",
       "cancel": "Annuler",
       "confirmButton": "Utiliser {credits} crédit(s) et continuer"
     },
     "errors": {
-      "emptyScript": "Veuillez d’abord coller la transcription dans le champ ci-dessous.",
-      "insufficientCredits": "Vous n’avez pas assez de crédits pour créer cette mind map. Veuillez recharger vos crédits.",
+      "emptyScript": "Veuillez d’abord coller le texte source dans le champ ci-dessous.",
+      "insufficientCredits": "Vous n’avez pas assez de crédits pour créer cette carte structurée. Veuillez recharger vos crédits.",
       "creditAvailabilityMismatch": "Le total de vos crédits et vos crédits utilisables diffèrent. Utilisables : {usable} / Total : {raw}. Certains crédits peuvent être expirés ou nécessiter une resynchronisation.",
       "requestFailed": "La requête vers le serveur a échoué. Veuillez réessayer dans un instant.",
       "unknown": "Une erreur inconnue est survenue.",
       "processingFailed": "Une erreur est survenue pendant le traitement.",
-      "openMapFailed": "Impossible de charger la mind map.",
+      "openMapFailed": "Impossible de charger la carte structurée.",
       "missingMindData": "Les données mind_elixir sont manquantes.",
       "tooLargeLine1": "La taille de l’entrée est trop grande pour être traitée pour le moment.",
       "tooLargeLine2": "Maximum : {max} caractères (longueur de facturation)",
@@ -80,18 +80,18 @@
       "sessionFailed": "Impossible de récupérer la session : {message}",
       "loginRequired": "Veuillez d’abord vous connecter.",
       "missingApiBase": "NEXT_PUBLIC_API_BASE_URL est manquant.",
-      "youtubeFetchFailed": "Échec de récupération de la transcription.",
+      "youtubeFetchFailed": "Échec de récupération du texte source.",
       "docxNoText": "Impossible d’extraire du texte depuis le document. Veuillez essayer un autre fichier .docx.",
       "docxProcessFailed": "Une erreur est survenue pendant le traitement du document. Veuillez réessayer.",
       "pdfNoText": "Impossible d’extraire du texte du PDF. Il peut s’agir d’un PDF image (scan), et certains PDF créés via l’impression s’extraient mal.",
       "pdfProcessFailed": "Une erreur est survenue pendant le traitement du PDF. Veuillez réessayer.",
-      "noTranscriptFound": "Impossible de trouver des sous-titres ou une transcription. (La vidéo peut ne pas avoir de sous-titres.)",
+      "noTranscriptFound": "Impossible de trouver le texte source. (Aucune transcription n’est peut-être disponible pour ce lien.)",
       "missingMapId": "mapId est manquant.",
-      "createFailed": "Échec de création de la mind map.",
-      "createTimedOut": "La création de la carte prend trop de temps. Le serveur peut être ralenti, veuillez réessayer dans un instant."
+      "createFailed": "Échec de création de la carte structurée.",
+      "createTimedOut": "La création de la carte structurée prend trop de temps. Le serveur peut être ralenti, veuillez réessayer dans un instant."
     },
     "messages": {
-      "youtubeFilled": "La transcription récupérée a été insérée dans le champ. Vous pouvez créer la carte immédiatement.",
+      "youtubeFilled": "Le texte source récupéré a été inséré dans le champ. Vous pouvez créer la carte immédiatement.",
       "insufficientCreditsToast": "Crédits insuffisants.",
       "docxExtractSuccess": "Extraction du texte terminée.",
       "pdfExtractSuccess": "Extraction du texte PDF terminée.",
@@ -99,8 +99,8 @@
     },
     "labels": {
       "untitled": "Sans titre",
-      "draftsTitle": "Mind maps créées",
-      "previewTitle": "Aperçu de la mind map"
+      "draftsTitle": "Cartes structurées créées",
+      "previewTitle": "Aperçu de la carte structurée"
     }
   },
   "ScriptInputCard": {
@@ -276,7 +276,7 @@
     "openMap": "Ouvrir la carte de structure"
   },
   "LandingBlueHero": {
-    "eyebrow": "Un outil pour celles et ceux qui doivent lire, comparer, organiser et partager de longs documents",
+    "eyebrow": "Une carte structurée pour celles et ceux qui doivent comprendre rapidement, organiser et conserver de longs documents",
     "titles": [
       "Quand un texte long est structuré, l’essentiel et l’emplacement des informations utiles"
     ],
@@ -1303,6 +1303,7 @@
         "status": "Statut {value}",
         "source": "Source {value}",
         "content": "Contenu {value}",
+        "readState": "Lecture {value}",
         "tag": "Tag {value}"
       },
       "previewOn": "Aperçu activé",
@@ -1339,6 +1340,7 @@
         "status": "Statut",
         "source": "Type de source",
         "content": "Contenu",
+        "readState": "État de lecture",
         "tag": "Tag"
       },
       "custom": "Personnalisé",
@@ -1356,6 +1358,11 @@
       "content": {
         "notes": "Notes",
         "terms": "Termes"
+      },
+      "readState": {
+        "unread": "Non lu",
+        "inProgress": "En cours",
+        "read": "Lu"
       },
       "tagLoading": "Chargement des tags…",
       "tagEmpty": "Aucun tag disponible."
@@ -2246,7 +2253,7 @@
       "mind map youtube",
       "Brify"
     ],
-    "ogImage": "https://www.brify.app/images/sns_en.png",
+    "ogImage": "https://www.brify.app/images/snsEn.png",
     "heading": "Une meilleure façon d'organiser vos vidéos YouTube et vos notes",
     "lead": "Si vous enregistrez souvent des vidéos YouTube utiles sans les revoir ensuite, Brify vous aide à organiser les notes, le fil conducteur et la structure dans un format plus facile à consulter.",
     "body": [
@@ -2281,7 +2288,7 @@
       "resume page web",
       "Brify"
     ],
-    "ogImage": "https://www.brify.app/images/sns_en.png",
+    "ogImage": "https://www.brify.app/images/snsEn.png",
     "breadcrumbName": "Résumé YouTube",
     "heading": "Un outil de résumé YouTube qui transforme les vidéos en mind maps",
     "lead": "Si vous cherchez une façon plus rapide de résumer des vidéos YouTube et de convertir des transcriptions en mind maps, Brify vous aide à comprendre le fil et la structure sans regarder chaque minute.",
@@ -2349,7 +2356,7 @@
       "mind map texte",
       "Brify"
     ],
-    "ogImage": "https://www.brify.app/images/sns_en.png",
+    "ogImage": "https://www.brify.app/images/snsEn.png",
     "heading": "Convertissez des transcriptions YouTube en mind maps",
     "lead": "La conversion IA en carte mentale vous aide à organiser des informations complexes en un seul écran. Brify transforme les transcriptions YouTube et les textes longs en cartes structurées faciles à réutiliser.",
     "paragraphs": [

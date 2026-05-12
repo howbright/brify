@@ -9,6 +9,7 @@ export type MapStatusFilter = ListMapJobStatus | "processing";
 
 type SourceType = "youtube" | "website" | "file" | "manual";
 type ContentFilter = "notes" | "terms";
+export type ReadStateFilter = "unread" | "in_progress" | "read";
 
 const DATE_PRESETS = [
   { id: "7d", days: 7 },
@@ -25,6 +26,7 @@ type UseMapsListControlsOptions = {
   statusLabels: Record<MapStatusFilter, string>;
   sourceLabels: Record<SourceType, string>;
   contentLabels: Record<ContentFilter, string>;
+  readStateLabels: Record<ReadStateFilter, string>;
   datePresetLabels: Record<Exclude<DatePresetId, "custom">, string>;
   customDateEmptyLabel: string;
   customDateFromLabelSuffix: string;
@@ -54,6 +56,7 @@ export default function useMapsListControls({
   statusLabels,
   sourceLabels,
   contentLabels,
+  readStateLabels,
   datePresetLabels,
   customDateEmptyLabel,
   customDateFromLabelSuffix,
@@ -69,6 +72,7 @@ export default function useMapsListControls({
   const [statusFilters, setStatusFilters] = useState<MapStatusFilter[]>([]);
   const [sourceFilters, setSourceFilters] = useState<SourceType[]>([]);
   const [contentFilters, setContentFilters] = useState<ContentFilter[]>([]);
+  const [readStateFilters, setReadStateFilters] = useState<ReadStateFilter[]>([]);
 
   const dateRange = useMemo(() => {
     if (datePreset === "all") return { from: null, to: null };
@@ -111,6 +115,7 @@ export default function useMapsListControls({
     statusFilters.length > 0 ||
     sourceFilters.length > 0 ||
     contentFilters.length > 0 ||
+    readStateFilters.length > 0 ||
     datePreset !== "30d";
 
   const statusSummary =
@@ -126,6 +131,11 @@ export default function useMapsListControls({
   const contentSummary =
     contentFilters.length > 0
       ? contentFilters.map((value) => contentLabels[value]).join(", ")
+      : null;
+
+  const readStateSummary =
+    readStateFilters.length > 0
+      ? readStateFilters.map((value) => readStateLabels[value]).join(", ")
       : null;
 
   const toggleArrayValue = <T,>(
@@ -160,6 +170,7 @@ export default function useMapsListControls({
     setStatusFilters([]);
     setSourceFilters([]);
     setContentFilters([]);
+    setReadStateFilters([]);
     setPage(1);
   };
 
@@ -184,12 +195,15 @@ export default function useMapsListControls({
     setSourceFilters,
     contentFilters,
     setContentFilters,
+    readStateFilters,
+    setReadStateFilters,
     dateRange,
     dateLabel,
     hasActiveFilters,
     statusSummary,
     sourceSummary,
     contentSummary,
+    readStateSummary,
     toggleArrayValue,
     onQueryChange,
     onClearQuery,

@@ -30,8 +30,8 @@ export default async function Home({
     operatingSystem: "Web",
     url: `https://www.brify.app/${locale}`,
     description: isKorean
-      ? "브라이피(Brify)는 유튜브 대본, 웹페이지, 긴 텍스트를 구조맵으로 정리해 복잡한 정보의 흐름과 구조를 한눈에 파악할 수 있게 도와줍니다."
-      : "Brify turns YouTube transcripts, webpages, and long text into structure maps so you can understand complex information at a glance.",
+      ? "브라이피(Brify)는 길고 복잡한 문서를 구조화해 핵심 흐름과 세부 정보를 함께 파악할 수 있도록 돕는 AI 문서 구조화 도구입니다."
+      : "Brify is an AI document structuring tool that helps you organize long, complex documents so you can grasp core flow and critical details faster.",
     inLanguage: isKorean ? "ko" : locale,
     offers: {
       "@type": "Offer",

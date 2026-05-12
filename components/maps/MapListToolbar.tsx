@@ -30,6 +30,7 @@ type MapListToolbarProps = {
   statusSummary: string | null;
   sourceSummary: string | null;
   contentSummary: string | null;
+  readStateSummary: string | null;
   tagSummary: string | null;
   dateLabel: string;
   datePreset: string;
@@ -66,6 +67,7 @@ export default function MapListToolbar({
   statusSummary,
   sourceSummary,
   contentSummary,
+  readStateSummary,
   tagSummary,
   dateLabel,
   datePreset: _datePreset,
@@ -89,6 +91,12 @@ export default function MapListToolbar({
   const t = useTranslations("MapsCommon.toolbar");
   const filterButtonRef = useRef<HTMLButtonElement | null>(null);
   const [filterAnchorRect, setFilterAnchorRect] = useState<DOMRect | null>(null);
+  const readStateSummaryText =
+    readStateSummary !== null
+      ? t.has("summary.readState")
+        ? t("summary.readState", { value: readStateSummary })
+        : t("summary.status", { value: readStateSummary })
+      : null;
 
   useEffect(() => {
     if (!filtersOpen) return;
@@ -188,6 +196,7 @@ export default function MapListToolbar({
           {statusSummary && <span>{t("summary.status", { value: statusSummary })}</span>}
           {sourceSummary && <span>{t("summary.source", { value: sourceSummary })}</span>}
           {contentSummary && <span>{t("summary.content", { value: contentSummary })}</span>}
+          {readStateSummaryText && <span>{readStateSummaryText}</span>}
           {tagSummary && <span>{t("summary.tag", { value: tagSummary })}</span>}
         </div>
 

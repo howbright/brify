@@ -71,6 +71,16 @@ function getDisplayTitle(draft: MapDraft) {
   return channel ? `${baseTitle} [${channel}]` : baseTitle;
 }
 
+function getReadStateTopBorderClass(readStatus?: MapDraft["readStatus"]) {
+  if (readStatus === "read") {
+    return "border-t-2 border-t-emerald-400 dark:border-t-emerald-300/90";
+  }
+  if (readStatus === "in_progress") {
+    return "border-t-2 border-t-blue-400 dark:border-t-sky-300/90";
+  }
+  return "border-t-2 border-t-slate-300 dark:border-t-slate-500/80";
+}
+
 export default function MapListItem({
   draft,
   selected = false,
@@ -156,6 +166,7 @@ export default function MapListItem({
   const summary = (draft.summary ?? draft.description ?? "").trim();
   const canOpenDetailFromTitle =
     Boolean(onOpenDetail && showOpenDetail) && !selectionMode;
+  const readStateTopBorderClass = getReadStateTopBorderClass(draft.readStatus);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -202,7 +213,7 @@ export default function MapListItem({
           isActive
             ? "border-[color:var(--color-primary-600)] bg-[rgba(37,99,235,0.07)] shadow-[0_18px_34px_-28px_rgba(37,99,235,0.24)] dark:border-[color:var(--color-primary-400)] dark:bg-[rgba(96,165,250,0.11)] dark:shadow-[0_22px_40px_-26px_rgba(37,99,235,0.28)]"
             : "border-slate-300 bg-white shadow-[0_14px_30px_-24px_rgba(15,23,42,0.18)] hover:border-slate-400 hover:bg-slate-50/70 hover:shadow-[0_18px_34px_-24px_rgba(15,23,42,0.2)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(13,20,32,0.98),rgba(8,14,24,1))] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_22px_48px_-34px_rgba(2,6,23,0.94)] dark:hover:border-sky-300/22 dark:hover:bg-[linear-gradient(180deg,rgba(18,28,43,0.99),rgba(11,18,29,1))]"
-        }`}
+        } ${readStateTopBorderClass}`}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         <div className={`min-w-0 ${hasTopActionMenu ? "pr-12" : ""}`}>
@@ -228,7 +239,7 @@ export default function MapListItem({
                   }}
                   onMouseEnter={() => onPrefetchDetail?.(draft)}
                   onFocus={() => onPrefetchDetail?.(draft)}
-                  disabled={isOpeningDetail}
+                  aria-busy={isOpeningDetail ? "true" : "false"}
                   className="min-w-0 max-w-full text-left"
                 >
                   <h3 className="min-w-0 text-[14px] font-semibold leading-5 text-slate-900 line-clamp-2 transition hover:text-blue-700 dark:text-white/94 dark:hover:text-blue-200 md:text-[15px] md:leading-5">
@@ -415,28 +426,6 @@ export default function MapListItem({
         </div>
       </div>
 
-      <div className="mt-auto flex items-center justify-end gap-2 pt-2">
-        {onOpenDetail && showOpenDetail && (
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              if (isOpeningDetail) return;
-              onOpenDetail(draft);
-            }}
-            onMouseEnter={() => onPrefetchDetail?.(draft)}
-            onFocus={() => onPrefetchDetail?.(draft)}
-            disabled={isOpeningDetail}
-            className="inline-flex items-center gap-1 rounded-full border border-blue-200/80 bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-700 hover:border-blue-300 hover:bg-blue-100 hover:text-blue-800 hover:shadow-sm disabled:cursor-wait disabled:opacity-80 dark:border-blue-300/18 dark:bg-blue-400/10 dark:text-blue-200 dark:hover:border-sky-300/26 dark:hover:bg-blue-400/16 md:px-3 md:text-[11px]"
-          >
-            <Icon
-              icon={isOpeningDetail ? "mdi:loading" : "mdi:open-in-new"}
-              className={`h-3.5 w-3.5 ${isOpeningDetail ? "animate-spin" : ""}`}
-            />
-            {isOpeningDetail ? t("opening") : t("open")}
-          </button>
-        )}
-      </div>
     </article>
   );
 }

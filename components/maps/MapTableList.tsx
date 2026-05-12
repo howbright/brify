@@ -19,7 +19,6 @@ type MapTableListProps = {
   onEditTags: (draft: MapDraft) => void;
   onOpenDetail?: (draft: MapDraft) => void;
   onPrefetchDetail?: (draft: MapDraft) => void;
-  openingDetailId?: string | null;
   showEditTags: boolean;
   showOpenDetail?: boolean;
   statusLabels: Record<ListMapJobStatus, string>;
@@ -30,6 +29,28 @@ function getDisplayTitle(draft: MapDraft) {
   const baseTitle = draft.title;
   const channel = draft.channelName?.trim();
   return channel ? `${baseTitle} [${channel}]` : baseTitle;
+}
+
+function getReadStateTopAccent(readStatus?: MapDraft["readStatus"]) {
+  if (readStatus === "read") {
+    return {
+      cardCls: "border-t-2 border-t-emerald-400 dark:border-t-emerald-300/90",
+      rowCls:
+        "[&>td]:border-t-2 [&>td]:border-t-emerald-400 dark:[&>td]:border-t-emerald-300/90",
+    };
+  }
+  if (readStatus === "in_progress") {
+    return {
+      cardCls: "border-t-2 border-t-blue-400 dark:border-t-sky-300/90",
+      rowCls:
+        "[&>td]:border-t-2 [&>td]:border-t-blue-400 dark:[&>td]:border-t-sky-300/90",
+    };
+  }
+  return {
+    cardCls: "border-t-2 border-t-slate-300 dark:border-t-slate-500/80",
+    rowCls:
+      "[&>td]:border-t-2 [&>td]:border-t-slate-300 dark:[&>td]:border-t-slate-500/80",
+  };
 }
 
 export default function MapTableList({
@@ -44,7 +65,6 @@ export default function MapTableList({
   onEditTags,
   onOpenDetail,
   onPrefetchDetail,
-  openingDetailId,
   showEditTags,
   showOpenDetail = false,
   statusLabels,
@@ -52,6 +72,7 @@ export default function MapTableList({
 }: MapTableListProps) {
   const locale = useLocale();
   const t = useTranslations("MapsCommon.tableList");
+  const canOpenDetailFromTitle = Boolean(showOpenDetail && onOpenDetail) && !selectionMode;
   const renderStatusBadge = (draft: MapDraft) => {
     const normalizedStatus =
       draft.status === "retrying" ? "processing_structure" : draft.status;
@@ -82,12 +103,11 @@ export default function MapTableList({
       <div className="mt-4 space-y-2 md:hidden">
         {drafts.map((draft) => {
           const isSelected = previewOpen && draft.id === selectedId;
-          const isOpeningDetail = openingDetailId === draft.id;
-          const canOpenDetail = draft.status === "done" || draft.status === "processing_metadata";
           const displayTitle = getDisplayTitle(draft);
           const tags = draft.tags ?? [];
           const visibleTags = tags.slice(0, 2);
           const remainingTags = tags.length - visibleTags.length;
+          const readStateTopAccent = getReadStateTopAccent(draft.readStatus);
 
           return (
             <article
@@ -96,7 +116,7 @@ export default function MapTableList({
                 isSelected
                   ? "border-[color:var(--color-primary-600)] bg-[rgba(37,99,235,0.08)] dark:border-[color:var(--color-primary-400)] dark:bg-[rgba(96,165,250,0.12)]"
                   : "border-neutral-200 bg-white dark:border-white/10 dark:bg-[#0f1724]"
-              }`}
+              } ${readStateTopAccent.cardCls}`}
               onClick={() => {
                 if (tagOrganizeMode) return;
                 onSelect(draft);
@@ -127,9 +147,24 @@ export default function MapTableList({
                     <div className="min-w-0 flex-1">
                       <div className="flex min-w-0 items-center gap-2">
                         {renderStatusBadge(draft)}
-                        <div className="min-w-0 flex-1 text-[14px] font-medium leading-5 text-neutral-800 line-clamp-2 dark:text-white/85">
-                          {displayTitle}
-                        </div>
+                        {canOpenDetailFromTitle && !tagOrganizeMode ? (
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              onOpenDetail?.(draft);
+                            }}
+                            onMouseEnter={() => onPrefetchDetail?.(draft)}
+                            onFocus={() => onPrefetchDetail?.(draft)}
+                            className="min-w-0 flex-1 text-left text-[14px] font-medium leading-5 text-neutral-800 line-clamp-2 transition hover:text-blue-700 dark:text-white/85 dark:hover:text-blue-200"
+                          >
+                            {displayTitle}
+                          </button>
+                        ) : (
+                          <div className="min-w-0 flex-1 text-[14px] font-medium leading-5 text-neutral-800 line-clamp-2 dark:text-white/85">
+                            {displayTitle}
+                          </div>
+                        )}
                       </div>
                       <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-neutral-500 dark:text-white/55">
                         <span>{draft.sourceType ? sourceLabels[draft.sourceType] : "-"}</span>
@@ -145,26 +180,6 @@ export default function MapTableList({
                         </span>
                       </div>
                     </div>
-                    {showOpenDetail && onOpenDetail && canOpenDetail && (
-                      <button
-                        type="button"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          if (isOpeningDetail) return;
-                          onOpenDetail(draft);
-                        }}
-                        onMouseEnter={() => onPrefetchDetail?.(draft)}
-                        onFocus={() => onPrefetchDetail?.(draft)}
-                        disabled={isOpeningDetail}
-                        className="inline-flex shrink-0 items-center gap-1 rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-700 disabled:cursor-wait disabled:opacity-80 dark:border-white/12 dark:bg-white/[0.05] dark:text-white/80"
-                      >
-                        <Icon
-                          icon={isOpeningDetail ? "mdi:loading" : "mdi:open-in-new"}
-                          className={`h-3.5 w-3.5 ${isOpeningDetail ? "animate-spin" : ""}`}
-                        />
-                        {isOpeningDetail ? t("opening") : t("open")}
-                      </button>
-                    )}
                   </div>
 
                   <div className="mt-2 flex items-start justify-between gap-2">
@@ -227,16 +242,15 @@ export default function MapTableList({
         <tbody>
           {drafts.map((draft) => {
             const isSelected = previewOpen && draft.id === selectedId;
-            const isOpeningDetail = openingDetailId === draft.id;
-            const canOpenDetail = draft.status === "done" || draft.status === "processing_metadata";
             const displayTitle = getDisplayTitle(draft);
             const tags = draft.tags ?? [];
             const visibleTags = tags.slice(0, 2);
             const remainingTags = tags.length - visibleTags.length;
+            const readStateTopAccent = getReadStateTopAccent(draft.readStatus);
             return (
               <tr
                 key={draft.id}
-                className={`border-b border-neutral-200 hover:bg-neutral-50 dark:border-white/6 dark:hover:bg-white/[0.04] ${
+                className={`border-b border-neutral-200 hover:bg-neutral-50 dark:border-white/6 dark:hover:bg-white/[0.04] ${readStateTopAccent.rowCls} ${
                   isSelected
                     ? "bg-[rgba(37,99,235,0.08)] dark:bg-[rgba(96,165,250,0.12)]"
                     : "dark:odd:bg-white/[0.02] dark:even:bg-transparent"
@@ -273,30 +287,25 @@ export default function MapTableList({
                   <div className="flex items-center gap-2">
                     <div className="min-w-0 flex flex-1 items-center gap-2">
                       {renderStatusBadge(draft)}
-                      <div className="min-w-0 flex-1 truncate text-[14px] font-medium text-neutral-800 dark:text-white/92">
-                        {displayTitle}
-                      </div>
-                    </div>
-                    {showOpenDetail && onOpenDetail && canOpenDetail && (
+                      {canOpenDetailFromTitle && !tagOrganizeMode ? (
                         <button
                           type="button"
                           onClick={(event) => {
                             event.stopPropagation();
-                            if (isOpeningDetail) return;
-                            onOpenDetail(draft);
+                            onOpenDetail?.(draft);
                           }}
                           onMouseEnter={() => onPrefetchDetail?.(draft)}
                           onFocus={() => onPrefetchDetail?.(draft)}
-                          disabled={isOpeningDetail}
-                          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-blue-200/80 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700 hover:border-blue-300 hover:bg-blue-100 hover:text-blue-800 hover:shadow-sm disabled:cursor-wait disabled:opacity-80 dark:border-blue-300/18 dark:bg-blue-400/10 dark:text-blue-200 dark:hover:border-sky-300/24 dark:hover:bg-blue-400/16"
+                          className="min-w-0 flex-1 truncate text-left text-[14px] font-medium text-neutral-800 transition hover:text-blue-700 dark:text-white/92 dark:hover:text-blue-200"
                         >
-                          <Icon
-                            icon={isOpeningDetail ? "mdi:loading" : "mdi:open-in-new"}
-                            className={`h-3.5 w-3.5 ${isOpeningDetail ? "animate-spin" : ""}`}
-                          />
-                          {isOpeningDetail ? t("opening") : t("open")}
+                          {displayTitle}
                         </button>
-                    )}
+                      ) : (
+                        <div className="min-w-0 flex-1 truncate text-[14px] font-medium text-neutral-800 dark:text-white/92">
+                          {displayTitle}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </td>
                 <td className="w-[64px] px-2 py-1.5 text-[13px] text-neutral-700 dark:text-white/70 border-r border-neutral-200 dark:border-white/8">

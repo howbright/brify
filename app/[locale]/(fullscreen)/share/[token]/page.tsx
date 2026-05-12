@@ -20,15 +20,32 @@ export async function generateMetadata({
   const map = await getSharedMapMetaByToken(token);
 
   if (!map) {
+    const fallback =
+      locale === "ko"
+        ? {
+            title: "Brify 공유 구조맵",
+            description: "공유된 구조맵을 확인해보세요.",
+          }
+        : locale === "fr"
+        ? {
+            title: "Carte structurée partagée Brify",
+            description: "Découvrez cette carte structurée partagée.",
+          }
+        : {
+            title: "Brify Shared Structure Map",
+            description: "Check out this shared structure map.",
+          };
+
     return {
-      title: "Brify 공유 마인드맵",
-      description: "공유된 마인드맵을 확인해보세요.",
+      title: fallback.title,
+      description: fallback.description,
     };
   }
 
-  const { title, description } = buildSharedMapOgText(map);
+  const { title, description } = buildSharedMapOgText(map, locale);
   const imageUrl = "https://www.brify.app/images/sharingurl.jpg";
   const pageUrl = `https://www.brify.app/${locale}/share/${token}`;
+  const ogLocale = locale === "ko" ? "ko_KR" : locale === "fr" ? "fr_FR" : "en_US";
 
   return {
     title,
@@ -46,6 +63,7 @@ export async function generateMetadata({
           alt: title,
         },
       ],
+      locale: ogLocale,
       type: "article",
     },
     twitter: {

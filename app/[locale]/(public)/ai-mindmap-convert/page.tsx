@@ -13,6 +13,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { locale } = await params;
   const content = getAiMindMapConvertContent(locale);
   const pageUrl = `https://www.brify.app/${locale}/ai-mindmap-convert`;
+  const ogImageUrl =
+    locale === "ko"
+      ? "https://www.brify.app/images/snsKo.png"
+      : "https://www.brify.app/images/snsEn.png";
 
   return {
     title: content.metaTitle,
@@ -35,7 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: "website",
       images: [
         {
-          url: "https://www.brify.app/images/sns_ko.png",
+          url: ogImageUrl,
           width: 1200,
           height: 630,
           alt: content.ogAlt,
@@ -46,7 +50,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: "summary_large_image",
       title: content.metaTitle,
       description: content.metaDescription,
-      images: ["https://www.brify.app/images/sns_ko.png"],
+      images: [ogImageUrl],
     },
   };
 }

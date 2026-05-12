@@ -102,38 +102,6 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
     };
   }, [packs, locale]);
 
-  useEffect(() => {
-    const html = document.documentElement;
-    const body = document.body;
-    const prevHtmlBg = html.style.backgroundColor;
-    const prevBodyBg = body.style.backgroundColor;
-    const prevHtmlOverscrollY = html.style.overscrollBehaviorY;
-    const prevBodyOverscrollY = body.style.overscrollBehaviorY;
-
-    const applySurface = () => {
-      const surface = html.classList.contains("dark") ? "#071124" : "#f6f9ff";
-      html.style.backgroundColor = surface;
-      body.style.backgroundColor = surface;
-    };
-
-    applySurface();
-    html.style.overscrollBehaviorY = "none";
-    body.style.overscrollBehaviorY = "none";
-
-    const observer = new MutationObserver(() => {
-      applySurface();
-    });
-    observer.observe(html, { attributes: true, attributeFilter: ["class"] });
-
-    return () => {
-      observer.disconnect();
-      html.style.backgroundColor = prevHtmlBg;
-      body.style.backgroundColor = prevBodyBg;
-      html.style.overscrollBehaviorY = prevHtmlOverscrollY;
-      body.style.overscrollBehaviorY = prevBodyOverscrollY;
-    };
-  }, []);
-
   const effectivePacks: Pack[] = useMemo(() => {
     return catalogPacks;
   }, [catalogPacks]);

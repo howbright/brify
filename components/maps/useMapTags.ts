@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
-import type { MapStatusFilter } from "./useMapsListControls";
+import type { MapStatusFilter, ReadStateFilter } from "./useMapsListControls";
 
 type SourceType = "youtube" | "website" | "file" | "manual";
 type TagSort = "recent" | "name" | "count_desc" | "count_asc";
@@ -22,6 +22,7 @@ type UseMapTagsOptions = {
   statusFilters: MapStatusFilter[];
   sourceFilters: SourceType[];
   contentFilters: ContentFilter[];
+  readStateFilters: ReadStateFilter[];
   updateDrafts: React.Dispatch<React.SetStateAction<MapDraft[]>>;
   setPage: React.Dispatch<React.SetStateAction<number>>;
   noTagFilter: string;
@@ -40,6 +41,7 @@ export default function useMapTags({
   statusFilters,
   sourceFilters,
   contentFilters,
+  readStateFilters,
   updateDrafts,
   setPage,
   noTagFilter,
@@ -150,6 +152,9 @@ export default function useMapTags({
         if (contentFilters.length > 0) {
           contentFilters.forEach((content) => params.append("content", content));
         }
+        if (readStateFilters.length > 0) {
+          readStateFilters.forEach((state) => params.append("readState", state));
+        }
         params.set("limit", "24");
         const res = await fetch(`/api/maps/tags?${params.toString()}`);
         if (!res.ok) throw new Error("태그를 불러오지 못했습니다.");
@@ -180,6 +185,7 @@ export default function useMapTags({
     statusFilters,
     sourceFilters,
     contentFilters,
+    readStateFilters,
     tagRefreshKey,
   ]);
 

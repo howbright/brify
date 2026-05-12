@@ -1,37 +1,37 @@
 {
   "VideoToMapPage": {
     "title": {
-      "prefix": "Turn text",
-      "highlight": "into a Mind Map"
+      "prefix": "With AI document structuring,",
+      "highlight": "turn text into a structure map"
     },
     "description": {
-      "beforeBold": "Paste the full script from your video",
-      "bold": "just as it is,",
-      "afterBold": "and we'll turn it into a mind map that makes the flow and hierarchy easy to see at a glance."
+      "beforeBold": "Paste long documents or source text",
+      "bold": "as-is,",
+      "afterBold": "and we’ll structure it so the core flow and hierarchy are clear at a glance."
     },
     "inputSection": {
-      "title": "Paste your video script",
-      "placeholder": "Paste the full script from your YouTube, lecture or sermon video here..."
+      "title": "Paste source text",
+      "placeholder": "Paste source text from reports, papers, legal opinions, contracts, and similar documents..."
     },
     "credits": {
       "label": "My credits",
       "unit": "credits",
-      "rule": "By default, 1 credit covers up to {threshold, number} characters. Scripts longer than that require 2 credits."
+      "rule": "By default, 1 credit covers up to {threshold, number} characters. Source text longer than that requires 2 credits."
     },
     "buttons": {
-      "generate": "Create a mind map from this script",
-      "generating": "Creating your mind map..."
+      "generate": "Create a structure map from this text",
+      "generating": "Creating your structure map..."
     },
     "status": {
       "reading": "Reading the content...",
       "splittingFlow": "Breaking it into high-level sections...",
-      "arrangingStructure": "Laying everything out as a mind map...",
+      "arrangingStructure": "Laying everything out as a structure map...",
       "almostThere": "Almost done. Just a moment!"
     },
     "processing": {
-      "title": "We’re organizing your content into a mind map...",
+      "title": "We’re organizing your content into a structure map...",
       "bullet1": "Instead of just summarizing, we first analyze the flow, steps and branches.",
-      "bullet2": "Depending on the length of the video, this can take tens of seconds or more.",
+      "bullet2": "Depending on the document length, this can take tens of seconds or more.",
       "bullet3": "As long as you keep this page open, the process will continue automatically."
     },
     "nextGuide": {
@@ -45,27 +45,27 @@
       ]
     },
     "result": {
-      "title": "Generated mind map",
-      "hint": "Later, you can plug your actual mind map component into this area.",
-      "description": "For now, we’re showing the raw API response as JSON. In the future, this will render a React Flow / mindmap view."
+      "title": "Generated structure map",
+      "hint": "Later, you can plug your actual structure map component into this area.",
+      "description": "For now, we’re showing the raw API response as JSON. In the future, this will render a React Flow / structure map view."
     },
     "modal": {
       "title": "Confirm credit usage",
-      "usageText": "Turning this video script into a mind map will use {credits} credit(s).",
-      "bullet1": "The longer the video, the longer the processing time may be.",
+      "usageText": "Turning this source text into a structure map will use {credits} credit(s).",
+      "bullet1": "The longer the document, the longer the processing time may be.",
       "bullet2": "Once started, this cannot be undone and used credits are non-refundable.",
       "bullet3": "We recommend keeping this page open while processing is in progress.",
       "cancel": "Cancel",
       "confirmButton": "Use {credits} credit(s) and continue"
     },
     "errors": {
-      "emptyScript": "Please paste the video script into the field below first.",
-      "insufficientCredits": "You don’t have enough credits to create this mind map. Please top up your credits first.",
+      "emptyScript": "Please paste source text into the field below first.",
+      "insufficientCredits": "You don’t have enough credits to create this structure map. Please top up your credits first.",
       "creditAvailabilityMismatch": "Your total credits and usable credits are different. Usable: {usable} / Total: {raw}. Some credits may be expired, or credit lot synchronization may be needed.",
       "requestFailed": "The request to the server failed. Please try again in a moment.",
       "unknown": "An unknown error occurred.",
       "processingFailed": "Something went wrong while processing.",
-      "openMapFailed": "Failed to load the mind map.",
+      "openMapFailed": "Failed to load the structure map.",
       "missingMindData": "mind_elixir data is missing.",
       "tooLargeLine1": "The input is too large to process right now.",
       "tooLargeLine2": "Maximum: {max} characters (billing length)",
@@ -80,18 +80,18 @@
       "sessionFailed": "Failed to get the session: {message}",
       "loginRequired": "Please sign in first.",
       "missingApiBase": "NEXT_PUBLIC_API_BASE_URL is missing.",
-      "youtubeFetchFailed": "Failed to fetch the script.",
+      "youtubeFetchFailed": "Failed to fetch source text.",
       "docxNoText": "Could not extract text from the document. Please try another .docx file.",
       "docxProcessFailed": "An error occurred while processing the document. Please try again.",
       "pdfNoText": "Could not extract text from the PDF. It may be an image-based (scanned) PDF, and some PDFs created via print features can be hard to extract.",
       "pdfProcessFailed": "An error occurred while processing the PDF. Please try again.",
-      "noTranscriptFound": "Could not find subtitles or a transcript. (The video may not have subtitles.)",
+      "noTranscriptFound": "Could not find source text. (A transcript may not be available at this link.)",
       "missingMapId": "mapId is missing.",
-      "createFailed": "Failed to create the mind map.",
-      "createTimedOut": "The map creation request is taking too long. The server may be delayed, so please try again shortly."
+      "createFailed": "Failed to create the structure map.",
+      "createTimedOut": "The structure map creation request is taking too long. The server may be delayed, so please try again shortly."
     },
     "messages": {
-      "youtubeFilled": "We filled the input with the fetched script. You can create the map right away.",
+      "youtubeFilled": "We filled the input with fetched source text. You can create the map right away.",
       "insufficientCreditsToast": "Not enough credits.",
       "docxExtractSuccess": "Text extraction is complete.",
       "pdfExtractSuccess": "PDF text extraction is complete.",
@@ -99,8 +99,8 @@
     },
     "labels": {
       "untitled": "Untitled",
-      "draftsTitle": "Created mind maps",
-      "previewTitle": "Mind Map Preview"
+      "draftsTitle": "Created structure maps",
+      "previewTitle": "Structure Map Preview"
     }
   },
   "ScriptInputCard": {
@@ -1573,7 +1573,7 @@
     }
   },
   "LandingBlueHero": {
-    "eyebrow": "For people who need to read, compare, organize, and share long documents",
+    "eyebrow": "A structure map for people who need to quickly understand, organize, and preserve long documents",
     "titles": [
       "When you structure long text, both the key points and the exact details you need"
     ],
@@ -2181,7 +2181,7 @@
       "youtube mind map",
       "Brify"
     ],
-    "ogImage": "https://www.brify.app/images/sns_en.png",
+    "ogImage": "https://www.brify.app/images/snsEn.png",
     "heading": "A better way to organize YouTube videos and notes",
     "lead": "If you keep saving useful YouTube videos but rarely revisit them, Brify helps you organize YouTube notes, flow, and structure into something easier to review later.",
     "body": [
@@ -2216,7 +2216,7 @@
       "webpage summary",
       "Brify"
     ],
-    "ogImage": "https://www.brify.app/images/sns_en.png",
+    "ogImage": "https://www.brify.app/images/snsEn.png",
     "breadcrumbName": "YouTube Summary",
     "heading": "A YouTube summary tool that turns videos into mind maps",
     "lead": "If you want a faster way to summarize YouTube videos and turn YouTube transcripts into mind maps, Brify helps you grasp the flow and structure without watching every minute.",
@@ -2284,7 +2284,7 @@
       "text mind map",
       "Brify"
     ],
-    "ogImage": "https://www.brify.app/images/sns_en.png",
+    "ogImage": "https://www.brify.app/images/snsEn.png",
     "heading": "Convert YouTube transcripts into mind maps",
     "lead": "AI mind map conversion helps you organize complex information in one view. Brify converts YouTube transcripts and long text into structured maps you can revisit anytime.",
     "paragraphs": [
@@ -2371,6 +2371,7 @@
         "status": "Status {value}",
         "source": "Source {value}",
         "content": "Content {value}",
+        "readState": "Read state {value}",
         "tag": "Tag {value}"
       },
       "previewOn": "Preview on",
@@ -2416,6 +2417,7 @@
         "status": "Status",
         "source": "Source type",
         "content": "Content",
+        "readState": "Read state",
         "tag": "Tag"
       },
       "custom": "Custom",
@@ -2433,6 +2435,11 @@
       "content": {
         "notes": "Notes",
         "terms": "Terms"
+      },
+      "readState": {
+        "unread": "Unread",
+        "inProgress": "In progress",
+        "read": "Read"
       },
       "tagLoading": "Loading tags…",
       "tagEmpty": "No tags available."

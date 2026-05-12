@@ -5,6 +5,7 @@ const PAGE_SIZE = 1000;
 const MAX_ROWS = 20000;
 
 type TagCount = { name: string; count: number };
+type ReadState = "unread" | "in_progress" | "read";
 
 function normalizeTag(tag: string) {
   return tag.trim();
@@ -21,6 +22,11 @@ export async function GET(request: Request) {
     );
     const statuses = searchParams.getAll("status");
     const sources = searchParams.getAll("source");
+    const readStates = searchParams
+      .getAll("readState")
+      .filter((value): value is ReadState =>
+        value === "unread" || value === "in_progress" || value === "read"
+      );
 
     const supabase = await createClient();
     const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -37,7 +43,7 @@ export async function GET(request: Request) {
     while (offset < MAX_ROWS) {
       let query = supabase
         .from("maps")
-        .select("tags,created_at")
+        .select("id,tags,created_at")
         .eq("user_id", userData.user.id)
         .order("created_at", { ascending: false })
         .range(offset, offset + PAGE_SIZE - 1);
@@ -58,10 +64,39 @@ export async function GET(request: Request) {
       const { data, error } = await query;
       if (error) throw error;
 
-      const rows = data ?? [];
+      const rows = (data ?? []) as Array<{
+        id: string;
+        tags?: string[] | null;
+      }>;
       totalFetched += rows.length;
+      let filteredRows = rows;
 
-      for (const row of rows as Array<{ tags?: string[] | null }>) {
+      if (readStates.length > 0 && rows.length > 0) {
+        const mapIds = rows.map((row) => row.id).filter(Boolean);
+        if (mapIds.length > 0) {
+          const { data: stateRows, error: stateError } = await supabase
+            .from("map_user_states")
+            .select("map_id,read_status")
+            .eq("user_id", userData.user.id)
+            .in("map_id", mapIds);
+          if (stateError) throw stateError;
+
+          const stateByMapId = new Map<string, ReadState>();
+          for (const row of stateRows ?? []) {
+            stateByMapId.set(row.map_id, row.read_status as ReadState);
+          }
+
+          const selectedReadStates = new Set<ReadState>(readStates);
+          filteredRows = rows.filter((row) => {
+            const readState = stateByMapId.get(row.id) ?? "unread";
+            return selectedReadStates.has(readState);
+          });
+        } else {
+          filteredRows = [];
+        }
+      }
+
+      for (const row of filteredRows) {
         if (!Array.isArray(row.tags)) continue;
         for (const rawTag of row.tags) {
           if (typeof rawTag !== "string") continue;

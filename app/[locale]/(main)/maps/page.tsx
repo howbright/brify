@@ -34,7 +34,10 @@ import MobileTagSheet from "@/components/maps/MobileTagSheet";
 import useMapSelectionMerge from "@/components/maps/useMapSelectionMerge";
 import useMapPreview from "@/components/maps/useMapPreview";
 import useMapTags from "@/components/maps/useMapTags";
-import useMapsListControls, { type MapStatusFilter } from "@/components/maps/useMapsListControls";
+import useMapsListControls, {
+  type MapStatusFilter,
+  type ReadStateFilter,
+} from "@/components/maps/useMapsListControls";
 import useMapDeletion from "@/components/maps/useMapDeletion";
 import useMapsListQuery from "@/components/maps/useMapsListQuery";
 import useRecentMaps from "@/components/maps/useRecentMaps";
@@ -316,6 +319,14 @@ export default function MapsPage() {
     }),
     [tCommon]
   );
+  const readStateLabels = useMemo<Record<ReadStateFilter, string>>(
+    () => ({
+      unread: tCommon("listItem.readState.unread"),
+      in_progress: tCommon("listItem.readState.inProgress"),
+      read: tCommon("listItem.readState.read"),
+    }),
+    [tCommon]
+  );
   const contentLabels = useMemo(
     () => ({
       notes: tPage("tabs.notes"),
@@ -366,6 +377,13 @@ export default function MapsPage() {
     }
     const nextUrl = locale ? `/${locale}/maps/${item.id}` : `/maps/${item.id}`;
     setOpeningDetailId(item.id);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("brify:navigation-start", {
+          detail: { target: `maps-title-${item.id}` },
+        })
+      );
+    }
     router.push(nextUrl);
   };
 
@@ -394,11 +412,14 @@ export default function MapsPage() {
     setSourceFilters,
     contentFilters,
     setContentFilters,
+    readStateFilters,
+    setReadStateFilters,
     dateRange,
     dateLabel,
     statusSummary,
     sourceSummary,
     contentSummary,
+    readStateSummary,
     toggleArrayValue,
     onQueryChange,
     onClearQuery,
@@ -408,6 +429,7 @@ export default function MapsPage() {
     statusLabels,
     sourceLabels,
     contentLabels,
+    readStateLabels,
     datePresetLabels: {
       "7d": tCommon("datePreset.7d"),
       "30d": tCommon("datePreset.30d"),
@@ -461,6 +483,7 @@ export default function MapsPage() {
     statusFilters,
     sourceFilters,
     contentFilters,
+    readStateFilters,
     updateDrafts: (updater) => setDrafts(updater),
     setPage,
     noTagFilter: NO_TAG_FILTER,
@@ -487,6 +510,7 @@ export default function MapsPage() {
     statusFilters,
     sourceFilters,
     contentFilters,
+    readStateFilters,
     locale,
     toDraft,
   });
@@ -589,6 +613,7 @@ export default function MapsPage() {
     statusFilters.length > 0 ||
     sourceFilters.length > 0 ||
     contentFilters.length > 0 ||
+    readStateFilters.length > 0 ||
     tagFilters.length > 0 ||
     datePreset !== "30d";
   const totalPages = useMemo(
@@ -817,6 +842,7 @@ export default function MapsPage() {
                   statusSummary={statusSummary}
                   sourceSummary={sourceSummary}
                   contentSummary={contentSummary}
+                  readStateSummary={readStateSummary}
                   tagSummary={tagSummary}
                   dateLabel={dateLabel}
                   datePreset={datePreset}
@@ -890,6 +916,7 @@ export default function MapsPage() {
                     statusFilters.length > 0 ||
                     sourceFilters.length > 0 ||
                     contentFilters.length > 0 ||
+                    readStateFilters.length > 0 ||
                     tagFilters.length > 0 ||
                     datePreset !== "30d"
                   }
@@ -936,6 +963,11 @@ export default function MapsPage() {
                       contentFilters={contentFilters}
                       onToggleContent={(value) => {
                         toggleArrayValue(value, setContentFilters);
+                        setPage(1);
+                      }}
+                      readStateFilters={readStateFilters}
+                      onToggleReadState={(value) => {
+                        toggleArrayValue(value, setReadStateFilters);
                         setPage(1);
                       }}
                       tagFilters={tagFilters}
@@ -1034,7 +1066,6 @@ export default function MapsPage() {
                     showEditTags={isTagOrganizeActive}
                     onOpenDetail={handleOpenDetail}
                     onPrefetchDetail={handlePrefetchDetail}
-                    openingDetailId={openingDetailId}
                     showOpenDetail
                     statusLabels={statusLabels}
                     sourceLabels={sourceLabels}

@@ -2,7 +2,7 @@
 
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
-import type { MapStatusFilter } from "./useMapsListControls";
+import type { MapStatusFilter, ReadStateFilter } from "./useMapsListControls";
 
 type SourceType = "youtube" | "website" | "file" | "manual";
 type ContentFilter = "notes" | "terms";
@@ -28,6 +28,8 @@ type MapFilterPopoverProps = {
   onToggleSource: (value: SourceType) => void;
   contentFilters: ContentFilter[];
   onToggleContent: (value: ContentFilter) => void;
+  readStateFilters: ReadStateFilter[];
+  onToggleReadState: (value: ReadStateFilter) => void;
   tagFilters: string[];
   tagOptions: Array<{ name: string; count: number }>;
   tagsLoading: boolean;
@@ -50,6 +52,8 @@ export default function MapFilterPopover({
   onToggleSource,
   contentFilters,
   onToggleContent,
+  readStateFilters,
+  onToggleReadState,
   tagFilters,
   tagOptions,
   tagsLoading,
@@ -59,7 +63,21 @@ export default function MapFilterPopover({
   anchorRect,
 }: MapFilterPopoverProps) {
   const t = useTranslations("MapsCommon.filterPopover");
+  const tReadState = useTranslations("MapsCommon.listItem.readState");
   if (typeof document === "undefined") return null;
+
+  const readStateSectionLabel = t.has("sections.readState")
+    ? t("sections.readState")
+    : t("sections.status");
+  const readStateOptionLabels = {
+    unread: t.has("readState.unread")
+      ? t("readState.unread")
+      : tReadState("unread"),
+    in_progress: t.has("readState.inProgress")
+      ? t("readState.inProgress")
+      : tReadState("inProgress"),
+    read: t.has("readState.read") ? t("readState.read") : tReadState("read"),
+  } as const;
 
   const desktopWidth =
     typeof window !== "undefined" ? Math.min(560, window.innerWidth * 0.9) : 560;
@@ -213,6 +231,33 @@ export default function MapFilterPopover({
                     type="checkbox"
                     checked={contentFilters.includes(item.id)}
                     onChange={() => onToggleContent(item.id)}
+                  />
+                  {item.label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <div className="font-semibold text-neutral-800 dark:text-white">
+              {readStateSectionLabel}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(
+                [
+                  { id: "unread", label: readStateOptionLabels.unread },
+                  { id: "in_progress", label: readStateOptionLabels.in_progress },
+                  { id: "read", label: readStateOptionLabels.read },
+                ] as const
+              ).map((item) => (
+                <label
+                  key={item.id}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-400 bg-white px-3 py-1 text-xs text-neutral-600 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80"
+                >
+                  <input
+                    type="checkbox"
+                    checked={readStateFilters.includes(item.id)}
+                    onChange={() => onToggleReadState(item.id)}
                   />
                   {item.label}
                 </label>
