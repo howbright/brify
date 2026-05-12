@@ -4,10 +4,10 @@ import { Icon } from "@iconify/react";
 import { useTranslations } from "next-intl";
 
 const audienceIcons = [
-  "mdi:flask-outline",
-  "mdi:scale-balance",
-  "mdi:briefcase-search-outline",
-  "mdi:file-document-multiple-outline",
+  "mdi:file-search-outline",
+  "mdi:target",
+  "mdi:pencil-ruler-outline",
+  "mdi:share-variant-outline",
 ] as const;
 
 export default function LandingAudienceSection() {

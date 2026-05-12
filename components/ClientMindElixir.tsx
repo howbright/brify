@@ -53,6 +53,7 @@ type ClientMindElixirProps = {
   preferPanModeOnTouch?: boolean;
   showMobileEditControls?: boolean;
   onReadOnlyHighlight?: () => void;
+  onSelectedNodeChange?: (nodeId: string | null) => void;
 };
 
 export type ClientMindElixirHandle = {
@@ -478,6 +479,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       preferPanModeOnTouch = false,
       showMobileEditControls = true,
       onReadOnlyHighlight,
+      onSelectedNodeChange,
     },
     ref
   ) {
@@ -1085,7 +1087,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
   useEffect(() => {
     selectedNodeIdRef.current = selectedNodeId;
-  }, [selectedNodeId]);
+    onSelectedNodeChange?.(selectedNodeId);
+  }, [onSelectedNodeChange, selectedNodeId]);
 
   const {
     noteEditorOpen,

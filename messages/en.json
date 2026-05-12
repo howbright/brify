@@ -806,27 +806,27 @@
   },
   "LandingAudienceSection": {
     "eyebrow": "Best For",
-    "title": "Brify is especially useful for these kinds of users",
-    "subtitle": "The more often you read long documents, revisit specific details, and turn what you read into reusable outputs, the more valuable Brify becomes.",
+    "title": "Especially useful if you repeat work like this",
+    "subtitle": "What matters more than your job title is whether you need to read, revisit, organize, and preserve understanding from long documents.",
     "items": [
       {
-        "title": "Researchers and graduate students",
-        "description": "When you need to read papers, specialist materials, or foreign-language documents while keeping both the main idea and the important details together"
+        "title": "When you need to capture both the core ideas and supporting details in long documents",
+        "description": "It fits well when you need to preserve not just a quick overview, but also the key claims and where the supporting evidence lives."
       },
       {
-        "title": "Legal, policy, and review work",
-        "description": "When you need to locate issues and key information quickly in long documents, then reopen them and continue reviewing"
+        "title": "When you need to quickly find important parts again after reading",
+        "description": "When you reopen the material, you can immediately see where to look and trace it back to the relevant source location."
       },
       {
-        "title": "Strategy, planning, and research roles",
-        "description": "When you need to read multiple reports and source materials, structure them in your own way, and turn them into shareable outputs"
+        "title": "When you need to refine AI output instead of accepting it as-is",
+        "description": "You can reshape the generated structure to match your own standards, and turn it into working material with highlights and annotations."
       },
       {
-        "title": "Professionals who regularly read dense documents",
-        "description": "When you want to keep marking, annotating, and managing reading status instead of simply reading once and moving on"
+        "title": "When you need to share what you organized or turn it into a deliverable",
+        "description": "The more your work continues into team sharing, reports, or presentation-ready outputs, the more useful Brify becomes."
       }
     ],
-    "footnote": "Brify fits best when your documents are not one-time reads, but materials you reopen, refine, and reuse."
+    "footnote": "It is especially well suited to workflows like research and planning, legal or policy review, and document-heavy analysis where you repeatedly reopen materials and verify supporting evidence."
   },
   "LandingOutcomeSection": {
     "eyebrow": "Outcome",
@@ -1781,7 +1781,8 @@
     },
     "actions": {
       "delete": "Delete",
-      "findSource": "Find source",
+      "findSource": "Find source location",
+      "findSourceDisabledHint": "Select a node to find its location in the source text.",
       "tutorial": "Tutorial",
       "closeMap": "Close map",
       "discardDraft": "Discard draft",

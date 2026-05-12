@@ -830,27 +830,27 @@
   },
   "LandingAudienceSection": {
     "eyebrow": "Pour qui",
-    "title": "Brify est particulièrement utile pour ces profils",
-    "subtitle": "Plus vous avez besoin de lire de longs documents, de revenir à des informations précises et de transformer vos lectures en livrables réutilisables, plus Brify devient utile.",
+    "title": "Particulièrement utile si vous répétez ce type de travail",
+    "subtitle": "Ce qui compte plus que votre métier, c’est d’avoir besoin de lire, retrouver, organiser et conserver la compréhension de documents longs.",
     "items": [
       {
-        "title": "Chercheurs et étudiants en master ou doctorat",
-        "description": "Quand vous devez lire des articles, des documents spécialisés ou des sources en langue étrangère, tout en gardant à la fois l’idée centrale et les détails importants"
+        "title": "Quand vous devez saisir à la fois l’idée centrale et les détails de preuve dans de longs documents",
+        "description": "Brify convient bien lorsque vous devez garder non seulement une vue d’ensemble rapide, mais aussi les affirmations clés et l’endroit où se trouvent leurs éléments de preuve."
       },
       {
-        "title": "Métiers juridiques, politiques ou d'évaluation",
-        "description": "Quand vous devez retrouver rapidement les points clés et l’emplacement des informations dans de longs documents, puis les rouvrir pour poursuivre l’analyse"
+        "title": "Quand vous devez retrouver rapidement des passages importants après lecture",
+        "description": "En rouvrant le document, vous voyez tout de suite où regarder et pouvez remonter jusqu’à l’emplacement pertinent dans la source."
       },
       {
-        "title": "Stratégie, planification et recherche",
-        "description": "Quand vous devez lire plusieurs rapports et sources, les restructurer selon vos propres critères et en faire des livrables partageables"
+        "title": "Quand vous devez retravailler le résultat de l’IA au lieu de l’accepter tel quel",
+        "description": "Vous pouvez remodeler la structure générée selon vos propres critères et la transformer en véritable support de travail avec surlignages et annotations."
       },
       {
-        "title": "Professionnels qui lisent souvent des documents complexes",
-        "description": "Quand vous voulez marquer, annoter et suivre l’état de lecture au lieu de simplement lire une fois puis passer à autre chose"
+        "title": "Quand vous devez partager ce que vous avez organisé ou en faire un livrable",
+        "description": "Plus votre travail se prolonge vers le partage en équipe, le reporting ou des supports prêts pour une présentation, plus Brify devient utile."
       }
     ],
-    "footnote": "Brify est encore plus utile lorsque vos documents doivent être rouverts, retravaillés et réutilisés."
+    "footnote": "Brify est particulièrement adapté aux flux de travail comme la recherche et la planification, l’analyse juridique ou politique, et les tâches documentaires denses où l’on rouvre souvent les sources pour revérifier les éléments de preuve."
   },
   "LandingOutcomeSection": {
     "eyebrow": "Outcome",
@@ -1769,7 +1769,8 @@
     },
     "actions": {
       "delete": "Supprimer",
-      "findSource": "Trouver la source",
+      "findSource": "Trouver l’emplacement source",
+      "findSourceDisabledHint": "Sélectionnez un nœud pour trouver son emplacement dans le texte source.",
       "tutorial": "Tutoriel",
       "closeMap": "Fermer la carte",
       "discardDraft": "Ignorer le brouillon",
