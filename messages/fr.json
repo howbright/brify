@@ -616,21 +616,21 @@
   },
   "LandingTestimonialsSection": {
     "eyebrow": "Avis",
-    "title": "Ce qui leur a particulièrement plu",
+    "title": "Là où Brify fait vraiment la différence",
     "featuredLabel": "Avis mis en avant",
     "cta": "Commencer avec Brify",
     "items": {
       "one": {
-        "quote": "J’ai testé avec un article de théologie contenant des termes techniques en hébreu et une structure chiastique complexe. J’ai été surpris de voir à quel point la hiérarchie du modèle central et même les nuances textuelles étaient organisées de façon logique. La qualité de la carte structurée était vraiment remarquable.",
-        "role": "Chercheur en théologie"
+        "quote": "Même dès la première lecture d’un document long, le fil général devenait beaucoup plus clair. Le vrai plus, c’est qu’en le rouvrant plus tard, je savais immédiatement où reprendre, avec à la fois les idées clés et les détails de preuve conservés ensemble.",
+        "role": "Une personne qui relit souvent de longs documents de recherche"
       },
       "two": {
-        "quote": "En transformant des documents de cours en cartes structurées, le déroulé expérimental et les liens entre les concepts clés sont devenus clairs d’un seul coup d’œil. Quand je reviens à un long document, je repère beaucoup plus vite par où commencer, et mon efficacité a nettement augmenté.",
-        "role": "Étudiant universitaire"
+        "quote": "Contrairement à un simple résumé qui ne garde que la conclusion, Brify laisse les points en jeu et l’emplacement des preuves dans une structure réellement exploitable. Plus le document demande un jugement attentif, plus la différence se fait sentir.",
+        "role": "Un professionnel qui vérifie les documents en retrouvant leurs preuves"
       },
       "three": {
-        "quote": "Pour examiner des décisions de justice et des avis juridiques, la carte structurée était bien plus pratique qu’un simple résumé. Les enjeux, les fondements et les conclusions étaient organisés ensemble, ce qui me permettait de trouver rapidement ce qu’il fallait et de l’utiliser immédiatement.",
-        "role": "Professionnel du droit"
+        "quote": "Brify ne s’arrête pas à un brouillon généré par l’IA. J’ai pu le retravailler selon mes propres critères, ajouter des surlignages et des annotations, puis le transformer en support réellement partageable avec mon équipe. Cela a rendu le reporting et la transmission bien plus simples.",
+        "role": "Une personne qui doit transformer sa lecture en livrables partageables"
       }
     }
   },

@@ -592,21 +592,21 @@
   },
   "LandingTestimonialsSection": {
     "eyebrow": "Reviews",
-    "title": "What people especially liked",
+    "title": "Where Brify made the biggest difference",
     "featuredLabel": "Featured Review",
     "cta": "Start using Brify",
     "items": {
       "one": {
-        "quote": "I tested it with a theology paper full of Hebrew technical terms and complex chiastic structures. I was amazed by how clearly it organized the hierarchy of the core model and even subtle textual nuances. The structure map quality was outstanding.",
-        "role": "Theology researcher"
+        "quote": "Even on the first pass through a long document, the overall flow became much easier to grasp. What really helped was reopening it later and still knowing exactly where to resume, with both the key claims and supporting details preserved together.",
+        "role": "Someone who repeatedly reviews long research documents"
       },
       "two": {
-        "quote": "When I turned course documents into structure maps, the experimental flow and the relationships between key concepts became clear at a glance. When I go back to long documents, I can quickly tell where to look first, and my efficiency has improved a lot.",
-        "role": "College student"
+        "quote": "Unlike a simple summary that only leaves the conclusion, Brify kept the issues and the source locations of the supporting evidence in a usable structure. The more a document requires careful judgment, the more valuable that felt.",
+        "role": "A professional who reviews documents by tracing supporting evidence"
       },
       "three": {
-        "quote": "When reviewing case law and legal opinions, the structure map was far more practical than a simple summary. Issues, reasoning, and conclusions were organized together, so I could quickly find what I needed and put it to use right away.",
-        "role": "Legal practitioner"
+        "quote": "It did not stop at showing me an AI-generated draft. I could reshape it to match my own standards, add highlights and annotations, and turn it into something I could actually share with my team. That made reporting and handoff much easier.",
+        "role": "Someone who needs to turn reading into shareable deliverables"
       }
     }
   },
