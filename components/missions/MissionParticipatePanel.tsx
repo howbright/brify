@@ -85,7 +85,7 @@ function StatPill({
     <div
       className={cn(
         "rounded-2xl border border-slate-400 dark:border-white/20",
-        "bg-white dark:bg-black/45",
+        "bg-white dark:bg-slate-900/85",
         "px-3 py-2"
       )}
     >
@@ -134,7 +134,7 @@ function WeeklyQuotaBadge({
       className="
         w-full
         rounded-3xl border border-slate-400 dark:border-white/20
-        bg-white dark:bg-black/45
+        bg-white dark:bg-slate-900/85
         px-4 py-3 sm:px-5 sm:py-4
       "
       aria-label="주간 제출 한도"
@@ -224,7 +224,7 @@ function MiniNotice({
       ? "border-amber-200/80 dark:border-amber-300/20 bg-amber-50/70 dark:bg-amber-400/5"
       : tone === "info"
       ? "border-blue-200/70 dark:border-blue-300/20 bg-blue-50/60 dark:bg-blue-400/5"
-      : "border-slate-400 dark:border-white/20 bg-white dark:bg-black/40";
+      : "border-slate-400 dark:border-white/20 bg-white dark:bg-slate-900/80";
 
   return (
     <div className={cn("rounded-2xl border p-3", toneCls)}>
@@ -429,7 +429,7 @@ export default function MissionParticipatePanel() {
               text-sm font-medium text-neutral-900
               hover:-translate-y-0.5 hover:shadow-md
               transition-all
-              dark:border-white/20 dark:bg-black/60 dark:text-neutral-50
+              dark:border-white/20 dark:bg-slate-900/85 dark:text-neutral-50
             "
           >
             크레딧 구매
@@ -458,7 +458,7 @@ export default function MissionParticipatePanel() {
         <div
           className="
             rounded-3xl border border-neutral-200/80 dark:border-white/15
-            bg-white/90 dark:bg-black/45
+            bg-white/95 dark:bg-slate-900/85
             px-5 py-5 sm:px-6 sm:py-6
             shadow-[0_18px_45px_-26px_rgba(15,23,42,0.20)]
           "
@@ -528,7 +528,7 @@ export default function MissionParticipatePanel() {
                 className="
                   relative overflow-hidden rounded-2xl
                   border border-neutral-200/80 dark:border-white/15
-                  bg-white/70 dark:bg-black/30
+                  bg-white/88 dark:bg-slate-800/75
                   p-4
                 "
               >
@@ -596,7 +596,7 @@ export default function MissionParticipatePanel() {
         <div
           className="
               rounded-3xl border border-neutral-200/80 dark:border-white/15
-              bg-white/85 dark:bg-black/40
+              bg-white/92 dark:bg-slate-900/82
               p-5 sm:p-6
             "
         >
@@ -621,7 +621,7 @@ export default function MissionParticipatePanel() {
                     flex items-start gap-3
                     rounded-2xl px-3 py-2
                     border border-black/5 dark:border-white/12
-                    bg-white/70 dark:bg-white/5
+                    bg-white/80 dark:bg-slate-800/65
                   "
               >
                 <div
@@ -666,7 +666,7 @@ export default function MissionParticipatePanel() {
     relative overflow-hidden self-start
     rounded-3xl
     border border-blue-200/70 dark:border-white/15
-    bg-white/90 dark:bg-black/45
+    bg-white/95 dark:bg-slate-900/88
     p-5 sm:p-6
     shadow-[0_18px_45px_-26px_rgba(59,130,246,0.25)]
     md:sticky md:top-24
@@ -789,7 +789,7 @@ export default function MissionParticipatePanel() {
                   className={cn(
                     "mt-1 w-full rounded-2xl px-3 py-2 text-sm outline-none",
                     "border border-neutral-200/80 dark:border-white/15",
-                    "bg-white/90 dark:bg-black/40",
+                    "bg-white dark:bg-slate-800/80",
                     "text-neutral-900 dark:text-neutral-50",
                     "focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-[rgb(var(--hero-b))]/35",
                     submitCapReached && "opacity-60 cursor-not-allowed"
@@ -817,7 +817,7 @@ export default function MissionParticipatePanel() {
                   className={cn(
                     "mt-1 w-full rounded-2xl px-3 py-2 text-sm outline-none",
                     "border border-neutral-200/80 dark:border-white/15",
-                    "bg-white/90 dark:bg-black/40",
+                    "bg-white dark:bg-slate-800/80",
                     "text-neutral-900 dark:text-neutral-50",
                     "placeholder:text-neutral-400 dark:placeholder:text-neutral-500",
                     "focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-[rgb(var(--hero-b))]/35",
@@ -841,7 +841,7 @@ export default function MissionParticipatePanel() {
                   className={cn(
                     "mt-1 w-full rounded-2xl px-3 py-2 text-sm outline-none",
                     "border border-neutral-200/80 dark:border-white/15",
-                    "bg-white/90 dark:bg-black/40",
+                    "bg-white dark:bg-slate-800/80",
                     "text-neutral-900 dark:text-neutral-50",
                     "placeholder:text-neutral-400 dark:placeholder:text-neutral-500",
                     "focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-[rgb(var(--hero-b))]/35",
@@ -875,7 +875,7 @@ export default function MissionParticipatePanel() {
                       ? "bg-neutral-200 text-neutral-500 dark:bg-white/10 dark:text-neutral-500 cursor-not-allowed"
                       : cn(
                           "border border-blue-200/70 dark:border-white/15",
-                          "bg-white/90 dark:bg-black/35",
+                          "bg-white dark:bg-slate-800/78",
                           "text-neutral-900 dark:text-neutral-50",
                           "hover:-translate-y-0.5 hover:shadow-md"
                         )
@@ -896,7 +896,7 @@ export default function MissionParticipatePanel() {
                         className="
                   relative overflow-hidden rounded-2xl
                   border border-black/5 dark:border-white/12
-                  bg-white/70 dark:bg-black/30
+                  bg-white/85 dark:bg-slate-800/70
                 "
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -963,7 +963,7 @@ export default function MissionParticipatePanel() {
         <div
           className="
             rounded-3xl border border-neutral-200/80 dark:border-white/15
-            bg-white/80 dark:bg-black/35
+            bg-white/92 dark:bg-slate-900/80
             p-4 sm:p-5
             text-xs sm:text-sm text-neutral-700 dark:text-neutral-200
           "

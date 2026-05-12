@@ -33,7 +33,7 @@ export default async function PricingPage({
     }));
 
   return (
-    <div className="pt-[72px] md:pt-[84px]">
+    <div className="min-h-[100dvh] bg-[#f6f9ff] pt-[52px] dark:bg-[#071124] md:pt-[64px]">
       <LandingPricingSection isAuthed={isAuthed} packs={packs} />
       <FinalCTA isAuthed={isAuthed} showSecondary={false} />
     </div>

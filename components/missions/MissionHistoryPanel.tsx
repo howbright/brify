@@ -50,7 +50,7 @@ function StatusPill({ status }: { status: MissionSubmissionStatus }) {
   const map = {
     pending: {
       label: "검토 중",
-      pill: "border-slate-400 bg-white text-neutral-700 dark:border-white/20 dark:bg-white/[0.08] dark:text-neutral-200",
+      pill: "border-slate-400 bg-white/95 text-neutral-700 dark:border-white/20 dark:bg-slate-800/70 dark:text-neutral-200",
     },
     approved: {
       label: "승인",
@@ -185,7 +185,7 @@ export default function MissionHistoryPanel() {
         <div
           className="
             rounded-3xl border border-slate-400 dark:border-white/20
-            bg-white dark:bg-black/45
+            bg-white/95 dark:bg-slate-900/85
             px-5 py-5 sm:px-6 sm:py-6
             shadow-[0_18px_45px_-26px_rgba(15,23,42,0.20)]
           "
@@ -204,7 +204,7 @@ export default function MissionHistoryPanel() {
                 text-[12px] font-semibold text-neutral-900
                 hover:-translate-y-0.5 hover:shadow-md
                 transition-all
-                dark:border-white/20 dark:bg-black/40 dark:text-neutral-50
+                dark:border-white/20 dark:bg-slate-900/80 dark:text-neutral-50
               "
             >
               새로고침
@@ -219,7 +219,7 @@ export default function MissionHistoryPanel() {
                   className="
                     relative overflow-hidden
                     rounded-2xl border border-slate-400 dark:border-white/20
-                    bg-white dark:bg-white/[0.08]
+                    bg-white/90 dark:bg-slate-800/70
                     p-4
                   "
                 >
@@ -249,7 +249,7 @@ export default function MissionHistoryPanel() {
                     className="
                       relative overflow-hidden
                       rounded-2xl border border-slate-400 dark:border-white/20
-                      bg-white dark:bg-white/[0.08]
+                      bg-white/90 dark:bg-slate-800/70
                       p-4
                     "
                   >
