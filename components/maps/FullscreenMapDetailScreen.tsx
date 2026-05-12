@@ -2235,6 +2235,8 @@ export default function FullscreenMapDetailScreen({
     "inline-flex items-center gap-1.5 rounded-xl border border-slate-200/80 bg-white/90 px-3.5 text-[11px] font-semibold text-slate-700 shadow-[0_10px_26px_-18px_rgba(15,23,42,0.16)] backdrop-blur-sm transition hover:bg-white hover:text-slate-900 dark:border-white/10 dark:bg-[#0f172a]/84 dark:text-white/76 dark:shadow-[0_18px_40px_-28px_rgba(2,6,23,0.78)] dark:hover:bg-[#162033] dark:hover:text-white";
   const primaryControlPillClass =
     "inline-flex items-center gap-1.5 rounded-xl bg-[linear-gradient(135deg,#2563eb_0%,#1d4ed8_100%)] px-3.5 text-[11px] font-semibold text-white shadow-[0_14px_30px_-18px_rgba(37,99,235,0.5)] transition hover:shadow-[0_18px_34px_-18px_rgba(37,99,235,0.62)] dark:bg-[linear-gradient(135deg,#3b82f6_0%,#2563eb_100%)]";
+  const sourceFindControlPillClass =
+    "inline-flex h-7 items-center gap-1.5 rounded-xl border border-amber-300/80 bg-[linear-gradient(135deg,#fff7cc_0%,#ffd47a_38%,#f59e0b_100%)] px-2.5 text-[10px] font-extrabold text-slate-950 shadow-[0_16px_34px_-18px_rgba(245,158,11,0.65)] transition hover:-translate-y-[1px] hover:shadow-[0_20px_38px_-16px_rgba(245,158,11,0.78)] dark:border-amber-200/35 dark:bg-[linear-gradient(135deg,#7c2d12_0%,#b45309_44%,#f59e0b_100%)] dark:text-white dark:shadow-[0_18px_36px_-18px_rgba(251,191,36,0.38)]";
   const searchShellClass =
     "relative z-[40] flex h-8 w-[228px] items-center gap-2 rounded-lg border border-slate-400 bg-white px-2.5 text-[11px] text-slate-700 shadow-[0_8px_20px_-18px_rgba(15,23,42,0.14)] dark:border-white/28 dark:bg-[#0b1220] dark:text-white dark:shadow-[0_16px_36px_-30px_rgba(2,6,23,0.7)]";
   const mobileSearchShellClass =
@@ -2438,7 +2440,7 @@ export default function FullscreenMapDetailScreen({
               <button
                 type="button"
                 onClick={() => void handleFindSourceFromSelectedNode()}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 shadow-sm transition hover:border-sky-300 hover:text-sky-700 dark:border-white/20 dark:bg-white/[0.06] dark:text-white/80 dark:hover:text-white"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-amber-300/80 bg-[linear-gradient(135deg,#fff7cc_0%,#ffd47a_36%,#f59e0b_100%)] text-slate-950 shadow-[0_14px_26px_-16px_rgba(245,158,11,0.72)] transition hover:-translate-y-[1px] hover:shadow-[0_18px_32px_-16px_rgba(245,158,11,0.82)] dark:border-amber-200/35 dark:bg-[linear-gradient(135deg,#7c2d12_0%,#b45309_44%,#f59e0b_100%)] dark:text-white dark:shadow-[0_16px_28px_-16px_rgba(251,191,36,0.42)]"
                 aria-label={t("actions.findSource")}
                 title={t("actions.findSource")}
               >
@@ -2617,11 +2619,13 @@ export default function FullscreenMapDetailScreen({
                   <button
                     type="button"
                     onClick={() => void handleFindSourceFromSelectedNode()}
-                    className={`${secondaryControlPillClass} h-7 px-2.5 text-[10px]`}
+                    className={sourceFindControlPillClass}
                     aria-label={t("actions.findSource")}
                     title={t("actions.findSource")}
                   >
-                    <Icon icon="mdi:file-search-outline" className="h-3.5 w-3.5" />
+                    <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-full bg-black/10 text-slate-900 dark:bg-white/14 dark:text-white">
+                      <Icon icon="mdi:file-search-outline" className="h-3.5 w-3.5" />
+                    </span>
                     <span>{t("actions.findSource")}</span>
                   </button>
                 </Tooltip.Trigger>
