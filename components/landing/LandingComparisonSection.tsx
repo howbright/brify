@@ -237,7 +237,7 @@ export default function LandingComparisonSection() {
               </div>
             ) : null}
 
-            <div className="mt-6 space-y-3 md:hidden">
+            <div className="mt-6 flex flex-col gap-3 md:hidden">
               {matrixRows.map((row, index) => (
                 <details
                   key={`${row.feature}-mobile-${index}`}
@@ -255,7 +255,7 @@ export default function LandingComparisonSection() {
                     />
                   </summary>
 
-                  <div className="space-y-3 border-t border-slate-200 px-4 pb-4 pt-3 dark:border-slate-700">
+                  <div className="flex flex-col gap-3 border-t border-slate-200 px-4 pb-4 pt-3 dark:border-slate-700">
                     {row.detail ? (
                       <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">
                         {row.detail}

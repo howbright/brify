@@ -658,7 +658,7 @@
         "brify": "Brify"
       },
       "legend": {
-        "brify": "Directement dans Brify",
+        "brify": "Disponible",
         "partial": "Partiellement via des fonctions séparées",
         "none": "Ce flux n’existe pas"
       },
@@ -670,7 +670,7 @@
             "tone": "none"
           },
           "brify": {
-            "label": "Directement dans Brify",
+            "label": "Disponible",
             "tone": "brify"
           }
         },
@@ -681,7 +681,7 @@
             "tone": "none"
           },
           "brify": {
-            "label": "Directement dans Brify",
+            "label": "Disponible",
             "tone": "brify"
           }
         },
@@ -692,7 +692,7 @@
             "tone": "none"
           },
           "brify": {
-            "label": "Directement dans Brify",
+            "label": "Disponible",
             "tone": "brify"
           }
         },
@@ -703,7 +703,7 @@
             "tone": "partial"
           },
           "brify": {
-            "label": "Directement dans Brify",
+            "label": "Disponible",
             "tone": "brify"
           }
         },
@@ -715,7 +715,7 @@
             "tone": "none"
           },
           "brify": {
-            "label": "Directement dans Brify",
+            "label": "Disponible",
             "tone": "brify"
           }
         },
@@ -727,7 +727,7 @@
             "tone": "partial"
           },
           "brify": {
-            "label": "Directement dans Brify",
+            "label": "Disponible",
             "tone": "brify"
           }
         },
@@ -739,7 +739,7 @@
             "tone": "partial"
           },
           "brify": {
-            "label": "Directement dans Brify",
+            "label": "Disponible",
             "tone": "brify"
           }
         }
