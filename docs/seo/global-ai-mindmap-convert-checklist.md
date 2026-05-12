@@ -15,7 +15,7 @@
 - Re-check indexing status in 3-7 days.
 
 ## 3) Keyword focus by locale
-- Korean primary: `AI 마인드맵 변환`
+- Korean primary: `AI 구조맵 변환`
 - English primary: `AI mind map conversion`
 - French primary: `conversion IA en carte mentale`
 

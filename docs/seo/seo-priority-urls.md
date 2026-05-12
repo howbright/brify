@@ -25,7 +25,7 @@
 6. `https://www.brify.app/fr/youtube-notes`
 
 ## Suggested query clusters
-- KO: `AI 마인드맵 변환`, `텍스트 마인드맵 변환`, `유튜브 요약 마인드맵`
+- KO: `AI 구조맵 변환`, `텍스트 구조맵 변환`, `유튜브 요약 구조맵`
 - EN: `AI mind map conversion`, `text to mind map`, `YouTube transcript to mind map`
 - FR: `conversion IA en carte mentale`, `texte en carte mentale`, `transcription YouTube en carte mentale`
 

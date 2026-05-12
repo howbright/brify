@@ -17,7 +17,7 @@ const ClientMindElixir = dynamic(() => import("@/components/ClientMindElixir"), 
   ssr: false,
   loading: () => (
     <div className="flex h-[1300px] w-full items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
-      <span className="text-slate-500 dark:text-slate-400">마인드맵 로딩 중…</span>
+      <span className="text-slate-500 dark:text-slate-400">구조맵 로딩 중…</span>
     </div>
   ),
 });

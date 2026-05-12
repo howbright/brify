@@ -436,48 +436,6 @@
       "link": "Sign up"
     }
   },
-  "DemoPage": {
-    "eyebrow": "DEMO",
-    "title": "Read a famous talk as a structure map",
-    "intro": {
-      "eyebrow": "Why look at this example",
-      "intro": "We prepared a well-known TED talk as a structure map example.",
-      "speaker": "Simon Sinek is a globally influential leadership expert and author. His TED talk, 'How Great Leaders Inspire Action,' is one of the most-watched talks and explains how brands like Apple succeed.",
-      "lead": "The Golden Circle is one of the most widely known ideas in leadership and branding.",
-      "body1": "There are so many valuable talks people recommend, but it is hard to find the time to watch them all.",
-      "body2": "That is why we built Brify.",
-      "body3": "Even without watching the YouTube video, you can paste in the script and understand the core ideas structurally in just a few minutes, in your own language."
-    },
-    "meta": {
-      "youtubeExample": "YouTube Example",
-      "thumbnailFallback": "No thumbnail available",
-      "titleLabel": "Structure Map Title",
-      "untitledFallback": "Demo Structure Map",
-      "sourceTypeLabel": "Source Type",
-      "channelLabel": "Channel",
-      "channelFallback": "No channel information",
-      "youtubeTitleLabel": "YouTube Title",
-      "youtubeTitleFallback": "No title available",
-      "summaryLabel": "Summary",
-      "summaryFallback": "No summary available.",
-      "tagsLabel": "Tags",
-      "tagsFallback": "No tags available.",
-      "originalLink": "View Original YouTube Video",
-      "sourceTypes": {
-        "youtube": "YouTube",
-        "website": "Website",
-        "file": "File",
-        "manual": "Manual"
-      }
-    },
-    "preview": {
-      "eyebrow": "Mind Map Preview",
-      "title": "Mind Map Preview",
-      "helper": "This example is a fixed preview screen. Press the button to explore the mind map directly.",
-      "cta": "Open Full View",
-      "imageAlt": "Mind map preview frame"
-    }
-  },
   "DemoFullscreenDialog": {
     "dialog": {
       "title": "Mind Map Preview"

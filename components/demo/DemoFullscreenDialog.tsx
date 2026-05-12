@@ -44,7 +44,7 @@ const ClientMindElixir = dynamic(
     loading: () => (
       <div className="flex h-full w-full items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
         <span className="text-slate-500 dark:text-slate-400">
-          마인드맵 로딩 중…
+          구조맵 로딩 중…
         </span>
       </div>
     ),
