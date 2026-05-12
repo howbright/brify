@@ -681,9 +681,9 @@
   },
   "CreatorSection": {
     "imageAlt": "Creator of Brify",
-    "label": "Why Brify Was Built",
+    "label": "Why I built Brify",
     "name": "Lina",
-    "quote": "“The amount of material keeps growing, while <strong>decision time keeps shrinking</strong>.\nI built <heavy>Brify</heavy> to help people read high-risk documents faster and more accurately.\nNot just summaries, but <strong>structured understanding</strong> that preserves both <strong>key flow and critical details</strong>.”"
+    "quote": "“There is always more to read, while <strong>there is less time to decide</strong>.\nI built <heavy>Brify</heavy> to help people read documents where missing something carries real risk, faster and more accurately.\nNot through summary, but through <strong>structure</strong>, so you can grasp both <strong>the key points and the details</strong> together.”"
   },
   "MapLibrarySection": {
     "eyebrow": "Build Your Own Standard",
@@ -714,46 +714,180 @@
   },
   "LandingTestimonialsSection": {
     "eyebrow": "Reviews",
-    "title": "What people found especially useful",
+    "title": "What stood out the most",
     "featuredLabel": "Featured Review",
     "cta": "Start using Brify",
     "items": {
       "one": {
-        "quote": "I tested it with a theology paper full of Hebrew technical terms and complex chiastic structures. I was surprised by how clearly it organized the hierarchy of the core model and even subtle textual nuances. The structure map quality was absolutely top-tier.",
+        "quote": "I tested it with a theology paper full of Hebrew technical terms and complex chiastic structures. I was amazed by how clearly it organized the hierarchy of the core model and even subtle textual nuances. The structure map quality was outstanding.",
         "role": "Theology researcher"
       },
       "two": {
-        "quote": "When I converted major-related documents into structure maps, the experimental flow and relationships between key concepts became clear at a glance. I could quickly see where to look first when revisiting long documents, which improved my efficiency a lot.",
-        "role": "University student"
+        "quote": "When I turned course documents into structure maps, the experimental flow and the relationships between key concepts became clear at a glance. When I go back to long documents, I can quickly tell where to look first, and my efficiency has improved a lot.",
+        "role": "College student"
       },
       "three": {
-        "quote": "When reviewing case law and legal opinions, the structure map was far more practical than a simple summary. Issues, reasoning, and conclusions were organized together, so I could quickly find what I needed and use it right away.",
-        "role": "Legal professional"
+        "quote": "When reviewing case law and legal opinions, the structure map was far more practical than a simple summary. Issues, reasoning, and conclusions were organized together, so I could quickly find what I needed and put it to use right away.",
+        "role": "Legal practitioner"
       }
     }
   },
   "LandingFeatureListSection": {
     "eyebrow": "Features",
     "title": "Brify Key Features",
-    "subtitle": "Quickly structure what you need and make it easy to revisit later.",
+    "subtitle": "Built to organize the information you need quickly and make it easy to come back to later.",
     "items": [
-      "Support for multiple input formats, including text, PDF, and DOCX",
-      "Fast and accurate structure map generation",
+      "Supports multiple input formats, including text, PDF, and DOCX",
+      "Fast, accurate structure map generation",
       "Automatic tag generation",
-      "Output language selection (generate maps in your preferred language)",
-      "Automatic split-and-merge for long inputs (stable large-document processing)",
-      "Responsive support across mobile, tablet, and desktop",
+      "Choose the output language for your structure map",
+      "Automatic split-and-merge for long inputs for stable large-document processing",
+      "Responsive across mobile, tablet, and desktop",
       "Highlight important nodes",
-      "Jump back to original source text from nodes",
+      "Jump back to the original text from a node",
       "Automatic AI term extraction",
-      "Add notes per node",
-      "Freeform structure map editing",
-      "Tag-based classification and rediscovery",
+      "Add notes while reading each node",
+      "Freely edit the structure map",
+      "Organize and revisit maps with tags",
       "Auto-load metadata from YouTube links",
-      "Copy structure maps in Markdown format",
-      "Read-only share page support",
+      "Copy structure maps in Markdown",
+      "Read-only share pages",
       "Download as print, image, or PDF"
     ]
+  },
+  "LandingComparisonSection": {
+    "eyebrow": "NotebookLM Comparison",
+    "title": "How is it different from NotebookLM?",
+    "subtitle": "If quick understanding matters most, NotebookLM may fit better. If you need to work on and manage the result directly, Brify may fit better.",
+    "matrix": {
+      "headers": {
+        "feature": "Feature",
+        "notebooklm": "NotebookLM",
+        "brify": "Brify"
+      },
+      "legend": {
+        "brify": "Directly in Brify",
+        "partial": "Partly possible through separate features",
+        "none": "This workflow is not available"
+      },
+      "rows": [
+        {
+          "feature": "Freely edit the structure map itself",
+          "notebooklm": {
+            "label": "Not available",
+            "tone": "none"
+          },
+          "brify": {
+            "label": "Directly in Brify",
+            "tone": "brify"
+          }
+        },
+        {
+          "feature": "Read while marking important nodes",
+          "notebooklm": {
+            "label": "Not available",
+            "tone": "none"
+          },
+          "brify": {
+            "label": "Directly in Brify",
+            "tone": "brify"
+          }
+        },
+        {
+          "feature": "Read while adding notes to nodes",
+          "notebooklm": {
+            "label": "Not available",
+            "tone": "none"
+          },
+          "brify": {
+            "label": "Directly in Brify",
+            "tone": "brify"
+          }
+        },
+        {
+          "feature": "Review the original source location and revise directly from the node itself",
+          "notebooklm": {
+            "label": "Original source only through chat answers; nodes cannot be edited",
+            "tone": "partial"
+          },
+          "brify": {
+            "label": "Directly in Brify",
+            "tone": "brify"
+          }
+        },
+        {
+          "feature": "Share the structure map itself and continue into PDF or Markdown outputs",
+          "detail": "NotebookLM supports notebook sharing and Slide Deck (.pptx) downloads, but its official documentation does not confirm sharing the mind map itself or turning the mind map itself directly into a presentation.",
+          "notebooklm": {
+            "label": "Notebook / Slide Deck based",
+            "tone": "partial"
+          },
+          "brify": {
+            "label": "Directly in Brify",
+            "tone": "brify"
+          }
+        },
+        {
+          "feature": "Organize, reopen, and manage structure maps with tags and reading status",
+          "detail": "You can mark each structure map as In progress, Important, or Reviewed and keep managing it as part of your workflow.",
+          "notebooklm": {
+            "label": "Not available",
+            "tone": "none"
+          },
+          "brify": {
+            "label": "Directly in Brify",
+            "tone": "brify"
+          }
+        }
+      ]
+    },
+    "notebooklm": {
+      "badge": "Understanding-first",
+      "title": "NotebookLM",
+      "description": "Strong for asking questions across multiple materials and understanding them quickly.",
+      "items": [
+        "Pull multiple materials into one notebook and explore them through questions",
+        "Use citations to quickly jump back to the relevant source passages"
+      ],
+      "limitations": [
+        "Weak for directly editing the generated structure map or marking important parts",
+        "No flow for organizing and managing structure maps themselves with tags and reading status"
+      ]
+    },
+    "brify": {
+      "badge": "Work-product-first",
+      "title": "Brify",
+      "description": "Brify is not a summary that compresses only the key points. It keeps the location of the details you may need to revisit inside the structure map.",
+      "items": [
+        "Freely edit the structure map and mark important parts",
+        "Return to the original text from the map and keep refining",
+        "Continue into share links and PDF or Markdown outputs",
+        "Reopen and manage maps with tags and reading status"
+      ]
+    },
+    "bestFit": {
+      "badge": "Best fit",
+      "title": "Brify fits better when this is repetitive work for you",
+      "subtitle": "The more often you need to highlight, compare, revisit the original text, and turn what you read into shareable outputs, the more useful Brify becomes.",
+      "items": [
+        "When you read long documents often and need to revisit exact details later",
+        "When you need to reorganize what you read in your own way after reading multiple documents",
+        "When your work does not end at reading but continues into sharing and deliverables",
+        "When you need to turn AI output into your own work product instead of leaving it as-is",
+        "When this is not a one-off task, but something you do repeatedly"
+      ]
+    },
+    "footnote": {
+      "notebooklm": {
+        "label": "NotebookLM",
+        "text": "A better fit if your priority is asking questions and understanding materials quickly."
+      },
+      "brify": {
+        "label": "Brify",
+        "text": "A better fit if you want a structure map you can really work with—marking nodes, adding notes as you read, and preserving the exact information you need as an output."
+      },
+      "note": "'Partly possible' means NotebookLM can cover part of the workflow through citations, notes, sharing, or Slide Decks rather than directly on the structure map itself."
+    }
   },
   "LandingOutcomeSection": {
     "eyebrow": "Outcome",
@@ -768,8 +902,8 @@
   },
   "LandingPricingSection": {
     "title": "Simple credits, easy to understand",
-    "subtitle": "Start free, then pay only when you need more.",
-    "freeCreditsBadge": "15 free credits when you sign up",
+    "subtitle": "Start for free, then pay only when you need it.",
+    "freeCreditsBadge": "Get 15 free credits just for signing up",
     "cards": {
       "free": {
         "eyebrow": "Free Start",
@@ -782,31 +916,31 @@
       },
       "pay": {
         "eyebrow": "No Subscription",
-        "title": "Pay only when you need more"
+        "title": "Pay only when you need it"
       },
       "noSubscription": {
         "title": "No subscription · No auto-renewal"
       }
     },
-    "positioningText": "No subscription — pay only for what you use.",
+    "positioningText": "No subscription. Pay only for what you use.",
     "refundText": "Unused credits are eligible for a full refund within 7 days of purchase.",
     "seeDetails": "View pricing details",
     "packs": {
       "50": {
         "badgeText": "Starter",
-        "tagline": "A light starter pack to try things out."
+        "tagline": "A lightweight starter credit pack to try Brify out."
       },
       "150": {
         "badgeText": "Most popular",
-        "tagline": "A standard pack for frequent summarizers."
+        "tagline": "A standard credit pack for people who use Brify often."
       },
       "300": {
-        "badgeText": "Large pack",
-        "tagline": "A generous pack for study and projects."
+        "badgeText": "High-volume pack",
+        "tagline": "A larger pack for study and project work."
       }
     },
     "creditRule": {
-      "title": "Most content uses only 1 credit",
+      "title": "Most content uses just 1 credit",
       "desc": "Longer inputs may require 2 or 3 credits depending on length",
       "details": {
         "small": "Up to 50,000 chars",
@@ -881,10 +1015,10 @@
   "FinalCTA": {
     "title": "Structure complex documents faster,",
     "subtitle": "Compare key evidence and make more accurate decisions.",
-    "body": "The more opinions there are, the clearer your standard needs to be.",
+    "body": "The more viewpoints you need to weigh, the clearer your standard needs to be.",
     "primary": {
       "signedOut": "Get started for free",
-      "signedIn": "Get started"
+      "signedIn": "Start now"
     },
     "secondary": {
       "label": "View pricing"
@@ -1365,36 +1499,31 @@
     }
   },
   "LandingBlueHero": {
-    "eyebrow": "A structuring tool for people who need to read long documents quickly and make accurate decisions.",
+    "eyebrow": "A tool for people who need to read, compare, organize, and share long documents.",
     "titles": [
-      "When documents are structured, the time to grasp key points"
+      "When long text is structured, the key points and the exact places you need"
     ],
-    "titleHighlight": "drops noticeably.",
+    "titleHighlight": "come into view at a glance.",
     "titleSuffix": "",
-    "helper": "By structuring complex documents, Brify helps you make decisions faster and with greater accuracy.",
+    "helper": "Brify helps you directly edit AI-generated structure, mark important points, find the original passage again, and turn it into shared PDF and Markdown outputs.",
     "switchTitleAria": "Switch title",
-    "ctaPrimary": "Start with documents",
+    "ctaPrimary": "Start for free",
     "ctaSecondary": "View sample",
-    "featureItems": [
-      "Turn long documents into structure maps so you can spot key issues faster",
-      "AI automatically organizes technical terms to reduce reading effort",
-      "Read foreign-language documents in your own language more naturally",
-      "Not just summaries. It structures critical details as well"
-    ],
+    "featureItems": [],
     "sampleSection": {
-      "title": "Sample structure map image",
-      "cta": "Create your own map",
-      "imageAlt": "Brify structure map example image"
+      "title": "Sample structure map",
+      "cta": "Create my map",
+      "imageAlt": "Example Brify structure map"
     },
     "flowItems": [
-      "Paste document text",
-      "Create a structure map",
+      "Add a document or text",
+      "Generate a structure map",
       "Read · Edit · Compare",
       "Build your own standard"
     ],
     "videoLabel": "View workflow",
     "videoLoadingLabel": "Loading...",
-    "visualAlt": "Structure Map preview"
+    "visualAlt": "Preview of a structured diagram"
   },
   "WelcomePage": {
     "subtitle": "welcome to brify",
@@ -2095,7 +2224,7 @@
     "relatedHref": "/en/youtube-notes"
   },
   "Footer": {
-    "description": "A knowledge-structuring service that turns long, complex text into structure maps for faster, more accurate understanding.",
+    "description": "A knowledge-structuring service that turns long, complex writing into structure maps for faster, more accurate understanding.",
     "contactEmail": "Email",
     "contactPhone": "Phone",
     "contactAddress": "Address",

@@ -266,36 +266,31 @@
     "openMap": "Ouvrir la carte de structure"
   },
   "LandingBlueHero": {
-    "eyebrow": "Un outil de structuration pour celles et ceux qui doivent lire rapidement de longs documents et prendre des décisions précises.",
+    "eyebrow": "Un outil pour celles et ceux qui doivent lire, comparer, organiser et partager de longs documents.",
     "titles": [
-      "Quand les documents sont structurés, le temps nécessaire pour saisir l’essentiel"
+      "Quand un long texte est structuré, l’essentiel et l’endroit précis des informations utiles"
     ],
     "flowItems": [
-      "Collez le texte du document",
-      "Créez une carte structurée",
+      "Ajoutez un document ou un texte",
+      "Générez une carte structurée",
       "Lisez · modifiez · comparez",
       "Construisez votre propre cadre"
     ],
-    "titleHighlight": "diminue nettement.",
+    "titleHighlight": "apparaissent d’un seul coup d’œil.",
     "titleSuffix": "",
-    "helper": "En structurant les documents complexes, Brify vous aide à décider plus vite et avec plus de précision.",
+    "helper": "Brify vous aide à éditer directement la structure générée par l’IA, à marquer les passages importants, à retrouver le texte d’origine, puis à en faire un résultat partageable en PDF ou en Markdown.",
     "switchTitleAria": "Changer le titre",
-    "ctaPrimary": "Commencer avec un document",
+    "ctaPrimary": "Commencer gratuitement",
     "ctaSecondary": "Voir un exemple",
-    "featureItems": [
-      "Transformez de longs documents en cartes structurées pour repérer plus vite les points clés",
-      "L’IA organise automatiquement les termes techniques pour alléger la lecture",
-      "Lisez plus naturellement les documents en langue étrangère dans votre propre langue",
-      "Pas seulement un résumé : les détails essentiels sont aussi structurés"
-    ],
+    "featureItems": [],
     "sampleSection": {
-      "title": "Image d’exemple de carte structurée",
+      "title": "Exemple de carte structurée",
       "cta": "Créer ma carte",
       "imageAlt": "Image d’exemple de carte structurée Brify"
     },
-    "visualAlt": "Aperçu de la structure Brify",
-    "videoLabel": "Lire la vidéo de démonstration",
-    "videoLoadingLabel": "Chargement de la démo…"
+    "visualAlt": "Aperçu d’un schéma structuré",
+    "videoLabel": "Voir le parcours",
+    "videoLoadingLabel": "Chargement..."
   },
   "Header": {
     "userMenu": {
@@ -337,7 +332,7 @@
     }
   },
   "Footer": {
-    "description": "Un service de structuration des connaissances qui transforme les textes longs et complexes en cartes structurées, pour une compréhension plus rapide et plus précise.",
+    "description": "Un service de structuration des connaissances qui transforme les textes longs et complexes en cartes structurées pour une compréhension plus rapide et plus précise.",
     "contactEmail": "E-mail",
     "contactPhone": "Téléphone",
     "contactAddress": "Adresse",
@@ -490,7 +485,7 @@
   },
   "LandingPricingSection": {
     "title": "Des crédits simples et faciles à comprendre",
-    "subtitle": "Commencez gratuitement, puis payez uniquement quand vous en avez besoin.",
+    "subtitle": "Commencez gratuitement, puis payez seulement quand vous en avez besoin.",
     "freeCreditsBadge": "15 crédits offerts à l’inscription",
     "cards": {
       "free": {
@@ -504,27 +499,27 @@
       },
       "pay": {
         "eyebrow": "Sans abonnement",
-        "title": "Payez uniquement quand vous en avez besoin"
+        "title": "Payez seulement quand vous en avez besoin"
       },
       "noSubscription": {
         "title": "Sans abonnement · Sans renouvellement automatique"
       }
     },
-    "positioningText": "Sans abonnement — payez seulement ce que vous utilisez.",
+    "positioningText": "Sans abonnement. Payez seulement ce que vous utilisez.",
     "refundText": "Les crédits non utilisés sont remboursables intégralement sous 7 jours après achat.",
     "seeDetails": "Voir les détails tarifaires",
     "packs": {
       "50": {
         "badgeText": "Débutant",
-        "tagline": "Un petit pack pour commencer facilement."
+        "tagline": "Un pack léger pour essayer Brify."
       },
       "150": {
         "badgeText": "Le plus populaire",
-        "tagline": "Un pack standard pour un usage fréquent."
+        "tagline": "Un pack standard pour celles et ceux qui utilisent Brify souvent."
       },
       "300": {
-        "badgeText": "Grand pack",
-        "tagline": "Un pack généreux pour l’étude et les projets."
+        "badgeText": "Pack grand volume",
+        "tagline": "Un pack plus généreux pour les études et les projets."
       }
     },
     "creditRule": {
@@ -602,20 +597,20 @@
   },
   "LandingTestimonialsSection": {
     "eyebrow": "Avis",
-    "title": "Ce que les utilisateurs trouvent particulièrement utile",
+    "title": "Ce qui leur a particulièrement plu",
     "featuredLabel": "Avis mis en avant",
     "cta": "Commencer avec Brify",
     "items": {
       "one": {
-        "quote": "J’ai testé avec un article de théologie contenant des termes techniques en hébreu et une structure chiastique complexe. J’ai été surpris de voir à quel point la hiérarchie du modèle central et même les nuances textuelles étaient organisées de façon logique. La qualité de la mind map était vraiment excellente.",
+        "quote": "J’ai testé avec un article de théologie contenant des termes techniques en hébreu et une structure chiastique complexe. J’ai été surpris de voir à quel point la hiérarchie du modèle central et même les nuances textuelles étaient organisées de façon logique. La qualité de la carte structurée était vraiment remarquable.",
         "role": "Chercheur en théologie"
       },
       "two": {
-        "quote": "En transformant des documents de spécialité en cartes structurées, le déroulé expérimental et les relations entre les concepts clés sont devenus clairs d’un seul coup d’œil. Quand je relis de longs documents, je repère beaucoup plus vite où commencer, et mon efficacité a nettement augmenté.",
+        "quote": "En transformant des documents de cours en cartes structurées, le déroulé expérimental et les liens entre les concepts clés sont devenus clairs d’un seul coup d’œil. Quand je reviens à un long document, je repère beaucoup plus vite par où commencer, et mon efficacité a nettement augmenté.",
         "role": "Étudiant universitaire"
       },
       "three": {
-        "quote": "Pour examiner des décisions de justice et des avis juridiques, la carte structurée était bien plus pratique qu’un simple résumé. Les enjeux, les fondements et les conclusions étant organisés ensemble, je pouvais trouver rapidement ce qu’il fallait et l’utiliser immédiatement.",
+        "quote": "Pour examiner des décisions de justice et des avis juridiques, la carte structurée était bien plus pratique qu’un simple résumé. Les enjeux, les fondements et les conclusions étaient organisés ensemble, ce qui me permettait de trouver rapidement ce qu’il fallait et de l’utiliser immédiatement.",
         "role": "Professionnel du droit"
       }
     }
@@ -623,25 +618,159 @@
   "LandingFeatureListSection": {
     "eyebrow": "Fonctionnalités",
     "title": "Fonctionnalités clés de Brify",
-    "subtitle": "Structurez rapidement les informations utiles et retrouvez-les facilement ensuite.",
+    "subtitle": "Pensé pour organiser rapidement les informations utiles et les retrouver facilement ensuite.",
     "items": [
-      "Prise en charge de plusieurs formats d’entrée : texte, PDF, DOCX",
+      "Prend en charge plusieurs formats d’entrée : texte, PDF et DOCX",
       "Génération de cartes structurées rapide et précise",
       "Génération automatique de tags",
-      "Choix de la langue de sortie (générez la carte dans la langue souhaitée)",
-      "Découpage/fusion automatiques des longues entrées (traitement stable des gros documents)",
-      "Interface responsive sur mobile, tablette et ordinateur",
-      "Surlignage des nœuds importants",
-      "Accès direct au texte source depuis un nœud",
+      "Choisissez la langue de sortie de la carte structurée",
+      "Découpage et fusion automatiques des longues entrées pour un traitement stable des gros documents",
+      "Compatible mobile, tablette et ordinateur",
+      "Surligner les nœuds importants",
+      "Retrouver directement le texte d’origine depuis un nœud",
       "Extraction automatique des termes par l’IA",
-      "Ajout de notes par nœud",
-      "Édition libre de la carte structurée",
-      "Classement et relecture via les tags",
-      "Récupération automatique des métadonnées via un lien YouTube",
-      "Copie de la carte au format Markdown",
+      "Ajouter des notes tout en lisant chaque nœud",
+      "Modifier librement la carte structurée",
+      "Classer et retrouver les cartes avec des tags",
+      "Charger automatiquement les métadonnées depuis un lien YouTube",
+      "Copier la carte structurée en Markdown",
       "Page de partage en lecture seule",
       "Téléchargement en impression, image ou PDF"
     ]
+  },
+  "LandingComparisonSection": {
+    "eyebrow": "Comparaison avec NotebookLM",
+    "title": "Quelle est la différence avec NotebookLM ?",
+    "subtitle": "Si votre priorité est de comprendre rapidement, NotebookLM peut mieux convenir. Si vous devez retravailler le résultat et le gérer dans la durée, Brify conviendra mieux.",
+    "matrix": {
+      "headers": {
+        "feature": "Fonction",
+        "notebooklm": "NotebookLM",
+        "brify": "Brify"
+      },
+      "legend": {
+        "brify": "Directement dans Brify",
+        "partial": "Partiellement via des fonctions séparées",
+        "none": "Ce flux n’existe pas"
+      },
+      "rows": [
+        {
+          "feature": "Éditer librement la carte structurée elle-même",
+          "notebooklm": {
+            "label": "Non disponible",
+            "tone": "none"
+          },
+          "brify": {
+            "label": "Directement dans Brify",
+            "tone": "brify"
+          }
+        },
+        {
+          "feature": "Lire en marquant les nœuds importants",
+          "notebooklm": {
+            "label": "Non disponible",
+            "tone": "none"
+          },
+          "brify": {
+            "label": "Directement dans Brify",
+            "tone": "brify"
+          }
+        },
+        {
+          "feature": "Lire en ajoutant des notes aux nœuds",
+          "notebooklm": {
+            "label": "Non disponible",
+            "tone": "none"
+          },
+          "brify": {
+            "label": "Directement dans Brify",
+            "tone": "brify"
+          }
+        },
+        {
+          "feature": "Depuis le nœud lui-même, retrouver l’emplacement dans la source et modifier",
+          "notebooklm": {
+            "label": "Texte source uniquement depuis la réponse du chat ; nœuds non modifiables",
+            "tone": "partial"
+          },
+          "brify": {
+            "label": "Directement dans Brify",
+            "tone": "brify"
+          }
+        },
+        {
+          "feature": "Partager la carte structurée elle-même et poursuivre vers des sorties PDF ou Markdown",
+          "detail": "NotebookLM permet de partager un notebook et de télécharger un Slide Deck (.pptx), mais sa documentation officielle ne confirme ni le partage de la carte elle-même ni une conversion directe de la carte en présentation.",
+          "notebooklm": {
+            "label": "Centré notebook / Slide Deck",
+            "tone": "partial"
+          },
+          "brify": {
+            "label": "Directement dans Brify",
+            "tone": "brify"
+          }
+        },
+        {
+          "feature": "Classer, rouvrir et gérer les cartes structurées avec des tags et des statuts de lecture",
+          "detail": "Vous pouvez marquer chaque carte comme « En cours », « Important » ou « Vérifié », puis la gérer dans la continuité de votre flux de travail.",
+          "notebooklm": {
+            "label": "Non disponible",
+            "tone": "none"
+          },
+          "brify": {
+            "label": "Directement dans Brify",
+            "tone": "brify"
+          }
+        }
+      ]
+    },
+    "notebooklm": {
+      "badge": "Compréhension d’abord",
+      "title": "NotebookLM",
+      "description": "Très efficace pour poser des questions sur plusieurs sources et les comprendre rapidement.",
+      "items": [
+        "Rassembler plusieurs sources dans un même notebook et les explorer par questions",
+        "Revenir rapidement aux passages pertinents grâce aux citations"
+      ],
+      "limitations": [
+        "Peu adapté à l’édition directe de la carte générée ou au marquage des parties importantes",
+        "Pas de flux pour classer et gérer les cartes elles-mêmes avec des tags et des statuts de lecture"
+      ]
+    },
+    "brify": {
+      "badge": "Travail concret d’abord",
+      "title": "Brify",
+      "description": "Brify n’est pas un résumé qui compresse seulement l’essentiel. Il conserve dans la carte structurée l’emplacement des détails que vous devrez peut-être retrouver.",
+      "items": [
+        "Modifier librement la structure et marquer les passages importants",
+        "Revenir au texte d’origine depuis la carte et continuer à l’affiner",
+        "Poursuivre vers un lien de partage et des sorties PDF ou Markdown",
+        "Rouvrir et gérer les cartes avec des tags et des statuts de lecture"
+      ]
+    },
+    "bestFit": {
+      "badge": "Meilleur cas d’usage",
+      "title": "Brify convient mieux si ce type de travail revient souvent",
+      "subtitle": "Plus vous devez surligner, comparer, revenir au texte d’origine et transformer ce que vous lisez en résultat partageable, plus Brify devient utile.",
+      "items": [
+        "Quand vous lisez souvent de longs documents et devez retrouver plus tard des détails précis",
+        "Quand vous devez réorganiser ce que vous avez lu à votre manière après plusieurs documents",
+        "Quand votre travail ne s’arrête pas à la lecture mais continue vers le partage et les livrables",
+        "Quand vous devez transformer la sortie de l’IA en véritable travail personnel au lieu de la laisser telle quelle",
+        "Quand il ne s’agit pas d’une tâche ponctuelle, mais d’un travail récurrent"
+      ]
+    },
+    "footnote": {
+      "notebooklm": {
+        "label": "NotebookLM",
+        "text": "Il convient mieux si votre priorité est de poser des questions et de comprendre rapidement les sources."
+      },
+      "brify": {
+        "label": "Brify",
+        "text": "Il convient mieux si vous voulez une carte structurée vraiment manipulable — marquer les nœuds, ajouter des notes en lisant et conserver exactement les informations dont vous avez besoin sous forme de résultat."
+      },
+      "note": "« Partiellement » signifie que NotebookLM peut couvrir une partie du flux via les citations, les notes, le partage ou les Slide Decks, plutôt que directement sur la carte structurée elle-même."
+    }
   },
   "LandingOutcomeSection": {
     "eyebrow": "Outcome",
@@ -778,20 +907,24 @@
   "FinalCTA": {
     "title": "Structurez plus vite les documents complexes,",
     "subtitle": "Comparez les éléments clés et prenez des décisions plus précises.",
-    "body": "Plus il y a d’avis, plus votre cadre de décision doit être clair.",
+    "body": "Plus vous devez prendre en compte de points de vue, plus votre propre critère doit être clair.",
     "primary": {
       "signedOut": "Commencer gratuitement",
       "signedIn": "Commencer"
     },
     "secondary": {
       "label": "Voir les tarifs"
+    },
+    "badges": {
+      "noSubscription": "Sans abonnement, payez seulement ce que vous utilisez",
+      "refund": "Remboursement des crédits non utilisés sous 7 jours après l’achat"
     }
   },
   "CreatorSection": {
     "imageAlt": "Créatrice de Brify",
-    "label": "Pourquoi Brify a été créé",
+    "label": "Pourquoi j’ai créé Brify",
     "name": "Lina",
-    "quote": "« Le volume de documents augmente, alors que <strong>le temps pour décider diminue</strong>.\nJ’ai créé <heavy>Brify</heavy> pour aider à lire plus vite et plus précisément les documents où une erreur coûte cher.\nPas seulement un résumé, mais une <strong>compréhension structurée</strong> qui conserve à la fois <strong>le fil logique et les détails essentiels</strong>. »"
+    "quote": "« Il y a toujours plus à lire, alors que <strong>le temps pour décider diminue</strong>.\nJ’ai créé <heavy>Brify</heavy> pour aider à lire plus vite et plus précisément des documents où manquer quelque chose comporte un vrai risque.\nNon pas par le résumé, mais par la <strong>structuration</strong>, pour vous aider à saisir à la fois <strong>l’essentiel et les détails</strong>. »"
   },
   "MapLibrarySection": {
     "eyebrow": "Construisez votre propre cadre",
