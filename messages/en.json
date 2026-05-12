@@ -982,8 +982,8 @@
       },
       "main": {
         "eyebrow": "Most Important",
-        "title": "Most maps only need 1 credit",
-        "description": ""
+        "title": "For typical documents, about 30-40 pages are covered by 1 credit",
+        "description": "(Exact rule: up to 50,000 characters)"
       },
       "validity": {
         "title": "Paid credits are valid for 1 year from the payment date."
@@ -1012,8 +1012,8 @@
       }
     },
     "creditRule": {
-      "title": "Most content uses just 1 credit",
-      "desc": "Longer inputs may require 2 or 3 credits depending on length",
+      "title": "For typical documents, about 30-40 pages are covered by 1 credit",
+      "desc": "The exact rule is calculated by original character count",
       "details": {
         "small": "Up to 50,000 chars",
         "medium": "50,001 to 150,000 chars",
@@ -1368,7 +1368,7 @@
     "faq": {
       "title": "FAQ",
       "q2": "How many credits does a video use?",
-      "a2": "Most content uses just 1 credit. Up to 50,000 characters uses 1 credit, 50,001 to 150,000 characters uses 2 credits, 150,001 to 200,000 characters uses 3 credits, and anything over 200,000 characters can't be processed right now.",
+      "a2": "For typical documents, about 30-40 pages are covered by 1 credit. The exact rule is based on original character count: up to 50,000 characters uses 1 credit, 50,001 to 150,000 characters uses 2 credits, 150,001 to 200,000 characters uses 3 credits, and anything over 200,000 characters can't be processed right now.",
       "q3": "Do credits expire?",
       "a3": "Paid credits are valid for 1 year from the payment date. Refund requests are available within 7 days of purchase, and only orders whose credited amount has not been used are eligible for a full refund.",
       "q4": "Will I receive a payment receipt?",
