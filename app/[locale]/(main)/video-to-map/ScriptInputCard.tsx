@@ -173,7 +173,7 @@ export default function ScriptInputCard({
             onClick={onOpenYoutubeDialog}
             disabled={locked}
             className="
-              inline-flex items-center gap-1.5
+              hidden md:inline-flex items-center gap-1.5
               rounded-full border border-slate-400 bg-white
               px-3 py-1.5 text-[13px] sm:text-sm font-semibold text-neutral-800
               hover:bg-slate-100
