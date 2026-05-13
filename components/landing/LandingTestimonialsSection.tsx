@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
+import { dispatchNavigationStart } from "@/app/lib/dispatchNavigationStart";
 
 function ReviewCard({
   quote,
@@ -56,11 +57,7 @@ export default function LandingTestimonialsSection() {
 
   const startNavigationFeedback = () => {
     setPendingCta(true);
-    window.dispatchEvent(
-      new CustomEvent("brify:navigation-start", {
-        detail: { target: "testimonials-cta" },
-      }),
-    );
+    dispatchNavigationStart("testimonials-cta");
   };
 
   return (

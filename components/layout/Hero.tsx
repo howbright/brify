@@ -7,6 +7,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
+import { dispatchNavigationStart } from "@/app/lib/dispatchNavigationStart";
 
 /* ---------------- animations ---------------- */
 
@@ -239,11 +240,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
 
   const startHeroNavigation = (target: "primary" | "secondary") => {
     setPendingCta(target);
-    window.dispatchEvent(
-      new CustomEvent("brify:navigation-start", {
-        detail: { target: `hero-${target}` },
-      }),
-    );
+    dispatchNavigationStart(`hero-${target}`);
   };
 
   const renderFeatures = (

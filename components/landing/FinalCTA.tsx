@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { dispatchNavigationStart } from "@/app/lib/dispatchNavigationStart";
 
 type Props = {
   isAuthed?: boolean;
@@ -47,11 +48,7 @@ export default function FinalCTA({
 
   const startNavigationFeedback = (target: "primary" | "secondary") => {
     setPendingCta(target);
-    window.dispatchEvent(
-      new CustomEvent("brify:navigation-start", {
-        detail: { target: `final-cta-${target}` },
-      }),
-    );
+    dispatchNavigationStart(`final-cta-${target}`);
   };
 
   return (

@@ -6,7 +6,6 @@ import { createClient } from "@/utils/supabase/client";
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function SignupForm() {
@@ -28,7 +27,6 @@ export default function SignupForm() {
   const [isUnsupportedBrowser, setIsUnsupportedBrowser] = useState(false);
 
   const otpInputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   useEffect(() => {
     if (step === "otp" && otpInputRef.current) {
@@ -68,6 +66,12 @@ export default function SignupForm() {
         ? window.location.origin
         : process.env.NEXT_PUBLIC_SITE_URL;
     return new URL("/auth/callback", origin);
+  };
+
+  const navigateWithHardReload = (target: string) => {
+    if (typeof window !== "undefined") {
+      window.location.assign(target);
+    }
   };
 
   const handleGoogleSignup = async () => {
@@ -160,10 +164,7 @@ export default function SignupForm() {
     e.preventDefault();
     setIsSubmitting(true);
   
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.verifyOtp({
+    const { error } = await supabase.auth.verifyOtp({
       email: email.trim(),
       token: token.trim(),
       type: "email",
@@ -176,8 +177,6 @@ export default function SignupForm() {
       return;
     }
   
-    const user = session?.user;
-
     try {
       await supabase.auth.updateUser({
         data: { language: lang },
@@ -185,48 +184,14 @@ export default function SignupForm() {
     } catch {
       // 언어 저장 실패는 가입 자체를 막을 필요는 없으니 무시
     }
-  
-    // ✅ 프로필 업서트(크레딧은 만지지 않음)
-    if (user) {
-      const { error: upsertError } = await supabase.from("profiles").upsert(
-        {
-          id: user.id,
-          email: user.email ?? email.trim(),
-          locale,
-          terms_accepted: true,
-        },
-        { onConflict: "id" }
-      );
-  
-      if (upsertError) {
-        console.error("프로필 upsert 실패:", upsertError.message);
-        // 프로필 upsert 실패해도 가입 자체는 되었으니 흐름은 계속 진행
-      }
-    }
-  
-    // ✅ B) 회원가입 보상 지급 API 호출 (세션 생성 후 /video-to-map 이동 전)
-    // - 서버에서 credit_transactions(reason='signup_reward')로 중복 방지한다고 가정
-    try {
-      const res = await fetch("/api/rewards/signup", {
-        method: "POST",
-        cache: "no-store",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      });
-  
-      // 실패해도 회원가입/로그인은 성공이므로 UX 깨지지 않게 조용히 처리
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        console.warn("signup reward failed:", data?.error ?? res.statusText);
-      }
-    } catch (err) {
-      console.warn("signup reward request error:", err);
-    }
-  
+
     setMessage(t("success.otpVerified"));
     setMessageType("success");
-    router.push(`/${locale}/video-to-map`);
-    setIsSubmitting(false);
+    const nextPath = `/${locale}/video-to-map`;
+    const callbackPath =
+      `/auth/callback?flow=signup&terms=1&locale=${encodeURIComponent(locale)}` +
+      `&next=${encodeURIComponent(nextPath)}`;
+    navigateWithHardReload(callbackPath);
   };
   
 

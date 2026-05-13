@@ -1,7 +1,6 @@
 // components/layout/Header/index.tsx
 import { createClient } from "@/utils/supabase/server";
 import ClientHeaderShell from "./ClientHeaderShell";
-import SupabaseAuthListener from "./SupabaseAuthListener";
 
 export default async function Header() {
   let user: { email?: string | null } | null = null;
@@ -15,7 +14,7 @@ export default async function Header() {
     if (!error) {
       user = fetchedUser;
     }
-  } catch (error) {
+  } catch (_error) {
     // 퍼블릭 페이지 렌더를 위해 인증 부트스트랩 실패는 무시
   }
 
@@ -23,9 +22,6 @@ export default async function Header() {
   const email = user?.email ?? null;
 
   return (
-    <>
-      <ClientHeaderShell isAuthed={isAuthed} email={email} />
-      <SupabaseAuthListener />
-    </>
+    <ClientHeaderShell isAuthed={isAuthed} email={email} />
   );
 }

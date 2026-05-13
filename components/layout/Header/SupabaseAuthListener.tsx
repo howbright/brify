@@ -8,7 +8,7 @@ import { createClient } from "@/utils/supabase/client";
 export default function SupabaseAuthListener() {
   const router = useRouter();
   const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
-  const didReceiveFirstEventRef = useRef(false);
+  const refreshTimerRef = useRef<number | null>(null);
 
   if (!supabaseRef.current) {
     supabaseRef.current = createClient();
@@ -19,20 +19,30 @@ export default function SupabaseAuthListener() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, _session) => {
-      // 모바일 첫 진입 2~3초 뒤 재로딩 방지:
-      // 초기 auth 이벤트(INITIAL_SESSION 등)는 한 번 무시한다.
-      if (!didReceiveFirstEventRef.current) {
-        didReceiveFirstEventRef.current = true;
+      if (event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {
         return;
       }
 
-      // 실제 화면 동기화가 필요한 경우만 refresh
-      if (event === "SIGNED_OUT") {
-        router.refresh();
+      if (
+        event === "SIGNED_IN" ||
+        event === "SIGNED_OUT" ||
+        event === "USER_UPDATED" ||
+        event === "PASSWORD_RECOVERY"
+      ) {
+        if (refreshTimerRef.current !== null) {
+          window.clearTimeout(refreshTimerRef.current);
+        }
+        refreshTimerRef.current = window.setTimeout(() => {
+          router.refresh();
+          refreshTimerRef.current = null;
+        }, 0);
       }
     });
 
     return () => {
+      if (refreshTimerRef.current !== null) {
+        window.clearTimeout(refreshTimerRef.current);
+      }
       subscription.unsubscribe();
     };
   }, [router]);

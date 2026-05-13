@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { dispatchNavigationStart } from "@/app/lib/dispatchNavigationStart";
 
 export default function LandingSampleSection({
   isAuthed = false,
@@ -26,11 +27,7 @@ export default function LandingSampleSection({
 
   const startNavigationFeedback = () => {
     setPendingCta(true);
-    window.dispatchEvent(
-      new CustomEvent("brify:navigation-start", {
-        detail: { target: "sample-cta" },
-      }),
-    );
+    dispatchNavigationStart("sample-cta");
   };
 
   return (

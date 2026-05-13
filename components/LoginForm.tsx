@@ -5,14 +5,12 @@ import { Link } from "@/i18n/navigation";
 import { isUnsupportedGoogleOauthBrowser } from "@/lib/auth/browser";
 import { Icon } from "@iconify/react";
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function LoginForm() {
   const supabase = createClient();
   const t = useTranslations("login");
   const locale = useLocale(); // e.g. "ko", "en", ...
-  const router = useRouter();
   const lang = locale;
   const signupQuestion = t("signup.question");
   const signupLinkLabel = t("signup.link");
@@ -56,6 +54,12 @@ export default function LoginForm() {
         ? window.location.origin
         : process.env.NEXT_PUBLIC_SITE_URL;
     return new URL("/auth/callback", origin);
+  };
+
+  const navigateWithHardReload = (target: string) => {
+    if (typeof window !== "undefined") {
+      window.location.assign(target);
+    }
   };
 
   const handleGoogleLogin = async () => {
@@ -176,7 +180,9 @@ export default function LoginForm() {
 
     const next =
       new URLSearchParams(window.location.search).get("next") ?? `/${locale}`;
-    router.push(`/auth/callback?locale=${locale}&next=${encodeURIComponent(next)}`);
+    navigateWithHardReload(
+      `/auth/callback?locale=${encodeURIComponent(locale)}&next=${encodeURIComponent(next)}`
+    );
   };
 
   return (

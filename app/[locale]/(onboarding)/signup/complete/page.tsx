@@ -1,27 +1,52 @@
 // app/[locale]/(main)/signup/complete/page.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import clsx from "clsx";
 import { Icon } from "@iconify/react";
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+
+const SUPPORTED_LOCALES = ["ko", "en", "fr"] as const;
+
+function normalizeRedirectPath(raw: string, locale: string) {
+  const next = raw.trim();
+
+  if (!next || next === "/") return `/${locale}/video-to-map`;
+  if (!next.startsWith("/") || next.startsWith("//")) {
+    return `/${locale}/video-to-map`;
+  }
+
+  if (
+    next.includes("/signup/complete") ||
+    next === `/${locale}/signup/complete`
+  ) {
+    return `/${locale}/video-to-map`;
+  }
+
+  const hasSupportedLocalePrefix = SUPPORTED_LOCALES.some(
+    (supported) => next === `/${supported}` || next.startsWith(`/${supported}/`),
+  );
+
+  if (hasSupportedLocalePrefix) return next;
+  return `/${locale}${next === "/" ? "" : next}`;
+}
 
 export default function SignupCompletePage() {
   const supabase = createClient();
   const router = useRouter();
   const sp = useSearchParams();
+  const locale = useLocale();
   const t = useTranslations("signupComplete");
 
   // ✅ next는 UX용 이동 목적지(원본 유지)
   const nextForSig = sp.get("next") ?? "/";
 
-  // "/"면 /video-to-map으로 보내기
   const redirectTo = useMemo(() => {
-    return nextForSig === "/" ? "/video-to-map" : nextForSig;
-  }, [nextForSig]);
+    return normalizeRedirectPath(nextForSig, locale);
+  }, [locale, nextForSig]);
 
   // ✅ (옵션) 서명 기반 플로우: callback에서 넘어온 경우만 존재
   const uidFromQuery = sp.get("uid") ?? "";
@@ -38,6 +63,14 @@ export default function SignupCompletePage() {
 
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error">("success");
+
+  const navigateToResolvedTarget = useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.location.assign(redirectTo);
+      return;
+    }
+    router.replace(redirectTo);
+  }, [redirectTo, router]);
 
   useEffect(() => {
     let alive = true;
@@ -81,7 +114,7 @@ export default function SignupCompletePage() {
       if (!alive) return;
 
       if (!profileError && profile?.terms_accepted === true) {
-        router.replace(redirectTo);
+        navigateToResolvedTarget();
         return;
       }
 
@@ -92,7 +125,7 @@ export default function SignupCompletePage() {
     return () => {
       alive = false;
     };
-  }, [router, supabase, redirectTo, t]);
+  }, [navigateToResolvedTarget, supabase, t]);
 
   const requireAgreementsOrShowError = () => {
     if (!agreeTerms || !agreePrivacy) {
@@ -141,7 +174,7 @@ export default function SignupCompletePage() {
 
       setMessage(t("messages.successMove"));
       setMessageType("success");
-      router.replace(redirectTo);
+      navigateToResolvedTarget();
     } catch (e: any) {
       setSubmitting(false);
       setMessage(t("messages.network", { message: e?.message ?? "NETWORK" }));

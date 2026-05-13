@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+KR&family=Noto+Sans+JP&family=Noto+Sans+SC&family=Noto+Sans+TC&family=Noto+Sans+Display&display=swap")
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap")
 layer(base);
 
 @import "tailwindcss";
@@ -11,8 +11,8 @@ layer(base);
 
 @theme {
   /* font */
-  --font-global: Noto Sans, Noto Sans KR, Noto Sans JP, Noto Sans SC,
-    Noto Sans TC, sans-serif;
+  --font-global: "Noto Sans", "Noto Sans KR", "Noto Sans JP", "Noto Sans SC",
+    "Noto Sans TC", "Segoe UI", "Malgun Gothic", sans-serif;
 
   /* base */
   --color-background: #ffffff; /* 페이지 배경 */
@@ -62,6 +62,8 @@ layer(base);
   }
   body {
     @apply bg-background-soft text-foreground;
+    font-family: var(--font-global);
+    text-rendering: optimizeLegibility;
   }
 
   ::selection {
@@ -85,6 +87,7 @@ layer(base);
   body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-family: var(--font-global);
   }
 
   * {
@@ -207,6 +210,11 @@ layer(base);
     font-size: 1rem !important;
     line-height: 1.625rem !important;
   }
+}
+
+/* Mind Elixir defaults to OS stacks; force the same global font for consistency. */
+.map-container {
+  font-family: var(--font-global) !important;
 }
 
 /* 1) 코어 HSL 토큰: Tailwind v4 기본 세트 (반드시 유지) */

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { dispatchNavigationStart } from "@/app/lib/dispatchNavigationStart";
 import { Icon } from "@iconify/react";
 import { useTranslations } from "next-intl";
 import {
@@ -377,13 +378,7 @@ export default function MapsPage() {
     }
     const nextUrl = locale ? `/${locale}/maps/${item.id}` : `/maps/${item.id}`;
     setOpeningDetailId(item.id);
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(
-        new CustomEvent("brify:navigation-start", {
-          detail: { target: `maps-title-${item.id}` },
-        })
-      );
-    }
+    dispatchNavigationStart(`maps-title-${item.id}`);
     router.push(nextUrl);
   };
 

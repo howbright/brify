@@ -8,7 +8,7 @@ import { createClient } from "@/utils/supabase/client";
 
 export default function AuthRscRefresher() {
   const router = useRouter();
-  const didReceiveFirstEventRef = useRef(false);
+  const refreshTimerRef = useRef<number | null>(null);
   const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
 
   if (!supabaseRef.current) {
@@ -18,19 +18,34 @@ export default function AuthRscRefresher() {
   useEffect(() => {
     const supabase = supabaseRef.current!;
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      // 모바일 첫 진입 직후 INITIAL_SESSION/TOKEN_REFRESHED로 인한
-      // 불필요한 refresh(체감상 자동 재로딩)를 방지한다.
-      if (!didReceiveFirstEventRef.current) {
-        didReceiveFirstEventRef.current = true;
+      // 첫 진입에서 발생하는 INITIAL_SESSION과 주기적 TOKEN_REFRESHED는
+      // 불필요한 RSC refresh를 만들 수 있으니 건너뛴다.
+      if (event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {
         return;
       }
 
-      if (event === "SIGNED_OUT") {
-        // 로그아웃 시에만 서버 RSC 스냅샷 갱신
-        router.refresh();
+      if (
+        event === "SIGNED_IN" ||
+        event === "SIGNED_OUT" ||
+        event === "USER_UPDATED" ||
+        event === "PASSWORD_RECOVERY"
+      ) {
+        if (refreshTimerRef.current !== null) {
+          window.clearTimeout(refreshTimerRef.current);
+        }
+        // 세션 쿠키 반영 직후 한 번만 새로고침해 헤더/RSC 인증 상태를 맞춘다.
+        refreshTimerRef.current = window.setTimeout(() => {
+          router.refresh();
+          refreshTimerRef.current = null;
+        }, 0);
       }
     });
-    return () => sub.subscription.unsubscribe();
+    return () => {
+      if (refreshTimerRef.current !== null) {
+        window.clearTimeout(refreshTimerRef.current);
+      }
+      sub.subscription.unsubscribe();
+    };
   }, [router]);
 
   return null;
