@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { PDFParse } from "pdf-parse";
 
 export const runtime = "nodejs";
 
@@ -64,19 +65,6 @@ export async function POST(req: NextRequest) {
 
     const arrayBuffer = await uploaded.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-
-    const requireFn = eval("require") as NodeRequire;
-    const pdfParseModule = requireFn("pdf-parse") as {
-      PDFParse?: new (options: { data: Buffer }) => {
-        getText: (params?: { pageJoiner?: string }) => Promise<{ text?: string; total?: number }>;
-        destroy?: () => Promise<void> | void;
-      };
-    };
-
-    const PDFParse = pdfParseModule.PDFParse;
-    if (!PDFParse) {
-      throw new Error("pdf-parse module does not export PDFParse");
-    }
 
     let result: { text?: string; total?: number; pages?: Array<{ text?: string }> };
     let parser:
@@ -154,16 +142,6 @@ export async function POST(req: NextRequest) {
           detail: process.env.NODE_ENV !== "production" ? message : undefined,
         },
         { status: 422 }
-      );
-    }
-    if (message.includes("Cannot find module 'pdf-parse'")) {
-      return NextResponse.json(
-        {
-          success: false,
-          errorCode: "MODULE_NOT_INSTALLED",
-          error: "pdf 추출 모듈(pdf-parse)이 설치되지 않았습니다. 관리자에게 문의해 주세요.",
-        },
-        { status: 500 }
       );
     }
     return NextResponse.json(

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import mammoth from "mammoth";
 
 export const runtime = "nodejs";
 
@@ -63,11 +64,6 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await uploaded.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const requireFn = eval("require") as NodeRequire;
-    const mammoth = requireFn("mammoth") as {
-      extractRawText: (arg: { buffer: Buffer }) => Promise<{ value: string }>;
-    };
-
     const result = await mammoth.extractRawText({ buffer });
     const extractedText = normalizeExtractedText(result.value ?? "");
 
@@ -91,18 +87,7 @@ export async function POST(req: NextRequest) {
       charCount: extractedText.length,
       warnings: [],
     });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "unknown";
-    if (message.includes("Cannot find module 'mammoth'")) {
-      return NextResponse.json(
-        {
-          success: false,
-          errorCode: "MODULE_NOT_INSTALLED",
-          error: "docx 추출 모듈(mammoth)이 설치되지 않았습니다. 관리자에게 문의해 주세요.",
-        },
-        { status: 500 }
-      );
-    }
+  } catch {
     return NextResponse.json(
       {
         success: false,

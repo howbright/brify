@@ -86,9 +86,12 @@ export default function ScriptInputCard({
 }: Props) {
   const t = useTranslations("ScriptInputCard");
   const locked = disabled || isProcessing;
+  const isExtracting =
+    docxUploadState === "uploading" || pdfUploadState === "uploading";
 
   // ✅ 생성 버튼 차단 조건: 입력 없음 / 잠금 / 한도초과
-  const canGenerate = Boolean(scriptText.trim()) && !locked && !isTooLarge;
+  const canGenerate =
+    Boolean(scriptText.trim()) && !locked && !isTooLarge && !isExtracting;
   const handleDragOver: DragEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
   };
