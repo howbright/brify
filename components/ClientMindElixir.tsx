@@ -1096,6 +1096,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     noteDraft,
     setNoteDraft,
     handleNoteClick,
+    handleNoteDelete,
     handleNoteSave,
   } = useMindElixirNotes({
     selectedNodeIdRef,
@@ -2444,10 +2445,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         onNoteEditorOpenChange={setNoteEditorOpen}
         noteDraft={noteDraft}
         onNoteDraftChange={setNoteDraft}
-        onDeleteNote={() => {
-          setNoteDraft("");
-          handleNoteSave();
-        }}
+        onDeleteNote={handleNoteDelete}
         onSaveNote={handleNoteSave}
         annotationDialogTitle={annotationDialogTitle}
         annotationPlaceholder={annotationPlaceholder}

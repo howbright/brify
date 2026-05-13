@@ -59,7 +59,7 @@ export function useMindElixirNotes({
     setNoteEditorOpen(true);
   };
 
-  const handleNoteSave = () => {
+  const applyNoteValue = (nextValue: string | null) => {
     const selectedId = noteTargetId ?? selectedNodeIdRef.current;
     const selectedEl = selectedNodeElRef.current as
       | (HTMLElement & { nodeObj?: AnyNode })
@@ -68,7 +68,7 @@ export function useMindElixirNotes({
       setNoteEditorOpen(false);
       return;
     }
-    const trimmed = noteDraft.trim();
+    const trimmed = nextValue?.trim() ?? "";
     const normalizedLatest = normalizeMindData(latestMindDataRef.current);
     const latestRoot = normalizedLatest?.node ?? null;
     const latestNode =
@@ -88,6 +88,7 @@ export function useMindElixirNotes({
       });
       setSelectedNoteText(null);
       setNoteEditorOpen(false);
+      setNoteTargetId(null);
       return;
     }
     const clipped = trimmed.slice(0, 500);
@@ -111,6 +112,16 @@ export function useMindElixirNotes({
     });
     setSelectedNoteText(clipped);
     setNoteEditorOpen(false);
+    setNoteTargetId(null);
+  };
+
+  const handleNoteSave = () => {
+    applyNoteValue(noteDraft);
+  };
+
+  const handleNoteDelete = () => {
+    setNoteDraft("");
+    applyNoteValue(null);
   };
 
   return {
@@ -119,6 +130,7 @@ export function useMindElixirNotes({
     noteDraft,
     setNoteDraft,
     handleNoteClick,
+    handleNoteDelete,
     handleNoteSave,
   };
 }

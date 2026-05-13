@@ -1,9 +1,9 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { Icon } from "@iconify/react";
 import MindElixirMobileControls from "@/components/MindElixirMobileControls";
 import MindElixirMiniMap from "@/components/MindElixirMiniMap";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 type ClientMindElixirOverlayProps = {
   elRef: React.RefObject<HTMLDivElement | null>;
@@ -74,6 +74,56 @@ type ClientMindElixirOverlayProps = {
   ready: boolean;
 };
 
+function getNoteEditorStyle(selectedRect: DOMRect | null): CSSProperties {
+  const gutter = 16;
+  const desktopWidth = 360;
+  const mobileWidth = `calc(100vw - ${gutter * 2}px)`;
+
+  if (typeof window === "undefined") {
+    return {
+      right: gutter,
+      top: gutter,
+      width: `min(${desktopWidth}px, ${mobileWidth})`,
+    };
+  }
+
+  if (window.innerWidth < 768 || !selectedRect) {
+    return {
+      left: gutter,
+      right: gutter,
+      bottom: gutter,
+      width: "auto",
+      maxHeight: "44vh",
+    };
+  }
+
+  const panelWidth = Math.min(desktopWidth, window.innerWidth - gutter * 2);
+  const estimatedHeight = 290;
+  let left = selectedRect.left + selectedRect.width + 14;
+
+  if (left + panelWidth > window.innerWidth - gutter) {
+    left = selectedRect.left - panelWidth - 14;
+  }
+
+  left = Math.min(
+    Math.max(gutter, left),
+    Math.max(gutter, window.innerWidth - panelWidth - gutter)
+  );
+
+  let top = selectedRect.top + selectedRect.height / 2 - estimatedHeight / 2;
+  top = Math.min(
+    Math.max(gutter, top),
+    Math.max(gutter, window.innerHeight - estimatedHeight - gutter)
+  );
+
+  return {
+    left,
+    top,
+    width: panelWidth,
+    maxHeight: `calc(100vh - ${gutter * 2}px)`,
+  };
+}
+
 export default function ClientMindElixirOverlay({
   elRef,
   effectivePanMode,
@@ -136,6 +186,10 @@ export default function ClientMindElixirOverlay({
   loading,
   ready,
 }: ClientMindElixirOverlayProps) {
+  const noteEditorStyle = noteEditorOpen
+    ? getNoteEditorStyle(selectedRect)
+    : undefined;
+
   return (
     <>
       <div
@@ -301,7 +355,7 @@ export default function ClientMindElixirOverlay({
         </div>
       )}
 
-      {!isFocusMode && selectedRect && selectedNoteText && (
+      {!isFocusMode && selectedRect && selectedNoteText && !noteEditorOpen && (
         <div
           className="pointer-events-none absolute z-20"
           style={{
@@ -315,52 +369,74 @@ export default function ClientMindElixirOverlay({
         </div>
       )}
 
-      <Dialog open={noteEditorOpen} onOpenChange={onNoteEditorOpenChange}>
-        <DialogContent className="max-w-[420px]">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-200">
-                {annotationDialogTitle}
-              </h3>
-            </div>
-
-            <textarea
-              className="min-h-[120px] w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200/60 dark:border-white/10 dark:bg-[#0b1220] dark:text-white/85 dark:focus:border-blue-300 dark:focus:ring-blue-500/30"
-              placeholder={annotationPlaceholder}
-              value={noteDraft}
-              onChange={(e) => onNoteDraftChange(e.target.value.slice(0, 500))}
-              maxLength={500}
-            />
-
-            <div className="flex items-center justify-between text-[11px] text-neutral-500 dark:text-white/60">
-              <span>{noteDraft.length}/500</span>
-              <div className="flex items-center gap-2">
+      {noteEditorOpen ? (
+        <div className="pointer-events-none absolute inset-0 z-[28]">
+          <div
+            className="pointer-events-auto absolute overflow-hidden rounded-2xl border border-slate-300/90 bg-white/98 p-4 shadow-[0_24px_60px_-28px_rgba(15,23,42,0.55)] backdrop-blur-sm dark:border-white/12 dark:bg-[#0b1220]/98 dark:shadow-[0_24px_60px_-28px_rgba(0,0,0,0.85)]"
+            style={noteEditorStyle}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <div className="space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-200">
+                    {annotationDialogTitle}
+                  </h3>
+                </div>
                 <button
                   type="button"
-                  className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-100 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20"
-                  onClick={onDeleteNote}
-                >
-                  {annotationDeleteLabel}
-                </button>
-                <button
-                  type="button"
-                  className="rounded-full border border-neutral-200 bg-white px-3 py-1 text-[11px] font-semibold text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/10"
+                  className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-neutral-200 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:border-white/10 dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
                   onClick={() => onNoteEditorOpenChange(false)}
+                  aria-label={cancelLabel}
                 >
-                  {cancelLabel}
+                  <Icon icon="mdi:close" className="h-4 w-4" />
                 </button>
-                <button
-                  type="button"
-                  className="rounded-full bg-blue-600 px-3 py-1 text-[11px] font-semibold text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
-                  onClick={onSaveNote}
-                >
-                  {saveLabel}
-                </button>
+              </div>
+
+              <textarea
+                className="min-h-[132px] w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200/60 dark:border-white/10 dark:bg-[#0f172a] dark:text-white/85 dark:focus:border-blue-300 dark:focus:ring-blue-500/30"
+                placeholder={annotationPlaceholder}
+                value={noteDraft}
+                onChange={(e) => onNoteDraftChange(e.target.value.slice(0, 500))}
+                maxLength={500}
+                autoFocus
+              />
+
+              <div className="flex items-center justify-between gap-3 text-[11px] text-neutral-500 dark:text-white/60">
+                <span>{noteDraft.length}/500</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-100 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20"
+                    onClick={onDeleteNote}
+                  >
+                    {annotationDeleteLabel}
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-full border border-neutral-200 bg-white px-3 py-1 text-[11px] font-semibold text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/10"
+                    onClick={() => onNoteEditorOpenChange(false)}
+                  >
+                    {cancelLabel}
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-full bg-blue-600 px-3 py-1 text-[11px] font-semibold text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
+                    onClick={onSaveNote}
+                  >
+                    {saveLabel}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      ) : null}
 
       {loading && (
         <div className="pointer-events-none absolute left-4 top-4 z-10">
