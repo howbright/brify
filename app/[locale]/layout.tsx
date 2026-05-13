@@ -95,6 +95,9 @@ export async function generateMetadata({
     title: copy.title,
     description: copy.description,
     keywords: [...copy.keywords],
+    other: {
+      google: "notranslate",
+    },
     metadataBase: new URL("https://www.brify.app"),
     alternates: {
       canonical: pageUrl,
