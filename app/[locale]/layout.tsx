@@ -25,7 +25,7 @@ const SEO_COPY = {
     ogTitle: "긴 문서 판단을 위한 AI 문서 구조화 도구 | Brify",
     description:
       "브라이피는 길고 복잡한 문서를 구조화해 핵심 흐름과 세부 정보를 함께 보여주는 AI 문서 구조화 도구입니다. 더 빠르고 정확한 판단을 도와줍니다.",
-    imageUrl: "https://www.brify.app/images/snsKo.png",
+    imageUrl: "https://www.brify.app/images/snsKo.jpg",
     ogLocale: "ko_KR",
     keywords: [
       "AI 문서 구조화",
@@ -47,7 +47,7 @@ const SEO_COPY = {
     ogTitle: "AI Document Structuring for Long-Document Decisions | Brify",
     description:
       "Brify is an AI document structuring tool for long, complex documents. It structures core flow and critical details so you can review faster and decide with confidence.",
-    imageUrl: "https://www.brify.app/images/snsEn.png",
+    imageUrl: "https://www.brify.app/images/snsEn.jpg",
     ogLocale: "en_US",
     keywords: [
       "AI document structuring",
@@ -65,7 +65,7 @@ const SEO_COPY = {
     ogTitle: "Structuration de documents par IA pour documents complexes | Brify",
     description:
       "Brify est un outil de structuration de documents par IA pour les documents longs et complexes. Il structure la logique centrale et les détails clés pour une lecture plus rapide et des décisions plus fiables.",
-    imageUrl: "https://www.brify.app/images/snsEn.png",
+    imageUrl: "https://www.brify.app/images/snsEn.jpg",
     ogLocale: "fr_FR",
     keywords: [
       "structuration de documents par IA",

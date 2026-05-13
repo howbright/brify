@@ -2,10 +2,10 @@
   "slug": "your-slug",
   "title": "Post title",
   "excerpt": "One-sentence summary shown on the blog card.",
-  "image": "/images/snsKo.png",
+  "image": "/images/snsKo.jpg",
   "markdown": "## Section title\n\nFirst paragraph.\n\nSecond paragraph.\n\n- Point 1\n- Point 2",
   "middleImage": {
-    "src": "/images/snsKo.png",
+    "src": "/images/snsKo.jpg",
     "alt": "Optional in-article image",
     "caption": "Optional caption",
     "afterParagraph": 2

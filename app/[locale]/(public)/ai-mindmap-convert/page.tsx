@@ -15,8 +15,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const pageUrl = `https://www.brify.app/${locale}/ai-mindmap-convert`;
   const ogImageUrl =
     locale === "ko"
-      ? "https://www.brify.app/images/snsKo.png"
-      : "https://www.brify.app/images/snsEn.png";
+      ? "https://www.brify.app/images/snsKo.jpg"
+      : "https://www.brify.app/images/snsEn.jpg";
 
   return {
     title: content.metaTitle,
