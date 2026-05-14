@@ -1781,6 +1781,7 @@
     },
     "actions": {
       "delete": "Delete",
+      "undo": "Undo",
       "findSource": "Find source location",
       "findSourceDisabledHint": "Select a node to find its location in the source text.",
       "tutorial": "Tutorial",

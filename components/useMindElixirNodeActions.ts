@@ -14,8 +14,10 @@ type MindNodeElement = HTMLElement & { nodeObj?: AnyNode };
 type MindNodeActionInstance = {
   currentNode?: MindNodeElement | null;
   currentNodes?: MindNodeElement[] | null;
+  __allowTouchBeginEditOnce?: boolean;
   selectNode?: (node: MindNodeElement) => void;
   addChild: (node: MindNodeElement) => void | Promise<unknown>;
+  insertParent: () => void | Promise<unknown>;
   insertSibling: (
     position: "before" | "after",
     node: MindNodeElement
@@ -24,7 +26,12 @@ type MindNodeActionInstance = {
   removeNodes: (nodes: MindNodeElement[]) => void | Promise<unknown>;
 };
 
-type MobileAction = "addChild" | "addSibling" | "rename" | "remove";
+type MobileAction =
+  | "addChild"
+  | "addParent"
+  | "addSibling"
+  | "rename"
+  | "remove";
 
 type Params = {
   editMode: "view" | "edit";
@@ -100,12 +107,21 @@ export function useMindElixirNodeActions({
         setMobileActionNodeId(null);
         return;
       }
+      if (action === "addParent") {
+        const nodeObj = activeNode.nodeObj as AnyNode | undefined;
+        const isRoot = nodeObj?.root || !nodeObj?.parent?.id;
+        if (isRoot) return;
+        await mind.insertParent();
+        setMobileActionNodeId(null);
+        return;
+      }
       if (action === "addSibling") {
         await mind.insertSibling("after", activeNode);
         setMobileActionNodeId(null);
         return;
       }
       if (action === "rename") {
+        mind.__allowTouchBeginEditOnce = true;
         await mind.beginEdit(activeNode);
         setMobileActionNodeId(null);
         return;

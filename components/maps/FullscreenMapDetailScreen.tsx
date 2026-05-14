@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type RefObject, type ReactNode } 
 import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
@@ -76,38 +76,6 @@ function hasValidTimestampInMindData(raw: unknown): boolean {
     }
   }
   return false;
-}
-
-function cloneJson<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value)) as T;
-}
-
-function collapseToLevel(node: MindNode, level: number, depth = 0) {
-  node.expanded = depth < level;
-  node.children?.forEach((child) => collapseToLevel(child, level, depth + 1));
-}
-
-function collapseAllDescendants(node: MindNode, depth = 0) {
-  node.expanded = depth === 0;
-  node.children?.forEach((child) => collapseAllDescendants(child, depth + 1));
-}
-
-function getInitialCollapsedMapData<T>(raw: T): T {
-  if (!raw || typeof raw !== "object") return raw;
-  const cloned = cloneJson(raw) as T & { nodeData?: MindNode };
-  const root = cloned?.nodeData;
-  if (!root) return cloned;
-  collapseToLevel(root, 2);
-  return cloned;
-}
-
-function getInitialFullyCollapsedMapData<T>(raw: T): T {
-  if (!raw || typeof raw !== "object") return raw;
-  const cloned = cloneJson(raw) as T & { nodeData?: MindNode };
-  const root = cloned?.nodeData;
-  if (!root) return cloned;
-  collapseAllDescendants(root);
-  return cloned;
 }
 
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
@@ -471,11 +439,9 @@ export default function FullscreenMapDetailScreen({
   const t = useTranslations("FullscreenMapPage");
   const tReadState = useTranslations("MapsCommon.listItem.readState");
   const tFullscreenDialog = useTranslations("FullscreenDialog");
-  const tHeader = useTranslations("Header");
   const tTutorial = useTranslations("MapTutorial");
   const isTutorialMobile = useTutorialIsMobile();
   const router = useRouter();
-  const pathname = usePathname();
   const { resolvedTheme } = useTheme();
   const { profileThemeName } = useMindThemePreference();
   const supabase = createClient();
@@ -488,13 +454,6 @@ export default function FullscreenMapDetailScreen({
   const isAdminView = accessMode === "admin";
   const isSharedView = accessMode === "shared";
   const isReadOnlyView = isAdminView || isSharedView;
-  const localeOptions = useMemo(
-    () => [
-      { code: "ko", label: "한국어" },
-      { code: "en", label: "English" },
-    ],
-    []
-  );
   const loadingMindElixir = useMemo(() => getLoadingMindElixir(locale), [locale]);
 
   const [draft, setDraft] = useState<MapDraft | null>(null);
@@ -525,6 +484,7 @@ export default function FullscreenMapDetailScreen({
   const mindRef = useRef<ClientMindElixirHandle | null>(null);
   const centeredOnceRef = useRef(false);
   const pendingRecenterRef = useRef(false);
+  const initialCollapseAppliedForMapRef = useRef<string | null>(null);
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
   const [isSavingMeta, setIsSavingMeta] = useState(false);
   const [tagEditOpen, setTagEditOpen] = useState(false);
@@ -554,7 +514,6 @@ export default function FullscreenMapDetailScreen({
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [mobileMapActionsOpen, setMobileMapActionsOpen] = useState(false);
   const [mobileThemeOpen, setMobileThemeOpen] = useState(false);
-  const [mobileLanguageOpen, setMobileLanguageOpen] = useState(false);
   const [mobileStateOpen, setMobileStateOpen] = useState(false);
   const [mobileToolbarCollapsed, setMobileToolbarCollapsed] = useState(true);
   const [isLikelyInAppBrowser, setIsLikelyInAppBrowser] = useState(false);
@@ -563,7 +522,6 @@ export default function FullscreenMapDetailScreen({
   const desktopMoreRef = useRef<HTMLDivElement | null>(null);
   const mobileMapActionsRef = useRef<HTMLDivElement | null>(null);
   const mobileThemeRef = useRef<HTMLDivElement | null>(null);
-  const mobileLanguageRef = useRef<HTMLDivElement | null>(null);
   const mobileStateRef = useRef<HTMLDivElement | null>(null);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
@@ -1058,14 +1016,26 @@ export default function FullscreenMapDetailScreen({
       }),
     [tTutorial, isTutorialMobile]
   );
-  const initialMapData = useMemo(
-    () =>
-      isTutorialMobile
-        ? getInitialFullyCollapsedMapData(mapData ?? null)
-        : getInitialCollapsedMapData(mapData ?? null),
-    [mapData, isTutorialMobile]
-  );
   const showTimestamps = false;
+
+  const applyInitialCollapse = () => {
+    if (!mapId || !mapData || loading) return;
+    if (initialCollapseAppliedForMapRef.current === mapId) return;
+    const mind = mindRef.current;
+    if (!mind) return;
+
+    const isMobileViewport =
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(max-width: 639px)").matches;
+
+    if (isMobileViewport) {
+      mind.collapseAll?.();
+    } else {
+      mind.collapseToLevel?.(2);
+    }
+    initialCollapseAppliedForMapRef.current = mapId;
+  };
 
   const openTab = (next: "info" | "notes" | "terms") => {
     setLeftTab(next);
@@ -1127,7 +1097,7 @@ export default function FullscreenMapDetailScreen({
   }, [searchOpen]);
 
   useEffect(() => {
-    if (!desktopMoreOpen && !mobileMapActionsOpen && !mobileThemeOpen && !mobileLanguageOpen && !mobileStateOpen) return;
+    if (!desktopMoreOpen && !mobileMapActionsOpen && !mobileThemeOpen && !mobileStateOpen) return;
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node | null;
       if (!target) return;
@@ -1140,21 +1110,17 @@ export default function FullscreenMapDetailScreen({
       if (mobileThemeOpen && mobileThemeRef.current?.contains(target)) {
         return;
       }
-      if (mobileLanguageOpen && mobileLanguageRef.current?.contains(target)) {
-        return;
-      }
       if (mobileStateOpen && mobileStateRef.current?.contains(target)) {
         return;
       }
       setMobileMapActionsOpen(false);
       setMobileThemeOpen(false);
-      setMobileLanguageOpen(false);
       setMobileStateOpen(false);
       setDesktopMoreOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [desktopMoreOpen, mobileLanguageOpen, mobileMapActionsOpen, mobileThemeOpen, mobileStateOpen]);
+  }, [desktopMoreOpen, mobileMapActionsOpen, mobileThemeOpen, mobileStateOpen]);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -2257,41 +2223,10 @@ export default function FullscreenMapDetailScreen({
   const findSourceButtonTooltip = sourceFindNodeSelected
     ? findSourceActionLabel
     : findSourceDisabledHint;
-  const mobileLanguageLabel = tHeader("userMenu.language");
+  const mobileUndoLabel = t("actions.undo");
   const sharedMissingTitle = t("sharedMissing.title");
   const sharedMissingDescription = t("sharedMissing.description");
   const sharedMissingAction = t("sharedMissing.action");
-
-  const handleLocaleChange = async (nextLocale: string) => {
-    if (nextLocale === locale) {
-      setMobileLanguageOpen(false);
-      return;
-    }
-
-    document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000`;
-
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user) {
-        await supabase.auth.updateUser({
-          data: {
-            ...(user.user_metadata ?? {}),
-            language: nextLocale,
-          },
-        });
-      }
-    } catch {
-      // 언어 저장 실패가 라우팅을 막을 필요는 없으므로 무시
-    }
-
-    const pathWithoutLocale = pathname.replace(/^\/(ko|en)(?=\/|$)/, "");
-    const newPath = `/${nextLocale}${pathWithoutLocale || "/"}`;
-    setMobileLanguageOpen(false);
-    router.push(newPath);
-  };
 
   if (isSharedView && !loading && !draft) {
     return (
@@ -2898,7 +2833,6 @@ export default function FullscreenMapDetailScreen({
                 setMobileToolbarCollapsed((v) => !v);
                 setMobileMapActionsOpen(false);
                 setMobileThemeOpen(false);
-                setMobileLanguageOpen(false);
                 setMobileStateOpen(false);
               }}
               className={controlIconButtonClass}
@@ -3045,51 +2979,25 @@ export default function FullscreenMapDetailScreen({
             )}
               </div>
 
-              <div className="relative" ref={mobileLanguageRef}>
+              {!isReadOnlyView ? (
                 <div className="group relative">
                   <button
                     type="button"
                     onClick={() => {
-                      setMobileLanguageOpen((v) => !v);
                       setMobileMapActionsOpen(false);
                       setMobileThemeOpen(false);
                       setMobileStateOpen(false);
+                      mindRef.current?.undo();
                     }}
                     className={controlIconButtonClass}
-                    aria-label={mobileLanguageLabel}
-                    title={mobileLanguageLabel}
+                    aria-label={mobileUndoLabel}
+                    title={mobileUndoLabel}
                   >
-                    <Icon icon="ic:baseline-language" className="h-4 w-4" />
+                    <Icon icon="mdi:undo" className="h-4 w-4" />
                   </button>
-                  <span className={mobileVerticalTooltipClass}>{mobileLanguageLabel}</span>
+                  <span className={mobileVerticalTooltipClass}>{mobileUndoLabel}</span>
                 </div>
-                {mobileLanguageOpen ? (
-                  <div className={`absolute right-full top-0 mr-2 w-[124px] p-2 ${controlPanelClass}`}>
-                    <div className="flex flex-col gap-1">
-                      {localeOptions.map((option) => {
-                        const active = option.code === locale;
-                        return (
-                          <button
-                            key={option.code}
-                            type="button"
-                            onClick={() => void handleLocaleChange(option.code)}
-                            className={`inline-flex h-9 items-center justify-between rounded-xl px-3 text-[12px] font-semibold transition ${
-                              active
-                                ? "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-100"
-                                : "text-slate-700 hover:bg-slate-100 dark:text-white/80 dark:hover:bg-white/10"
-                            }`}
-                          >
-                            <span>{option.label}</span>
-                            {active ? (
-                              <Icon icon="mdi:check" className="h-4 w-4 shrink-0" />
-                            ) : null}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
+              ) : null}
 
               <div className="relative" ref={mobileThemeRef}>
                 <div className="group relative">
@@ -3216,6 +3124,7 @@ export default function FullscreenMapDetailScreen({
               ref={mindRef}
               mode={resolvedTheme === "dark" ? "dark" : "light"}
               editMode={editMode}
+              onReady={applyInitialCollapse}
               onChange={
                 isReadOnlyView
                   ? undefined
@@ -3253,7 +3162,7 @@ export default function FullscreenMapDetailScreen({
                   ? undefined
                   : MIND_THEME_BY_NAME[themeName]
               }
-              data={initialMapData ?? undefined}
+              data={mapData ?? undefined}
               loading={loading}
               placeholderData={loadingMindElixir}
               showMiniMap={!isTutorialMobile}

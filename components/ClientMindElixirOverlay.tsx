@@ -15,6 +15,7 @@ type ClientMindElixirOverlayProps = {
   mobileEditMenuTitle: string;
   mobileEditLabels: {
     addChild: string;
+    addParent: string;
     addSibling: string;
     rename: string;
     remove: string;
@@ -23,6 +24,7 @@ type ClientMindElixirOverlayProps = {
   selectedNodeIsRoot: boolean;
   onCloseMobileActions: () => void;
   onAddChild: () => void;
+  onAddParent: () => void;
   onAddSibling: () => void;
   onRename: () => void;
   onRemove: () => void;
@@ -58,7 +60,6 @@ type ClientMindElixirOverlayProps = {
   focusModeLabel: string;
   focusModeExitLabel: string;
   onExitFocus: () => void;
-  selectedNoteText: string | null;
   noteEditorOpen: boolean;
   onNoteEditorOpenChange: (open: boolean) => void;
   noteDraft: string;
@@ -136,6 +137,7 @@ export default function ClientMindElixirOverlay({
   selectedNodeIsRoot,
   onCloseMobileActions,
   onAddChild,
+  onAddParent,
   onAddSibling,
   onRename,
   onRemove,
@@ -171,7 +173,6 @@ export default function ClientMindElixirOverlay({
   focusModeLabel,
   focusModeExitLabel,
   onExitFocus,
-  selectedNoteText,
   noteEditorOpen,
   onNoteEditorOpenChange,
   noteDraft,
@@ -208,11 +209,13 @@ export default function ClientMindElixirOverlay({
         title={mobileEditMenuTitle}
         labels={mobileEditLabels}
         anchorRect={selectedRect}
+        disableAddParent={selectedNodeIsRoot}
         disableAddSibling={selectedNodeIsRoot}
         disableRename={!selectedNodeId}
         disableRemove={selectedNodeIsRoot}
         onClose={onCloseMobileActions}
         onAddChild={onAddChild}
+        onAddParent={onAddParent}
         onAddSibling={onAddSibling}
         onRename={onRename}
         onRemove={onRemove}
@@ -351,20 +354,6 @@ export default function ClientMindElixirOverlay({
             >
               {focusModeExitLabel}
             </button>
-          </div>
-        </div>
-      )}
-
-      {!isFocusMode && selectedRect && selectedNoteText && !noteEditorOpen && (
-        <div
-          className="pointer-events-none absolute z-20"
-          style={{
-            left: selectedRect.left + selectedRect.width + 10,
-            top: selectedRect.top,
-          }}
-        >
-          <div className="max-w-[260px] rounded-xl border border-blue-200 bg-white/95 px-3 py-2 text-xs text-neutral-700 shadow-lg dark:border-white/10 dark:bg-[#0b1220]/95 dark:text-white/85">
-            {selectedNoteText}
           </div>
         </div>
       )}

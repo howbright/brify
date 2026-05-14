@@ -54,6 +54,7 @@ type ClientMindElixirProps = {
   showMobileEditControls?: boolean;
   onReadOnlyHighlight?: () => void;
   onSelectedNodeChange?: (nodeId: string | null) => void;
+  onReady?: () => void;
 };
 
 export type ClientMindElixirHandle = {
@@ -69,6 +70,7 @@ export type ClientMindElixirHandle = {
   getSnapshot: () => any | null;
   exportPng: () => Promise<Blob | null>;
   centerMap: () => void;
+  undo: () => void;
   zoomIn: () => void;
   zoomOut: () => void;
   panBy: (dx: number, dy: number) => void;
@@ -302,7 +304,7 @@ function getNodeTopicText(node: unknown) {
 }
 
 const NOTE_BADGE_SVG =
-  '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1.5V8h4.5L14 3.5zM7 12h10v1.5H7V12zm0 4h10v1.5H7V16zm0-8h6v1.5H7V8z"/></svg>';
+  '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm7 1.5V9h5.5L13 3.5zM8 13h8v1.5H8V13zm0 4h5v1.5H8V17z"/></svg>';
 
 function findNodePathByRef(
   node: AnyNode | null | undefined,
@@ -480,6 +482,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       showMobileEditControls = true,
       onReadOnlyHighlight,
       onSelectedNodeChange,
+      onReady,
     },
     ref
   ) {
@@ -490,6 +493,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const showTimestampsRef = useRef(showTimestamps);
   const currentLevelRef = useRef(0);
   const latestMindDataRef = useRef<any>(null);
+  const onReadyRef = useRef<typeof onReady>(onReady);
 
   const { resolvedTheme } = useTheme();
   const locale = useLocale();
@@ -539,11 +543,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     host.dispatchEvent(new Event("mind-elixir-refresh-decorations"));
   }, [showTimestamps]);
 
+  useEffect(() => {
+    onReadyRef.current = onReady;
+  }, [onReady]);
+
   const [ready, setReady] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedRect, setSelectedRect] = useState<DOMRect | null>(null);
   const [isFocusMode, setIsFocusMode] = useState(false);
-  const [selectedNoteText, setSelectedNoteText] = useState<string | null>(null);
+  const [, setSelectedNoteText] = useState<string | null>(null);
   const [mobileActionNodeId, setMobileActionNodeId] = useState<string | null>(null);
   const selectedNodeIdRef = useRef<string | null>(null);
   const selectedNodeElRef = useRef<HTMLElement | null>(null);
@@ -564,6 +572,12 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     startDistance: number;
     startScale: number;
   }>({ active: false, startDistance: 0, startScale: 1 });
+
+  useEffect(() => {
+    if (!ready) return;
+    onReadyRef.current?.();
+  }, [ready]);
+
   const touchPanRef = useRef<{
     active: boolean;
     pointerId: number | null;
@@ -671,20 +685,26 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         window.clearTimeout(pendingDeselectTimerRef.current);
         pendingDeselectTimerRef.current = null;
       }
-      if (editMode !== "view") return;
       const target = e.target as HTMLElement | null;
       if (!target) return;
       const isNode =
         target.closest?.("me-tpc") || target.closest?.("[data-nodeid]");
       if (!isNode) return;
+      if (isTouchDevice) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation?.();
+        return;
+      }
+      if (editMode !== "view") return;
       onViewModeEditAttempt?.();
     };
 
-    host.addEventListener("dblclick", handleDblClick);
+    host.addEventListener("dblclick", handleDblClick, true);
     return () => {
-      host.removeEventListener("dblclick", handleDblClick);
+      host.removeEventListener("dblclick", handleDblClick, true);
     };
-  }, [editMode, onViewModeEditAttempt]);
+  }, [editMode, isTouchDevice, onViewModeEditAttempt]);
 
   useEffect(() => {
     const wrapper = wrapperRef.current;
@@ -1144,6 +1164,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     BLOCKED_OPS.forEach((op) => {
       nextBefore[op] = async (...args: any[]) => {
         if (!enabled) return false;
+        if (op === "beginEdit" && isTouchDevice) {
+          const allowTouchBeginEdit = mind.__allowTouchBeginEditOnce === true;
+          mind.__allowTouchBeginEditOnce = false;
+          if (!allowTouchBeginEdit) return false;
+        }
         const fn = original[op];
         if (typeof fn === "function") {
           return await fn.apply(mind, args);
@@ -1321,6 +1346,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       },
       centerMap: () => {
         centerMap(mindRef.current, clearSelectionBeforeCenter);
+      },
+      undo: () => {
+        const mind = mindRef.current;
+        if (!mind || typeof mind.undo !== "function") return;
+        mind.undo();
       },
       zoomIn: () => {
         const mind = mindRef.current;
@@ -1741,10 +1771,20 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
               el.appendChild(dot);
             }
             dot.setAttribute("data-nodeid", el.dataset.nodeid ?? "");
+            let preview = el.querySelector<HTMLElement>(".me-note-preview");
+            if (!preview) {
+              preview = document.createElement("span");
+              preview.className = "me-note-preview";
+              preview.setAttribute("data-note-preview", "true");
+              el.appendChild(preview);
+            }
+            preview.textContent = noteText;
           } else {
             el.removeAttribute("data-note");
             const dot = el.querySelector<HTMLElement>(".me-note-dot");
             if (dot) dot.remove();
+            const preview = el.querySelector<HTMLElement>(".me-note-preview");
+            if (preview) preview.remove();
           }
           const shouldShowTimestamps = showTimestampsRef.current !== false;
           const tsSeconds = parseTimestampSeconds(latestNode?.ts ?? el.nodeObj?.ts);
@@ -2214,7 +2254,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           opacity: 0 !important;
         }
         me-tpc[data-editing="mask"] .me-note-dot,
+        me-tpc[data-editing="mask"] .me-note-preview,
         me-tpc[data-editing="mask"] .me-ts-badge {
+          opacity: 0 !important;
+        }
+        me-tpc[data-editing] .me-note-preview {
           opacity: 0 !important;
         }
         @media (max-width: 639px) {
@@ -2265,6 +2309,48 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           width: 10px;
           height: 10px;
           pointer-events: none;
+        }
+        .me-note-preview {
+          position: absolute;
+          left: calc(100% + 10px);
+          top: 50%;
+          z-index: 3;
+          display: block;
+          min-width: 96px;
+          max-width: 220px;
+          padding: 8px 10px;
+          border-radius: 10px;
+          border: 1px solid rgba(148, 163, 184, 0.42);
+          background: rgba(255, 255, 255, 0.98);
+          color: #334155;
+          font-size: 11px;
+          font-weight: 500;
+          line-height: 1.45;
+          white-space: pre-wrap;
+          overflow-wrap: anywhere;
+          word-break: break-word;
+          box-shadow:
+            0 10px 26px rgba(15, 23, 42, 0.12),
+            0 0 0 1px rgba(255, 255, 255, 0.74);
+          transform: translateY(-50%);
+          pointer-events: none;
+        }
+        .${DEFAULT_DARK_CANVAS_CLASS} .me-note-preview {
+          border-color: rgba(148, 163, 184, 0.22);
+          background: rgba(15, 23, 42, 0.97);
+          color: rgba(226, 232, 240, 0.92);
+          box-shadow:
+            0 14px 30px rgba(2, 6, 23, 0.34),
+            0 0 0 1px rgba(148, 163, 184, 0.08);
+        }
+        @media (max-width: 639px) {
+          .me-note-preview {
+            left: calc(100% + 8px);
+            min-width: 84px;
+            max-width: min(42vw, 160px);
+            padding: 6px 8px;
+            font-size: 10px;
+          }
         }
         .me-ts-badge {
           position: absolute;
@@ -2356,6 +2442,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         selectedNodeIsRoot={selectedNodeIsRoot}
         onCloseMobileActions={() => setMobileActionNodeId(null)}
         onAddChild={() => void runMobileNodeAction("addChild")}
+        onAddParent={() => void runMobileNodeAction("addParent")}
         onAddSibling={() => void runMobileNodeAction("addSibling")}
         onRename={() => void runMobileNodeAction("rename")}
         onRemove={() => void runMobileNodeAction("remove")}
@@ -2440,7 +2527,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         focusModeLabel={focusModeLabel}
         focusModeExitLabel={focusModeExitLabel}
         onExitFocus={handleExitFocus}
-        selectedNoteText={selectedNoteText}
         noteEditorOpen={noteEditorOpen}
         onNoteEditorOpenChange={setNoteEditorOpen}
         noteDraft={noteDraft}
