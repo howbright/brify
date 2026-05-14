@@ -14,6 +14,7 @@ type MindNodeElement = HTMLElement & { nodeObj?: AnyNode };
 type MindNodeActionInstance = {
   currentNode?: MindNodeElement | null;
   currentNodes?: MindNodeElement[] | null;
+  __allowTouchBeginEditOnce?: boolean;
   selectNode?: (node: MindNodeElement) => void;
   addChild: (node: MindNodeElement) => void | Promise<unknown>;
   insertParent: () => void | Promise<unknown>;
@@ -120,6 +121,7 @@ export function useMindElixirNodeActions({
         return;
       }
       if (action === "rename") {
+        mind.__allowTouchBeginEditOnce = true;
         await mind.beginEdit(activeNode);
         setMobileActionNodeId(null);
         return;

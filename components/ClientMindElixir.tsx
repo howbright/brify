@@ -1164,6 +1164,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     BLOCKED_OPS.forEach((op) => {
       nextBefore[op] = async (...args: any[]) => {
         if (!enabled) return false;
+        if (op === "beginEdit" && isTouchDevice) {
+          const allowTouchBeginEdit = mind.__allowTouchBeginEditOnce === true;
+          mind.__allowTouchBeginEditOnce = false;
+          if (!allowTouchBeginEdit) return false;
+        }
         const fn = original[op];
         if (typeof fn === "function") {
           return await fn.apply(mind, args);
