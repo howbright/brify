@@ -1108,6 +1108,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   useEffect(() => {
     selectedNodeIdRef.current = selectedNodeId;
     onSelectedNodeChange?.(selectedNodeId);
+    const host = elRef.current;
+    if (!host) return;
+    host.dispatchEvent(new Event("mind-elixir-refresh-decorations"));
   }, [onSelectedNodeChange, selectedNodeId]);
 
   const {
@@ -1762,6 +1765,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           const noteText = (latestNode?.note ?? el.nodeObj?.note ?? "").trim();
           if (noteText) {
             el.setAttribute("data-note", "true");
+            if (selectedNodeIdRef.current === nodeId) {
+              el.setAttribute("data-note-visible", "true");
+            } else {
+              el.removeAttribute("data-note-visible");
+            }
             let dot = el.querySelector<HTMLElement>(".me-note-dot");
             if (!dot) {
               dot = document.createElement("span");
@@ -1781,6 +1789,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             preview.textContent = noteText;
           } else {
             el.removeAttribute("data-note");
+            el.removeAttribute("data-note-visible");
             const dot = el.querySelector<HTMLElement>(".me-note-dot");
             if (dot) dot.remove();
             const preview = el.querySelector<HTMLElement>(".me-note-preview");
@@ -2302,7 +2311,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             0 0 0 2px rgba(255, 255, 255, 0.95),
             0 6px 12px rgba(37, 99, 235, 0.35);
           cursor: pointer;
-          pointer-events: auto;
+          pointer-events: none;
+          opacity: 0;
+          visibility: hidden;
+          transition: opacity 140ms ease;
         }
         .me-note-dot svg,
         .me-note-dot svg * {
@@ -2334,6 +2346,17 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             0 0 0 1px rgba(255, 255, 255, 0.74);
           transform: translateY(-50%);
           pointer-events: none;
+          opacity: 0;
+          visibility: hidden;
+          transition: opacity 140ms ease;
+        }
+        me-tpc[data-note-visible="true"] .me-note-dot,
+        me-tpc[data-note-visible="true"] .me-note-preview {
+          opacity: 1;
+          visibility: visible;
+        }
+        me-tpc[data-note-visible="true"] .me-note-dot {
+          pointer-events: auto;
         }
         .${DEFAULT_DARK_CANVAS_CLASS} .me-note-preview {
           border-color: rgba(148, 163, 184, 0.22);
