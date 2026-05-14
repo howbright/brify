@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 type Labels = {
   addChild: string;
+  addParent: string;
   addSibling: string;
   rename: string;
   remove: string;
@@ -69,6 +70,7 @@ export function useMindElixirResponsiveState({
     locale === "ko"
       ? {
           addChild: "자식 추가",
+          addParent: "부모 추가",
           addSibling: "형제 추가",
           rename: "이름 수정",
           remove: "삭제",
@@ -76,6 +78,7 @@ export function useMindElixirResponsiveState({
         }
       : {
           addChild: "Add child",
+          addParent: "Add parent",
           addSibling: "Add sibling",
           rename: "Rename",
           remove: "Delete",

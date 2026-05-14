@@ -48,6 +48,42 @@ export function useMindElixirNotes({
   const [noteDraft, setNoteDraft] = useState("");
   const [noteTargetId, setNoteTargetId] = useState<string | null>(null);
 
+  const syncNoteDecoration = (
+    selectedEl: HTMLElement & { nodeObj?: AnyNode },
+    noteText: string | null
+  ) => {
+    const normalized = noteText?.trim() ?? "";
+    if (!normalized) {
+      selectedEl.removeAttribute("data-note");
+      const dot = selectedEl.querySelector<HTMLElement>(".me-note-dot");
+      if (dot) dot.remove();
+      const preview = selectedEl.querySelector<HTMLElement>(".me-note-preview");
+      if (preview) preview.remove();
+      return;
+    }
+
+    selectedEl.setAttribute("data-note", "true");
+
+    let dot = selectedEl.querySelector<HTMLElement>(".me-note-dot");
+    if (!dot) {
+      dot = document.createElement("span");
+      dot.className = "me-note-dot";
+      dot.setAttribute("data-note-dot", "true");
+      dot.innerHTML = noteBadgeSvg;
+      selectedEl.appendChild(dot);
+    }
+    dot.setAttribute("data-nodeid", selectedEl.dataset.nodeid ?? "");
+
+    let preview = selectedEl.querySelector<HTMLElement>(".me-note-preview");
+    if (!preview) {
+      preview = document.createElement("span");
+      preview.className = "me-note-preview";
+      preview.setAttribute("data-note-preview", "true");
+      selectedEl.appendChild(preview);
+    }
+    preview.textContent = normalized;
+  };
+
   const handleNoteClick = () => {
     const selectedId = selectedNodeIdRef.current;
     const selectedEl = selectedNodeElRef.current as
@@ -78,9 +114,7 @@ export function useMindElixirNotes({
       if (latestNode) {
         delete latestNode.note;
       }
-      selectedEl.removeAttribute("data-note");
-      const dot = selectedEl.querySelector<HTMLElement>(".me-note-dot");
-      if (dot) dot.remove();
+      syncNoteDecoration(selectedEl, null);
       onChangeRef.current?.({
         name: "updateNote",
         id: normalizeNodeId(selectedId),
@@ -96,15 +130,7 @@ export function useMindElixirNotes({
     if (latestNode) {
       latestNode.note = clipped;
     }
-    let dot = selectedEl.querySelector<HTMLElement>(".me-note-dot");
-    if (!dot) {
-      dot = document.createElement("span");
-      dot.className = "me-note-dot";
-      dot.setAttribute("data-note-dot", "true");
-      dot.innerHTML = noteBadgeSvg;
-      selectedEl.appendChild(dot);
-    }
-    dot.setAttribute("data-nodeid", selectedEl.dataset.nodeid ?? "");
+    syncNoteDecoration(selectedEl, clipped);
     onChangeRef.current?.({
       name: "updateNote",
       id: normalizeNodeId(selectedId),

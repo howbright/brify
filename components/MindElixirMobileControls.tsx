@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 
 type Labels = {
   addChild: string;
+  addParent: string;
   addSibling: string;
   rename: string;
   remove: string;
@@ -14,11 +15,13 @@ type Props = {
   labels: Labels;
   title?: string;
   anchorRect?: DOMRect | null;
+  disableAddParent?: boolean;
   disableAddSibling?: boolean;
   disableRename?: boolean;
   disableRemove?: boolean;
   onClose?: () => void;
   onAddChild: () => void;
+  onAddParent: () => void;
   onAddSibling: () => void;
   onRename: () => void;
   onRemove: () => void;
@@ -29,11 +32,13 @@ export default function MindElixirMobileControls({
   labels,
   title = "Edit menu",
   anchorRect,
+  disableAddParent = false,
   disableAddSibling: _disableAddSibling = false,
   disableRename = false,
   disableRemove = false,
   onClose,
   onAddChild,
+  onAddParent,
   onAddSibling: _onAddSibling,
   onRename,
   onRemove,
@@ -97,6 +102,58 @@ export default function MindElixirMobileControls({
                     className="h-4.5 w-4.5 shrink-0 text-neutral-700 dark:text-white/75"
                   />
                   <span>{labels.addChild}</span>
+                </span>
+                <Icon
+                  icon="mdi:chevron-right"
+                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
+                />
+              </button>
+              <button
+                type="button"
+                onClick={onAddParent}
+                disabled={disableAddParent}
+                className={[
+                  baseItemClassName,
+                  disableAddParent
+                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-white/[0.04] dark:text-white/35"
+                    : "bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]",
+                ].join(" ")}
+              >
+                <span className="inline-flex items-center gap-3">
+                  <Icon
+                    icon="mdi:transit-connection-horizontal"
+                    className={[
+                      "h-4.5 w-4.5 shrink-0",
+                      disableAddParent ? "text-neutral-400 dark:text-white/35" : "text-neutral-700 dark:text-white/75",
+                    ].join(" ")}
+                  />
+                  <span>{labels.addParent}</span>
+                </span>
+                <Icon
+                  icon="mdi:chevron-right"
+                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
+                />
+              </button>
+              <button
+                type="button"
+                onClick={_onAddSibling}
+                disabled={_disableAddSibling}
+                className={[
+                  baseItemClassName,
+                  _disableAddSibling
+                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-white/[0.04] dark:text-white/35"
+                    : "bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]",
+                ].join(" ")}
+              >
+                <span className="inline-flex items-center gap-3">
+                  <Icon
+                    icon="mdi:relation-many-to-many"
+                    className={[
+                      "h-4.5 w-4.5 shrink-0",
+                      _disableAddSibling ? "text-neutral-400 dark:text-white/35" : "text-neutral-700 dark:text-white/75",
+                    ].join(" ")}
+                  />
+                  <span>{labels.addSibling}</span>
                 </span>
                 <Icon
                   icon="mdi:chevron-right"

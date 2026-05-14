@@ -1769,6 +1769,7 @@
     },
     "actions": {
       "delete": "Supprimer",
+      "undo": "Annuler",
       "findSource": "Trouver l’emplacement source",
       "findSourceDisabledHint": "Sélectionnez un nœud pour trouver son emplacement dans le texte source.",
       "tutorial": "Tutoriel",

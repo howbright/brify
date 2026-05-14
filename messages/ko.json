@@ -1781,6 +1781,7 @@
     },
     "actions": {
       "delete": "삭제",
+      "undo": "되돌리기",
       "findSource": "원문 위치 찾기",
       "findSourceDisabledHint": "노드를 선택하면 원문 위치를 찾을 수 있어요.",
       "tutorial": "튜토리얼",
