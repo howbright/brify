@@ -1,19 +1,30 @@
-"use client";
+import MapDetailClient from "./MapDetailClient";
 
-import { useParams, useSearchParams } from "next/navigation";
+type PageProps = {
+  params: Promise<{
+    locale: string;
+    mapId: string;
+  }>;
+  searchParams: Promise<{
+    tab?: string | string[];
+  }>;
+};
 
-import FullscreenMapDetailScreen from "@/components/maps/FullscreenMapDetailScreen";
-
-export default function MapDetailPage() {
-  const params = useParams();
-  const searchParams = useSearchParams();
+export default async function MapDetailPage({
+  params,
+  searchParams,
+}: PageProps) {
+  const { locale, mapId } = await params;
+  const resolvedSearchParams = await searchParams;
+  const sourceTab = Array.isArray(resolvedSearchParams?.tab)
+    ? resolvedSearchParams.tab[0] ?? null
+    : resolvedSearchParams?.tab ?? null;
 
   return (
-    <FullscreenMapDetailScreen
-      mapId={String(params?.mapId ?? "")}
-      locale={String(params?.locale ?? "ko")}
-      sourceTab={searchParams.get("tab")}
-      accessMode="user"
+    <MapDetailClient
+      mapId={mapId}
+      locale={locale}
+      sourceTab={sourceTab}
     />
   );
 }
