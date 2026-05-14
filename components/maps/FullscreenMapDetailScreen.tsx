@@ -3322,15 +3322,14 @@ export default function FullscreenMapDetailScreen({
               href={`/${locale}`}
               className="inline-flex items-center gap-1.5 rounded-full border border-sky-200/90 bg-sky-50/95 px-6 py-3.5 text-[18px] font-extrabold tracking-[-0.02em] text-slate-800 shadow-[0_18px_40px_-18px_rgba(15,23,42,0.5)] backdrop-blur-sm transition hover:border-sky-300 hover:bg-sky-100/95 dark:border-white/14 dark:bg-[#0f172a]/90 dark:text-white/88 dark:hover:border-white/22 dark:hover:bg-[#111c31]"
             >
-              <div className="relative h-11 w-[56px] shrink-0">
-                <Image
-                  src="/images/newlogo.png"
-                  alt="Brify logo"
-                  fill
-                  sizes="56px"
-                  className="object-contain"
-                />
-              </div>
+              <Image
+                src="/images/newlogo.png"
+                alt="Brify logo"
+                width={56}
+                height={44}
+                sizes="56px"
+                className="h-11 w-[56px] shrink-0 object-contain"
+              />
               <span>{t("brand")}</span>
             </Link>
           </div>
@@ -3339,15 +3338,14 @@ export default function FullscreenMapDetailScreen({
               href={`/${locale}`}
               className="inline-flex items-center gap-1 rounded-full border border-sky-200/90 bg-sky-50/95 px-3.5 py-2 text-[13px] font-extrabold tracking-[-0.02em] text-slate-800 shadow-[0_18px_40px_-18px_rgba(15,23,42,0.5)] backdrop-blur-sm transition hover:border-sky-300 hover:bg-sky-100/95 dark:border-white/14 dark:bg-[#0f172a]/90 dark:text-white/88 dark:hover:border-white/22 dark:hover:bg-[#111c31]"
             >
-              <div className="relative h-7 w-[36px] shrink-0">
-                <Image
-                  src="/images/newlogo.png"
-                  alt="Brify logo"
-                  fill
-                  sizes="36px"
-                  className="object-contain"
-                />
-              </div>
+              <Image
+                src="/images/newlogo.png"
+                alt="Brify logo"
+                width={36}
+                height={28}
+                sizes="36px"
+                className="h-7 w-[36px] shrink-0 object-contain"
+              />
               <span>{t("brand")}</span>
             </Link>
 
