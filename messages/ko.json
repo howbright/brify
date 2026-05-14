@@ -2647,13 +2647,28 @@
     },
     "mobileEdit": {
       "title": "노드 편집",
-      "moreActions": "더보기"
+      "moreActions": "더보기",
+      "addOrReplaceImage": "이미지 추가/교체",
+      "removeImage": "이미지 삭제"
     },
     "annotation": {
       "title": "주석",
       "placeholder": "주석을 입력하세요",
       "add": "주석 추가",
       "delete": "주석 삭제"
+    },
+    "image": {
+      "addOrReplace": "이미지 추가/교체",
+      "remove": "이미지 삭제",
+      "invalidType": "이미지 파일만 업로드할 수 있어요.",
+      "tooLarge": "이미지는 {maxMB}MB 이하만 업로드할 수 있어요.",
+      "unavailable": "이 맵에서는 노드 이미지를 수정할 수 없어요.",
+      "loginRequired": "로그인이 필요합니다.",
+      "uploadSuccess": "노드 이미지를 저장했어요.",
+      "removeSuccess": "노드 이미지를 삭제했어요.",
+      "uploadFailed": "노드 이미지를 저장하지 못했어요.",
+      "removeFailed": "노드 이미지를 삭제하지 못했어요.",
+      "noImage": "이 노드에는 아직 이미지가 없어요."
     },
     "highlight": "하이라이트",
     "focusMode": {

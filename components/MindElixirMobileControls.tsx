@@ -7,6 +7,8 @@ type Labels = {
   addParent: string;
   addSibling: string;
   rename: string;
+  addOrReplaceImage: string;
+  removeImage: string;
   remove: string;
 };
 
@@ -18,12 +20,15 @@ type Props = {
   disableAddParent?: boolean;
   disableAddSibling?: boolean;
   disableRename?: boolean;
+  disableImageActions?: boolean;
   disableRemove?: boolean;
   onClose?: () => void;
   onAddChild: () => void;
   onAddParent: () => void;
   onAddSibling: () => void;
   onRename: () => void;
+  onAddOrReplaceImage: () => void;
+  onRemoveImage: () => void;
   onRemove: () => void;
 };
 
@@ -35,12 +40,15 @@ export default function MindElixirMobileControls({
   disableAddParent = false,
   disableAddSibling: _disableAddSibling = false,
   disableRename = false,
+  disableImageActions = false,
   disableRemove = false,
   onClose,
   onAddChild,
   onAddParent,
   onAddSibling: _onAddSibling,
   onRename,
+  onAddOrReplaceImage,
+  onRemoveImage,
   onRemove,
 }: Props) {
   const baseItemClassName =
@@ -180,6 +188,58 @@ export default function MindElixirMobileControls({
                     ].join(" ")}
                   />
                   <span>{labels.rename}</span>
+                </span>
+                <Icon
+                  icon="mdi:chevron-right"
+                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
+                />
+              </button>
+              <button
+                type="button"
+                onClick={onAddOrReplaceImage}
+                disabled={disableImageActions}
+                className={[
+                  baseItemClassName,
+                  disableImageActions
+                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-white/[0.04] dark:text-white/35"
+                    : "bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]",
+                ].join(" ")}
+              >
+                <span className="inline-flex items-center gap-3">
+                  <Icon
+                    icon="mdi:image-plus-outline"
+                    className={[
+                      "h-4.5 w-4.5 shrink-0",
+                      disableImageActions ? "text-neutral-400 dark:text-white/35" : "text-neutral-700 dark:text-white/75",
+                    ].join(" ")}
+                  />
+                  <span>{labels.addOrReplaceImage}</span>
+                </span>
+                <Icon
+                  icon="mdi:chevron-right"
+                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
+                />
+              </button>
+              <button
+                type="button"
+                onClick={onRemoveImage}
+                disabled={disableImageActions}
+                className={[
+                  baseItemClassName,
+                  disableImageActions
+                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-white/[0.04] dark:text-white/35"
+                    : "bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]",
+                ].join(" ")}
+              >
+                <span className="inline-flex items-center gap-3">
+                  <Icon
+                    icon="mdi:image-remove-outline"
+                    className={[
+                      "h-4.5 w-4.5 shrink-0",
+                      disableImageActions ? "text-neutral-400 dark:text-white/35" : "text-neutral-700 dark:text-white/75",
+                    ].join(" ")}
+                  />
+                  <span>{labels.removeImage}</span>
                 </span>
                 <Icon
                   icon="mdi:chevron-right"

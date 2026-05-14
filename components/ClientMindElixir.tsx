@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { useTheme } from "next-themes";
 import { useLocale, useTranslations } from "next-intl";
 import { sampled } from "@/app/lib/mind-elixir/sampleData";
+import { resizeToWebp } from "@/utils/image";
+import { createClient } from "@/utils/supabase/client";
 import {
   DEFAULT_THEME_NAME,
   MIND_THEME_BY_NAME,
@@ -25,6 +27,7 @@ import { useMindElixirNotes } from "@/components/useMindElixirNotes";
 import { useMindElixirResponsiveState } from "@/components/useMindElixirResponsiveState";
 
 type ClientMindElixirProps = {
+  mapId?: string;
   mode?: "light" | "dark" | "auto";
   theme?: any;
   data?: any;
@@ -91,6 +94,12 @@ export type ClientMindElixirHandle = {
 };
 
 type AnyNode = {
+  image?: {
+    url: string;
+    width: number;
+    height: number;
+    fit?: "fill" | "contain" | "cover";
+  } | null;
   id: string;
   topic: string;
   ts?: unknown;
@@ -229,6 +238,47 @@ function collectMatches(
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function withCacheBuster(url: string) {
+  try {
+    const nextUrl = new URL(url);
+    nextUrl.searchParams.set("t", Date.now().toString());
+    return nextUrl.toString();
+  } catch {
+    return url;
+  }
+}
+
+async function readImageDimensions(file: File) {
+  const image = document.createElement("img");
+  image.src = URL.createObjectURL(file);
+
+  try {
+    await new Promise<void>((resolve, reject) => {
+      image.onload = () => resolve();
+      image.onerror = () => reject(new Error("IMAGE_LOAD_FAILED"));
+    });
+    return {
+      width: image.naturalWidth || image.width,
+      height: image.naturalHeight || image.height,
+    };
+  } finally {
+    URL.revokeObjectURL(image.src);
+  }
+}
+
+function getImageDisplaySize(width: number, height: number) {
+  const maxWidth = 132;
+  const maxHeight = 96;
+  if (width <= 0 || height <= 0) {
+    return { width: 120, height: 90 };
+  }
+  const scale = Math.min(maxWidth / width, maxHeight / height, 1);
+  return {
+    width: Math.max(48, Math.round(width * scale)),
+    height: Math.max(36, Math.round(height * scale)),
+  };
 }
 
 function nodeToMarkdown(
@@ -454,6 +504,7 @@ const BLOCKED_OPS = [
 const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProps>(
   function ClientMindElixir(
     {
+      mapId,
       mode = "auto",
       theme,
       data,
@@ -515,13 +566,29 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const annotationDeleteLabel = t("annotation.delete");
   const cancelLabel = t("common.cancel");
   const saveLabel = t("common.save");
+  const imageText = useMemo(
+    () => ({
+      addOrReplace: t("image.addOrReplace"),
+      remove: t("image.remove"),
+      invalidType: t("image.invalidType"),
+      tooLarge: t("image.tooLarge", { maxMB: 5 }),
+      unavailable: t("image.unavailable"),
+      loginRequired: t("image.loginRequired"),
+      uploadSuccess: t("image.uploadSuccess"),
+      removeSuccess: t("image.removeSuccess"),
+      uploadFailed: t("image.uploadFailed"),
+      removeFailed: t("image.removeFailed"),
+      noImage: t("image.noImage"),
+    }),
+    [t]
+  );
   const {
     mounted,
     isTouchDevice,
     effectiveMode,
     effectivePanMode,
     showMobileControls,
-    mobileEditLabels,
+    mobileEditLabels: mobileEditLabelsFromResponsive,
   } = useMindElixirResponsiveState({
     mode,
     resolvedTheme,
@@ -553,8 +620,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [, setSelectedNoteText] = useState<string | null>(null);
   const [mobileActionNodeId, setMobileActionNodeId] = useState<string | null>(null);
+  const [imageBusy, setImageBusy] = useState(false);
   const selectedNodeIdRef = useRef<string | null>(null);
   const selectedNodeElRef = useRef<HTMLElement | null>(null);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const pendingImageNodeIdRef = useRef<string | null>(null);
   const lastClickedNodeRef = useRef<{ id: string | null; at: number }>({
     id: null,
     at: 0,
@@ -1154,6 +1224,224 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       getNodeElById,
     });
 
+  const mobileEditLabels = useMemo(
+    () => ({
+      ...mobileEditLabelsFromResponsive,
+      addOrReplaceImage: t("mobileEdit.addOrReplaceImage"),
+      removeImage: t("mobileEdit.removeImage"),
+    }),
+    [mobileEditLabelsFromResponsive, t]
+  );
+
+  const setNodeImageValue = (
+    nodeId: string,
+    image: NonNullable<AnyNode["image"]> | null
+  ) => {
+    const mind = mindRef.current;
+    if (!mind) return false;
+    const raw =
+      mind.getData?.() ?? mind.getAllData?.() ?? latestMindDataRef.current;
+    const normalized = normalizeMindData(raw);
+    if (!normalized) return false;
+
+    const next = cloneMindData(normalized.data);
+    const nextRoot = normalizeMindData(next)?.node;
+    if (!nextRoot) return false;
+    const targetNode = findNodeById(nextRoot, nodeId);
+    if (!targetNode) return false;
+
+    if (image) {
+      targetNode.image = image;
+    } else {
+      delete targetNode.image;
+    }
+
+    latestMindDataRef.current = cloneMindData(next);
+    mind.refresh?.(next);
+    onChangeRef.current?.({
+      name: "updateImage",
+      id: normalizeNodeId(nodeId),
+      value: image,
+    });
+
+    requestAnimationFrame(() => {
+      const nextEl =
+        getNodeElById(nodeId) ??
+        getNodeElById(normalizeNodeId(nodeId)) ??
+        selectedNodeElRef.current;
+      if (nextEl) {
+        const nextId = nextEl.getAttribute("data-nodeid") ?? nodeId;
+        applySelectionFromElement(nextEl, nextId);
+      } else {
+        updateSelectedRect(nodeId);
+      }
+    });
+
+    return true;
+  };
+
+  const triggerNodeImagePicker = (targetNodeId?: string | null) => {
+    if (editMode !== "edit") {
+      onViewModeEditAttempt?.();
+      return;
+    }
+
+    const nodeId = targetNodeId ?? selectedNodeIdRef.current;
+    if (!nodeId) return;
+    if (!mapId) {
+      toast.error(imageText.unavailable);
+      return;
+    }
+
+    pendingImageNodeIdRef.current = nodeId;
+    imageInputRef.current?.click();
+  };
+
+  const handleRemoveNodeImage = async (targetNodeId?: string | null) => {
+    if (editMode !== "edit") {
+      onViewModeEditAttempt?.();
+      return;
+    }
+
+    const nodeId = targetNodeId ?? selectedNodeIdRef.current;
+    if (!nodeId) return;
+    if (!mapId) {
+      toast.error(imageText.unavailable);
+      return;
+    }
+
+    const normalized = normalizeMindData(latestMindDataRef.current);
+    const latestNode = normalized?.node
+      ? findNodeById(normalized.node, nodeId)
+      : null;
+    if (!latestNode?.image?.url) {
+      toast.message(imageText.noImage);
+      return;
+    }
+
+    setImageBusy(true);
+    try {
+      const supabase = createClient();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+      if (userError) {
+        throw new Error(userError.message || imageText.loginRequired);
+      }
+      if (!user) {
+        throw new Error(imageText.loginRequired);
+      }
+
+      const objectPath = `${user.id}/maps/${mapId}/nodes/${normalizeNodeId(nodeId)}.webp`;
+      const { error: removeError } = await supabase.storage
+        .from("thumbnails")
+        .remove([objectPath]);
+      if (removeError) {
+        console.warn("[ME] node image remove failed:", removeError);
+      }
+
+      const updated = setNodeImageValue(nodeId, null);
+      if (!updated) {
+        throw new Error(imageText.removeFailed);
+      }
+      toast.success(imageText.removeSuccess);
+      setMobileActionNodeId(null);
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message.trim()
+          ? error.message
+          : imageText.removeFailed;
+      toast.error(message);
+    } finally {
+      setImageBusy(false);
+    }
+  };
+
+  const handleNodeImageInputChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const nodeId = pendingImageNodeIdRef.current;
+    const file = event.target.files?.[0] ?? null;
+    event.target.value = "";
+    pendingImageNodeIdRef.current = null;
+
+    if (!nodeId || !file) return;
+    if (!mapId) {
+      toast.error(imageText.unavailable);
+      return;
+    }
+
+    try {
+      if (!file.type.startsWith("image/")) {
+        throw new Error(imageText.invalidType);
+      }
+      const maxBytes = 5 * 1024 * 1024;
+      if (file.size > maxBytes) {
+        throw new Error(imageText.tooLarge);
+      }
+
+      setImageBusy(true);
+      const supabase = createClient();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+      if (userError) {
+        throw new Error(userError.message || imageText.loginRequired);
+      }
+      if (!user) {
+        throw new Error(imageText.loginRequired);
+      }
+
+      const optimized = await resizeToWebp(file, {
+        maxWidth: 1024,
+        quality: 0.86,
+      });
+      const dimensions = await readImageDimensions(optimized);
+      const displaySize = getImageDisplaySize(
+        dimensions.width,
+        dimensions.height
+      );
+      const objectPath = `${user.id}/maps/${mapId}/nodes/${normalizeNodeId(nodeId)}.webp`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("thumbnails")
+        .upload(objectPath, optimized, {
+          upsert: true,
+          contentType: "image/webp",
+          cacheControl: "3600",
+        });
+      if (uploadError) {
+        throw new Error(uploadError.message || imageText.uploadFailed);
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("thumbnails").getPublicUrl(objectPath);
+
+      const updated = setNodeImageValue(nodeId, {
+        url: withCacheBuster(publicUrl),
+        width: displaySize.width,
+        height: displaySize.height,
+        fit: "cover",
+      });
+      if (!updated) {
+        throw new Error(imageText.uploadFailed);
+      }
+      toast.success(imageText.uploadSuccess);
+      setMobileActionNodeId(null);
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message.trim()
+          ? error.message
+          : imageText.uploadFailed;
+      toast.error(message);
+    } finally {
+      setImageBusy(false);
+    }
+  };
+
   function applyEditMode(mind: any, enabled: boolean) {
     if (!mind) return;
 
@@ -1551,6 +1839,30 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
                 }
               },
             },
+            ...(editMode === "edit"
+              ? [
+                  {
+                    name: imageText.addOrReplace,
+                    onclick: () => {
+                      const current = mind.currentNode?.nodeObj as
+                        | AnyNode
+                        | undefined;
+                      if (!current?.id) return;
+                      triggerNodeImagePicker(current.id);
+                    },
+                  },
+                  {
+                    name: imageText.remove,
+                    onclick: () => {
+                      const current = mind.currentNode?.nodeObj as
+                        | AnyNode
+                        | undefined;
+                      if (!current?.id) return;
+                      void handleRemoveNodeImage(current.id);
+                    },
+                  },
+                ]
+              : []),
           ],
         },
         locale: mindLocale,
@@ -2128,6 +2440,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     };
   }, [
     mounted,
+    mapId,
     zoomSensitivity,
     dragButton,
     fitOnInit,
@@ -2137,6 +2450,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     initialData,
     mindLocale,
     contextMenuText,
+    editMode,
+    imageText,
   ]);
 
   useEffect(() => {
@@ -2463,11 +2778,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         mobileEditMenuTitle={mobileEditMenuTitle}
         mobileEditLabels={mobileEditLabels}
         selectedNodeIsRoot={selectedNodeIsRoot}
+        disableImageActions={imageBusy || !mapId}
         onCloseMobileActions={() => setMobileActionNodeId(null)}
         onAddChild={() => void runMobileNodeAction("addChild")}
         onAddParent={() => void runMobileNodeAction("addParent")}
         onAddSibling={() => void runMobileNodeAction("addSibling")}
         onRename={() => void runMobileNodeAction("rename")}
+        onAddOrReplaceImage={() => triggerNodeImagePicker()}
+        onRemoveImage={() => void handleRemoveNodeImage()}
         onRemove={() => void runMobileNodeAction("remove")}
         showMiniMap={showMiniMap}
         isTouchDevice={isTouchDevice}
@@ -2563,6 +2881,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         saveLabel={saveLabel}
         loading={loading}
         ready={ready}
+      />
+      <input
+        ref={imageInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleNodeImageInputChange}
       />
     </div>
   );

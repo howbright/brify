@@ -18,15 +18,20 @@ type ClientMindElixirOverlayProps = {
     addParent: string;
     addSibling: string;
     rename: string;
+    addOrReplaceImage: string;
+    removeImage: string;
     remove: string;
     close: string;
   };
   selectedNodeIsRoot: boolean;
+  disableImageActions: boolean;
   onCloseMobileActions: () => void;
   onAddChild: () => void;
   onAddParent: () => void;
   onAddSibling: () => void;
   onRename: () => void;
+  onAddOrReplaceImage: () => void;
+  onRemoveImage: () => void;
   onRemove: () => void;
   showMiniMap: boolean;
   isTouchDevice: boolean;
@@ -135,11 +140,14 @@ export default function ClientMindElixirOverlay({
   mobileEditMenuTitle,
   mobileEditLabels,
   selectedNodeIsRoot,
+  disableImageActions,
   onCloseMobileActions,
   onAddChild,
   onAddParent,
   onAddSibling,
   onRename,
+  onAddOrReplaceImage,
+  onRemoveImage,
   onRemove,
   showMiniMap,
   isTouchDevice,
@@ -212,12 +220,15 @@ export default function ClientMindElixirOverlay({
         disableAddParent={selectedNodeIsRoot}
         disableAddSibling={selectedNodeIsRoot}
         disableRename={!selectedNodeId}
+        disableImageActions={disableImageActions}
         disableRemove={selectedNodeIsRoot}
         onClose={onCloseMobileActions}
         onAddChild={onAddChild}
         onAddParent={onAddParent}
         onAddSibling={onAddSibling}
         onRename={onRename}
+        onAddOrReplaceImage={onAddOrReplaceImage}
+        onRemoveImage={onRemoveImage}
         onRemove={onRemove}
       />
 

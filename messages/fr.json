@@ -2205,13 +2205,28 @@
     },
     "mobileEdit": {
       "title": "Modifier le nœud",
-      "moreActions": "Plus"
+      "moreActions": "Plus",
+      "addOrReplaceImage": "Ajouter/remplacer l’image",
+      "removeImage": "Supprimer l’image"
     },
     "annotation": {
       "title": "Annotation",
       "placeholder": "Saisissez une annotation",
       "add": "Ajouter une annotation",
       "delete": "Supprimer l’annotation"
+    },
+    "image": {
+      "addOrReplace": "Ajouter/remplacer l’image",
+      "remove": "Supprimer l’image",
+      "invalidType": "Seuls les fichiers image peuvent être téléversés.",
+      "tooLarge": "Les images doivent faire {maxMB} Mo ou moins.",
+      "unavailable": "Les images de nœud ne peuvent pas être modifiées dans cette carte.",
+      "loginRequired": "Veuillez d’abord vous connecter.",
+      "uploadSuccess": "L’image du nœud a été enregistrée.",
+      "removeSuccess": "L’image du nœud a été supprimée.",
+      "uploadFailed": "Impossible d’enregistrer l’image du nœud.",
+      "removeFailed": "Impossible de supprimer l’image du nœud.",
+      "noImage": "Ce nœud n’a pas encore d’image."
     },
     "highlight": "Surligner",
     "focusMode": {

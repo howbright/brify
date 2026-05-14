@@ -2648,13 +2648,28 @@
     },
     "mobileEdit": {
       "title": "Edit node",
-      "moreActions": "More"
+      "moreActions": "More",
+      "addOrReplaceImage": "Add or replace image",
+      "removeImage": "Remove image"
     },
     "annotation": {
       "title": "Annotation",
       "placeholder": "Write an annotation",
       "add": "Add annotation",
       "delete": "Delete annotation"
+    },
+    "image": {
+      "addOrReplace": "Add or replace image",
+      "remove": "Remove image",
+      "invalidType": "Only image files can be uploaded.",
+      "tooLarge": "Images must be {maxMB}MB or smaller.",
+      "unavailable": "Node images can't be edited in this map.",
+      "loginRequired": "Please log in first.",
+      "uploadSuccess": "Saved the node image.",
+      "removeSuccess": "Removed the node image.",
+      "uploadFailed": "Failed to save the node image.",
+      "removeFailed": "Failed to remove the node image.",
+      "noImage": "This node does not have an image yet."
     },
     "highlight": "Highlight",
     "focusMode": {

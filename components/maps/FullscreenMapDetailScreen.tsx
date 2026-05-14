@@ -624,6 +624,7 @@ export default function FullscreenMapDetailScreen({
         "copyNode",
         "copyNodes",
         "toggleHighlight",
+        "updateImage",
       ]),
     []
   );
@@ -3122,6 +3123,7 @@ export default function FullscreenMapDetailScreen({
           <div className="h-full w-full rounded-2xl border border-neutral-200/70 bg-white/65 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
             <ClientMindElixir
               ref={mindRef}
+              mapId={mapId}
               mode={resolvedTheme === "dark" ? "dark" : "light"}
               editMode={editMode}
               onReady={applyInitialCollapse}
@@ -3142,6 +3144,10 @@ export default function FullscreenMapDetailScreen({
                           lastHighlightToastRef.current = now;
                           toast.message(t("toasts.savingNote"));
                         }
+                        scheduleAutoSave();
+                        return;
+                      }
+                      if (op.name === "updateImage") {
                         scheduleAutoSave();
                         return;
                       }
