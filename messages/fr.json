@@ -2206,6 +2206,7 @@
     "mobileEdit": {
       "title": "Modifier le nœud",
       "moreActions": "Plus",
+      "editContent": "Style du texte",
       "addOrReplaceImage": "Ajouter/remplacer l’image",
       "removeImage": "Supprimer l’image"
     },
@@ -2227,6 +2228,24 @@
       "uploadFailed": "Impossible d’enregistrer l’image du nœud.",
       "removeFailed": "Impossible de supprimer l’image du nœud.",
       "noImage": "Ce nœud n’a pas encore d’image."
+    },
+    "richText": {
+      "editContent": "Style du texte",
+      "title": "Modifier le style du texte",
+      "description": "Cela modifie seulement le style du texte, pas son contenu. Vous pouvez appliquer uniquement le gras et la couleur du texte. Le style reste visible dans le nœud, tandis que la recherche et la copie continuent d’utiliser le texte brut.",
+      "plainTopicLabel": "Texte actuel",
+      "bold": "Gras",
+      "color": "Couleur du texte",
+      "clearColor": "Couleur par défaut",
+      "reset": "Réinitialiser",
+      "saveSuccess": "Le contenu du nœud a été enregistré.",
+      "saveFailed": "Impossible d’enregistrer le contenu du nœud.",
+      "colors": {
+        "blue": "Bleu",
+        "red": "Rouge",
+        "green": "Vert",
+        "purple": "Violet"
+      }
     },
     "highlight": "Surligner",
     "focusMode": {

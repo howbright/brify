@@ -7,6 +7,7 @@ type Labels = {
   addParent: string;
   addSibling: string;
   rename: string;
+  editContent: string;
   addOrReplaceImage: string;
   removeImage: string;
   remove: string;
@@ -20,6 +21,7 @@ type Props = {
   disableAddParent?: boolean;
   disableAddSibling?: boolean;
   disableRename?: boolean;
+  disableEditContent?: boolean;
   disableImageActions?: boolean;
   disableRemove?: boolean;
   onClose?: () => void;
@@ -27,6 +29,7 @@ type Props = {
   onAddParent: () => void;
   onAddSibling: () => void;
   onRename: () => void;
+  onEditContent: () => void;
   onAddOrReplaceImage: () => void;
   onRemoveImage: () => void;
   onRemove: () => void;
@@ -40,6 +43,7 @@ export default function MindElixirMobileControls({
   disableAddParent = false,
   disableAddSibling: _disableAddSibling = false,
   disableRename = false,
+  disableEditContent = false,
   disableImageActions = false,
   disableRemove = false,
   onClose,
@@ -47,6 +51,7 @@ export default function MindElixirMobileControls({
   onAddParent,
   onAddSibling: _onAddSibling,
   onRename,
+  onEditContent,
   onAddOrReplaceImage,
   onRemoveImage,
   onRemove,
@@ -54,18 +59,46 @@ export default function MindElixirMobileControls({
   const baseItemClassName =
     "flex w-full items-center justify-between gap-3 rounded-xl px-3.5 py-3 text-left text-[14px] font-semibold transition-colors";
 
+  const safeInset = 12;
   const menuWidth = 184;
+  const estimatedMenuHeight = 420;
+  const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 0;
+  const viewportHeight = typeof window !== "undefined" ? window.innerHeight : 0;
   const menuLeft =
-    anchorRect && typeof window !== "undefined"
+    anchorRect && viewportWidth > 0
       ? Math.max(
-          12,
-          Math.min(anchorRect.left + anchorRect.width - menuWidth, window.innerWidth - menuWidth - 12)
+          safeInset,
+          Math.min(
+            anchorRect.left + anchorRect.width - menuWidth,
+            viewportWidth - menuWidth - safeInset
+          )
         )
-      : 12;
-  const menuTop =
-    anchorRect && typeof window !== "undefined"
-      ? Math.max(12, anchorRect.top + anchorRect.height + 10)
-      : 12;
+      : safeInset;
+  const menuMaxHeight = viewportHeight
+    ? Math.min(estimatedMenuHeight, Math.max(220, viewportHeight - safeInset * 2))
+    : estimatedMenuHeight;
+  const spaceBelow =
+    anchorRect && viewportHeight > 0
+      ? viewportHeight - (anchorRect.top + anchorRect.height) - safeInset
+      : viewportHeight - safeInset * 2;
+  const spaceAbove =
+    anchorRect && viewportHeight > 0 ? anchorRect.top - safeInset : 0;
+  const shouldOpenAbove =
+    Boolean(anchorRect) &&
+    spaceBelow < Math.min(estimatedMenuHeight, menuMaxHeight) &&
+    spaceAbove > spaceBelow;
+  const preferredTop =
+    anchorRect && viewportHeight > 0
+      ? shouldOpenAbove
+        ? anchorRect.top - Math.min(menuMaxHeight, estimatedMenuHeight) - 10
+        : anchorRect.top + anchorRect.height + 10
+      : safeInset;
+  const menuTop = viewportHeight
+    ? Math.min(
+        Math.max(safeInset, preferredTop),
+        Math.max(safeInset, viewportHeight - menuMaxHeight - safeInset)
+      )
+    : safeInset;
 
   return (
     <>
@@ -78,11 +111,12 @@ export default function MindElixirMobileControls({
             onClick={onClose}
           />
           <div
-            className="pointer-events-auto absolute rounded-2xl border border-neutral-200/90 bg-white/98 p-2 shadow-[0_18px_42px_-22px_rgba(15,23,42,0.38)] backdrop-blur dark:border-white/12 dark:bg-[#0b1220]/96"
+            className="pointer-events-auto absolute overflow-hidden rounded-2xl border border-neutral-200/90 bg-white/98 p-2 shadow-[0_18px_42px_-22px_rgba(15,23,42,0.38)] backdrop-blur dark:border-white/12 dark:bg-[#0b1220]/96"
             style={{
               width: menuWidth,
               left: menuLeft,
               top: menuTop,
+              maxHeight: menuMaxHeight,
             }}
           >
             <div className="mb-1 flex items-center justify-between px-1">
@@ -98,7 +132,7 @@ export default function MindElixirMobileControls({
                 <Icon icon="mdi:close" className="h-3.5 w-3.5" />
               </button>
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex max-h-[calc(100%-2rem)] flex-col gap-2 overflow-y-auto pr-0.5">
               <button
                 type="button"
                 onClick={onAddChild}
@@ -188,6 +222,34 @@ export default function MindElixirMobileControls({
                     ].join(" ")}
                   />
                   <span>{labels.rename}</span>
+                </span>
+                <Icon
+                  icon="mdi:chevron-right"
+                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
+                />
+              </button>
+              <button
+                type="button"
+                onClick={onEditContent}
+                disabled={disableEditContent}
+                className={[
+                  baseItemClassName,
+                  disableEditContent
+                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-white/[0.04] dark:text-white/35"
+                    : "bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]",
+                ].join(" ")}
+              >
+                <span className="inline-flex items-center gap-3">
+                  <Icon
+                    icon="mdi:format-text"
+                    className={[
+                      "h-4.5 w-4.5 shrink-0",
+                      disableEditContent
+                        ? "text-neutral-400 dark:text-white/35"
+                        : "text-neutral-700 dark:text-white/75",
+                    ].join(" ")}
+                  />
+                  <span>{labels.editContent}</span>
                 </span>
                 <Icon
                   icon="mdi:chevron-right"

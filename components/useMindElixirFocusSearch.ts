@@ -207,9 +207,13 @@ export function useMindElixirFocusSearch({
     return el.querySelector<HTMLElement>(".text");
   };
 
+  const isRichTextEl = (el: HTMLElement | null) =>
+    Boolean(el?.getAttribute("data-rich-text") === "true");
+
   const restoreSearchMark = (el: HTMLElement | null) => {
     const textEl = getNodeTextEl(el);
     if (!textEl) return;
+    if (isRichTextEl(textEl)) return;
     const original = textEl.getAttribute("data-search-original");
     if (original !== null) {
       textEl.innerText = original;
@@ -220,6 +224,7 @@ export function useMindElixirFocusSearch({
   const applySearchMark = (el: HTMLElement | null, query: string) => {
     const textEl = getNodeTextEl(el);
     if (!textEl) return;
+    if (isRichTextEl(textEl)) return;
     const original = textEl.getAttribute("data-search-original");
     if (original === null) {
       textEl.setAttribute("data-search-original", textEl.innerText ?? "");

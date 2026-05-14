@@ -12,6 +12,11 @@ import { toast } from "sonner";
 import { useTheme } from "next-themes";
 import { useLocale, useTranslations } from "next-intl";
 import { sampled } from "@/app/lib/mind-elixir/sampleData";
+import {
+  getStoredRichTextInnerHtml,
+  plainTextToEditorHtml,
+  sanitizeRichTextInputHtml,
+} from "@/app/lib/nodeRichText";
 import { resizeToWebp } from "@/utils/image";
 import { createClient } from "@/utils/supabase/client";
 import {
@@ -19,6 +24,7 @@ import {
   MIND_THEME_BY_NAME,
 } from "@/components/maps/themes";
 import ClientMindElixirOverlay from "@/components/ClientMindElixirOverlay";
+import NodeRichTextDialog from "@/components/maps/NodeRichTextDialog";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 import { useMindElixirFocusSearch } from "@/components/useMindElixirFocusSearch";
 import { useMindElixirMiniMap } from "@/components/useMindElixirMiniMap";
@@ -94,6 +100,7 @@ export type ClientMindElixirHandle = {
 };
 
 type AnyNode = {
+  dangerouslySetInnerHTML?: string | null;
   image?: {
     url: string;
     width: number;
@@ -582,6 +589,27 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     }),
     [t]
   );
+  const richTextText = useMemo(
+    () => ({
+      editContent: t("richText.editContent"),
+      title: t("richText.title"),
+      description: t("richText.description"),
+      plainTopicLabel: t("richText.plainTopicLabel"),
+      bold: t("richText.bold"),
+      color: t("richText.color"),
+      clearColor: t("richText.clearColor"),
+      reset: t("richText.reset"),
+      saveSuccess: t("richText.saveSuccess"),
+      saveFailed: t("richText.saveFailed"),
+      colors: [
+        { value: "#2563eb", label: t("richText.colors.blue") },
+        { value: "#dc2626", label: t("richText.colors.red") },
+        { value: "#16a34a", label: t("richText.colors.green") },
+        { value: "#7c3aed", label: t("richText.colors.purple") },
+      ],
+    }),
+    [t]
+  );
   const {
     mounted,
     isTouchDevice,
@@ -621,6 +649,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const [, setSelectedNoteText] = useState<string | null>(null);
   const [mobileActionNodeId, setMobileActionNodeId] = useState<string | null>(null);
   const [imageBusy, setImageBusy] = useState(false);
+  const [richTextDialogOpen, setRichTextDialogOpen] = useState(false);
+  const [richTextNodeId, setRichTextNodeId] = useState<string | null>(null);
+  const [richTextInitialHtml, setRichTextInitialHtml] = useState("<p></p>");
+  const [richTextPlainTopic, setRichTextPlainTopic] = useState("");
   const selectedNodeIdRef = useRef<string | null>(null);
   const selectedNodeElRef = useRef<HTMLElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
@@ -1227,11 +1259,20 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const mobileEditLabels = useMemo(
     () => ({
       ...mobileEditLabelsFromResponsive,
+      editContent: t("mobileEdit.editContent"),
       addOrReplaceImage: t("mobileEdit.addOrReplaceImage"),
       removeImage: t("mobileEdit.removeImage"),
     }),
     [mobileEditLabelsFromResponsive, t]
   );
+  const selectedNodeHasRichText = (() => {
+    if (!selectedNodeId) return false;
+    const normalized = normalizeMindData(latestMindDataRef.current);
+    const node = normalized?.node
+      ? findNodeById(normalized.node, selectedNodeId)
+      : null;
+    return Boolean(node?.dangerouslySetInnerHTML);
+  })();
 
   const setNodeImageValue = (
     nodeId: string,
@@ -1278,6 +1319,105 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     });
 
     return true;
+  };
+
+  const setNodeRichTextValue = (
+    nodeId: string,
+    payload: { topic: string; storedHtml: string | null }
+  ) => {
+    const mind = mindRef.current;
+    if (!mind) return false;
+    const raw =
+      mind.getData?.() ?? mind.getAllData?.() ?? latestMindDataRef.current;
+    const normalized = normalizeMindData(raw);
+    if (!normalized) return false;
+
+    const next = cloneMindData(normalized.data);
+    const nextRoot = normalizeMindData(next)?.node;
+    if (!nextRoot) return false;
+    const targetNode = findNodeById(nextRoot, nodeId);
+    if (!targetNode) return false;
+
+    targetNode.topic = payload.topic;
+    if (payload.storedHtml) {
+      targetNode.dangerouslySetInnerHTML = payload.storedHtml;
+    } else {
+      delete targetNode.dangerouslySetInnerHTML;
+    }
+
+    latestMindDataRef.current = cloneMindData(next);
+    mind.refresh?.(next);
+    onChangeRef.current?.({
+      name: "updateRichText",
+      id: normalizeNodeId(nodeId),
+      topic: payload.topic,
+      value: payload.storedHtml,
+    });
+
+    requestAnimationFrame(() => {
+      const nextEl =
+        getNodeElById(nodeId) ??
+        getNodeElById(normalizeNodeId(nodeId)) ??
+        selectedNodeElRef.current;
+      if (nextEl) {
+        const nextId = nextEl.getAttribute("data-nodeid") ?? nodeId;
+        applySelectionFromElement(nextEl, nextId);
+      } else {
+        updateSelectedRect(nodeId);
+      }
+    });
+
+    return true;
+  };
+
+  const openRichTextEditor = (targetNodeId?: string | null) => {
+    if (editMode !== "edit") {
+      onViewModeEditAttempt?.();
+      return;
+    }
+
+    const nodeId = targetNodeId ?? selectedNodeIdRef.current;
+    if (!nodeId) return;
+
+    const normalized =
+      normalizeMindData(latestMindDataRef.current) ?? syncLatestMindDataFromMind();
+    const node = normalized?.node ? findNodeById(normalized.node, nodeId) : null;
+    if (!node) return;
+
+    const initialHtml = node.dangerouslySetInnerHTML
+      ? getStoredRichTextInnerHtml(node.dangerouslySetInnerHTML)
+      : plainTextToEditorHtml(node.topic);
+
+    setRichTextNodeId(node.id);
+    setRichTextPlainTopic(node.topic ?? "");
+    setRichTextInitialHtml(initialHtml);
+    setRichTextDialogOpen(true);
+    setMobileActionNodeId(null);
+  };
+
+  const handleSaveRichText = (html: string) => {
+    const nodeId = richTextNodeId;
+    if (!nodeId) return;
+
+    try {
+      const next = sanitizeRichTextInputHtml(html);
+      const updated = setNodeRichTextValue(nodeId, {
+        topic: next.topic,
+        storedHtml: next.storedHtml,
+      });
+      if (!updated) {
+        throw new Error(richTextText.saveFailed);
+      }
+      setRichTextPlainTopic(next.topic);
+      setRichTextDialogOpen(false);
+      toast.success(richTextText.saveSuccess);
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message.trim()
+          ? error.message
+          : richTextText.saveFailed;
+      toast.error(message);
+    }
   };
 
   const triggerNodeImagePicker = (targetNodeId?: string | null) => {
@@ -1841,6 +1981,16 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             },
             ...(editMode === "edit"
               ? [
+                  {
+                    name: richTextText.editContent,
+                    onclick: () => {
+                      const current = mind.currentNode?.nodeObj as
+                        | AnyNode
+                        | undefined;
+                      if (!current?.id) return;
+                      openRichTextEditor(current.id);
+                    },
+                  },
                   {
                     name: imageText.addOrReplace,
                     onclick: () => {
@@ -2452,6 +2602,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     contextMenuText,
     editMode,
     imageText,
+    richTextText,
   ]);
 
   useEffect(() => {
@@ -2544,6 +2695,16 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-summary {
           display: none;
         }
+        .context-menu .menu-list {
+          max-height: min(420px, calc(100vh - 24px));
+          max-width: min(240px, calc(100vw - 24px));
+          overflow-y: auto !important;
+          overscroll-behavior: contain;
+          -webkit-overflow-scrolling: touch;
+        }
+        .context-menu .menu-list li {
+          min-width: 0 !important;
+        }
         me-tpc {
           position: relative;
           overflow: visible;
@@ -2562,6 +2723,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         }
         me-root me-tpc .text,
         me-tpc.root .text,
+        me-root me-tpc .me-rich-text,
+        me-tpc.root .me-rich-text,
         me-root me-tpc .topic,
         me-tpc.root .topic {
           display: block;
@@ -2590,6 +2753,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             max-width: 21em !important;
           }
           me-parent me-tpc:not(.root) .text,
+          me-parent me-tpc:not(.root) .me-rich-text,
           me-parent me-tpc:not(.root) .topic {
             display: block;
             max-width: 21em !important;
@@ -2609,6 +2773,18 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             text-wrap: wrap !important;
             line-height: 1.4 !important;
           }
+        }
+        .me-rich-text {
+          display: block;
+          width: 100%;
+          white-space: normal !important;
+          overflow-wrap: anywhere !important;
+          word-break: break-word !important;
+          text-wrap: wrap !important;
+          line-height: inherit !important;
+        }
+        .me-rich-text strong {
+          font-weight: 700;
         }
         .me-note-dot {
           position: absolute;
@@ -2778,12 +2954,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         mobileEditMenuTitle={mobileEditMenuTitle}
         mobileEditLabels={mobileEditLabels}
         selectedNodeIsRoot={selectedNodeIsRoot}
+        disableEditContent={!selectedNodeId}
+        disableRename={!selectedNodeId || selectedNodeHasRichText}
         disableImageActions={imageBusy || !mapId}
         onCloseMobileActions={() => setMobileActionNodeId(null)}
         onAddChild={() => void runMobileNodeAction("addChild")}
         onAddParent={() => void runMobileNodeAction("addParent")}
         onAddSibling={() => void runMobileNodeAction("addSibling")}
         onRename={() => void runMobileNodeAction("rename")}
+        onEditContent={() => openRichTextEditor()}
         onAddOrReplaceImage={() => triggerNodeImagePicker()}
         onRemoveImage={() => void handleRemoveNodeImage()}
         onRemove={() => void runMobileNodeAction("remove")}
@@ -2881,6 +3060,28 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         saveLabel={saveLabel}
         loading={loading}
         ready={ready}
+      />
+      <NodeRichTextDialog
+        open={richTextDialogOpen}
+        onOpenChange={(open) => {
+          setRichTextDialogOpen(open);
+          if (!open) {
+            setRichTextNodeId(null);
+          }
+        }}
+        title={richTextText.title}
+        description={richTextText.description}
+        plainTopicLabel={richTextText.plainTopicLabel}
+        plainTopicValue={richTextPlainTopic}
+        initialHtml={richTextInitialHtml}
+        colors={richTextText.colors}
+        colorLabel={richTextText.color}
+        boldLabel={richTextText.bold}
+        clearColorLabel={richTextText.clearColor}
+        resetLabel={richTextText.reset}
+        cancelLabel={cancelLabel}
+        saveLabel={saveLabel}
+        onSave={handleSaveRichText}
       />
       <input
         ref={imageInputRef}

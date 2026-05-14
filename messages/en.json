@@ -2649,6 +2649,7 @@
     "mobileEdit": {
       "title": "Edit node",
       "moreActions": "More",
+      "editContent": "Text style",
       "addOrReplaceImage": "Add or replace image",
       "removeImage": "Remove image"
     },
@@ -2670,6 +2671,24 @@
       "uploadFailed": "Failed to save the node image.",
       "removeFailed": "Failed to remove the node image.",
       "noImage": "This node does not have an image yet."
+    },
+    "richText": {
+      "editContent": "Text style",
+      "title": "Edit text style",
+      "description": "This changes only the text style, not the wording itself. You can apply only bold text and text color here. Saved styling is shown in the node, while search and copy still use the plain text.",
+      "plainTopicLabel": "Current text",
+      "bold": "Bold",
+      "color": "Text color",
+      "clearColor": "Default color",
+      "reset": "Reset",
+      "saveSuccess": "Saved the node content.",
+      "saveFailed": "Failed to save the node content.",
+      "colors": {
+        "blue": "Blue",
+        "red": "Red",
+        "green": "Green",
+        "purple": "Purple"
+      }
     },
     "highlight": "Highlight",
     "focusMode": {

@@ -2648,6 +2648,7 @@
     "mobileEdit": {
       "title": "노드 편집",
       "moreActions": "더보기",
+      "editContent": "텍스트 스타일",
       "addOrReplaceImage": "이미지 추가/교체",
       "removeImage": "이미지 삭제"
     },
@@ -2669,6 +2670,24 @@
       "uploadFailed": "노드 이미지를 저장하지 못했어요.",
       "removeFailed": "노드 이미지를 삭제하지 못했어요.",
       "noImage": "이 노드에는 아직 이미지가 없어요."
+    },
+    "richText": {
+      "editContent": "텍스트 스타일",
+      "title": "텍스트 스타일 편집",
+      "description": "텍스트 내용은 바꾸지 않고, 굵게와 글자색만 적용할 수 있어요. 저장하면 화면에는 서식이 적용되고, 검색과 복사는 일반 텍스트 기준으로 유지됩니다.",
+      "plainTopicLabel": "현재 텍스트",
+      "bold": "굵게",
+      "color": "글자색",
+      "clearColor": "기본색",
+      "reset": "초기화",
+      "saveSuccess": "노드 내용을 저장했어요.",
+      "saveFailed": "노드 내용을 저장하지 못했어요.",
+      "colors": {
+        "blue": "파랑",
+        "red": "빨강",
+        "green": "초록",
+        "purple": "보라"
+      }
     },
     "highlight": "하이라이트",
     "focusMode": {

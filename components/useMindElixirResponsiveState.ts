@@ -7,6 +7,7 @@ type Labels = {
   addParent: string;
   addSibling: string;
   rename: string;
+  editContent: string;
   remove: string;
   close: string;
 };
@@ -72,7 +73,8 @@ export function useMindElixirResponsiveState({
           addChild: "자식 추가",
           addParent: "부모 추가",
           addSibling: "형제 추가",
-          rename: "이름 수정",
+          rename: "텍스트 수정",
+          editContent: "텍스트 스타일",
           remove: "삭제",
           close: "닫기",
         }
@@ -80,7 +82,8 @@ export function useMindElixirResponsiveState({
           addChild: "Add child",
           addParent: "Add parent",
           addSibling: "Add sibling",
-          rename: "Rename",
+          rename: "Edit text",
+          editContent: "Text style",
           remove: "Delete",
           close: "Close",
         };

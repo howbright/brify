@@ -625,6 +625,7 @@ export default function FullscreenMapDetailScreen({
         "copyNodes",
         "toggleHighlight",
         "updateImage",
+        "updateRichText",
       ]),
     []
   );
@@ -3148,6 +3149,11 @@ export default function FullscreenMapDetailScreen({
                         return;
                       }
                       if (op.name === "updateImage") {
+                        scheduleAutoSave();
+                        return;
+                      }
+                      if (op.name === "updateRichText") {
+                        syncPanelMindDataFromMind();
                         scheduleAutoSave();
                         return;
                       }
