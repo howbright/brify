@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
 type NodeRichTextDialogProps = {
   open: boolean;
@@ -26,30 +26,6 @@ type ToolbarState = {
   bold: boolean;
   color: string;
 };
-
-const BLOCKED_INPUT_TYPES = new Set([
-  "insertText",
-  "insertReplacementText",
-  "insertLineBreak",
-  "insertParagraph",
-  "insertFromPaste",
-  "insertFromDrop",
-  "insertFromYank",
-  "deleteByCut",
-  "deleteByDrag",
-  "deleteContent",
-  "deleteContentBackward",
-  "deleteContentForward",
-  "deleteEntireSoftLine",
-  "deleteHardLineBackward",
-  "deleteHardLineForward",
-  "deleteSoftLineBackward",
-  "deleteSoftLineForward",
-  "deleteWordBackward",
-  "deleteWordForward",
-  "historyUndo",
-  "historyRedo",
-]);
 
 function normalizeColorValue(raw: string | null | undefined) {
   const value = String(raw ?? "").trim().toLowerCase();
@@ -78,38 +54,39 @@ function escapeHtml(value: string) {
     .replace(/'/g, "&#39;");
 }
 
-function shouldBlockKeyDown(event: KeyboardEvent) {
-  if (event.isComposing) return false;
+function getClosestElement(node: Node | null, root: HTMLElement | null) {
+  if (!node || !root) return null;
+  if (node instanceof HTMLElement) return node;
+  const parent = node.parentElement;
+  return parent && root.contains(parent) ? parent : null;
+}
 
-  const key = event.key;
-  const lower = key.toLowerCase();
-  const hasModifier = event.metaKey || event.ctrlKey || event.altKey;
-
-  if (event.metaKey || event.ctrlKey) {
-    if (lower === "a" || lower === "c" || lower === "b") {
-      return false;
-    }
-    if (lower === "z" || lower === "y" || lower === "x" || lower === "v") {
-      return true;
-    }
+function getToolbarStateFromSelection(root: HTMLElement | null): ToolbarState {
+  const selection = window.getSelection();
+  if (!root || !selection || selection.rangeCount === 0) {
+    return { bold: false, color: "" };
   }
 
-  if (
-    key === "Backspace" ||
-    key === "Delete" ||
-    key === "Enter" ||
-    key === "Tab"
-  ) {
-    return true;
+  const anchorNode = selection.anchorNode;
+  const focusNode = selection.focusNode;
+  if (!anchorNode || !focusNode) {
+    return { bold: false, color: "" };
   }
 
-  if (hasModifier) return false;
-
-  if (key.length === 1) {
-    return true;
+  if (!root.contains(anchorNode) || !root.contains(focusNode)) {
+    return { bold: false, color: "" };
   }
 
-  return false;
+  const element = getClosestElement(anchorNode, root);
+  if (!element) {
+    return { bold: false, color: "" };
+  }
+
+  const bold = Boolean(element.closest("strong, b"));
+  const colorElement = element.closest<HTMLElement>("[style*='color']");
+  const color = normalizeColorValue(colorElement?.style.color);
+
+  return { bold, color };
 }
 
 function ToolbarButton({
@@ -131,7 +108,7 @@ function ToolbarButton({
       }}
       onClick={onClick}
       className={[
-        "inline-flex h-9 items-center justify-center rounded-xl border px-3 text-sm font-semibold transition-colors",
+        "inline-flex h-8 items-center justify-center rounded-lg border px-2.5 text-xs font-semibold transition-colors",
         active
           ? "border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-400 dark:bg-blue-500/12 dark:text-blue-200"
           : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/12 dark:bg-white/[0.05] dark:text-white/80 dark:hover:bg-white/[0.08]",
@@ -163,7 +140,7 @@ function Toolbar({
   onClearColor: () => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-300 bg-slate-50/80 p-2 dark:border-white/10 dark:bg-white/[0.04]">
+    <div className="flex flex-wrap items-center gap-1.5">
       <ToolbarButton active={state.bold} label={boldLabel} onClick={onToggleBold}>
         <span className="font-bold">B</span>
       </ToolbarButton>
@@ -174,7 +151,7 @@ function Toolbar({
       >
         <span className="text-xs">{clearColorLabel}</span>
       </ToolbarButton>
-      <span className="ml-1 text-xs font-medium text-slate-500 dark:text-white/50">
+      <span className="ml-1 text-[11px] font-medium text-slate-500 dark:text-white/50">
         {colorLabel}
       </span>
       {colors.map((color) => {
@@ -188,7 +165,7 @@ function Toolbar({
             }}
             onClick={() => onApplyColor(color.value)}
             className={[
-              "inline-flex h-9 w-9 items-center justify-center rounded-xl border transition-transform",
+              "inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-transform",
               active
                 ? "scale-105 border-slate-900 shadow-sm dark:border-white"
                 : "border-slate-300 dark:border-white/12",
@@ -214,7 +191,7 @@ export default function NodeRichTextDialog({
   open,
   onOpenChange,
   title,
-  description,
+  description: _description,
   plainTopicLabel,
   plainTopicValue,
   initialHtml,
@@ -228,6 +205,9 @@ export default function NodeRichTextDialog({
   onSave,
 }: NodeRichTextDialogProps) {
   const editorRef = useRef<HTMLDivElement>(null);
+  const selectionRangeRef = useRef<Range | null>(null);
+  const descriptionId = useId();
+  const [editorHtml, setEditorHtml] = useState("<p></p>");
   const [toolbarState, setToolbarState] = useState<ToolbarState>({
     bold: false,
     color: "",
@@ -241,172 +221,158 @@ export default function NodeRichTextDialog({
     return `<p>${escapeHtml(plain).replace(/\r?\n/g, "<br>")}</p>`;
   }, [initialHtml, plainTopicValue]);
 
-  const isSelectionInsideEditor = useCallback(() => {
-    const editor = editorRef.current;
-    const selection = window.getSelection();
-    if (!editor || !selection || selection.rangeCount === 0) return false;
-
-    const anchorNode = selection.anchorNode;
-    const focusNode = selection.focusNode;
-    if (!anchorNode || !focusNode) return false;
-    return editor.contains(anchorNode) && editor.contains(focusNode);
+  const updateToolbarState = useCallback(() => {
+    setToolbarState(getToolbarStateFromSelection(editorRef.current));
   }, []);
 
-  const updateToolbarState = useCallback(() => {
-    if (!isSelectionInsideEditor()) {
-      setToolbarState({ bold: false, color: "" });
+  const captureSelectionRange = useCallback(() => {
+    const root = editorRef.current;
+    const selection = window.getSelection();
+    if (!root || !selection || selection.rangeCount === 0) {
+      selectionRangeRef.current = null;
       return;
     }
 
-    let bold = false;
-    let color = "";
-
-    try {
-      bold = document.queryCommandState("bold");
-    } catch {}
-
-    try {
-      color = normalizeColorValue(String(document.queryCommandValue("foreColor") ?? ""));
-    } catch {}
-
-    setToolbarState({
-      bold,
-      color,
-    });
-  }, [isSelectionInsideEditor]);
-
-  const syncEditorHtml = useCallback(() => {
-    const editor = editorRef.current;
-    if (!editor) return;
-
-    const nextHtml = initialEditorHtml.trim() || "<p></p>";
-    if (editor.innerHTML !== nextHtml) {
-      editor.innerHTML = nextHtml;
+    const range = selection.getRangeAt(0);
+    const anchorNode = selection.anchorNode;
+    const focusNode = selection.focusNode;
+    if (
+      !anchorNode ||
+      !focusNode ||
+      !root.contains(anchorNode) ||
+      !root.contains(focusNode) ||
+      range.collapsed
+    ) {
+      selectionRangeRef.current = null;
+      return;
     }
 
-    if (!editor.textContent?.trim() && plainTopicValue.trim()) {
-      editor.innerHTML = `<p>${escapeHtml(plainTopicValue).replace(/\r?\n/g, "<br>")}</p>`;
-    }
+    selectionRangeRef.current = range.cloneRange();
+  }, []);
 
-    updateToolbarState();
-  }, [initialEditorHtml, plainTopicValue, updateToolbarState]);
-
-  const restoreInitialHtml = useCallback(() => {
-    syncEditorHtml();
-  }, [syncEditorHtml]);
-
-  const runFormatCommand = useCallback((callback: () => void) => {
-    if (!isSelectionInsideEditor()) return;
-    callback();
-    updateToolbarState();
-  }, [isSelectionInsideEditor, updateToolbarState]);
-
-  useLayoutEffect(() => {
-    if (!open) return;
-    syncEditorHtml();
-
-    queueMicrotask(() => {
-      editorRef.current?.focus();
-    });
-  }, [open, syncEditorHtml]);
+  const resetEditorHtml = useCallback(() => {
+    setEditorHtml(initialEditorHtml);
+    setToolbarState({ bold: false, color: "" });
+  }, [initialEditorHtml]);
 
   useEffect(() => {
     if (!open) return;
-    syncEditorHtml();
-  }, [open, syncEditorHtml]);
+    resetEditorHtml();
+    selectionRangeRef.current = null;
+  }, [open, resetEditorHtml]);
 
-  useEffect(() => {
-    if (!open) return;
+  const getActiveRange = useCallback(() => {
+    const root = editorRef.current;
+    const selection = window.getSelection();
+    const storedRange = selectionRangeRef.current;
+    if (!root || !selection || !storedRange) return null;
 
-    const handleSelectionChange = () => {
+    return { range: storedRange.cloneRange(), selection, root };
+  }, []);
+
+  const applyInlineWrapper = useCallback(
+    (buildWrapper: () => HTMLElement) => {
+      const active = getActiveRange();
+      if (!active) return;
+
+      const { range, selection, root } = active;
+      const wrapper = buildWrapper();
+      const fragment = range.extractContents();
+
+      if (!fragment.textContent?.trim()) {
+        selection.removeAllRanges();
+        return;
+      }
+
+      wrapper.appendChild(fragment);
+      range.insertNode(wrapper);
+
+      const nextRange = document.createRange();
+      nextRange.selectNodeContents(wrapper);
+      selection.removeAllRanges();
+      selection.addRange(nextRange);
+      selectionRangeRef.current = nextRange.cloneRange();
+
+      setEditorHtml(root.innerHTML);
       updateToolbarState();
-    };
+    },
+    [getActiveRange, updateToolbarState]
+  );
 
-    document.addEventListener("selectionchange", handleSelectionChange);
-    return () => {
-      document.removeEventListener("selectionchange", handleSelectionChange);
-    };
-  }, [open, updateToolbarState]);
+  const handleToggleBold = useCallback(() => {
+    applyInlineWrapper(() => document.createElement("strong"));
+  }, [applyInlineWrapper]);
+
+  const handleApplyColor = useCallback(
+    (color: string) => {
+      applyInlineWrapper(() => {
+        const wrapper = document.createElement("span");
+        wrapper.style.color = color;
+        return wrapper;
+      });
+    },
+    [applyInlineWrapper]
+  );
+
+  const handleClearColor = useCallback(() => {
+    applyInlineWrapper(() => {
+      const wrapper = document.createElement("span");
+      wrapper.style.color = "#111827";
+      return wrapper;
+    });
+  }, [applyInlineWrapper]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[720px]">
+      <DialogContent className="max-w-[720px]" aria-describedby={descriptionId}>
         <div className="flex flex-col gap-4">
-          <div className="space-y-2">
-            <h3 className="text-lg font-bold text-blue-700 dark:text-blue-200">
+          <div className="flex flex-col gap-2">
+            <DialogTitle className="text-lg font-bold text-blue-700 dark:text-blue-200">
               {title}
-            </h3>
-            <p className="text-sm leading-6 text-slate-600 dark:text-white/65">
-              {description}
-            </p>
+            </DialogTitle>
+            <DialogDescription
+              id={descriptionId}
+              className="rounded-xl border border-blue-200/70 bg-blue-50 px-3 py-2 text-sm font-semibold leading-6 text-blue-800 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-100"
+            >
+              원하는 곳을 드래그해서, 굵기와 색상을 변경하세요.
+            </DialogDescription>
           </div>
 
-          <Toolbar
-            colors={colors}
-            colorLabel={colorLabel}
-            boldLabel={boldLabel}
-            clearColorLabel={clearColorLabel}
-            state={toolbarState}
-            onToggleBold={() => {
-              runFormatCommand(() => {
-                document.execCommand("bold");
-              });
-            }}
-            onApplyColor={(color) => {
-              runFormatCommand(() => {
-                document.execCommand("styleWithCSS", false, "true");
-                document.execCommand("foreColor", false, color);
-              });
-            }}
-            onClearColor={() => {
-              runFormatCommand(() => {
-                document.execCommand("styleWithCSS", false, "true");
-                document.execCommand("foreColor", false, "#111827");
-              });
-            }}
-          />
-
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-white/45">
               {plainTopicLabel}
             </div>
-            <div
-              ref={(node) => {
-                editorRef.current = node;
-                if (node && open) {
-                  syncEditorHtml();
-                }
-              }}
-              contentEditable
-              suppressContentEditableWarning
-              className="min-h-[180px] rounded-2xl border border-slate-300 bg-white px-4 py-3 text-[15px] leading-7 text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200/60 dark:border-white/10 dark:bg-[#0f172a] dark:text-white/90 dark:focus:border-blue-300 dark:focus:ring-blue-500/30"
-              onKeyDown={(event) => {
-                if (!shouldBlockKeyDown(event.nativeEvent)) return;
-                event.preventDefault();
-              }}
-              onBeforeInput={(event) => {
-                const inputType = String(event.nativeEvent.inputType ?? "");
-                if (!BLOCKED_INPUT_TYPES.has(inputType)) return;
-                event.preventDefault();
-              }}
-              onPaste={(event) => {
-                event.preventDefault();
-              }}
-              onDrop={(event) => {
-                event.preventDefault();
-              }}
-              onMouseUp={updateToolbarState}
-              onKeyUp={updateToolbarState}
-            />
-            <p className="text-xs leading-5 text-slate-500 dark:text-white/50">
-              {description}
-            </p>
+            <div className="overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-white/10 dark:bg-[#0f172a]">
+              <div className="border-b border-slate-200 bg-slate-100/90 px-3 py-2 dark:border-white/10 dark:bg-white/[0.04]">
+                <Toolbar
+                  colors={colors}
+                  colorLabel={colorLabel}
+                  boldLabel={boldLabel}
+                  clearColorLabel={clearColorLabel}
+                  state={toolbarState}
+                  onToggleBold={handleToggleBold}
+                  onApplyColor={handleApplyColor}
+                  onClearColor={handleClearColor}
+                />
+              </div>
+              <div
+                ref={editorRef}
+                className="min-h-[180px] select-text bg-white px-4 py-3 text-[15px] leading-7 text-slate-900 outline-none dark:bg-[#0f172a] dark:text-white/90"
+                dangerouslySetInnerHTML={{ __html: editorHtml }}
+                onMouseUp={() => {
+                  captureSelectionRange();
+                }}
+                onTouchEnd={() => {
+                  captureSelectionRange();
+                }}
+              />
+            </div>
           </div>
 
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
-              onClick={restoreInitialHtml}
+              onClick={resetEditorHtml}
               className="rounded-2xl border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/12 dark:bg-white/[0.05] dark:text-white/75 dark:hover:bg-white/[0.08]"
             >
               {resetLabel}
@@ -420,7 +386,7 @@ export default function NodeRichTextDialog({
             </button>
             <button
               type="button"
-              onClick={() => onSave(editorRef.current?.innerHTML ?? "")}
+              onClick={() => onSave(editorHtml)}
               className="rounded-2xl bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
             >
               {saveLabel}

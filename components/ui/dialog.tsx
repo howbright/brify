@@ -47,6 +47,7 @@ export const TabsContent = ({
 export const Dialog = DialogPrimitive.Root;
 export const DialogTrigger = DialogPrimitive.Trigger;
 export const DialogTitle = DialogPrimitive.Title;
+export const DialogDescription = DialogPrimitive.Description;
 
 export const DialogOverlay = (props: React.ComponentPropsWithoutRef<"div">) => (
   <DialogPrimitive.Overlay
