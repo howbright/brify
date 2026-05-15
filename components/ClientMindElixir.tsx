@@ -763,7 +763,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const { miniMapRef, scheduleMiniMapDraw } = useMindElixirMiniMap({
     elRef,
     mindRef,
-    effectiveMode,
   });
 
   useEffect(() => {

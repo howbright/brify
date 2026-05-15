@@ -1,15 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-import { EditorContent, useEditor, type Editor } from "@tiptap/react";
-import { Extension } from "@tiptap/core";
-import type { EditorView } from "@tiptap/pm/view";
-import Document from "@tiptap/extension-document";
-import Paragraph from "@tiptap/extension-paragraph";
-import Text from "@tiptap/extension-text";
-import Bold from "@tiptap/extension-bold";
-import HardBreak from "@tiptap/extension-hard-break";
-import TextStyle from "@tiptap/extension-text-style";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
@@ -31,41 +22,10 @@ type NodeRichTextDialogProps = {
   onSave: (html: string) => void;
 };
 
-const TextColor = Extension.create({
-  name: "textColor",
-  addGlobalAttributes() {
-    return [
-      {
-        types: ["textStyle"],
-        attributes: {
-          color: {
-            default: null,
-            parseHTML: (element) =>
-              (element as HTMLElement).style.color || null,
-            renderHTML: (attributes) => {
-              if (!attributes.color) return {};
-              return {
-                style: `color: ${attributes.color}`,
-              };
-            },
-          },
-        },
-      },
-    ];
-  },
-  addCommands() {
-    return {
-      setTextColor:
-        (color: string) =>
-        ({ chain }: { chain: () => any }) =>
-          chain().setMark("textStyle", { color }).run(),
-      unsetTextColor:
-        () =>
-        ({ chain }: { chain: () => any }) =>
-          chain().setMark("textStyle", { color: null }).removeEmptyTextStyle().run(),
-    } as any;
-  },
-});
+type ToolbarState = {
+  bold: boolean;
+  color: string;
+};
 
 const BLOCKED_INPUT_TYPES = new Set([
   "insertText",
@@ -90,6 +50,24 @@ const BLOCKED_INPUT_TYPES = new Set([
   "historyUndo",
   "historyRedo",
 ]);
+
+function normalizeColorValue(raw: string | null | undefined) {
+  const value = String(raw ?? "").trim().toLowerCase();
+  if (!value) return "";
+
+  const rgb = value.match(
+    /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*[\d.]+\s*)?\)$/
+  );
+  if (!rgb) return value;
+
+  const [r, g, b] = rgb.slice(1, 4).map((part) =>
+    Math.max(0, Math.min(255, Number(part)))
+  );
+
+  return `#${[r, g, b]
+    .map((part) => part.toString(16).padStart(2, "0"))
+    .join("")}`;
+}
 
 function shouldBlockKeyDown(event: KeyboardEvent) {
   if (event.isComposing) return false;
@@ -139,6 +117,9 @@ function ToolbarButton({
   return (
     <button
       type="button"
+      onMouseDown={(event) => {
+        event.preventDefault();
+      }}
       onClick={onClick}
       className={[
         "inline-flex h-9 items-center justify-center rounded-xl border px-3 text-sm font-semibold transition-colors",
@@ -153,29 +134,34 @@ function ToolbarButton({
   );
 }
 
-function Toolbar({ editor, colors, colorLabel, boldLabel, clearColorLabel }: {
-  editor: Editor | null;
+function Toolbar({
+  colors,
+  colorLabel,
+  boldLabel,
+  clearColorLabel,
+  state,
+  onToggleBold,
+  onApplyColor,
+  onClearColor,
+}: {
   colors: Array<{ value: string; label: string }>;
   colorLabel: string;
   boldLabel: string;
   clearColorLabel: string;
+  state: ToolbarState;
+  onToggleBold: () => void;
+  onApplyColor: (color: string) => void;
+  onClearColor: () => void;
 }) {
-  if (!editor) return null;
-  const currentColor = String(editor.getAttributes("textStyle")?.color ?? "").toLowerCase();
-
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-300 bg-slate-50/80 p-2 dark:border-white/10 dark:bg-white/[0.04]">
-      <ToolbarButton
-        active={editor.isActive("bold")}
-        label={boldLabel}
-        onClick={() => editor.chain().focus().toggleBold().run()}
-      >
+      <ToolbarButton active={state.bold} label={boldLabel} onClick={onToggleBold}>
         <span className="font-bold">B</span>
       </ToolbarButton>
       <ToolbarButton
-        active={!currentColor}
+        active={!state.color}
         label={clearColorLabel}
-        onClick={() => (editor.commands as any).unsetTextColor?.()}
+        onClick={onClearColor}
       >
         <span className="text-xs">{clearColorLabel}</span>
       </ToolbarButton>
@@ -183,12 +169,15 @@ function Toolbar({ editor, colors, colorLabel, boldLabel, clearColorLabel }: {
         {colorLabel}
       </span>
       {colors.map((color) => {
-        const active = currentColor === color.value.toLowerCase();
+        const active = state.color === color.value.toLowerCase();
         return (
           <button
             key={color.value}
             type="button"
-            onClick={() => (editor.commands as any).setTextColor?.(color.value)}
+            onMouseDown={(event) => {
+              event.preventDefault();
+            }}
+            onClick={() => onApplyColor(color.value)}
             className={[
               "inline-flex h-9 w-9 items-center justify-center rounded-xl border transition-transform",
               active
@@ -229,66 +218,84 @@ export default function NodeRichTextDialog({
   saveLabel,
   onSave,
 }: NodeRichTextDialogProps) {
-  const editorExtensions = useMemo(
-    () =>
-      [
-        Document,
-        Paragraph,
-        Text,
-        Bold,
-        HardBreak,
-        TextStyle,
-        TextColor,
-      ],
-    []
+  const editorRef = useRef<HTMLDivElement>(null);
+  const [toolbarState, setToolbarState] = useState<ToolbarState>({
+    bold: false,
+    color: "",
+  });
+
+  const plainSummary = useMemo(
+    () => plainTopicValue.trim() || "-",
+    [plainTopicValue]
   );
 
-  const editor = useEditor(
-    {
-      immediatelyRender: false,
-      extensions: editorExtensions,
-      content: initialHtml,
-      editorProps: {
-        attributes: {
-          class:
-            "min-h-[180px] rounded-2xl border border-slate-300 bg-white px-4 py-3 text-[15px] leading-7 text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200/60 dark:border-white/10 dark:bg-[#0f172a] dark:text-white/90 dark:focus:border-blue-300 dark:focus:ring-blue-500/30",
-        },
-        handleKeyDown: (_view: EditorView, event: KeyboardEvent) => {
-          if (!shouldBlockKeyDown(event)) return false;
-          event.preventDefault();
-          return true;
-        },
-        handleDOMEvents: {
-          beforeinput: (_view: EditorView, event: Event) => {
-            const inputEvent = event as InputEvent;
-            const inputType = String(inputEvent.inputType ?? "");
-            if (!BLOCKED_INPUT_TYPES.has(inputType)) return false;
-            inputEvent.preventDefault();
-            return true;
-          },
-          paste: (_view: EditorView, event: Event) => {
-            event.preventDefault();
-            return true;
-          },
-          drop: (_view: EditorView, event: Event) => {
-            event.preventDefault();
-            return true;
-          },
-        },
-      },
-    } as any,
-    [editorExtensions, initialHtml]
-  );
+  const isSelectionInsideEditor = useCallback(() => {
+    const editor = editorRef.current;
+    const selection = window.getSelection();
+    if (!editor || !selection || selection.rangeCount === 0) return false;
+
+    const anchorNode = selection.anchorNode;
+    const focusNode = selection.focusNode;
+    if (!anchorNode || !focusNode) return false;
+    return editor.contains(anchorNode) && editor.contains(focusNode);
+  }, []);
+
+  const updateToolbarState = useCallback(() => {
+    if (!isSelectionInsideEditor()) {
+      setToolbarState({ bold: false, color: "" });
+      return;
+    }
+
+    let bold = false;
+    let color = "";
+
+    try {
+      bold = document.queryCommandState("bold");
+    } catch {}
+
+    try {
+      color = normalizeColorValue(String(document.queryCommandValue("foreColor") ?? ""));
+    } catch {}
+
+    setToolbarState({
+      bold,
+      color,
+    });
+  }, [isSelectionInsideEditor]);
+
+  const restoreInitialHtml = useCallback(() => {
+    if (!editorRef.current) return;
+    editorRef.current.innerHTML = initialHtml;
+    updateToolbarState();
+  }, [initialHtml, updateToolbarState]);
+
+  const runFormatCommand = useCallback((callback: () => void) => {
+    if (!isSelectionInsideEditor()) return;
+    callback();
+    updateToolbarState();
+  }, [isSelectionInsideEditor, updateToolbarState]);
 
   useEffect(() => {
-    if (!editor || !open) return;
-    editor.commands.setContent(initialHtml, false);
-    queueMicrotask(() => {
-      editor.commands.focus("end");
-    });
-  }, [editor, initialHtml, open]);
+    if (!open) return;
+    restoreInitialHtml();
 
-  const plainSummary = plainTopicValue.trim() || "-";
+    queueMicrotask(() => {
+      editorRef.current?.focus();
+    });
+  }, [open, restoreInitialHtml]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handleSelectionChange = () => {
+      updateToolbarState();
+    };
+
+    document.addEventListener("selectionchange", handleSelectionChange);
+    return () => {
+      document.removeEventListener("selectionchange", handleSelectionChange);
+    };
+  }, [open, updateToolbarState]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -313,15 +320,54 @@ export default function NodeRichTextDialog({
           </div>
 
           <Toolbar
-            editor={editor}
             colors={colors}
             colorLabel={colorLabel}
             boldLabel={boldLabel}
             clearColorLabel={clearColorLabel}
+            state={toolbarState}
+            onToggleBold={() => {
+              runFormatCommand(() => {
+                document.execCommand("bold");
+              });
+            }}
+            onApplyColor={(color) => {
+              runFormatCommand(() => {
+                document.execCommand("styleWithCSS", false, "true");
+                document.execCommand("foreColor", false, color);
+              });
+            }}
+            onClearColor={() => {
+              runFormatCommand(() => {
+                document.execCommand("styleWithCSS", false, "true");
+                document.execCommand("foreColor", false, "#111827");
+              });
+            }}
           />
 
           <div className="space-y-2">
-            <EditorContent editor={editor} />
+            <div
+              ref={editorRef}
+              contentEditable
+              suppressContentEditableWarning
+              className="min-h-[180px] rounded-2xl border border-slate-300 bg-white px-4 py-3 text-[15px] leading-7 text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200/60 dark:border-white/10 dark:bg-[#0f172a] dark:text-white/90 dark:focus:border-blue-300 dark:focus:ring-blue-500/30"
+              onKeyDown={(event) => {
+                if (!shouldBlockKeyDown(event.nativeEvent)) return;
+                event.preventDefault();
+              }}
+              onBeforeInput={(event) => {
+                const inputType = String(event.nativeEvent.inputType ?? "");
+                if (!BLOCKED_INPUT_TYPES.has(inputType)) return;
+                event.preventDefault();
+              }}
+              onPaste={(event) => {
+                event.preventDefault();
+              }}
+              onDrop={(event) => {
+                event.preventDefault();
+              }}
+              onMouseUp={updateToolbarState}
+              onKeyUp={updateToolbarState}
+            />
             <p className="text-xs leading-5 text-slate-500 dark:text-white/50">
               {description}
             </p>
@@ -330,7 +376,7 @@ export default function NodeRichTextDialog({
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
-              onClick={() => editor?.commands.setContent(initialHtml, false)}
+              onClick={restoreInitialHtml}
               className="rounded-2xl border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/12 dark:bg-white/[0.05] dark:text-white/75 dark:hover:bg-white/[0.08]"
             >
               {resetLabel}
@@ -344,7 +390,7 @@ export default function NodeRichTextDialog({
             </button>
             <button
               type="button"
-              onClick={() => onSave(editor?.getHTML() ?? "")}
+              onClick={() => onSave(editorRef.current?.innerHTML ?? "")}
               className="rounded-2xl bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
             >
               {saveLabel}

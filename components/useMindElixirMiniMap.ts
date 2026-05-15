@@ -7,17 +7,16 @@ type AnyNode = {
   parent?: { id?: string } | null;
 };
 
-type Params = {
-  elRef: React.RefObject<HTMLDivElement | null>;
-  mindRef: React.RefObject<any>;
-  effectiveMode: "light" | "dark";
+type MiniMapMindInstance = {
+  move?: (dx: number, dy: number) => void;
 };
 
-export function useMindElixirMiniMap({
-  elRef,
-  mindRef,
-  effectiveMode,
-}: Params) {
+type Params = {
+  elRef: React.RefObject<HTMLDivElement | null>;
+  mindRef: React.RefObject<MiniMapMindInstance | null>;
+};
+
+export function useMindElixirMiniMap({ elRef, mindRef }: Params) {
   const miniMapRef = useRef<HTMLCanvasElement>(null);
   const miniMapBoundsRef = useRef<{
     minX: number;
@@ -166,7 +165,7 @@ export function useMindElixirMiniMap({
       const targetX = (miniX - bounds.offsetX) / bounds.scale;
       const targetY = (miniY - bounds.offsetY) / bounds.scale;
 
-      mind.move(viewCenterX - targetX, viewCenterY - targetY);
+      mind.move?.(viewCenterX - targetX, viewCenterY - targetY);
     };
 
     const handlePointerDown = (e: PointerEvent) => {
@@ -195,7 +194,7 @@ export function useMindElixirMiniMap({
       const dy = e.clientY - miniMapDragRef.current.lastY;
       miniMapDragRef.current.lastX = e.clientX;
       miniMapDragRef.current.lastY = e.clientY;
-      mind.move(-(dx / bounds.scale), -(dy / bounds.scale));
+      mind.move?.(-(dx / bounds.scale), -(dy / bounds.scale));
     };
 
     const handlePointerUp = (e: PointerEvent) => {
