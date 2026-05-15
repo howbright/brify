@@ -14,6 +14,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { sampled } from "@/app/lib/mind-elixir/sampleData";
 import {
   getStoredRichTextInnerHtml,
+  normalizePlainTextForComparison,
   plainTextToEditorHtml,
   sanitizeRichTextInputHtml,
 } from "@/app/lib/nodeRichText";
@@ -601,6 +602,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       reset: t("richText.reset"),
       saveSuccess: t("richText.saveSuccess"),
       saveFailed: t("richText.saveFailed"),
+      textLockedError: t("richText.textLockedError"),
       colors: [
         { value: "#2563eb", label: t("richText.colors.blue") },
         { value: "#dc2626", label: t("richText.colors.red") },
@@ -1170,6 +1172,77 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     }),
     [t]
   );
+  const desktopContextMenuGroups = useMemo(() => {
+    const builtInLabels =
+      mindLocale === "ko"
+        ? {
+            addChild: "자식 추가",
+            addParent: "부모 추가",
+            addSibling: "형제 추가",
+            moveUp: "위로 이동",
+            moveDown: "아래로 이동",
+            focus: "포커스 모드",
+            cancelFocus: "포커스 모드 취소",
+            link: "연결",
+            linkBidirectional: "양방향 연결",
+            summary: "요약",
+            removeNode: "노드 삭제",
+          }
+        : {
+            addChild: "Add child",
+            addParent: "Add parent",
+            addSibling: "Add sibling",
+            moveUp: "Up",
+            moveDown: "Down",
+            focus: "Focus",
+            cancelFocus: "Cancel Focus",
+            link: "Link",
+            linkBidirectional: "Bidirectional Link",
+            summary: "Summary",
+            removeNode: "Delete",
+          };
+
+    return [
+      [
+        richTextText.editContent,
+        imageText.addOrReplace,
+        imageText.remove,
+      ],
+      [
+        builtInLabels.addChild,
+        builtInLabels.addParent,
+        builtInLabels.addSibling,
+        builtInLabels.moveUp,
+        builtInLabels.moveDown,
+      ],
+      [contextMenuText.copyMarkdown, contextMenuText.copyExpandedMarkdown],
+      [
+        builtInLabels.focus,
+        builtInLabels.cancelFocus,
+        builtInLabels.link,
+        builtInLabels.linkBidirectional,
+        builtInLabels.summary,
+      ],
+      [builtInLabels.removeNode],
+    ];
+  }, [
+    contextMenuText.copyExpandedMarkdown,
+    contextMenuText.copyMarkdown,
+    imageText.addOrReplace,
+    imageText.remove,
+    mindLocale,
+    richTextText.editContent,
+  ]);
+  const desktopContextMenuOrder = useMemo(
+    () => desktopContextMenuGroups.flat(),
+    [desktopContextMenuGroups]
+  );
+  const desktopContextMenuGroupIndex = useMemo(() => {
+    const pairs = desktopContextMenuGroups.flatMap((group, groupIndex) =>
+      group.map((label) => [label, groupIndex] as const)
+    );
+    return new Map(pairs);
+  }, [desktopContextMenuGroups]);
 
   const {
     updateSelectedRect,
@@ -1401,14 +1474,19 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
     try {
       const next = sanitizeRichTextInputHtml(html);
+      if (
+        normalizePlainTextForComparison(next.topic) !==
+        normalizePlainTextForComparison(richTextPlainTopic)
+      ) {
+        throw new Error(richTextText.textLockedError);
+      }
       const updated = setNodeRichTextValue(nodeId, {
-        topic: next.topic,
+        topic: richTextPlainTopic,
         storedHtml: next.storedHtml,
       });
       if (!updated) {
         throw new Error(richTextText.saveFailed);
       }
-      setRichTextPlainTopic(next.topic);
       setRichTextDialogOpen(false);
       toast.success(richTextText.saveSuccess);
     } catch (error) {
@@ -1880,6 +1958,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     let syncMiniMap: (() => void) | null = null;
     let handleRefreshDecorations: (() => void) | null = null;
     let mutationObserver: MutationObserver | null = null;
+    let handleReorderContextMenu: (() => void) | null = null;
 
     (async () => {
       const mod = await import("mind-elixir");
@@ -2193,6 +2272,58 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         }
         return null;
       };
+
+      const reorderDesktopContextMenu = () => {
+        const menuList = elRef.current?.querySelector<HTMLUListElement>(
+          ".context-menu .menu-list"
+        );
+        if (!menuList) return;
+
+        const labelPriority = new Map(
+          desktopContextMenuOrder.map((label, index) => [label, index] as const)
+        );
+        const items = Array.from(menuList.querySelectorAll<HTMLLIElement>("li"));
+        items
+          .sort((a, b) => {
+            const aLabel =
+              a.querySelector("span")?.textContent?.trim() ??
+              a.textContent?.trim() ??
+              "";
+            const bLabel =
+              b.querySelector("span")?.textContent?.trim() ??
+              b.textContent?.trim() ??
+              "";
+            const aPriority =
+              labelPriority.get(aLabel) ?? Number.MAX_SAFE_INTEGER;
+            const bPriority =
+              labelPriority.get(bLabel) ?? Number.MAX_SAFE_INTEGER;
+            if (aPriority === bPriority) return 0;
+            return aPriority - bPriority;
+          })
+          .forEach((item) => {
+            menuList.appendChild(item);
+          });
+
+        let previousVisibleGroupIndex: number | null = null;
+        items.forEach((item) => {
+          item.removeAttribute("data-menu-group-start");
+          const label =
+            item.querySelector("span")?.textContent?.trim() ??
+            item.textContent?.trim() ??
+            "";
+          const groupIndex =
+            desktopContextMenuGroupIndex.get(label) ?? Number.MAX_SAFE_INTEGER;
+          const isHidden = window.getComputedStyle(item).display === "none";
+          if (isHidden) return;
+          if (
+            previousVisibleGroupIndex !== null &&
+            previousVisibleGroupIndex !== groupIndex
+          ) {
+            item.setAttribute("data-menu-group-start", "true");
+          }
+          previousVisibleGroupIndex = groupIndex;
+        });
+      };
       const formatTimestamp = (seconds: number): string => {
         const total = Math.max(0, Math.floor(seconds));
         const hh = Math.floor(total / 3600);
@@ -2347,6 +2478,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           return result;
         };
       }
+
+      handleReorderContextMenu = () => {
+        queueMicrotask(() => {
+          reorderDesktopContextMenu();
+        });
+      };
+      mind.bus?.addListener?.("showContextMenu", handleReorderContextMenu);
 
       // Hook undo/redo to trigger autosave listeners
       if (typeof mind.undo === "function") {
@@ -2569,6 +2707,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           mind.bus.removeListener("move", syncSelectedRect);
           mind.bus.removeListener("scale", syncSelectedRect);
         }
+        if (mind?.bus?.removeListener && handleReorderContextMenu) {
+          mind.bus.removeListener("showContextMenu", handleReorderContextMenu);
+        }
         if (mind?.bus?.removeListener && syncMiniMap) {
           mind.bus.removeListener("move", syncMiniMap);
           mind.bus.removeListener("scale", syncMiniMap);
@@ -2600,6 +2741,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     initialData,
     mindLocale,
     contextMenuText,
+    desktopContextMenuGroupIndex,
+    desktopContextMenuOrder,
     editMode,
     imageText,
     richTextText,
@@ -2704,6 +2847,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         }
         .context-menu .menu-list li {
           min-width: 0 !important;
+        }
+        .context-menu .menu-list li[data-menu-group-start="true"] {
+          margin-top: 0.35rem;
+          padding-top: 0.45rem;
+          border-top: 1px solid rgba(148, 163, 184, 0.28);
+        }
+        .dark .context-menu .menu-list li[data-menu-group-start="true"] {
+          border-top-color: rgba(148, 163, 184, 0.22);
         }
         me-tpc {
           position: relative;

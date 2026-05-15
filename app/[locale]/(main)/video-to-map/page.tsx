@@ -436,6 +436,8 @@ export default function VideoToMapPage() {
             ? t("errors.fileTooLarge", { maxMb: Number(json?.maxFileSizeMb) || 50 })
             : code === "NO_EXTRACTED_TEXT"
             ? t("errors.pdfNoText")
+            : code === "INVALID_PDF"
+            ? t("errors.invalidPdf")
             : code === "ENCRYPTED_PDF"
             ? t("errors.encryptedPdf")
             : code === "MODULE_NOT_INSTALLED"

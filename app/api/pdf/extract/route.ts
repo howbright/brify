@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PDFParse } from "pdf-parse";
+import {
+  AbortException,
+  FormatError,
+  InvalidPDFException,
+  PasswordException,
+  PDFParse,
+  ResponseException,
+  UnknownErrorException,
+  VerbosityLevel,
+} from "pdf-parse";
 
 export const runtime = "nodejs";
 
@@ -21,6 +30,90 @@ function getFileExtension(name: string) {
   const index = name.lastIndexOf(".");
   if (index < 0) return "";
   return name.slice(index + 1).toLowerCase();
+}
+
+function getPdfErrorName(error: unknown) {
+  if (!error || typeof error !== "object") return "";
+  const raw = "name" in error ? error.name : "";
+  return typeof raw === "string" ? raw : "";
+}
+
+function isEncryptedPdfError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  const name = getPdfErrorName(error);
+
+  return (
+    error instanceof PasswordException ||
+    name === "PasswordException" ||
+    message.includes("PasswordException") ||
+    message.toLowerCase().includes("password") ||
+    message.toLowerCase().includes("encrypted")
+  );
+}
+
+function isInvalidPdfError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  const name = getPdfErrorName(error);
+  const knownInvalidName =
+    error instanceof InvalidPDFException ||
+    error instanceof FormatError ||
+    error instanceof ResponseException ||
+    error instanceof AbortException ||
+    error instanceof UnknownErrorException ||
+    name === "InvalidPDFException" ||
+    name === "FormatError" ||
+    name === "ResponseException" ||
+    name === "AbortException" ||
+    name === "UnknownErrorException";
+
+  return (
+    knownInvalidName ||
+    /xref|trailer|catalog|invalid pdf|bad xref|format/i.test(message)
+  );
+}
+
+async function tryExtractPdfText(buffer: Buffer) {
+  const attempts: Array<() => Promise<{ text?: string; total?: number; pages?: Array<{ text?: string }> }>> = [
+    async () => {
+      const parser = new PDFParse({
+        data: buffer,
+        verbosity: VerbosityLevel.ERRORS,
+      });
+      try {
+        return await parser.getText({ pageJoiner: "" });
+      } finally {
+        await parser.destroy?.();
+      }
+    },
+    async () => {
+      const parser = new PDFParse({
+        data: buffer,
+        verbosity: VerbosityLevel.ERRORS,
+      });
+      try {
+        return await parser.getText({
+          pageJoiner: "",
+          disableNormalization: true,
+        });
+      } finally {
+        await parser.destroy?.();
+      }
+    },
+  ];
+
+  let lastError: unknown = null;
+  for (const attempt of attempts) {
+    try {
+      return await attempt();
+    } catch (error) {
+      lastError = error;
+      if (isEncryptedPdfError(error) || isInvalidPdfError(error)) {
+        throw error;
+      }
+    }
+  }
+
+  throw lastError;
 }
 
 export async function POST(req: NextRequest) {
@@ -66,25 +159,7 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await uploaded.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    let result: { text?: string; total?: number; pages?: Array<{ text?: string }> };
-    let parser:
-      | {
-          getText: (params?: { pageJoiner?: string }) => Promise<{ text?: string; total?: number }>;
-          destroy?: () => Promise<void> | void;
-        }
-      | null = null;
-    try {
-      parser = new PDFParse({ data: buffer });
-      result = await parser.getText({
-        pageJoiner: "",
-      });
-    } finally {
-      try {
-        await parser?.destroy?.();
-      } catch {
-        // ignore cleanup errors
-      }
-    }
+    const result = await tryExtractPdfText(buffer);
 
     const fallbackText =
       Array.isArray(result.pages) && result.pages.length > 0
@@ -129,16 +204,24 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown";
     console.error("[pdf/extract] failed:", error);
-    if (
-      message.includes("PasswordException") ||
-      message.toLowerCase().includes("password") ||
-      message.includes("encrypted")
-    ) {
+    if (isEncryptedPdfError(error)) {
       return NextResponse.json(
         {
           success: false,
           errorCode: "ENCRYPTED_PDF",
           error: "암호화된 PDF는 현재 지원하지 않습니다. 암호를 제거한 PDF로 다시 시도해 주세요.",
+          detail: process.env.NODE_ENV !== "production" ? message : undefined,
+        },
+        { status: 422 }
+      );
+    }
+    if (isInvalidPdfError(error)) {
+      return NextResponse.json(
+        {
+          success: false,
+          errorCode: "INVALID_PDF",
+          error:
+            "이 PDF는 손상되었거나 현재 추출기에서 읽기 어려운 형식일 수 있습니다. 다른 PDF로 다시 저장하거나 원본 파일로 다시 시도해 주세요.",
           detail: process.env.NODE_ENV !== "production" ? message : undefined,
         },
         { status: 422 }

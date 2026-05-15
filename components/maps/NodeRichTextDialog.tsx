@@ -3,6 +3,7 @@
 import { useEffect, useMemo } from "react";
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import { Extension } from "@tiptap/core";
+import type { EditorView } from "@tiptap/pm/view";
 import Document from "@tiptap/extension-document";
 import Paragraph from "@tiptap/extension-paragraph";
 import Text from "@tiptap/extension-text";
@@ -65,6 +66,64 @@ const TextColor = Extension.create({
     } as any;
   },
 });
+
+const BLOCKED_INPUT_TYPES = new Set([
+  "insertText",
+  "insertReplacementText",
+  "insertLineBreak",
+  "insertParagraph",
+  "insertFromPaste",
+  "insertFromDrop",
+  "insertFromYank",
+  "deleteByCut",
+  "deleteByDrag",
+  "deleteContent",
+  "deleteContentBackward",
+  "deleteContentForward",
+  "deleteEntireSoftLine",
+  "deleteHardLineBackward",
+  "deleteHardLineForward",
+  "deleteSoftLineBackward",
+  "deleteSoftLineForward",
+  "deleteWordBackward",
+  "deleteWordForward",
+  "historyUndo",
+  "historyRedo",
+]);
+
+function shouldBlockKeyDown(event: KeyboardEvent) {
+  if (event.isComposing) return false;
+
+  const key = event.key;
+  const lower = key.toLowerCase();
+  const hasModifier = event.metaKey || event.ctrlKey || event.altKey;
+
+  if (event.metaKey || event.ctrlKey) {
+    if (lower === "a" || lower === "c" || lower === "b") {
+      return false;
+    }
+    if (lower === "z" || lower === "y" || lower === "x" || lower === "v") {
+      return true;
+    }
+  }
+
+  if (
+    key === "Backspace" ||
+    key === "Delete" ||
+    key === "Enter" ||
+    key === "Tab"
+  ) {
+    return true;
+  }
+
+  if (hasModifier) return false;
+
+  if (key.length === 1) {
+    return true;
+  }
+
+  return false;
+}
 
 function ToolbarButton({
   active,
@@ -193,6 +252,28 @@ export default function NodeRichTextDialog({
         attributes: {
           class:
             "min-h-[180px] rounded-2xl border border-slate-300 bg-white px-4 py-3 text-[15px] leading-7 text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200/60 dark:border-white/10 dark:bg-[#0f172a] dark:text-white/90 dark:focus:border-blue-300 dark:focus:ring-blue-500/30",
+        },
+        handleKeyDown: (_view: EditorView, event: KeyboardEvent) => {
+          if (!shouldBlockKeyDown(event)) return false;
+          event.preventDefault();
+          return true;
+        },
+        handleDOMEvents: {
+          beforeinput: (_view: EditorView, event: Event) => {
+            const inputEvent = event as InputEvent;
+            const inputType = String(inputEvent.inputType ?? "");
+            if (!BLOCKED_INPUT_TYPES.has(inputType)) return false;
+            inputEvent.preventDefault();
+            return true;
+          },
+          paste: (_view: EditorView, event: Event) => {
+            event.preventDefault();
+            return true;
+          },
+          drop: (_view: EditorView, event: Event) => {
+            event.preventDefault();
+            return true;
+          },
         },
       },
     } as any,

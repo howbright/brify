@@ -9,6 +9,13 @@ const ALLOWED_TEXT_COLORS = new Set([
 
 const RICH_TEXT_WRAPPER_CLASS = "text me-rich-text";
 
+export function normalizePlainTextForComparison(value: string | null | undefined) {
+  return String(value ?? "")
+    .replace(/\u00a0/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function escapeHtml(value: string) {
   return value
     .replace(/&/g, "&amp;")
@@ -76,12 +83,7 @@ function collectPlainText(root: ParentNode) {
 
   root.childNodes.forEach((child) => walk(child));
 
-  return parts
-    .join("")
-    .replace(/\u00a0/g, " ")
-    .replace(/\s*\n\s*/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return normalizePlainTextForComparison(parts.join("").replace(/\s*\n\s*/g, " "));
 }
 
 function sanitizeNode(node: Node): { html: string; hasFormatting: boolean } {
