@@ -1,20 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  AbortException,
-  FormatError,
-  InvalidPDFException,
-  PasswordException,
-  PDFParse,
-  ResponseException,
-  UnknownErrorException,
-  VerbosityLevel,
-} from "pdf-parse";
+  DOMMatrix,
+  ImageData,
+  Path2D,
+} from "@napi-rs/canvas";
 
 export const runtime = "nodejs";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const LOW_TEXT_THRESHOLD = 300;
 const LOW_TEXT_MIN_PAGES = 2;
+
+type PdfParseModule = typeof import("pdf-parse");
+
+let pdfParseModulePromise: Promise<PdfParseModule> | null = null;
+
+function ensurePdfRuntimePolyfills() {
+  if (typeof globalThis.DOMMatrix === "undefined") {
+    Object.assign(globalThis, { DOMMatrix });
+  }
+  if (typeof globalThis.ImageData === "undefined") {
+    Object.assign(globalThis, { ImageData });
+  }
+  if (typeof globalThis.Path2D === "undefined") {
+    Object.assign(globalThis, { Path2D });
+  }
+}
+
+async function loadPdfParseModule() {
+  ensurePdfRuntimePolyfills();
+  if (!pdfParseModulePromise) {
+    pdfParseModulePromise = import("pdf-parse");
+  }
+  return pdfParseModulePromise;
+}
 
 function normalizeExtractedText(text: string) {
   return text
@@ -43,7 +62,6 @@ function isEncryptedPdfError(error: unknown) {
   const name = getPdfErrorName(error);
 
   return (
-    error instanceof PasswordException ||
     name === "PasswordException" ||
     message.includes("PasswordException") ||
     message.toLowerCase().includes("password") ||
@@ -55,11 +73,6 @@ function isInvalidPdfError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error ?? "");
   const name = getPdfErrorName(error);
   const knownInvalidName =
-    error instanceof InvalidPDFException ||
-    error instanceof FormatError ||
-    error instanceof ResponseException ||
-    error instanceof AbortException ||
-    error instanceof UnknownErrorException ||
     name === "InvalidPDFException" ||
     name === "FormatError" ||
     name === "ResponseException" ||
@@ -73,6 +86,7 @@ function isInvalidPdfError(error: unknown) {
 }
 
 async function tryExtractPdfText(buffer: Buffer) {
+  const { PDFParse, VerbosityLevel } = await loadPdfParseModule();
   const attempts: Array<() => Promise<{ text?: string; total?: number; pages?: Array<{ text?: string }> }>> = [
     async () => {
       const parser = new PDFParse({
