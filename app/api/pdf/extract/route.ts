@@ -1,9 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  DOMMatrix,
-  ImageData,
-  Path2D,
-} from "@napi-rs/canvas";
 
 export const runtime = "nodejs";
 
@@ -15,15 +10,97 @@ type PdfParseModule = typeof import("pdf-parse");
 
 let pdfParseModulePromise: Promise<PdfParseModule> | null = null;
 
+class MinimalDOMMatrix {
+  a: number;
+  b: number;
+  c: number;
+  d: number;
+  e: number;
+  f: number;
+
+  constructor(init?: ArrayLike<number> | null) {
+    const values = init ? Array.from(init).slice(0, 6) : [];
+    this.a = values[0] ?? 1;
+    this.b = values[1] ?? 0;
+    this.c = values[2] ?? 0;
+    this.d = values[3] ?? 1;
+    this.e = values[4] ?? 0;
+    this.f = values[5] ?? 0;
+  }
+
+  multiplySelf() {
+    return this;
+  }
+
+  preMultiplySelf() {
+    return this;
+  }
+
+  translate() {
+    return this;
+  }
+
+  translateSelf() {
+    return this;
+  }
+
+  scale() {
+    return this;
+  }
+
+  scaleSelf() {
+    return this;
+  }
+
+  rotateSelf() {
+    return this;
+  }
+
+  invertSelf() {
+    return this;
+  }
+
+  transformPoint<T>(point: T) {
+    return point;
+  }
+}
+
+class MinimalImageData {
+  data: Uint8ClampedArray;
+  width: number;
+  height: number;
+
+  constructor(
+    dataOrWidth: Uint8ClampedArray | number,
+    width?: number,
+    height?: number
+  ) {
+    if (typeof dataOrWidth === "number") {
+      this.width = dataOrWidth;
+      this.height = width ?? 0;
+      this.data = new Uint8ClampedArray(this.width * this.height * 4);
+      return;
+    }
+
+    this.data = dataOrWidth;
+    this.width = width ?? 0;
+    this.height = height ?? 0;
+  }
+}
+
+class MinimalPath2D {
+  addPath() {}
+}
+
 function ensurePdfRuntimePolyfills() {
   if (typeof globalThis.DOMMatrix === "undefined") {
-    Object.assign(globalThis, { DOMMatrix });
+    Object.assign(globalThis, { DOMMatrix: MinimalDOMMatrix });
   }
   if (typeof globalThis.ImageData === "undefined") {
-    Object.assign(globalThis, { ImageData });
+    Object.assign(globalThis, { ImageData: MinimalImageData });
   }
   if (typeof globalThis.Path2D === "undefined") {
-    Object.assign(globalThis, { Path2D });
+    Object.assign(globalThis, { Path2D: MinimalPath2D });
   }
 }
 
