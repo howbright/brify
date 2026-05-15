@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
@@ -67,6 +67,15 @@ function normalizeColorValue(raw: string | null | undefined) {
   return `#${[r, g, b]
     .map((part) => part.toString(16).padStart(2, "0"))
     .join("")}`;
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function shouldBlockKeyDown(event: KeyboardEvent) {
@@ -224,10 +233,13 @@ export default function NodeRichTextDialog({
     color: "",
   });
 
-  const plainSummary = useMemo(
-    () => plainTopicValue.trim() || "-",
-    [plainTopicValue]
-  );
+  const initialEditorHtml = useMemo(() => {
+    const trimmed = initialHtml.trim();
+    if (trimmed) return trimmed;
+    const plain = plainTopicValue.trim();
+    if (!plain) return "<p></p>";
+    return `<p>${escapeHtml(plain).replace(/\r?\n/g, "<br>")}</p>`;
+  }, [initialHtml, plainTopicValue]);
 
   const isSelectionInsideEditor = useCallback(() => {
     const editor = editorRef.current;
@@ -265,9 +277,9 @@ export default function NodeRichTextDialog({
 
   const restoreInitialHtml = useCallback(() => {
     if (!editorRef.current) return;
-    editorRef.current.innerHTML = initialHtml;
+    editorRef.current.innerHTML = initialEditorHtml;
     updateToolbarState();
-  }, [initialHtml, updateToolbarState]);
+  }, [initialEditorHtml, updateToolbarState]);
 
   const runFormatCommand = useCallback((callback: () => void) => {
     if (!isSelectionInsideEditor()) return;
@@ -275,7 +287,7 @@ export default function NodeRichTextDialog({
     updateToolbarState();
   }, [isSelectionInsideEditor, updateToolbarState]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!open) return;
     restoreInitialHtml();
 
@@ -310,15 +322,6 @@ export default function NodeRichTextDialog({
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-300/90 bg-slate-50/70 p-3 dark:border-white/10 dark:bg-white/[0.04]">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-white/45">
-              {plainTopicLabel}
-            </div>
-            <p className="mt-1 text-sm leading-6 text-slate-700 dark:text-white/75">
-              {plainSummary}
-            </p>
-          </div>
-
           <Toolbar
             colors={colors}
             colorLabel={colorLabel}
@@ -345,6 +348,9 @@ export default function NodeRichTextDialog({
           />
 
           <div className="space-y-2">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-white/45">
+              {plainTopicLabel}
+            </div>
             <div
               ref={editorRef}
               contentEditable

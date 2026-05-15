@@ -26,6 +26,9 @@ importers:
       '@mind-elixir/node-menu':
         specifier: ^5.0.0
         version: 5.0.0(mind-elixir@5.2.1)
+      '@napi-rs/canvas':
+        specifier: 0.1.80
+        version: 0.1.80
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.11
         version: 1.1.15(@types/react-dom@19.1.9(@types/react@19.1.16))(@types/react@19.1.16)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
