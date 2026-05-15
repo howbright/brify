@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createRequire } from "node:module";
 
 export const runtime = "nodejs";
 
@@ -9,6 +10,8 @@ const LOW_TEXT_MIN_PAGES = 2;
 type PdfParseModule = typeof import("pdf-parse");
 
 let pdfParseModulePromise: Promise<PdfParseModule> | null = null;
+let pdfWorkerConfigured = false;
+let pdfWorkerSrc: string | null = null;
 
 class MinimalDOMMatrix {
   a: number;
@@ -109,7 +112,22 @@ async function loadPdfParseModule() {
   if (!pdfParseModulePromise) {
     pdfParseModulePromise = import("pdf-parse");
   }
-  return pdfParseModulePromise;
+  const pdfModule = await pdfParseModulePromise;
+  if (!pdfWorkerConfigured) {
+    const require = createRequire(import.meta.url);
+    if (!pdfWorkerSrc) {
+      const workerModule = require("pdf-parse/worker") as {
+        getData?: () => string;
+        getPath?: () => string;
+      };
+      pdfWorkerSrc = workerModule.getData?.() || workerModule.getPath?.() || "";
+    }
+    if (pdfWorkerSrc) {
+      pdfModule.PDFParse.setWorker(pdfWorkerSrc);
+    }
+    pdfWorkerConfigured = true;
+  }
+  return pdfModule;
 }
 
 function normalizeExtractedText(text: string) {

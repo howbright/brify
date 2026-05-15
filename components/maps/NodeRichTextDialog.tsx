@@ -275,11 +275,25 @@ export default function NodeRichTextDialog({
     });
   }, [isSelectionInsideEditor]);
 
-  const restoreInitialHtml = useCallback(() => {
-    if (!editorRef.current) return;
-    editorRef.current.innerHTML = initialEditorHtml;
+  const syncEditorHtml = useCallback(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    const nextHtml = initialEditorHtml.trim() || "<p></p>";
+    if (editor.innerHTML !== nextHtml) {
+      editor.innerHTML = nextHtml;
+    }
+
+    if (!editor.textContent?.trim() && plainTopicValue.trim()) {
+      editor.innerHTML = `<p>${escapeHtml(plainTopicValue).replace(/\r?\n/g, "<br>")}</p>`;
+    }
+
     updateToolbarState();
-  }, [initialEditorHtml, updateToolbarState]);
+  }, [initialEditorHtml, plainTopicValue, updateToolbarState]);
+
+  const restoreInitialHtml = useCallback(() => {
+    syncEditorHtml();
+  }, [syncEditorHtml]);
 
   const runFormatCommand = useCallback((callback: () => void) => {
     if (!isSelectionInsideEditor()) return;
@@ -289,12 +303,17 @@ export default function NodeRichTextDialog({
 
   useLayoutEffect(() => {
     if (!open) return;
-    restoreInitialHtml();
+    syncEditorHtml();
 
     queueMicrotask(() => {
       editorRef.current?.focus();
     });
-  }, [open, restoreInitialHtml]);
+  }, [open, syncEditorHtml]);
+
+  useEffect(() => {
+    if (!open) return;
+    syncEditorHtml();
+  }, [open, syncEditorHtml]);
 
   useEffect(() => {
     if (!open) return;
@@ -352,7 +371,12 @@ export default function NodeRichTextDialog({
               {plainTopicLabel}
             </div>
             <div
-              ref={editorRef}
+              ref={(node) => {
+                editorRef.current = node;
+                if (node && open) {
+                  syncEditorHtml();
+                }
+              }}
               contentEditable
               suppressContentEditableWarning
               className="min-h-[180px] rounded-2xl border border-slate-300 bg-white px-4 py-3 text-[15px] leading-7 text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200/60 dark:border-white/10 dark:bg-[#0f172a] dark:text-white/90 dark:focus:border-blue-300 dark:focus:ring-blue-500/30"
