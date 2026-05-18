@@ -17,7 +17,25 @@ export default function AuthRscRefresher() {
 
   useEffect(() => {
     const supabase = supabaseRef.current!;
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+    const getSignupIntentCookie = () =>
+      document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("brify_signup_terms="))
+        ?.split("=")[1] === "1";
+
+    const resolveLocaleFromPath = () => {
+      const segment = window.location.pathname.split("/").filter(Boolean)[0];
+      return segment === "ko" || segment === "en" || segment === "fr" ? segment : "ko";
+    };
+
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user && getSignupIntentCookie()) {
+        window.location.assign(
+          `/auth/signup-redirect?locale=${encodeURIComponent(resolveLocaleFromPath())}`
+        );
+        return;
+      }
+
       // 첫 진입에서 발생하는 INITIAL_SESSION과 주기적 TOKEN_REFRESHED는
       // 불필요한 RSC refresh를 만들 수 있으니 건너뛴다.
       if (event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {

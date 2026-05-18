@@ -16,7 +16,7 @@ import AuthRscRefresher from "@/components/AuthRscRefresher";
 import ThemeProvider from "@/components/ThemeProvider";
 import GlobalNotificationStack from "@/components/notifications/GlobalNotificationStack";
 import { cookies } from "next/headers";
-import { completeSignupIntent } from "@/app/lib/auth/completeSignupIntent";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -159,12 +159,7 @@ export default async function RootLayout({
   const hasSignupIntent = cookieStore.get("brify_signup_terms")?.value === "1";
 
   if (user && hasSignupIntent) {
-    await completeSignupIntent({
-      userId: user.id,
-      email: user.email ?? null,
-      locale,
-      logPrefix: "[locale/layout]",
-    });
+    redirect(`/auth/signup-redirect?locale=${encodeURIComponent(locale)}`);
   }
 
   const safeSession = user ? session : null;
