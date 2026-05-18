@@ -5,6 +5,7 @@ import FooterNew from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import { createClient } from "@/utils/supabase/server";
 import { MindThemePreferenceProvider } from "@/components/maps/MindThemePreferenceProvider";
+import { resolveTermsAccess } from "@/app/lib/auth/resolveTermsAccess";
 
 function normalizeNext(raw: string | null) {
   const next = (raw ?? "").trim();
@@ -32,28 +33,52 @@ export default async function MainLayout({
   if (userError || !user) {
     const h = await headers();
     const currentPath = normalizeNext(h.get("x-pathname"));
+    console.warn("[main/layout] no-user", {
+      locale,
+      currentPath,
+      userError: userError?.message ?? null,
+    });
     redirect(`/${locale}/login?next=${encodeURIComponent(currentPath)}`);
   }
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("terms_accepted, mind_theme_preference")
+    .select("terms_accepted, mind_theme_preference, credits_free, credits_paid")
     .eq("id", user.id)
     .maybeSingle();
+  const h = await headers();
+  const currentPath = normalizeNext(h.get("x-pathname"));
 
-  if (profileError || !profile || profile.terms_accepted !== true) {
-    const h = await headers();
-    const currentPath = normalizeNext(h.get("x-pathname"));
+  const resolvedProfile = await resolveTermsAccess({
+    userId: user.id,
+    initialProfile: profile,
+    initialProfileError: profileError?.message ?? null,
+    logPrefix: "[main/layout]",
+    currentPath,
+  });
 
-    // ✅ complete는 locale 붙여서
+  if (!resolvedProfile || resolvedProfile.terms_accepted !== true) {
+    console.warn("[main/layout] redirecting-to-signup-complete", {
+      locale,
+      userId: user.id,
+      currentPath,
+      resolvedTermsAccepted: resolvedProfile?.terms_accepted ?? null,
+    });
+
     redirect(
-      `/${locale}/signup/complete?next=${encodeURIComponent(currentPath)}`
+      `/${locale}/signup/incomplete?next=${encodeURIComponent(currentPath)}`
     );
   }
 
+  console.info("[main/layout] allowed", {
+    locale,
+    userId: user.id,
+    resolvedTermsAccepted: resolvedProfile.terms_accepted,
+  });
+
   return (
     <MindThemePreferenceProvider
-      profileThemeName={profile?.mind_theme_preference ?? null}
+      profileThemeName={resolvedProfile?.mind_theme_preference ?? null}
     >
       <Header />
       <div>{children}</div>

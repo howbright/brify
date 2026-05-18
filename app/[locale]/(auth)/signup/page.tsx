@@ -28,10 +28,10 @@ export default async function Signup({
   const supabase = await createClient();
   const nextPath = resolveNext(sp?.next, locale, `/${locale}/video-to-map`);
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (session?.user) {
+  if (user) {
     redirect(nextPath);
   }
 

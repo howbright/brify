@@ -36,7 +36,9 @@ export async function middleware(request: NextRequest) {
     if (isSupportedLocale) {
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = `/${cookieLocale}${pathname === "/" ? "" : pathname}`;
-      return NextResponse.redirect(redirectUrl);
+      const redirectResponse = NextResponse.redirect(redirectUrl);
+      redirectResponse.headers.set("x-pathname", currentPath);
+      return await updateSession(request, redirectResponse);
     }
   }
 

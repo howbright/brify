@@ -1629,6 +1629,16 @@
       "network": "Network error. ({message})"
     }
   },
+  "signupIncomplete": {
+    "eyebrow": "Signup required",
+    "title": "This account has not completed signup.",
+    "description": "This account cannot use Brify yet because the terms agreement has not been completed.",
+    "hint": "If you want to continue with this account, please finish the signup step first.",
+    "actions": {
+      "continueSignup": "Continue signup",
+      "useAnotherAccount": "Use another account"
+    }
+  },
   "LeftPanel": {
     "title": "Details",
     "infoTab": "Info",

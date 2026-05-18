@@ -502,6 +502,16 @@
       "network": "Erreur réseau. ({message})"
     }
   },
+  "signupIncomplete": {
+    "eyebrow": "Inscription requise",
+    "title": "Ce compte n’a pas finalisé son inscription.",
+    "description": "Ce compte ne peut pas encore utiliser Brify, car l’acceptation des conditions n’a pas été finalisée.",
+    "hint": "Si vous souhaitez continuer avec ce compte, veuillez d’abord terminer l’inscription.",
+    "actions": {
+      "continueSignup": "Terminer l’inscription",
+      "useAnotherAccount": "Utiliser un autre compte"
+    }
+  },
   "LandingPricingSection": {
     "title": "Des crédits simples et faciles à comprendre",
     "subtitle": "Commencez gratuitement, puis payez seulement quand vous en avez besoin.",

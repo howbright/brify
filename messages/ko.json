@@ -1629,6 +1629,16 @@
       "network": "네트워크 오류가 발생했어요. ({message})"
     }
   },
+  "signupIncomplete": {
+    "eyebrow": "회원가입 필요",
+    "title": "회원가입이 완료되지 않은 계정입니다.",
+    "description": "이 계정은 아직 약관 동의까지 완료되지 않아 Brify를 바로 이용할 수 없어요.",
+    "hint": "이 계정으로 계속 진행하려면 회원가입을 마무리해 주세요.",
+    "actions": {
+      "continueSignup": "회원가입 계속하기",
+      "useAnotherAccount": "다른 계정으로 로그인"
+    }
+  },
   "LeftPanel": {
     "title": "상세 정보",
     "infoTab": "정보",

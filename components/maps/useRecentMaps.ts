@@ -27,6 +27,16 @@ export default function useRecentMaps({
     (async () => {
       try {
         const supabase = createClient();
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+
+        if (cancelled) return;
+        if (userError) throw userError;
+        if (!user?.id) {
+          throw new Error("로그인 정보를 확인하지 못했습니다.");
+        }
 
         const [
           { data: createdData, error: createdError },
@@ -35,11 +45,13 @@ export default function useRecentMaps({
           supabase
             .from("maps")
             .select(listFields)
+            .eq("user_id", user.id)
             .order("created_at", { ascending: false })
             .range(0, 4),
           supabase
             .from("maps")
             .select(listFields)
+            .eq("user_id", user.id)
             .order("updated_at", { ascending: false, nullsFirst: false })
             .range(0, 4),
         ]);

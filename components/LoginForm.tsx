@@ -5,10 +5,10 @@ import { Link } from "@/i18n/navigation";
 import { isUnsupportedGoogleOauthBrowser } from "@/lib/auth/browser";
 import { Icon } from "@iconify/react";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function LoginForm() {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const t = useTranslations("login");
   const locale = useLocale(); // e.g. "ko", "en", ...
   const lang = locale;
@@ -35,6 +35,14 @@ export default function LoginForm() {
     if (typeof window === "undefined") return;
     setIsUnsupportedBrowser(isUnsupportedGoogleOauthBrowser(window.navigator.userAgent));
   }, []);
+
+  useEffect(() => {
+    void supabase.auth.getUser().then(async ({ error }) => {
+      if (error) {
+        await supabase.auth.signOut({ scope: "local" });
+      }
+    });
+  }, [supabase]);
 
   const validateEmail = (value: string) => {
     const normalized = value.trim();

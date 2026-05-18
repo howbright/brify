@@ -6,10 +6,10 @@ import { createClient } from "@/utils/supabase/client";
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function SignupForm() {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const t = useTranslations("signup");
   const locale = useLocale();
   const lang = locale;
@@ -38,6 +38,14 @@ export default function SignupForm() {
     if (typeof window === "undefined") return;
     setIsUnsupportedBrowser(isUnsupportedGoogleOauthBrowser(window.navigator.userAgent));
   }, []);
+
+  useEffect(() => {
+    void supabase.auth.getUser().then(async ({ error }) => {
+      if (error) {
+        await supabase.auth.signOut({ scope: "local" });
+      }
+    });
+  }, [supabase]);
 
   const validateEmail = (value: string) => {
     const normalized = value.trim();

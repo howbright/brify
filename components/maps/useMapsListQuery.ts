@@ -19,6 +19,45 @@ type SourceType = "youtube" | "website" | "file" | "manual";
 type ContentFilter = "notes" | "terms";
 type ReadStatus = "unread" | "in_progress" | "read";
 
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error && error.message) return error.message;
+  if (error && typeof error === "object") {
+    const maybeMessage = "message" in error ? error.message : null;
+    if (typeof maybeMessage === "string" && maybeMessage.trim()) {
+      return maybeMessage;
+    }
+    const maybeDetails = "details" in error ? error.details : null;
+    if (typeof maybeDetails === "string" && maybeDetails.trim()) {
+      return maybeDetails;
+    }
+    const maybeHint = "hint" in error ? error.hint : null;
+    if (typeof maybeHint === "string" && maybeHint.trim()) {
+      return maybeHint;
+    }
+  }
+  return "맵 목록을 불러오지 못했습니다.";
+}
+
+function serializeError(error: unknown) {
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack ?? null,
+    };
+  }
+  if (error && typeof error === "object") {
+    const entries = Object.fromEntries(
+      Object.getOwnPropertyNames(error).map((key) => [
+        key,
+        (error as Record<string, unknown>)[key],
+      ])
+    );
+    return entries;
+  }
+  return { value: error };
+}
+
 type UseMapsListQueryParams = {
   listFields: string;
   page: number;
@@ -200,16 +239,33 @@ export default function useMapsListQuery({
     let cancelled = false;
 
     (async () => {
+      let stage = "init";
       try {
         setLoading(true);
         setError(null);
+        stage = "auth.getUser";
         const supabase = createClient();
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+
+        if (cancelled) return;
+        if (userError) throw userError;
+        if (!user?.id) {
+          throw new Error("로그인 정보를 확인하지 못했습니다.");
+        }
+
         const effectiveStatusFilters = expandStatusFilters(statusFilters);
         const from = (page - 1) * pageSize;
         const to = from + pageSize - 1;
         const q = isTagOrganizeActive ? "" : query.trim();
 
-        let request = supabase.from("maps").select(listFields, { count: "exact" });
+        stage = "maps.select";
+        let request = supabase
+          .from("maps")
+          .select(listFields, { count: "exact" })
+          .eq("user_id", user.id);
 
         const shouldFilterTagsClientSide =
           effectiveTagFilters.length > 0 || includesNoTagFilter;
@@ -307,6 +363,7 @@ export default function useMapsListQuery({
             return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
           });
           if (shouldFilterReadStateClientSide) {
+            stage = "withUserStates:title_asc";
             const rowsWithStates = await withUserStates(sortedRows);
             if (cancelled) return;
             const allowedReadStates = new Set<ReadStateFilter>(readStateFilters);
@@ -316,6 +373,7 @@ export default function useMapsListQuery({
               )
             );
             const pagedRows = filteredByReadState.slice(from, to + 1);
+            stage = "withActualCounts:title_asc";
             const rowsWithCounts = await withActualCounts(supabase, pagedRows);
             if (cancelled) return;
             setDrafts(rowsWithCounts.map(toDraft));
@@ -323,7 +381,9 @@ export default function useMapsListQuery({
             return;
           }
           const pagedRows = sortedRows.slice(from, to + 1);
+          stage = "withActualCounts:title_asc";
           const rowsWithCounts = await withActualCounts(supabase, pagedRows);
+          stage = "withUserStates:title_asc";
           const rowsWithStates = await withUserStates(rowsWithCounts);
           if (cancelled) return;
           setDrafts(rowsWithStates.map(toDraft));
@@ -331,6 +391,7 @@ export default function useMapsListQuery({
         } else if (shouldFilterTagsClientSide) {
           const pagedRows = filteredRows.slice(from, to + 1);
           if (shouldFilterReadStateClientSide) {
+            stage = "withUserStates:tag_filter";
             const rowsWithStates = await withUserStates(filteredRows);
             if (cancelled) return;
             const allowedReadStates = new Set<ReadStateFilter>(readStateFilters);
@@ -340,18 +401,22 @@ export default function useMapsListQuery({
               )
             );
             const pagedByReadState = filteredByReadState.slice(from, to + 1);
+            stage = "withActualCounts:tag_filter";
             const rowsWithCounts = await withActualCounts(supabase, pagedByReadState);
             if (cancelled) return;
             setDrafts(rowsWithCounts.map(toDraft));
             setTotalCount(filteredByReadState.length);
             return;
           }
+          stage = "withActualCounts:tag_filter";
           const rowsWithCounts = await withActualCounts(supabase, pagedRows);
+          stage = "withUserStates:tag_filter";
           const rowsWithStates = await withUserStates(rowsWithCounts);
           if (cancelled) return;
           setDrafts(rowsWithStates.map(toDraft));
           setTotalCount(filteredRows.length);
         } else if (shouldFilterReadStateClientSide) {
+          stage = "withUserStates:read_filter";
           const rowsWithStates = await withUserStates(rows);
           if (cancelled) return;
           const allowedReadStates = new Set<ReadStateFilter>(readStateFilters);
@@ -361,12 +426,15 @@ export default function useMapsListQuery({
             )
           );
           const pagedRows = filteredByReadState.slice(from, to + 1);
+          stage = "withActualCounts:read_filter";
           const rowsWithCounts = await withActualCounts(supabase, pagedRows);
           if (cancelled) return;
           setDrafts(rowsWithCounts.map(toDraft));
           setTotalCount(filteredByReadState.length);
         } else {
+          stage = "withActualCounts:default";
           const rowsWithCounts = await withActualCounts(supabase, rows);
+          stage = "withUserStates:default";
           const rowsWithStates = await withUserStates(rowsWithCounts);
           if (cancelled) return;
           setDrafts(rowsWithStates.map(toDraft));
@@ -374,7 +442,11 @@ export default function useMapsListQuery({
         }
       } catch (e: unknown) {
         if (cancelled) return;
-        setError(e instanceof Error ? e.message : "목록을 불러오지 못했습니다.");
+        const payload = serializeError(e);
+        console.error("[useMapsListQuery] failed", { stage, ...payload });
+        setError(
+          `${stage}: ${getErrorMessage(e)}`
+        );
         setDrafts([]);
         setTotalCount(0);
       } finally {

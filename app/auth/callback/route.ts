@@ -79,6 +79,18 @@ export async function GET(req: NextRequest) {
   const locale =
     localeFromQuery ?? localeFromCookie ?? localeFromReferer ?? localeFromNext ?? "en";
 
+  console.info("[auth/callback] start", {
+    hasCode: Boolean(code),
+    flow,
+    terms,
+    next,
+    locale,
+    localeFromQuery,
+    localeFromCookie,
+    localeFromReferer,
+    localeFromNext,
+  });
+
   // ✅ app route에서 NextResponse.next() 금지 → 쿠키 심을 base response 준비
   const base = NextResponse.redirect(new URL("/", req.nextUrl));
   base.cookies.set("NEXT_LOCALE", locale, {
@@ -120,6 +132,11 @@ export async function GET(req: NextRequest) {
   // 세션이 없으면: 통합게이트 입장 불가
   // 정책: 그냥 next로 보내기보단 로그인으로 보내는 게 일반적
   if (userError || !user) {
+    console.warn("[auth/callback] no-user-after-session", {
+      next,
+      locale,
+      userError: userError?.message ?? null,
+    });
     // 필요하면 next 유지해서 로그인으로
     const loginUrl = new URL(`/${locale}/login`, req.nextUrl);
     if (next) loginUrl.searchParams.set("next", next);
@@ -129,6 +146,13 @@ export async function GET(req: NextRequest) {
   // ✅ signup flow에서 terms=1로 왔을 때만 "약관동의 완료"로 간주
   const termsAcceptedFromSignup = flow === "signup" && terms === "1";
   const userEmail = user.email ?? null;
+  console.info("[auth/callback] user-resolved", {
+    userId: user.id,
+    email: userEmail,
+    next,
+    locale,
+    termsAcceptedFromSignup,
+  });
 
   // 2) profiles 상태 확인
   const { data: existing, error: existingError } = await adminSupabase
@@ -143,6 +167,12 @@ export async function GET(req: NextRequest) {
   }
 
   const isFirstSignup = !existing;
+  console.info("[auth/callback] existing-profile", {
+    userId: user.id,
+    isFirstSignup,
+    existingTermsAccepted: existing?.terms_accepted ?? null,
+    existingEmail: existing?.email ?? null,
+  });
 
   // 3) profiles 생성/업데이트 (경쟁조건 고려)
   if (isFirstSignup) {
@@ -203,18 +233,40 @@ export async function GET(req: NextRequest) {
   }
 
   const finalTermsAccepted = finalProfile.terms_accepted === true;
+  console.info("[auth/callback] final-profile", {
+    userId: user.id,
+    finalTermsAccepted,
+    finalProfileEmail: finalProfile.email ?? null,
+    next,
+    locale,
+  });
 
-  // 5) ✅ terms 미동의면 complete로 (OTP/Google 동일)
+  // 5) ✅ terms 미동의면
+  // - 신규 가입 흐름: complete로 보내서 약관 마무리
+  // - 기존 로그인 흐름: incomplete 안내 페이지로 보내서 회원가입 계속 여부를 분명히 보여주기
   if (!finalTermsAccepted) {
-    const completeUrl = new URL(`/${locale}/signup/complete`, req.nextUrl);
+    const targetPath = isFirstSignup
+      ? `/${locale}/signup/complete`
+      : `/${locale}/signup/incomplete`;
+
+    console.warn("[auth/callback] redirecting-to-signup-step", {
+      userId: user.id,
+      next,
+      locale,
+      isFirstSignup,
+      targetPath,
+    });
+    const completeUrl = new URL(targetPath, req.nextUrl);
     completeUrl.searchParams.set("next", next);
 
-    const sig = signSignup(user.id, next);
-    completeUrl.searchParams.set("uid", user.id);
-    completeUrl.searchParams.set("sig", sig);
+    if (isFirstSignup) {
+      const sig = signSignup(user.id, next);
+      completeUrl.searchParams.set("uid", user.id);
+      completeUrl.searchParams.set("sig", sig);
 
-    // 보상 트리거용 (complete에서 terms=1 후 callback로 돌아올 때 사용)
-    completeUrl.searchParams.set("flow", "signup");
+      // 보상 트리거용 (complete에서 terms=1 후 callback로 돌아올 때 사용)
+      completeUrl.searchParams.set("flow", "signup");
+    }
 
     return redirectWithCookies(completeUrl, base);
   }
@@ -233,5 +285,10 @@ export async function GET(req: NextRequest) {
   }
 
   // 7) 최종 next로 (✅ 쿠키 유지)
+  console.info("[auth/callback] redirecting-to-next", {
+    userId: user.id,
+    next,
+    locale,
+  });
   return redirectWithCookies(new URL(next, req.nextUrl), base);
 }

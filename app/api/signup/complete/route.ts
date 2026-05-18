@@ -38,7 +38,16 @@ export async function POST(req: NextRequest) {
     const hasSignedFlow = Boolean(uidFromBody && sig);
 
     const cookieLocale = req.cookies.get("NEXT_LOCALE")?.value;
-    const locale = cookieLocale === "ko" || cookieLocale === "en" ? cookieLocale : "en";
+    const locale =
+      cookieLocale === "ko" || cookieLocale === "en" || cookieLocale === "fr"
+        ? cookieLocale
+        : "en";
+    console.info("[api/signup/complete] start", {
+      hasSignedFlow,
+      uidFromBody: uidFromBody || null,
+      next,
+      locale,
+    });
 
     // ✅ 0) 세션 유저 확인
     // - signed flow(uid+sig)에서는 세션이 일시적으로 없어도 진행 가능
@@ -50,6 +59,10 @@ export async function POST(req: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (!hasSignedFlow && (userError || !user)) {
+      console.warn("[api/signup/complete] unauthorized", {
+        hasSignedFlow,
+        userError: userError?.message ?? null,
+      });
       return NextResponse.json(
         { ok: false, error: "UNAUTHORIZED" },
         { status: 401 }
@@ -66,6 +79,10 @@ export async function POST(req: NextRequest) {
     if (hasSignedFlow) {
       // ✅ 보안 강화: 세션이 존재하고 uid가 다르면 거절
       if (user?.id && uidFromBody !== user.id) {
+        console.warn("[api/signup/complete] uid-mismatch", {
+          sessionUserId: user.id,
+          uidFromBody,
+        });
         return NextResponse.json(
           { ok: false, error: "UID_MISMATCH" },
           { status: 403 }
@@ -75,6 +92,10 @@ export async function POST(req: NextRequest) {
       // ✅ sig 검증
       const expected = signSignup(uidFromBody, next);
       if (!safeEqual(sig, expected)) {
+        console.warn("[api/signup/complete] bad-signature", {
+          uidFromBody,
+          next,
+        });
         return NextResponse.json(
           { ok: false, error: "BAD_SIGNATURE" },
           { status: 401 }
@@ -83,9 +104,14 @@ export async function POST(req: NextRequest) {
 
       uid = uidFromBody;
     }
+    console.info("[api/signup/complete] uid-resolved", {
+      uid,
+      sessionUserId: user?.id ?? null,
+      userEmail,
+    });
 
     // ✅ 2) profiles 접근 가능 여부 확인
-    const { error: beforeErr } = await adminSupabase
+    const { data: beforeProfile, error: beforeErr } = await adminSupabase
       .from("profiles")
       .select("terms_accepted, email")
       .eq("id", uid)
@@ -97,6 +123,11 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+    console.info("[api/signup/complete] before-profile", {
+      uid,
+      beforeTermsAccepted: beforeProfile?.terms_accepted ?? null,
+      beforeEmail: beforeProfile?.email ?? null,
+    });
 
     // ✅ 3) terms_accepted upsert (서비스롤)
     let lastErr: any = null;
@@ -114,6 +145,10 @@ export async function POST(req: NextRequest) {
 
       if (!error) {
         lastErr = null;
+        console.info("[api/signup/complete] upsert-success", {
+          uid,
+          attempt: i + 1,
+        });
         break;
       }
 
@@ -142,6 +177,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const { data: afterProfile, error: afterErr } = await adminSupabase
+      .from("profiles")
+      .select("terms_accepted, email, locale")
+      .eq("id", uid)
+      .maybeSingle();
+
+    console.info("[api/signup/complete] after-profile", {
+      uid,
+      afterTermsAccepted: afterProfile?.terms_accepted ?? null,
+      afterEmail: afterProfile?.email ?? null,
+      afterLocale: afterProfile?.locale ?? null,
+      afterErr: afterErr?.message ?? null,
+    });
+
     // ✅ 4) 보상 지급 시도 (항상 호출)
     // - grantSignupReward 내부가 credit_transactions(reason='signup_reward')로 중복 방지
     // - terms 상태가 예상과 다르게 이미 true여도, 보상 tx가 없다면 여기서 복구 가능
@@ -162,6 +211,13 @@ export async function POST(req: NextRequest) {
     } else {
       rewardInfo = rewardResult;
     }
+
+    console.info("[api/signup/complete] success", {
+      uid,
+      next,
+      locale,
+      rewardGranted: Boolean(rewardInfo),
+    });
 
     return NextResponse.json({ ok: true, reward: rewardInfo });
   } catch (e: any) {

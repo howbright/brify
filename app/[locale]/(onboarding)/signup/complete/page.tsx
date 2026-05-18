@@ -136,6 +136,33 @@ export default function SignupCompletePage() {
     return true;
   };
 
+  async function waitForAcceptedProfile() {
+    for (let i = 0; i < 12; i++) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user?.id) {
+        await new Promise((resolve) => setTimeout(resolve, 150));
+        continue;
+      }
+
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("terms_accepted")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!error && profile?.terms_accepted === true) {
+        return true;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 150));
+    }
+
+    return false;
+  }
+
   async function handleComplete() {
     if (!requireAgreementsOrShowError()) return;
 
@@ -168,6 +195,14 @@ export default function SignupCompletePage() {
       if (!r.ok || !j?.ok) {
         setSubmitting(false);
         setMessage(t("messages.failed", { error: j?.error ?? "UNKNOWN" }));
+        setMessageType("error");
+        return;
+      }
+
+      const accepted = await waitForAcceptedProfile();
+      if (!accepted) {
+        setSubmitting(false);
+        setMessage(t("messages.failed", { error: "PROFILE_SYNC_DELAY" }));
         setMessageType("error");
         return;
       }
