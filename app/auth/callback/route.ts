@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { adminSupabase } from "@/utils/supabase/admin";
 import crypto from "crypto";
 import { grantSignupReward } from "@/app/lib/rewards/grantSignupReward";
+import { completeSignupIntent } from "@/app/lib/auth/completeSignupIntent";
 
 const SUPPORTED_LOCALES = ["en", "ko", "fr"] as const;
 type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
@@ -46,6 +47,15 @@ function getLocaleFromPathname(pathname: string | null | undefined): SupportedLo
   return normalizeLocaleCandidate(segment);
 }
 
+function safeDecodeCookie(value: string | undefined) {
+  if (!value) return null;
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 // base(쿠키 심긴 응답) -> 최종 redirect 응답으로 쿠키 복사
 function redirectWithCookies(to: URL, base: NextResponse) {
   const r = NextResponse.redirect(to);
@@ -61,6 +71,11 @@ export async function GET(req: NextRequest) {
   // signup/complete에서 보낸 값들 (terms 완료 후 다시 callback로 보내는 흐름 포함)
   const flow = url.searchParams.get("flow"); // "signup" 기대
   const terms = url.searchParams.get("terms"); // "1" 기대
+  const signupIntentTerms = req.cookies.get("brify_signup_terms")?.value === "1";
+  const signupIntentNext = safeDecodeCookie(req.cookies.get("brify_signup_next")?.value);
+  const signupIntentLocale = normalizeLocaleCandidate(
+    safeDecodeCookie(req.cookies.get("brify_signup_locale")?.value)
+  );
   const localeFromQuery = normalizeLocaleCandidate(url.searchParams.get("locale"));
   const localeFromCookie = normalizeLocaleCandidate(req.cookies.get("NEXT_LOCALE")?.value);
   const localeFromReferer = (() => {
@@ -74,10 +89,10 @@ export async function GET(req: NextRequest) {
   })();
 
   // ✅ "/"도 정상 (미들웨어가 locale 붙임)
-  const next = normalizeNext(url.searchParams.get("next"));
+  const next = normalizeNext(url.searchParams.get("next") ?? signupIntentNext);
   const localeFromNext = getLocaleFromPathname(next);
   const locale =
-    localeFromQuery ?? localeFromCookie ?? localeFromReferer ?? localeFromNext ?? "en";
+    localeFromQuery ?? signupIntentLocale ?? localeFromCookie ?? localeFromReferer ?? localeFromNext ?? "en";
 
   console.info("[auth/callback] start", {
     hasCode: Boolean(code),
@@ -98,6 +113,15 @@ export async function GET(req: NextRequest) {
     sameSite: "lax",
     httpOnly: false,
   });
+  if (signupIntentTerms) {
+    for (const name of ["brify_signup_terms", "brify_signup_locale", "brify_signup_next"]) {
+      base.cookies.set(name, "", {
+        path: "/",
+        maxAge: 0,
+        sameSite: "lax",
+      });
+    }
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -144,7 +168,7 @@ export async function GET(req: NextRequest) {
   }
 
   // ✅ signup flow에서 terms=1로 왔을 때만 "약관동의 완료"로 간주
-  const termsAcceptedFromSignup = flow === "signup" && terms === "1";
+  const termsAcceptedFromSignup = (flow === "signup" && terms === "1") || signupIntentTerms;
   const userEmail = user.email ?? null;
   console.info("[auth/callback] user-resolved", {
     userId: user.id,
@@ -152,7 +176,17 @@ export async function GET(req: NextRequest) {
     next,
     locale,
     termsAcceptedFromSignup,
+    signupIntentTerms,
   });
+
+  if (signupIntentTerms) {
+    await completeSignupIntent({
+      userId: user.id,
+      email: userEmail,
+      locale,
+      logPrefix: "[auth/callback]",
+    });
+  }
 
   // 2) profiles 상태 확인
   const { data: existing, error: existingError } = await adminSupabase

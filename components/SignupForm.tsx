@@ -82,6 +82,14 @@ export default function SignupForm() {
     }
   };
 
+  const rememberSignupIntent = (nextPath: string) => {
+    if (typeof document === "undefined") return;
+    const maxAge = 10 * 60;
+    document.cookie = `brify_signup_terms=1; path=/; max-age=${maxAge}; samesite=lax`;
+    document.cookie = `brify_signup_locale=${encodeURIComponent(locale)}; path=/; max-age=${maxAge}; samesite=lax`;
+    document.cookie = `brify_signup_next=${encodeURIComponent(nextPath)}; path=/; max-age=${maxAge}; samesite=lax`;
+  };
+
   const handleGoogleSignup = async () => {
     if (!requireAgreementsOrShowError()) return;
     if (isUnsupportedBrowser) {
@@ -96,6 +104,7 @@ export default function SignupForm() {
 
       const redirectUrl = buildAuthCallbackUrl();
       const nextPath = `/${locale}/video-to-map`;
+      rememberSignupIntent(nextPath);
       redirectUrl.searchParams.set("flow", "signup");
       redirectUrl.searchParams.set("terms", "1");
       redirectUrl.searchParams.set("locale", locale);

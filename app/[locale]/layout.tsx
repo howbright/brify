@@ -15,6 +15,8 @@ import { createClient } from "@/utils/supabase/server";
 import AuthRscRefresher from "@/components/AuthRscRefresher";
 import ThemeProvider from "@/components/ThemeProvider";
 import GlobalNotificationStack from "@/components/notifications/GlobalNotificationStack";
+import { cookies } from "next/headers";
+import { completeSignupIntent } from "@/app/lib/auth/completeSignupIntent";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -142,6 +144,10 @@ export default async function RootLayout({
 }) {
   // Ensure that the incoming `locale` is valid
   const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -149,10 +155,19 @@ export default async function RootLayout({
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  const safeSession = user ? session : null;
-  if (!hasLocale(routing.locales, locale)) {
-    notFound();
+  const cookieStore = await cookies();
+  const hasSignupIntent = cookieStore.get("brify_signup_terms")?.value === "1";
+
+  if (user && hasSignupIntent) {
+    await completeSignupIntent({
+      userId: user.id,
+      email: user.email ?? null,
+      locale,
+      logPrefix: "[locale/layout]",
+    });
   }
+
+  const safeSession = user ? session : null;
 
   const messages = await getMessages();
 
