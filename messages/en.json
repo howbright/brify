@@ -34,16 +34,6 @@
       "bullet2": "Depending on the document length, this can take tens of seconds or more.",
       "bullet3": "As long as you keep this page open, the process will continue automatically."
     },
-    "nextGuide": {
-      "title": "After generation, try this workflow first",
-      "subtitle": "Once processing finishes, these steps help you turn the map into your own working output faster.",
-      "subtitleAutoOpen": "When processing is done, we will move to the detail page automatically. Start with these three actions.",
-      "items": [
-        "Mark 3 important nodes first while reading",
-        "Add 1-2 notes to key nodes",
-        "Save your output via share link or PDF/Markdown export"
-      ]
-    },
     "result": {
       "title": "Generated structure map",
       "hint": "Later, you can plug your actual structure map component into this area.",
@@ -1893,7 +1883,6 @@
       "noAnchorInSelectedNode": "This node does not have source anchors yet.",
       "sourceFindFailed": "Failed to search source text.",
       "sourceReloadFailed": "Failed to reload source text.",
-      "sourceRetentionFailed": "Failed to update retention period.",
       "stateUpdated": "Map state updated.",
       "stateUpdateFailed": "Failed to update map state.",
       "loginRequired": "Login is required.",
@@ -1922,9 +1911,6 @@
       "showMoreBelow": "Show more below",
       "viewExpanded": "Expand view",
       "viewCompact": "Default size",
-      "retentionTitle": "Source retention period",
-      "freeOnlyHint": "(Free: 24 hours)",
-      "retentionUpdated": "Retention period updated.",
       "editAnchorGuide": "If needed, shorten the anchor sentence a bit and try again.",
       "editAnchorPlaceholder": "e.g., Keep makeup simple",
       "editAnchorAction": "Try again",

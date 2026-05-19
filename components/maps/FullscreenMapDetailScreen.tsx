@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { IBM_Plex_Sans_KR } from "next/font/google";
 import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
@@ -33,7 +34,6 @@ import LanguageSelector from "@/components/LanguageSelector";
 import type { Database } from "@/app/types/database.types";
 import type {
   MapSourceExpiresAt,
-  MapSourceRetentionHours,
   SourceFindCandidate,
   SourceFindResponse,
   SourceFindStatus,
@@ -135,6 +135,14 @@ type HighlightInterval = {
   end: number;
   kind: "key" | "active" | "expand";
 };
+
+const sourceReadingFont = IBM_Plex_Sans_KR({
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  preload: false,
+});
+
+const sourceTextBoxClassName = `${sourceReadingFont.className} max-h-[26rem] overflow-y-auto rounded-lg border border-neutral-300 bg-white p-3 text-neutral-800 shadow-sm dark:border-white/10 dark:bg-[#020817] dark:text-neutral-100`;
 
 function buildHighlightIntervals(
   text: string,
@@ -291,6 +299,50 @@ function renderHighlightedText(
   }
 
   return nodes;
+}
+
+function renderReadableSourceText(
+  text: string,
+  intervals: HighlightInterval[],
+  markRef: RefObject<HTMLElement | null>
+) {
+  if (!text) return null;
+
+  const pieces = text.split(/((?:\r?\n)+)/g);
+  let offset = 0;
+
+  return pieces.map((piece, index) => {
+    const start = offset;
+    offset += piece.length;
+    if (!piece) return null;
+
+    if (/^(?:\r?\n)+$/.test(piece)) {
+      return (
+        <span
+          key={`gap-${index}-${start}`}
+          aria-hidden="true"
+          className={piece.replace(/\r/g, "").length > 1 ? "block h-4" : "block h-2"}
+        />
+      );
+    }
+
+    const localIntervals = intervals
+      .map((interval) => ({
+        ...interval,
+        start: Math.max(interval.start, start) - start,
+        end: Math.min(interval.end, offset) - start,
+      }))
+      .filter((interval) => interval.end > interval.start);
+
+    return (
+      <p
+        key={`p-${index}-${start}`}
+        className="mb-3 select-text whitespace-pre-wrap break-words last:mb-0"
+      >
+        {renderHighlightedText(piece, localIntervals, markRef)}
+      </p>
+    );
+  });
 }
 
 function getApiErrorMessage(
@@ -527,7 +579,7 @@ export default function FullscreenMapDetailScreen({
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
   const [sourceFindOpen, setSourceFindOpen] = useState(false);
   const [sourceFindExpanded, setSourceFindExpanded] = useState(false);
-  const [sourceFindFontSize, setSourceFindFontSize] = useState(13);
+  const [sourceFindFontSize, setSourceFindFontSize] = useState(14);
   const [sourceFindLoading, setSourceFindLoading] = useState(false);
   const [sourceFindStatus, setSourceFindStatus] = useState<"idle" | SourceFindStatus>(
     "idle"
@@ -537,10 +589,6 @@ export default function FullscreenMapDetailScreen({
   const [sourceFindExpiresAt, setSourceFindExpiresAt] = useState<MapSourceExpiresAt>(
     null
   );
-  const [sourceFindRetentionHours, setSourceFindRetentionHours] =
-    useState<MapSourceRetentionHours>(24);
-  const [sourceFindAllowedOptions, setSourceFindAllowedOptions] = useState<number[]>([24]);
-  const [sourceFindHasPaidAccess, setSourceFindHasPaidAccess] = useState(false);
   const [sourceFindCandidates, setSourceFindCandidates] = useState<
     SourceFindCandidate[]
   >([]);
@@ -556,7 +604,6 @@ export default function FullscreenMapDetailScreen({
   } | null>(null);
   const [sourceReloadText, setSourceReloadText] = useState("");
   const [sourceReloading, setSourceReloading] = useState(false);
-  const [sourceRetentionSaving, setSourceRetentionSaving] = useState(false);
   const [sourceFindLastAnchors, setSourceFindLastAnchors] = useState<{
     anchorText: string[];
     anchorKeywords: string[];
@@ -586,7 +633,7 @@ export default function FullscreenMapDetailScreen({
   const SOURCE_VIEW_STEP = 700;
   const SOURCE_VIEW_FOCUS_CONTEXT = 260;
   const SOURCE_FIND_MIN_FONT_SIZE = 12;
-  const SOURCE_FIND_MAX_FONT_SIZE = 18;
+  const SOURCE_FIND_MAX_FONT_SIZE = 22;
   const currentReadStatus: ReadStatus = draft?.readStatus ?? "unread";
   const currentStarred = Boolean(draft?.starred);
   const stateActionLabel = t.has("actions.state")
@@ -1527,15 +1574,6 @@ export default function FullscreenMapDetailScreen({
         typeof json?.expiresAt === "string" ? json.expiresAt : null
       );
       setSourceFindFullText(sourceText);
-      setSourceFindRetentionHours(
-        typeof json?.retentionHours === "number" ? json.retentionHours : 24
-      );
-      setSourceFindAllowedOptions(
-        Array.isArray(json?.allowedOptions)
-          ? json.allowedOptions.filter((value: unknown) => typeof value === "number")
-          : [24]
-      );
-      setSourceFindHasPaidAccess(Boolean(json?.hasPaidAccess));
       if (sourceText) {
         if (candidates.length > 0) {
           setSourceFindActiveIndex(0);
@@ -1620,15 +1658,6 @@ export default function FullscreenMapDetailScreen({
       typeof json?.expiresAt === "string" ? json.expiresAt : null
     );
     setSourceFindFullText(sourceText);
-    setSourceFindRetentionHours(
-      typeof json?.retentionHours === "number" ? json.retentionHours : 24
-    );
-    setSourceFindAllowedOptions(
-      Array.isArray(json?.allowedOptions)
-        ? json.allowedOptions.filter((value: unknown) => typeof value === "number")
-        : [24]
-    );
-    setSourceFindHasPaidAccess(Boolean(json?.hasPaidAccess));
     if (sourceText) {
       if (candidates.length > 0) {
         setSourceFindActiveIndex(0);
@@ -1678,15 +1707,6 @@ export default function FullscreenMapDetailScreen({
       setSourceFindExpiresAt(
         typeof json?.expiresAt === "string" ? json.expiresAt : null
       );
-      setSourceFindRetentionHours(
-        typeof json?.retentionHours === "number" ? json.retentionHours : 24
-      );
-      setSourceFindAllowedOptions(
-        Array.isArray(json?.allowedOptions)
-          ? json.allowedOptions.filter((value: unknown) => typeof value === "number")
-          : [24]
-      );
-      setSourceFindHasPaidAccess(Boolean(json?.hasPaidAccess));
       setSourceFindMessage(t("sourceFind.reloadSuccess"));
 
       if (sourceFindLastAnchors) {
@@ -1764,51 +1784,6 @@ export default function FullscreenMapDetailScreen({
     }, 350);
     return () => window.clearInterval(interval);
   }, [sourceFindOpen, mapId, isSharedView]);
-
-  const handleUpdateSourceRetention = async (hours: number) => {
-    if (!mapId || isSharedView) return;
-    setSourceRetentionSaving(true);
-    try {
-      const { data: sessionData, error: sessionErr } =
-        await supabase.auth.getSession();
-      if (sessionErr) throw new Error(sessionErr.message || t("toasts.sourceFindFailed"));
-      const accessToken = sessionData.session?.access_token;
-      if (!accessToken) throw new Error(t("toasts.loginRequired"));
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
-      if (!base) throw new Error("NEXT_PUBLIC_API_BASE_URL is not set.");
-
-      const res = await fetch(`${base}/maps/${mapId}/source-retention`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({ retention_hours: hours }),
-      });
-      const json: SourceFindResponse = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(getApiErrorMessage(json, t("toasts.sourceRetentionFailed")));
-      }
-
-      setSourceFindRetentionHours(
-        typeof json?.retentionHours === "number" ? json.retentionHours : hours
-      );
-      setSourceFindExpiresAt(
-        typeof json?.expiresAt === "string" ? json.expiresAt : null
-      );
-      setSourceFindAllowedOptions(
-        Array.isArray(json?.allowedOptions)
-          ? json.allowedOptions.filter((value: unknown) => typeof value === "number")
-          : [24]
-      );
-      setSourceFindHasPaidAccess(Boolean(json?.hasPaidAccess));
-      toast.success(t("sourceFind.retentionUpdated"));
-    } catch (error) {
-      toast.error(getErrorMessage(error, t("toasts.sourceRetentionFailed")));
-    } finally {
-      setSourceRetentionSaving(false);
-    }
-  };
 
   useEffect(() => {
     if (!mapId || isReadOnlyView || !draft) return;
@@ -3485,32 +3460,34 @@ export default function FullscreenMapDetailScreen({
                   </div>
                   {sourceFindFullText ? (
                     <div className="space-y-2 rounded-xl border border-neutral-200 bg-neutral-100/90 p-2 dark:border-white/15 dark:bg-white/[0.04]">
-                      <div className="text-[13px] font-semibold text-neutral-600 dark:text-neutral-300">
-                        {t("sourceFind.sourceLabel")}
-                      </div>
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setSourceFindFontSize((prev) =>
-                              Math.max(SOURCE_FIND_MIN_FONT_SIZE, prev - 1)
-                            )
-                          }
-                          className="inline-flex h-6 items-center rounded-md border border-neutral-300 bg-white px-2 text-[11px] font-semibold text-neutral-700 hover:border-sky-300 dark:border-white/20 dark:bg-white/[0.06] dark:text-neutral-200"
-                        >
-                          A-
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setSourceFindFontSize((prev) =>
-                              Math.min(SOURCE_FIND_MAX_FONT_SIZE, prev + 1)
-                            )
-                          }
-                          className="inline-flex h-6 items-center rounded-md border border-neutral-300 bg-white px-2 text-[11px] font-semibold text-neutral-700 hover:border-sky-300 dark:border-white/20 dark:bg-white/[0.06] dark:text-neutral-200"
-                        >
-                          A+
-                        </button>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-[13px] font-semibold text-neutral-600 dark:text-neutral-300">
+                          {t("sourceFind.sourceLabel")}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setSourceFindFontSize((prev) =>
+                                Math.max(SOURCE_FIND_MIN_FONT_SIZE, prev - 1)
+                              )
+                            }
+                            className="inline-flex h-6 items-center rounded-md border border-neutral-300 bg-white px-2 text-[11px] font-semibold text-neutral-700 hover:border-sky-300 dark:border-white/20 dark:bg-white/[0.06] dark:text-neutral-200"
+                          >
+                            A-
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setSourceFindFontSize((prev) =>
+                                Math.min(SOURCE_FIND_MAX_FONT_SIZE, prev + 1)
+                              )
+                            }
+                            className="inline-flex h-6 items-center rounded-md border border-neutral-300 bg-white px-2 text-[11px] font-semibold text-neutral-700 hover:border-sky-300 dark:border-white/20 dark:bg-white/[0.06] dark:text-neutral-200"
+                          >
+                            A+
+                          </button>
+                        </div>
                       </div>
                       <div className="mb-1 flex justify-center">
                         <button
@@ -3580,10 +3557,13 @@ export default function FullscreenMapDetailScreen({
                         );
                         return (
                           <div
-                            className="max-h-72 overflow-y-auto rounded-lg border border-neutral-300 bg-white p-3 text-neutral-800 shadow-sm dark:border-white/10 dark:bg-[#020817] dark:text-neutral-100"
-                            style={{ fontSize: `${sourceFindFontSize}px`, lineHeight: 1.7 }}
+                            className={sourceTextBoxClassName}
+                            style={{
+                              fontSize: `${sourceFindFontSize}px`,
+                              lineHeight: 1.95,
+                            }}
                           >
-                            {renderHighlightedText(
+                            {renderReadableSourceText(
                               fullSliceText,
                               intervals,
                               sourceFindHighlightRef
@@ -3618,8 +3598,7 @@ export default function FullscreenMapDetailScreen({
                     </div>
                   ) : null}
                   {(sourceFindLastAnchors?.anchorText?.length ||
-                    sourceFindLastAnchors?.anchorKeywords?.length ||
-                    sourceFindExpiresAt) ? (
+                    sourceFindLastAnchors?.anchorKeywords?.length) ? (
                     <details className="rounded-lg border border-neutral-200 bg-white/70 px-2.5 py-1.5 text-[13px] text-neutral-700 dark:border-white/15 dark:bg-white/[0.03] dark:text-neutral-300">
                       <summary className="cursor-pointer select-none font-medium">
                         {t("sourceFind.criteriaTitle")}
@@ -3635,13 +3614,6 @@ export default function FullscreenMapDetailScreen({
                           <p>
                             {t("sourceFind.anchorKeywordsLabel")}:{" "}
                             {sourceFindLastAnchors.anchorKeywords.join(", ")}
-                          </p>
-                        ) : null}
-                        {sourceFindExpiresAt ? (
-                          <p>
-                            {t("sourceFind.expiresAt", {
-                              value: sourceFindExpiresAtLabel ?? sourceFindExpiresAt,
-                            })}
                           </p>
                         ) : null}
                       </div>
@@ -3724,46 +3696,24 @@ export default function FullscreenMapDetailScreen({
                   </div>
                   {sourceFindFullText ? (
                     <div
-                      className="max-h-72 overflow-y-auto rounded-lg border border-neutral-300 bg-white p-3 text-neutral-800 shadow-sm dark:border-white/10 dark:bg-[#020817] dark:text-neutral-100"
-                      style={{ fontSize: `${sourceFindFontSize}px`, lineHeight: 1.7 }}
+                      className={sourceTextBoxClassName}
+                      style={{
+                        fontSize: `${sourceFindFontSize}px`,
+                        lineHeight: 1.95,
+                      }}
                     >
-                      <span className="select-text whitespace-pre-wrap break-words">
-                        {sourceFindFullText.slice(
+                      {renderReadableSourceText(
+                        sourceFindFullText.slice(
                           Math.max(0, sourceFindViewStart),
                           Math.min(sourceFindFullText.length, sourceFindViewEnd || sourceFindFullText.length)
-                        )}
-                      </span>
+                        ),
+                        [],
+                        sourceFindHighlightRef
+                      )}
                     </div>
                   ) : null}
                 </div>
               )}
-              </div>
-            </div>
-
-            <div className="border-t border-neutral-200 px-3 py-2 dark:border-white/15">
-              <div className="mb-2 text-xs font-semibold text-neutral-700 dark:text-neutral-200">
-                {t("sourceFind.retentionTitle")} {sourceFindHasPaidAccess ? "" : t("sourceFind.freeOnlyHint")}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {[24, 24 * 7, 24 * 30].map((hours) => {
-                  const allowed = sourceFindAllowedOptions.includes(hours);
-                  const selected = sourceFindRetentionHours === hours;
-                  return (
-                    <button
-                      key={hours}
-                      type="button"
-                      disabled={!allowed || sourceRetentionSaving}
-                      onClick={() => void handleUpdateSourceRetention(hours)}
-                      className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${
-                        selected
-                          ? "border-sky-500 bg-sky-50 text-sky-700 dark:border-sky-300 dark:bg-sky-500/15 dark:text-sky-100"
-                          : "border-neutral-300 bg-white text-neutral-700 dark:border-white/20 dark:bg-white/[0.04] dark:text-neutral-200"
-                      } ${!allowed ? "opacity-40" : "hover:border-sky-300"}`}
-                    >
-                      {hours === 24 ? "24h" : hours === 168 ? "7d" : "30d"}
-                    </button>
-                  );
-                })}
               </div>
             </div>
           </div>

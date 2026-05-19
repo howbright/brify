@@ -34,16 +34,6 @@
       "bullet2": "Selon la longueur du document, cela peut prendre plusieurs dizaines de secondes ou plus.",
       "bullet3": "Tant que vous gardez cette page ouverte, le traitement continue automatiquement."
     },
-    "nextGuide": {
-      "title": "Après la génération, commencez par ce parcours",
-      "subtitle": "Une fois le traitement terminé, ces étapes vous aident à transformer la carte en livrable utilisable plus rapidement.",
-      "subtitleAutoOpen": "Une fois le traitement terminé, vous serez redirigé automatiquement vers la page de détail. Commencez par ces trois actions.",
-      "items": [
-        "Marquez d’abord 3 nœuds importants pendant la lecture",
-        "Ajoutez 1 à 2 notes sur les nœuds clés",
-        "Enregistrez le résultat via un lien de partage ou un export PDF/Markdown"
-      ]
-    },
     "result": {
       "title": "Carte structurée générée",
       "hint": "Plus tard, vous pourrez brancher ici votre composant de carte structurée réel.",
@@ -1881,7 +1871,6 @@
       "noAnchorInSelectedNode": "Ce nœud n’a pas encore d’ancres de source.",
       "sourceFindFailed": "Échec de la recherche dans le texte source.",
       "sourceReloadFailed": "Échec du rechargement du texte source.",
-      "sourceRetentionFailed": "Échec de la mise à jour de la période de conservation.",
       "stateUpdated": "État de la carte mis à jour.",
       "stateUpdateFailed": "Impossible de mettre à jour l’état de la carte.",
       "loginRequired": "Connexion requise.",
@@ -1910,9 +1899,6 @@
       "showMoreBelow": "Afficher plus bas",
       "viewExpanded": "Vue élargie",
       "viewCompact": "Taille par défaut",
-      "retentionTitle": "Période de conservation",
-      "freeOnlyHint": "(Gratuit : 24 h)",
-      "retentionUpdated": "Période de conservation mise à jour.",
       "editAnchorGuide": "Si besoin, raccourcissez légèrement la phrase d’ancrage puis réessayez.",
       "editAnchorPlaceholder": "ex. Simplifier le maquillage",
       "editAnchorAction": "Réessayer",

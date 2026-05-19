@@ -34,16 +34,6 @@
       "bullet2": "문서 길이에 따라 수십 초 이상 걸릴 수 있어요.",
       "bullet3": "창을 닫지만 않으시면, 작업은 자동으로 이어져요."
     },
-    "nextGuide": {
-      "title": "구조맵 생성 뒤, 이렇게 활용해 보세요",
-      "subtitle": "처리가 끝나면 아래 단계대로 읽고 정리하면 훨씬 빠르게 내 작업물로 만들 수 있어요.",
-      "subtitleAutoOpen": "처리가 완료되면 상세 페이지로 자동 이동합니다. 아래 3가지를 먼저 해보세요.",
-      "items": [
-        "중요 노드 3개를 먼저 마킹하며 읽기",
-        "핵심 노드에 주석 1~2개 남기기",
-        "공유 링크 또는 PDF/Markdown으로 결과물 저장하기"
-      ]
-    },
     "result": {
       "title": "생성된 구조맵 결과",
       "hint": "이 영역에는 나중에 실제 다이어그램 컴포넌트를 연결하시면 돼요.",
@@ -1893,7 +1883,6 @@
       "noAnchorInSelectedNode": "이 노드에는 원문 탐색용 앵커가 아직 없습니다.",
       "sourceFindFailed": "원문 탐색에 실패했습니다.",
       "sourceReloadFailed": "원문 재로드에 실패했습니다.",
-      "sourceRetentionFailed": "보관 기간 변경에 실패했습니다.",
       "stateUpdated": "맵 상태를 업데이트했습니다.",
       "stateUpdateFailed": "맵 상태 업데이트에 실패했습니다.",
       "loginRequired": "로그인이 필요합니다.",
@@ -1922,9 +1911,6 @@
       "showMoreBelow": "아래로 더보기",
       "viewExpanded": "넓게 보기",
       "viewCompact": "기본 크기",
-      "retentionTitle": "원문 보관 기간",
-      "freeOnlyHint": "(Free는 24시간)",
-      "retentionUpdated": "보관 기간을 업데이트했습니다.",
       "editAnchorGuide": "필요하면 앵커 문장을 조금 짧게 바꿔 다시 찾아보세요.",
       "editAnchorPlaceholder": "예: 색조에는 쉬움을 주자",
       "editAnchorAction": "다시 찾기",
