@@ -2671,6 +2671,7 @@
     },
     "image": {
       "addOrReplace": "이미지 추가/교체",
+      "preview": "이미지 크게보기",
       "remove": "이미지 삭제",
       "invalidType": "이미지 파일만 업로드할 수 있어요.",
       "tooLarge": "이미지는 {maxMB}MB 이하만 업로드할 수 있어요.",

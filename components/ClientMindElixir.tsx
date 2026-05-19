@@ -24,6 +24,7 @@ import {
   DEFAULT_THEME_NAME,
   MIND_THEME_BY_NAME,
 } from "@/components/maps/themes";
+import { X } from "lucide-react";
 import ClientMindElixirOverlay from "@/components/ClientMindElixirOverlay";
 import NodeRichTextDialog from "@/components/maps/NodeRichTextDialog";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
@@ -125,6 +126,13 @@ type AnyNode = {
   } | null;
   children?: AnyNode[];
   expanded?: boolean;
+};
+
+type ImagePreviewState = {
+  url: string;
+  alt: string;
+  width?: number;
+  height?: number;
 };
 
 type PatchedMindInstance = {
@@ -580,6 +588,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const imageText = useMemo(
     () => ({
       addOrReplace: t("image.addOrReplace"),
+      preview: t("image.preview"),
       remove: t("image.remove"),
       invalidType: t("image.invalidType"),
       tooLarge: t("image.tooLarge", { maxMB: 5 }),
@@ -654,10 +663,25 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const [, setSelectedNoteText] = useState<string | null>(null);
   const [mobileActionNodeId, setMobileActionNodeId] = useState<string | null>(null);
   const [imageBusy, setImageBusy] = useState(false);
+  const [imagePreview, setImagePreview] = useState<ImagePreviewState | null>(
+    null
+  );
   const [richTextDialogOpen, setRichTextDialogOpen] = useState(false);
   const [richTextNodeId, setRichTextNodeId] = useState<string | null>(null);
   const [richTextInitialHtml, setRichTextInitialHtml] = useState("<p></p>");
   const [richTextPlainTopic, setRichTextPlainTopic] = useState("");
+
+  useEffect(() => {
+    if (!imagePreview) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setImagePreview(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [imagePreview]);
+
   const selectedNodeIdRef = useRef<string | null>(null);
   const selectedNodeElRef = useRef<HTMLElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
@@ -1347,6 +1371,21 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       ? findNodeById(normalized.node, selectedNodeId)
       : null;
     return Boolean(node?.dangerouslySetInnerHTML);
+  })();
+  const selectedNodeImagePreview = (() => {
+    if (!selectedNodeId) return null;
+    const normalized = normalizeMindData(latestMindDataRef.current);
+    const node = normalized?.node
+      ? findNodeById(normalized.node, selectedNodeId)
+      : null;
+    const image = node?.image;
+    if (!image?.url) return null;
+    return {
+      url: image.url,
+      alt: getNodeTopicText(node) || imageText.addOrReplace,
+      width: image.width,
+      height: image.height,
+    } satisfies ImagePreviewState;
   })();
 
   const setNodeImageValue = (
@@ -3185,6 +3224,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         hoverActionButtonClass={hoverActionButtonClass}
         hoverActionIconClass={hoverActionIconClass}
         onNoteClick={handleNoteClick}
+        showImagePreviewAction={Boolean(selectedNodeImagePreview)}
+        imagePreviewLabel={imageText.preview}
+        onImagePreviewClick={() => {
+          if (selectedNodeImagePreview) {
+            setImagePreview(selectedNodeImagePreview);
+          }
+        }}
         onHighlightClick={() => handleHighlightClick(selectedNodeIdRef.current)}
         showAnnotationAction={showAnnotationAction}
         showHighlightAction={showHighlightAction}
@@ -3239,6 +3285,36 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         saveLabel={saveLabel}
         onSave={handleSaveRichText}
       />
+      {imagePreview ? (
+        <div
+          className="fixed inset-0 z-[430] flex items-center justify-center bg-slate-950/82 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label={imagePreview.alt}
+          onClick={() => setImagePreview(null)}
+        >
+          <button
+            type="button"
+            className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg transition hover:bg-white/18"
+            onClick={() => setImagePreview(null)}
+            aria-label={cancelLabel}
+            title={cancelLabel}
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <div
+            className="max-h-[88vh] max-w-[94vw]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={imagePreview.url}
+              alt={imagePreview.alt}
+              className="h-auto max-h-[88vh] w-auto max-w-[94vw] rounded-xl object-contain shadow-[0_28px_90px_-34px_rgba(0,0,0,0.95)]"
+            />
+          </div>
+        </div>
+      ) : null}
       <input
         ref={imageInputRef}
         type="file"

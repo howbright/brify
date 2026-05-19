@@ -2672,6 +2672,7 @@
     },
     "image": {
       "addOrReplace": "Add or replace image",
+      "preview": "View larger image",
       "remove": "Remove image",
       "invalidType": "Only image files can be uploaded.",
       "tooLarge": "Images must be {maxMB}MB or smaller.",

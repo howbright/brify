@@ -56,6 +56,9 @@ type ClientMindElixirOverlayProps = {
   hoverActionWrapClass: string;
   hoverActionButtonClass: string;
   hoverActionIconClass: string;
+  showImagePreviewAction: boolean;
+  imagePreviewLabel: string;
+  onImagePreviewClick: () => void;
   onNoteClick: () => void;
   onHighlightClick: () => void;
   showAnnotationAction: boolean;
@@ -175,6 +178,9 @@ export default function ClientMindElixirOverlay({
   hoverActionWrapClass,
   hoverActionButtonClass,
   hoverActionIconClass,
+  showImagePreviewAction,
+  imagePreviewLabel,
+  onImagePreviewClick,
   onNoteClick,
   onHighlightClick,
   showAnnotationAction,
@@ -287,6 +293,23 @@ export default function ClientMindElixirOverlay({
             }}
           >
             <div className={hoverActionWrapClass}>
+              {showImagePreviewAction ? (
+                <button
+                  type="button"
+                  className={`${hoverActionButtonClass} bg-sky-600 text-white ring-1 ring-sky-700/60`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onImagePreviewClick();
+                  }}
+                  aria-label={imagePreviewLabel}
+                  title={imagePreviewLabel}
+                >
+                  <Icon icon="mdi:image-search-outline" className={hoverActionIconClass} />
+                  <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                    {imagePreviewLabel}
+                  </span>
+                </button>
+              ) : null}
               {showAnnotationAction ? (
                 <button
                   type="button"

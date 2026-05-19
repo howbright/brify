@@ -3441,7 +3441,7 @@ export default function FullscreenMapDetailScreen({
               </div>
             </div>
 
-            <div className="min-h-0 flex-1 overflow-y-auto p-3">
+            <div className="min-h-0 flex-1 overflow-y-auto bg-neutral-100/80 p-3 dark:bg-[#0b1220]/60">
               <div className="flex flex-col gap-3">
               {sourceFindLoading ? (
                 <p className="text-[15px] text-neutral-700 dark:text-neutral-200">
@@ -3484,7 +3484,7 @@ export default function FullscreenMapDetailScreen({
                     </div>
                   </div>
                   {sourceFindFullText ? (
-                    <div className="space-y-2 rounded-xl border border-neutral-200 bg-white/80 p-2 dark:border-white/15 dark:bg-white/[0.03]">
+                    <div className="space-y-2 rounded-xl border border-neutral-200 bg-neutral-100/90 p-2 dark:border-white/15 dark:bg-white/[0.04]">
                       <div className="text-[13px] font-semibold text-neutral-600 dark:text-neutral-300">
                         {t("sourceFind.sourceLabel")}
                       </div>
@@ -3580,7 +3580,7 @@ export default function FullscreenMapDetailScreen({
                         );
                         return (
                           <div
-                            className="max-h-72 overflow-y-auto rounded-lg border border-neutral-200 bg-white p-2 text-neutral-800 dark:border-white/10 dark:bg-white/[0.02] dark:text-neutral-100"
+                            className="max-h-72 overflow-y-auto rounded-lg border border-neutral-300 bg-white p-3 text-neutral-800 shadow-sm dark:border-white/10 dark:bg-[#020817] dark:text-neutral-100"
                             style={{ fontSize: `${sourceFindFontSize}px`, lineHeight: 1.7 }}
                           >
                             {renderHighlightedText(
@@ -3724,7 +3724,7 @@ export default function FullscreenMapDetailScreen({
                   </div>
                   {sourceFindFullText ? (
                     <div
-                      className="max-h-72 overflow-y-auto rounded-lg border border-neutral-200 bg-white p-2 text-neutral-800 dark:border-white/10 dark:bg-white/[0.02] dark:text-neutral-100"
+                      className="max-h-72 overflow-y-auto rounded-lg border border-neutral-300 bg-white p-3 text-neutral-800 shadow-sm dark:border-white/10 dark:bg-[#020817] dark:text-neutral-100"
                       style={{ fontSize: `${sourceFindFontSize}px`, lineHeight: 1.7 }}
                     >
                       <span className="select-text whitespace-pre-wrap break-words">

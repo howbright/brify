@@ -2229,6 +2229,7 @@
     },
     "image": {
       "addOrReplace": "Ajouter/remplacer l’image",
+      "preview": "Agrandir l’image",
       "remove": "Supprimer l’image",
       "invalidType": "Seuls les fichiers image peuvent être téléversés.",
       "tooLarge": "Les images doivent faire {maxMB} Mo ou moins.",
