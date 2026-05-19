@@ -142,7 +142,8 @@ const sourceReadingFont = IBM_Plex_Sans_KR({
   preload: false,
 });
 
-const sourceTextBoxClassName = `${sourceReadingFont.className} max-h-[26rem] overflow-y-auto rounded-lg border border-neutral-300 bg-white p-3 text-neutral-800 shadow-sm dark:border-white/10 dark:bg-[#020817] dark:text-neutral-100`;
+const sourceTextBoxClassName =
+  "max-h-[26rem] overflow-y-auto rounded-lg border border-neutral-300 bg-white p-3 text-neutral-800 shadow-sm dark:border-white/10 dark:bg-[#020817] dark:text-neutral-100";
 
 function buildHighlightIntervals(
   text: string,
@@ -3559,6 +3560,7 @@ export default function FullscreenMapDetailScreen({
                           <div
                             className={sourceTextBoxClassName}
                             style={{
+                              ...sourceReadingFont.style,
                               fontSize: `${sourceFindFontSize}px`,
                               lineHeight: 1.95,
                             }}
@@ -3698,6 +3700,7 @@ export default function FullscreenMapDetailScreen({
                     <div
                       className={sourceTextBoxClassName}
                       style={{
+                        ...sourceReadingFont.style,
                         fontSize: `${sourceFindFontSize}px`,
                         lineHeight: 1.95,
                       }}

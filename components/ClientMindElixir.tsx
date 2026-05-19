@@ -684,6 +684,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
   const selectedNodeIdRef = useRef<string | null>(null);
   const selectedNodeElRef = useRef<HTMLElement | null>(null);
+  const noteEditorOpenRef = useRef(false);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const pendingImageNodeIdRef = useRef<string | null>(null);
   const lastClickedNodeRef = useRef<{ id: string | null; at: number }>({
@@ -859,6 +860,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
   useEffect(() => {
     const handleCopyShortcut = (event: KeyboardEvent) => {
+      if (noteEditorOpenRef.current) return;
       const mind = mindRef.current;
       if (!mind) return;
       if (!(event.metaKey || event.ctrlKey) || event.altKey) return;
@@ -1333,6 +1335,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     onChangeRef,
     setSelectedNoteText,
   });
+
+  useEffect(() => {
+    noteEditorOpenRef.current = noteEditorOpen;
+  }, [noteEditorOpen]);
 
   const handleHighlightClick = (targetNodeId?: string | null) => {
     const result = handleHighlightClickBase(targetNodeId);

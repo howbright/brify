@@ -356,6 +356,7 @@ export default function ClientMindElixirOverlay({
                   className={`${hoverActionButtonClass} bg-slate-800 text-white ring-1 ring-slate-900/70`}
                   onClick={(e) => {
                     e.stopPropagation();
+                    onNoteEditorOpenChange(false);
                     onToggleMobileActionNode();
                   }}
                   aria-label={moreActionsLabel}
@@ -371,6 +372,7 @@ export default function ClientMindElixirOverlay({
                   className={`${hoverActionButtonClass} bg-slate-800 text-white ring-1 ring-slate-900/70`}
                   onClick={(e) => {
                     e.stopPropagation();
+                    onNoteEditorOpenChange(false);
                     onOpenSelectionContextMenu(e.currentTarget);
                   }}
                   aria-label={moreActionsLabel}
@@ -402,7 +404,7 @@ export default function ClientMindElixirOverlay({
       )}
 
       {noteEditorOpen ? (
-        <div className="pointer-events-none absolute inset-0 z-[28]">
+        <div className="pointer-events-none absolute inset-0 z-[380]">
           <div
             className="pointer-events-auto absolute overflow-hidden rounded-2xl border border-slate-300/90 bg-white/98 p-4 shadow-[0_24px_60px_-28px_rgba(15,23,42,0.55)] backdrop-blur-sm dark:border-white/12 dark:bg-[#0b1220]/98 dark:shadow-[0_24px_60px_-28px_rgba(0,0,0,0.85)]"
             style={noteEditorStyle}
