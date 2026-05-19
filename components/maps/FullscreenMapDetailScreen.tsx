@@ -525,7 +525,6 @@ export default function FullscreenMapDetailScreen({
   const mobileStateRef = useRef<HTMLDivElement | null>(null);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
-  const [showExpandHint, setShowExpandHint] = useState(false);
   const [sourceFindOpen, setSourceFindOpen] = useState(false);
   const [sourceFindExpanded, setSourceFindExpanded] = useState(false);
   const [sourceFindFontSize, setSourceFindFontSize] = useState(13);
@@ -1207,17 +1206,6 @@ export default function FullscreenMapDetailScreen({
       window.clearTimeout(timeout);
     };
   }, [mapData, loading]);
-
-  useEffect(() => {
-    if (loading || !mapData || tutorialOpen) return;
-    setShowExpandHint(true);
-    const timer = window.setTimeout(() => {
-      setShowExpandHint(false);
-    }, 5000);
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, [loading, mapData, tutorialOpen]);
 
   const scheduleAutoSave = () => {
     if (!mapId) return;
@@ -3092,28 +3080,6 @@ export default function FullscreenMapDetailScreen({
             </>
           ) : null}
         </div>
-        {showExpandHint ? (
-          <div className="pointer-events-none absolute left-1/2 top-1/2 z-[24] -translate-x-1/2 -translate-y-[120px] sm:-translate-y-[140px]">
-            <div className="pointer-events-auto inline-flex items-start gap-2 rounded-2xl border border-sky-200/90 bg-sky-50/95 px-3 py-2 text-[11px] font-semibold text-sky-900 shadow-[0_12px_28px_-20px_rgba(15,23,42,0.7)] backdrop-blur-sm dark:border-sky-200/20 dark:bg-[#10243a]/92 dark:text-sky-100">
-              <Icon icon="mdi:plus-circle-outline" className="mt-0.5 h-5 w-5 shrink-0" />
-              <span className="leading-4">
-                <>
-                  <span className="block">{t("expandHint.line1")}</span>
-                  <span className="block">{t("expandHint.line2")}</span>
-                </>
-              </span>
-              <button
-                type="button"
-                onClick={() => setShowExpandHint(false)}
-                className="inline-flex h-5 w-5 items-center justify-center rounded-full text-sky-700/80 hover:bg-sky-100 dark:text-sky-100/80 dark:hover:bg-white/10"
-                aria-label={t("expandHint.dismiss")}
-                title={t("expandHint.dismiss")}
-              >
-                <Icon icon="mdi:close" className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-        ) : null}
         <div className="absolute inset-0 bg-[#f6f7fb] dark:bg-[#070c16]" />
         <div
           className="pointer-events-none absolute inset-0 opacity-60 [background-image:linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)] [background-size:28px_28px] dark:opacity-30 dark:[background-image:linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)]"
