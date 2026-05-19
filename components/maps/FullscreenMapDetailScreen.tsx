@@ -1256,9 +1256,10 @@ export default function FullscreenMapDetailScreen({
     }, 1200);
   };
 
-  const syncPanelMindDataFromMind = () => {
+  const syncMindDataFromMind = () => {
     const snapshot = mindRef.current?.getSnapshot?.() as MapRow["mind_elixir"] | null;
     if (!snapshot) return;
+    setMapData(snapshot);
     setPanelMindData(snapshot);
   };
 
@@ -3100,12 +3101,12 @@ export default function FullscreenMapDetailScreen({
                   : (op) => {
                       if (!op?.name) return;
                       if (op.name === "toggleHighlight") {
-                        syncPanelMindDataFromMind();
+                        syncMindDataFromMind();
                         scheduleAutoSave();
                         return;
                       }
                       if (op.name === "updateNote") {
-                        syncPanelMindDataFromMind();
+                        syncMindDataFromMind();
                         const now = Date.now();
                         if (now - lastHighlightToastRef.current > 2000) {
                           lastHighlightToastRef.current = now;
@@ -3115,15 +3116,17 @@ export default function FullscreenMapDetailScreen({
                         return;
                       }
                       if (op.name === "updateImage") {
+                        syncMindDataFromMind();
                         scheduleAutoSave();
                         return;
                       }
                       if (op.name === "updateRichText") {
-                        syncPanelMindDataFromMind();
+                        syncMindDataFromMind();
                         scheduleAutoSave();
                         return;
                       }
                       if (!MUTATING_OPS.has(op.name)) return;
+                      syncMindDataFromMind();
                       scheduleAutoSave();
                     }
               }
