@@ -33,6 +33,9 @@ import { useMindElixirNodeActions } from "@/components/useMindElixirNodeActions"
 import { useMindElixirNotes } from "@/components/useMindElixirNotes";
 import { useMindElixirResponsiveState } from "@/components/useMindElixirResponsiveState";
 
+const MIND_SCALE_MAX = 2;
+const MIND_SCALE_MIN = 0.2;
+
 type ClientMindElixirProps = {
   mapId?: string;
   mode?: "light" | "dark" | "auto";
@@ -958,8 +961,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           const ratio = distance / Math.max(1, pinchRef.current.startDistance);
           const nextScale = pinchRef.current.startScale * ratio;
           const clamped = Math.min(
-            mind.scaleMax ?? 1.4,
-            Math.max(mind.scaleMin ?? 0.2, nextScale)
+            mind.scaleMax ?? MIND_SCALE_MAX,
+            Math.max(mind.scaleMin ?? MIND_SCALE_MIN, nextScale)
           );
           if (Math.abs(clamped - (mind.scaleVal ?? 1)) > 0.001) {
             clearLongPressState();
@@ -1863,13 +1866,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       zoomIn: () => {
         const mind = mindRef.current;
         if (!mind || typeof mind.scale !== "function") return;
-        const next = Math.min(mind.scaleMax ?? 1.4, (mind.scaleVal ?? 1) + 0.1);
+        const next = Math.min(mind.scaleMax ?? MIND_SCALE_MAX, (mind.scaleVal ?? 1) + 0.1);
         mind.scale(next);
       },
       zoomOut: () => {
         const mind = mindRef.current;
         if (!mind || typeof mind.scale !== "function") return;
-        const next = Math.max(mind.scaleMin ?? 0.2, (mind.scaleVal ?? 1) - 0.1);
+        const next = Math.max(mind.scaleMin ?? MIND_SCALE_MIN, (mind.scaleVal ?? 1) - 0.1);
         mind.scale(next);
       },
       panBy: (dx: number, dy: number) => {
@@ -1991,8 +1994,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           const zoomFactor = Math.exp(-event.deltaY * intensity);
           const nextScale = mind.scaleVal * zoomFactor;
           const clamped = Math.min(
-            mind.scaleMax ?? 1.4,
-            Math.max(mind.scaleMin ?? 0.2, nextScale)
+            mind.scaleMax ?? MIND_SCALE_MAX,
+            Math.max(mind.scaleMin ?? MIND_SCALE_MIN, nextScale)
           );
           if (clamped !== mind.scaleVal) {
             mind.scale(clamped, { x: event.clientX, y: event.clientY });
@@ -2095,6 +2098,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         },
         locale: mindLocale,
         scaleSensitivity: zoomSensitivity,
+        scaleMax: MIND_SCALE_MAX,
+        scaleMin: MIND_SCALE_MIN,
         mouseSelectionButton: dragButton,
         handleWheel,
         theme: resolvedThemeObj,
@@ -2991,12 +2996,12 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           visibility: hidden;
           transition: opacity 140ms ease;
         }
-        me-tpc[data-note-visible="true"] .me-note-dot,
+        me-tpc[data-note="true"] .me-note-dot,
         me-tpc[data-note-visible="true"] .me-note-preview {
           opacity: 1;
           visibility: visible;
         }
-        me-tpc[data-note-visible="true"] .me-note-dot {
+        me-tpc[data-note="true"] .me-note-dot {
           pointer-events: auto;
         }
         .${DEFAULT_DARK_CANVAS_CLASS} .me-note-preview {
@@ -3129,13 +3134,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         onMiniMapZoomIn={() => {
           const mind = mindRef.current;
           if (!mind || typeof mind.scale !== "function") return;
-          const next = Math.min(mind.scaleMax ?? 1.4, (mind.scaleVal ?? 1) + 0.1);
+          const next = Math.min(mind.scaleMax ?? MIND_SCALE_MAX, (mind.scaleVal ?? 1) + 0.1);
           mind.scale(next);
         }}
         onMiniMapZoomOut={() => {
           const mind = mindRef.current;
           if (!mind || typeof mind.scale !== "function") return;
-          const next = Math.max(mind.scaleMin ?? 0.2, (mind.scaleVal ?? 1) - 0.1);
+          const next = Math.max(mind.scaleMin ?? MIND_SCALE_MIN, (mind.scaleVal ?? 1) - 0.1);
           mind.scale(next);
         }}
         onMiniMapCollapseLevel={() => {

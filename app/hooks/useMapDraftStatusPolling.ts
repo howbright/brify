@@ -22,15 +22,19 @@ type PollingChunkStatus =
 
 type PollingChunkRow = Pick<
   GenerationChunkRow,
-  "id" | "job_id" | "chunk_index" | "chunk_count" | "error_message"
-> & { status: PollingChunkStatus };
+  "id" | "job_id" | "chunk_index" | "chunk_count"
+> & {
+  status?: PollingChunkStatus | null;
+  error_message?: string | null;
+};
 
 type PollingPayload = {
   maps: ServerDraftRow[];
-  jobs: Pick<
-    GenerationJobRow,
-    "id" | "status" | "current_step" | "error_message" | "final_map_id" | "chunk_count"
-  >[];
+  jobs: (Pick<GenerationJobRow, "id" | "final_map_id" | "chunk_count"> & {
+    status?: GenerationJobRow["status"] | null;
+    current_step?: string | null;
+    error_message?: string | null;
+  })[];
   chunks: PollingChunkRow[];
 };
 
@@ -49,7 +53,7 @@ function isDraftActive(status: MapJobStatus) {
 }
 
 function coerceChunkStatus(
-  status: PollingChunkStatus
+  status: PollingChunkStatus | null | undefined
 ): MapJobStatus {
   if (status === "failed" || status === "cancelled") return "failed";
   if (status === "done" || status === "merged") return "done";
@@ -59,12 +63,20 @@ function coerceChunkStatus(
 }
 
 function coerceMergeStatus(
-  status: Database["public"]["Enums"]["map_generation_job_status"]
+  status: Database["public"]["Enums"]["map_generation_job_status"] | null | undefined
 ): MapJobStatus {
   if (status === "failed" || status === "cancelled") return "failed";
   if (status === "done") return "done";
   if (status === "merging") return "processing_structure";
   return "queued";
+}
+
+function isMissingStatusColumnError(error: unknown) {
+  const maybe = error as { code?: string; message?: string } | null;
+  return (
+    maybe?.code === "42703" &&
+    String(maybe?.message ?? "").includes("status")
+  );
 }
 
 /**
@@ -115,7 +127,7 @@ export function useMapDraftStatusPolling(
 
       const supabase = createClient();
 
-      const [mapsResult, jobsResult, chunksResult] = await Promise.all([
+      const [mapsResult, jobsResultWithStatus, chunksResultWithStatus] = await Promise.all([
         mapIdList.length
           ? supabase.from("maps").select("id,map_status").in("id", mapIdList)
           : Promise.resolve({ data: [], error: null }),
@@ -134,6 +146,23 @@ export function useMapDraftStatusPolling(
       ]);
 
       if (mapsResult.error) throw mapsResult.error;
+
+      const jobsResult =
+        jobsResultWithStatus.error && isMissingStatusColumnError(jobsResultWithStatus.error)
+          ? await supabase
+              .from("map_generation_jobs")
+              .select("id,final_map_id,chunk_count")
+              .in("id", jobIdList)
+          : jobsResultWithStatus;
+
+      const chunksResult =
+        chunksResultWithStatus.error && isMissingStatusColumnError(chunksResultWithStatus.error)
+          ? await supabase
+              .from("map_generation_chunks")
+              .select("id,job_id,chunk_index,chunk_count")
+              .in("job_id", jobIdList)
+          : chunksResultWithStatus;
+
       if (jobsResult.error) throw jobsResult.error;
       if (chunksResult.error) throw chunksResult.error;
 
@@ -151,10 +180,13 @@ export function useMapDraftStatusPolling(
         const payload = latest ?? { maps: [], jobs: [], chunks: [] };
         const hasActiveMap = payload.maps.some((d) => isDraftActive(d.map_status));
         const hasActiveJob = payload.jobs.some(
-          (job) => job.status !== "done" && job.status !== "failed" && job.status !== "cancelled"
+          (job) =>
+            !job.status ||
+            (job.status !== "done" && job.status !== "failed" && job.status !== "cancelled")
         );
         const hasActiveChunk = payload.chunks.some(
           (chunk) =>
+            !chunk.status ||
             chunk.status === "queued" ||
             chunk.status === "processing" ||
             chunk.status === "retrying"
