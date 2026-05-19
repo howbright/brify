@@ -2950,6 +2950,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           border-radius: 999px;
           background: #2563eb;
           color: #ffffff;
+          z-index: 360;
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -2972,7 +2973,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           position: absolute;
           left: calc(100% + 10px);
           top: 50%;
-          z-index: 3;
+          z-index: 360;
           display: block;
           min-width: 96px;
           max-width: 220px;
