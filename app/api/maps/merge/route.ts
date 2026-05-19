@@ -11,6 +11,11 @@ type MindNode = {
   [key: string]: any;
 };
 
+type MergeSourcePart = {
+  title: string;
+  text: string;
+};
+
 function getRootNode(data: any): MindNode | null {
   if (!data) return null;
   if (data.nodeData) return data.nodeData as MindNode;
@@ -47,6 +52,30 @@ function remapNodeIds(node: MindNode): MindNode {
   return next;
 }
 
+function mergeSourceText(parts: MergeSourcePart[]) {
+  return parts
+    .map((part, index) => {
+      const title = part.title.trim() || `Map ${index + 1}`;
+      return `# ${index + 1}. ${title}\n\n${part.text.trim()}`;
+    })
+    .join("\n\n---\n\n");
+}
+
+function getEarliestIsoDate(values: Array<string | null | undefined>) {
+  const dates = values
+    .map((value) => {
+      if (!value) return null;
+      const time = new Date(value).getTime();
+      return Number.isFinite(time) ? { value, time } : null;
+    })
+    .filter((value): value is { value: string; time: number } => Boolean(value));
+
+  if (dates.length === 0) return null;
+  return dates.reduce((earliest, current) =>
+    current.time < earliest.time ? current : earliest
+  ).value;
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => null);
@@ -78,7 +107,9 @@ export async function POST(request: Request) {
 
     const { data, error } = await supabase
       .from("maps")
-      .select("id,title,tags,mind_elixir,mind_elixir_draft")
+      .select(
+        "id,title,tags,mind_elixir,mind_elixir_draft,extracted_text,source_expires_at,source_retention_hours"
+      )
       .in("id", orderedMapIds);
 
     if (error) throw error;
@@ -93,6 +124,9 @@ export async function POST(request: Request) {
 
     const children: MindNode[] = [];
     const tagSet = new Set<string>();
+    const sourceParts: MergeSourcePart[] = [];
+    const sourceExpiresAtValues: Array<string | null | undefined> = [];
+    const sourceRetentionValues: number[] = [];
     const orderedIds = orderedMapIds.slice();
     orderedIds.forEach((id: string) => {
       const row = rowById.get(id);
@@ -106,6 +140,18 @@ export async function POST(request: Request) {
       if (!root) return;
       const remapped = remapNodeIds(root);
       children.push(remapped);
+
+      const sourceText = String(row.extracted_text ?? "").trim();
+      if (sourceText) {
+        sourceParts.push({
+          title: String(row.title ?? ""),
+          text: sourceText,
+        });
+      }
+      sourceExpiresAtValues.push(row.source_expires_at);
+      if (typeof row.source_retention_hours === "number") {
+        sourceRetentionValues.push(row.source_retention_hours);
+      }
     });
 
     if (children.length < 2) {
@@ -124,6 +170,11 @@ export async function POST(request: Request) {
         children,
       },
     };
+    const mergedSourceText =
+      sourceParts.length > 0 ? mergeSourceText(sourceParts) : null;
+    const mergedSourceRetentionHours =
+      sourceRetentionValues.length > 0 ? Math.min(...sourceRetentionValues) : 24;
+    const mergedSourceExpiresAt = getEarliestIsoDate(sourceExpiresAtValues);
 
     const { data: inserted, error: insertError } = await supabase
       .from("maps")
@@ -135,6 +186,10 @@ export async function POST(request: Request) {
         map_status: "done",
         tags: Array.from(tagSet),
         description: `Merged ${orderedMapIds.length} maps`,
+        extracted_text: mergedSourceText,
+        source_char_count: mergedSourceText?.length ?? 0,
+        source_retention_hours: mergedSourceRetentionHours,
+        source_expires_at: mergedSourceExpiresAt,
       })
       .select("id")
       .single();
