@@ -2647,6 +2647,7 @@
       "title": "Edit node",
       "moreActions": "More",
       "editContent": "Text style",
+      "linkBidirectional": "Bidirectional link",
       "addOrReplaceImage": "Add or replace image",
       "removeImage": "Remove image"
     },

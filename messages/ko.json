@@ -2646,6 +2646,7 @@
       "title": "노드 편집",
       "moreActions": "더보기",
       "editContent": "텍스트 스타일",
+      "linkBidirectional": "양방향 연결",
       "addOrReplaceImage": "이미지 추가/교체",
       "removeImage": "이미지 삭제"
     },

@@ -33,7 +33,6 @@ import { createClient } from "@/utils/supabase/client";
 import LanguageSelector from "@/components/LanguageSelector";
 import type { Database } from "@/app/types/database.types";
 import type {
-  MapSourceExpiresAt,
   SourceFindCandidate,
   SourceFindResponse,
   SourceFindStatus,
@@ -46,6 +45,15 @@ import {
 } from "@/app/lib/mapTutorialState";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 import FullscreenHeader from "@/components/maps/FullscreenHeader";
+
+function getDisplaySourceFindStatus(sourceText: string): SourceFindStatus {
+  if (sourceText.trim().length > 0) return "found";
+  return "not_found";
+}
+
+function getMapViewStateStorageKey(mapId: string) {
+  return `brify:map:${mapId}:view-state-v1`;
+}
 
 type MindNode = {
   children?: MindNode[];
@@ -80,6 +88,29 @@ function hasValidTimestampInMindData(raw: unknown): boolean {
 
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
 type ReadStatus = Database["public"]["Enums"]["map_read_status"];
+
+function getStoredMapViewState(mapId: string): MapRow["mind_elixir"] | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(getMapViewStateStorageKey(mapId));
+    if (!raw) return null;
+    return JSON.parse(raw) as MapRow["mind_elixir"];
+  } catch {
+    return null;
+  }
+}
+
+function persistMapViewState(mapId: string, snapshot: MapRow["mind_elixir"]) {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.setItem(
+      getMapViewStateStorageKey(mapId),
+      JSON.stringify(snapshot)
+    );
+  } catch {
+    // View state persistence is best effort.
+  }
+}
 
 function coerceMapStatus(status?: string | null): MapJobStatus {
   if (
@@ -587,9 +618,6 @@ export default function FullscreenMapDetailScreen({
   );
   const [sourceFindMessage, setSourceFindMessage] = useState<string>("");
   const [sourceFindNodeTopic, setSourceFindNodeTopic] = useState<string>("");
-  const [sourceFindExpiresAt, setSourceFindExpiresAt] = useState<MapSourceExpiresAt>(
-    null
-  );
   const [sourceFindCandidates, setSourceFindCandidates] = useState<
     SourceFindCandidate[]
   >([]);
@@ -603,8 +631,6 @@ export default function FullscreenMapDetailScreen({
     end: number;
     key: number;
   } | null>(null);
-  const [sourceReloadText, setSourceReloadText] = useState("");
-  const [sourceReloading, setSourceReloading] = useState(false);
   const [sourceFindLastAnchors, setSourceFindLastAnchors] = useState<{
     anchorText: string[];
     anchorKeywords: string[];
@@ -615,22 +641,6 @@ export default function FullscreenMapDetailScreen({
   const mapStateTouchedRef = useRef<string | null>(null);
   const initializedMapIdRef = useRef<string | null>(null);
   const sourceFindHighlightRef = useRef<HTMLElement | null>(null);
-  const sourceFindExpiresAtLabel = useMemo(() => {
-    if (!sourceFindExpiresAt) return null;
-    const date = new Date(sourceFindExpiresAt);
-    if (Number.isNaN(date.getTime())) return sourceFindExpiresAt;
-    try {
-      return new Intl.DateTimeFormat(locale, {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-      }).format(date);
-    } catch {
-      return date.toLocaleString();
-    }
-  }, [sourceFindExpiresAt, locale]);
   const SOURCE_VIEW_STEP = 700;
   const SOURCE_VIEW_FOCUS_CONTEXT = 260;
   const SOURCE_FIND_MIN_FONT_SIZE = 12;
@@ -686,10 +696,17 @@ export default function FullscreenMapDetailScreen({
     if (!mapId) return;
 
     let cancelled = false;
+    const storedViewState = getStoredMapViewState(mapId);
+    const hasStoredViewState = Boolean(storedViewState);
+    if (storedViewState) {
+      setMapData(storedViewState);
+      setPanelMindData(storedViewState);
+      initialCollapseAppliedForMapRef.current = mapId;
+    }
 
     (async () => {
       try {
-        setLoading(true);
+        setLoading(!hasStoredViewState);
         setError(null);
         if (isSharedView) {
           if (!sharedToken) {
@@ -732,8 +749,9 @@ export default function FullscreenMapDetailScreen({
           if (!data?.mind_elixir) {
             throw new Error("mind_elixir 데이터가 없습니다.");
           }
-          setMapData(data.mind_elixir);
-          setPanelMindData(data.mind_elixir);
+          const restoredMind = storedViewState ?? data.mind_elixir;
+          setMapData(restoredMind);
+          setPanelMindData(restoredMind);
           setSharedNotes(
             Array.isArray(data.notes)
               ? data.notes.map((item) => {
@@ -795,8 +813,9 @@ export default function FullscreenMapDetailScreen({
           if (!data?.mindElixir) {
             throw new Error("mind_elixir 데이터가 없습니다.");
           }
-          setMapData(data.mindElixir);
-          setPanelMindData(data.mindElixir);
+          const restoredMind = storedViewState ?? data.mindElixir;
+          setMapData(restoredMind);
+          setPanelMindData(restoredMind);
           setSharedNotes(
             Array.isArray(data.notes)
               ? data.notes.map((item) => {
@@ -846,7 +865,7 @@ export default function FullscreenMapDetailScreen({
 
           const draftMind = row?.mind_elixir_draft ?? null;
           const mind = row?.mind_elixir ?? null;
-          const effectiveMind = draftMind ?? mind ?? null;
+          const effectiveMind = storedViewState ?? draftMind ?? mind ?? null;
 
           setHasDraft(Boolean(draftMind));
           if (!effectiveMind) {
@@ -1070,20 +1089,25 @@ export default function FullscreenMapDetailScreen({
   const applyInitialCollapse = () => {
     if (!mapId || !mapData || loading) return;
     if (initialCollapseAppliedForMapRef.current === mapId) return;
+    try {
+      if (
+        typeof window !== "undefined" &&
+        window.sessionStorage.getItem(getMapViewStateStorageKey(mapId))
+      ) {
+        initialCollapseAppliedForMapRef.current = mapId;
+        return;
+      }
+    } catch {
+      // sessionStorage can be unavailable in restricted browser contexts.
+    }
     const mind = mindRef.current;
     if (!mind) return;
 
-    const isMobileViewport =
-      typeof window !== "undefined" &&
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(max-width: 639px)").matches;
-
-    if (isMobileViewport) {
-      mind.collapseAll?.();
-    } else {
-      mind.collapseToLevel?.(2);
-    }
+    mind.collapseToLevel?.(3);
     initialCollapseAppliedForMapRef.current = mapId;
+    requestAnimationFrame(() => {
+      syncMindDataFromMind({ persistViewState: true });
+    });
   };
 
   const openTab = (next: "info" | "notes" | "terms") => {
@@ -1304,11 +1328,14 @@ export default function FullscreenMapDetailScreen({
     }, 1200);
   };
 
-  const syncMindDataFromMind = () => {
+  const syncMindDataFromMind = (options?: { persistViewState?: boolean }) => {
     const snapshot = mindRef.current?.getSnapshot?.() as MapRow["mind_elixir"] | null;
     if (!snapshot) return;
     setMapData(snapshot);
     setPanelMindData(snapshot);
+    if (options?.persistViewState && mapId) {
+      persistMapViewState(mapId, snapshot);
+    }
   };
 
   useEffect(() => {
@@ -1562,18 +1589,15 @@ export default function FullscreenMapDetailScreen({
         throw new Error(getApiErrorMessage(json, t("toasts.sourceFindFailed")));
       }
 
-      const status = (json?.status ?? "not_found") as SourceFindStatus;
       const candidates = Array.isArray(json?.candidates)
         ? (json.candidates as SourceFindCandidate[])
         : [];
       const sourceText =
         typeof json?.sourceText === "string" ? json.sourceText : "";
+      const status = getDisplaySourceFindStatus(sourceText);
 
       setSourceFindStatus(status);
       setSourceFindCandidates(candidates);
-      setSourceFindExpiresAt(
-        typeof json?.expiresAt === "string" ? json.expiresAt : null
-      );
       setSourceFindFullText(sourceText);
       if (sourceText) {
         if (candidates.length > 0) {
@@ -1587,9 +1611,7 @@ export default function FullscreenMapDetailScreen({
         setSourceFindViewStart(0);
         setSourceFindViewEnd(0);
       }
-      setSourceFindMessage(
-        typeof json?.message === "string" ? json.message : ""
-      );
+      setSourceFindMessage("");
     } catch (error) {
       const message = getErrorMessage(error, t("toasts.sourceFindFailed"));
       setSourceFindStatus("not_found");
@@ -1648,16 +1670,13 @@ export default function FullscreenMapDetailScreen({
     if (!res.ok) {
       throw new Error(getApiErrorMessage(json, t("toasts.sourceFindFailed")));
     }
-    const status = (json?.status ?? "not_found") as SourceFindStatus;
     const candidates = Array.isArray(json?.candidates)
       ? (json.candidates as SourceFindCandidate[])
       : [];
     const sourceText = typeof json?.sourceText === "string" ? json.sourceText : "";
+    const status = getDisplaySourceFindStatus(sourceText);
     setSourceFindStatus(status);
     setSourceFindCandidates(candidates);
-    setSourceFindExpiresAt(
-      typeof json?.expiresAt === "string" ? json.expiresAt : null
-    );
     setSourceFindFullText(sourceText);
     if (sourceText) {
       if (candidates.length > 0) {
@@ -1671,53 +1690,7 @@ export default function FullscreenMapDetailScreen({
       setSourceFindViewStart(0);
       setSourceFindViewEnd(0);
     }
-    setSourceFindMessage(typeof json?.message === "string" ? json.message : "");
-  };
-
-  const handleReloadSourceText = async () => {
-    if (!mapId || isSharedView) return;
-    const text = sourceReloadText.trim();
-    if (!text) {
-      toast.message(t("sourceFind.reloadInputRequired"));
-      return;
-    }
-
-    setSourceReloading(true);
-    try {
-      const { data: sessionData, error: sessionErr } =
-        await supabase.auth.getSession();
-      if (sessionErr) throw new Error(sessionErr.message || t("toasts.sourceFindFailed"));
-      const accessToken = sessionData.session?.access_token;
-      if (!accessToken) throw new Error(t("toasts.loginRequired"));
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
-      if (!base) throw new Error("NEXT_PUBLIC_API_BASE_URL is not set.");
-
-      const res = await fetch(`${base}/maps/${mapId}/source-reload`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({ extracted_text: text }),
-      });
-      const json: SourceFindResponse = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(getApiErrorMessage(json, t("toasts.sourceReloadFailed")));
-      }
-
-      setSourceFindExpiresAt(
-        typeof json?.expiresAt === "string" ? json.expiresAt : null
-      );
-      setSourceFindMessage(t("sourceFind.reloadSuccess"));
-
-      if (sourceFindLastAnchors) {
-        await rerunSourceFindFromAnchors(sourceFindLastAnchors);
-      }
-    } catch (error) {
-      toast.error(getErrorMessage(error, t("toasts.sourceReloadFailed")));
-    } finally {
-      setSourceReloading(false);
-    }
+    setSourceFindMessage("");
   };
 
   const handleMoveSourceCandidate = (dir: -1 | 1) => {
@@ -3077,12 +3050,12 @@ export default function FullscreenMapDetailScreen({
                   : (op) => {
                       if (!op?.name) return;
                       if (op.name === "toggleHighlight") {
-                        syncMindDataFromMind();
+                        syncMindDataFromMind({ persistViewState: true });
                         scheduleAutoSave();
                         return;
                       }
                       if (op.name === "updateNote") {
-                        syncMindDataFromMind();
+                        syncMindDataFromMind({ persistViewState: true });
                         const now = Date.now();
                         if (now - lastHighlightToastRef.current > 2000) {
                           lastHighlightToastRef.current = now;
@@ -3092,17 +3065,21 @@ export default function FullscreenMapDetailScreen({
                         return;
                       }
                       if (op.name === "updateImage") {
-                        syncMindDataFromMind();
+                        syncMindDataFromMind({ persistViewState: true });
                         scheduleAutoSave();
                         return;
                       }
                       if (op.name === "updateRichText") {
-                        syncMindDataFromMind();
+                        syncMindDataFromMind({ persistViewState: true });
                         scheduleAutoSave();
                         return;
                       }
+                      if (op.name === "expandNode") {
+                        syncMindDataFromMind({ persistViewState: true });
+                        return;
+                      }
                       if (!MUTATING_OPS.has(op.name)) return;
-                      syncMindDataFromMind();
+                      syncMindDataFromMind({ persistViewState: true });
                       scheduleAutoSave();
                     }
               }
@@ -3621,41 +3598,6 @@ export default function FullscreenMapDetailScreen({
                       </div>
                     </details>
                   ) : null}
-                </>
-              ) : sourceFindStatus === "expired" ? (
-                <>
-                  <p className="text-[15px] text-neutral-800 dark:text-neutral-100">
-                    {t("sourceFind.expired")}
-                  </p>
-                  {sourceFindExpiresAt ? (
-                    <p className="text-[13px] text-neutral-600 dark:text-neutral-300">
-                      {t("sourceFind.expiresAt", {
-                        value: sourceFindExpiresAtLabel ?? sourceFindExpiresAt,
-                      })}
-                    </p>
-                  ) : null}
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[13px] font-semibold text-neutral-600 dark:text-neutral-300">
-                      {t("sourceFind.reloadInputLabel")}
-                    </label>
-                    <textarea
-                      value={sourceReloadText}
-                      onChange={(e) => setSourceReloadText(e.target.value)}
-                      rows={6}
-                      placeholder={t("sourceFind.reloadInputPlaceholder")}
-                      className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 outline-none focus:border-sky-400 dark:border-white/20 dark:bg-white/[0.04] dark:text-neutral-100"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => void handleReloadSourceText()}
-                      disabled={sourceReloading}
-                      className="inline-flex items-center rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-500 disabled:opacity-60"
-                    >
-                      {sourceReloading
-                        ? t("sourceFind.reloading")
-                        : t("sourceFind.reloadAction")}
-                    </button>
-                  </div>
                 </>
               ) : (
                 <div className="space-y-2">

@@ -14,6 +14,7 @@ type MindNodeElement = HTMLElement & { nodeObj?: AnyNode };
 type MindNodeActionInstance = {
   currentNode?: MindNodeElement | null;
   currentNodes?: MindNodeElement[] | null;
+  map?: HTMLElement | null;
   __allowTouchBeginEditOnce?: boolean;
   selectNode?: (node: MindNodeElement) => void;
   addChild: (node: MindNodeElement) => void | Promise<unknown>;
@@ -23,6 +24,11 @@ type MindNodeActionInstance = {
     node: MindNodeElement
   ) => void | Promise<unknown>;
   beginEdit: (node: MindNodeElement) => void | Promise<unknown>;
+  createArrow: (
+    from: MindNodeElement,
+    to: MindNodeElement,
+    options?: { bidirectional?: boolean }
+  ) => void | Promise<unknown>;
   removeNodes: (nodes: MindNodeElement[]) => void | Promise<unknown>;
 };
 
@@ -31,6 +37,7 @@ type MobileAction =
   | "addParent"
   | "addSibling"
   | "rename"
+  | "linkBidirectional"
   | "remove";
 
 type Params = {
@@ -124,6 +131,25 @@ export function useMindElixirNodeActions({
         mind.__allowTouchBeginEditOnce = true;
         await mind.beginEdit(activeNode);
         setMobileActionNodeId(null);
+        return;
+      }
+      if (action === "linkBidirectional") {
+        setMobileActionNodeId(null);
+        mind.map?.addEventListener(
+          "click",
+          async (event) => {
+            event.preventDefault();
+            const target = event.target as HTMLElement | null;
+            const targetNode = target?.closest?.("me-tpc") as
+              | MindNodeElement
+              | null;
+            if (!targetNode || targetNode === activeNode) return;
+            await mind.createArrow(activeNode, targetNode, {
+              bidirectional: true,
+            });
+          },
+          { once: true }
+        );
         return;
       }
       const nodeObj = activeNode.nodeObj as AnyNode | undefined;

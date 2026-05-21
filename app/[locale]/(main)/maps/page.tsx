@@ -59,6 +59,15 @@ const LIST_FIELDS =
 const PAGE_SIZE = 20;
 const NO_TAG_FILTER = "__NO_TAG__";
 
+function clearMapViewState(mapId: string) {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.removeItem(`brify:map:${mapId}:view-state-v1`);
+  } catch {
+    // Best effort only; opening from the list should start from the default view.
+  }
+}
+
 function coerceMapStatus(status?: string | null): MapJobStatus {
   if (
     status === "done" ||
@@ -378,6 +387,7 @@ export default function MapsPage() {
     }
     const nextUrl = locale ? `/${locale}/maps/${item.id}` : `/maps/${item.id}`;
     setOpeningDetailId(item.id);
+    clearMapViewState(item.id);
     dispatchNavigationStart(`maps-title-${item.id}`);
     router.push(nextUrl);
   };
@@ -1128,6 +1138,7 @@ export default function MapsPage() {
                     isOpen={previewOpen}
                     onOpen={() => setPreviewOpen(true)}
                     onClose={() => setPreviewOpen(false)}
+                    onOpenDetail={handleOpenDetail}
                   />
                 </div>
               </section>
@@ -1186,6 +1197,7 @@ export default function MapsPage() {
               isOpen
               onOpen={() => setMobilePreviewOpen(true)}
               onClose={() => setMobilePreviewOpen(false)}
+              onOpenDetail={handleOpenDetail}
             />
           </div>
         </div>

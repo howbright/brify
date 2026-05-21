@@ -11,6 +11,13 @@ type MindNode = {
   [key: string]: any;
 };
 
+type MindArrow = {
+  id?: string;
+  from?: string;
+  to?: string;
+  [key: string]: any;
+};
+
 type MergeSourcePart = {
   title: string;
   text: string;
@@ -36,13 +43,25 @@ function cloneData<T>(value: T): T {
   }
 }
 
-function remapNodeIds(node: MindNode): MindNode {
-  const next: MindNode = { ...node, id: uuidv4() };
+function getArrows(data: any): MindArrow[] {
+  if (Array.isArray(data?.arrows)) return data.arrows as MindArrow[];
+  if (Array.isArray(data?.data?.arrows)) return data.data.arrows as MindArrow[];
+  return [];
+}
+
+function remapNodeIds(node: MindNode, idMap: Map<string, string>): MindNode {
+  const previousId = typeof node.id === "string" ? node.id : null;
+  const nextId = uuidv4();
+  if (previousId) {
+    idMap.set(previousId, nextId);
+  }
+
+  const next: MindNode = { ...node, id: nextId };
   if (next.root) {
     delete next.root;
   }
   if (Array.isArray(node.children) && node.children.length > 0) {
-    next.children = node.children.map((child) => remapNodeIds(child));
+    next.children = node.children.map((child) => remapNodeIds(child, idMap));
   } else {
     delete next.children;
   }
@@ -50,6 +69,28 @@ function remapNodeIds(node: MindNode): MindNode {
     delete next.parent;
   }
   return next;
+}
+
+function remapArrows(
+  arrows: MindArrow[],
+  idMap: Map<string, string>
+): MindArrow[] {
+  return arrows
+    .map<MindArrow | null>((arrow) => {
+      if (typeof arrow.from !== "string" || typeof arrow.to !== "string") {
+        return null;
+      }
+      const from = idMap.get(arrow.from);
+      const to = idMap.get(arrow.to);
+      if (!from || !to) return null;
+      return {
+        ...arrow,
+        id: uuidv4(),
+        from,
+        to,
+      };
+    })
+    .filter((arrow): arrow is MindArrow => arrow !== null);
 }
 
 function mergeSourceText(parts: MergeSourcePart[]) {
@@ -123,6 +164,7 @@ export async function POST(request: Request) {
     }
 
     const children: MindNode[] = [];
+    const arrows: MindArrow[] = [];
     const tagSet = new Set<string>();
     const sourceParts: MergeSourcePart[] = [];
     const sourceExpiresAtValues: Array<string | null | undefined> = [];
@@ -138,8 +180,10 @@ export async function POST(request: Request) {
       const cloned = cloneData(raw);
       const root = getRootNode(cloned);
       if (!root) return;
-      const remapped = remapNodeIds(root);
+      const idMap = new Map<string, string>();
+      const remapped = remapNodeIds(root, idMap);
       children.push(remapped);
+      arrows.push(...remapArrows(getArrows(cloned), idMap));
 
       const sourceText = String(row.extracted_text ?? "").trim();
       if (sourceText) {
@@ -169,6 +213,7 @@ export async function POST(request: Request) {
         expanded: true,
         children,
       },
+      arrows,
     };
     const mergedSourceText =
       sourceParts.length > 0 ? mergeSourceText(sourceParts) : null;

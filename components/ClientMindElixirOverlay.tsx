@@ -19,6 +19,7 @@ type ClientMindElixirOverlayProps = {
     addSibling: string;
     rename: string;
     editContent: string;
+    linkBidirectional: string;
     addOrReplaceImage: string;
     removeImage: string;
     remove: string;
@@ -34,6 +35,7 @@ type ClientMindElixirOverlayProps = {
   onAddSibling: () => void;
   onRename: () => void;
   onEditContent: () => void;
+  onLinkBidirectional: () => void;
   onAddOrReplaceImage: () => void;
   onRemoveImage: () => void;
   onRemove: () => void;
@@ -156,6 +158,7 @@ export default function ClientMindElixirOverlay({
   onAddSibling,
   onRename,
   onEditContent,
+  onLinkBidirectional,
   onAddOrReplaceImage,
   onRemoveImage,
   onRemove,
@@ -242,6 +245,7 @@ export default function ClientMindElixirOverlay({
         onAddSibling={onAddSibling}
         onRename={onRename}
         onEditContent={onEditContent}
+        onLinkBidirectional={onLinkBidirectional}
         onAddOrReplaceImage={onAddOrReplaceImage}
         onRemoveImage={onRemoveImage}
         onRemove={onRemove}

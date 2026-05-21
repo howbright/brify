@@ -2204,6 +2204,7 @@
       "title": "Modifier le nœud",
       "moreActions": "Plus",
       "editContent": "Style du texte",
+      "linkBidirectional": "Lien bidirectionnel",
       "addOrReplaceImage": "Ajouter/remplacer l’image",
       "removeImage": "Supprimer l’image"
     },

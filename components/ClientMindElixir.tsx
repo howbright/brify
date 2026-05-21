@@ -1193,12 +1193,17 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
   const contextMenuText = useMemo(
     () => ({
+      linkBidirectional: t("mobileEdit.linkBidirectional"),
+      linkTargetPrompt:
+        mindLocale === "ko"
+          ? "연결할 대상 노드를 클릭하세요."
+          : "Click the target node to connect.",
       copyMarkdown: t("contextMenu.copyMarkdown"),
       copyExpandedMarkdown: t("contextMenu.copyExpandedMarkdown"),
       copySuccess: t("contextMenu.copySuccess"),
       copyFail: t("contextMenu.copyFail"),
     }),
-    [t]
+    [mindLocale, t]
   );
   const desktopContextMenuGroups = useMemo(() => {
     const builtInLabels =
@@ -1248,7 +1253,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         builtInLabels.focus,
         builtInLabels.cancelFocus,
         builtInLabels.link,
-        builtInLabels.linkBidirectional,
+        contextMenuText.linkBidirectional,
         builtInLabels.summary,
       ],
       [builtInLabels.removeNode],
@@ -1256,6 +1261,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   }, [
     contextMenuText.copyExpandedMarkdown,
     contextMenuText.copyMarkdown,
+    contextMenuText.linkBidirectional,
     imageText.addOrReplace,
     imageText.remove,
     mindLocale,
@@ -1365,6 +1371,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     () => ({
       ...mobileEditLabelsFromResponsive,
       editContent: t("mobileEdit.editContent"),
+      linkBidirectional: t("mobileEdit.linkBidirectional"),
       addOrReplaceImage: t("mobileEdit.addOrReplaceImage"),
       removeImage: t("mobileEdit.removeImage"),
     }),
@@ -2064,6 +2071,28 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         }
       };
 
+      function startBidirectionalLink() {
+        const from = mind.currentNode as
+          | (HTMLElement & { nodeObj?: AnyNode })
+          | null
+          | undefined;
+        if (!from?.nodeObj?.id || !mind.map) return;
+        toast.message(contextMenuText.linkTargetPrompt);
+        mind.map.addEventListener(
+          "click",
+          (event: MouseEvent) => {
+            event.preventDefault();
+            const target = event.target as HTMLElement | null;
+            const to = target?.closest?.("me-tpc") as
+              | (HTMLElement & { nodeObj?: AnyNode })
+              | null;
+            if (!to || to === from) return;
+            mind.createArrow?.(from, to, { bidirectional: true });
+          },
+          { once: true }
+        );
+      }
+
       const mind = new MindElixir({
         el: elRef.current,
         direction: MindElixir.RIGHT,
@@ -2073,8 +2102,16 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         editable: true,
         contextMenu: {
           focus: true,
-          link: true,
+          link: false,
           extend: [
+            ...(editMode === "edit"
+              ? [
+                  {
+                    name: contextMenuText.linkBidirectional,
+                    onclick: startBidirectionalLink,
+                  },
+                ]
+              : []),
             {
               name: contextMenuText.copyMarkdown,
               onclick: async () => {
@@ -2225,6 +2262,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
       const originalExpandNode = mind.expandNode?.bind(mind);
       if (typeof originalExpandNode === "function") {
+        const notifyExpandNodeChange = () => {
+          requestAnimationFrame(() => {
+            syncLatestMindDataFromMind();
+            scheduleMiniMapDraw();
+            onChangeRef.current?.({ name: "expandNode" });
+          });
+        };
+
         mind.expandNode = (target?: any, expanded?: boolean) => {
           const resolvedTarget =
             resolveTopicEl(target) ??
@@ -2245,10 +2290,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
                   ? expanded
                   : nodeObj.expanded !== false;
             }
+            notifyExpandNodeChange();
             return;
           }
 
-          return originalExpandNode(resolvedTarget, expanded);
+          const result = originalExpandNode(resolvedTarget, expanded);
+          notifyExpandNodeChange();
+          return result;
         };
       }
 
@@ -2890,16 +2938,30 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         .context-menu .menu-list {
           max-height: min(420px, calc(100vh - 24px));
           max-width: min(240px, calc(100vw - 24px));
+          padding: 0.35rem;
+          background: rgba(255, 255, 255, 0.98);
+          border: 1px solid rgba(148, 163, 184, 0.24);
+          border-radius: 0.85rem;
           overflow-y: auto !important;
           overscroll-behavior: contain;
           -webkit-overflow-scrolling: touch;
+          box-shadow:
+            inset 0 -26px 20px -24px rgba(15, 23, 42, 0.55),
+            inset 0 18px 16px -22px rgba(15, 23, 42, 0.28);
+        }
+        .dark .context-menu .menu-list {
+          background: rgba(15, 23, 42, 0.98);
+          border-color: rgba(148, 163, 184, 0.22);
+          box-shadow:
+            inset 0 -26px 20px -24px rgba(226, 232, 240, 0.48),
+            inset 0 18px 16px -22px rgba(226, 232, 240, 0.22);
         }
         .context-menu .menu-list li {
           min-width: 0 !important;
         }
         .context-menu .menu-list li[data-menu-group-start="true"] {
-          margin-top: 0.35rem;
-          padding-top: 0.45rem;
+          margin-top: 0;
+          padding-top: 0.55rem;
           border-top: 1px solid rgba(148, 163, 184, 0.28);
         }
         .dark .context-menu .menu-list li[data-menu-group-start="true"] {
@@ -2995,7 +3057,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           border-radius: 999px;
           background: #2563eb;
           color: #ffffff;
-          z-index: 360;
+          z-index: 620;
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -3018,7 +3080,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           position: absolute;
           left: calc(100% + 10px);
           top: 50%;
-          z-index: 360;
+          z-index: 620;
           display: block;
           min-width: 96px;
           max-width: 220px;
@@ -3046,6 +3108,17 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         me-tpc[data-note-visible="true"] .me-note-preview {
           opacity: 1;
           visibility: visible;
+        }
+        me-wrapper:has(me-tpc[data-note-visible="true"]) {
+          position: relative;
+          z-index: 610 !important;
+        }
+        me-parent:has(> me-tpc[data-note-visible="true"]),
+        me-root:has(me-tpc[data-note-visible="true"]) {
+          z-index: 610 !important;
+        }
+        me-tpc[data-note-visible="true"] {
+          z-index: 611 !important;
         }
         me-tpc[data-note="true"] .me-note-dot {
           pointer-events: auto;
@@ -3164,6 +3237,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         onAddSibling={() => void runMobileNodeAction("addSibling")}
         onRename={() => void runMobileNodeAction("rename")}
         onEditContent={() => openRichTextEditor()}
+        onLinkBidirectional={() => void runMobileNodeAction("linkBidirectional")}
         onAddOrReplaceImage={() => triggerNodeImagePicker()}
         onRemoveImage={() => void handleRemoveNodeImage()}
         onRemove={() => void runMobileNodeAction("remove")}

@@ -1,7 +1,6 @@
 "use client";
 
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
-import { Link } from "@/i18n/navigation";
 import { getInAppBrowserName } from "@/lib/auth/browser";
 import MapMiniPreview, {
   type MapMiniPreviewHandle,
@@ -31,6 +30,7 @@ export default function MapPreviewPanel({
   isOpen,
   onOpen,
   onClose,
+  onOpenDetail,
 }: {
   draft: MapDraft | null;
   previewData: MapMiniPreviewData;
@@ -39,6 +39,7 @@ export default function MapPreviewPanel({
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
+  onOpenDetail?: (draft: MapDraft) => void;
 }) {
   const locale = useLocale();
   const t = useTranslations("MapsCommon.previewPanel");
@@ -126,13 +127,14 @@ export default function MapPreviewPanel({
           >
             {t("close")}
           </button>
-          {canOpenDetail && (
-            <Link
-              href={`/maps/${draft.id}`}
+          {canOpenDetail && onOpenDetail && (
+            <button
+              type="button"
+              onClick={() => onOpenDetail(draft)}
               className="inline-flex items-center justify-center rounded-full border border-slate-400 bg-white px-3.5 py-2 text-sm font-semibold text-neutral-700 hover:border-slate-500 hover:bg-neutral-50 hover:text-neutral-900 hover:shadow-sm cursor-pointer dark:border-white/20 dark:bg-white/[0.06] dark:text-white/85 dark:hover:border-white/40 dark:hover:bg-white/10"
             >
               {t("open")}
-            </Link>
+            </button>
           )}
         </div>
       </div>
