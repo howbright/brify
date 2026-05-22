@@ -563,6 +563,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const showTimestampsRef = useRef(showTimestamps);
   const currentLevelRef = useRef(0);
   const latestMindDataRef = useRef<any>(null);
+  const latestMindDataDirtyRef = useRef(false);
   const onReadyRef = useRef<typeof onReady>(onReady);
 
   const { resolvedTheme } = useTheme();
@@ -1338,6 +1339,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     normalizeMindData,
     findNodeById,
     normalizeNodeId,
+    markLatestMindDataDirty: () => {
+      latestMindDataDirtyRef.current = true;
+    },
     onChangeRef,
     setSelectedNoteText,
   });
@@ -1887,6 +1891,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       getSnapshot: () => {
         const mind = mindRef.current;
         if (!mind) return null;
+        if (latestMindDataDirtyRef.current && latestMindDataRef.current) {
+          return cloneMindData(latestMindDataRef.current);
+        }
         const raw = mind.getData?.() ?? mind.getAllData?.() ?? null;
         if (raw) {
           const cloned = cloneMindData(raw);
@@ -3082,8 +3089,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           top: 50%;
           z-index: 620;
           display: block;
-          min-width: 96px;
-          max-width: 220px;
+          min-width: 240px;
+          max-width: min(380px, calc(100vw - 96px));
           padding: 8px 10px;
           border-radius: 10px;
           border: 1px solid rgba(148, 163, 184, 0.42);
@@ -3134,8 +3141,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         @media (max-width: 639px) {
           .me-note-preview {
             left: calc(100% + 8px);
-            min-width: 84px;
-            max-width: min(42vw, 160px);
+            min-width: 180px;
+            max-width: min(72vw, 320px);
             padding: 6px 8px;
             font-size: 10px;
           }

@@ -27,6 +27,7 @@ type Params = {
   normalizeMindData: (raw: unknown) => MindDataSnapshot | null;
   findNodeById: (node: AnyNode, id: string) => AnyNode | null;
   normalizeNodeId: (id: string) => string;
+  markLatestMindDataDirty: () => void;
   onChangeRef: React.RefObject<
     ((op: NoteUpdateOperation) => void) | null | undefined
   >;
@@ -41,6 +42,7 @@ export function useMindElixirNotes({
   normalizeMindData,
   findNodeById,
   normalizeNodeId,
+  markLatestMindDataDirty,
   onChangeRef,
   setSelectedNoteText,
 }: Params) {
@@ -114,6 +116,7 @@ export function useMindElixirNotes({
       if (latestNode) {
         delete latestNode.note;
       }
+      markLatestMindDataDirty();
       syncNoteDecoration(selectedEl, null);
       onChangeRef.current?.({
         name: "updateNote",
@@ -130,6 +133,7 @@ export function useMindElixirNotes({
     if (latestNode) {
       latestNode.note = clipped;
     }
+    markLatestMindDataDirty();
     syncNoteDecoration(selectedEl, clipped);
     onChangeRef.current?.({
       name: "updateNote",
