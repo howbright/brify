@@ -5,6 +5,10 @@ const ALLOWED_TEXT_COLORS = new Set([
   "#dc2626",
   "#16a34a",
   "#7c3aed",
+  "#22d3ee",
+  "#a3e635",
+  "#facc15",
+  "#f472b6",
 ]);
 
 const RICH_TEXT_WRAPPER_CLASS = "text me-rich-text";

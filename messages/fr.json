@@ -2244,7 +2244,11 @@
         "blue": "Bleu",
         "red": "Rouge",
         "green": "Vert",
-        "purple": "Violet"
+        "purple": "Violet",
+        "cyan": "Cyan",
+        "lime": "Citron vert",
+        "amber": "Ambre",
+        "pink": "Rose"
       }
     },
     "highlight": "Surligner",

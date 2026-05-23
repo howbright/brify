@@ -621,6 +621,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         { value: "#dc2626", label: t("richText.colors.red") },
         { value: "#16a34a", label: t("richText.colors.green") },
         { value: "#7c3aed", label: t("richText.colors.purple") },
+        { value: "#22d3ee", label: t("richText.colors.cyan") },
+        { value: "#a3e635", label: t("richText.colors.lime") },
+        { value: "#facc15", label: t("richText.colors.amber") },
+        { value: "#f472b6", label: t("richText.colors.pink") },
       ],
     }),
     [t]

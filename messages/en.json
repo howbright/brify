@@ -2687,7 +2687,11 @@
         "blue": "Blue",
         "red": "Red",
         "green": "Green",
-        "purple": "Purple"
+        "purple": "Purple",
+        "cyan": "Cyan",
+        "lime": "Lime",
+        "amber": "Amber",
+        "pink": "Pink"
       }
     },
     "highlight": "Highlight",
