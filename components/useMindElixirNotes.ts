@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+const NODE_NOTE_MAX_LENGTH = 1000;
+
 type AnyNode = {
   id: string;
   topic: string;
@@ -128,7 +130,7 @@ export function useMindElixirNotes({
       setNoteTargetId(null);
       return;
     }
-    const clipped = trimmed.slice(0, 500);
+    const clipped = trimmed.slice(0, NODE_NOTE_MAX_LENGTH);
     selectedEl.nodeObj.note = clipped;
     if (latestNode) {
       latestNode.note = clipped;

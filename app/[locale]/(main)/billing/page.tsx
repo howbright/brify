@@ -679,8 +679,8 @@ function CreditPackCard({
           },
           orderId: data.orderId,
           orderName: data.orderName,
-          successUrl: `${window.location.origin}/${locale}/billing/toss/success`,
-          failUrl: `${window.location.origin}/${locale}/billing/toss/fail`,
+          successUrl: `${window.location.origin}/billing/toss/success`,
+          failUrl: `${window.location.origin}/billing/toss/fail`,
           customerEmail: userEmail ?? undefined,
         });
       } catch (error) {

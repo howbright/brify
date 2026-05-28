@@ -5,6 +5,8 @@ import { Icon } from "@iconify/react";
 import MindElixirMobileControls from "@/components/MindElixirMobileControls";
 import MindElixirMiniMap from "@/components/MindElixirMiniMap";
 
+const NODE_NOTE_MAX_LENGTH = 1000;
+
 type ClientMindElixirOverlayProps = {
   elRef: React.RefObject<HTMLDivElement | null>;
   effectivePanMode: boolean;
@@ -440,13 +442,19 @@ export default function ClientMindElixirOverlay({
                 className="min-h-[132px] w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200/60 dark:border-white/10 dark:bg-[#0f172a] dark:text-white/85 dark:focus:border-blue-300 dark:focus:ring-blue-500/30"
                 placeholder={annotationPlaceholder}
                 value={noteDraft}
-                onChange={(e) => onNoteDraftChange(e.target.value.slice(0, 500))}
-                maxLength={500}
+                onChange={(e) =>
+                  onNoteDraftChange(
+                    e.target.value.slice(0, NODE_NOTE_MAX_LENGTH)
+                  )
+                }
+                maxLength={NODE_NOTE_MAX_LENGTH}
                 autoFocus
               />
 
               <div className="flex items-center justify-between gap-3 text-[11px] text-neutral-500 dark:text-white/60">
-                <span>{noteDraft.length}/500</span>
+                <span>
+                  {noteDraft.length}/{NODE_NOTE_MAX_LENGTH}
+                </span>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
