@@ -48,6 +48,7 @@ type ClientMindElixirProps = {
   editMode?: "view" | "edit";
   onChange?: (op: any) => void;
   onViewModeEditAttempt?: () => void;
+  onOpenSlideshow?: () => void;
 
   zoomSensitivity?: number; // scaleSensitivity
   dragButton?: 0 | 2; // mouseSelectionButton
@@ -82,6 +83,7 @@ export type ClientMindElixirHandle = {
   setEditMode: (enabled: boolean) => void;
   setLayout: (mode: "left" | "right" | "side") => void;
   getSnapshot: () => any | null;
+  getSelectedSubtree: () => AnyNode | null;
   exportPng: () => Promise<Blob | null>;
   centerMap: () => void;
   undo: () => void;
@@ -533,6 +535,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       editMode = "edit",
       onChange,
       onViewModeEditAttempt,
+      onOpenSlideshow,
       zoomSensitivity = 0.1,
       dragButton = 0,
       fitOnInit = true,
@@ -1379,6 +1382,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     () => ({
       ...mobileEditLabelsFromResponsive,
       editContent: t("mobileEdit.editContent"),
+      slideshow: t("slideshow.open"),
       linkBidirectional: t("mobileEdit.linkBidirectional"),
       addOrReplaceImage: t("mobileEdit.addOrReplaceImage"),
       removeImage: t("mobileEdit.removeImage"),
@@ -1908,6 +1912,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           return cloneMindData(latestMindDataRef.current);
         }
         return null;
+      },
+      getSelectedSubtree: () => {
+        const selectedId = selectedNodeIdRef.current;
+        if (!selectedId) return null;
+        const normalized =
+          normalizeMindData(latestMindDataRef.current) ?? syncLatestMindDataFromMind();
+        if (!normalized?.node) return null;
+        const node = findNodeById(normalized.node, selectedId);
+        return node ? cloneMindData(node) : null;
       },
       exportPng: async () => {
         const mind = mindRef.current;
@@ -3322,6 +3335,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             setImagePreview(selectedNodeImagePreview);
           }
         }}
+        slideshowLabel={t("slideshow.open")}
+        onSlideshowClick={() => onOpenSlideshow?.()}
         onHighlightClick={() => handleHighlightClick(selectedNodeIdRef.current)}
         showAnnotationAction={showAnnotationAction}
         showHighlightAction={showHighlightAction}

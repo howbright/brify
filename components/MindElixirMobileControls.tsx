@@ -8,6 +8,7 @@ type Labels = {
   addSibling: string;
   rename: string;
   editContent: string;
+  slideshow: string;
   linkBidirectional: string;
   addOrReplaceImage: string;
   removeImage: string;
@@ -31,6 +32,7 @@ type Props = {
   onAddSibling: () => void;
   onRename: () => void;
   onEditContent: () => void;
+  onSlideshow: () => void;
   onLinkBidirectional: () => void;
   onAddOrReplaceImage: () => void;
   onRemoveImage: () => void;
@@ -54,6 +56,7 @@ export default function MindElixirMobileControls({
   onAddSibling: _onAddSibling,
   onRename,
   onEditContent,
+  onSlideshow,
   onLinkBidirectional,
   onAddOrReplaceImage,
   onRemoveImage,
@@ -253,6 +256,23 @@ export default function MindElixirMobileControls({
                     ].join(" ")}
                   />
                   <span>{labels.editContent}</span>
+                </span>
+                <Icon
+                  icon="mdi:chevron-right"
+                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
+                />
+              </button>
+              <button
+                type="button"
+                onClick={onSlideshow}
+                className={`${baseItemClassName} bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]`}
+              >
+                <span className="inline-flex items-center gap-3">
+                  <Icon
+                    icon="mdi:presentation-play"
+                    className="h-4.5 w-4.5 shrink-0 text-neutral-700 dark:text-white/75"
+                  />
+                  <span>{labels.slideshow}</span>
                 </span>
                 <Icon
                   icon="mdi:chevron-right"

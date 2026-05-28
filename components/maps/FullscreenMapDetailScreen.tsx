@@ -29,6 +29,12 @@ import DiscardDraftDialog from "@/components/maps/DiscardDraftDialog";
 import ShareDialog from "@/components/maps/ShareDialog";
 import ShortcutsDialog from "@/components/maps/ShortcutsDialog";
 import TagEditDialog from "@/components/maps/TagEditDialog";
+import MapSlideshowDialog from "@/components/maps/MapSlideshowDialog";
+import {
+  buildDfsSlides,
+  type SlideItem,
+  type SlideshowNode,
+} from "@/components/maps/mapSlideshow";
 import { createClient } from "@/utils/supabase/client";
 import LanguageSelector from "@/components/LanguageSelector";
 import type { Database } from "@/app/types/database.types";
@@ -596,6 +602,8 @@ export default function FullscreenMapDetailScreen({
   >([]);
   const [desktopMoreOpen, setDesktopMoreOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [slideshowOpen, setSlideshowOpen] = useState(false);
+  const [slideshowSlides, setSlideshowSlides] = useState<SlideItem[]>([]);
   const [mobileMapActionsOpen, setMobileMapActionsOpen] = useState(false);
   const [mobileThemeOpen, setMobileThemeOpen] = useState(false);
   const [mobileStateOpen, setMobileStateOpen] = useState(false);
@@ -1336,6 +1344,21 @@ export default function FullscreenMapDetailScreen({
     if (options?.persistViewState && mapId) {
       persistMapViewState(mapId, snapshot);
     }
+  };
+
+  const handleOpenSlideshow = () => {
+    const subtree = mindRef.current?.getSelectedSubtree?.() as SlideshowNode | null;
+    if (!subtree) {
+      toast.message("슬라이드쇼를 시작할 노드를 선택해 주세요.");
+      return;
+    }
+    const slides = buildDfsSlides(subtree);
+    if (slides.length === 0) {
+      toast.message("슬라이드로 볼 내용이 없어요.");
+      return;
+    }
+    setSlideshowSlides(slides);
+    setSlideshowOpen(true);
   };
 
   useEffect(() => {
@@ -3044,6 +3067,7 @@ export default function FullscreenMapDetailScreen({
               mode={resolvedTheme === "dark" ? "dark" : "light"}
               editMode={editMode}
               onReady={applyInitialCollapse}
+              onOpenSlideshow={handleOpenSlideshow}
               onChange={
                 isReadOnlyView
                   ? undefined
@@ -3664,6 +3688,12 @@ export default function FullscreenMapDetailScreen({
           </div>
         </div>
       ) : null}
+
+      <MapSlideshowDialog
+        open={slideshowOpen}
+        slides={slideshowSlides}
+        onClose={() => setSlideshowOpen(false)}
+      />
 
     </div>
   );

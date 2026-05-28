@@ -21,6 +21,7 @@ type ClientMindElixirOverlayProps = {
     addSibling: string;
     rename: string;
     editContent: string;
+    slideshow: string;
     linkBidirectional: string;
     addOrReplaceImage: string;
     removeImage: string;
@@ -63,6 +64,8 @@ type ClientMindElixirOverlayProps = {
   showImagePreviewAction: boolean;
   imagePreviewLabel: string;
   onImagePreviewClick: () => void;
+  slideshowLabel: string;
+  onSlideshowClick: () => void;
   onNoteClick: () => void;
   onHighlightClick: () => void;
   showAnnotationAction: boolean;
@@ -186,6 +189,8 @@ export default function ClientMindElixirOverlay({
   showImagePreviewAction,
   imagePreviewLabel,
   onImagePreviewClick,
+  slideshowLabel,
+  onSlideshowClick,
   onNoteClick,
   onHighlightClick,
   showAnnotationAction,
@@ -247,6 +252,10 @@ export default function ClientMindElixirOverlay({
         onAddSibling={onAddSibling}
         onRename={onRename}
         onEditContent={onEditContent}
+        onSlideshow={() => {
+          onCloseMobileActions();
+          onSlideshowClick();
+        }}
         onLinkBidirectional={onLinkBidirectional}
         onAddOrReplaceImage={onAddOrReplaceImage}
         onRemoveImage={onRemoveImage}
@@ -313,6 +322,23 @@ export default function ClientMindElixirOverlay({
                   <Icon icon="mdi:image-search-outline" className={hoverActionIconClass} />
                   <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
                     {imagePreviewLabel}
+                  </span>
+                </button>
+              ) : null}
+              {selectedNodeId ? (
+                <button
+                  type="button"
+                  className={`${hoverActionButtonClass} bg-teal-600 text-white ring-1 ring-teal-700/60`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSlideshowClick();
+                  }}
+                  aria-label={slideshowLabel}
+                  title={slideshowLabel}
+                >
+                  <Icon icon="mdi:presentation-play" className={hoverActionIconClass} />
+                  <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                    {slideshowLabel}
                   </span>
                 </button>
               ) : null}

@@ -2695,6 +2695,9 @@
       }
     },
     "highlight": "Highlight",
+    "slideshow": {
+      "open": "Slideshow"
+    },
     "focusMode": {
       "label": "Focus mode",
       "exit": "Exit"
