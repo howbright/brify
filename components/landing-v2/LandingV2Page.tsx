@@ -183,7 +183,6 @@ const COPY = {
     openMap: "열기",
     brandHome: "홈",
     navBlog: "블로그",
-    navAbout: "소개",
     navPricing: "요금제",
     navSupport: "문의/피드백",
     newMap: "새 구조맵",
@@ -274,7 +273,6 @@ const COPY = {
     openMap: "Open",
     brandHome: "Home",
     navBlog: "Blog",
-    navAbout: "About",
     navPricing: "Pricing",
     navSupport: "Support",
     newMap: "New map",
@@ -365,7 +363,6 @@ const COPY = {
     openMap: "Ouvrir",
     brandHome: "Accueil",
     navBlog: "Blog",
-    navAbout: "Présentation",
     navPricing: "Tarifs",
     navSupport: "Support",
     newMap: "Nouvelle carte",
@@ -1156,7 +1153,6 @@ export default function LandingV2Page({
   const publicNavItems = [
     { label: copy.brandHome, href: route(""), icon: "lucide:home" },
     { label: copy.navBlog, href: route("/blog"), icon: "lucide:newspaper" },
-    { label: copy.navAbout, href: `${route("")}#about`, icon: "lucide:info" },
     { label: copy.navPricing, href: route("/pricing"), icon: "lucide:badge-dollar-sign" },
     { label: copy.navSupport, href: route("/support"), icon: "lucide:message-circle" },
   ];

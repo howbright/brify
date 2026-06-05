@@ -1,8 +1,7 @@
 // app/[locale]/(main)/layout.tsx
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import FooterNew from "@/components/layout/Footer";
-import Header from "@/components/layout/Header";
+import AppShell from "@/components/layout/AppShell";
 import { createClient } from "@/utils/supabase/server";
 import { MindThemePreferenceProvider } from "@/components/maps/MindThemePreferenceProvider";
 import { resolveTermsAccess } from "@/app/lib/auth/resolveTermsAccess";
@@ -80,9 +79,9 @@ export default async function MainLayout({
     <MindThemePreferenceProvider
       profileThemeName={resolvedProfile?.mind_theme_preference ?? null}
     >
-      <Header />
-      <div>{children}</div>
-      <FooterNew />
+      <AppShell locale={locale} email={user.email ?? null}>
+        {children}
+      </AppShell>
     </MindThemePreferenceProvider>
   );
 }

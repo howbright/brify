@@ -118,6 +118,15 @@ function persistMapViewState(mapId: string, snapshot: MapRow["mind_elixir"]) {
   }
 }
 
+function stringifyMindData(snapshot: MapRow["mind_elixir"] | null | undefined) {
+  if (!snapshot) return null;
+  try {
+    return JSON.stringify(snapshot);
+  } catch {
+    return null;
+  }
+}
+
 function coerceMapStatus(status?: string | null): MapJobStatus {
   if (
     status === "done" ||
@@ -595,6 +604,8 @@ export default function FullscreenMapDetailScreen({
   const [savedPulse, setSavedPulse] = useState(false);
   const autoSaveTimerRef = useRef<number | null>(null);
   const lastSavedDraftRef = useRef<string | null>(null);
+  const isSavingDraftRef = useRef(false);
+  const latestLocalMindPayloadRef = useRef<string | null>(null);
   const lastAutoSaveErrorRef = useRef<number>(0);
   const lastHighlightToastRef = useRef(0);
   const savedPulseTimerRef = useRef<number | null>(null);
@@ -708,6 +719,15 @@ export default function FullscreenMapDetailScreen({
     if (typeof window === "undefined") return;
     setIsEmbeddedFrame(window.self !== window.top);
   }, []);
+
+  useEffect(() => {
+    isSavingDraftRef.current = isSavingDraft;
+  }, [isSavingDraft]);
+
+  useEffect(() => {
+    latestLocalMindPayloadRef.current = null;
+    lastSavedDraftRef.current = null;
+  }, [mapId]);
 
   useEffect(() => {
     if (!mapId) return;
@@ -1033,8 +1053,17 @@ export default function FullscreenMapDetailScreen({
         const effectiveMind = row?.mind_elixir_draft ?? row?.mind_elixir ?? null;
         setHasDraft(Boolean(row?.mind_elixir_draft));
         if (effectiveMind) {
-          setMapData(effectiveMind);
-          setPanelMindData(effectiveMind);
+          const serverPayload = stringifyMindData(effectiveMind);
+          const localPayload = latestLocalMindPayloadRef.current;
+          const hasLocalMindChange = Boolean(
+            localPayload || autoSaveTimerRef.current || isSavingDraftRef.current
+          );
+          if (!hasLocalMindChange || serverPayload === localPayload) {
+            setPanelMindData(effectiveMind);
+            if (!localPayload) {
+              setMapData(effectiveMind);
+            }
+          }
         }
       } catch {
         // ignore polling errors and keep the current screen stable
@@ -1305,11 +1334,14 @@ export default function FullscreenMapDetailScreen({
       window.clearTimeout(autoSaveTimerRef.current);
     }
     autoSaveTimerRef.current = window.setTimeout(async () => {
+      autoSaveTimerRef.current = null;
       const snapshot = mindRef.current?.getSnapshot?.();
       if (!snapshot) return;
       const payload = JSON.stringify(snapshot);
+      latestLocalMindPayloadRef.current = payload;
       if (payload === lastSavedDraftRef.current) return;
 
+      isSavingDraftRef.current = true;
       setIsSavingDraft(true);
       try {
         const res = await fetch(`/api/maps/${mapId}/draft`, {
@@ -1324,6 +1356,12 @@ export default function FullscreenMapDetailScreen({
           throw new Error(json?.error || `AUTO_SAVE_FAILED_${res.status}`);
         }
         lastSavedDraftRef.current = payload;
+        const currentPayload = stringifyMindData(
+          mindRef.current?.getSnapshot?.() as MapRow["mind_elixir"] | null
+        );
+        if (currentPayload === payload && !autoSaveTimerRef.current) {
+          latestLocalMindPayloadRef.current = payload;
+        }
         setHasDraft(true);
         setSavedPulse(true);
         if (savedPulseTimerRef.current) {
@@ -1343,6 +1381,7 @@ export default function FullscreenMapDetailScreen({
           toast.message(message);
         }
       } finally {
+        isSavingDraftRef.current = false;
         setIsSavingDraft(false);
       }
     }, 1200);
@@ -1351,9 +1390,13 @@ export default function FullscreenMapDetailScreen({
   const syncMindDataFromMind = (options?: {
     persistViewState?: boolean;
     updateReactState?: boolean;
+    markLocalChange?: boolean;
   }) => {
     const snapshot = mindRef.current?.getSnapshot?.() as MapRow["mind_elixir"] | null;
     if (!snapshot) return;
+    if (options?.markLocalChange) {
+      latestLocalMindPayloadRef.current = stringifyMindData(snapshot);
+    }
     if (options?.updateReactState) {
       setMapData(snapshot);
       setPanelMindData(snapshot);
@@ -1883,6 +1926,7 @@ export default function FullscreenMapDetailScreen({
         if (!res.ok) throw new Error(t("publishToast.failed"));
         setHasDraft(false);
         lastSavedDraftRef.current = null;
+        latestLocalMindPayloadRef.current = null;
         // 발행된 원본을 다시 동기화
         try {
           const supabase = createClient();
@@ -1921,6 +1965,7 @@ export default function FullscreenMapDetailScreen({
         if (!res.ok) throw new Error(t("discardToast.failed"));
         setHasDraft(false);
         lastSavedDraftRef.current = null;
+        latestLocalMindPayloadRef.current = null;
         // 원본 맵으로 즉시 되돌리기
         try {
           const supabase = createClient();
@@ -3104,12 +3149,18 @@ export default function FullscreenMapDetailScreen({
                   : (op) => {
                       if (!op?.name) return;
                       if (op.name === "toggleHighlight") {
-                        syncMindDataFromMind({ persistViewState: true });
+                        syncMindDataFromMind({
+                          persistViewState: true,
+                          markLocalChange: true,
+                        });
                         scheduleAutoSave();
                         return;
                       }
                       if (op.name === "updateNote") {
-                        syncMindDataFromMind({ persistViewState: true });
+                        syncMindDataFromMind({
+                          persistViewState: true,
+                          markLocalChange: true,
+                        });
                         const now = Date.now();
                         if (now - lastHighlightToastRef.current > 2000) {
                           lastHighlightToastRef.current = now;
@@ -3119,12 +3170,18 @@ export default function FullscreenMapDetailScreen({
                         return;
                       }
                       if (op.name === "updateImage") {
-                        syncMindDataFromMind({ persistViewState: true });
+                        syncMindDataFromMind({
+                          persistViewState: true,
+                          markLocalChange: true,
+                        });
                         scheduleAutoSave();
                         return;
                       }
                       if (op.name === "updateRichText") {
-                        syncMindDataFromMind({ persistViewState: true });
+                        syncMindDataFromMind({
+                          persistViewState: true,
+                          markLocalChange: true,
+                        });
                         scheduleAutoSave();
                         return;
                       }
@@ -3133,7 +3190,10 @@ export default function FullscreenMapDetailScreen({
                         return;
                       }
                       if (!MUTATING_OPS.has(op.name)) return;
-                      syncMindDataFromMind({ persistViewState: true });
+                      syncMindDataFromMind({
+                        persistViewState: true,
+                        markLocalChange: true,
+                      });
                       scheduleAutoSave();
                     }
               }

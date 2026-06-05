@@ -3053,6 +3053,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           position: relative;
           overflow: visible;
         }
+        me-tpc.selected {
+          outline: none !important;
+          outline-offset: 0 !important;
+        }
         .${DEFAULT_DARK_CANVAS_CLASS} me-tpc {
           border: 1.5px solid rgba(255, 255, 255, 0.84) !important;
           box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);

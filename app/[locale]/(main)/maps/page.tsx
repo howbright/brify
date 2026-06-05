@@ -57,6 +57,7 @@ type MapsPageTab = "maps" | "notes" | "terms";
 const LIST_FIELDS =
   "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,summary,map_status,credits_charged,notes_count,terms_count,mind_elixir";
 const PAGE_SIZE = 20;
+const MAP_LIST_TOOLBAR_STICKY_TOP = 0;
 const NO_TAG_FILTER = "__NO_TAG__";
 
 function clearMapViewState(mapId: string) {
@@ -597,7 +598,7 @@ export default function MapsPage() {
     shellRef: toolbarShellRef,
     innerRef: toolbarInnerRef,
     enabled: true,
-    threshold: 65,
+    threshold: MAP_LIST_TOOLBAR_STICKY_TOP,
     refreshKey: [
       isMobileViewport,
       previewOpen,
@@ -709,8 +710,8 @@ export default function MapsPage() {
   };
 
   return (
-    <main className="min-h-[70vh] bg-neutral-50 px-6 pt-22 pb-12 dark:bg-[#07111f]">
-      <div className="mx-auto max-w-6xl">
+    <main className="min-h-[calc(100vh-2rem)] bg-transparent pb-12 pt-2">
+      <div className="mx-auto max-w-7xl">
         <div className="mb-4 flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
             {tPage("title")}
@@ -823,7 +824,7 @@ export default function MapsPage() {
                   toolbarPinned
                     ? {
                         position: "fixed",
-                        top: 65,
+                        top: MAP_LIST_TOOLBAR_STICKY_TOP,
                         left: toolbarMetrics.left,
                         width: toolbarMetrics.width,
                         zIndex: filtersOpen ? 120 : 40,

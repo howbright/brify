@@ -338,25 +338,24 @@ export default function MapListItem({
             {structurePreview ? (
               <div className="min-w-0">
                 {structurePreview.rootTopic ? (
-                  <p className="line-clamp-1 text-[12px] font-semibold leading-5 text-slate-700 dark:text-white/76 md:text-[13px]">
-                    {structurePreview.rootTopic}
+                  <p className="inline-flex max-w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[12px] font-semibold leading-5 text-slate-800 shadow-[0_8px_18px_-16px_rgba(15,23,42,0.35)] dark:border-white/10 dark:bg-white/[0.065] dark:text-white/82 md:text-[13px]">
+                    <span className="line-clamp-1">
+                      {structurePreview.rootTopic}
+                    </span>
                   </p>
                 ) : null}
                 {structurePreview.childTopics.length ? (
-                  <div className="mt-1.5 flex min-w-0 flex-col gap-1">
+                  <div className="relative ml-2 mt-2 flex min-w-0 flex-col gap-1.5 pl-4 before:absolute before:bottom-2 before:left-0 before:top-0 before:w-px before:bg-slate-200 dark:before:bg-white/12">
                     {structurePreview.childTopics.map((topic, index) => (
                       <span
                         key={`${topic}-${index}`}
-                        className="block max-w-full truncate text-[10px] font-medium leading-4 text-slate-600 dark:text-white/68 md:text-[11px]"
+                        className="relative block max-w-full truncate rounded-md border border-slate-200/80 bg-white px-2 py-1 text-[10px] font-medium leading-4 text-slate-600 shadow-[0_8px_16px_-18px_rgba(15,23,42,0.28)] before:absolute before:left-[-16px] before:top-1/2 before:h-px before:w-4 before:bg-slate-200 dark:border-white/10 dark:bg-white/[0.045] dark:text-white/68 dark:before:bg-white/12 md:text-[11px]"
                       >
-                        <span className="mr-1 text-slate-400 dark:text-white/35">
-                          -
-                        </span>
                         {topic}
                       </span>
                     ))}
                     {structurePreview.remainingChildCount > 0 ? (
-                      <span className="block text-[10px] font-medium leading-4 text-slate-500 dark:text-white/54 md:text-[11px]">
+                      <span className="relative block text-[10px] font-medium leading-4 text-slate-500 before:absolute before:left-[-16px] before:top-1/2 before:h-px before:w-4 before:bg-slate-200 dark:text-white/54 dark:before:bg-white/12 md:text-[11px]">
                         +{structurePreview.remainingChildCount}
                       </span>
                     ) : null}
