@@ -2258,6 +2258,15 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           .filter((item): item is HTMLElement => item instanceof HTMLElement);
       };
 
+      const resolveActiveTopicEl = () => {
+        const selectedId = selectedNodeIdRef.current;
+        return (
+          resolveTopicEl(mind.currentNode) ??
+          resolveTopicEl(selectedNodeElRef.current) ??
+          (selectedId ? resolveTopicEl(getNodeElById(selectedId)) : null)
+        );
+      };
+
       const patchTopicMethod = (
         key:
           | "selectNode"
@@ -2271,7 +2280,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         mind[key] = (target?: any, ...args: any[]) => {
           const resolvedTarget =
             resolveTopicEl(target) ??
-            resolveTopicEl(mind.currentNode) ??
+            resolveActiveTopicEl() ??
             undefined;
           if (!resolvedTarget) return;
           return original(resolvedTarget, ...args);
@@ -2297,7 +2306,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         mind.expandNode = (target?: any, expanded?: boolean) => {
           const resolvedTarget =
             resolveTopicEl(target) ??
-            resolveTopicEl(mind.currentNode) ??
+            resolveActiveTopicEl() ??
             undefined;
           if (!resolvedTarget) return;
 
@@ -2329,7 +2338,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         mind.insertSibling = (type: "before" | "after", target?: any, ...args: any[]) => {
           const resolvedTarget =
             resolveTopicEl(target) ??
-            resolveTopicEl(mind.currentNode) ??
+            resolveActiveTopicEl() ??
             undefined;
           if (!resolvedTarget) return;
           return originalInsertSibling(type, resolvedTarget, ...args);
@@ -2341,7 +2350,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         mind.removeNodes = (targets?: any[]) => {
           const resolvedTargets = resolveTopicEls(targets);
           if (resolvedTargets.length === 0) {
-            const fallback = resolveTopicEl(mind.currentNode);
+            const fallback = resolveActiveTopicEl();
             if (!fallback) return;
             return originalRemoveNodes([fallback]);
           }
@@ -2551,6 +2560,39 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         }
       }
 
+      const originalScrollIntoView = mind.scrollIntoView?.bind(mind);
+      if (typeof originalScrollIntoView === "function") {
+        mind.scrollIntoView = (target?: any) => {
+          const topicEl = resolveTopicEl(target);
+          const container = mind.container as HTMLElement | null | undefined;
+          if (!topicEl || !container) {
+            return originalScrollIntoView(target);
+          }
+
+          const nodeRect = topicEl.getBoundingClientRect();
+          const containerRect = container.getBoundingClientRect();
+          const padding = 56;
+          let dx = 0;
+          let dy = 0;
+
+          if (nodeRect.left < containerRect.left + padding) {
+            dx = containerRect.left + padding - nodeRect.left;
+          } else if (nodeRect.right > containerRect.right - padding) {
+            dx = containerRect.right - padding - nodeRect.right;
+          }
+
+          if (nodeRect.top < containerRect.top + padding) {
+            dy = containerRect.top + padding - nodeRect.top;
+          } else if (nodeRect.bottom > containerRect.bottom - padding) {
+            dy = containerRect.bottom - padding - nodeRect.bottom;
+          }
+
+          if (dx !== 0 || dy !== 0) {
+            mind.move?.(dx, dy, true);
+          }
+        };
+      }
+
       mind.init(initialData);
       latestMindDataRef.current = cloneMindData(initialData);
       mindRef.current = mind;
@@ -2705,23 +2747,39 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       });
 
       mind.bus?.addListener?.("operation", (op: any) => {
-      requestAnimationFrame(() => {
-        syncLatestMindDataFromMind();
-        syncNodeDecorations();
-        if (
-          op?.name === "moveNodeBefore" ||
-          op?.name === "moveNodeAfter" ||
-          op?.name === "moveNodeIn" ||
-          op?.name === "moveUpNode" ||
-          op?.name === "moveDownNode" ||
-          op?.name === "addChild" ||
-          op?.name === "insertSibling" ||
-          op?.name === "insertParent" ||
-          op?.name === "finishEdit"
-        ) {
-          updateSelectedRect(selectedNodeIdRef.current);
+        const createdNodeId =
+          (op?.name === "addChild" ||
+            op?.name === "insertSibling" ||
+            op?.name === "insertParent") &&
+          typeof op?.obj?.id === "string"
+            ? op.obj.id
+            : null;
+        if (createdNodeId) {
+          const createdNodeEl = resolveTopicEl({ id: createdNodeId });
+          selectedNodeIdRef.current = createdNodeId;
+          selectedNodeElRef.current = createdNodeEl;
+          setSelectedNodeId(createdNodeId);
+          setSelectedNoteText(null);
+          requestAnimationFrame(() => updateSelectedRect(createdNodeId));
         }
-      });
+
+        requestAnimationFrame(() => {
+          syncLatestMindDataFromMind();
+          syncNodeDecorations();
+          if (
+            op?.name === "moveNodeBefore" ||
+            op?.name === "moveNodeAfter" ||
+            op?.name === "moveNodeIn" ||
+            op?.name === "moveUpNode" ||
+            op?.name === "moveDownNode" ||
+            op?.name === "addChild" ||
+            op?.name === "insertSibling" ||
+            op?.name === "insertParent" ||
+            op?.name === "finishEdit"
+          ) {
+            updateSelectedRect(selectedNodeIdRef.current);
+          }
+        });
 
       if (op?.name === "beginEdit") {
         clearEditingNodeState();

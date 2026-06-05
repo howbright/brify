@@ -55,7 +55,7 @@ type SourceType = "youtube" | "website" | "file" | "manual";
 type MapsPageTab = "maps" | "notes" | "terms";
 
 const LIST_FIELDS =
-  "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,notes_count,terms_count";
+  "id,created_at,updated_at,title,channel_name,source_url,source_type,tags,description,summary,map_status,credits_charged,notes_count,terms_count,mind_elixir";
 const PAGE_SIZE = 20;
 const NO_TAG_FILTER = "__NO_TAG__";
 
@@ -118,6 +118,7 @@ function toDraft(row: MapRow): MapDraft {
     description: row.description ?? undefined,
     summary: row.summary ?? undefined,
     status: coerceMapStatus(row.map_status),
+    result: row.mind_elixir ?? undefined,
     creditsCharged:
       typeof row.credits_charged === "number" ? row.credits_charged : undefined,
     readStatus: rowWithState.read_status ?? "unread",
@@ -140,19 +141,17 @@ function getMapListDisplayTitle(draft: MapDraft) {
 
 function MapCardListSkeleton() {
   return (
-    <section className="mt-4 grid gap-2 w-full min-w-0">
+    <section className="mt-4 grid w-full min-w-0 gap-3 md:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: 6 }).map((_, index) => (
         <div
           key={index}
           className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-[#0f172a]/40"
         >
           <div className="flex items-start justify-between gap-4">
-            <div className="flex min-w-0 items-start gap-3 flex-1">
-              <div className="h-[60px] w-20 shrink-0 animate-pulse rounded-xl bg-neutral-200 dark:bg-white/10" />
-              <div className="min-w-0 flex-1">
-                <div className="h-4 w-2/3 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
-                <div className="mt-2 h-3 w-5/6 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
-              </div>
+            <div className="min-w-0 flex-1">
+              <div className="h-4 w-2/3 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
+              <div className="mt-2 h-3 w-5/6 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
+              <div className="mt-2 h-3 w-3/5 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
             </div>
             <div className="h-7 w-14 shrink-0 animate-pulse rounded-full bg-neutral-100 dark:bg-white/5" />
           </div>

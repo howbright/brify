@@ -9,9 +9,9 @@ function normalizeRedirectPath(raw: string | string[] | undefined, locale: strin
   const value = Array.isArray(raw) ? raw[0] : raw;
   const next = (value ?? "").trim();
 
-  if (!next || next === "/") return `/${locale}/video-to-map`;
+  if (!next || next === "/") return `/${locale}`;
   if (!next.startsWith("/") || next.startsWith("//")) {
-    return `/${locale}/video-to-map`;
+    return `/${locale}`;
   }
 
   if (
@@ -20,7 +20,7 @@ function normalizeRedirectPath(raw: string | string[] | undefined, locale: strin
     next === `/${locale}/signup/complete` ||
     next === `/${locale}/signup/incomplete`
   ) {
-    return `/${locale}/video-to-map`;
+    return `/${locale}`;
   }
 
   const hasSupportedLocalePrefix = SUPPORTED_LOCALES.some(

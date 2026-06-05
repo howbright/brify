@@ -132,6 +132,15 @@ function coerceMapStatus(status?: string | null): MapJobStatus {
   return "processing_structure";
 }
 
+function isActiveMapStatus(status?: MapJobStatus | null) {
+  return (
+    status === "idle" ||
+    status === "queued" ||
+    status === "processing_structure" ||
+    status === "processing_metadata"
+  );
+}
+
 function withCacheBuster(url: string) {
   try {
     const u = new URL(url);
@@ -877,10 +886,16 @@ export default function FullscreenMapDetailScreen({
 
           setHasDraft(Boolean(draftMind));
           if (!effectiveMind) {
-            throw new Error("mind_elixir 데이터가 없습니다.");
+            const nextDraft = toDraft(row);
+            if (!isActiveMapStatus(nextDraft.status)) {
+              throw new Error("mind_elixir 데이터가 없습니다.");
+            }
+            setMapData(null);
+            setPanelMindData(null);
+          } else {
+            setMapData(effectiveMind);
+            setPanelMindData(effectiveMind);
           }
-          setMapData(effectiveMind);
-          setPanelMindData(effectiveMind);
           setSharedNotes([]);
           setSharedTerms([]);
 
@@ -915,7 +930,7 @@ export default function FullscreenMapDetailScreen({
     if (loading || !draft) return;
     if (initializedMapIdRef.current === draft.id) return;
     initializedMapIdRef.current = draft.id;
-    setLeftOpen(!(isSharedView && isEmbeddedFrame) && !isTutorialMobile);
+    setLeftOpen(false);
     if (isEmbeddedFrame) {
       setTutorialOpen(false);
       setTutorialStepIndex(0);
@@ -931,11 +946,7 @@ export default function FullscreenMapDetailScreen({
   useEffect(() => {
     if (!mapId || !draft) return;
 
-    const isActiveStatus =
-      draft.status === "idle" ||
-      draft.status === "queued" ||
-      draft.status === "processing_structure" ||
-      draft.status === "processing_metadata";
+    const isActiveStatus = isActiveMapStatus(draft.status);
 
     if (!isActiveStatus) return;
 
@@ -1022,7 +1033,8 @@ export default function FullscreenMapDetailScreen({
         const effectiveMind = row?.mind_elixir_draft ?? row?.mind_elixir ?? null;
         setHasDraft(Boolean(row?.mind_elixir_draft));
         if (effectiveMind) {
-          setMapData((prev) => prev ?? effectiveMind);
+          setMapData(effectiveMind);
+          setPanelMindData(effectiveMind);
         }
       } catch {
         // ignore polling errors and keep the current screen stable
@@ -1336,11 +1348,16 @@ export default function FullscreenMapDetailScreen({
     }, 1200);
   };
 
-  const syncMindDataFromMind = (options?: { persistViewState?: boolean }) => {
+  const syncMindDataFromMind = (options?: {
+    persistViewState?: boolean;
+    updateReactState?: boolean;
+  }) => {
     const snapshot = mindRef.current?.getSnapshot?.() as MapRow["mind_elixir"] | null;
     if (!snapshot) return;
-    setMapData(snapshot);
-    setPanelMindData(snapshot);
+    if (options?.updateReactState) {
+      setMapData(snapshot);
+      setPanelMindData(snapshot);
+    }
     if (options?.persistViewState && mapId) {
       persistMapViewState(mapId, snapshot);
     }
@@ -2190,6 +2207,19 @@ export default function FullscreenMapDetailScreen({
   const sharedMissingTitle = t("sharedMissing.title");
   const sharedMissingDescription = t("sharedMissing.description");
   const sharedMissingAction = t("sharedMissing.action");
+  const isMapGenerating = Boolean(draft && isActiveMapStatus(draft.status) && !mapData);
+  const generatingTitle =
+    locale === "ko"
+      ? "구조맵을 만들고 있어요"
+      : locale === "fr"
+      ? "Création de la carte"
+      : "Creating your structure map";
+  const generatingDescription =
+    locale === "ko"
+      ? "긴 글의 흐름을 분석하고 노드로 배치하는 중입니다."
+      : locale === "fr"
+      ? "Analyse du texte et disposition des nœuds en cours."
+      : "Analyzing the text and arranging it into nodes.";
 
   if (isSharedView && !loading && !draft) {
     return (
@@ -3121,7 +3151,7 @@ export default function FullscreenMapDetailScreen({
                   : MIND_THEME_BY_NAME[themeName]
               }
               data={mapData ?? undefined}
-              loading={loading}
+              loading={loading || isMapGenerating}
               placeholderData={loadingMindElixir}
               showMiniMap={!isTutorialMobile}
               showTimestamps={showTimestamps}
@@ -3153,6 +3183,25 @@ export default function FullscreenMapDetailScreen({
             </span>
           </div>
         )}
+
+        {isMapGenerating ? (
+          <div className="pointer-events-none absolute inset-0 z-[18] flex items-center justify-center px-5">
+            <div className="max-w-[420px] rounded-[28px] border border-slate-200/80 bg-white/88 px-6 py-5 text-center shadow-[0_28px_80px_-42px_rgba(15,23,42,0.55)] backdrop-blur-xl dark:border-white/12 dark:bg-[#0f172a]/88 dark:shadow-[0_34px_90px_-44px_rgba(0,0,0,0.86)]">
+              <div className="mx-auto mb-3 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-600 dark:bg-cyan-400/12 dark:text-cyan-200">
+                <Icon icon="mdi:graph-outline" className="h-5 w-5" />
+              </div>
+              <div className="text-[17px] font-black tracking-normal text-slate-950 dark:text-white">
+                {generatingTitle}
+              </div>
+              <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-white/58">
+                {generatingDescription}
+              </p>
+              <div className="mx-auto mt-4 h-1.5 w-40 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
+                <div className="h-full w-1/2 animate-[pulse_1.4s_ease-in-out_infinite] rounded-full bg-cyan-500 dark:bg-cyan-300" />
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         {draft && (
           <LeftPanel

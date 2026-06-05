@@ -26,7 +26,7 @@ export default async function Signup({
   const { locale } = await params;
   const sp = searchParams ? await searchParams : undefined;
   const supabase = await createClient();
-  const nextPath = resolveNext(sp?.next, locale, `/${locale}/video-to-map`);
+  const nextPath = resolveNext(sp?.next, locale, `/${locale}`);
   const {
     data: { user },
   } = await supabase.auth.getUser();

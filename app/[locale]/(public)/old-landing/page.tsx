@@ -8,7 +8,7 @@ import CreatorSection from "@/components/layout/CreateorSection";
 import Hero from "@/components/layout/Hero";
 import { createClient } from "@/utils/supabase/server";
 
-export default async function Home({
+export default async function OldLanding({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -28,7 +28,7 @@ export default async function Home({
     alternateName: isKorean ? ["Brify", "브라이피"] : ["Brify"],
     applicationCategory: "ProductivityApplication",
     operatingSystem: "Web",
-    url: `https://www.brify.app/${locale}`,
+    url: `https://www.brify.app/${locale}/old-landing`,
     description: isKorean
       ? "브라이피(Brify)는 길고 복잡한 문서를 구조화해 핵심 흐름과 세부 정보를 함께 파악할 수 있도록 돕는 AI 문서 구조화 도구입니다."
       : "Brify is an AI document structuring tool that helps you organize long, complex documents so you can grasp core flow and critical details faster.",

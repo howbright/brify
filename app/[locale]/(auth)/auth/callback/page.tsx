@@ -1,26 +1,27 @@
-// app/auth/callback/page.tsx
-'use client'
+import { redirect } from "next/navigation";
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/utils/supabase/client'
+export default async function LocaleAuthCallbackPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const { locale } = await params;
+  const sp = searchParams ? await searchParams : {};
+  const nextParams = new URLSearchParams();
 
-export default function AuthCallbackPage() {
-  const supabase = createClient();
-  const router = useRouter()
-
-  useEffect(() => {
-    const handleLogin = async () => {
-      const { error } = await supabase.auth.getSession()
-      if (error) {
-        console.error('로그인 실패:', error.message)
-      } else {
-        router.push('/') // 로그인 후 이동할 페이지
-      }
+  for (const [key, value] of Object.entries(sp)) {
+    if (Array.isArray(value)) {
+      value.forEach((item) => nextParams.append(key, item));
+    } else if (value !== undefined) {
+      nextParams.set(key, value);
     }
+  }
 
-    handleLogin()
-  }, [router, supabase])
+  if (!nextParams.has("locale")) {
+    nextParams.set("locale", locale);
+  }
 
-  return <p className="text-center mt-10">로그인 중입니다... 잠시만 기다려주세요.</p>
+  redirect(`/auth/callback?${nextParams.toString()}`);
 }

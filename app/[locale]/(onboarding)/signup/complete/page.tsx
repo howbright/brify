@@ -14,16 +14,16 @@ const SUPPORTED_LOCALES = ["ko", "en", "fr"] as const;
 function normalizeRedirectPath(raw: string, locale: string) {
   const next = raw.trim();
 
-  if (!next || next === "/") return `/${locale}/video-to-map`;
+  if (!next || next === "/") return `/${locale}`;
   if (!next.startsWith("/") || next.startsWith("//")) {
-    return `/${locale}/video-to-map`;
+    return `/${locale}`;
   }
 
   if (
     next.includes("/signup/complete") ||
     next === `/${locale}/signup/complete`
   ) {
-    return `/${locale}/video-to-map`;
+    return `/${locale}`;
   }
 
   const hasSupportedLocalePrefix = SUPPORTED_LOCALES.some(

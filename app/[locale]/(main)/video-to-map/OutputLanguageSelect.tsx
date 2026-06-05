@@ -214,7 +214,7 @@ export default function OutputLanguageSelect({
         createPortal(
           <div
           className="
-            fixed inset-0 z-50 flex items-center justify-center px-4
+            fixed inset-0 z-[700] flex items-center justify-center px-4
             bg-black/22
             dark:bg-black/35
           "

@@ -39,7 +39,7 @@ export default function MapCardList({
   return (
     <section
       className={`mt-4 grid w-full min-w-0 gap-3 ${
-        compactLayout ? "md:grid-cols-2" : "md:grid-cols-2 xl:grid-cols-3"
+        compactLayout ? "md:grid-cols-2" : "md:grid-cols-2 lg:grid-cols-3"
       }`}
     >
       {drafts.map((draft) => (

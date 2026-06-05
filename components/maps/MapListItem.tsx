@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { useLocale, useTranslations } from "next-intl";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
+import { getMapStructurePreview } from "@/components/maps/mapStructurePreview";
 
 type SourceBadge = {
   label: string;
@@ -164,6 +165,10 @@ export default function MapListItem({
   const hasTopActionMenu = Boolean(onDelete);
   const isOpeningDetail = openingDetailId === draft.id;
   const summary = (draft.summary ?? draft.description ?? "").trim();
+  const structurePreview = useMemo(
+    () => getMapStructurePreview(draft.result, 5),
+    [draft.result]
+  );
   const canOpenDetailFromTitle =
     Boolean(onOpenDetail && showOpenDetail) && !selectionMode;
   const readStateTopBorderClass = getReadStateTopBorderClass(draft.readStatus);
@@ -328,9 +333,37 @@ export default function MapListItem({
           </div>
         ) : null}
 
-        <div className="grid min-w-0 grid-cols-[1fr_92px] gap-3 md:grid-cols-[1fr_104px]">
+        <div className="min-w-0">
           <div className="min-w-0">
-            {summary ? (
+            {structurePreview ? (
+              <div className="min-w-0">
+                {structurePreview.rootTopic ? (
+                  <p className="line-clamp-1 text-[12px] font-semibold leading-5 text-slate-700 dark:text-white/76 md:text-[13px]">
+                    {structurePreview.rootTopic}
+                  </p>
+                ) : null}
+                {structurePreview.childTopics.length ? (
+                  <div className="mt-1.5 flex min-w-0 flex-col gap-1">
+                    {structurePreview.childTopics.map((topic, index) => (
+                      <span
+                        key={`${topic}-${index}`}
+                        className="block max-w-full truncate text-[10px] font-medium leading-4 text-slate-600 dark:text-white/68 md:text-[11px]"
+                      >
+                        <span className="mr-1 text-slate-400 dark:text-white/35">
+                          -
+                        </span>
+                        {topic}
+                      </span>
+                    ))}
+                    {structurePreview.remainingChildCount > 0 ? (
+                      <span className="block text-[10px] font-medium leading-4 text-slate-500 dark:text-white/54 md:text-[11px]">
+                        +{structurePreview.remainingChildCount}
+                      </span>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+            ) : summary ? (
               <p className="line-clamp-2 text-[12px] leading-5 text-slate-600 dark:text-white/68 md:text-[13px]">
                 {summary}
               </p>
@@ -404,24 +437,6 @@ export default function MapListItem({
                 <span>{t("termsCount", { count: termsCount })}</span>
               </span>
             </div>
-          </div>
-
-          <div className="aspect-video overflow-hidden rounded-xl border border-slate-300 bg-neutral-50 dark:border-white/12 dark:bg-white/[0.04]">
-            {draft.thumbnailUrl ? (
-              <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={draft.thumbnailUrl}
-                  alt={displayTitle}
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
-              </>
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-50 via-slate-50 to-fuchsia-50 text-indigo-600 dark:from-indigo-500/10 dark:via-white/5 dark:to-fuchsia-500/10 dark:text-indigo-200">
-                <Icon icon="mdi:map-outline" className="h-5 w-5" />
-              </div>
-            )}
           </div>
         </div>
       </div>

@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { isUnsupportedGoogleOauthBrowser } from "@/lib/auth/browser";
 import { Icon } from "@iconify/react";
 import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function LoginForm() {
@@ -12,6 +13,7 @@ export default function LoginForm() {
   const t = useTranslations("login");
   const locale = useLocale(); // e.g. "ko", "en", ...
   const lang = locale;
+  const searchParams = useSearchParams();
   const signupQuestion = t("signup.question");
   const signupLinkLabel = t("signup.link");
 
@@ -70,6 +72,16 @@ export default function LoginForm() {
     }
   };
 
+  const getNextPath = (fallback = `/${locale}`) => {
+    if (typeof window === "undefined") return fallback;
+    return new URLSearchParams(window.location.search).get("next") ?? fallback;
+  };
+
+  const signupHref = useMemo(() => {
+    const next = searchParams.get("next") ?? `/${locale}`;
+    return `/signup?next=${encodeURIComponent(next)}`;
+  }, [locale, searchParams]);
+
   const handleGoogleLogin = async () => {
     if (isUnsupportedBrowser) {
       setMessage(t("messages.googleInAppBrowser"));
@@ -81,9 +93,7 @@ export default function LoginForm() {
       setIsGoogleLoading(true);
       setMessage("");
 
-      const next =
-        new URLSearchParams(window.location.search).get("next") ??
-        `/${locale}/video-to-map`;
+      const next = getNextPath();
       const redirectUrl = buildAuthCallbackUrl();
       redirectUrl.searchParams.set("locale", locale);
       redirectUrl.searchParams.set("next", next);
@@ -121,9 +131,7 @@ export default function LoginForm() {
 
     setIsSubmitting(true);
     setMessage("");
-    const next =
-      new URLSearchParams(window.location.search).get("next") ??
-      `/${locale}/video-to-map`;
+    const next = getNextPath();
     const redirectUrl = buildAuthCallbackUrl();
     redirectUrl.searchParams.set("locale", locale);
     redirectUrl.searchParams.set("next", next);
@@ -186,8 +194,7 @@ export default function LoginForm() {
     setMessageType("success");
     setMessage(t("messages.verifySuccessMoving"));
 
-    const next =
-      new URLSearchParams(window.location.search).get("next") ?? `/${locale}`;
+    const next = getNextPath(`/${locale}`);
     navigateWithHardReload(
       `/auth/callback?locale=${encodeURIComponent(locale)}&next=${encodeURIComponent(next)}`
     );
@@ -360,7 +367,7 @@ export default function LoginForm() {
             <div className="pt-1 text-center text-[15px] text-neutral-600 dark:text-neutral-300">
               <span>{signupQuestion} </span>
               <Link
-                href="/signup?next=%2Fvideo-to-map"
+                href={signupHref}
                 className="font-semibold text-blue-700 underline underline-offset-4 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-200"
               >
                 {signupLinkLabel}

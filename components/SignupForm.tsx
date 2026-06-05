@@ -6,6 +6,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Icon } from "@iconify/react";
 import clsx from "clsx";
 import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function SignupForm() {
@@ -13,6 +14,7 @@ export default function SignupForm() {
   const t = useTranslations("signup");
   const locale = useLocale();
   const lang = locale;
+  const searchParams = useSearchParams();
 
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
@@ -82,6 +84,19 @@ export default function SignupForm() {
     }
   };
 
+  const getNextPath = () => {
+    if (typeof window === "undefined") return `/${locale}`;
+    return (
+      new URLSearchParams(window.location.search).get("next") ??
+      `/${locale}`
+    );
+  };
+
+  const loginHref = useMemo(() => {
+    const next = searchParams.get("next") ?? `/${locale}`;
+    return `/login?next=${encodeURIComponent(next)}`;
+  }, [locale, searchParams]);
+
   const rememberSignupIntent = (nextPath: string) => {
     if (typeof document === "undefined") return;
     const maxAge = 10 * 60;
@@ -103,7 +118,7 @@ export default function SignupForm() {
       setMessage("");
 
       const redirectUrl = buildAuthCallbackUrl();
-      const nextPath = `/${locale}/video-to-map`;
+      const nextPath = getNextPath();
       rememberSignupIntent(nextPath);
       redirectUrl.searchParams.set("flow", "signup");
       redirectUrl.searchParams.set("terms", "1");
@@ -147,7 +162,8 @@ export default function SignupForm() {
     setMessage("");
 
     const redirectUrl = buildAuthCallbackUrl();
-    const nextPath = `/${locale}/video-to-map`;
+    const nextPath = getNextPath();
+    rememberSignupIntent(nextPath);
     redirectUrl.searchParams.set("flow", "signup");
     redirectUrl.searchParams.set("terms", "1");
     redirectUrl.searchParams.set("locale", locale);
@@ -204,7 +220,7 @@ export default function SignupForm() {
 
     setMessage(t("success.otpVerified"));
     setMessageType("success");
-    const nextPath = `/${locale}/video-to-map`;
+    const nextPath = getNextPath();
     const callbackPath =
       `/auth/callback?flow=signup&terms=1&locale=${encodeURIComponent(locale)}` +
       `&next=${encodeURIComponent(nextPath)}`;
@@ -464,7 +480,7 @@ export default function SignupForm() {
         <p className="text-sm text-center text-neutral-600 dark:text-neutral-400">
           {t("login.question")}{" "}
           <Link
-            href="/login"
+            href={loginHref}
             className="font-semibold hover:underline text-neutral-900 dark:text-white"
           >
             {t("login.link")}
