@@ -70,8 +70,12 @@ type LandingV2PageProps = {
 };
 
 const PENDING_INPUT_KEY = "brify.pendingLandingInput.v1";
-const MAX_CHARS = 200_000;
 const CHARS_PER_CHUNK = 50_000;
+const CREDIT_TIER_1_MAX_CHARS = 3_000;
+const CREDIT_TIER_2_MAX_CHARS = 10_000;
+const CREDIT_TIER_3_MAX_CHARS = 25_000;
+const CREDIT_TIER_4_MAX_CHARS = 50_000;
+const CREDIT_ADDITIONAL_CHUNK_CHARS = 25_000;
 const MAP_CREATE_TIMEOUT_MS = 45_000;
 const MIN_TEXTAREA_HEIGHT = 108;
 const MAX_TEXTAREA_HEIGHT = 520;
@@ -152,6 +156,8 @@ const COPY = {
     charCount: "글자",
     outputLanguage: "결과 언어",
     creditStatus: "내 크레딧 {current}개 · 이번 생성에 {required}개 사용",
+    longCreditNotice:
+      "긴 글은 읽고 나누고 배치해야 할 내용이 더 많아서, 분량에 따라 크레딧이 조금 더 사용됩니다.",
     creditLoading: "크레딧 확인 중",
     createOptionsTitle: "구조맵 만들기",
     createOptionsBody: "결과 언어와 사용 크레딧을 확인해 주세요.",
@@ -161,7 +167,7 @@ const COPY = {
     dropReady: "여기에 놓으면 문서 텍스트를 추출합니다.",
     unsupportedFile: "현재는 DOCX, PDF, PPTX 파일만 지원합니다.",
     empty: "먼저 구조맵으로 만들 글을 입력해 주세요.",
-    tooLarge: "입력은 최대 200,000자까지 가능합니다.",
+    tooLarge: "입력 분량이 너무 큽니다.",
     authTitle: "구조맵을 만들 준비가 되었어요",
     authBody:
       "계정을 만들면 방금 입력한 글을 구조맵으로 변환하고, 저장하고 다시 볼 수 있어요.",
@@ -242,6 +248,8 @@ const COPY = {
     charCount: "chars",
     outputLanguage: "Output language",
     creditStatus: "{current} credits available · {required} will be used",
+    longCreditNotice:
+      "Longer texts take more reading, structuring, and layout work, so they use a few more credits based on length.",
     creditLoading: "Checking credits",
     createOptionsTitle: "Create structure map",
     createOptionsBody: "Confirm the output language and credits.",
@@ -251,7 +259,7 @@ const COPY = {
     dropReady: "Drop it here to extract the document text.",
     unsupportedFile: "Only DOCX, PDF, or PPTX files are supported for now.",
     empty: "Paste some text first.",
-    tooLarge: "Input can be up to 200,000 characters.",
+    tooLarge: "The input is too large.",
     authTitle: "Your structure map is ready to start",
     authBody:
       "Create an account to turn this text into a map, save it, and revisit it later.",
@@ -332,6 +340,8 @@ const COPY = {
     charCount: "caractères",
     outputLanguage: "Langue de sortie",
     creditStatus: "{current} crédits disponibles · {required} utilisés",
+    longCreditNotice:
+      "Les textes longs demandent plus de lecture, de structuration et de mise en forme ; quelques crédits supplémentaires sont donc utilisés selon la longueur.",
     creditLoading: "Vérification des crédits",
     createOptionsTitle: "Créer la carte",
     createOptionsBody: "Confirmez la langue de sortie et les crédits.",
@@ -341,7 +351,7 @@ const COPY = {
     dropReady: "Déposez-le ici pour extraire le texte.",
     unsupportedFile: "Seuls les fichiers DOCX, PDF ou PPTX sont pris en charge pour le moment.",
     empty: "Collez d'abord un texte.",
-    tooLarge: "La limite est de 200 000 caractères.",
+    tooLarge: "L’entrée est trop volumineuse.",
     authTitle: "Votre carte est prête à démarrer",
     authBody:
       "Créez un compte pour transformer ce texte en carte, l'enregistrer et le revoir plus tard.",
@@ -459,10 +469,17 @@ function getChunkCount(length: number) {
   return Math.max(1, Math.ceil(length / CHARS_PER_CHUNK));
 }
 
-function getCreditsForChunkCount(chunkCount: number) {
-  if (chunkCount <= 1) return 1;
-  if (chunkCount <= 3) return 2;
-  return 3;
+function getCreditsForBillingLength(length: number) {
+  if (length <= CREDIT_TIER_1_MAX_CHARS) return 1;
+  if (length <= CREDIT_TIER_2_MAX_CHARS) return 2;
+  if (length <= CREDIT_TIER_3_MAX_CHARS) return 3;
+  if (length <= CREDIT_TIER_4_MAX_CHARS) return 4;
+  return (
+    4 +
+    Math.ceil(
+      (length - CREDIT_TIER_4_MAX_CHARS) / CREDIT_ADDITIONAL_CHUNK_CHARS
+    )
+  );
 }
 
 function getCreditInfo(text: string) {
@@ -473,8 +490,8 @@ function getCreditInfo(text: string) {
     cleaned,
     length,
     chunkCount,
-    credits: getCreditsForChunkCount(chunkCount),
-    tooLarge: length > MAX_CHARS,
+    credits: getCreditsForBillingLength(length),
+    tooLarge: false,
   };
 }
 
@@ -2100,6 +2117,11 @@ export default function LandingV2Page({
                       required: pendingRequiredCredits,
                     })}
               </div>
+              {pendingRequiredCredits >= 2 ? (
+                <p className="text-sm leading-6 text-slate-500 dark:text-white/55">
+                  {copy.longCreditNotice}
+                </p>
+              ) : null}
             </div>
 
             <div className="mt-6 flex justify-end gap-2">

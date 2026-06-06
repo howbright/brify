@@ -487,6 +487,11 @@ export default function ScriptInputCard({
                     required: requiredCredits,
                   })}
                 </div>
+                {requiredCredits >= 2 ? (
+                  <p className="text-[12px] sm:text-[13px] leading-5 text-neutral-500 dark:text-neutral-400">
+                    {t("longCreditNotice")}
+                  </p>
+                ) : null}
                 {showInsufficientCreditsCard ? (
                   <div
                     className="

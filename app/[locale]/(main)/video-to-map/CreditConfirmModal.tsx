@@ -98,6 +98,19 @@ export default function CreditConfirmModal({
           {t("notice")}
         </div>
 
+        {credits >= 2 && (
+          <div
+            className="
+              relative mb-5 rounded-2xl border border-blue-200 bg-blue-50/80
+              px-4 py-3 text-sm font-medium leading-6 text-blue-900
+              dark:border-blue-300/20 dark:bg-blue-400/10 dark:text-blue-100
+            "
+            role="note"
+          >
+            {t("longCreditNotice")}
+          </div>
+        )}
+
         {chunkCount > 1 && (
           <div
             className="

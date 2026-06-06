@@ -19,7 +19,11 @@ import { useMapDraftStatusPolling } from "@/app/hooks/useMapDraftStatusPolling";
 // ✅ 크레딧 정책
 const CREDIT_POLICY = {
   CHARS_PER_CHUNK: 50_000,
-  MAX_CHARS: 200_000,
+  TIER_1_MAX_CHARS: 3_000,
+  TIER_2_MAX_CHARS: 10_000,
+  TIER_3_MAX_CHARS: 25_000,
+  TIER_4_MAX_CHARS: 50_000,
+  ADDITIONAL_CHUNK_CHARS: 25_000,
 } as const;
 
 type BalanceResponse = {
@@ -70,10 +74,18 @@ function getChunkCount(length: number) {
   return Math.max(1, Math.ceil(length / CREDIT_POLICY.CHARS_PER_CHUNK));
 }
 
-function getCreditsForChunkCount(chunkCount: number) {
-  if (chunkCount <= 1) return 1;
-  if (chunkCount <= 3) return 2;
-  return 3;
+function getCreditsForBillingLength(length: number) {
+  if (length <= CREDIT_POLICY.TIER_1_MAX_CHARS) return 1;
+  if (length <= CREDIT_POLICY.TIER_2_MAX_CHARS) return 2;
+  if (length <= CREDIT_POLICY.TIER_3_MAX_CHARS) return 3;
+  if (length <= CREDIT_POLICY.TIER_4_MAX_CHARS) return 4;
+  return (
+    4 +
+    Math.ceil(
+      (length - CREDIT_POLICY.TIER_4_MAX_CHARS) /
+        CREDIT_POLICY.ADDITIONAL_CHUNK_CHARS
+    )
+  );
 }
 
 // ✅ throw는 클릭/확정 시점에서만
@@ -82,12 +94,7 @@ function getRequiredCreditsUnsafe(text: string) {
   const length = cleaned.length;
 
   if (!length) return 1;
-
-  if (length > CREDIT_POLICY.MAX_CHARS) {
-    throw new Error("INPUT_TOO_LARGE");
-  }
-
-  return getCreditsForChunkCount(getChunkCount(length));
+  return getCreditsForBillingLength(length);
 }
 
 // ✅ 렌더용(절대 throw 안 함)
@@ -99,11 +106,10 @@ function getRequiredCreditsSafe(text: string) {
     return { credits: 1, chunkCount: 1, length, tooLarge: false, cleaned };
   }
 
-  const tooLarge = length > CREDIT_POLICY.MAX_CHARS;
   const chunkCount = getChunkCount(length);
-  const credits = getCreditsForChunkCount(chunkCount);
+  const credits = getCreditsForBillingLength(length);
 
-  return { credits, chunkCount, length, tooLarge, cleaned };
+  return { credits, chunkCount, length, tooLarge: false, cleaned };
 }
 
 function coerceMapCreditEstimate(json: unknown): MapCreditEstimate {
@@ -367,17 +373,6 @@ export default function VideoToMapPage() {
   );
   const hasPendingGeneratedMap = Boolean(pendingAutoOpenMapId);
   const inputLocked = isProcessing || hasPendingGeneratedMap;
-
-  const buildTooLargeMessage = (current: number) =>
-    [
-      t("errors.tooLargeLine1"),
-      t("errors.tooLargeLine2", {
-        max: CREDIT_POLICY.MAX_CHARS.toLocaleString(),
-      }),
-      t("errors.tooLargeLine3", {
-        current: current.toLocaleString(),
-      }),
-    ].join("\n");
 
   useEffect(() => {
     latestScriptTextRef.current = scriptText;
@@ -674,18 +669,10 @@ export default function VideoToMapPage() {
       return;
     }
 
-    // ✅ 초과 입력은 여기서 차단 + UI(에러/토스트)
     try {
       getRequiredCreditsUnsafe(scriptText);
     } catch (e: unknown) {
       setShowInsufficientCreditsCard(false);
-      const message = e instanceof Error ? e.message : undefined;
-      if (message === "INPUT_TOO_LARGE") {
-        const msg = buildTooLargeMessage(creditInfo.length);
-        setError(msg);
-        openToast(msg);
-        return;
-      }
       setError(t("errors.processingFailed"));
       openToast(t("errors.processingFailed"));
       return;
@@ -817,14 +804,6 @@ export default function VideoToMapPage() {
         creditsNow = estimate.requiredCredits;
       }
     } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : undefined;
-      if (message === "INPUT_TOO_LARGE") {
-        const msg = buildTooLargeMessage(creditInfo.length);
-        setShowCreditDialog(false);
-        setError(msg);
-        openToast(msg);
-        return;
-      }
       setShowCreditDialog(false);
       setError(t("errors.processingFailed"));
       openToast(t("errors.processingFailed"));
@@ -1257,10 +1236,8 @@ export default function VideoToMapPage() {
               outputLang={outputLang}
               setOutputLang={setOutputLang}
               disabled={showMetadataDialog || hasPendingGeneratedMap}
-              // ✅ 핵심: 한도 초과 UI 처리 props 내려주기
               isTooLarge={showInputTooLargeUI}
               billingLength={creditInfo.length}
-              maxLength={CREDIT_POLICY.MAX_CHARS}
             />
           ) : (
             <ResultReadyPanel

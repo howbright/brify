@@ -5,16 +5,17 @@ import { Icon } from "@iconify/react";
 import ScriptHelpSection from "./ScriptHelpSection";
 import { useTranslations } from "next-intl";
 
-const LONG_SCRIPT_THRESHOLD = 6000; // 🔹 이 글자 수를 넘으면 2크레딧, 아니면 1크레딧
-
 // TODO: 실제 로그인 유저의 현재 크레딧으로 교체
 const MOCK_CURRENT_CREDITS = 42;
 
 // 길이에 따라 필요한 크레딧 계산
 function getRequiredCredits(text: string) {
   const length = text.trim().length;
-  if (!length) return 1;
-  return length > LONG_SCRIPT_THRESHOLD ? 2 : 1;
+  if (length <= 3_000) return 1;
+  if (length <= 10_000) return 2;
+  if (length <= 25_000) return 3;
+  if (length <= 50_000) return 4;
+  return 4 + Math.ceil((length - 50_000) / 25_000);
 }
 
 export default function VideoToMapPage() {
@@ -212,7 +213,7 @@ export default function VideoToMapPage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex flex-col gap-1">
                 <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-300">
-                  {t("credits.rule", { threshold: LONG_SCRIPT_THRESHOLD })}
+                  {t("credits.rule")}
                 </p>
               </div>
               <button
@@ -334,6 +335,11 @@ export default function VideoToMapPage() {
             <p className="text-sm md:text-[15px] text-neutral-700 dark:text-neutral-200 mb-3">
               {t("modal.usageText", { credits: requiredCredits })}
             </p>
+            {requiredCredits >= 2 ? (
+              <p className="mb-3 rounded-2xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs leading-5 text-blue-900 dark:border-blue-300/20 dark:bg-blue-400/10 dark:text-blue-100">
+                {t("modal.longCreditNotice")}
+              </p>
+            ) : null}
             <ul className="mb-4 list-disc list-inside text-xs md:text-sm text-neutral-600 dark:text-neutral-300 space-y-1">
               <li>{t("modal.bullet1")}</li>
               <li>{t("modal.bullet2")}</li>

@@ -86,6 +86,13 @@ export default function PricingGrid({
 }: Props) {
   const t = useTranslations("PricingGrid");
   const tLanding = useTranslations("LandingPricingSection");
+  const creditRuleRows = [
+    ["small", "one"],
+    ["medium", "two"],
+    ["large", "three"],
+    ["xlarge", "four"],
+    ["extra", "extra"],
+  ] as const;
   const locale = useLocale();
   const resolvedSignedInHref = signedInHref ?? `/${locale}/billing`;
   const resolvedSignedOutHref = signedOutHref ?? `/${locale}/login`;
@@ -424,19 +431,16 @@ export default function PricingGrid({
           <div className="text-center text-sm font-semibold text-slate-900 dark:text-white">
             {tLanding("creditRule.title")}
           </div>
-          <div className="mt-3 grid gap-2 text-center sm:grid-cols-2 lg:grid-cols-4 sm:text-left">
-            <div className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-800 dark:bg-white/8 dark:text-slate-100">
-              {tLanding("creditRule.details.small")} · {tLanding("creditRule.result.one")}
-            </div>
-            <div className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-800 dark:bg-white/8 dark:text-slate-100">
-              {tLanding("creditRule.details.medium")} · {tLanding("creditRule.result.two")}
-            </div>
-            <div className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-800 dark:bg-white/8 dark:text-slate-100">
-              {tLanding("creditRule.details.large")} · {tLanding("creditRule.result.three")}
-            </div>
-            <div className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-800 dark:bg-white/8 dark:text-slate-100">
-              {tLanding("creditRule.details.blocked")} · {tLanding("creditRule.result.blocked")}
-            </div>
+          <div className="mt-3 grid gap-2 text-center sm:grid-cols-2 lg:grid-cols-5 sm:text-left">
+            {creditRuleRows.map(([detailKey, resultKey]) => (
+              <div
+                key={detailKey}
+                className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-800 dark:bg-white/8 dark:text-slate-100"
+              >
+                {tLanding(`creditRule.details.${detailKey}`)} ·{" "}
+                {tLanding(`creditRule.result.${resultKey}`)}
+              </div>
+            ))}
           </div>
         </div>
       ) : (
@@ -462,58 +466,21 @@ export default function PricingGrid({
           </p>
 
           {openDetails && (
-            <ul className="mt-3 grid gap-1.5 text-xs text-[color-mix(in_oklab,var(--color-foreground),transparent_20%)] sm:grid-cols-2 xl:grid-cols-4">
-              <li className="flex items-center gap-2">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
-                <span>
-                  <span className="text-[var(--color-foreground)]">
-                    {tLanding("creditRule.details.small")}
-                  </span>{" "}
-                  →{" "}
-                  <b className="text-[var(--color-foreground)]">
-                    {tLanding("creditRule.result.one")}
-                  </b>
-                </span>
-              </li>
-
-              <li className="flex items-center gap-2">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
-                <span>
-                  <span className="text-[var(--color-foreground)]">
-                    {tLanding("creditRule.details.medium")}
-                  </span>{" "}
-                  →{" "}
-                  <b className="text-[var(--color-foreground)]">
-                    {tLanding("creditRule.result.two")}
-                  </b>
-                </span>
-              </li>
-
-              <li className="flex items-center gap-2">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
-                <span>
-                  <span className="text-[var(--color-foreground)]">
-                    {tLanding("creditRule.details.large")}
-                  </span>{" "}
-                  →{" "}
-                  <b className="text-[var(--color-foreground)]">
-                    {tLanding("creditRule.result.three")}
-                  </b>
-                </span>
-              </li>
-
-              <li className="flex items-center gap-2">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
-                <span>
-                  <span className="text-[var(--color-foreground)]">
-                    {tLanding("creditRule.details.blocked")}
-                  </span>{" "}
-                  →{" "}
-                  <b className="text-[var(--color-foreground)]">
-                    {tLanding("creditRule.result.blocked")}
-                  </b>
-                </span>
-              </li>
+            <ul className="mt-3 grid gap-1.5 text-xs text-[color-mix(in_oklab,var(--color-foreground),transparent_20%)] sm:grid-cols-2 xl:grid-cols-5">
+              {creditRuleRows.map(([detailKey, resultKey]) => (
+                <li key={detailKey} className="flex items-center gap-2">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary-500)]" />
+                  <span>
+                    <span className="text-[var(--color-foreground)]">
+                      {tLanding(`creditRule.details.${detailKey}`)}
+                    </span>{" "}
+                    →{" "}
+                    <b className="text-[var(--color-foreground)]">
+                      {tLanding(`creditRule.result.${resultKey}`)}
+                    </b>
+                  </span>
+                </li>
+              ))}
             </ul>
           )}
         </div>

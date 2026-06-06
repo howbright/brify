@@ -16,7 +16,7 @@
     "credits": {
       "label": "Mes crédits",
       "unit": "crédits",
-      "rule": "Par défaut, 1 crédit couvre jusqu’à {threshold, number} caractères. Au-delà, 2 crédits sont nécessaires pour le texte source."
+      "rule": "Les crédits sont calculés selon le nombre de caractères du texte source : jusqu’à 3 000 caractères, 1 crédit ; jusqu’à 10 000, 2 crédits ; jusqu’à 25 000, 3 crédits ; jusqu’à 50 000, 4 crédits."
     },
     "buttons": {
       "generate": "Créer une carte structurée à partir de ce texte",
@@ -42,6 +42,7 @@
     "modal": {
       "title": "Confirmer l’utilisation des crédits",
       "usageText": "Transformer ce texte source en carte structurée utilisera {credits} crédit(s).",
+      "longCreditNotice": "Les textes longs demandent plus de lecture, de structuration et de mise en forme ; quelques crédits supplémentaires sont donc utilisés selon la longueur.",
       "bullet1": "Plus le document est long, plus le traitement peut prendre du temps.",
       "bullet2": "Une fois lancé, ce traitement ne peut pas être annulé et les crédits utilisés ne sont pas remboursables.",
       "bullet3": "Nous recommandons de garder cette page ouverte pendant le traitement.",
@@ -131,6 +132,7 @@
     "languageTitle": "Quelle langue utiliser pour la carte ?",
     "generateTitle": "Générer la carte",
     "creditsInfo": "{current} crédits disponibles · cette génération utilise {required} crédit(s)",
+    "longCreditNotice": "Les textes longs demandent plus de lecture, de structuration et de mise en forme ; quelques crédits supplémentaires sont donc utilisés selon la longueur.",
     "generateButton": "Générer la mind map",
     "estimatingCredits": "Vérification des crédits estimés...",
     "freeBadge": "Gratuit",
@@ -221,6 +223,7 @@
     "title": "Utilisation des crédits",
     "usage": "{credits} crédit sera utilisé.",
     "notice": "Une fois lancé, ce traitement ne peut plus être annulé.",
+    "longCreditNotice": "Les textes longs demandent plus de lecture, de structuration et de mise en forme ; quelques crédits supplémentaires sont donc utilisés selon la longueur.",
     "splitNotice": "Cette entrée est longue : nous allons d’abord générer {count} cartes de structure puis les fusionner en une seule.",
     "cancel": "Annuler",
     "confirm": "Utiliser {credits} crédit(s) et démarrer"
@@ -514,8 +517,8 @@
       },
       "main": {
         "eyebrow": "Le plus important",
-        "title": "La plupart des cartes ne demandent qu’1 crédit",
-        "description": ""
+        "title": "Les crédits dépendent du nombre de caractères",
+        "description": "Jusqu’à 3 000 caractères : 1 crédit"
       },
       "validity": {
         "title": "Les crédits payants sont valables pendant 1 an à partir de la date de paiement."
@@ -544,19 +547,21 @@
       }
     },
     "creditRule": {
-      "title": "La plupart des contenus utilisent seulement 1 crédit",
-      "desc": "Les contenus plus longs peuvent nécessiter 2 ou 3 crédits selon la longueur",
+      "title": "Crédits selon le nombre de caractères",
+      "desc": "Le calcul exact se fait à partir du nombre de caractères du texte source",
       "details": {
-        "small": "Jusqu’à 50 000 caractères",
-        "medium": "50 001 à 150 000 caractères",
-        "large": "150 001 à 200 000 caractères",
-        "blocked": "Plus de 200 000 caractères"
+        "small": "Jusqu’à 3 000 caractères",
+        "medium": "3 001 à 10 000 caractères",
+        "large": "10 001 à 25 000 caractères",
+        "xlarge": "25 001 à 50 000 caractères",
+        "extra": "50 001 caractères et plus"
       },
       "result": {
         "one": "1 crédit",
         "two": "2 crédits",
         "three": "3 crédits",
-        "blocked": "Non pris en charge"
+        "four": "4 crédits",
+        "extra": "4 crédits + 1 crédit par tranche supplémentaire de 25 000 caractères"
       }
     },
     "toggles": {
@@ -602,7 +607,7 @@
       "note": "Les paiements sont traités en USD via LemonSqueezy."
     },
     "creditRule": {
-      "label": "Seules les entrées très volumineuses demandent des crédits supplémentaires.",
+      "label": "Les textes longs demandent plus de traitement ; les crédits augmentent donc avec le nombre de caractères.",
       "itemSuffix": "Utilise {credits} crédits."
     },
     "priceNote": "TVA incluse",
@@ -1063,7 +1068,7 @@
     "faq": {
       "title": "FAQ",
       "q2": "Combien de crédits faut-il selon la longueur du document ?",
-      "a2": "La plupart des contenus utilisent 1 crédit. Jusqu’à 50 000 caractères : 1 crédit, 50 001 à 150 000 : 2 crédits, 150 001 à 200 000 : 3 crédits, au-delà de 200 000 : non pris en charge.",
+      "a2": "Le calcul exact dépend du nombre de caractères du texte source : jusqu’à 3 000 caractères, 1 crédit ; 3 001 à 10 000, 2 crédits ; 10 001 à 25 000, 3 crédits ; 25 001 à 50 000, 4 crédits. À partir de 50 001 caractères, 4 crédits sont utilisés, puis 1 crédit supplémentaire par tranche de 25 000 caractères.",
       "q3": "Les crédits expirent-ils ?",
       "a3": "Les crédits payants sont valables 1 an à partir de la date de paiement. Le remboursement est possible sous 7 jours si les crédits de la commande n’ont pas été utilisés.",
       "q4": "Reçois-je un reçu ?",
@@ -1252,7 +1257,7 @@
       "estimatedMaps": "Nombre estimé de structure maps",
       "estimatedMapsValue": "Env. {count} structure maps",
       "ruleLabel": "Règle d’utilisation",
-      "ruleText": "Par défaut, 1 crédit est déduit par structure map générée."
+      "ruleText": "Les crédits sont déduits selon le nombre de caractères du texte source."
     },
     "status": {
       "success": "Payé",
