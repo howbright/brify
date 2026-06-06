@@ -4,7 +4,6 @@ import { Icon } from "@iconify/react";
 import { useLocale, useTranslations } from "next-intl";
 import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
 
-type SourceType = "youtube" | "website" | "file" | "manual";
 type ListMapJobStatus = Exclude<MapJobStatus, "retrying">;
 
 type MapTableListProps = {
@@ -22,7 +21,6 @@ type MapTableListProps = {
   showEditTags: boolean;
   showOpenDetail?: boolean;
   statusLabels: Record<ListMapJobStatus, string>;
-  sourceLabels: Record<SourceType, string>;
 };
 
 function getDisplayTitle(draft: MapDraft) {
@@ -68,7 +66,6 @@ export default function MapTableList({
   showEditTags,
   showOpenDetail = false,
   statusLabels,
-  sourceLabels,
 }: MapTableListProps) {
   const locale = useLocale();
   const t = useTranslations("MapsCommon.tableList");
@@ -167,8 +164,6 @@ export default function MapTableList({
                         )}
                       </div>
                       <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-neutral-500 dark:text-white/55">
-                        <span>{draft.sourceType ? sourceLabels[draft.sourceType] : "-"}</span>
-                        <span>·</span>
                         <span>
                           {draft.updatedAt
                             ? new Date(draft.updatedAt).toLocaleDateString(locale, {
@@ -212,11 +207,10 @@ export default function MapTableList({
       </div>
 
       <div className="mt-4 hidden w-full min-w-0 overflow-x-auto rounded-2xl border border-blue-200/50 bg-white shadow-sm dark:border-blue-300/10 dark:bg-[#0f1724] dark:shadow-[0_20px_40px_-28px_rgba(2,6,23,0.82)] md:block">
-      <table className="min-w-[760px] w-full table-fixed text-left text-[13px] [table-layout:fixed]">
+      <table className="min-w-[696px] w-full table-fixed text-left text-[13px] [table-layout:fixed]">
         <colgroup>
           {selectionMode && !tagOrganizeMode && <col style={{ width: "24px" }} />}
           <col style={{ width: "304px" }} />
-          <col style={{ width: "64px" }} />
           <col style={{ width: "230px" }} />
           <col style={{ width: "110px" }} />
         </colgroup>
@@ -229,9 +223,6 @@ export default function MapTableList({
             )}
             <th className="px-2 py-1.5 border-r border-neutral-200 dark:border-white/8">
               {t("columns.title")}
-            </th>
-            <th className="w-[64px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/8">
-              {t("columns.source")}
             </th>
             <th className="w-[230px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/8">
               {t("columns.tags")}
@@ -307,9 +298,6 @@ export default function MapTableList({
                       )}
                     </div>
                   </div>
-                </td>
-                <td className="w-[64px] px-2 py-1.5 text-[13px] text-neutral-700 dark:text-white/70 border-r border-neutral-200 dark:border-white/8">
-                  {draft.sourceType ? sourceLabels[draft.sourceType] : "-"}
                 </td>
                 <td className="w-[230px] px-2 py-1.5 text-neutral-600 dark:text-white/76 border-r border-neutral-200 dark:border-white/8">
                   <div className="flex items-start justify-between gap-2">

@@ -86,10 +86,10 @@ export default function MapsRecentSections({
               key={`recent-${draft.id}`}
               type="button"
               onClick={() => {
-                if (draft.status !== "done" && draft.status !== "processing_metadata") return;
+                if (draft.status === "failed") return;
                 onOpenDetail(draft);
               }}
-              disabled={draft.status !== "done" && draft.status !== "processing_metadata"}
+              disabled={draft.status === "failed"}
               className="inline-flex min-w-0 max-w-full items-center rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/12 dark:bg-white/[0.08] dark:text-white/82 dark:hover:border-blue-400/25 dark:hover:bg-blue-500/14 dark:hover:text-blue-200"
             >
               <span className="min-w-0 max-w-[min(62vw,220px)] truncate sm:max-w-[280px]">

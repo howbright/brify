@@ -75,6 +75,7 @@ function coerceMapStatus(status?: string | null): MapJobStatus {
     status === "failed" ||
     status === "queued" ||
     status === "idle" ||
+    status === "retrying" ||
     status === "processing_structure" ||
     status === "processing_metadata"
   ) {
@@ -176,16 +177,7 @@ function MapTableListSkeleton() {
             <th className="px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
               <div className="h-3 w-10 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
             </th>
-            <th className="w-[64px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
-              <div className="h-3 w-8 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
-            </th>
-            <th className="w-[64px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
-              <div className="h-3 w-8 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
-            </th>
-            <th className="w-[120px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
-              <div className="h-3 w-8 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
-            </th>
-            <th className="w-[110px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
+            <th className="w-[230px] px-2 py-1.5 border-r border-neutral-200 dark:border-white/10">
               <div className="h-3 w-10 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
             </th>
             <th className="w-[110px] px-2 py-1.5">
@@ -200,16 +192,7 @@ function MapTableListSkeleton() {
                 <div className="h-4 w-3/4 animate-pulse rounded bg-neutral-200 dark:bg-white/10" />
               </td>
               <td className="px-2 py-2 border-r border-neutral-200 dark:border-white/10">
-                <div className="h-4 w-10 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
-              </td>
-              <td className="px-2 py-2 border-r border-neutral-200 dark:border-white/10">
-                <div className="h-4 w-10 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
-              </td>
-              <td className="px-2 py-2 border-r border-neutral-200 dark:border-white/10">
                 <div className="h-4 w-4/5 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
-              </td>
-              <td className="px-2 py-2 border-r border-neutral-200 dark:border-white/10">
-                <div className="h-4 w-16 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
               </td>
               <td className="px-2 py-2">
                 <div className="h-4 w-16 animate-pulse rounded bg-neutral-100 dark:bg-white/5" />
@@ -377,12 +360,8 @@ export default function MapsPage() {
   );
 
   const handleOpenDetail = (item: MapDraft) => {
-    if (item.status !== "done" && item.status !== "processing_metadata") {
-      const blockedMessage =
-        item.status === "failed"
-          ? tPage("openBlocked.failed")
-          : tPage("openBlocked.processing");
-      toast.message(blockedMessage);
+    if (item.status === "failed") {
+      toast.message(tPage("openBlocked.failed"));
       return;
     }
     const nextUrl = locale ? `/${locale}/maps/${item.id}` : `/maps/${item.id}`;
@@ -393,7 +372,7 @@ export default function MapsPage() {
   };
 
   const handlePrefetchDetail = (item: MapDraft) => {
-    if (item.status !== "done" && item.status !== "processing_metadata") return;
+    if (item.status === "failed") return;
     const nextUrl = locale ? `/${locale}/maps/${item.id}` : `/maps/${item.id}`;
     router.prefetch(nextUrl);
   };
@@ -1073,7 +1052,6 @@ export default function MapsPage() {
                     onPrefetchDetail={handlePrefetchDetail}
                     showOpenDetail
                     statusLabels={statusLabels}
-                    sourceLabels={sourceLabels}
                   />
                 )}
               </div>

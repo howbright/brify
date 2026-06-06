@@ -578,6 +578,7 @@ function coerceMapStatus(status?: string | null): MapJobStatus {
     status === "failed" ||
     status === "queued" ||
     status === "idle" ||
+    status === "retrying" ||
     status === "processing_structure" ||
     status === "processing_metadata"
   ) {

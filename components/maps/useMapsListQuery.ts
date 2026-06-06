@@ -83,6 +83,7 @@ function expandStatusFilters(statusFilters: MapStatusFilter[]) {
     if (status === "processing" || status === "processing_structure" || status === "processing_metadata") {
       expanded.add("idle");
       expanded.add("queued");
+      expanded.add("retrying");
       expanded.add("processing_structure");
       expanded.add("processing_metadata");
       return;
@@ -233,7 +234,14 @@ export default function useMapsListQuery({
     setRefreshNonce((value) => value + 1);
   }, []);
 
-  const hasInFlightMaps = drafts.some((draft) => draft.status === "processing_structure" || draft.status === "processing_metadata");
+  const hasInFlightMaps = drafts.some(
+    (draft) =>
+      draft.status === "idle" ||
+      draft.status === "queued" ||
+      draft.status === "retrying" ||
+      draft.status === "processing_structure" ||
+      draft.status === "processing_metadata"
+  );
 
   useEffect(() => {
     let cancelled = false;

@@ -6,57 +6,6 @@ import { useLocale, useTranslations } from "next-intl";
 import type { MapDraft } from "@/app/[locale]/(main)/video-to-map/types";
 import { getMapStructurePreview } from "@/components/maps/mapStructurePreview";
 
-type SourceBadge = {
-  label: string;
-  cls: string;
-  darkCls: string;
-};
-
-function detectSourceType(draft: MapDraft): MapDraft["sourceType"] | undefined {
-  if (draft.sourceType) return draft.sourceType;
-  if (!draft.sourceUrl) return undefined;
-  const lowered = draft.sourceUrl.toLowerCase();
-  if (lowered.includes("youtube.com") || lowered.includes("youtu.be")) {
-    return "youtube";
-  }
-  return "website";
-}
-
-function getSourceBadge(
-  draft: MapDraft,
-  labels: Record<NonNullable<MapDraft["sourceType"]>, string>
-): SourceBadge | null {
-  const sourceType = detectSourceType(draft);
-  if (!sourceType) return null;
-  if (sourceType === "youtube") {
-    return {
-      label: labels.youtube,
-      cls: "bg-red-50 text-red-600 border-red-200",
-      darkCls: "dark:bg-rose-500/12 dark:text-rose-200 dark:border-rose-400/25",
-    };
-  }
-  if (sourceType === "website") {
-    return {
-      label: labels.website,
-      cls: "bg-sky-50 text-sky-700 border-sky-200",
-      darkCls: "dark:bg-sky-500/12 dark:text-sky-200 dark:border-sky-400/25",
-    };
-  }
-  if (sourceType === "file") {
-    return {
-      label: labels.file,
-      cls: "bg-amber-50 text-amber-700 border-amber-200",
-      darkCls:
-        "dark:bg-amber-500/12 dark:text-amber-200 dark:border-amber-400/25",
-    };
-  }
-  return {
-    label: labels.manual,
-    cls: "bg-neutral-100 text-neutral-600 border-neutral-200",
-    darkCls: "dark:bg-white/10 dark:text-white/70 dark:border-white/15",
-  };
-}
-
 function formatDate(draft: MapDraft, locale: string) {
   const value = draft.updatedAt ?? draft.createdAt;
   return new Date(value).toLocaleDateString(locale, {
@@ -117,16 +66,6 @@ export default function MapListItem({
   const locale = useLocale();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const sourceBadge = useMemo(
-    () =>
-      getSourceBadge(draft, {
-        youtube: t("source.youtube"),
-        website: t("source.website"),
-        file: t("source.file"),
-        manual: t("source.manual"),
-      }),
-    [draft, t]
-  );
   const statusBadge =
     draft.status === "failed"
       ? {
@@ -257,13 +196,6 @@ export default function MapListItem({
                 </h3>
               )}
               <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-                {sourceBadge && (
-                  <span
-                    className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${sourceBadge.cls} ${sourceBadge.darkCls}`}
-                  >
-                    {sourceBadge.label}
-                  </span>
-                )}
                 {statusBadge && (
                   <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${statusBadge.textCls}`}>
                     <span className={`h-2 w-2 rounded-full ${statusBadge.dotCls}`} />

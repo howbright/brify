@@ -61,6 +61,7 @@ function coerceMapStatus(status?: string | null) {
     status === "failed" ||
     status === "queued" ||
     status === "idle" ||
+    status === "retrying" ||
     status === "processing_structure" ||
     status === "processing_metadata"
   ) {
