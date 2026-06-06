@@ -132,6 +132,7 @@
     "generateTitle": "Generate the map",
     "creditsInfo": "{current} credits available · this run uses {required} credit(s)",
     "generateButton": "Generate mind map",
+    "estimatingCredits": "Checking estimated credits...",
     "freeBadge": "Free",
     "blankMapButton": "Start with a blank map",
     "blankMapStarting": "Opening blank map...",

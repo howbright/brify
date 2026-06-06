@@ -132,6 +132,7 @@
     "generateTitle": "Générer la carte",
     "creditsInfo": "{current} crédits disponibles · cette génération utilise {required} crédit(s)",
     "generateButton": "Générer la mind map",
+    "estimatingCredits": "Vérification des crédits estimés...",
     "freeBadge": "Gratuit",
     "blankMapButton": "Commencer avec une carte vide",
     "blankMapStarting": "Ouverture de la carte vide...",

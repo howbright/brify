@@ -28,6 +28,7 @@ type Props = {
   requiredCredits: number;
   onGenerate: () => void;
   onOpenBilling?: () => void;
+  isEstimatingCredits?: boolean;
 
   // ✅ 유튜브 모달 열기
   onOpenYoutubeDialog?: () => void;
@@ -71,6 +72,7 @@ export default function ScriptInputCard({
   requiredCredits,
   onGenerate,
   onOpenBilling,
+  isEstimatingCredits = false,
   onOpenYoutubeDialog,
   showYoutubeHelpButton = true,
   outputLang,
@@ -91,7 +93,11 @@ export default function ScriptInputCard({
 
   // ✅ 생성 버튼 차단 조건: 입력 없음 / 잠금 / 한도초과
   const canGenerate =
-    Boolean(scriptText.trim()) && !locked && !isTooLarge && !isExtracting;
+    Boolean(scriptText.trim()) &&
+    !locked &&
+    !isTooLarge &&
+    !isExtracting &&
+    !isEstimatingCredits;
   const handleDragOver: DragEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
   };
@@ -544,7 +550,7 @@ export default function ScriptInputCard({
                     focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--hero-a))]/60
                   "
                 >
-                  {t("generateButton")}
+                  {isEstimatingCredits ? t("estimatingCredits") : t("generateButton")}
                 </button>
               </div>
             </div>

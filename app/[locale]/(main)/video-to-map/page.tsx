@@ -29,6 +29,19 @@ type BalanceResponse = {
   paidRaw?: number;
 };
 
+type MapCreditEstimate = {
+  normalizedLength: number;
+  requiredCredits: number;
+  baseCredits: number;
+  highQuality: boolean;
+  highQualityMinChars: number;
+  highQualitySurchargeCredits: number;
+  chunkCount: number;
+  targetChunkChars: number;
+  maxChunkChars: number;
+  overlapChars: number;
+};
+
 /**
  * ✅ 크레딧/제한 계산을 위한 정제 함수
  * - 타임스탬프는 유지
@@ -91,6 +104,31 @@ function getRequiredCreditsSafe(text: string) {
   const credits = getCreditsForChunkCount(chunkCount);
 
   return { credits, chunkCount, length, tooLarge, cleaned };
+}
+
+function coerceMapCreditEstimate(json: unknown): MapCreditEstimate {
+  const data =
+    json && typeof json === "object" ? (json as Record<string, unknown>) : {};
+  const requiredCredits = Number(data.requiredCredits);
+  const chunkCount = Number(data.chunkCount);
+  const normalizedLength = Number(data.normalizedLength ?? 0);
+
+  if (!Number.isFinite(requiredCredits) || requiredCredits < 1) {
+    throw new Error("INVALID_CREDIT_ESTIMATE");
+  }
+
+  return {
+    normalizedLength: Number.isFinite(normalizedLength) ? normalizedLength : 0,
+    requiredCredits,
+    baseCredits: Number(data.baseCredits ?? requiredCredits),
+    highQuality: Boolean(data.highQuality),
+    highQualityMinChars: Number(data.highQualityMinChars ?? 3000),
+    highQualitySurchargeCredits: Number(data.highQualitySurchargeCredits ?? 0),
+    chunkCount: Number.isFinite(chunkCount) && chunkCount > 0 ? chunkCount : 1,
+    targetChunkChars: Number(data.targetChunkChars ?? CREDIT_POLICY.CHARS_PER_CHUNK),
+    maxChunkChars: Number(data.maxChunkChars ?? CREDIT_POLICY.CHARS_PER_CHUNK),
+    overlapChars: Number(data.overlapChars ?? 0),
+  };
 }
 
 function detectSourceType(sourceUrl?: string) {
@@ -277,13 +315,17 @@ export default function VideoToMapPage() {
 
   const [currentCredits, setCurrentCredits] = useState(0);
   const [creditMismatchNotice, setCreditMismatchNotice] = useState<string | null>(null);
+  const [creditEstimate, setCreditEstimate] = useState<MapCreditEstimate | null>(null);
+  const [isEstimatingCredits, setIsEstimatingCredits] = useState(false);
+  const latestScriptTextRef = useRef(scriptText);
 
   // ✅ 렌더에서는 안전 계산만
   const creditInfo = useMemo(
     () => getRequiredCreditsSafe(scriptText),
     [scriptText]
   );
-  const requiredCredits = creditInfo.credits;
+  const requiredCredits = creditEstimate?.requiredCredits ?? creditInfo.credits;
+  const estimatedChunkCount = creditEstimate?.chunkCount ?? creditInfo.chunkCount;
 
   // ✅ 유튜브 모달 상태
   const [showYoutubeDialog, setShowYoutubeDialog] = useState(false);
@@ -335,6 +377,11 @@ export default function VideoToMapPage() {
         current: current.toLocaleString(),
       }),
     ].join("\n");
+
+  useEffect(() => {
+    latestScriptTextRef.current = scriptText;
+    setCreditEstimate(null);
+  }, [scriptText]);
 
   const handleSelectDocxFile = async (file: File) => {
     setDocxUploadState("uploading");
@@ -573,7 +620,52 @@ export default function VideoToMapPage() {
 
   const showInputTooLargeUI = creditInfo.tooLarge;
 
-  const handleClickGenerate = () => {
+  const estimateCreditsForText = async (text: string) => {
+    const supabase = createClient();
+    const { data: sessionData, error: sessionErr } =
+      await supabase.auth.getSession();
+
+    if (sessionErr) {
+      throw new Error(
+        t("errors.sessionFailed", { message: sessionErr.message })
+      );
+    }
+
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) {
+      throw new Error(t("errors.loginRequired"));
+    }
+
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!base) {
+      throw new Error(t("errors.missingApiBase"));
+    }
+
+    const res = await fetch(`${base}/maps/estimate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        extracted_text: text,
+      }),
+    });
+
+    const json = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      const msg = json?.message || json?.error || t("errors.requestFailed");
+      throw new Error(
+        typeof msg === "string" ? msg : msg?.[0] || t("errors.requestFailed")
+      );
+    }
+
+    return coerceMapCreditEstimate(json);
+  };
+
+  const handleClickGenerate = async () => {
+    if (isEstimatingCredits) return;
     setError(null);
 
     if (!scriptText.trim()) {
@@ -584,9 +676,10 @@ export default function VideoToMapPage() {
     // ✅ 초과 입력은 여기서 차단 + UI(에러/토스트)
     try {
       getRequiredCreditsUnsafe(scriptText);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setShowInsufficientCreditsCard(false);
-      if (e?.message === "INPUT_TOO_LARGE") {
+      const message = e instanceof Error ? e.message : undefined;
+      if (message === "INPUT_TOO_LARGE") {
         const msg = buildTooLargeMessage(creditInfo.length);
         setError(msg);
         openToast(msg);
@@ -597,7 +690,25 @@ export default function VideoToMapPage() {
       return;
     }
 
-    setShowCreditDialog(true);
+    const textForEstimate = scriptText;
+    setIsEstimatingCredits(true);
+
+    try {
+      const estimate = await estimateCreditsForText(textForEstimate);
+      if (latestScriptTextRef.current !== textForEstimate) return;
+      setCreditEstimate(estimate);
+      setShowCreditDialog(true);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : undefined;
+      const msg =
+        message === "INVALID_CREDIT_ESTIMATE"
+          ? t("errors.requestFailed")
+          : message ?? t("errors.requestFailed");
+      setError(msg);
+      openToast(msg);
+    } finally {
+      setIsEstimatingCredits(false);
+    }
   };
 
 
@@ -695,12 +806,18 @@ export default function VideoToMapPage() {
   // ✅ 크레딧 확인 후 처리
   const handleConfirmUseCredits = async () => {
     // ✅ 모달 열린 사이 텍스트 변경 가능성 → 다시 계산/검증
-    let creditsNow = 1;
+    let creditsNow = creditEstimate?.requiredCredits ?? requiredCredits;
 
     try {
-      creditsNow = getRequiredCreditsUnsafe(scriptText);
-    } catch (e: any) {
-      if (e?.message === "INPUT_TOO_LARGE") {
+      getRequiredCreditsUnsafe(scriptText);
+      if (!creditEstimate) {
+        const estimate = await estimateCreditsForText(scriptText);
+        setCreditEstimate(estimate);
+        creditsNow = estimate.requiredCredits;
+      }
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : undefined;
+      if (message === "INPUT_TOO_LARGE") {
         const msg = buildTooLargeMessage(creditInfo.length);
         setShowCreditDialog(false);
         setError(msg);
@@ -1128,8 +1245,9 @@ export default function VideoToMapPage() {
               isProcessing={inputLocked}
               currentCredits={currentCredits}
               requiredCredits={requiredCredits}
-          onGenerate={handleClickGenerate}
-          onOpenBilling={() => router.push(`/${locale}/billing`)}
+              onGenerate={handleClickGenerate}
+              onOpenBilling={() => router.push(`/${locale}/billing`)}
+              isEstimatingCredits={isEstimatingCredits}
               onOpenYoutubeDialog={() => {
                 setYoutubeError(null);
                 setYoutubeSuccess(null);
@@ -1210,7 +1328,7 @@ export default function VideoToMapPage() {
       {showCreditDialog && (
         <CreditConfirmModal
           credits={requiredCredits}
-          chunkCount={creditInfo.chunkCount}
+          chunkCount={estimatedChunkCount}
           onCancel={() => setShowCreditDialog(false)}
           onConfirm={handleConfirmUseCredits}
         />

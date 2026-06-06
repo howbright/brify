@@ -61,6 +61,7 @@ type Props = {
   processingTitle?: string;
   processingMessage?: string;
   processingBullets?: string[];
+  processingPercent?: number | null;
   showYoutubeTitleSync?: boolean;
 };
 
@@ -73,6 +74,7 @@ export default function MetadataDialog({
   processingTitle,
   processingMessage,
   processingBullets: _processingBullets = [],
+  processingPercent = null,
   showYoutubeTitleSync = true,
 }: Props) {
   const t = useTranslations("MetadataDialog");
@@ -448,12 +450,27 @@ export default function MetadataDialog({
                 <Icon icon="mdi:information-outline" className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <p className="text-xl font-bold text-blue-700 dark:text-[rgb(var(--hero-b))]">
-                  {processingTitle ?? t("title")}
-                </p>
+                <div className="flex items-center gap-3">
+                  <p className="text-xl font-bold text-blue-700 dark:text-[rgb(var(--hero-b))]">
+                    {processingTitle ?? t("title")}
+                  </p>
+                  {processingPercent !== null ? (
+                    <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-black tabular-nums text-blue-700 dark:bg-white/10 dark:text-[rgb(var(--hero-b))]">
+                      {processingPercent}%
+                    </span>
+                  ) : null}
+                </div>
                 <p className="text-sm font-medium text-neutral-700 dark:text-neutral-200 break-words">
                   {processingMessage ?? t("subtitle")}
                 </p>
+                {processingPercent !== null ? (
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-white/12">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-400 transition-[width] duration-700 ease-out"
+                      style={{ width: `${processingPercent}%` }}
+                    />
+                  </div>
+                ) : null}
               </div>
             </div>
 

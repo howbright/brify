@@ -32,6 +32,19 @@ type BalanceResponse = {
   free: number;
   paidRaw?: number;
 };
+type MapCreditEstimate = {
+  normalizedLength: number;
+  requiredCredits: number;
+  baseCredits: number;
+  highQuality: boolean;
+  highQualityMinChars: number;
+  highQualitySurchargeCredits: number;
+  chunkCount: number;
+  targetChunkChars: number;
+  maxChunkChars: number;
+  overlapChars: number;
+  sourceText: string;
+};
 type RecentMapPreview = Pick<
   MapRow,
   | "id"
@@ -62,6 +75,8 @@ const CHARS_PER_CHUNK = 50_000;
 const MAP_CREATE_TIMEOUT_MS = 45_000;
 const MIN_TEXTAREA_HEIGHT = 108;
 const MAX_TEXTAREA_HEIGHT = 520;
+const MS_PER_CHAR = 50696 / 18857;
+const PROGRESS_CAP = 97;
 const DRAFT_SELECT_FIELDS =
   "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
 const FALLBACK_EXAMPLE_MAP_URL =
@@ -463,6 +478,35 @@ function getCreditInfo(text: string) {
   };
 }
 
+function coerceMapCreditEstimate(
+  json: unknown,
+  sourceText: string
+): MapCreditEstimate {
+  const data =
+    json && typeof json === "object" ? (json as Record<string, unknown>) : {};
+  const requiredCredits = Number(data.requiredCredits);
+  const chunkCount = Number(data.chunkCount);
+  const normalizedLength = Number(data.normalizedLength ?? 0);
+
+  if (!Number.isFinite(requiredCredits) || requiredCredits < 1) {
+    throw new Error("INVALID_CREDIT_ESTIMATE");
+  }
+
+  return {
+    sourceText,
+    normalizedLength: Number.isFinite(normalizedLength) ? normalizedLength : 0,
+    requiredCredits,
+    baseCredits: Number(data.baseCredits ?? requiredCredits),
+    highQuality: Boolean(data.highQuality),
+    highQualityMinChars: Number(data.highQualityMinChars ?? 3000),
+    highQualitySurchargeCredits: Number(data.highQualitySurchargeCredits ?? 0),
+    chunkCount: Number.isFinite(chunkCount) && chunkCount > 0 ? chunkCount : 1,
+    targetChunkChars: Number(data.targetChunkChars ?? CHARS_PER_CHUNK),
+    maxChunkChars: Number(data.maxChunkChars ?? CHARS_PER_CHUNK),
+    overlapChars: Number(data.overlapChars ?? 0),
+  };
+}
+
 function getApiMessage(error: unknown, fallback: string) {
   if (error instanceof Error && error.message.trim()) return error.message;
   return fallback;
@@ -567,11 +611,16 @@ export default function LandingV2Page({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [loadingStep, setLoadingStep] = useState(0);
+  const [progressNow, setProgressNow] = useState(Date.now());
+  const [generationStartedAt, setGenerationStartedAt] = useState<number | null>(null);
+  const [generationCharCount, setGenerationCharCount] = useState(0);
   const [recentMaps, setRecentMaps] = useState<RecentMapPreview[]>([]);
   const [isLoadingRecentMaps, setIsLoadingRecentMaps] = useState(false);
   const [isCreatingBlank, setIsCreatingBlank] = useState(false);
   const [currentCredits, setCurrentCredits] = useState(0);
   const [isLoadingCredits, setIsLoadingCredits] = useState(false);
+  const [creditEstimate, setCreditEstimate] = useState<MapCreditEstimate | null>(null);
+  const [isEstimatingCredits, setIsEstimatingCredits] = useState(false);
   const [showCreditDialog, setShowCreditDialog] = useState(false);
   const [pendingCreditInput, setPendingCreditInput] =
     useState<PendingLandingInput | null>(null);
@@ -595,9 +644,34 @@ export default function LandingV2Page({
   const trimmedText = text.trim();
   const charCount = trimmedText.length;
   const creditInfo = useMemo(() => getCreditInfo(text), [text]);
-  const requiredCredits = creditInfo.credits;
+  const currentTextEstimate =
+    creditEstimate?.sourceText === trimmedText ? creditEstimate : null;
+  const requiredCredits = currentTextEstimate?.requiredCredits ?? creditInfo.credits;
+  const pendingRequiredCredits = pendingCreditInput
+    ? creditEstimate?.sourceText === pendingCreditInput.text
+      ? creditEstimate.requiredCredits
+      : getCreditInfo(pendingCreditInput.text).credits
+    : requiredCredits;
+  const generationExpectedMs =
+    generationCharCount > 0
+      ? Math.max(1, Math.round(generationCharCount * MS_PER_CHAR))
+      : null;
+  const generationProgress =
+    isGenerating && generationStartedAt && generationExpectedMs
+      ? Math.min(
+          PROGRESS_CAP,
+          Math.max(
+            1,
+            Math.floor(((progressNow - generationStartedAt) / generationExpectedMs) * 100)
+          )
+        )
+      : null;
   const canCreate =
-    charCount > 0 && !isGenerating && !isExtractingFile && !creditInfo.tooLarge;
+    charCount > 0 &&
+    !isGenerating &&
+    !isExtractingFile &&
+    !isEstimatingCredits &&
+    !creditInfo.tooLarge;
   const route = (path: string) => `/${safeLocale}${path}`;
 
   useEffect(() => {
@@ -610,8 +684,16 @@ export default function LandingV2Page({
   }, []);
 
   useEffect(() => {
+    setCreditEstimate((estimate) =>
+      estimate?.sourceText === trimmedText ? estimate : null
+    );
+  }, [trimmedText]);
+
+  useEffect(() => {
     if (!isGenerating) {
       setLoadingStep(0);
+      setGenerationStartedAt(null);
+      setGenerationCharCount(0);
       return;
     }
     const timer = window.setInterval(() => {
@@ -619,6 +701,12 @@ export default function LandingV2Page({
     }, 2200);
     return () => window.clearInterval(timer);
   }, [copy.loadingSteps.length, isGenerating]);
+
+  useEffect(() => {
+    if (!isGenerating) return;
+    const timer = window.setInterval(() => setProgressNow(Date.now()), 800);
+    return () => window.clearInterval(timer);
+  }, [isGenerating]);
 
   useEffect(() => {
     let cancelled = false;
@@ -710,7 +798,44 @@ export default function LandingV2Page({
     setAuthOpen(true);
   };
 
-  const prepareCreateMap = (override?: PendingLandingInput) => {
+  const estimateCreditsForText = async (sourceText: string) => {
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!base) throw new Error(copy.missingApiBase);
+
+    const { data: sessionData, error: sessionError } =
+      await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+
+    if (sessionError || !accessToken) {
+      throw new Error(copy.loginRequired);
+    }
+
+    const response = await fetch(`${base}/maps/estimate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        extracted_text: sourceText,
+      }),
+    });
+
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const rawMessage =
+        json && typeof json === "object"
+          ? (json as { message?: unknown; error?: unknown }).message ??
+            (json as { message?: unknown; error?: unknown }).error
+          : undefined;
+      const message = Array.isArray(rawMessage) ? rawMessage[0] : rawMessage;
+      throw new Error(typeof message === "string" ? message : copy.createFailed);
+    }
+
+    return coerceMapCreditEstimate(json, sourceText);
+  };
+
+  const prepareCreateMap = async (override?: PendingLandingInput) => {
     setError(null);
     setNotice(null);
 
@@ -741,13 +866,24 @@ export default function LandingV2Page({
       return;
     }
 
-    if (currentCredits < nextCreditInfo.credits) {
-      setError(copy.insufficientCreditsDetail);
-      return;
-    }
+    setIsEstimatingCredits(true);
+    try {
+      const estimate = await estimateCreditsForText(generationText);
+      setCreditEstimate(estimate);
 
-    setPendingCreditInput(pendingInput);
-    setShowCreditDialog(true);
+      if (currentCredits < estimate.requiredCredits) {
+        setError(copy.insufficientCreditsDetail);
+        return;
+      }
+
+      setPendingCreditInput(pendingInput);
+      setShowCreditDialog(true);
+    } catch (estimateError) {
+      const message = getApiMessage(estimateError, copy.createFailed);
+      setError(message === "INVALID_CREDIT_ESTIMATE" ? copy.createFailed : message);
+    } finally {
+      setIsEstimatingCredits(false);
+    }
   };
 
   const createMap = async (override?: PendingLandingInput) => {
@@ -765,6 +901,26 @@ export default function LandingV2Page({
 
     if (getCreditInfo(generationText).tooLarge) {
       setError(copy.tooLarge);
+      return;
+    }
+
+    let estimate =
+      creditEstimate?.sourceText === generationText ? creditEstimate : null;
+
+    if (!estimate) {
+      try {
+        estimate = await estimateCreditsForText(generationText);
+        setCreditEstimate(estimate);
+      } catch (estimateError) {
+        const message = getApiMessage(estimateError, copy.createFailed);
+        setError(message === "INVALID_CREDIT_ESTIMATE" ? copy.createFailed : message);
+        return;
+      }
+    }
+
+    if (currentCredits < estimate.requiredCredits) {
+      setShowCreditDialog(false);
+      setError(copy.insufficientCreditsDetail);
       return;
     }
 
@@ -788,6 +944,9 @@ export default function LandingV2Page({
       return;
     }
 
+    setGenerationStartedAt(Date.now());
+    setGenerationCharCount(normalizeForBilling(generationText).length);
+    setProgressNow(Date.now());
     setIsGenerating(true);
     setShowCreditDialog(false);
 
@@ -1004,7 +1163,7 @@ export default function LandingV2Page({
   };
 
   const handleSubmit = () => {
-    prepareCreateMap();
+    void prepareCreateMap();
   };
 
   const handleTextareaResizeStart = (
@@ -1099,7 +1258,7 @@ export default function LandingV2Page({
     setText(pending.text);
     setSourceType(pending.sourceType ?? "manual");
     setFileName(pending.fileName ?? null);
-    prepareCreateMap(pending);
+    void prepareCreateMap(pending);
   };
 
   const discardResume = () => {
@@ -1511,13 +1670,28 @@ export default function LandingV2Page({
               <div className="mt-3 rounded-2xl bg-slate-50 px-4 py-4 dark:bg-white/[0.05]">
                 <div className="flex items-center gap-3">
                   <Icon icon="lucide:loader-circle" className="h-5 w-5 animate-spin text-cyan-500" />
-                  <div>
-                    <div className="text-sm font-black text-slate-900 dark:text-white">
-                      {copy.creating}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-sm font-black text-slate-900 dark:text-white">
+                        {copy.creating}
+                      </div>
+                      {generationProgress !== null ? (
+                        <div className="shrink-0 text-sm font-black tabular-nums text-cyan-700 dark:text-cyan-300">
+                          {generationProgress}%
+                        </div>
+                      ) : null}
                     </div>
                     <div className="mt-1 text-sm text-slate-500 dark:text-white/52">
                       {copy.loadingSteps[loadingStep]}
                     </div>
+                    {generationProgress !== null ? (
+                      <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-white/12">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-400 transition-[width] duration-700 ease-out"
+                          style={{ width: `${generationProgress}%` }}
+                        />
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -1532,10 +1706,16 @@ export default function LandingV2Page({
           >
             {isGenerating ? (
               <Icon icon="lucide:loader-circle" className="h-5 w-5 animate-spin" />
+            ) : isEstimatingCredits ? (
+              <Icon icon="lucide:loader-circle" className="h-5 w-5 animate-spin" />
             ) : (
               <Icon icon="lucide:git-branch" className="h-5 w-5" />
             )}
-            {isGenerating ? copy.creating : copy.create}
+            {isGenerating
+              ? copy.creating
+              : isEstimatingCredits
+              ? copy.creditLoading
+              : copy.create}
           </button>
         </section>
 
@@ -1913,14 +2093,10 @@ export default function LandingV2Page({
                   : isAuthed
                   ? templateCopy(copy.creditStatus, {
                       current: currentCredits.toLocaleString(),
-                      required: pendingCreditInput
-                        ? getCreditInfo(pendingCreditInput.text).credits
-                        : requiredCredits,
+                      required: pendingRequiredCredits,
                     })
                   : templateCopy(copy.requiredCredits, {
-                      required: pendingCreditInput
-                        ? getCreditInfo(pendingCreditInput.text).credits
-                        : requiredCredits,
+                      required: pendingRequiredCredits,
                     })}
               </div>
             </div>
@@ -1974,6 +2150,7 @@ export default function LandingV2Page({
           processingTitle={copy.processingTitle}
           processingMessage={copy.loadingSteps[loadingStep]}
           processingBullets={[...copy.processingBullets]}
+          processingPercent={generationProgress}
           showYoutubeTitleSync={false}
         />
       ) : null}

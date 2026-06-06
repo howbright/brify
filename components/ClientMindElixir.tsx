@@ -850,19 +850,50 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     const host = elRef.current;
     if (!wrapper || !host) return;
 
+    const isInsideMindMap = (target: EventTarget | null) => {
+      if (!(target instanceof Node)) return false;
+      return wrapper.contains(target) || host.contains(target);
+    };
+
     const preventBrowserSwipeNavigation = (event: WheelEvent) => {
       if (!event.isTrusted) return;
-      if (!host.contains(event.target as Node | null)) return;
+      if (!isInsideMindMap(event.target)) return;
       event.preventDefault();
     };
+
+    const preventWindowSwipeNavigation = (event: WheelEvent) => {
+      if (!event.isTrusted) return;
+      if (!isInsideMindMap(event.target)) return;
+      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+      event.preventDefault();
+    };
+
+    const wheelListenerOptions = {
+      passive: false,
+      capture: true,
+    } as const;
 
     wrapper.addEventListener("wheel", preventBrowserSwipeNavigation, {
       passive: false,
       capture: true,
     });
+    window.addEventListener(
+      "wheel",
+      preventWindowSwipeNavigation,
+      wheelListenerOptions
+    );
 
     return () => {
-      wrapper.removeEventListener("wheel", preventBrowserSwipeNavigation, true);
+      wrapper.removeEventListener(
+        "wheel",
+        preventBrowserSwipeNavigation,
+        wheelListenerOptions
+      );
+      window.removeEventListener(
+        "wheel",
+        preventWindowSwipeNavigation,
+        wheelListenerOptions
+      );
     };
   }, []);
 
