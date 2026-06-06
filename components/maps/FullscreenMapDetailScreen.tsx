@@ -94,6 +94,91 @@ function hasValidTimestampInMindData(raw: unknown): boolean {
 
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
 type ReadStatus = Database["public"]["Enums"]["map_read_status"];
+type MindElixirNode = {
+  id?: string;
+  topic?: string;
+  root?: boolean;
+  expanded?: boolean;
+  children?: MindElixirNode[];
+  meta?: Record<string, unknown>;
+};
+
+const PROCESSING_PLACEHOLDER_META_KEY = "brifyProcessingPlaceholder";
+
+function getProcessingPlaceholderTopic(locale?: string) {
+  if (locale === "ko") return "구조맵을 생성하고 있어요...";
+  if (locale === "fr") return "Création de cette partie...";
+  return "Creating this section...";
+}
+
+function cloneMindElixirData(data: MapRow["mind_elixir"]) {
+  if (!data) return null;
+  try {
+    if (typeof structuredClone === "function") {
+      return structuredClone(data) as MapRow["mind_elixir"];
+    }
+  } catch {
+    // Fall back to JSON cloning below.
+  }
+
+  try {
+    return JSON.parse(JSON.stringify(data)) as MapRow["mind_elixir"];
+  } catch {
+    return data;
+  }
+}
+
+function withProcessingPlaceholderNodes(
+  data: MapRow["mind_elixir"],
+  locale?: string
+): MapRow["mind_elixir"] {
+  const cloned = cloneMindElixirData(data);
+  if (!cloned || typeof cloned !== "object") return data;
+
+  const root = (cloned as { nodeData?: MindElixirNode }).nodeData ?? (cloned as MindElixirNode);
+  const rootChildren = Array.isArray(root.children) ? root.children : [];
+  if (!rootChildren.length) return cloned;
+
+  const placeholderTopic = getProcessingPlaceholderTopic(locale);
+  rootChildren.forEach((child, index) => {
+    const children = Array.isArray(child.children) ? child.children : [];
+    if (children.length > 0) return;
+
+    child.children = [
+      {
+        id: `__brify_processing_${child.id ?? index}`,
+        topic: placeholderTopic,
+        children: [],
+        meta: {
+          [PROCESSING_PLACEHOLDER_META_KEY]: true,
+        },
+      },
+    ];
+    child.expanded = child.expanded ?? true;
+  });
+
+  return cloned;
+}
+
+function stripProcessingPlaceholderNodes(
+  data: MapRow["mind_elixir"] | null
+): MapRow["mind_elixir"] | null {
+  const cloned = cloneMindElixirData(data);
+  if (!cloned || typeof cloned !== "object") return data;
+
+  const root = (cloned as { nodeData?: MindElixirNode }).nodeData ?? (cloned as MindElixirNode);
+  const stripNode = (node: MindElixirNode) => {
+    if (!Array.isArray(node.children)) return;
+    node.children = node.children.filter((child) => {
+      const isPlaceholder = Boolean(child.meta?.[PROCESSING_PLACEHOLDER_META_KEY]);
+      if (!isPlaceholder) stripNode(child);
+      return !isPlaceholder;
+    });
+  };
+
+  stripNode(root);
+  return cloned;
+}
 
 function getStoredMapViewState(mapId: string): MapRow["mind_elixir"] | null {
   if (typeof window === "undefined") return null;
@@ -1335,7 +1420,9 @@ export default function FullscreenMapDetailScreen({
     }
     autoSaveTimerRef.current = window.setTimeout(async () => {
       autoSaveTimerRef.current = null;
-      const snapshot = mindRef.current?.getSnapshot?.();
+      const snapshot = stripProcessingPlaceholderNodes(
+        mindRef.current?.getSnapshot?.() as MapRow["mind_elixir"] | null
+      );
       if (!snapshot) return;
       const payload = JSON.stringify(snapshot);
       latestLocalMindPayloadRef.current = payload;
@@ -1357,7 +1444,9 @@ export default function FullscreenMapDetailScreen({
         }
         lastSavedDraftRef.current = payload;
         const currentPayload = stringifyMindData(
-          mindRef.current?.getSnapshot?.() as MapRow["mind_elixir"] | null
+          stripProcessingPlaceholderNodes(
+            mindRef.current?.getSnapshot?.() as MapRow["mind_elixir"] | null
+          )
         );
         if (currentPayload === payload && !autoSaveTimerRef.current) {
           latestLocalMindPayloadRef.current = payload;
@@ -1392,7 +1481,9 @@ export default function FullscreenMapDetailScreen({
     updateReactState?: boolean;
     markLocalChange?: boolean;
   }) => {
-    const snapshot = mindRef.current?.getSnapshot?.() as MapRow["mind_elixir"] | null;
+    const snapshot = stripProcessingPlaceholderNodes(
+      mindRef.current?.getSnapshot?.() as MapRow["mind_elixir"] | null
+    );
     if (!snapshot) return;
     if (options?.markLocalChange) {
       latestLocalMindPayloadRef.current = stringifyMindData(snapshot);
@@ -2252,7 +2343,13 @@ export default function FullscreenMapDetailScreen({
   const sharedMissingTitle = t("sharedMissing.title");
   const sharedMissingDescription = t("sharedMissing.description");
   const sharedMissingAction = t("sharedMissing.action");
-  const isMapGenerating = Boolean(draft && isActiveMapStatus(draft.status) && !mapData);
+  const isMapProcessing = Boolean(draft && isActiveMapStatus(draft.status));
+  const isMapGenerating = Boolean(isMapProcessing && !mapData);
+  const displayMapData = useMemo(() => {
+    if (!mapData) return null;
+    if (!isMapProcessing) return mapData;
+    return withProcessingPlaceholderNodes(mapData, locale);
+  }, [isMapProcessing, locale, mapData]);
   const generatingTitle =
     locale === "ko"
       ? "구조맵을 만들고 있어요"
@@ -3210,7 +3307,7 @@ export default function FullscreenMapDetailScreen({
                   ? undefined
                   : MIND_THEME_BY_NAME[themeName]
               }
-              data={mapData ?? undefined}
+              data={displayMapData ?? undefined}
               loading={loading || isMapGenerating}
               placeholderData={loadingMindElixir}
               showMiniMap={!isTutorialMobile}
