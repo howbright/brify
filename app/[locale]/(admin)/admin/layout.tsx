@@ -2,13 +2,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 
-function parseAdminEmails(raw: string | undefined | null) {
-  return (raw ?? "")
-    .split(",")
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean);
-}
-
 export default async function AdminLayout({
   children,
 }: {
@@ -24,11 +17,14 @@ export default async function AdminLayout({
     redirect("/ko/login?next=/admin");
   }
 
-  const admins = parseAdminEmails(process.env.ADMIN_EMAILS);
-  const me = (user.email ?? "").trim().toLowerCase();
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
 
-  // ✅ 환경변수 미설정 or 이메일 불일치 → 홈으로
-  if (admins.length === 0 || !admins.includes(me)) {
+  // ✅ ADMIN role이 아니면 홈으로
+  if (profileError || profile?.role !== "ADMIN") {
     redirect("/");
   }
 

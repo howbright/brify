@@ -1,12 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
 
-export function parseAdminEmails(raw: string | undefined | null) {
-  return (raw ?? "")
-    .split(",")
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean);
-}
-
 export async function requireBlogAdmin() {
   const supabase = await createClient();
   const {
@@ -18,10 +11,13 @@ export async function requireBlogAdmin() {
     return { ok: false as const, status: 401, user: null };
   }
 
-  const admins = parseAdminEmails(process.env.ADMIN_EMAILS);
-  const email = (user.email ?? "").trim().toLowerCase();
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
 
-  if (admins.length === 0 || !admins.includes(email)) {
+  if (profileError || profile?.role !== "ADMIN") {
     return { ok: false as const, status: 403, user: null };
   }
 

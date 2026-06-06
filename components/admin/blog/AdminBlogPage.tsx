@@ -154,8 +154,7 @@ export default function AdminBlogPage() {
         setForm((prev) => ({
           ...prev,
           markdown: `${prev.markdown.trimEnd()}\n\n![blog image](${url})\n`,
-        })
-        );
+        }));
       }
       toast.success("이미지를 업로드했어요.");
     } catch (error) {
