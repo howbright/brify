@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getBlogPostsByLocale } from "@/app/lib/blog";
+import { getAllPublishedBlogPosts } from "@/app/lib/blog";
 
 const BASE_URL = "https://www.brify.app";
 
@@ -152,29 +152,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const [koPosts, enPosts] = await Promise.all([
-    getBlogPostsByLocale("ko"),
-    getBlogPostsByLocale("en"),
-  ]);
+  const posts = await getAllPublishedBlogPosts();
 
   const blogRoutes: MetadataRoute.Sitemap = [
-    ...koPosts.map((post) => ({
-      url: `${BASE_URL}/ko/blog/${post.slug}`,
+    ...posts.map((post) => ({
+      url: `${BASE_URL}/${post.locale}/blog/${post.slug}`,
       lastModified: now,
       changeFrequency: "monthly" as const,
-      priority: 0.65,
-    })),
-    ...enPosts.map((post) => ({
-      url: `${BASE_URL}/en/blog/${post.slug}`,
-      lastModified: now,
-      changeFrequency: "monthly" as const,
-      priority: 0.55,
-    })),
-    ...enPosts.map((post) => ({
-      url: `${BASE_URL}/fr/blog/${post.slug}`,
-      lastModified: now,
-      changeFrequency: "monthly" as const,
-      priority: 0.55,
+      priority: post.locale === "ko" ? 0.65 : 0.55,
     })),
   ];
 

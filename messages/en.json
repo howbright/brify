@@ -1,17 +1,17 @@
 {
   "VideoToMapPage": {
     "title": {
-      "prefix": "With AI document structuring,",
-      "highlight": "turn text into a structure map"
+      "prefix": "Turn papers and long materials",
+      "highlight": "into AI structure maps"
     },
     "description": {
-      "beforeBold": "Paste long documents or source text",
+      "beforeBold": "Paste papers, research materials, or report sources",
       "bold": "as-is,",
       "afterBold": "and we’ll structure it so the core flow and hierarchy are clear at a glance."
     },
     "inputSection": {
       "title": "Paste source text",
-      "placeholder": "Paste source text from reports, papers, legal opinions, contracts, and similar documents..."
+      "placeholder": "Paste source text from papers, research materials, lecture notes, report references, and similar documents..."
     },
     "credits": {
       "label": "My credits",
@@ -1432,13 +1432,13 @@
     }
   },
   "LandingBlueHero": {
-    "eyebrow": "A structure map for people who need to quickly understand, organize, and preserve long documents",
+    "eyebrow": "An AI structure map for graduate students, researchers, and students preparing reports",
     "titles": [
-      "When you structure long text, both the key points and the exact details you need"
+      "When papers and long materials are structured, the key points and details you need"
     ],
     "titleHighlight": "come into view at a glance.",
     "titleSuffix": "",
-    "helper": "Brify lets you directly edit AI-generated structure, mark what matters, return to the original text, and turn your work into shareable PDF and Markdown outputs.",
+    "helper": "Brify turns papers, research materials, and report sources into editable structure maps you can mark up, revisit, share, and export as PDF or Markdown.",
     "switchTitleAria": "Switch title",
     "ctaPrimary": "Start for free",
     "ctaSecondary": "View sample",
@@ -1742,8 +1742,8 @@
     "title": "Brify Blog",
     "count": "{count} posts",
     "meta": {
-      "title": "Brify Blog",
-      "description": "Brify blog on turning complex information into structured mind maps."
+      "title": "Brify Blog | Structure maps for papers and long materials",
+      "description": "Brify is an AI structure map tool for graduate students, researchers, and students preparing reports from papers and long materials."
     }
   },
   "TagEditDialog": {
@@ -2140,40 +2140,40 @@
     "signupHref": "/en/signup"
   },
   "MindMapPage": {
-    "title": "AI mind map conversion | Turn complex information into structured maps - Brify",
-    "description": "Brify helps you convert YouTube transcripts, webpages, and long text with AI mind map conversion so you can understand flow and structure at a glance.",
+    "title": "AI structure map conversion | Organize papers and long materials - Brify",
+    "description": "Brify is an AI structure map tool for graduate students, researchers, and students preparing reports from papers and long materials.",
     "keywords": [
-      "AI mind map conversion",
-      "mind map",
-      "youtube mind map",
-      "youtube to mind map",
-      "convert youtube to mind map",
-      "text mind map",
+      "AI structure map conversion",
+      "structure map",
+      "research paper organization",
+      "graduate student research tool",
+      "report preparation",
+      "long material analysis",
       "Brify"
     ],
     "ogImage": "https://www.brify.app/images/snsEn.jpg",
-    "heading": "Convert YouTube transcripts into mind maps",
-    "lead": "AI mind map conversion helps you organize complex information in one view. Brify turns long text into structured maps you can revisit anytime.",
+    "heading": "Turn papers and long materials into structure maps",
+    "lead": "AI structure map conversion helps you organize complex information in one view. Brify turns papers, research materials, and report sources into structured maps you can revisit anytime.",
     "paragraphs": [
       "A mind map is not only a neat format. It is a way to understand relationships, hierarchy, and flow inside complex information.",
-      "Brify turns long text into structure maps so key ideas and their connections become easier to see at a glance.",
-      "That makes Brify especially useful if you are searching for a way to turn YouTube videos into mind maps for study, research, comparison, and complex inputs."
+      "Brify turns long materials into structure maps so key ideas and their connections become easier to see at a glance.",
+      "That makes Brify especially useful for graduate students reading papers, researchers reviewing sources, and students preparing reports."
     ],
     "bullets": [
-      "People who want to turn the flow of long text into a structure map",
-      "People who want long text at a glance",
+      "People who want to turn the flow of papers and research materials into structure maps",
+      "Graduate students and researchers who want long materials at a glance",
       "People who want visual flow and structure",
-      "People who compare multiple sources and ideas"
+      "Students who compare multiple sources while preparing reports"
     ],
     "ctaTitle": "Start organizing with Brify mind maps",
-    "ctaBody": "Turn webpages and long text into structure maps to understand complex information faster.",
+    "ctaBody": "Turn papers and long materials into structure maps to understand complex information faster.",
     "primaryCta": "Start Brify",
     "secondaryCta": "See another use case",
     "signupHref": "/en/signup",
     "relatedHref": "/en/youtube-notes"
   },
   "Footer": {
-    "description": "A knowledge-structuring service that turns long, complex writing into structure maps for faster, more accurate understanding.",
+    "description": "An AI structure map tool for graduate students, researchers, and students preparing reports from papers and long materials.",
     "contactEmail": "Email",
     "contactPhone": "Phone",
     "contactAddress": "Address",

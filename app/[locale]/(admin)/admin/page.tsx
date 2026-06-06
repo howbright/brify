@@ -14,7 +14,20 @@ export default async function AdminHomePage({
         관리자 가드가 정상 동작 중이에요. 환불 처리 화면으로 바로 이동할 수 있어요.
       </p>
 
-      <section className="mt-8 grid gap-4 lg:grid-cols-4">
+      <section className="mt-8 grid gap-4 lg:grid-cols-5">
+        <Link
+          href={`/${locale}/admin/blog`}
+          className="rounded-3xl border border-slate-300 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+        >
+          <div className="text-sm font-semibold text-blue-700">ADMIN BLOG</div>
+          <h2 className="mt-2 text-xl font-extrabold tracking-tight text-neutral-950">
+            블로그 글 관리
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-neutral-600">
+            한국어, 영어, 프랑스어 블로그 글을 Markdown으로 작성하고 공개 상태를 관리해요.
+          </p>
+        </Link>
+
         <Link
           href={`/${locale}/admin/refund`}
           className="rounded-3xl border border-slate-300 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"

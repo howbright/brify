@@ -123,7 +123,7 @@ const COPY = {
   ko: {
     login: "로그인",
     signup: "회원가입",
-    headline: "긴 글을 붙여넣거나 문서를 업로드하세요.",
+    headline: "논문과 긴 자료를 구조맵으로 정리하세요.",
     subhead: "",
     textareaPlaceholder: "여기에 붙여넣기",
     uploadDoc: "문서 업로드",
@@ -213,7 +213,7 @@ const COPY = {
   en: {
     login: "Log in",
     signup: "Sign up",
-    headline: "Paste long text or upload a document.",
+    headline: "Turn papers and long materials into structure maps.",
     subhead: "",
     textareaPlaceholder: "Paste here",
     uploadDoc: "Upload document",
@@ -303,7 +303,7 @@ const COPY = {
   fr: {
     login: "Connexion",
     signup: "Inscription",
-    headline: "Collez un long texte ou importez un document.",
+    headline: "Transformez articles et documents longs en cartes structurées.",
     subhead: "",
     textareaPlaceholder: "Collez ici",
     uploadDoc: "Importer un document",

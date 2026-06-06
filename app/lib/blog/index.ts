@@ -1,37 +1,98 @@
-import { readdir, readFile } from "node:fs/promises";
-import path from "node:path";
+import { adminSupabase } from "@/utils/supabase/admin";
 import type { BlogPost } from "./types";
 
-const BLOG_CONTENT_BASE_DIR = path.join(process.cwd(), "app", "content", "blog");
+type BlogLocale = BlogPost["locale"];
 
-function normalizeLocale(locale: string): "ko" | "en" {
-  return locale === "ko" ? "ko" : "en";
+type BlogPostRow = {
+  id: string;
+  locale: BlogLocale;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  image_url: string | null;
+  markdown: string | null;
+  status: BlogPost["status"];
+  published_at: string | null;
+  updated_at: string;
+};
+
+function normalizeLocale(locale: string): BlogLocale {
+  if (locale === "ko" || locale === "fr") return locale;
+  return "en";
 }
 
-async function loadPostsFromDirectory(locale: "ko" | "en"): Promise<BlogPost[]> {
-  const localeDir = path.join(BLOG_CONTENT_BASE_DIR, locale);
-  const filenames = await readdir(localeDir);
-  const jsonFiles = filenames.filter((name) => name.endsWith(".json"));
-
-  const posts = await Promise.all(
-    jsonFiles.map(async (filename) => {
-      const filePath = path.join(localeDir, filename);
-      const raw = await readFile(filePath, "utf-8");
-      return JSON.parse(raw) as BlogPost;
-    })
-  );
-
-  return posts.sort((a, b) => a.title.localeCompare(b.title));
+function toBlogPost(row: BlogPostRow): BlogPost {
+  return {
+    id: row.id,
+    locale: row.locale,
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt ?? "",
+    imageUrl: row.image_url ?? "",
+    markdown: row.markdown ?? "",
+    status: row.status,
+    publishedAt: row.published_at,
+    updatedAt: row.updated_at,
+  };
 }
 
 export async function getBlogPostsByLocale(locale: string): Promise<BlogPost[]> {
-  return loadPostsFromDirectory(normalizeLocale(locale));
+  const normalized = normalizeLocale(locale);
+  const now = new Date().toISOString();
+  const { data, error } = await adminSupabase
+    .from("blog_posts")
+    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,updated_at")
+    .eq("locale", normalized)
+    .eq("status", "published")
+    .or(`published_at.is.null,published_at.lte.${now}`)
+    .order("published_at", { ascending: false, nullsFirst: false })
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[blog] failed to load posts", error);
+    return [];
+  }
+
+  return ((data ?? []) as BlogPostRow[]).map(toBlogPost);
+}
+
+export async function getAllPublishedBlogPosts(): Promise<BlogPost[]> {
+  const now = new Date().toISOString();
+  const { data, error } = await adminSupabase
+    .from("blog_posts")
+    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,updated_at")
+    .eq("status", "published")
+    .or(`published_at.is.null,published_at.lte.${now}`)
+    .order("published_at", { ascending: false, nullsFirst: false })
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[blog] failed to load sitemap posts", error);
+    return [];
+  }
+
+  return ((data ?? []) as BlogPostRow[]).map(toBlogPost);
 }
 
 export async function getBlogPostByLocaleAndSlug(
   locale: string,
   slug: string
 ): Promise<BlogPost | null> {
-  const posts = await getBlogPostsByLocale(locale);
-  return posts.find((post) => post.slug === slug) ?? null;
+  const normalized = normalizeLocale(locale);
+  const now = new Date().toISOString();
+  const { data, error } = await adminSupabase
+    .from("blog_posts")
+    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,updated_at")
+    .eq("locale", normalized)
+    .eq("slug", slug)
+    .eq("status", "published")
+    .or(`published_at.is.null,published_at.lte.${now}`)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[blog] failed to load post", error);
+    return null;
+  }
+
+  return data ? toBlogPost(data as BlogPostRow) : null;
 }

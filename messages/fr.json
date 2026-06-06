@@ -1,17 +1,17 @@
 {
   "VideoToMapPage": {
     "title": {
-      "prefix": "Avec la structuration IA des documents,",
-      "highlight": "transformez le texte en carte structurée"
+      "prefix": "Transformez articles et documents longs",
+      "highlight": "en cartes structurées IA"
     },
     "description": {
-      "beforeBold": "Collez un document long ou du texte source",
+      "beforeBold": "Collez articles, matériaux de recherche ou sources de rapport",
       "bold": "tel quel,",
       "afterBold": "et nous le structurerons pour rendre le flux principal et la hiérarchie lisibles d’un coup d’œil."
     },
     "inputSection": {
       "title": "Collez le texte source",
-      "placeholder": "Collez ici le texte source de rapports, articles, avis juridiques, contrats et documents similaires..."
+      "placeholder": "Collez ici le texte source d’articles, matériaux de recherche, notes de cours, références de rapport et documents similaires..."
     },
     "credits": {
       "label": "Mes crédits",
@@ -267,9 +267,9 @@
     "openMap": "Ouvrir la carte de structure"
   },
   "LandingBlueHero": {
-    "eyebrow": "Une carte structurée pour celles et ceux qui doivent comprendre rapidement, organiser et conserver de longs documents",
+    "eyebrow": "Une carte structurée IA pour doctorants, chercheurs et étudiants qui préparent des rapports",
     "titles": [
-      "Quand un texte long est structuré, l’essentiel et l’emplacement des informations utiles"
+      "Quand les articles et documents longs sont structurés, l’essentiel et les détails utiles"
     ],
     "flowItems": [
       "Ajoutez un document ou un texte",
@@ -279,7 +279,7 @@
     ],
     "titleHighlight": "apparaissent d’un seul coup d’œil.",
     "titleSuffix": "",
-    "helper": "Brify vous permet de modifier directement la structure générée par l’IA, de marquer les passages importants, de retrouver le texte d’origine, puis d’en faire un résultat partageable en PDF ou en Markdown.",
+    "helper": "Brify transforme articles, matériaux de recherche et sources de rapports en cartes structurées modifiables, annotables, partageables et exportables en PDF ou Markdown.",
     "switchTitleAria": "Changer le titre",
     "ctaPrimary": "Commencer gratuitement",
     "ctaSecondary": "Voir un exemple",
@@ -341,7 +341,7 @@
     }
   },
   "Footer": {
-    "description": "Un service qui transforme les textes longs et complexes en cartes structurées pour les lire plus vite et avec plus de précision.",
+    "description": "Un outil de carte structurée par IA pour les doctorants, chercheurs et étudiants qui préparent des rapports à partir d’articles et de documents longs.",
     "contactEmail": "E-mail",
     "contactPhone": "Téléphone",
     "contactAddress": "Adresse",
@@ -2164,8 +2164,8 @@
     "title": "Blog Brify",
     "count": "{count} articles",
     "meta": {
-      "title": "Blog Brify",
-      "description": "Le blog Brify sur la transformation d'informations complexes en cartes mentales structurées."
+      "title": "Blog Brify | Cartes structurées pour articles et documents longs",
+      "description": "Brify est un outil de carte structurée par IA pour les doctorants, chercheurs et étudiants qui préparent des rapports à partir d’articles et de documents longs."
     }
   },
   "TagEditDialog": {
@@ -2388,33 +2388,33 @@
     "signupHref": "/fr/signup"
   },
   "MindMapPage": {
-    "title": "Conversion IA en carte mentale | Transformez des informations complexes en cartes structurées - Brify",
-    "description": "Brify vous aide à convertir des transcriptions YouTube, des pages web et des textes longs grâce à la conversion IA en carte mentale pour comprendre immédiatement le flux et la structure.",
+    "title": "Conversion IA en carte structurée | Organisez articles et documents longs - Brify",
+    "description": "Brify est un outil de carte structurée par IA pour les doctorants, chercheurs et étudiants qui préparent des rapports à partir d’articles et de documents longs.",
     "keywords": [
-      "conversion IA en carte mentale",
-      "mind map",
-      "mind map youtube",
-      "youtube vers mind map",
-      "convertir youtube en mind map",
-      "mind map texte",
+      "conversion IA en carte structurée",
+      "carte structurée",
+      "organisation article de recherche",
+      "outil pour doctorants",
+      "préparation de rapport",
+      "analyse de documents longs",
       "Brify"
     ],
     "ogImage": "https://www.brify.app/images/snsEn.jpg",
-    "heading": "Convertissez des transcriptions YouTube en mind maps",
-    "lead": "La conversion IA en carte mentale vous aide à organiser des informations complexes sur un seul écran. Brify transforme les textes longs en cartes structurées faciles à réutiliser.",
+    "heading": "Transformez articles et documents longs en cartes structurées",
+    "lead": "La conversion IA en carte structurée vous aide à organiser des informations complexes sur un seul écran. Brify transforme articles, matériaux de recherche et sources de rapports en cartes faciles à réutiliser.",
     "paragraphs": [
       "Une mind map n'est pas seulement un format visuel propre : c'est une façon de comprendre les relations, la hiérarchie et le fil d'une information complexe.",
-      "Brify transforme les textes longs en cartes structurées pour rendre les idées clés et leurs liens beaucoup plus visibles d’un seul coup d’œil.",
-      "Brify est particulièrement utile si vous cherchez à transformer des vidéos YouTube en mind maps pour l'étude, la recherche, la comparaison et des entrées complexes."
+      "Brify transforme les documents longs en cartes structurées pour rendre les idées clés et leurs liens beaucoup plus visibles d’un seul coup d’œil.",
+      "Brify est particulièrement utile pour les doctorants qui lisent des articles, les chercheurs qui relisent des sources et les étudiants qui préparent des rapports."
     ],
     "bullets": [
-      "Les personnes qui veulent transformer le fil d’un texte long en carte structurée",
-      "Les personnes qui veulent visualiser rapidement des textes longs",
+      "Les personnes qui veulent transformer le fil d’articles et de matériaux de recherche en carte structurée",
+      "Les doctorants et chercheurs qui veulent visualiser rapidement des documents longs",
       "Les personnes qui veulent une structure et un flux visuels",
-      "Les personnes qui comparent plusieurs sources et idées"
+      "Les étudiants qui comparent plusieurs sources pour préparer un rapport"
     ],
     "ctaTitle": "Commencez à organiser avec les mind maps Brify",
-    "ctaBody": "Transformez des pages web et des textes longs en cartes structurées pour comprendre plus vite les informations complexes.",
+    "ctaBody": "Transformez articles et documents longs en cartes structurées pour comprendre plus vite les informations complexes.",
     "primaryCta": "Commencer avec Brify",
     "secondaryCta": "Voir un autre cas d’usage",
     "signupHref": "/fr/signup",

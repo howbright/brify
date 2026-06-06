@@ -30,8 +30,8 @@ export default async function OldLanding({
     operatingSystem: "Web",
     url: `https://www.brify.app/${locale}/old-landing`,
     description: isKorean
-      ? "브라이피(Brify)는 길고 복잡한 문서를 구조화해 핵심 흐름과 세부 정보를 함께 파악할 수 있도록 돕는 AI 문서 구조화 도구입니다."
-      : "Brify is an AI document structuring tool that helps you organize long, complex documents so you can grasp core flow and critical details faster.",
+      ? "Brify는 논문과 긴 자료를 읽는 대학원생, 연구자, 리포트를 준비하는 학생을 위한 AI 구조맵 도구입니다."
+      : "Brify is an AI structure map tool for graduate students, researchers, and students preparing reports from papers and long materials.",
     inLanguage: isKorean ? "ko" : locale,
     offers: {
       "@type": "Offer",
