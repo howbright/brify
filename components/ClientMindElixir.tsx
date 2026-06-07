@@ -2037,7 +2037,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       zoomIn: () => {
         const mind = mindRef.current;
         if (!mind || typeof mind.scale !== "function") return;
-        const next = Math.min(mind.scaleMax ?? MIND_SCALE_MAX, (mind.scaleVal ?? 1) + 0.1);
+        const min = mind.scaleMin ?? MIND_SCALE_MIN;
+        const max = mind.scaleMax ?? MIND_SCALE_MAX;
+        const next = Math.min(max, Math.max(min, (mind.scaleVal ?? 1) + 0.1));
         mind.scale(next);
       },
       zoomOut: () => {
@@ -3440,7 +3442,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         onMiniMapZoomIn={() => {
           const mind = mindRef.current;
           if (!mind || typeof mind.scale !== "function") return;
-          const next = Math.min(mind.scaleMax ?? MIND_SCALE_MAX, (mind.scaleVal ?? 1) + 0.1);
+          const min = mind.scaleMin ?? MIND_SCALE_MIN;
+          const max = mind.scaleMax ?? MIND_SCALE_MAX;
+          const next = Math.min(max, Math.max(min, (mind.scaleVal ?? 1) + 0.1));
           mind.scale(next);
         }}
         onMiniMapZoomOut={() => {
