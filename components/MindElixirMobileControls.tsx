@@ -9,6 +9,7 @@ type Labels = {
   rename: string;
   editContent: string;
   slideshow: string;
+  regenerate: string;
   linkBidirectional: string;
   addOrReplaceImage: string;
   removeImage: string;
@@ -24,14 +25,17 @@ type Props = {
   disableAddSibling?: boolean;
   disableRename?: boolean;
   disableEditContent?: boolean;
+  disableRegenerate?: boolean;
   disableImageActions?: boolean;
   disableRemove?: boolean;
+  regenerating?: boolean;
   onClose?: () => void;
   onAddChild: () => void;
   onAddParent: () => void;
   onAddSibling: () => void;
   onRename: () => void;
   onEditContent: () => void;
+  onRegenerate: () => void;
   onSlideshow: () => void;
   onLinkBidirectional: () => void;
   onAddOrReplaceImage: () => void;
@@ -48,14 +52,17 @@ export default function MindElixirMobileControls({
   disableAddSibling: _disableAddSibling = false,
   disableRename = false,
   disableEditContent = false,
+  disableRegenerate = false,
   disableImageActions = false,
   disableRemove = false,
+  regenerating = false,
   onClose,
   onAddChild,
   onAddParent,
   onAddSibling: _onAddSibling,
   onRename,
   onEditContent,
+  onRegenerate,
   onSlideshow,
   onLinkBidirectional,
   onAddOrReplaceImage,
@@ -273,6 +280,35 @@ export default function MindElixirMobileControls({
                     className="h-4.5 w-4.5 shrink-0 text-neutral-700 dark:text-white/75"
                   />
                   <span>{labels.slideshow}</span>
+                </span>
+                <Icon
+                  icon="mdi:chevron-right"
+                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
+                />
+              </button>
+              <button
+                type="button"
+                onClick={onRegenerate}
+                disabled={disableRegenerate || regenerating}
+                className={[
+                  baseItemClassName,
+                  disableRegenerate || regenerating
+                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-white/[0.04] dark:text-white/35"
+                    : "bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]",
+                ].join(" ")}
+              >
+                <span className="inline-flex items-center gap-3">
+                  <Icon
+                    icon={regenerating ? "mdi:loading" : "mdi:auto-fix"}
+                    className={[
+                      "h-4.5 w-4.5 shrink-0",
+                      regenerating ? "animate-spin" : "",
+                      disableRegenerate || regenerating
+                        ? "text-neutral-400 dark:text-white/35"
+                        : "text-neutral-700 dark:text-white/75",
+                    ].join(" ")}
+                  />
+                  <span>{labels.regenerate}</span>
                 </span>
                 <Icon
                   icon="mdi:chevron-right"

@@ -49,6 +49,9 @@ type ClientMindElixirProps = {
   onChange?: (op: any) => void;
   onViewModeEditAttempt?: () => void;
   onOpenSlideshow?: () => void;
+  onRegenerateSelectedNode?: () => void;
+  canRegenerateSelectedNode?: boolean;
+  regeneratingNodeId?: string | null;
 
   zoomSensitivity?: number; // scaleSensitivity
   dragButton?: 0 | 2; // mouseSelectionButton
@@ -125,6 +128,10 @@ type AnyNode = {
   meta?: {
     anchorText?: string[];
     anchorKeywords?: string[];
+    sourceRangeHint?: {
+      startText?: string;
+      endText?: string;
+    };
   } | null;
   children?: AnyNode[];
   expanded?: boolean;
@@ -536,6 +543,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       onChange,
       onViewModeEditAttempt,
       onOpenSlideshow,
+      onRegenerateSelectedNode,
+      canRegenerateSelectedNode = false,
+      regeneratingNodeId = null,
       zoomSensitivity = 0.1,
       dragButton = 0,
       fitOnInit = true,
@@ -589,6 +599,18 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const annotationDeleteLabel = t("annotation.delete");
   const cancelLabel = t("common.cancel");
   const saveLabel = t("common.save");
+  const regenerateLabel =
+    locale === "ko"
+      ? "다시 구조화"
+      : locale === "fr"
+      ? "Restructurer"
+      : "Regenerate";
+  const regenerateLoadingLabel =
+    locale === "ko"
+      ? "다시 구조화 중"
+      : locale === "fr"
+      ? "Restructuration..."
+      : "Regenerating...";
   const imageText = useMemo(
     () => ({
       addOrReplace: t("image.addOrReplace"),
@@ -1414,11 +1436,12 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       ...mobileEditLabelsFromResponsive,
       editContent: t("mobileEdit.editContent"),
       slideshow: t("slideshow.open"),
+      regenerate: regenerateLabel,
       linkBidirectional: t("mobileEdit.linkBidirectional"),
       addOrReplaceImage: t("mobileEdit.addOrReplaceImage"),
       removeImage: t("mobileEdit.removeImage"),
     }),
-    [mobileEditLabelsFromResponsive, t]
+    [mobileEditLabelsFromResponsive, regenerateLabel, t]
   );
   const selectedNodeHasRichText = (() => {
     if (!selectedNodeId) return false;
@@ -3346,14 +3369,19 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         mobileEditLabels={mobileEditLabels}
         selectedNodeIsRoot={selectedNodeIsRoot}
         disableEditContent={!selectedNodeId}
+        disableRegenerate={!canRegenerateSelectedNode}
         disableRename={!selectedNodeId || selectedNodeHasRichText}
         disableImageActions={imageBusy || !mapId}
+        regenerating={Boolean(
+          selectedNodeId && regeneratingNodeId === selectedNodeId
+        )}
         onCloseMobileActions={() => setMobileActionNodeId(null)}
         onAddChild={() => void runMobileNodeAction("addChild")}
         onAddParent={() => void runMobileNodeAction("addParent")}
         onAddSibling={() => void runMobileNodeAction("addSibling")}
         onRename={() => void runMobileNodeAction("rename")}
         onEditContent={() => openRichTextEditor()}
+        onRegenerate={() => onRegenerateSelectedNode?.()}
         onLinkBidirectional={() => void runMobileNodeAction("linkBidirectional")}
         onAddOrReplaceImage={() => triggerNodeImagePicker()}
         onRemoveImage={() => void handleRemoveNodeImage()}
@@ -3430,6 +3458,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         }}
         slideshowLabel={t("slideshow.open")}
         onSlideshowClick={() => onOpenSlideshow?.()}
+        regenerateLabel={regenerateLabel}
+        regenerateLoadingLabel={regenerateLoadingLabel}
+        canRegenerate={canRegenerateSelectedNode}
+        isRegenerating={Boolean(
+          selectedNodeId && regeneratingNodeId === selectedNodeId
+        )}
+        onRegenerateClick={() => onRegenerateSelectedNode?.()}
         onHighlightClick={() => handleHighlightClick(selectedNodeIdRef.current)}
         showAnnotationAction={showAnnotationAction}
         showHighlightAction={showHighlightAction}

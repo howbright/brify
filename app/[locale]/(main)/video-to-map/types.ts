@@ -11,6 +11,7 @@ export type MapDraftKind = "map" | "chunk" | "merge";
 
 export type MapDraft = {
   id: string;
+  version?: number;
   createdAt: number;
   updatedAt?: number;
   visible?: boolean;

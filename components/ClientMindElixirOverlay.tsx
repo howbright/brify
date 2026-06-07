@@ -22,6 +22,7 @@ type ClientMindElixirOverlayProps = {
     rename: string;
     editContent: string;
     slideshow: string;
+    regenerate: string;
     linkBidirectional: string;
     addOrReplaceImage: string;
     removeImage: string;
@@ -32,12 +33,15 @@ type ClientMindElixirOverlayProps = {
   disableRename: boolean;
   disableImageActions: boolean;
   disableEditContent: boolean;
+  disableRegenerate: boolean;
+  regenerating: boolean;
   onCloseMobileActions: () => void;
   onAddChild: () => void;
   onAddParent: () => void;
   onAddSibling: () => void;
   onRename: () => void;
   onEditContent: () => void;
+  onRegenerate: () => void;
   onLinkBidirectional: () => void;
   onAddOrReplaceImage: () => void;
   onRemoveImage: () => void;
@@ -66,6 +70,11 @@ type ClientMindElixirOverlayProps = {
   onImagePreviewClick: () => void;
   slideshowLabel: string;
   onSlideshowClick: () => void;
+  regenerateLabel: string;
+  regenerateLoadingLabel: string;
+  canRegenerate: boolean;
+  isRegenerating: boolean;
+  onRegenerateClick: () => void;
   onNoteClick: () => void;
   onHighlightClick: () => void;
   showAnnotationAction: boolean;
@@ -157,12 +166,15 @@ export default function ClientMindElixirOverlay({
   disableRename,
   disableImageActions,
   disableEditContent,
+  disableRegenerate,
+  regenerating,
   onCloseMobileActions,
   onAddChild,
   onAddParent,
   onAddSibling,
   onRename,
   onEditContent,
+  onRegenerate,
   onLinkBidirectional,
   onAddOrReplaceImage,
   onRemoveImage,
@@ -191,6 +203,11 @@ export default function ClientMindElixirOverlay({
   onImagePreviewClick,
   slideshowLabel,
   onSlideshowClick,
+  regenerateLabel,
+  regenerateLoadingLabel,
+  canRegenerate,
+  isRegenerating,
+  onRegenerateClick,
   onNoteClick,
   onHighlightClick,
   showAnnotationAction,
@@ -244,14 +261,17 @@ export default function ClientMindElixirOverlay({
         disableAddSibling={selectedNodeIsRoot}
         disableRename={disableRename}
         disableEditContent={disableEditContent}
+        disableRegenerate={disableRegenerate}
         disableImageActions={disableImageActions}
         disableRemove={selectedNodeIsRoot}
+        regenerating={regenerating}
         onClose={onCloseMobileActions}
         onAddChild={onAddChild}
         onAddParent={onAddParent}
         onAddSibling={onAddSibling}
         onRename={onRename}
         onEditContent={onEditContent}
+        onRegenerate={onRegenerate}
         onSlideshow={() => {
           onCloseMobileActions();
           onSlideshowClick();
@@ -339,6 +359,29 @@ export default function ClientMindElixirOverlay({
                   <Icon icon="mdi:presentation-play" className={hoverActionIconClass} />
                   <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
                     {slideshowLabel}
+                  </span>
+                </button>
+              ) : null}
+              {editMode === "edit" && canRegenerate ? (
+                <button
+                  type="button"
+                  className={`${hoverActionButtonClass} bg-indigo-600 text-white ring-1 ring-indigo-700/60 disabled:cursor-wait disabled:opacity-80`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRegenerateClick();
+                  }}
+                  disabled={isRegenerating}
+                  aria-label={isRegenerating ? regenerateLoadingLabel : regenerateLabel}
+                  title={isRegenerating ? regenerateLoadingLabel : regenerateLabel}
+                >
+                  <Icon
+                    icon={isRegenerating ? "mdi:loading" : "mdi:auto-fix"}
+                    className={`${hoverActionIconClass} ${
+                      isRegenerating ? "animate-spin" : ""
+                    }`}
+                  />
+                  <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                    {isRegenerating ? regenerateLoadingLabel : regenerateLabel}
                   </span>
                 </button>
               ) : null}

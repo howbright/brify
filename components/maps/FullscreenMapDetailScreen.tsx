@@ -103,6 +103,18 @@ type MindElixirNode = {
   meta?: Record<string, unknown>;
 };
 
+function hasSourceRangeHint(node: MindElixirNode | null) {
+  const hint = node?.meta?.sourceRangeHint;
+  if (!hint || typeof hint !== "object") return false;
+  const range = hint as { startText?: unknown; endText?: unknown };
+  return (
+    typeof range.startText === "string" &&
+    range.startText.trim().length > 0 &&
+    typeof range.endText === "string" &&
+    range.endText.trim().length > 0
+  );
+}
+
 const PROCESSING_PLACEHOLDER_META_KEY = "brifyProcessingPlaceholder";
 const PROCESSING_PROGRESS_CAP = 97;
 const PROCESSING_BASELINE_CHARS = 32852;
@@ -311,6 +323,7 @@ function mergeDraftUserState(
   if (!prev) return next;
   return {
     ...next,
+    version: typeof next.version === "number" ? next.version : prev.version,
     readStatus: prev.readStatus ?? next.readStatus,
     starred: typeof prev.starred === "boolean" ? prev.starred : next.starred,
     progressPercent:
@@ -563,8 +576,10 @@ const FULLSCREEN_PAGE_LEFT_PANEL_BUTTON_ID = "fullscreen-page-left-panel-button"
 const LEFT_PANEL_FOCUS_INSET = 560;
 
 function toDraft(row: MapRow): MapDraft {
+  const version = (row as { version?: unknown }).version;
   return {
     id: row.id,
+    version: typeof version === "number" && Number.isFinite(version) ? version : undefined,
     createdAt: new Date(row.created_at).getTime(),
     updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : undefined,
     sourceUrl: row.source_url ?? undefined,
@@ -749,6 +764,8 @@ export default function FullscreenMapDetailScreen({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [savedPulse, setSavedPulse] = useState(false);
+  const [selectedMapNodeId, setSelectedMapNodeId] = useState<string | null>(null);
+  const [regeneratingNodeId, setRegeneratingNodeId] = useState<string | null>(null);
   const autoSaveTimerRef = useRef<number | null>(null);
   const lastSavedDraftRef = useRef<string | null>(null);
   const isSavingDraftRef = useRef(false);
@@ -1572,6 +1589,194 @@ export default function FullscreenMapDetailScreen({
     }
     setSlideshowSlides(slides);
     setSlideshowOpen(true);
+  };
+
+  const handleRegenerateSelectedNode = async () => {
+    if (!mapId || isReadOnlyView || regeneratingNodeId) return;
+    const selected = mindRef.current?.getSelectedSubtree?.() as MindElixirNode | null;
+    const nodeId = String(selected?.id ?? selectedMapNodeId ?? "").trim();
+
+    if (!nodeId) {
+      toast.message(
+        locale === "ko"
+          ? "다시 구조화할 노드를 선택해 주세요."
+          : locale === "fr"
+          ? "Sélectionnez un nœud à restructurer."
+          : "Select a node to restructure."
+      );
+      return;
+    }
+
+    if (!hasSourceRangeHint(selected)) {
+      toast.message(
+        locale === "ko"
+          ? "이 노드는 원문 범위 정보가 없어 다시 구조화할 수 없어요."
+          : locale === "fr"
+          ? "Ce nœud n’a pas assez d’informations de source pour être restructuré."
+          : "This node does not have enough source range information to regenerate."
+      );
+      return;
+    }
+
+    if (hasDraft) {
+      toast.message(
+        locale === "ko"
+          ? "먼저 현재 편집본을 반영하거나 폐기한 뒤 다시 시도해 주세요."
+          : locale === "fr"
+          ? "Publiez ou annulez d’abord le brouillon actuel, puis réessayez."
+          : "Publish or discard the current draft first, then try again."
+      );
+      return;
+    }
+
+    const hasUnsavedLocalChange = Boolean(
+      autoSaveTimerRef.current ||
+        isSavingDraftRef.current ||
+        (latestLocalMindPayloadRef.current &&
+          latestLocalMindPayloadRef.current !== lastSavedDraftRef.current)
+    );
+    if (hasUnsavedLocalChange || isSavingMeta || tagEditSubmitting) {
+      toast.message(
+        locale === "ko"
+          ? "저장이 끝난 뒤 다시 시도해 주세요."
+          : locale === "fr"
+          ? "Réessayez lorsque l’enregistrement est terminé."
+          : "Try again after saving finishes."
+      );
+      return;
+    }
+
+    try {
+      setRegeneratingNodeId(nodeId);
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError) throw sessionError;
+      const accessToken = session?.access_token;
+      if (!accessToken) {
+        throw new Error(
+          locale === "ko"
+            ? "로그인이 필요합니다."
+            : locale === "fr"
+            ? "Connexion requise."
+            : "Login required."
+        );
+      }
+
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!base) {
+        throw new Error("NEXT_PUBLIC_API_BASE_URL is not configured.");
+      }
+
+      const body =
+        typeof draft?.version === "number"
+          ? { baseVersion: draft.version }
+          : {};
+      const response = await fetch(
+        `${base}/maps/${encodeURIComponent(mapId)}/nodes/${encodeURIComponent(
+          nodeId
+        )}/regenerate`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        }
+      );
+      const json = (await response.json().catch(() => null)) as
+        | {
+            message?: unknown;
+            error?: unknown;
+            mindElixir?: MapRow["mind_elixir"];
+            version?: unknown;
+            updatedAt?: unknown;
+          }
+        | null;
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          throw new Error(
+            locale === "ko"
+              ? "구조맵이 이미 변경되었어요. 새로고침 후 다시 시도해 주세요."
+              : locale === "fr"
+              ? "La carte a changé. Actualisez puis réessayez."
+              : "This map has changed. Refresh and try again."
+          );
+        }
+        throw new Error(
+          getApiErrorMessage(
+            json,
+            locale === "ko"
+              ? "노드 다시 구조화에 실패했습니다."
+              : locale === "fr"
+              ? "La restructuration du nœud a échoué."
+              : "Failed to regenerate this node."
+          )
+        );
+      }
+
+      const nextMindElixir = json?.mindElixir ?? null;
+      if (!nextMindElixir) {
+        throw new Error(
+          locale === "ko"
+            ? "재구조화 결과를 받지 못했습니다."
+            : locale === "fr"
+            ? "Résultat de restructuration manquant."
+            : "Missing regenerated map data."
+        );
+      }
+
+      const payload = stringifyMindData(nextMindElixir);
+      const responseVersion = json?.version;
+      const responseUpdatedAt = json?.updatedAt;
+      setMapData(nextMindElixir);
+      setPanelMindData(nextMindElixir);
+      if (payload) {
+        lastSavedDraftRef.current = payload;
+        latestLocalMindPayloadRef.current = payload;
+      }
+      persistMapViewState(mapId, nextMindElixir);
+      setDraft((prev) =>
+        prev
+          ? {
+              ...prev,
+              version:
+                typeof responseVersion === "number" &&
+                Number.isFinite(responseVersion)
+                  ? responseVersion
+                  : prev.version,
+              updatedAt:
+                typeof responseUpdatedAt === "string"
+                  ? new Date(responseUpdatedAt).getTime()
+                  : prev.updatedAt,
+            }
+          : prev
+      );
+      toast.success(
+        locale === "ko"
+          ? "선택한 노드를 다시 구조화했어요."
+          : locale === "fr"
+          ? "Le nœud sélectionné a été restructuré."
+          : "Selected node regenerated."
+      );
+    } catch (error) {
+      toast.error(
+        getErrorMessage(
+          error,
+          locale === "ko"
+            ? "노드 다시 구조화에 실패했습니다."
+            : locale === "fr"
+            ? "La restructuration du nœud a échoué."
+            : "Failed to regenerate this node."
+        )
+      );
+    } finally {
+      setRegeneratingNodeId(null);
+    }
   };
 
   useEffect(() => {
@@ -2420,6 +2625,23 @@ export default function FullscreenMapDetailScreen({
     if (!isMapProcessing) return mapData;
     return withProcessingPlaceholderNodes(mapData, locale);
   }, [isMapProcessing, locale, mapData]);
+  const selectedMapNode = useMemo(
+    () =>
+      selectedMapNodeId
+        ? findMindNodeById(displayMapData ?? mapData, selectedMapNodeId)
+        : null,
+    [displayMapData, mapData, selectedMapNodeId]
+  );
+  const canRegenerateSelectedNode = Boolean(
+    !isReadOnlyView &&
+      draft?.status === "done" &&
+      selectedMapNodeId &&
+      hasSourceRangeHint(selectedMapNode) &&
+      !hasDraft &&
+      !isSavingDraft &&
+      !isSavingMeta &&
+      !tagEditSubmitting
+  );
   const generatingTitle =
     locale === "ko"
       ? "구조맵을 만들고 있어요"
@@ -3336,6 +3558,9 @@ export default function FullscreenMapDetailScreen({
               editMode={editMode}
               onReady={applyInitialCollapse}
               onOpenSlideshow={handleOpenSlideshow}
+              onRegenerateSelectedNode={handleRegenerateSelectedNode}
+              canRegenerateSelectedNode={canRegenerateSelectedNode}
+              regeneratingNodeId={regeneratingNodeId}
               onChange={
                 isReadOnlyView
                   ? undefined
@@ -3417,6 +3642,7 @@ export default function FullscreenMapDetailScreen({
               preferPanModeOnTouch={isSharedView}
               onSelectedNodeChange={(nodeId) => {
                 setSourceFindNodeSelected(Boolean(nodeId));
+                setSelectedMapNodeId(nodeId);
               }}
               onReadOnlyHighlight={
                 isSharedView
