@@ -2654,6 +2654,38 @@ export default function FullscreenMapDetailScreen({
       : locale === "fr"
       ? "Analyse du texte et disposition des nœuds en cours."
       : "Analyzing the text and arranging it into nodes.";
+  const refiningTitle =
+    locale === "ko"
+      ? "구조를 다듬고 있어요"
+      : locale === "fr"
+      ? "Affinage de la structure"
+      : "Refining the structure";
+  const refiningDescription =
+    locale === "ko"
+      ? "긴 leaf 목록을 의미별로 묶어 읽기 좋게 정리하는 중입니다."
+      : locale === "fr"
+      ? "Regroupement des longues listes de détails par sens."
+      : "Grouping long detail lists into clearer parent nodes.";
+  const metadataProcessingTitle =
+    locale === "ko"
+      ? "상세 정보를 정리하고 있어요"
+      : locale === "fr"
+      ? "Préparation des détails"
+      : "Preparing details";
+  const metadataProcessingDescription =
+    locale === "ko"
+      ? "제목, 설명, 태그 같은 마무리 정보를 정리하는 중입니다."
+      : locale === "fr"
+      ? "Préparation du titre, de la description et des étiquettes."
+      : "Preparing title, description, and tags.";
+  const visibleProcessingTitle =
+    draft?.status === "processing_metadata"
+      ? metadataProcessingTitle
+      : refiningTitle;
+  const visibleProcessingDescription =
+    draft?.status === "processing_metadata"
+      ? metadataProcessingDescription
+      : refiningDescription;
   const processingExpectedMs =
     draft?.sourceCharCount && draft.sourceCharCount > 0
       ? Math.max(
@@ -2664,7 +2696,7 @@ export default function FullscreenMapDetailScreen({
   const processingElapsedMs = draft
     ? Math.max(0, processingNow - draft.createdAt)
     : 0;
-  const processingProgressPercent = isMapGenerating
+  const processingProgressPercent = isMapProcessing
     ? Math.min(
         PROCESSING_PROGRESS_CAP,
         Math.max(
@@ -2675,11 +2707,11 @@ export default function FullscreenMapDetailScreen({
     : 0;
 
   useEffect(() => {
-    if (!isMapGenerating) return;
+    if (!isMapProcessing) return;
     setProcessingNow(Date.now());
     const timer = window.setInterval(() => setProcessingNow(Date.now()), 800);
     return () => window.clearInterval(timer);
-  }, [isMapGenerating]);
+  }, [isMapProcessing]);
 
   if (isSharedView && !loading && !draft) {
     return (
@@ -3662,6 +3694,31 @@ export default function FullscreenMapDetailScreen({
             </span>
           </div>
         )}
+
+        {isMapProcessing && mapData ? (
+          <div className="pointer-events-none absolute left-1/2 top-4 z-[18] w-[min(320px,calc(100%-2rem))] -translate-x-1/2">
+            <div className="rounded-2xl border border-slate-200/80 bg-white/88 px-4 py-3 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.55)] backdrop-blur-xl dark:border-white/12 dark:bg-[#0f172a]/88">
+              <div className="mb-1 flex items-center justify-between gap-3 text-[11px] font-semibold text-slate-600 dark:text-white/65">
+                <span className="inline-flex min-w-0 items-center gap-1.5">
+                  <Icon icon="mdi:graph-outline" className="h-3.5 w-3.5 shrink-0 text-cyan-600 dark:text-cyan-200" />
+                  <span className="truncate">{visibleProcessingTitle}</span>
+                </span>
+                <span className="shrink-0 tabular-nums text-cyan-600 dark:text-cyan-200">
+                  {processingProgressPercent}%
+                </span>
+              </div>
+              <p className="mb-2 truncate text-[10px] font-medium text-slate-500 dark:text-white/50">
+                {visibleProcessingDescription}
+              </p>
+              <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
+                <div
+                  className="h-full rounded-full bg-cyan-500 transition-[width] duration-700 ease-out dark:bg-cyan-300"
+                  style={{ width: `${processingProgressPercent}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         {isMapGenerating ? (
           <div className="pointer-events-none absolute inset-0 z-[18] flex items-center justify-center px-5">
