@@ -71,6 +71,14 @@ export function useMindElixirFocusSearch({
   const searchHighlightIdsRef = useRef<Set<string>>(new Set());
   const searchActiveIdRef = useRef<string | null>(null);
 
+  const focusMindContainer = () => {
+    const container = mindRef.current?.container;
+    if (!(container instanceof HTMLElement)) return;
+    requestAnimationFrame(() => {
+      container.focus({ preventScroll: true });
+    });
+  };
+
   const updateSelectedRect = (nodeId: string | null) => {
     const wrapper = wrapperRef.current;
     const host = elRef.current;
@@ -138,6 +146,7 @@ export function useMindElixirFocusSearch({
     setSelectedNoteText(note && note.trim().length > 0 ? note : null);
     setMobileActionNodeId(null);
 
+    focusMindContainer();
     requestAnimationFrame(() => updateSelectedRect(nodeId));
     window.setTimeout(() => updateSelectedRect(nodeId), 80);
   };
@@ -289,6 +298,7 @@ export function useMindElixirFocusSearch({
     if (!el) return;
     setSelectedNodeId(id);
     selectedNodeElRef.current = el;
+    focusMindContainer();
     requestAnimationFrame(() => updateSelectedRect(id));
     const host = elRef.current;
     const mind = mindRef.current;
