@@ -388,7 +388,7 @@ const sourceReadingFont = IBM_Plex_Sans_KR({
 });
 
 const sourceTextBoxClassName =
-  "max-h-[26rem] overflow-y-auto rounded-lg border border-neutral-300 bg-white p-3 text-neutral-800 shadow-sm dark:border-white/10 dark:bg-[#020817] dark:text-neutral-100";
+  "max-h-[26rem] select-text overflow-y-auto rounded-lg border border-neutral-300 bg-white p-3 text-neutral-800 shadow-sm dark:border-white/10 dark:bg-[#020817] dark:text-neutral-100";
 
 function buildHighlightIntervals(
   text: string,
@@ -4364,6 +4364,7 @@ export default function FullscreenMapDetailScreen({
           }`}
         >
           <div
+            data-source-find-panel="true"
             className={`pointer-events-auto flex ${
               sourceFindExpanded ? "h-[92vh]" : "h-[78vh]"
             } max-h-[700px] min-h-[420px] flex-col overflow-hidden rounded-2xl border border-neutral-300 bg-white/95 shadow-xl dark:border-white/20 dark:bg-[#0f172a]/95 sm:h-auto sm:max-h-[calc(100vh-var(--header-h)-24px)] sm:min-h-0`}

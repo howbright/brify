@@ -378,6 +378,29 @@ function isTypingTarget(target: EventTarget | null) {
   );
 }
 
+function isInsideSourceFindPanel(node: Node | null) {
+  if (!node) return false;
+  const element =
+    node instanceof HTMLElement
+      ? node
+      : node.parentElement instanceof HTMLElement
+      ? node.parentElement
+      : null;
+  return Boolean(element?.closest("[data-source-find-panel='true']"));
+}
+
+function hasSourceFindTextSelection() {
+  const selection = window.getSelection();
+  if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
+    return false;
+  }
+
+  return (
+    isInsideSourceFindPanel(selection.anchorNode) ||
+    isInsideSourceFindPanel(selection.focusNode)
+  );
+}
+
 function getNodeTopicText(node: unknown) {
   if (!node || typeof node !== "object") return "";
   const topic = (node as { topic?: unknown }).topic;
@@ -930,6 +953,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       if (!(event.metaKey || event.ctrlKey) || event.altKey) return;
       if (event.key.toLowerCase() !== "c") return;
       if (isTypingTarget(event.target)) return;
+      if (isInsideSourceFindPanel(event.target as Node | null)) return;
+      if (hasSourceFindTextSelection()) return;
 
       const selectedNodes: Array<{ nodeObj?: unknown }> = Array.isArray(
         mind.currentNodes
