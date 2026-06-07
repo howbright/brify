@@ -67,6 +67,8 @@ type MindNode = {
   ts?: unknown;
 };
 
+type RegenerateMode = "restructure" | "expand" | "translate";
+
 function hasValidTimestampInMindData(raw: unknown): boolean {
   if (!raw || typeof raw !== "object") return false;
   const maybeRoot = raw as { nodeData?: MindNode };
@@ -815,6 +817,8 @@ export default function FullscreenMapDetailScreen({
   const [selectedMapNodeId, setSelectedMapNodeId] = useState<string | null>(null);
   const [selectedRootChildNodeId, setSelectedRootChildNodeId] = useState<string | null>(null);
   const [regeneratingNodeId, setRegeneratingNodeId] = useState<string | null>(null);
+  const [regeneratingMode, setRegeneratingMode] = useState<RegenerateMode | null>(null);
+  const [regenerateReasonOpen, setRegenerateReasonOpen] = useState(false);
   const regeneratingNodeIdRef = useRef<string | null>(null);
   const autoSaveTimerRef = useRef<number | null>(null);
   const lastSavedDraftRef = useRef<string | null>(null);
@@ -846,6 +850,8 @@ export default function FullscreenMapDetailScreen({
   const [isEmbeddedFrame, setIsEmbeddedFrame] = useState(false);
   const shouldHideFramedSharedChrome = isSharedView && isEmbeddedFrame;
   const desktopMoreRef = useRef<HTMLDivElement | null>(null);
+  const regenerateActionsRef = useRef<HTMLDivElement | null>(null);
+  const mobileRegenerateActionsRef = useRef<HTMLDivElement | null>(null);
   const mobileMapActionsRef = useRef<HTMLDivElement | null>(null);
   const mobileThemeRef = useRef<HTMLDivElement | null>(null);
   const mobileStateRef = useRef<HTMLDivElement | null>(null);
@@ -1439,11 +1445,26 @@ export default function FullscreenMapDetailScreen({
   }, [searchOpen]);
 
   useEffect(() => {
-    if (!desktopMoreOpen && !mobileMapActionsOpen && !mobileThemeOpen && !mobileStateOpen) return;
+    if (
+      !desktopMoreOpen &&
+      !mobileMapActionsOpen &&
+      !mobileThemeOpen &&
+      !mobileStateOpen &&
+      !regenerateReasonOpen
+    ) return;
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node | null;
       if (!target) return;
       if (desktopMoreOpen && desktopMoreRef.current?.contains(target)) {
+        return;
+      }
+      if (regenerateReasonOpen && regenerateActionsRef.current?.contains(target)) {
+        return;
+      }
+      if (
+        regenerateReasonOpen &&
+        mobileRegenerateActionsRef.current?.contains(target)
+      ) {
         return;
       }
       if (mobileMapActionsOpen && mobileMapActionsRef.current?.contains(target)) {
@@ -1459,10 +1480,17 @@ export default function FullscreenMapDetailScreen({
       setMobileThemeOpen(false);
       setMobileStateOpen(false);
       setDesktopMoreOpen(false);
+      setRegenerateReasonOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [desktopMoreOpen, mobileMapActionsOpen, mobileThemeOpen, mobileStateOpen]);
+  }, [
+    desktopMoreOpen,
+    mobileMapActionsOpen,
+    mobileThemeOpen,
+    mobileStateOpen,
+    regenerateReasonOpen,
+  ]);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -1647,7 +1675,10 @@ export default function FullscreenMapDetailScreen({
     setSlideshowOpen(true);
   };
 
-  const handleRegenerateSelectedNode = async () => {
+  const handleRegenerateSelectedNode = async (
+    mode: RegenerateMode = "restructure"
+  ) => {
+    setRegenerateReasonOpen(false);
     if (!mapId || isReadOnlyView) return;
     if (regeneratingNodeIdRef.current) {
       toast.message(
@@ -1684,13 +1715,24 @@ export default function FullscreenMapDetailScreen({
       return;
     }
 
-    if (!hasSourceRangeHint(targetNode)) {
+    if (draft?.status !== "done") {
       toast.message(
         locale === "ko"
-          ? "이 노드는 원문 범위 정보가 없어 다시 구조화할 수 없어요."
+          ? "구조맵 생성이 완료된 뒤 다시 시도해 주세요."
           : locale === "fr"
-          ? "Ce nœud n’a pas assez d’informations de source pour être restructuré."
-          : "This node does not have enough source range information to regenerate."
+          ? "Réessayez lorsque la carte est terminée."
+          : "Try again after the map is complete."
+      );
+      return;
+    }
+
+    if (mode === "expand" && !hasSourceRangeHint(targetNode)) {
+      toast.message(
+        locale === "ko"
+          ? "이 노드는 원문 범위 정보가 없어 상세 보강을 할 수 없어요."
+          : locale === "fr"
+          ? "Ce nœud n’a pas assez d’informations de source pour enrichir les détails."
+          : "This node does not have enough source range information to expand details."
       );
       return;
     }
@@ -1726,6 +1768,7 @@ export default function FullscreenMapDetailScreen({
     try {
       regeneratingNodeIdRef.current = nodeId;
       setRegeneratingNodeId(nodeId);
+      setRegeneratingMode(mode);
       const {
         data: { session },
         error: sessionError,
@@ -1748,10 +1791,6 @@ export default function FullscreenMapDetailScreen({
         throw new Error("NEXT_PUBLIC_API_BASE_URL is not configured.");
       }
 
-      const body =
-        typeof draft?.version === "number"
-          ? { baseVersion: draft.version }
-          : {};
       const response = await fetch(
         `${base}/maps/${encodeURIComponent(mapId)}/nodes/${encodeURIComponent(
           nodeId
@@ -1762,7 +1801,7 @@ export default function FullscreenMapDetailScreen({
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(body),
+          body: JSON.stringify({ mode }),
         }
       );
       const json = (await response.json().catch(() => null)) as
@@ -1836,25 +1875,50 @@ export default function FullscreenMapDetailScreen({
       );
       toast.success(
         locale === "ko"
-          ? "선택한 노드를 다시 구조화했어요."
+          ? mode === "expand"
+            ? "선택한 노드의 세부 내용을 보강했어요."
+            : mode === "translate"
+            ? "선택한 노드의 언어를 정리했어요."
+            : "선택한 노드의 구조를 다듬었어요."
           : locale === "fr"
-          ? "Le nœud sélectionné a été restructuré."
-          : "Selected node regenerated."
+          ? mode === "expand"
+            ? "Les détails du nœud sélectionné ont été enrichis."
+            : mode === "translate"
+            ? "La langue du nœud sélectionné a été harmonisée."
+            : "La structure du nœud sélectionné a été affinée."
+          : mode === "expand"
+          ? "Selected node details expanded."
+          : mode === "translate"
+          ? "Selected node language cleaned up."
+          : "Selected node structure refined."
       );
     } catch (error) {
       toast.error(
         getErrorMessage(
           error,
           locale === "ko"
-            ? "노드 다시 구조화에 실패했습니다."
+            ? mode === "expand"
+              ? "상세 보강에 실패했습니다."
+              : mode === "translate"
+              ? "언어 정리에 실패했습니다."
+              : "구조 다듬기에 실패했습니다."
             : locale === "fr"
-            ? "La restructuration du nœud a échoué."
-            : "Failed to regenerate this node."
+            ? mode === "expand"
+              ? "L’enrichissement des détails a échoué."
+              : mode === "translate"
+              ? "L’harmonisation de la langue a échoué."
+              : "L’affinage de la structure a échoué."
+            : mode === "expand"
+            ? "Failed to expand details."
+            : mode === "translate"
+            ? "Failed to clean up language."
+            : "Failed to refine structure."
         )
       );
     } finally {
       regeneratingNodeIdRef.current = null;
       setRegeneratingNodeId(null);
+      setRegeneratingMode(null);
     }
   };
 
@@ -2695,16 +2759,83 @@ export default function FullscreenMapDetailScreen({
     : findSourceDisabledHint;
   const regenerateActionLabel =
     locale === "ko"
-      ? "다시 구조화"
+      ? "선택 노드 재구조화"
       : locale === "fr"
-      ? "Restructurer"
-      : "Regenerate";
+      ? "Restructurer le nœud"
+      : "Regenerate selected node";
   const regenerateLoadingActionLabel =
     locale === "ko"
-      ? "다시 구조화 중"
+      ? regeneratingMode === "expand"
+        ? "상세 보강 중"
+        : regeneratingMode === "translate"
+        ? "언어 정리 중"
+        : "구조 다듬는 중"
       : locale === "fr"
-      ? "Restructuration..."
-      : "Regenerating...";
+      ? regeneratingMode === "expand"
+        ? "Enrichissement..."
+        : regeneratingMode === "translate"
+        ? "Harmonisation..."
+        : "Affinage..."
+      : regeneratingMode === "expand"
+      ? "Expanding..."
+      : regeneratingMode === "translate"
+      ? "Cleaning language..."
+      : "Refining...";
+  const regenerateReasonOptions: Array<{
+    mode: RegenerateMode;
+    icon: string;
+    title: string;
+    description: string;
+  }> = [
+    {
+      mode: "expand",
+      icon: "mdi:text-box-plus-outline",
+      title:
+        locale === "ko"
+          ? "상세정보가 불충분해요"
+          : locale === "fr"
+          ? "Les détails sont insuffisants"
+          : "Details are insufficient",
+      description:
+        locale === "ko"
+          ? "원문과 현재 구조를 함께 읽고 빠진 세부 내용을 보강합니다."
+          : locale === "fr"
+          ? "Relit la source avec la structure actuelle pour enrichir les détails."
+          : "Uses the source and current structure to add missing details.",
+    },
+    {
+      mode: "restructure",
+      icon: "mdi:auto-fix",
+      title:
+        locale === "ko"
+          ? "leaf 노드가 너무 많이 나열되어 있어요"
+          : locale === "fr"
+          ? "Trop de feuilles sont alignées"
+          : "Too many leaf nodes are listed",
+      description:
+        locale === "ko"
+          ? "현재 구조만 보고 leaf를 삭제하지 않은 채 의미 있는 중간 parent로 묶습니다."
+          : locale === "fr"
+          ? "Réorganise la structure actuelle en groupes de sens sans supprimer les feuilles."
+          : "Reorganizes the current tree into meaningful parent groups without deleting leaves.",
+    },
+    {
+      mode: "translate",
+      icon: "mdi:translate",
+      title:
+        locale === "ko"
+          ? "언어가 나의 선택언어와 달라요"
+          : locale === "fr"
+          ? "La langue ne correspond pas"
+          : "Language does not match my setting",
+      description:
+        locale === "ko"
+          ? "구조는 그대로 두고 topic만 선택 언어로 자연스럽게 정리합니다."
+          : locale === "fr"
+          ? "Garde la structure et reformule seulement les topics dans la langue choisie."
+          : "Keeps the structure and rewrites only topics in the selected language.",
+    },
+  ];
   const mobileUndoLabel = t("actions.undo");
   const sharedMissingTitle = t("sharedMissing.title");
   const sharedMissingDescription = t("sharedMissing.description");
@@ -2723,15 +2854,15 @@ export default function FullscreenMapDetailScreen({
   const regenerateTargetNodeId = selectedMapNodeIsRootChild
     ? selectedMapNodeId
     : selectedRootChildNodeId;
-  const canRegenerateSelectedNode = Boolean(
-    !isReadOnlyView &&
-      draft?.status === "done" &&
-      regenerateTargetNodeId &&
-      !hasDraft &&
-      !isSavingDraft &&
-      !isSavingMeta &&
-      !tagEditSubmitting
-  );
+  const canShowRegenerateActions = Boolean(!isReadOnlyView && regenerateTargetNodeId);
+  const isRegenerateBusy = Boolean(regeneratingNodeId);
+
+  useEffect(() => {
+    if (!canShowRegenerateActions || isRegenerateBusy) {
+      setRegenerateReasonOpen(false);
+    }
+  }, [canShowRegenerateActions, isRegenerateBusy]);
+
   const generatingTitle =
     locale === "ko"
       ? "구조맵을 만들고 있어요"
@@ -3200,33 +3331,79 @@ export default function FullscreenMapDetailScreen({
                 </Tooltip.Content>
               </Tooltip.Portal>
             </Tooltip.Root>
-              {!isReadOnlyView && regenerateTargetNodeId ? (
-                <button
-                  type="button"
-                  onClick={() => void handleRegenerateSelectedNode()}
-                  disabled={!canRegenerateSelectedNode || regeneratingNodeId !== null}
-                  className="inline-flex h-7 items-center gap-1.5 rounded-xl border border-indigo-300/80 bg-indigo-600 px-2.5 text-[10px] font-extrabold text-white shadow-[0_16px_34px_-18px_rgba(79,70,229,0.65)] transition hover:-translate-y-[1px] hover:bg-indigo-500 disabled:cursor-wait disabled:opacity-75 dark:border-indigo-200/35 dark:bg-indigo-500 dark:shadow-[0_18px_36px_-18px_rgba(129,140,248,0.42)]"
-                  aria-label={
-                    regeneratingNodeId
-                      ? regenerateLoadingActionLabel
-                      : regenerateActionLabel
-                  }
-                  title={
-                    regeneratingNodeId
-                      ? regenerateLoadingActionLabel
-                      : regenerateActionLabel
-                  }
-                >
-                  <Icon
-                    icon={regeneratingNodeId ? "mdi:loading" : "mdi:auto-fix"}
-                    className={`h-3.5 w-3.5 ${regeneratingNodeId ? "animate-spin" : ""}`}
-                  />
-                  <span>
-                    {regeneratingNodeId
-                      ? regenerateLoadingActionLabel
-                      : regenerateActionLabel}
-                  </span>
-                </button>
+              {canShowRegenerateActions ? (
+                <div className="relative inline-flex" ref={regenerateActionsRef}>
+                  <button
+                    type="button"
+                    onClick={() => setRegenerateReasonOpen((open) => !open)}
+                    disabled={isRegenerateBusy}
+                    className="inline-flex h-7 items-center gap-1.5 rounded-xl border border-indigo-300/80 bg-indigo-600 px-2.5 text-[10px] font-extrabold text-white shadow-[0_16px_34px_-18px_rgba(79,70,229,0.65)] transition hover:-translate-y-[1px] hover:bg-indigo-500 disabled:cursor-wait disabled:opacity-75 dark:border-indigo-200/35 dark:bg-indigo-500 dark:shadow-[0_18px_36px_-18px_rgba(129,140,248,0.42)]"
+                    aria-label={
+                      regeneratingNodeId
+                        ? regenerateLoadingActionLabel
+                        : regenerateActionLabel
+                    }
+                    title={
+                      regeneratingNodeId
+                        ? regenerateLoadingActionLabel
+                        : regenerateActionLabel
+                    }
+                  >
+                    <Icon
+                      icon={
+                        regeneratingNodeId
+                          ? "mdi:loading"
+                          : "mdi:tune-variant"
+                      }
+                      className={`h-3.5 w-3.5 ${
+                        regeneratingNodeId
+                          ? "animate-spin"
+                          : ""
+                      }`}
+                    />
+                    <span>
+                      {regeneratingNodeId
+                        ? regenerateLoadingActionLabel
+                        : regenerateActionLabel}
+                    </span>
+                    {!regeneratingNodeId ? (
+                      <Icon icon="mdi:chevron-down" className="h-3.5 w-3.5" />
+                    ) : null}
+                  </button>
+                  {regenerateReasonOpen ? (
+                    <div className="absolute right-0 top-full z-[280] mt-2 w-[320px] rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_26px_70px_-34px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-[#111827] dark:shadow-[0_30px_80px_-36px_rgba(2,6,23,0.9)]">
+                      <div className="px-2 pb-2 pt-1 text-[11px] font-bold text-slate-500 dark:text-white/55">
+                        {locale === "ko"
+                          ? "재구조화가 필요한 이유를 골라주세요"
+                          : locale === "fr"
+                          ? "Choisissez la raison"
+                          : "Choose a reason"}
+                      </div>
+                      <div className="space-y-1">
+                        {regenerateReasonOptions.map((option) => (
+                          <button
+                            key={option.mode}
+                            type="button"
+                            onClick={() => void handleRegenerateSelectedNode(option.mode)}
+                            className="flex w-full items-start gap-2.5 rounded-xl px-2.5 py-2.5 text-left transition hover:bg-slate-100 dark:hover:bg-white/10"
+                          >
+                            <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 dark:bg-indigo-400/14 dark:text-indigo-200">
+                              <Icon icon={option.icon} className="h-4 w-4" />
+                            </span>
+                            <span className="min-w-0">
+                              <span className="block text-[12px] font-extrabold text-slate-900 dark:text-white">
+                                {option.title}
+                              </span>
+                              <span className="mt-0.5 block text-[11px] leading-4 text-slate-500 dark:text-white/58">
+                                {option.description}
+                              </span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
               ) : null}
               <div className="relative" ref={desktopMoreRef}>
                 <button
@@ -3536,12 +3713,12 @@ export default function FullscreenMapDetailScreen({
               ) : null}
             </div>
           ) : null}
-          {!isReadOnlyView && regenerateTargetNodeId ? (
-            <div className="group relative">
+          {canShowRegenerateActions ? (
+            <div className="group relative" ref={mobileRegenerateActionsRef}>
               <button
                 type="button"
-                onClick={() => void handleRegenerateSelectedNode()}
-                disabled={!canRegenerateSelectedNode || regeneratingNodeId !== null}
+                onClick={() => setRegenerateReasonOpen((open) => !open)}
+                disabled={isRegenerateBusy}
                 className={`${controlIconButtonClass} disabled:cursor-wait disabled:opacity-75`}
                 aria-label={
                   regeneratingNodeId
@@ -3555,7 +3732,7 @@ export default function FullscreenMapDetailScreen({
                 }
               >
                 <Icon
-                  icon={regeneratingNodeId ? "mdi:loading" : "mdi:auto-fix"}
+                  icon={regeneratingNodeId ? "mdi:loading" : "mdi:tune-variant"}
                   className={`h-4 w-4 ${regeneratingNodeId ? "animate-spin" : ""}`}
                 />
               </button>
@@ -3564,6 +3741,39 @@ export default function FullscreenMapDetailScreen({
                   ? regenerateLoadingActionLabel
                   : regenerateActionLabel}
               </span>
+              {regenerateReasonOpen ? (
+                <div className="absolute right-full top-0 z-[280] mr-2 w-[284px] rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_26px_70px_-34px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-[#111827] dark:shadow-[0_30px_80px_-36px_rgba(2,6,23,0.9)]">
+                  <div className="px-2 pb-2 pt-1 text-[11px] font-bold text-slate-500 dark:text-white/55">
+                    {locale === "ko"
+                      ? "재구조화 이유"
+                      : locale === "fr"
+                      ? "Raison"
+                      : "Reason"}
+                  </div>
+                  <div className="space-y-1">
+                    {regenerateReasonOptions.map((option) => (
+                      <button
+                        key={option.mode}
+                        type="button"
+                        onClick={() => void handleRegenerateSelectedNode(option.mode)}
+                        className="flex w-full items-start gap-2 rounded-xl px-2 py-2 text-left transition hover:bg-slate-100 dark:hover:bg-white/10"
+                      >
+                        <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 dark:bg-indigo-400/14 dark:text-indigo-200">
+                          <Icon icon={option.icon} className="h-4 w-4" />
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block text-[12px] font-extrabold text-slate-900 dark:text-white">
+                            {option.title}
+                          </span>
+                          <span className="mt-0.5 block text-[10px] leading-4 text-slate-500 dark:text-white/58">
+                            {option.description}
+                          </span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
           ) : null}
           {!mobileToolbarCollapsed ? (
@@ -3758,8 +3968,8 @@ export default function FullscreenMapDetailScreen({
               editMode={editMode}
               onReady={applyInitialCollapse}
               onOpenSlideshow={handleOpenSlideshow}
-              onRegenerateSelectedNode={handleRegenerateSelectedNode}
-              canRegenerateSelectedNode={canRegenerateSelectedNode}
+              onRegenerateSelectedNode={() => setRegenerateReasonOpen(true)}
+              canRegenerateSelectedNode={canShowRegenerateActions}
               regeneratingNodeId={regeneratingNodeId}
               onChange={
                 isReadOnlyView
