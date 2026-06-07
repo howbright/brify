@@ -362,7 +362,7 @@ export default function ClientMindElixirOverlay({
                   </span>
                 </button>
               ) : null}
-              {editMode === "edit" && canRegenerate ? (
+              {canRegenerate ? (
                 <button
                   type="button"
                   className={`${hoverActionButtonClass} bg-indigo-600 text-white ring-1 ring-indigo-700/60 disabled:cursor-wait disabled:opacity-80`}

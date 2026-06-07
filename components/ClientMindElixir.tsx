@@ -71,7 +71,10 @@ type ClientMindElixirProps = {
   preferPanModeOnTouch?: boolean;
   showMobileEditControls?: boolean;
   onReadOnlyHighlight?: () => void;
-  onSelectedNodeChange?: (nodeId: string | null) => void;
+  onSelectedNodeChange?: (
+    nodeId: string | null,
+    details?: { isRootChild: boolean }
+  ) => void;
   onReady?: () => void;
 };
 
@@ -1377,7 +1380,20 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
 
   useEffect(() => {
     selectedNodeIdRef.current = selectedNodeId;
-    onSelectedNodeChange?.(selectedNodeId);
+    let isRootChild = false;
+    if (selectedNodeId) {
+      const raw =
+        mindRef.current?.getData?.() ?? mindRef.current?.getAllData?.();
+      const normalized = normalizeMindData(raw);
+      const rootChildren = Array.isArray(normalized?.node.children)
+        ? normalized.node.children
+        : [];
+      const selectedVariants = nodeIdVariants(selectedNodeId);
+      isRootChild = rootChildren.some((child) =>
+        selectedVariants.includes(String(child.id ?? ""))
+      );
+    }
+    onSelectedNodeChange?.(selectedNodeId, { isRootChild });
     const host = elRef.current;
     if (!host) return;
     host.dispatchEvent(new Event("mind-elixir-refresh-decorations"));

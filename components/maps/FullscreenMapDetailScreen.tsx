@@ -224,6 +224,23 @@ function findMindNodeById(
   return null;
 }
 
+function isDirectRootChildNode(
+  data: MapRow["mind_elixir"] | null,
+  nodeId: string | null
+) {
+  if (!nodeId) return false;
+  const root = getMindElixirRoot(data);
+  const rootChildren = Array.isArray(root?.children) ? root.children : [];
+  const normalizedNodeId = nodeId.startsWith("me") ? nodeId.slice(2) : nodeId;
+  return rootChildren.some((child) => {
+    const childId = String(child.id ?? "");
+    const normalizedChildId = childId.startsWith("me")
+      ? childId.slice(2)
+      : childId;
+    return normalizedChildId === normalizedNodeId;
+  });
+}
+
 function getDescendantAnchorFallback(node: MindElixirNode | null) {
   if (!node || !Array.isArray(node.children)) return [];
 
@@ -304,6 +321,20 @@ function isActiveMapStatus(status?: MapJobStatus | null) {
     status === "processing_structure" ||
     status === "processing_metadata"
   );
+}
+
+function getProcessingStructurePhase(
+  step: string | null,
+  hasMapData: boolean
+): "outline" | "expanding" | "refining" {
+  const normalized = String(step ?? "").trim().toLowerCase();
+  if (normalized.includes("refining")) return "refining";
+  if (normalized.includes("refined final structure")) return "refining";
+  if (normalized.includes("expanded node")) return "expanding";
+  if (normalized.includes("created initial structure outline")) {
+    return hasMapData ? "expanding" : "outline";
+  }
+  return hasMapData ? "expanding" : "outline";
 }
 
 function withCacheBuster(url: string) {
@@ -601,6 +632,22 @@ function toDraft(row: MapRow): MapDraft {
   };
 }
 
+async function fetchLatestMapGenerationStep(
+  supabase: ReturnType<typeof createClient>,
+  mapId: string
+) {
+  const { data, error } = await supabase
+    .from("map_generation_jobs")
+    .select("current_step,status,updated_at")
+    .eq("final_map_id", mapId)
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) return null;
+  return typeof data?.current_step === "string" ? data.current_step : null;
+}
+
 type FullscreenMapDetailScreenProps = {
   mapId: string;
   locale: string;
@@ -732,6 +779,7 @@ export default function FullscreenMapDetailScreen({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [processingNow, setProcessingNow] = useState(() => Date.now());
+  const [processingStep, setProcessingStep] = useState<string | null>(null);
 
   const [leftOpen, setLeftOpen] = useState(false);
   const [leftTab, setLeftTab] = useState<"info" | "notes" | "terms">("info");
@@ -765,7 +813,9 @@ export default function FullscreenMapDetailScreen({
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [savedPulse, setSavedPulse] = useState(false);
   const [selectedMapNodeId, setSelectedMapNodeId] = useState<string | null>(null);
+  const [selectedRootChildNodeId, setSelectedRootChildNodeId] = useState<string | null>(null);
   const [regeneratingNodeId, setRegeneratingNodeId] = useState<string | null>(null);
+  const regeneratingNodeIdRef = useRef<string | null>(null);
   const autoSaveTimerRef = useRef<number | null>(null);
   const lastSavedDraftRef = useRef<string | null>(null);
   const isSavingDraftRef = useRef(false);
@@ -1063,6 +1113,9 @@ export default function FullscreenMapDetailScreen({
 
           const row = data as MapRow;
           setDraft((prev) => mergeDraftUserState(prev, toDraft(row)));
+          void fetchLatestMapGenerationStep(supabase, mapId).then((step) => {
+            if (!cancelled) setProcessingStep(step);
+          });
 
           const draftMind = row?.mind_elixir_draft ?? null;
           const mind = row?.mind_elixir ?? null;
@@ -1214,6 +1267,9 @@ export default function FullscreenMapDetailScreen({
 
         const row = data as MapRow;
         setDraft((prev) => mergeDraftUserState(prev, toDraft(row)));
+        void fetchLatestMapGenerationStep(supabase, mapId).then((step) => {
+          if (!cancelled) setProcessingStep(step);
+        });
         const effectiveMind = row?.mind_elixir_draft ?? row?.mind_elixir ?? null;
         setHasDraft(Boolean(row?.mind_elixir_draft));
         if (effectiveMind) {
@@ -1592,9 +1648,30 @@ export default function FullscreenMapDetailScreen({
   };
 
   const handleRegenerateSelectedNode = async () => {
-    if (!mapId || isReadOnlyView || regeneratingNodeId) return;
+    if (!mapId || isReadOnlyView) return;
+    if (regeneratingNodeIdRef.current) {
+      toast.message(
+        locale === "ko"
+          ? "이미 다시 구조화하고 있어요. 잠시만 기다려 주세요."
+          : locale === "fr"
+          ? "Restructuration déjà en cours. Patientez un instant."
+          : "Regeneration is already in progress. Please wait."
+      );
+      return;
+    }
     const selected = mindRef.current?.getSelectedSubtree?.() as MindElixirNode | null;
-    const nodeId = String(selected?.id ?? selectedMapNodeId ?? "").trim();
+    const liveSelectedId = String(selected?.id ?? "").trim();
+    const liveSelectedIsRootChild = isDirectRootChildNode(
+      displayMapData ?? mapData,
+      liveSelectedId
+    );
+    const nodeId = String(
+      liveSelectedIsRootChild ? liveSelectedId : selectedRootChildNodeId ?? ""
+    ).trim();
+    const targetNode =
+      selected?.id === nodeId
+        ? selected
+        : findMindNodeById(displayMapData ?? mapData, nodeId);
 
     if (!nodeId) {
       toast.message(
@@ -1607,7 +1684,7 @@ export default function FullscreenMapDetailScreen({
       return;
     }
 
-    if (!hasSourceRangeHint(selected)) {
+    if (!hasSourceRangeHint(targetNode)) {
       toast.message(
         locale === "ko"
           ? "이 노드는 원문 범위 정보가 없어 다시 구조화할 수 없어요."
@@ -1647,6 +1724,7 @@ export default function FullscreenMapDetailScreen({
     }
 
     try {
+      regeneratingNodeIdRef.current = nodeId;
       setRegeneratingNodeId(nodeId);
       const {
         data: { session },
@@ -1775,6 +1853,7 @@ export default function FullscreenMapDetailScreen({
         )
       );
     } finally {
+      regeneratingNodeIdRef.current = null;
       setRegeneratingNodeId(null);
     }
   };
@@ -2614,6 +2693,18 @@ export default function FullscreenMapDetailScreen({
   const findSourceButtonTooltip = sourceFindNodeSelected
     ? findSourceActionLabel
     : findSourceDisabledHint;
+  const regenerateActionLabel =
+    locale === "ko"
+      ? "다시 구조화"
+      : locale === "fr"
+      ? "Restructurer"
+      : "Regenerate";
+  const regenerateLoadingActionLabel =
+    locale === "ko"
+      ? "다시 구조화 중"
+      : locale === "fr"
+      ? "Restructuration..."
+      : "Regenerating...";
   const mobileUndoLabel = t("actions.undo");
   const sharedMissingTitle = t("sharedMissing.title");
   const sharedMissingDescription = t("sharedMissing.description");
@@ -2625,18 +2716,17 @@ export default function FullscreenMapDetailScreen({
     if (!isMapProcessing) return mapData;
     return withProcessingPlaceholderNodes(mapData, locale);
   }, [isMapProcessing, locale, mapData]);
-  const selectedMapNode = useMemo(
-    () =>
-      selectedMapNodeId
-        ? findMindNodeById(displayMapData ?? mapData, selectedMapNodeId)
-        : null,
+  const selectedMapNodeIsRootChild = useMemo(
+    () => isDirectRootChildNode(displayMapData ?? mapData, selectedMapNodeId),
     [displayMapData, mapData, selectedMapNodeId]
   );
+  const regenerateTargetNodeId = selectedMapNodeIsRootChild
+    ? selectedMapNodeId
+    : selectedRootChildNodeId;
   const canRegenerateSelectedNode = Boolean(
     !isReadOnlyView &&
       draft?.status === "done" &&
-      selectedMapNodeId &&
-      hasSourceRangeHint(selectedMapNode) &&
+      regenerateTargetNodeId &&
       !hasDraft &&
       !isSavingDraft &&
       !isSavingMeta &&
@@ -2654,6 +2744,18 @@ export default function FullscreenMapDetailScreen({
       : locale === "fr"
       ? "Analyse du texte et disposition des nœuds en cours."
       : "Analyzing the text and arranging it into nodes.";
+  const expandingTitle =
+    locale === "ko"
+      ? "구조맵을 채워가고 있어요"
+      : locale === "fr"
+      ? "Remplissage de la carte"
+      : "Filling the structure map";
+  const expandingDescription =
+    locale === "ko"
+      ? "큰 가지마다 세부 노드를 붙이며 구조를 완성하는 중입니다."
+      : locale === "fr"
+      ? "Ajout des nœuds détaillés à chaque grande branche."
+      : "Adding detailed nodes under each major branch.";
   const refiningTitle =
     locale === "ko"
       ? "구조를 다듬고 있어요"
@@ -2681,11 +2783,19 @@ export default function FullscreenMapDetailScreen({
   const visibleProcessingTitle =
     draft?.status === "processing_metadata"
       ? metadataProcessingTitle
-      : refiningTitle;
+      : getProcessingStructurePhase(processingStep, Boolean(mapData)) === "refining"
+      ? refiningTitle
+      : getProcessingStructurePhase(processingStep, Boolean(mapData)) === "expanding"
+      ? expandingTitle
+      : generatingTitle;
   const visibleProcessingDescription =
     draft?.status === "processing_metadata"
       ? metadataProcessingDescription
-      : refiningDescription;
+      : getProcessingStructurePhase(processingStep, Boolean(mapData)) === "refining"
+      ? refiningDescription
+      : getProcessingStructurePhase(processingStep, Boolean(mapData)) === "expanding"
+      ? expandingDescription
+      : generatingDescription;
   const processingExpectedMs =
     draft?.sourceCharCount && draft.sourceCharCount > 0
       ? Math.max(
@@ -3086,10 +3196,38 @@ export default function FullscreenMapDetailScreen({
                     className="z-[260] rounded-xl bg-slate-950 px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-[0_14px_32px_-18px_rgba(15,23,42,0.65)] dark:bg-white dark:text-slate-950"
                   >
                     {findSourceButtonTooltip}
-                    <Tooltip.Arrow className="fill-slate-950 dark:fill-white" />
-                  </Tooltip.Content>
-                </Tooltip.Portal>
-              </Tooltip.Root>
+                  <Tooltip.Arrow className="fill-slate-950 dark:fill-white" />
+                </Tooltip.Content>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+              {!isReadOnlyView && regenerateTargetNodeId ? (
+                <button
+                  type="button"
+                  onClick={() => void handleRegenerateSelectedNode()}
+                  disabled={!canRegenerateSelectedNode || regeneratingNodeId !== null}
+                  className="inline-flex h-7 items-center gap-1.5 rounded-xl border border-indigo-300/80 bg-indigo-600 px-2.5 text-[10px] font-extrabold text-white shadow-[0_16px_34px_-18px_rgba(79,70,229,0.65)] transition hover:-translate-y-[1px] hover:bg-indigo-500 disabled:cursor-wait disabled:opacity-75 dark:border-indigo-200/35 dark:bg-indigo-500 dark:shadow-[0_18px_36px_-18px_rgba(129,140,248,0.42)]"
+                  aria-label={
+                    regeneratingNodeId
+                      ? regenerateLoadingActionLabel
+                      : regenerateActionLabel
+                  }
+                  title={
+                    regeneratingNodeId
+                      ? regenerateLoadingActionLabel
+                      : regenerateActionLabel
+                  }
+                >
+                  <Icon
+                    icon={regeneratingNodeId ? "mdi:loading" : "mdi:auto-fix"}
+                    className={`h-3.5 w-3.5 ${regeneratingNodeId ? "animate-spin" : ""}`}
+                  />
+                  <span>
+                    {regeneratingNodeId
+                      ? regenerateLoadingActionLabel
+                      : regenerateActionLabel}
+                  </span>
+                </button>
+              ) : null}
               <div className="relative" ref={desktopMoreRef}>
                 <button
                   type="button"
@@ -3398,6 +3536,36 @@ export default function FullscreenMapDetailScreen({
               ) : null}
             </div>
           ) : null}
+          {!isReadOnlyView && regenerateTargetNodeId ? (
+            <div className="group relative">
+              <button
+                type="button"
+                onClick={() => void handleRegenerateSelectedNode()}
+                disabled={!canRegenerateSelectedNode || regeneratingNodeId !== null}
+                className={`${controlIconButtonClass} disabled:cursor-wait disabled:opacity-75`}
+                aria-label={
+                  regeneratingNodeId
+                    ? regenerateLoadingActionLabel
+                    : regenerateActionLabel
+                }
+                title={
+                  regeneratingNodeId
+                    ? regenerateLoadingActionLabel
+                    : regenerateActionLabel
+                }
+              >
+                <Icon
+                  icon={regeneratingNodeId ? "mdi:loading" : "mdi:auto-fix"}
+                  className={`h-4 w-4 ${regeneratingNodeId ? "animate-spin" : ""}`}
+                />
+              </button>
+              <span className={mobileVerticalTooltipClass}>
+                {regeneratingNodeId
+                  ? regenerateLoadingActionLabel
+                  : regenerateActionLabel}
+              </span>
+            </div>
+          ) : null}
           {!mobileToolbarCollapsed ? (
             <>
               <div className="relative" ref={mobileMapActionsRef}>
@@ -3672,9 +3840,14 @@ export default function FullscreenMapDetailScreen({
               showAnnotationAction={!isReadOnlyView}
               showHighlightAction={!isAdminView}
               preferPanModeOnTouch={isSharedView}
-              onSelectedNodeChange={(nodeId) => {
+              onSelectedNodeChange={(nodeId, details) => {
                 setSourceFindNodeSelected(Boolean(nodeId));
                 setSelectedMapNodeId(nodeId);
+                if (!nodeId) {
+                  setSelectedRootChildNodeId(null);
+                  return;
+                }
+                setSelectedRootChildNodeId(details?.isRootChild ? nodeId : null);
               }}
               onReadOnlyHighlight={
                 isSharedView
