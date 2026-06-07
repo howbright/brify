@@ -104,6 +104,12 @@ type MindElixirNode = {
 };
 
 const PROCESSING_PLACEHOLDER_META_KEY = "brifyProcessingPlaceholder";
+const PROCESSING_PROGRESS_CAP = 97;
+const PROCESSING_BASELINE_CHARS = 32852;
+const PROCESSING_BASELINE_MS = 111956;
+const PROCESSING_MS_PER_CHAR = PROCESSING_BASELINE_MS / PROCESSING_BASELINE_CHARS;
+const PROCESSING_FALLBACK_EXPECTED_MS = PROCESSING_BASELINE_MS;
+const PROCESSING_MIN_EXPECTED_MS = 20000;
 
 function getProcessingPlaceholderTopic(locale?: string) {
   if (locale === "ko") return "구조맵을 생성하고 있어요...";
@@ -178,6 +184,58 @@ function stripProcessingPlaceholderNodes(
 
   stripNode(root);
   return cloned;
+}
+
+function getMindElixirRoot(data: MapRow["mind_elixir"] | null): MindElixirNode | null {
+  if (!data || typeof data !== "object") return null;
+  return ((data as { nodeData?: MindElixirNode }).nodeData ??
+    (data as MindElixirNode)) as MindElixirNode;
+}
+
+function findMindNodeById(
+  data: MapRow["mind_elixir"] | null,
+  nodeId: string
+): MindElixirNode | null {
+  const root = getMindElixirRoot(data);
+  if (!root) return null;
+
+  const stack: MindElixirNode[] = [root];
+  while (stack.length > 0) {
+    const current = stack.shift();
+    if (!current) continue;
+    if (current.id === nodeId) return current;
+    if (Array.isArray(current.children) && current.children.length > 0) {
+      stack.unshift(...current.children);
+    }
+  }
+
+  return null;
+}
+
+function getDescendantAnchorFallback(node: MindElixirNode | null) {
+  if (!node || !Array.isArray(node.children)) return [];
+
+  const stack = [...node.children];
+  while (stack.length > 0) {
+    const current = stack.shift();
+    if (!current) continue;
+
+    if (!current.meta?.[PROCESSING_PLACEHOLDER_META_KEY]) {
+      const anchorText = Array.isArray(current.meta?.anchorText)
+        ? current.meta.anchorText.filter(
+            (text): text is string =>
+              typeof text === "string" && text.trim().length > 0
+          )
+        : [];
+      if (anchorText.length > 0) return anchorText;
+    }
+
+    if (Array.isArray(current.children) && current.children.length > 0) {
+      stack.unshift(...current.children);
+    }
+  }
+
+  return [];
 }
 
 function getStoredMapViewState(mapId: string): MapRow["mind_elixir"] | null {
@@ -520,6 +578,8 @@ function toDraft(row: MapRow): MapDraft {
     tags: Array.isArray(row.tags) ? row.tags : [],
     description: row.description ?? undefined,
     summary: row.summary ?? undefined,
+    sourceCharCount:
+      typeof row.source_char_count === "number" ? row.source_char_count : undefined,
     status: coerceMapStatus(row.map_status),
     creditsCharged:
       typeof row.credits_charged === "number" ? row.credits_charged : undefined,
@@ -656,6 +716,7 @@ export default function FullscreenMapDetailScreen({
   const [hasDraft, setHasDraft] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [processingNow, setProcessingNow] = useState(() => Date.now());
 
   const [leftOpen, setLeftOpen] = useState(false);
   const [leftTab, setLeftTab] = useState<"info" | "notes" | "terms">("info");
@@ -975,7 +1036,7 @@ export default function FullscreenMapDetailScreen({
           const { data, error } = await supabase
             .from("maps")
             .select(
-              "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,mind_elixir,mind_elixir_draft,mind_theme_override"
+              "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,source_char_count,mind_elixir,mind_elixir_draft,mind_theme_override"
             )
             .eq("id", mapId)
             .single();
@@ -1127,7 +1188,7 @@ export default function FullscreenMapDetailScreen({
         const { data, error } = await supabase
           .from("maps")
           .select(
-            "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,mind_elixir,mind_elixir_draft,mind_theme_override"
+            "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,source_char_count,mind_elixir,mind_elixir_draft,mind_theme_override"
           )
           .eq("id", mapId)
           .single();
@@ -1708,7 +1769,15 @@ export default function FullscreenMapDetailScreen({
     options?: { suppressNoAnchorToast?: boolean; keepPanelOpen?: boolean }
   ) => {
     if (!mapId || isSharedView) return;
-    const anchorText = sanitizeAnchorTextCandidates(selected.anchorText, 2);
+    const ownAnchorText = sanitizeAnchorTextCandidates(selected.anchorText, 2);
+    const fallbackAnchorText =
+      ownAnchorText.length > 0
+        ? []
+        : sanitizeAnchorTextCandidates(
+            getDescendantAnchorFallback(findMindNodeById(displayMapData ?? mapData, selected.nodeId)),
+            2
+          );
+    const anchorText = ownAnchorText.length > 0 ? ownAnchorText : fallbackAnchorText;
     const anchorKeywords: string[] = [];
     if (anchorText.length === 0) {
       if (!options?.suppressNoAnchorToast) {
@@ -2363,6 +2432,32 @@ export default function FullscreenMapDetailScreen({
       : locale === "fr"
       ? "Analyse du texte et disposition des nœuds en cours."
       : "Analyzing the text and arranging it into nodes.";
+  const processingExpectedMs =
+    draft?.sourceCharCount && draft.sourceCharCount > 0
+      ? Math.max(
+          PROCESSING_MIN_EXPECTED_MS,
+          Math.round(draft.sourceCharCount * PROCESSING_MS_PER_CHAR)
+        )
+      : PROCESSING_FALLBACK_EXPECTED_MS;
+  const processingElapsedMs = draft
+    ? Math.max(0, processingNow - draft.createdAt)
+    : 0;
+  const processingProgressPercent = isMapGenerating
+    ? Math.min(
+        PROCESSING_PROGRESS_CAP,
+        Math.max(
+          1,
+          Math.floor((processingElapsedMs / processingExpectedMs) * PROCESSING_PROGRESS_CAP)
+        )
+      )
+    : 0;
+
+  useEffect(() => {
+    if (!isMapGenerating) return;
+    setProcessingNow(Date.now());
+    const timer = window.setInterval(() => setProcessingNow(Date.now()), 800);
+    return () => window.clearInterval(timer);
+  }, [isMapGenerating]);
 
   if (isSharedView && !loading && !draft) {
     return (
@@ -3354,8 +3449,25 @@ export default function FullscreenMapDetailScreen({
               <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-white/58">
                 {generatingDescription}
               </p>
-              <div className="mx-auto mt-4 h-1.5 w-40 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
-                <div className="h-full w-1/2 animate-[pulse_1.4s_ease-in-out_infinite] rounded-full bg-cyan-500 dark:bg-cyan-300" />
+              <div className="mt-4">
+                <div className="mb-1.5 flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-white/55">
+                  <span>
+                    {locale === "ko"
+                      ? "진행률"
+                      : locale === "fr"
+                      ? "Progression"
+                      : "Progress"}
+                  </span>
+                  <span className="tabular-nums text-cyan-600 dark:text-cyan-200">
+                    {processingProgressPercent}%
+                  </span>
+                </div>
+                <div className="mx-auto h-2 w-48 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
+                  <div
+                    className="h-full rounded-full bg-cyan-500 transition-[width] duration-700 ease-out dark:bg-cyan-300"
+                    style={{ width: `${processingProgressPercent}%` }}
+                  />
+                </div>
               </div>
             </div>
           </div>
