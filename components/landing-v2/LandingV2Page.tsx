@@ -84,56 +84,12 @@ const PROGRESS_CAP = 97;
 const DRAFT_SELECT_FIELDS =
   "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
 const FALLBACK_EXAMPLE_MAP_URL =
-  "https://www.brify.app/ko/share/cca46ecc-6a50-41ed-9d95-1bfa4426c755";
-const FALLBACK_EXAMPLE_IMAGE_URL = "/images/sampleimage.png";
+  "https://www.brify.app/ko/share/1508833b-06f5-4758-8609-f332a1bc3c42";
+const STRUCTURE_MAP_DEMO_GIF_URL = "/images/sample.gif";
 
 const EXAMPLE_MAPS = [
   {
-    title: "60분 강의를 구조맵으로",
-    category: "Lecture",
-    description: "긴 강의의 주장, 근거, 예시를 한눈에 훑는 결과물",
-    accent: "from-sky-500 to-cyan-400",
-    image: FALLBACK_EXAMPLE_IMAGE_URL,
-    href: FALLBACK_EXAMPLE_MAP_URL,
-  },
-  {
-    title: "설교 원고 구조화",
-    category: "Sermon",
-    description: "본문 흐름, 핵심 메시지, 적용 포인트를 분리한 맵",
-    accent: "from-amber-400 to-orange-500",
-    image: FALLBACK_EXAMPLE_IMAGE_URL,
-    href: FALLBACK_EXAMPLE_MAP_URL,
-  },
-  {
-    title: "성경 묵상 노트",
-    category: "Devotion",
-    description: "본문 관찰과 묵상 포인트를 가지 구조로 정리",
-    accent: "from-emerald-400 to-teal-500",
-    image: FALLBACK_EXAMPLE_IMAGE_URL,
-    href: FALLBACK_EXAMPLE_MAP_URL,
-  },
-  {
-    title: "보고서 핵심 정리",
-    category: "Report",
-    description: "복잡한 문서의 목차와 결론을 빠르게 파악",
-    accent: "from-rose-400 to-fuchsia-500",
-    image: FALLBACK_EXAMPLE_IMAGE_URL,
-    href: FALLBACK_EXAMPLE_MAP_URL,
-  },
-  {
-    title: "회의록 실행 항목",
-    category: "Meeting",
-    description: "논의 흐름과 할 일을 같은 화면에서 정리",
-    accent: "from-indigo-500 to-blue-500",
-    image: FALLBACK_EXAMPLE_IMAGE_URL,
-    href: FALLBACK_EXAMPLE_MAP_URL,
-  },
-  {
-    title: "책 챕터 독서노트",
-    category: "Book",
-    description: "장별 핵심 개념과 하위 내용을 보관 가능한 맵으로",
-    accent: "from-lime-400 to-green-500",
-    image: FALLBACK_EXAMPLE_IMAGE_URL,
+    image: STRUCTURE_MAP_DEMO_GIF_URL,
     href: FALLBACK_EXAMPLE_MAP_URL,
   },
 ] as const;
@@ -189,8 +145,14 @@ const COPY = {
       "완료되면 바로 구조맵 화면에서 편집할 수 있어요.",
       "제목, 태그, 설명은 지금 저장해도 됩니다.",
     ],
-    examplesTitle: "구조맵 예시",
-    examplesSubhead: "긴 글이 어떤 구조로 바뀌는지 먼저 보여줍니다.",
+    examplesTitle: "논문 구조맵 예시",
+    examplesSubhead:
+      "마인드맵으로 요약하는 툴이 아닙니다. 상세정보를 놓치지 않는 전문 문서 특화 구조맵입니다. 원문찾기, 편집, 공유는 기본입니다.",
+    exampleBadge: "논문 구조맵",
+    exampleDescription:
+      "탐색적 연구 논문을 상세 정보가 살아있는 구조맵으로 변환한 예시입니다.",
+    exampleTitleLabel: "샘플논문 제목:",
+    exampleTitle: "생성형 AI와 대학생 보고서 작성 과정의 변화",
     myMapsTitle: "내 구조맵",
     myMapsEmpty: "아직 만든 구조맵이 없습니다.",
     myMapsLogin: "로그인하면 최근에 만든 구조맵이 여기에 보입니다.",
@@ -281,8 +243,15 @@ const COPY = {
       "You can edit the map as soon as it is ready.",
       "You can save title, tags, and description now.",
     ],
-    examplesTitle: "Structure map examples",
-    examplesSubhead: "Show what long text becomes before asking people to start.",
+    examplesTitle: "Research paper structure map",
+    examplesSubhead:
+      "Watch a long paper become a navigable structure map, from full overview to focused detail.",
+    exampleBadge: "Research paper",
+    exampleDescription:
+      "An exploratory research paper transformed into a structure map that keeps detailed information visible.",
+    exampleTitleLabel: "Sample paper title:",
+    exampleTitle:
+      "Changes in the Report-Writing Process of University Students Using Generative AI",
     myMapsTitle: "My structure maps",
     myMapsEmpty: "No structure maps yet.",
     myMapsLogin: "Log in to see your recent structure maps here.",
@@ -373,8 +342,15 @@ const COPY = {
       "Vous pourrez modifier la carte dès qu'elle sera prête.",
       "Vous pouvez déjà enregistrer le titre, les tags et la description.",
     ],
-    examplesTitle: "Exemples de cartes",
-    examplesSubhead: "Montrez d'abord ce que devient un long texte.",
+    examplesTitle: "Carte structurée d’un article",
+    examplesSubhead:
+      "Voyez un article long devenir une carte navigable, de la vue d’ensemble au détail.",
+    exampleBadge: "Article de recherche",
+    exampleDescription:
+      "Un article exploratoire transformé en carte structurée qui conserve les informations détaillées.",
+    exampleTitleLabel: "Titre de l’article exemple :",
+    exampleTitle:
+      "Transformations du processus de rédaction de rapports chez les étudiants avec l’IA générative",
     myMapsTitle: "Mes cartes",
     myMapsEmpty: "Aucune carte pour le moment.",
     myMapsLogin: "Connectez-vous pour voir vos cartes récentes ici.",
@@ -1781,36 +1757,49 @@ export default function LandingV2Page({
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {EXAMPLE_MAPS.map((example) => (
-              <a
-                key={example.title}
-                href={example.href}
-                aria-label={`${copy.viewExample}: ${example.title}`}
-                className="group overflow-hidden rounded-2xl border border-slate-200 bg-white/88 shadow-[0_16px_42px_-34px_rgba(15,23,42,0.6)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_54px_-36px_rgba(15,23,42,0.65)] dark:border-white/10 dark:bg-[#0d1422]/88"
-              >
-                <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-white/[0.04]">
+          {EXAMPLE_MAPS.map((example) => (
+            <a
+              key={example.href}
+              href={example.href}
+              aria-label={`${copy.viewExample}: ${copy.exampleTitle}`}
+              className="group block overflow-hidden rounded-[28px] border border-slate-200 bg-white/88 shadow-[0_24px_70px_-44px_rgba(15,23,42,0.72)] transition hover:-translate-y-0.5 hover:shadow-[0_34px_90px_-48px_rgba(15,23,42,0.78)] dark:border-white/10 dark:bg-[#0d1422]/88"
+            >
+              <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_320px]">
+                <div className="relative aspect-[16/9] overflow-hidden bg-slate-100 dark:bg-white/[0.04] lg:aspect-[18/10]">
                   <Image
                     src={example.image}
-                    alt={example.title}
+                    alt={copy.exampleTitle}
                     fill
-                    sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 92vw"
-                    className="object-cover object-center transition duration-500 group-hover:scale-[1.03]"
+                    unoptimized
+                    sizes="(min-width: 1024px) 760px, 92vw"
+                    className="h-full w-full object-cover object-center transition duration-700 group-hover:scale-[1.015]"
                   />
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-slate-950/72 via-slate-950/26 to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
-                    <span className="min-w-0 truncate rounded-full bg-white/92 px-3 py-1.5 text-[13px] font-black text-slate-950 shadow-[0_12px_24px_-16px_rgba(15,23,42,0.75)] backdrop-blur dark:bg-[#0f172a]/90 dark:text-white">
-                      {example.title}
-                    </span>
-                    <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/92 text-slate-950 shadow-[0_12px_24px_-16px_rgba(15,23,42,0.75)] backdrop-blur transition group-hover:bg-cyan-400 dark:bg-[#0f172a]/90 dark:text-white dark:group-hover:bg-cyan-400 dark:group-hover:text-slate-950">
-                      <Icon icon="lucide:arrow-up-right" className="h-4 w-4" />
-                    </span>
-                  </div>
                   <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/5 dark:ring-white/10" />
                 </div>
-              </a>
-            ))}
-          </div>
+                <div className="flex flex-col justify-between gap-5 border-t border-slate-200/80 p-5 dark:border-white/10 sm:p-6 lg:border-l lg:border-t-0">
+                  <div>
+                    <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-cyan-50 px-3 py-1.5 text-[12px] font-black text-cyan-700 dark:bg-cyan-400/12 dark:text-cyan-200">
+                      <Icon icon="lucide:file-text" className="h-3.5 w-3.5" />
+                      {copy.exampleBadge}
+                    </div>
+                    <p className="text-lg font-black leading-snug text-slate-950 dark:text-white">
+                      {copy.exampleDescription}
+                    </p>
+                    <h3 className="mt-4 text-[13px] font-bold leading-5 text-slate-500 dark:text-white/52">
+                      <span className="text-slate-700 dark:text-white/70">
+                        {copy.exampleTitleLabel}
+                      </span>{" "}
+                      {copy.exampleTitle}
+                    </h3>
+                  </div>
+                  <span className="inline-flex w-fit items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white transition group-hover:bg-cyan-400 group-hover:text-slate-950 dark:bg-white dark:text-slate-950 dark:group-hover:bg-cyan-400">
+                    {copy.viewExample}
+                    <Icon icon="lucide:arrow-up-right" className="h-4 w-4" />
+                  </span>
+                </div>
+              </div>
+            </a>
+          ))}
         </section>
 
         <section className="pt-10">
