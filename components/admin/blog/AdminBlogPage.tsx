@@ -396,7 +396,7 @@ export default function AdminBlogPage() {
                 대표 업로드
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/gif,image/png,image/jpeg,image/webp"
                   className="hidden"
                   disabled={uploading}
                   onChange={(event) => {
@@ -410,7 +410,7 @@ export default function AdminBlogPage() {
                 본문 삽입
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/gif,image/png,image/jpeg,image/webp"
                   className="hidden"
                   disabled={uploading}
                   onChange={(event) => {

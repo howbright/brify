@@ -11,6 +11,16 @@ function safeFilePart(value: string) {
     .slice(0, 80);
 }
 
+const ALLOWED_IMAGE_EXTENSIONS = new Set(["gif", "jpg", "jpeg", "png", "webp"]);
+
+function contentTypeFromExtension(extension: string) {
+  if (extension === "gif") return "image/gif";
+  if (extension === "jpg" || extension === "jpeg") return "image/jpeg";
+  if (extension === "png") return "image/png";
+  if (extension === "webp") return "image/webp";
+  return "application/octet-stream";
+}
+
 export async function POST(request: Request) {
   const auth = await requireBlogAdmin();
   if (!auth.ok) {
@@ -25,23 +35,29 @@ export async function POST(request: Request) {
     if (!(file instanceof File)) {
       return NextResponse.json({ error: "FILE_REQUIRED" }, { status: 400 });
     }
-    if (!file.type.startsWith("image/")) {
+
+    const extension = safeFilePart(file.name.split(".").pop() ?? "png") || "png";
+    const isAllowedExtension = ALLOWED_IMAGE_EXTENSIONS.has(extension);
+    const isAllowedMime = file.type.startsWith("image/");
+    if (!isAllowedMime && !isAllowedExtension) {
       return NextResponse.json({ error: "IMAGE_ONLY" }, { status: 400 });
     }
     if (file.size > 5 * 1024 * 1024) {
       return NextResponse.json({ error: "TOO_LARGE" }, { status: 400 });
     }
 
-    const extension = safeFilePart(file.name.split(".").pop() ?? "png") || "png";
     const base = safeFilePart(file.name.replace(/\.[^.]+$/, "")) || "image";
     const path = `${locale}/${Date.now()}-${crypto.randomUUID()}-${base}.${extension}`;
+    const contentType = isAllowedMime
+      ? file.type
+      : contentTypeFromExtension(extension);
 
     const { error } = await adminSupabase.storage
       .from("blog-images")
       .upload(path, file, {
         cacheControl: "31536000",
         upsert: false,
-        contentType: file.type,
+        contentType,
       });
 
     if (error) throw error;
