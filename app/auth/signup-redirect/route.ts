@@ -23,7 +23,15 @@ function normalizeNext(raw: string | null, locale: string) {
   const next = (raw ?? "").trim();
   if (!next || next === "/") return `/${locale}/video-to-map`;
   if (!next.startsWith("/") || next.startsWith("//")) return `/${locale}/video-to-map`;
-  if (SUPPORTED_LOCALES.some((supported) => next === `/${supported}` || next.startsWith(`/${supported}/`))) {
+  if (
+    SUPPORTED_LOCALES.some(
+      (supported) =>
+        next === `/${supported}` ||
+        next.startsWith(`/${supported}/`) ||
+        next.startsWith(`/${supported}?`) ||
+        next.startsWith(`/${supported}#`)
+    )
+  ) {
     return next;
   }
   return `/${locale}${next === "/" ? "" : next}`;
