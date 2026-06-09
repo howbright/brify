@@ -84,7 +84,7 @@ const PROGRESS_CAP = 97;
 const DRAFT_SELECT_FIELDS =
   "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
 const FALLBACK_EXAMPLE_MAP_URL =
-  "https://www.brify.app/ko/share/1508833b-06f5-4758-8609-f332a1bc3c42";
+  "https://www.brify.app/share/606b06b3-ab50-41a7-aa71-df8b33dc26fc";
 const STRUCTURE_MAP_DEMO_GIF_URL = "/images/sample.gif";
 
 const EXAMPLE_MAPS = [
