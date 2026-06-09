@@ -129,6 +129,7 @@ export default function AdminBlogPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [lastUploadedImageUrl, setLastUploadedImageUrl] = useState("");
   const [localeFilter, setLocaleFilter] = useState<"all" | BlogLocale>("all");
 
   const filteredPosts = useMemo(
@@ -181,6 +182,7 @@ export default function AdminBlogPage() {
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json.url) throw new Error(getUploadErrorMessage(json));
       const url = String(json.url);
+      setLastUploadedImageUrl(url);
       if (mode === "cover") {
         updateForm("imageUrl", url);
       } else {
@@ -453,9 +455,19 @@ export default function AdminBlogPage() {
                 />
               </label>
             </div>
+            {lastUploadedImageUrl ? (
+              <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                <span className="font-bold text-slate-700">최근 업로드 URL: </span>
+                <code className="break-all">{lastUploadedImageUrl}</code>
+              </div>
+            ) : null}
 
             <label className="mt-4 flex flex-col gap-1 text-sm font-bold">
               Markdown 본문
+              <span className="text-xs font-medium text-slate-500">
+                이미지는 <code className="rounded bg-slate-100 px-1 py-0.5">![이미지 설명](이미지 URL)</code> 형식으로 넣어요.
+                본문 삽입 버튼을 누르면 이 형식으로 자동 추가됩니다.
+              </span>
               <textarea
                 value={form.markdown}
                 onChange={(event) => updateForm("markdown", event.target.value)}
