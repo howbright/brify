@@ -74,7 +74,13 @@ export function useMindElixirNodeActions({
     if (!targetId) return;
     const nodeEl = getNodeElById(targetId) ?? selectedNodeElRef.current ?? null;
     if (!nodeEl) return;
-    const triggerRect = (anchorEl ?? nodeEl).getBoundingClientRect();
+    const triggerRect = nodeEl.getBoundingClientRect();
+    const estimatedMenuHeight = 340;
+    const viewportHeight =
+      typeof window !== "undefined" ? window.innerHeight : 0;
+    const spaceBelow = viewportHeight - triggerRect.bottom;
+    const shouldOpenAbove =
+      viewportHeight > 0 && spaceBelow < estimatedMenuHeight + 16;
     nodeEl.dispatchEvent(
       new MouseEvent("contextmenu", {
         bubbles: true,
@@ -82,7 +88,7 @@ export function useMindElixirNodeActions({
         button: 2,
         buttons: 2,
         clientX: triggerRect.right + 8,
-        clientY: triggerRect.top + triggerRect.height / 2,
+        clientY: shouldOpenAbove ? triggerRect.top - 8 : triggerRect.bottom + 8,
         view: window,
       })
     );

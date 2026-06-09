@@ -983,6 +983,7 @@
       "logout": "Sign out"
     },
     "nav": {
+      "features": "Brify Features",
       "blog": "Blog",
       "about": "About",
       "pricing": "Pricing",

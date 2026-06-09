@@ -928,6 +928,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     const preventBrowserSwipeNavigation = (event: WheelEvent) => {
       if (!event.isTrusted) return;
       if (!isInsideMindMap(event.target)) return;
+      closeDesktopContextMenu();
       event.preventDefault();
     };
 
@@ -935,6 +936,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       if (!event.isTrusted) return;
       if (!isInsideMindMap(event.target)) return;
       if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+      closeDesktopContextMenu();
       event.preventDefault();
     };
 
@@ -964,6 +966,26 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         preventWindowSwipeNavigation,
         wheelListenerOptions
       );
+    };
+  }, []);
+
+  useEffect(() => {
+    const host = elRef.current;
+    if (!host) return;
+
+    const isInsideContextMenu = (target: EventTarget | null) =>
+      target instanceof Element && Boolean(target.closest(".context-menu"));
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (!event.isTrusted) return;
+      if (event.buttons === 0) return;
+      if (isInsideContextMenu(event.target)) return;
+      closeDesktopContextMenu();
+    };
+
+    host.addEventListener("pointermove", handlePointerMove, { passive: true });
+    return () => {
+      host.removeEventListener("pointermove", handlePointerMove);
     };
   }, []);
 
@@ -1482,6 +1504,16 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     onChangeRef.current?.(result.op);
     requestAnimationFrame(() => updateSelectedRect(result.selectedId));
   };
+
+  const closeDesktopContextMenu = () => {
+    const menu = elRef.current?.querySelector<HTMLElement>(".context-menu");
+    const menuList = elRef.current?.querySelector<HTMLElement>(
+      ".context-menu .menu-list"
+    );
+    menu?.style.setProperty("display", "none");
+    menuList?.style.setProperty("display", "none");
+  };
+
   const { openNodeContextMenu, runMobileNodeAction, selectedNodeIsRoot } =
     useMindElixirNodeActions({
       editMode,
@@ -1503,8 +1535,16 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       linkBidirectional: t("mobileEdit.linkBidirectional"),
       addOrReplaceImage: t("mobileEdit.addOrReplaceImage"),
       removeImage: t("mobileEdit.removeImage"),
+      editGroup:
+        locale === "ko" ? "노드 편집" : locale === "fr" ? "Édition" : "Edit",
+      structureGroup:
+        locale === "ko" ? "구조" : locale === "fr" ? "Structure" : "Structure",
+      mediaGroup:
+        locale === "ko" ? "미디어" : locale === "fr" ? "Média" : "Media",
+      otherGroup:
+        locale === "ko" ? "기타" : locale === "fr" ? "Autres" : "Other",
     }),
-    [mobileEditLabelsFromResponsive, regenerateLabel, t]
+    [locale, mobileEditLabelsFromResponsive, regenerateLabel, t]
   );
   const selectedNodeHasRichText = (() => {
     if (!selectedNodeId) return false;
@@ -2527,6 +2567,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           ".context-menu .menu-list"
         );
         if (!menuList) return;
+        const menu = menuList.closest<HTMLElement>(".context-menu");
+        menu?.style.removeProperty("display");
+        menuList.style.removeProperty("display");
 
         const labelPriority = new Map(
           desktopContextMenuOrder.map((label, index) => [label, index] as const)
@@ -2556,6 +2599,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         let previousVisibleGroupIndex: number | null = null;
         items.forEach((item) => {
           item.removeAttribute("data-menu-group-start");
+          item.removeAttribute("data-menu-column-start");
           const label =
             item.querySelector("span")?.textContent?.trim() ??
             item.textContent?.trim() ??
@@ -2569,8 +2613,39 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             previousVisibleGroupIndex !== groupIndex
           ) {
             item.setAttribute("data-menu-group-start", "true");
+            item.setAttribute("data-menu-column-start", "true");
           }
           previousVisibleGroupIndex = groupIndex;
+        });
+
+        const selectedId = selectedNodeIdRef.current;
+        const selectedEl = selectedId ? getNodeElById(selectedId) : null;
+        if (!menu || !selectedEl) return;
+
+        requestAnimationFrame(() => {
+          const nodeRect = selectedEl.getBoundingClientRect();
+          const menuRect = menuList.getBoundingClientRect();
+          const gutter = 10;
+          const viewportWidth = window.innerWidth;
+          const viewportHeight = window.innerHeight;
+          const menuWidth = menuRect.width || 292;
+          const menuHeight = menuRect.height || 340;
+          const openAbove = nodeRect.bottom + gutter + menuHeight > viewportHeight;
+          const left = Math.min(
+            Math.max(gutter, nodeRect.right + 8),
+            Math.max(gutter, viewportWidth - menuWidth - gutter)
+          );
+          const top = openAbove
+            ? Math.max(gutter, nodeRect.top - menuHeight - 8)
+            : Math.min(
+                nodeRect.bottom + 8,
+                Math.max(gutter, viewportHeight - menuHeight - gutter)
+              );
+
+          menuList.style.left = `${left}px`;
+          menuList.style.top = `${top}px`;
+          menuList.style.right = "auto";
+          menuList.style.bottom = "auto";
         });
       };
       const formatTimestamp = (seconds: number): string => {
@@ -3145,15 +3220,20 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           display: none;
         }
         .context-menu .menu-list {
-          max-height: min(420px, calc(100vh - 24px));
-          max-width: min(240px, calc(100vw - 24px));
+          display: grid !important;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 0.25rem;
+          width: min(292px, calc(100vw - 24px));
+          max-height: min(340px, calc(100vh - 24px));
           padding: 0.35rem;
           background: rgba(255, 255, 255, 0.98);
           border: 1px solid rgba(148, 163, 184, 0.24);
-          border-radius: 0.85rem;
+          border-radius: 1rem;
           overflow-y: auto !important;
           overscroll-behavior: contain;
           -webkit-overflow-scrolling: touch;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(148, 163, 184, 0.72) transparent;
           box-shadow:
             inset 0 -26px 20px -24px rgba(15, 23, 42, 0.55),
             inset 0 18px 16px -22px rgba(15, 23, 42, 0.28);
@@ -3166,15 +3246,46 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             inset 0 18px 16px -22px rgba(226, 232, 240, 0.22);
         }
         .context-menu .menu-list li {
+          display: flex !important;
+          min-height: 32px;
           min-width: 0 !important;
+          align-items: center;
+          border-radius: 0.65rem !important;
+          padding: 0.35rem 0.45rem !important;
+          white-space: normal !important;
+          line-height: 1.2 !important;
+          break-inside: avoid;
+          font-size: 12px !important;
+        }
+        .context-menu .menu-list li span,
+        .context-menu .menu-list li a,
+        .context-menu .menu-list li button {
+          min-width: 0;
+          white-space: normal !important;
+          line-height: 1.2 !important;
         }
         .context-menu .menu-list li[data-menu-group-start="true"] {
-          margin-top: 0;
-          padding-top: 0.55rem;
-          border-top: 1px solid rgba(148, 163, 184, 0.28);
+          margin-top: 0.25rem;
+          position: relative;
+        }
+        .context-menu .menu-list li[data-menu-group-start="true"]::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: -0.25rem;
+          height: 1px;
+          background: rgba(148, 163, 184, 0.28);
+          grid-column: 1 / -1;
+        }
+        .context-menu .menu-list li[data-menu-column-start="true"] {
+          grid-column-start: 1;
         }
         .dark .context-menu .menu-list li[data-menu-group-start="true"] {
           border-top-color: rgba(148, 163, 184, 0.22);
+        }
+        .dark .context-menu .menu-list li[data-menu-group-start="true"]::before {
+          background: rgba(148, 163, 184, 0.22);
         }
         me-tpc {
           position: relative;
@@ -3531,7 +3642,6 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             setImagePreview(selectedNodeImagePreview);
           }
         }}
-        slideshowLabel={t("slideshow.open")}
         onSlideshowClick={() => onOpenSlideshow?.()}
         regenerateLabel={regenerateLabel}
         regenerateLoadingLabel={regenerateLoadingLabel}

@@ -165,6 +165,7 @@ const COPY = {
     statusFailed: "실패",
     openMap: "열기",
     brandHome: "홈",
+    navFeatures: "Brify 기능",
     navBlog: "블로그",
     navPricing: "요금제",
     navSupport: "문의/피드백",
@@ -264,6 +265,7 @@ const COPY = {
     statusFailed: "Failed",
     openMap: "Open",
     brandHome: "Home",
+    navFeatures: "Brify Features",
     navBlog: "Blog",
     navPricing: "Pricing",
     navSupport: "Support",
@@ -363,6 +365,7 @@ const COPY = {
     statusFailed: "Échec",
     openMap: "Ouvrir",
     brandHome: "Accueil",
+    navFeatures: "Fonctionnalités Brify",
     navBlog: "Blog",
     navPricing: "Tarifs",
     navSupport: "Support",
@@ -1305,6 +1308,7 @@ export default function LandingV2Page({
 
   const publicNavItems = [
     { label: copy.brandHome, href: route(""), icon: "lucide:home" },
+    { label: copy.navFeatures, href: route("/features"), icon: "lucide:list-checks" },
     { label: copy.navBlog, href: route("/blog"), icon: "lucide:newspaper" },
     { label: copy.navPricing, href: route("/pricing"), icon: "lucide:badge-dollar-sign" },
     { label: copy.navSupport, href: route("/support"), icon: "lucide:message-circle" },

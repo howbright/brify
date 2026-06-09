@@ -323,6 +323,7 @@
       "logout": "Se déconnecter"
     },
     "nav": {
+      "features": "Fonctionnalités Brify",
       "blog": "Blog",
       "about": "À propos",
       "pricing": "Tarifs",

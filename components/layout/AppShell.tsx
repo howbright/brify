@@ -74,6 +74,7 @@ export default function AppShell({ children, locale, email }: AppShellProps) {
 
   const publicNavItems = [
     { label: getHomeLabel(safeLocale), href: route(safeLocale), icon: "lucide:home" },
+    { label: tNav("features"), href: route(safeLocale, "/features"), icon: "lucide:list-checks" },
     { label: tNav("blog"), href: route(safeLocale, "/blog"), icon: "lucide:newspaper" },
     { label: tNav("pricing"), href: route(safeLocale, "/pricing"), icon: "lucide:badge-dollar-sign" },
     { label: tNav("contactFeedback"), href: route(safeLocale, "/support"), icon: "lucide:message-circle" },

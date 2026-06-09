@@ -983,6 +983,7 @@
       "logout": "로그아웃"
     },
     "nav": {
+      "features": "Brify 기능",
       "blog": "블로그",
       "about": "소개",
       "pricing": "요금제",

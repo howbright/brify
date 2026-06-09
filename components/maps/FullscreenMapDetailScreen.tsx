@@ -3549,6 +3549,19 @@ export default function FullscreenMapDetailScreen({
                       type="button"
                       onClick={() => {
                         setDesktopMoreOpen(false);
+                        handleOpenSlideshow();
+                      }}
+                      className={controlMenuItemClass}
+                    >
+                      <span className={controlMenuItemContentClass}>
+                        <Icon icon="mdi:presentation-play" className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/50" />
+                        <span>{t("slideshow.open")}</span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDesktopMoreOpen(false);
                         setTutorialStepIndex(0);
                         setTutorialOpen(true);
                       }}

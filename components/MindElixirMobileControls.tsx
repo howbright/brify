@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Icon } from "@iconify/react";
 
 type Labels = {
@@ -14,6 +15,10 @@ type Labels = {
   addOrReplaceImage: string;
   removeImage: string;
   remove: string;
+  editGroup?: string;
+  structureGroup?: string;
+  mediaGroup?: string;
+  otherGroup?: string;
 };
 
 type Props = {
@@ -70,11 +75,23 @@ export default function MindElixirMobileControls({
   onRemove,
 }: Props) {
   const baseItemClassName =
-    "flex w-full items-center justify-between gap-3 rounded-xl px-3.5 py-3 text-left text-[14px] font-semibold transition-colors";
+    "flex min-h-[58px] w-full flex-col items-start justify-center gap-1 rounded-xl px-2.5 py-2 text-left text-[12px] font-bold leading-tight transition-colors";
+  const sectionTitleClassName =
+    "px-1 text-[10px] font-extrabold uppercase tracking-wide text-neutral-400 dark:text-white/38";
+  const sectionGridClassName = "grid grid-cols-2 gap-1.5";
+  const itemEnabledClassName =
+    "bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]";
+  const itemDisabledClassName =
+    "cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-white/[0.04] dark:text-white/35";
+  const iconEnabledClassName = "text-neutral-700 dark:text-white/75";
+  const iconDisabledClassName = "text-neutral-400 dark:text-white/35";
+  const dangerEnabledClassName =
+    "bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/18";
+  const dangerIconClassName = "text-rose-600 dark:text-rose-200";
 
   const safeInset = 12;
-  const menuWidth = 184;
-  const estimatedMenuHeight = 420;
+  const menuWidth = 286;
+  const estimatedMenuHeight = 410;
   const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 0;
   const viewportHeight = typeof window !== "undefined" ? window.innerHeight : 0;
   const menuLeft =
@@ -113,6 +130,57 @@ export default function MindElixirMobileControls({
       )
     : safeInset;
 
+  const renderAction = ({
+    label,
+    icon,
+    onClick,
+    disabled = false,
+    danger = false,
+    loading = false,
+  }: {
+    label: string;
+    icon: string;
+    onClick: () => void;
+    disabled?: boolean;
+    danger?: boolean;
+    loading?: boolean;
+  }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={[
+        baseItemClassName,
+        disabled
+          ? itemDisabledClassName
+          : danger
+          ? dangerEnabledClassName
+          : itemEnabledClassName,
+      ].join(" ")}
+    >
+      <Icon
+        icon={icon}
+        className={[
+          "h-4.5 w-4.5 shrink-0",
+          loading ? "animate-spin" : "",
+          disabled
+            ? iconDisabledClassName
+            : danger
+            ? dangerIconClassName
+            : iconEnabledClassName,
+        ].join(" ")}
+      />
+      <span className="line-clamp-2 min-w-0 break-keep">{label}</span>
+    </button>
+  );
+
+  const renderSection = (title: string, children: ReactNode) => (
+    <section className="space-y-1.5">
+      <div className={sectionTitleClassName}>{title}</div>
+      <div className={sectionGridClassName}>{children}</div>
+    </section>
+  );
+
   return (
     <>
       {showActionBar && (
@@ -125,6 +193,8 @@ export default function MindElixirMobileControls({
           />
           <div
             className="pointer-events-auto absolute overflow-hidden rounded-2xl border border-neutral-200/90 bg-white/98 p-2 shadow-[0_18px_42px_-22px_rgba(15,23,42,0.38)] backdrop-blur dark:border-white/12 dark:bg-[#0b1220]/96"
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
             style={{
               width: menuWidth,
               left: menuLeft,
@@ -145,271 +215,94 @@ export default function MindElixirMobileControls({
                 <Icon icon="mdi:close" className="h-3.5 w-3.5" />
               </button>
             </div>
-            <div className="flex max-h-[calc(100%-2rem)] flex-col gap-2 overflow-y-auto pr-0.5">
-              <button
-                type="button"
-                onClick={onAddChild}
-                className={`${baseItemClassName} bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]`}
-              >
-                <span className="inline-flex items-center gap-3">
-                  <Icon
-                    icon="mdi:plus-circle-outline"
-                    className="h-4.5 w-4.5 shrink-0 text-neutral-700 dark:text-white/75"
-                  />
-                  <span>{labels.addChild}</span>
-                </span>
-                <Icon
-                  icon="mdi:chevron-right"
-                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
-                />
-              </button>
-              <button
-                type="button"
-                onClick={onAddParent}
-                disabled={disableAddParent}
-                className={[
-                  baseItemClassName,
-                  disableAddParent
-                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-white/[0.04] dark:text-white/35"
-                    : "bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]",
-                ].join(" ")}
-              >
-                <span className="inline-flex items-center gap-3">
-                  <Icon
-                    icon="mdi:transit-connection-horizontal"
-                    className={[
-                      "h-4.5 w-4.5 shrink-0",
-                      disableAddParent ? "text-neutral-400 dark:text-white/35" : "text-neutral-700 dark:text-white/75",
-                    ].join(" ")}
-                  />
-                  <span>{labels.addParent}</span>
-                </span>
-                <Icon
-                  icon="mdi:chevron-right"
-                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
-                />
-              </button>
-              <button
-                type="button"
-                onClick={_onAddSibling}
-                disabled={_disableAddSibling}
-                className={[
-                  baseItemClassName,
-                  _disableAddSibling
-                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-white/[0.04] dark:text-white/35"
-                    : "bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]",
-                ].join(" ")}
-              >
-                <span className="inline-flex items-center gap-3">
-                  <Icon
-                    icon="mdi:relation-many-to-many"
-                    className={[
-                      "h-4.5 w-4.5 shrink-0",
-                      _disableAddSibling ? "text-neutral-400 dark:text-white/35" : "text-neutral-700 dark:text-white/75",
-                    ].join(" ")}
-                  />
-                  <span>{labels.addSibling}</span>
-                </span>
-                <Icon
-                  icon="mdi:chevron-right"
-                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
-                />
-              </button>
-              <button
-                type="button"
-                onClick={onRename}
-                disabled={disableRename}
-                className={[
-                  baseItemClassName,
-                  disableRename
-                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-white/[0.04] dark:text-white/35"
-                    : "bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]",
-                ].join(" ")}
-              >
-                <span className="inline-flex items-center gap-3">
-                  <Icon
-                    icon="mdi:pencil-outline"
-                    className={[
-                      "h-4.5 w-4.5 shrink-0",
-                      disableRename ? "text-neutral-400 dark:text-white/35" : "text-neutral-700 dark:text-white/75",
-                    ].join(" ")}
-                  />
-                  <span>{labels.rename}</span>
-                </span>
-                <Icon
-                  icon="mdi:chevron-right"
-                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
-                />
-              </button>
-              <button
-                type="button"
-                onClick={onEditContent}
-                disabled={disableEditContent}
-                className={[
-                  baseItemClassName,
-                  disableEditContent
-                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-white/[0.04] dark:text-white/35"
-                    : "bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]",
-                ].join(" ")}
-              >
-                <span className="inline-flex items-center gap-3">
-                  <Icon
-                    icon="mdi:format-text"
-                    className={[
-                      "h-4.5 w-4.5 shrink-0",
-                      disableEditContent
-                        ? "text-neutral-400 dark:text-white/35"
-                        : "text-neutral-700 dark:text-white/75",
-                    ].join(" ")}
-                  />
-                  <span>{labels.editContent}</span>
-                </span>
-                <Icon
-                  icon="mdi:chevron-right"
-                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
-                />
-              </button>
-              <button
-                type="button"
-                onClick={onSlideshow}
-                className={`${baseItemClassName} bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]`}
-              >
-                <span className="inline-flex items-center gap-3">
-                  <Icon
-                    icon="mdi:presentation-play"
-                    className="h-4.5 w-4.5 shrink-0 text-neutral-700 dark:text-white/75"
-                  />
-                  <span>{labels.slideshow}</span>
-                </span>
-                <Icon
-                  icon="mdi:chevron-right"
-                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
-                />
-              </button>
-              <button
-                type="button"
-                onClick={onRegenerate}
-                disabled={disableRegenerate || regenerating}
-                className={[
-                  baseItemClassName,
-                  disableRegenerate || regenerating
-                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-white/[0.04] dark:text-white/35"
-                    : "bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]",
-                ].join(" ")}
-              >
-                <span className="inline-flex items-center gap-3">
-                  <Icon
-                    icon={regenerating ? "mdi:loading" : "mdi:auto-fix"}
-                    className={[
-                      "h-4.5 w-4.5 shrink-0",
-                      regenerating ? "animate-spin" : "",
-                      disableRegenerate || regenerating
-                        ? "text-neutral-400 dark:text-white/35"
-                        : "text-neutral-700 dark:text-white/75",
-                    ].join(" ")}
-                  />
-                  <span>{labels.regenerate}</span>
-                </span>
-                <Icon
-                  icon="mdi:chevron-right"
-                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
-                />
-              </button>
-              <button
-                type="button"
-                onClick={onLinkBidirectional}
-                className={`${baseItemClassName} bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]`}
-              >
-                <span className="inline-flex items-center gap-3">
-                  <Icon
-                    icon="mdi:vector-polyline-plus"
-                    className="h-4.5 w-4.5 shrink-0 text-neutral-700 dark:text-white/75"
-                  />
-                  <span>{labels.linkBidirectional}</span>
-                </span>
-                <Icon
-                  icon="mdi:chevron-right"
-                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
-                />
-              </button>
-              <button
-                type="button"
-                onClick={onAddOrReplaceImage}
-                disabled={disableImageActions}
-                className={[
-                  baseItemClassName,
-                  disableImageActions
-                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-white/[0.04] dark:text-white/35"
-                    : "bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]",
-                ].join(" ")}
-              >
-                <span className="inline-flex items-center gap-3">
-                  <Icon
-                    icon="mdi:image-plus-outline"
-                    className={[
-                      "h-4.5 w-4.5 shrink-0",
-                      disableImageActions ? "text-neutral-400 dark:text-white/35" : "text-neutral-700 dark:text-white/75",
-                    ].join(" ")}
-                  />
-                  <span>{labels.addOrReplaceImage}</span>
-                </span>
-                <Icon
-                  icon="mdi:chevron-right"
-                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
-                />
-              </button>
-              <button
-                type="button"
-                onClick={onRemoveImage}
-                disabled={disableImageActions}
-                className={[
-                  baseItemClassName,
-                  disableImageActions
-                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-white/[0.04] dark:text-white/35"
-                    : "bg-neutral-50 text-neutral-950 hover:bg-neutral-100 dark:bg-white/[0.06] dark:text-white/92 dark:hover:bg-white/[0.1]",
-                ].join(" ")}
-              >
-                <span className="inline-flex items-center gap-3">
-                  <Icon
-                    icon="mdi:image-remove-outline"
-                    className={[
-                      "h-4.5 w-4.5 shrink-0",
-                      disableImageActions ? "text-neutral-400 dark:text-white/35" : "text-neutral-700 dark:text-white/75",
-                    ].join(" ")}
-                  />
-                  <span>{labels.removeImage}</span>
-                </span>
-                <Icon
-                  icon="mdi:chevron-right"
-                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
-                />
-              </button>
-              <button
-                type="button"
-                onClick={onRemove}
-                disabled={disableRemove}
-                className={[
-                  baseItemClassName,
-                  disableRemove
-                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-white/[0.04] dark:text-white/35"
-                    : "bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/18",
-                ].join(" ")}
-              >
-                <span className="inline-flex items-center gap-3">
-                  <Icon
-                    icon="mdi:trash-can-outline"
-                    className={[
-                      "h-4.5 w-4.5 shrink-0",
-                      disableRemove ? "text-neutral-400 dark:text-white/35" : "text-rose-600 dark:text-rose-200",
-                    ].join(" ")}
-                  />
-                  <span>{labels.remove}</span>
-                </span>
-                <Icon
-                  icon="mdi:chevron-right"
-                  className="h-4.5 w-4.5 shrink-0 text-neutral-400"
-                />
-              </button>
+            <div
+              className="flex max-h-[calc(100%-2rem)] flex-col gap-3 overflow-y-auto overscroll-contain pr-1 [scrollbar-width:thin]"
+              style={{ scrollbarColor: "rgba(148, 163, 184, 0.65) transparent" }}
+            >
+              {renderSection(labels.editGroup ?? "Edit", (
+                <>
+                  {renderAction({
+                    label: labels.addChild,
+                    icon: "mdi:plus-circle-outline",
+                    onClick: onAddChild,
+                  })}
+                  {renderAction({
+                    label: labels.rename,
+                    icon: "mdi:pencil-outline",
+                    onClick: onRename,
+                    disabled: disableRename,
+                  })}
+                  {renderAction({
+                    label: labels.editContent,
+                    icon: "mdi:format-text",
+                    onClick: onEditContent,
+                    disabled: disableEditContent,
+                  })}
+                  {renderAction({
+                    label: labels.addParent,
+                    icon: "mdi:transit-connection-horizontal",
+                    onClick: onAddParent,
+                    disabled: disableAddParent,
+                  })}
+                  {renderAction({
+                    label: labels.addSibling,
+                    icon: "mdi:relation-many-to-many",
+                    onClick: _onAddSibling,
+                    disabled: _disableAddSibling,
+                  })}
+                </>
+              ))}
+
+              {renderSection(labels.structureGroup ?? "Structure", (
+                <>
+                  {renderAction({
+                    label: labels.regenerate,
+                    icon: regenerating ? "mdi:loading" : "mdi:auto-fix",
+                    onClick: onRegenerate,
+                    disabled: disableRegenerate || regenerating,
+                    loading: regenerating,
+                  })}
+                  {renderAction({
+                    label: labels.linkBidirectional,
+                    icon: "mdi:vector-polyline-plus",
+                    onClick: onLinkBidirectional,
+                  })}
+                </>
+              ))}
+
+              {renderSection(labels.mediaGroup ?? "Media", (
+                <>
+                  {renderAction({
+                    label: labels.addOrReplaceImage,
+                    icon: "mdi:image-plus-outline",
+                    onClick: onAddOrReplaceImage,
+                    disabled: disableImageActions,
+                  })}
+                  {renderAction({
+                    label: labels.removeImage,
+                    icon: "mdi:image-remove-outline",
+                    onClick: onRemoveImage,
+                    disabled: disableImageActions,
+                  })}
+                </>
+              ))}
+
+              {renderSection(labels.otherGroup ?? "Other", (
+                <>
+                  {renderAction({
+                    label: labels.slideshow,
+                    icon: "mdi:presentation-play",
+                    onClick: onSlideshow,
+                  })}
+                  {renderAction({
+                    label: labels.remove,
+                    icon: "mdi:trash-can-outline",
+                    onClick: onRemove,
+                    disabled: disableRemove,
+                    danger: true,
+                  })}
+                </>
+              ))}
             </div>
           </div>
         </div>
