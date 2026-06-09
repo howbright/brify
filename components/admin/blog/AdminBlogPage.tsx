@@ -88,6 +88,39 @@ function toForm(post: BlogPostAdmin): FormState {
   };
 }
 
+function getUploadErrorMessage(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return "이미지 업로드에 실패했어요.";
+  }
+
+  const payload = error as {
+    error?: string;
+    message?: string;
+    maxMb?: number;
+  };
+
+  if (payload.error === "TOO_LARGE") {
+    return `이미지가 너무 커요. ${payload.maxMb ?? 20}MB 이하 파일을 업로드해 주세요.`;
+  }
+  if (payload.error === "IMAGE_ONLY") {
+    return "GIF, PNG, JPG, WEBP 이미지만 업로드할 수 있어요.";
+  }
+  if (payload.error === "FILE_REQUIRED") {
+    return "업로드할 이미지 파일을 선택해 주세요.";
+  }
+  if (payload.error === "unauthorized") {
+    return "관리자 로그인 후 다시 시도해 주세요.";
+  }
+  if (payload.error === "STORAGE_UPLOAD_FAILED" && payload.message) {
+    return `스토리지 업로드에 실패했어요: ${payload.message}`;
+  }
+  if (payload.message) {
+    return payload.message;
+  }
+
+  return "이미지 업로드에 실패했어요.";
+}
+
 export default function AdminBlogPage() {
   const params = useParams<{ locale?: string }>();
   const locale = normalizeBlogLocale(params?.locale);
@@ -146,7 +179,7 @@ export default function AdminBlogPage() {
         credentials: "include",
       });
       const json = await res.json().catch(() => ({}));
-      if (!res.ok || !json.url) throw new Error("이미지 업로드에 실패했어요.");
+      if (!res.ok || !json.url) throw new Error(getUploadErrorMessage(json));
       const url = String(json.url);
       if (mode === "cover") {
         updateForm("imageUrl", url);

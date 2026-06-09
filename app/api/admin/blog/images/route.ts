@@ -12,6 +12,7 @@ function safeFilePart(value: string) {
 }
 
 const ALLOWED_IMAGE_EXTENSIONS = new Set(["gif", "jpg", "jpeg", "png", "webp"]);
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 
 function contentTypeFromExtension(extension: string) {
   if (extension === "gif") return "image/gif";
@@ -42,8 +43,14 @@ export async function POST(request: Request) {
     if (!isAllowedMime && !isAllowedExtension) {
       return NextResponse.json({ error: "IMAGE_ONLY" }, { status: 400 });
     }
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: "TOO_LARGE" }, { status: 400 });
+    if (file.size > MAX_IMAGE_BYTES) {
+      return NextResponse.json(
+        {
+          error: "TOO_LARGE",
+          maxMb: Math.floor(MAX_IMAGE_BYTES / 1024 / 1024),
+        },
+        { status: 400 }
+      );
     }
 
     const base = safeFilePart(file.name.replace(/\.[^.]+$/, "")) || "image";
@@ -60,12 +67,32 @@ export async function POST(request: Request) {
         contentType,
       });
 
-    if (error) throw error;
+    if (error) {
+      console.error("[admin/blog/images] storage upload failed", {
+        message: error.message,
+        name: error.name,
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size,
+        contentType,
+        path,
+      });
+      return NextResponse.json(
+        { error: "STORAGE_UPLOAD_FAILED", message: error.message },
+        { status: 500 }
+      );
+    }
 
     const { data } = adminSupabase.storage.from("blog-images").getPublicUrl(path);
     return NextResponse.json({ url: data.publicUrl, path });
   } catch (error) {
     console.error("[admin/blog/images] upload failed", error);
-    return NextResponse.json({ error: "failed" }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: "UPLOAD_FAILED",
+        message: error instanceof Error ? error.message : "Unknown upload error",
+      },
+      { status: 500 }
+    );
   }
 }
