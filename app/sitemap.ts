@@ -3,6 +3,9 @@ import { getAllPublishedBlogPosts } from "@/app/lib/blog";
 
 const BASE_URL = "https://www.brify.app";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const staticRoutes: MetadataRoute.Sitemap = [

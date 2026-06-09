@@ -74,6 +74,14 @@ function toDatetimeLocal(value: string | null) {
   return new Date(date.getTime() - offset).toISOString().slice(0, 16);
 }
 
+function toPublishedAtPayload(value: string, status: BlogStatus) {
+  if (status !== "published") return "";
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  const date = new Date(trimmed);
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString();
+}
+
 function toForm(post: BlogPostAdmin): FormState {
   return {
     id: post.id,
@@ -235,6 +243,7 @@ export default function AdminBlogPage() {
           slug: cleanSlug,
           excerpt: cleanExcerpt,
           markdown: cleanMarkdown,
+          publishedAt: toPublishedAtPayload(form.publishedAt, form.status),
         }),
       });
       const json = await res.json().catch(() => ({}));
