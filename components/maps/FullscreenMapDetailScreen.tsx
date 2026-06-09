@@ -2961,7 +2961,7 @@ export default function FullscreenMapDetailScreen({
     return () => window.clearInterval(timer);
   }, [isMapProcessing]);
 
-  if (isSharedView && !loading && !draft) {
+  if (isSharedView && !loading && !draft && error) {
     return (
       <div className="fixed inset-0 z-[120] bg-[linear-gradient(180deg,#f6f8fc_0%,#eef3fb_100%)] dark:bg-[linear-gradient(180deg,#09111d_0%,#0b1220_100%)]">
         <div className="flex h-full items-center justify-center px-6">
