@@ -883,6 +883,28 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         e.stopImmediatePropagation?.();
         return;
       }
+      if (isTypingTarget(e.target)) return;
+      if (editMode === "edit") {
+        const nodeEl = target.closest?.("me-tpc");
+        if (nodeEl instanceof HTMLElement) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation?.();
+          window.setTimeout(() => {
+            mindRef.current?.beginEdit?.(nodeEl);
+            const inputBox = elRef.current?.querySelector<HTMLElement>("#input-box");
+            inputBox?.focus();
+            if (inputBox) {
+              const range = document.createRange();
+              range.selectNodeContents(inputBox);
+              const selection = window.getSelection();
+              selection?.removeAllRanges();
+              selection?.addRange(range);
+            }
+          }, 0);
+        }
+        return;
+      }
       if (editMode !== "view") return;
       onViewModeEditAttempt?.();
     };
@@ -2900,6 +2922,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             shouldHideOriginalTextWhileEditing(topic) ? "mask" : "placeholder"
           );
         }
+        const inputBox = elRef.current?.querySelector<HTMLElement>("#input-box");
+        inputBox?.addEventListener(
+          "blur",
+          () => {
+            requestAnimationFrame(clearEditingNodeState);
+          },
+          { once: true }
+        );
       }
 
       if (op?.name === "finishEdit") {

@@ -2855,13 +2855,20 @@ export default function FullscreenMapDetailScreen({
     ? selectedMapNodeId
     : selectedRootChildNodeId;
   const canShowRegenerateActions = Boolean(!isReadOnlyView && regenerateTargetNodeId);
+  const canUseRegenerateActions = Boolean(canShowRegenerateActions && draft?.status === "done");
   const isRegenerateBusy = Boolean(regeneratingNodeId);
+  const regenerateUnavailableLabel =
+    locale === "ko"
+      ? "구조맵 생성이 완료된 뒤 사용할 수 있어요"
+      : locale === "fr"
+      ? "Disponible une fois la carte terminée"
+      : "Available after the structure map is complete";
 
   useEffect(() => {
-    if (!canShowRegenerateActions || isRegenerateBusy) {
+    if (!canUseRegenerateActions || isRegenerateBusy) {
       setRegenerateReasonOpen(false);
     }
-  }, [canShowRegenerateActions, isRegenerateBusy]);
+  }, [canUseRegenerateActions, isRegenerateBusy]);
 
   const generatingTitle =
     locale === "ko"
@@ -3335,17 +3342,24 @@ export default function FullscreenMapDetailScreen({
                 <div className="relative inline-flex" ref={regenerateActionsRef}>
                   <button
                     type="button"
-                    onClick={() => setRegenerateReasonOpen((open) => !open)}
-                    disabled={isRegenerateBusy}
-                    className="inline-flex h-7 items-center gap-1.5 rounded-xl border border-indigo-300/80 bg-indigo-600 px-2.5 text-[10px] font-extrabold text-white shadow-[0_16px_34px_-18px_rgba(79,70,229,0.65)] transition hover:-translate-y-[1px] hover:bg-indigo-500 disabled:cursor-wait disabled:opacity-75 dark:border-indigo-200/35 dark:bg-indigo-500 dark:shadow-[0_18px_36px_-18px_rgba(129,140,248,0.42)]"
+                    onClick={() => {
+                      if (!canUseRegenerateActions || isRegenerateBusy) return;
+                      setRegenerateReasonOpen((open) => !open);
+                    }}
+                    disabled={!canUseRegenerateActions || isRegenerateBusy}
+                    className="inline-flex h-7 items-center gap-1.5 rounded-xl border border-indigo-300/80 bg-indigo-600 px-2.5 text-[10px] font-extrabold text-white shadow-[0_16px_34px_-18px_rgba(79,70,229,0.65)] transition hover:-translate-y-[1px] hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 disabled:hover:bg-indigo-600 dark:border-indigo-200/35 dark:bg-indigo-500 dark:shadow-[0_18px_36px_-18px_rgba(129,140,248,0.42)]"
                     aria-label={
                       regeneratingNodeId
                         ? regenerateLoadingActionLabel
+                        : !canUseRegenerateActions
+                        ? regenerateUnavailableLabel
                         : regenerateActionLabel
                     }
                     title={
                       regeneratingNodeId
                         ? regenerateLoadingActionLabel
+                        : !canUseRegenerateActions
+                        ? regenerateUnavailableLabel
                         : regenerateActionLabel
                     }
                   >
@@ -3370,7 +3384,7 @@ export default function FullscreenMapDetailScreen({
                       <Icon icon="mdi:chevron-down" className="h-3.5 w-3.5" />
                     ) : null}
                   </button>
-                  {regenerateReasonOpen ? (
+                  {regenerateReasonOpen && canUseRegenerateActions ? (
                     <div className="absolute right-0 top-full z-[280] mt-2 w-[320px] rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_26px_70px_-34px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-[#111827] dark:shadow-[0_30px_80px_-36px_rgba(2,6,23,0.9)]">
                       <div className="px-2 pb-2 pt-1 text-[11px] font-bold text-slate-500 dark:text-white/55">
                         {locale === "ko"
@@ -3717,17 +3731,24 @@ export default function FullscreenMapDetailScreen({
             <div className="group relative" ref={mobileRegenerateActionsRef}>
               <button
                 type="button"
-                onClick={() => setRegenerateReasonOpen((open) => !open)}
-                disabled={isRegenerateBusy}
-                className={`${controlIconButtonClass} disabled:cursor-wait disabled:opacity-75`}
+                onClick={() => {
+                  if (!canUseRegenerateActions || isRegenerateBusy) return;
+                  setRegenerateReasonOpen((open) => !open);
+                }}
+                disabled={!canUseRegenerateActions || isRegenerateBusy}
+                className={`${controlIconButtonClass} disabled:cursor-not-allowed disabled:opacity-55`}
                 aria-label={
                   regeneratingNodeId
                     ? regenerateLoadingActionLabel
+                    : !canUseRegenerateActions
+                    ? regenerateUnavailableLabel
                     : regenerateActionLabel
                 }
                 title={
                   regeneratingNodeId
                     ? regenerateLoadingActionLabel
+                    : !canUseRegenerateActions
+                    ? regenerateUnavailableLabel
                     : regenerateActionLabel
                 }
               >
@@ -3741,7 +3762,7 @@ export default function FullscreenMapDetailScreen({
                   ? regenerateLoadingActionLabel
                   : regenerateActionLabel}
               </span>
-              {regenerateReasonOpen ? (
+              {regenerateReasonOpen && canUseRegenerateActions ? (
                 <div className="absolute right-full top-0 z-[280] mr-2 w-[284px] rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_26px_70px_-34px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-[#111827] dark:shadow-[0_30px_80px_-36px_rgba(2,6,23,0.9)]">
                   <div className="px-2 pb-2 pt-1 text-[11px] font-bold text-slate-500 dark:text-white/55">
                     {locale === "ko"
