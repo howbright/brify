@@ -85,6 +85,8 @@ const DRAFT_SELECT_FIELDS =
   "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
 const FALLBACK_EXAMPLE_MAP_URL =
   "https://www.brify.app/share/606b06b3-ab50-41a7-aa71-df8b33dc26fc";
+const MAX_DIRECT_UPLOAD_BYTES = 4 * 1024 * 1024;
+const MAX_DIRECT_UPLOAD_MB = 4;
 const STRUCTURE_MAP_DEMO_GIF_URL = "/images/sample.gif";
 
 const EXAMPLE_MAPS = [
@@ -122,6 +124,8 @@ const COPY = {
     uploadHint: "DOCX/PDF/PPTX를 끌어다 놓거나 업로드하세요.",
     dropReady: "여기에 놓으면 문서 텍스트를 추출합니다.",
     unsupportedFile: "현재는 DOCX, PDF, PPTX 파일만 지원합니다.",
+    uploadFileTooLarge:
+      "파일이 너무 큽니다. 현재 {size}MB이고, 실서버 업로드는 {max}MB 이하만 지원합니다.",
     empty: "먼저 구조맵으로 만들 글을 입력해 주세요.",
     tooLarge: "입력 분량이 너무 큽니다.",
     authTitle: "구조맵을 만들 준비가 되었어요",
@@ -221,6 +225,8 @@ const COPY = {
     uploadHint: "Drop or upload a DOCX/PDF/PPTX file.",
     dropReady: "Drop it here to extract the document text.",
     unsupportedFile: "Only DOCX, PDF, or PPTX files are supported for now.",
+    uploadFileTooLarge:
+      "This file is too large. It is {size}MB, and production uploads currently support up to {max}MB.",
     empty: "Paste some text first.",
     tooLarge: "The input is too large.",
     authTitle: "Your structure map is ready to start",
@@ -321,6 +327,8 @@ const COPY = {
     uploadHint: "Déposez ou importez un DOCX/PDF/PPTX.",
     dropReady: "Déposez-le ici pour extraire le texte.",
     unsupportedFile: "Seuls les fichiers DOCX, PDF ou PPTX sont pris en charge pour le moment.",
+    uploadFileTooLarge:
+      "Ce fichier est trop volumineux. Il fait {size} Mo, et les imports en production prennent actuellement en charge jusqu'à {max} Mo.",
     empty: "Collez d'abord un texte.",
     tooLarge: "L’entrée est trop volumineuse.",
     authTitle: "Votre carte est prête à démarrer",
@@ -506,6 +514,10 @@ function coerceMapCreditEstimate(
 function getApiMessage(error: unknown, fallback: string) {
   if (error instanceof Error && error.message.trim()) return error.message;
   return fallback;
+}
+
+function formatFileSizeMb(bytes: number) {
+  return (bytes / 1024 / 1024).toFixed(1);
 }
 
 function templateCopy(template: string, values: Record<string, string | number>) {
@@ -1210,6 +1222,15 @@ export default function LandingV2Page({
       const extension = getFileExtension(file.name);
       if (extension !== "docx" && extension !== "pdf" && extension !== "pptx") {
         throw new Error(copy.unsupportedFile);
+      }
+
+      if (file.size > MAX_DIRECT_UPLOAD_BYTES) {
+        throw new Error(
+          templateCopy(copy.uploadFileTooLarge, {
+            size: formatFileSizeMb(file.size),
+            max: MAX_DIRECT_UPLOAD_MB,
+          })
+        );
       }
 
       const formData = new FormData();

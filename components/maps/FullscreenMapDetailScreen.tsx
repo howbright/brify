@@ -2167,7 +2167,10 @@ export default function FullscreenMapDetailScreen({
       if (anchorText.length > 0) payload.anchorText = anchorText;
       if (anchorKeywords.length > 0) payload.anchorKeywords = anchorKeywords;
 
-      const res = await fetch(`${base}/maps/${mapId}/source-find`, {
+      const sourceFindUrl = isAdminView
+        ? `${base}/admin/maps/${mapId}/source-find`
+        : `${base}/maps/${mapId}/source-find`;
+      const res = await fetch(sourceFindUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -2250,7 +2253,10 @@ export default function FullscreenMapDetailScreen({
     if (Array.isArray(anchors.anchorKeywords) && anchors.anchorKeywords.length > 0) {
       payload.anchorKeywords = anchors.anchorKeywords;
     }
-    const res = await fetch(`${base}/maps/${mapId}/source-find`, {
+    const sourceFindUrl = isAdminView
+      ? `${base}/admin/maps/${mapId}/source-find`
+      : `${base}/maps/${mapId}/source-find`;
+    const res = await fetch(sourceFindUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

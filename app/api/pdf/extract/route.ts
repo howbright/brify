@@ -3,7 +3,8 @@ import { createRequire } from "node:module";
 
 export const runtime = "nodejs";
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+const MAX_FILE_SIZE_MB = 4;
+const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
 const LOW_TEXT_THRESHOLD = 300;
 const LOW_TEXT_MIN_PAGES = 2;
 
@@ -258,8 +259,8 @@ export async function POST(req: NextRequest) {
         {
           success: false,
           errorCode: "FILE_TOO_LARGE",
-          maxFileSizeMb: 50,
-          error: "파일 용량이 너무 큽니다. 50MB 이하로 업로드해 주세요.",
+          maxFileSizeMb: MAX_FILE_SIZE_MB,
+          error: `파일 용량이 너무 큽니다. ${MAX_FILE_SIZE_MB}MB 이하로 업로드해 주세요.`,
         },
         { status: 400 }
       );
