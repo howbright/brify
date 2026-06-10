@@ -1,19 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { inflateRawSync } from "node:zlib";
+import { parseOffice, type OfficeContentNode } from "officeparser";
 
 export const runtime = "nodejs";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
-const EOCD_SIGNATURE = 0x06054b50;
-const CENTRAL_DIRECTORY_SIGNATURE = 0x02014b50;
-const LOCAL_FILE_SIGNATURE = 0x04034b50;
-
-type ZipEntry = {
-  name: string;
-  compressionMethod: number;
-  compressedSize: number;
-  localHeaderOffset: number;
-};
 
 function getFileExtension(name: string) {
   const index = name.lastIndexOf(".");
@@ -30,125 +20,51 @@ function normalizeExtractedText(text: string) {
     .trim();
 }
 
-function decodeXmlEntities(value: string) {
-  return value
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/&amp;/g, "&");
+function collectNodeText(node: OfficeContentNode): string {
+  if (node.children?.length) {
+    const childText = node.children
+      .map(collectNodeText)
+      .filter(Boolean)
+      .join(node.children.some((child) => child.children?.length) ? "\n" : "");
+    return normalizeExtractedText(childText);
+  }
+
+  return normalizeExtractedText(node.text ?? "");
 }
 
-function findEndOfCentralDirectory(buffer: Buffer) {
-  const maxSearch = Math.max(0, buffer.length - 0xffff - 22);
-  for (let offset = buffer.length - 22; offset >= maxSearch; offset -= 1) {
-    if (buffer.readUInt32LE(offset) === EOCD_SIGNATURE) return offset;
-  }
-  return -1;
-}
+function formatSlide(slide: OfficeContentNode, index: number) {
+  const parts = [`[슬라이드 ${index + 1}]`];
+  const slideText = collectNodeText(slide);
 
-function readZipEntries(buffer: Buffer): ZipEntry[] {
-  const eocdOffset = findEndOfCentralDirectory(buffer);
-  if (eocdOffset < 0) {
-    throw new Error("INVALID_PPTX");
+  if (slideText) {
+    parts.push(slideText);
   }
 
-  const entryCount = buffer.readUInt16LE(eocdOffset + 10);
-  const centralDirectoryOffset = buffer.readUInt32LE(eocdOffset + 16);
-  const entries: ZipEntry[] = [];
-  let offset = centralDirectoryOffset;
-
-  for (let index = 0; index < entryCount; index += 1) {
-    if (buffer.readUInt32LE(offset) !== CENTRAL_DIRECTORY_SIGNATURE) {
-      throw new Error("INVALID_PPTX");
-    }
-
-    const compressionMethod = buffer.readUInt16LE(offset + 10);
-    const compressedSize = buffer.readUInt32LE(offset + 20);
-    const fileNameLength = buffer.readUInt16LE(offset + 28);
-    const extraLength = buffer.readUInt16LE(offset + 30);
-    const commentLength = buffer.readUInt16LE(offset + 32);
-    const localHeaderOffset = buffer.readUInt32LE(offset + 42);
-    const name = buffer
-      .subarray(offset + 46, offset + 46 + fileNameLength)
-      .toString("utf8");
-
-    entries.push({
-      name,
-      compressionMethod,
-      compressedSize,
-      localHeaderOffset,
-    });
-
-    offset += 46 + fileNameLength + extraLength + commentLength;
-  }
-
-  return entries;
-}
-
-function readEntryText(buffer: Buffer, entry: ZipEntry) {
-  const offset = entry.localHeaderOffset;
-  if (buffer.readUInt32LE(offset) !== LOCAL_FILE_SIGNATURE) {
-    throw new Error("INVALID_PPTX");
-  }
-
-  const fileNameLength = buffer.readUInt16LE(offset + 26);
-  const extraLength = buffer.readUInt16LE(offset + 28);
-  const dataStart = offset + 30 + fileNameLength + extraLength;
-  const compressed = buffer.subarray(dataStart, dataStart + entry.compressedSize);
-
-  if (entry.compressionMethod === 0) {
-    return compressed.toString("utf8");
-  }
-
-  if (entry.compressionMethod === 8) {
-    return inflateRawSync(compressed).toString("utf8");
-  }
-
-  return "";
-}
-
-function getSlideNumber(name: string) {
-  const match = name.match(/(?:slide|notesSlide)(\d+)\.xml$/);
-  return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER;
-}
-
-function extractTextRuns(xml: string) {
-  const matches = Array.from(xml.matchAll(/<a:t[^>]*>([\s\S]*?)<\/a:t>/g));
-  return matches
-    .map((match) => decodeXmlEntities(match[1] ?? "").trim())
+  const notesText = slide.notes
+    ?.map(collectNodeText)
     .filter(Boolean)
-    .join("\n");
+    .join("\n\n");
+
+  if (notesText) {
+    parts.push(`[발표자 노트]\n${notesText}`);
+  }
+
+  return parts.join("\n");
 }
 
-function buildPresentationText(buffer: Buffer) {
-  const entries = readZipEntries(buffer);
-  const slideEntries = entries
-    .filter((entry) => /^ppt\/slides\/slide\d+\.xml$/.test(entry.name))
-    .sort((a, b) => getSlideNumber(a.name) - getSlideNumber(b.name));
-  const notesEntries = new Map(
-    entries
-      .filter((entry) => /^ppt\/notesSlides\/notesSlide\d+\.xml$/.test(entry.name))
-      .map((entry) => [getSlideNumber(entry.name), entry])
+function buildPresentationText(content: OfficeContentNode[]) {
+  const slides = content.filter((node) => node.type === "slide");
+
+  if (slides.length === 0) {
+    return normalizeExtractedText(content.map(collectNodeText).join("\n\n"));
+  }
+
+  return normalizeExtractedText(
+    slides
+      .map(formatSlide)
+      .filter((section) => section.replace(/\[슬라이드 \d+\]/, "").trim())
+      .join("\n\n")
   );
-
-  const sections = slideEntries
-    .map((slideEntry, index) => {
-      const slideNumber = getSlideNumber(slideEntry.name);
-      const slideText = extractTextRuns(readEntryText(buffer, slideEntry));
-      const notesEntry = notesEntries.get(slideNumber);
-      const notesText = notesEntry
-        ? extractTextRuns(readEntryText(buffer, notesEntry))
-        : "";
-
-      const parts = [`[슬라이드 ${index + 1}]`];
-      if (slideText) parts.push(slideText);
-      if (notesText) parts.push(`[발표자 노트]\n${notesText}`);
-      return parts.join("\n");
-    })
-    .filter((section) => section.replace(/\[슬라이드 \d+\]/, "").trim());
-
-  return normalizeExtractedText(sections.join("\n\n"));
 }
 
 export async function POST(req: NextRequest) {
@@ -191,7 +107,13 @@ export async function POST(req: NextRequest) {
     }
 
     const buffer = Buffer.from(await uploaded.arrayBuffer());
-    const extractedText = buildPresentationText(buffer);
+    const ast = await parseOffice(buffer, {
+      fileType: "pptx",
+      ignoreSlideMasters: true,
+      extractAttachments: false,
+      ocr: false,
+    });
+    const extractedText = buildPresentationText(ast.content);
 
     if (!extractedText) {
       return NextResponse.json(
@@ -199,6 +121,7 @@ export async function POST(req: NextRequest) {
           success: false,
           errorCode: "NO_EXTRACTED_TEXT",
           error: "PPTX에서 텍스트를 추출하지 못했습니다.",
+          warnings: [],
         },
         { status: 422 }
       );

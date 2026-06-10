@@ -2,7 +2,7 @@ import { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["mammoth", "pdf-parse", "@napi-rs/canvas"],
+  serverExternalPackages: ["mammoth", "pdf-parse", "officeparser", "@napi-rs/canvas"],
   images: {
     remotePatterns: [
       {
