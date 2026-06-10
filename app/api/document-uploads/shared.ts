@@ -96,7 +96,10 @@ function isStoragePayload(value: unknown): value is StoredDocumentPayload {
 
 function validateStoredPath(path: string) {
   if (!path || path.startsWith("/") || path.includes("..")) return false;
-  return /^(anonymous|users)\/\d{4}\/\d{2}\/\d{2}\/[a-z0-9._/-]+$/i.test(path);
+  return (
+    /^anonymous\/\d{4}\/\d{2}\/\d{2}\/[a-z0-9._/-]+$/i.test(path) ||
+    /^users\/[0-9a-f-]{36}\/\d{4}\/\d{2}\/\d{2}\/[a-z0-9._/-]+$/i.test(path)
+  );
 }
 
 export async function readUploadedDocument(
