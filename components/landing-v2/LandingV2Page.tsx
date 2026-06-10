@@ -85,8 +85,9 @@ const DRAFT_SELECT_FIELDS =
   "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
 const FALLBACK_EXAMPLE_MAP_URL =
   "https://www.brify.app/share/606b06b3-ab50-41a7-aa71-df8b33dc26fc";
-const MAX_DIRECT_UPLOAD_BYTES = 4 * 1024 * 1024;
-const MAX_DIRECT_UPLOAD_MB = 4;
+const DOCUMENT_UPLOAD_BUCKET = "document-uploads";
+const MAX_DOCUMENT_UPLOAD_BYTES = 50 * 1024 * 1024;
+const MAX_DOCUMENT_UPLOAD_MB = 50;
 const STRUCTURE_MAP_DEMO_GIF_URL = "/images/sample.gif";
 
 const EXAMPLE_MAPS = [
@@ -1224,21 +1225,61 @@ export default function LandingV2Page({
         throw new Error(copy.unsupportedFile);
       }
 
-      if (file.size > MAX_DIRECT_UPLOAD_BYTES) {
+      if (file.size > MAX_DOCUMENT_UPLOAD_BYTES) {
         throw new Error(
           templateCopy(copy.uploadFileTooLarge, {
             size: formatFileSizeMb(file.size),
-            max: MAX_DIRECT_UPLOAD_MB,
+            max: MAX_DOCUMENT_UPLOAD_MB,
           })
         );
       }
 
-      const formData = new FormData();
-      formData.append("file", file);
+      const prepareResponse = await fetch("/api/document-uploads/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileType: extension,
+          contentType: file.type,
+          size: file.size,
+        }),
+      });
+      const prepared = await prepareResponse.json().catch(() => ({}));
+
+      if (!prepareResponse.ok || !prepared?.success) {
+        throw new Error(
+          typeof prepared?.error === "string" ? prepared.error : copy.fileFailed
+        );
+      }
+
+      const uploadPath =
+        typeof prepared.path === "string" ? prepared.path : "";
+      const uploadToken =
+        typeof prepared.token === "string" ? prepared.token : "";
+      if (!uploadPath || !uploadToken) {
+        throw new Error(copy.fileFailed);
+      }
+
+      const supabase = createClient();
+      const { error: uploadError } = await supabase.storage
+        .from(DOCUMENT_UPLOAD_BUCKET)
+        .uploadToSignedUrl(uploadPath, uploadToken, file, {
+          contentType: file.type || undefined,
+          upsert: false,
+        });
+      if (uploadError) {
+        throw new Error(uploadError.message || copy.fileFailed);
+      }
 
       const response = await fetch(`/api/${extension}/extract`, {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bucket: DOCUMENT_UPLOAD_BUCKET,
+          path: uploadPath,
+          fileName: file.name,
+          fileType: extension,
+        }),
       });
       const json = await response.json().catch(() => ({}));
 

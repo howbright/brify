@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createRequire } from "node:module";
+import {
+  DOCUMENT_UPLOAD_MAX_FILE_SIZE_MB,
+  readUploadedDocument,
+} from "@/app/api/document-uploads/shared";
 
 export const runtime = "nodejs";
 
-const MAX_FILE_SIZE_MB = 4;
-const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
 const LOW_TEXT_THRESHOLD = 300;
 const LOW_TEXT_MIN_PAGES = 2;
 
@@ -141,12 +143,6 @@ function normalizeExtractedText(text: string) {
     .trim();
 }
 
-function getFileExtension(name: string) {
-  const index = name.lastIndexOf(".");
-  if (index < 0) return "";
-  return name.slice(index + 1).toLowerCase();
-}
-
 function getPdfErrorName(error: unknown) {
   if (!error || typeof error !== "object") return "";
   const raw = "name" in error ? error.name : "";
@@ -227,47 +223,19 @@ async function tryExtractPdfText(buffer: Buffer) {
 }
 
 export async function POST(req: NextRequest) {
+  let cleanup: (() => Promise<void>) | null = null;
   try {
-    const formData = await req.formData();
-    const uploaded = formData.get("file");
+    const input = await readUploadedDocument(req, "pdf", {
+      fileRequired: "업로드할 PDF 파일을 선택해 주세요.",
+      unsupportedType: "현재는 .pdf 파일만 지원합니다.",
+      tooLarge: `파일 용량이 너무 큽니다. ${DOCUMENT_UPLOAD_MAX_FILE_SIZE_MB}MB 이하로 업로드해 주세요.`,
+      storagePathRequired: "업로드된 문서 경로가 올바르지 않습니다.",
+      storageDownloadFailed: "업로드된 문서를 불러오지 못했습니다.",
+    });
+    if ("response" in input) return input.response;
 
-    if (!(uploaded instanceof File)) {
-      return NextResponse.json(
-        {
-          success: false,
-          errorCode: "FILE_REQUIRED",
-          error: "업로드할 PDF 파일을 선택해 주세요.",
-        },
-        { status: 400 }
-      );
-    }
-
-    const extension = getFileExtension(uploaded.name);
-    if (extension !== "pdf") {
-      return NextResponse.json(
-        {
-          success: false,
-          errorCode: "UNSUPPORTED_FILE_TYPE",
-          error: "현재는 .pdf 파일만 지원합니다.",
-        },
-        { status: 400 }
-      );
-    }
-
-    if (uploaded.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        {
-          success: false,
-          errorCode: "FILE_TOO_LARGE",
-          maxFileSizeMb: MAX_FILE_SIZE_MB,
-          error: `파일 용량이 너무 큽니다. ${MAX_FILE_SIZE_MB}MB 이하로 업로드해 주세요.`,
-        },
-        { status: 400 }
-      );
-    }
-
-    const arrayBuffer = await uploaded.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    cleanup = input.document.cleanup;
+    const buffer = input.document.buffer;
 
     const result = await tryExtractPdfText(buffer);
 
@@ -300,7 +268,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      fileName: uploaded.name,
+      fileName: input.document.fileName,
       sourceType: "file",
       fileType: "pdf",
       extractedText,
@@ -346,5 +314,7 @@ export async function POST(req: NextRequest) {
       },
       { status: 500 }
     );
+  } finally {
+    if (cleanup) await cleanup();
   }
 }
