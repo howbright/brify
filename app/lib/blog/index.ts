@@ -13,6 +13,7 @@ type BlogPostRow = {
   markdown: string | null;
   status: BlogPost["status"];
   published_at: string | null;
+  translation_group_id?: string | null;
   updated_at: string;
 };
 
@@ -41,7 +42,7 @@ export async function getBlogPostsByLocale(locale: string): Promise<BlogPost[]> 
   const now = new Date().toISOString();
   const { data, error } = await adminSupabase
     .from("blog_posts")
-    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,updated_at")
+    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,translation_group_id,updated_at")
     .eq("locale", normalized)
     .eq("status", "published")
     .or(`published_at.is.null,published_at.lte.${now}`)
@@ -60,7 +61,7 @@ export async function getAllPublishedBlogPosts(): Promise<BlogPost[]> {
   const now = new Date().toISOString();
   const { data, error } = await adminSupabase
     .from("blog_posts")
-    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,updated_at")
+    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,translation_group_id,updated_at")
     .eq("status", "published")
     .or(`published_at.is.null,published_at.lte.${now}`)
     .order("published_at", { ascending: false, nullsFirst: false })
@@ -82,7 +83,7 @@ export async function getBlogPostByLocaleAndSlug(
   const now = new Date().toISOString();
   const { data, error } = await adminSupabase
     .from("blog_posts")
-    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,updated_at")
+    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,translation_group_id,updated_at")
     .eq("locale", normalized)
     .eq("slug", slug)
     .eq("status", "published")

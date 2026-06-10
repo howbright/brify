@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { toast } from "sonner";
+import { createClient } from "@/utils/supabase/client";
 
 type BlogLocale = "ko" | "en" | "fr";
 type BlogStatus = "draft" | "published";
@@ -19,8 +20,18 @@ type BlogPostAdmin = {
   markdown: string | null;
   status: BlogStatus;
   published_at: string | null;
+  translation_group_id: string | null;
   created_at: string;
   updated_at: string;
+};
+
+type BlogTranslationResponse = {
+  translationGroupId?: string;
+  results?: Array<{
+    locale: BlogLocale | string;
+    status: "created" | "updated" | string;
+    post: BlogPostAdmin;
+  }>;
 };
 
 type FormState = {
@@ -137,6 +148,8 @@ export default function AdminBlogPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [translating, setTranslating] = useState(false);
+  const [translationResults, setTranslationResults] = useState<BlogTranslationResponse["results"]>([]);
   const [lastUploadedImageUrl, setLastUploadedImageUrl] = useState("");
   const [localeFilter, setLocaleFilter] = useState<"all" | BlogLocale>("all");
 
@@ -285,6 +298,79 @@ export default function AdminBlogPage() {
       toast.success("삭제했어요.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "삭제에 실패했어요.");
+    }
+  };
+
+  const mergePosts = (nextPosts: BlogPostAdmin[]) => {
+    setPosts((prev) => {
+      const byId = new Map(prev.map((post) => [post.id, post]));
+      nextPosts.forEach((post) => byId.set(post.id, post));
+      return Array.from(byId.values()).sort(
+        (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      );
+    });
+  };
+
+  const handleGenerateTranslations = async (targetLocales: BlogLocale[]) => {
+    if (!form.id) {
+      toast.error("먼저 글을 저장한 뒤 번역 초안을 생성해 주세요.");
+      return;
+    }
+
+    setTranslating(true);
+    setTranslationResults([]);
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!baseUrl) {
+        throw new Error("NEXT_PUBLIC_API_BASE_URL이 설정되지 않았어요.");
+      }
+
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const accessToken = session?.access_token;
+      if (!accessToken) {
+        throw new Error("관리자 세션을 찾지 못했어요. 다시 로그인해 주세요.");
+      }
+
+      const response = await fetch(`${baseUrl}/admin/blog-posts/${form.id}/translations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          targetLocales,
+          overwrite: true,
+        }),
+      });
+
+      const json = (await response.json().catch(() => ({}))) as BlogTranslationResponse & {
+        message?: string;
+        error?: string;
+      };
+
+      if (response.status === 401) {
+        throw new Error("인증이 만료되었어요. 다시 로그인해 주세요.");
+      }
+      if (response.status === 403) {
+        throw new Error("관리자 권한이 필요해요.");
+      }
+      if (!response.ok) {
+        throw new Error(json.error || json.message || "번역 초안 생성에 실패했어요.");
+      }
+
+      const nextResults = Array.isArray(json.results) ? json.results : [];
+      const nextPosts = nextResults.map((item) => item.post).filter(Boolean);
+      if (nextPosts.length > 0) mergePosts(nextPosts);
+      setTranslationResults(nextResults);
+      toast.success("번역 초안을 생성했어요.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "번역 초안 생성에 실패했어요.");
+    } finally {
+      setTranslating(false);
     }
   };
 
@@ -485,6 +571,63 @@ export default function AdminBlogPage() {
                 placeholder={"## 소제목\n\n본문을 Markdown으로 작성하세요.\n\n![이미지 설명](https://...)"}
               />
             </label>
+
+            <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/70 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-black text-slate-900">외국어 번역 초안</h3>
+                  <p className="mt-1 text-xs leading-5 text-slate-600">
+                    저장된 글을 기준으로 NestJS 백엔드에서 영어/프랑스어 draft를 생성합니다. 기존 초안이 있으면 덮어씁니다.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={!form.id || translating || saving || uploading}
+                    onClick={() => void handleGenerateTranslations(["en"])}
+                    className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-2 text-xs font-black text-blue-700 shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Icon icon={translating ? "mdi:loading" : "mdi:translate"} className={`h-4 w-4 ${translating ? "animate-spin" : ""}`} />
+                    영어 초안
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!form.id || translating || saving || uploading}
+                    onClick={() => void handleGenerateTranslations(["fr"])}
+                    className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-2 text-xs font-black text-blue-700 shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Icon icon={translating ? "mdi:loading" : "mdi:translate"} className={`h-4 w-4 ${translating ? "animate-spin" : ""}`} />
+                    프랑스어 초안
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!form.id || translating || saving || uploading}
+                    onClick={() => void handleGenerateTranslations(["en", "fr"])}
+                    className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-3 py-2 text-xs font-black text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Icon icon={translating ? "mdi:loading" : "mdi:translate-variant"} className={`h-4 w-4 ${translating ? "animate-spin" : ""}`} />
+                    둘 다 생성
+                  </button>
+                </div>
+              </div>
+              {translationResults && translationResults.length > 0 ? (
+                <div className="mt-3 grid gap-2 md:grid-cols-2">
+                  {translationResults.map((result) => (
+                    <button
+                      key={`${result.locale}-${result.post.id}`}
+                      type="button"
+                      onClick={() => setForm(toForm(result.post))}
+                      className="rounded-xl border border-blue-100 bg-white px-3 py-2 text-left text-xs text-slate-600 shadow-sm hover:bg-blue-50"
+                    >
+                      <span className="font-black uppercase text-blue-700">{result.locale}</span>
+                      <span className="ml-2 font-semibold">{result.status === "created" ? "생성됨" : "갱신됨"}</span>
+                      <span className="mt-1 block truncate font-bold text-slate-900">{result.post.title}</span>
+                      <span className="mt-1 block truncate">/{result.post.locale}/blog/{result.post.slug}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
 
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">

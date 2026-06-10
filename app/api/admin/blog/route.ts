@@ -78,7 +78,7 @@ export async function GET() {
 
   const { data, error } = await adminSupabase
     .from("blog_posts")
-    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,created_at,updated_at")
+    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,translation_group_id,created_at,updated_at")
     .order("updated_at", { ascending: false });
 
   if (error) {
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
         ...payload,
         author_id: auth.user.id,
       })
-      .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,created_at,updated_at")
+      .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,translation_group_id,created_at,updated_at")
       .single();
 
     if (error) throw error;
@@ -134,7 +134,7 @@ export async function PATCH(request: Request) {
       .from("blog_posts")
       .update(payload)
       .eq("id", id)
-      .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,created_at,updated_at")
+      .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,translation_group_id,created_at,updated_at")
       .single();
 
     if (error) throw error;
