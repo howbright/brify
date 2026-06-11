@@ -16,7 +16,7 @@
     "credits": {
       "label": "My credits",
       "unit": "credits",
-      "rule": "Credits are based on original character count: up to 3,000 chars uses 1 credit, up to 10,000 uses 2, up to 25,000 uses 3, and up to 50,000 uses 4."
+      "rule": "Credits are based on original character count: up to 3,000 chars uses 1 credit, up to 10,000 uses 2, up to 25,000 uses 5, and up to 50,000 uses 9."
     },
     "buttons": {
       "generate": "Create a structure map from this text",
@@ -887,9 +887,9 @@
       "result": {
         "one": "1 credit",
         "two": "2 credits",
-        "three": "3 credits",
-        "four": "4 credits",
-        "extra": "4 credits + 1 credit per additional 25,000 chars"
+        "three": "5 credits",
+        "four": "9 credits",
+        "extra": "9 credits + 4 credits per additional 25,000 chars"
       }
     },
     "toggles": {
@@ -1234,7 +1234,7 @@
     "faq": {
       "title": "FAQ",
       "q2": "How many credits do I need based on document length?",
-      "a2": "The exact rule is based on original character count: up to 3,000 characters uses 1 credit, 3,001 to 10,000 uses 2 credits, 10,001 to 25,000 uses 3 credits, and 25,001 to 50,000 uses 4 credits. For 50,001 characters and above, it starts at 4 credits plus 1 additional credit for every extra 25,000 characters.",
+      "a2": "The exact rule is based on original character count: up to 3,000 characters uses 1 credit, 3,001 to 10,000 uses 2 credits, 10,001 to 25,000 uses 5 credits, and 25,001 to 50,000 uses 9 credits. For 50,001 characters and above, it starts at 9 credits plus 4 additional credits for every extra 25,000 characters.",
       "q3": "Do credits expire?",
       "a3": "Paid credits are valid for 1 year from the payment date. Refund requests are available within 7 days of purchase, and only orders whose credited amount has not been used are eligible for a full refund.",
       "q4": "Will I receive a payment receipt?",
@@ -1268,6 +1268,7 @@
     },
     "errors": {
       "missingTossClientKey": "The Toss client key is not configured.",
+      "unsupportedTossClientKey": "A Toss Payment Widget client key is configured. Please use the client key from API individual integration keys.",
       "tossSdkNotLoaded": "Toss payment SDK has not loaded yet.",
       "paymentCanceled": "Payment was canceled.",
       "tossPrepareFailed": "Something went wrong while preparing Toss payment.",

@@ -24,6 +24,11 @@ const CREDIT_POLICY = {
   TIER_3_MAX_CHARS: 25_000,
   TIER_4_MAX_CHARS: 50_000,
   ADDITIONAL_CHUNK_CHARS: 25_000,
+  TIER_1_CREDITS: 1,
+  TIER_2_CREDITS: 2,
+  TIER_3_CREDITS: 5,
+  TIER_4_CREDITS: 9,
+  ADDITIONAL_CHUNK_CREDITS: 4,
 } as const;
 
 type BalanceResponse = {
@@ -75,16 +80,25 @@ function getChunkCount(length: number) {
 }
 
 function getCreditsForBillingLength(length: number) {
-  if (length <= CREDIT_POLICY.TIER_1_MAX_CHARS) return 1;
-  if (length <= CREDIT_POLICY.TIER_2_MAX_CHARS) return 2;
-  if (length <= CREDIT_POLICY.TIER_3_MAX_CHARS) return 3;
-  if (length <= CREDIT_POLICY.TIER_4_MAX_CHARS) return 4;
+  if (length <= CREDIT_POLICY.TIER_1_MAX_CHARS) {
+    return CREDIT_POLICY.TIER_1_CREDITS;
+  }
+  if (length <= CREDIT_POLICY.TIER_2_MAX_CHARS) {
+    return CREDIT_POLICY.TIER_2_CREDITS;
+  }
+  if (length <= CREDIT_POLICY.TIER_3_MAX_CHARS) {
+    return CREDIT_POLICY.TIER_3_CREDITS;
+  }
+  if (length <= CREDIT_POLICY.TIER_4_MAX_CHARS) {
+    return CREDIT_POLICY.TIER_4_CREDITS;
+  }
   return (
-    4 +
+    CREDIT_POLICY.TIER_4_CREDITS +
     Math.ceil(
       (length - CREDIT_POLICY.TIER_4_MAX_CHARS) /
         CREDIT_POLICY.ADDITIONAL_CHUNK_CHARS
-    )
+    ) *
+      CREDIT_POLICY.ADDITIONAL_CHUNK_CREDITS
   );
 }
 

@@ -42,6 +42,7 @@ type TossPaymentsInstance = {
       successUrl: string;
       failUrl: string;
       customerEmail?: string;
+      customerName?: string;
     }) => Promise<unknown>;
   };
 };
@@ -66,6 +67,30 @@ function formatPrice(amount: number, currency: BillingCurrency) {
     style: "currency",
     currency: "USD",
   }).format(amount);
+}
+
+function getSessionUserName(
+  user:
+    | {
+        user_metadata?: Record<string, unknown>;
+      }
+    | null
+    | undefined
+) {
+  const metadata = user?.user_metadata ?? {};
+  const candidates = [
+    metadata.name,
+    metadata.full_name,
+    metadata.display_name,
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate === "string" && candidate.trim()) {
+      return candidate.trim();
+    }
+  }
+
+  return null;
 }
 
 function getTossErrorInfo(error: unknown): { code?: string; message: string } {
@@ -534,6 +559,7 @@ export default function BillingPage() {
                   pack={pack}
                   userId={session?.user?.id ?? null}
                   userEmail={session?.user?.email ?? null}
+                  userName={getSessionUserName(session?.user)}
                   locale={locale}
                 />
               ))}
@@ -581,11 +607,13 @@ function CreditPackCard({
   pack,
   userId,
   userEmail,
+  userName,
   locale,
 }: {
   pack: BillingCatalogItem;
   userId: string | null;
   userEmail: string | null;
+  userName: string | null;
   locale: string;
 }) {
   const t = useTranslations("BillingPage");
@@ -682,6 +710,7 @@ function CreditPackCard({
           successUrl: `${window.location.origin}/billing/toss/success`,
           failUrl: `${window.location.origin}/billing/toss/fail`,
           customerEmail: userEmail ?? undefined,
+          customerName: userName ?? "고객",
         });
       } catch (error) {
         const { code, message } = getTossErrorInfo(error);
@@ -694,6 +723,9 @@ function CreditPackCard({
           code === "PAY_PROCESS_CANCELED" ||
           normalizedMessage.includes("취소") ||
           normalizedMessage.toLowerCase().includes("cancel");
+        const isUnsupportedTossClientKey =
+          normalizedMessage.includes("API 개별 연동 키") ||
+          normalizedMessage.includes("결제위젯 연동 키");
 
         if (orderData?.orderId) {
           await syncTossFailedPayment({
@@ -707,6 +739,8 @@ function CreditPackCard({
           toast.error(t("errors.trialPackAlreadyUsed"));
         } else if (isUserCanceled) {
           toast.message(t("errors.paymentCanceled"));
+        } else if (isUnsupportedTossClientKey) {
+          toast.error(t("errors.unsupportedTossClientKey"));
         } else {
           console.error("Failed to open Toss payment window:", error);
           toast.error(t("errors.tossPrepareFailed"));
