@@ -2107,6 +2107,98 @@ export default function FullscreenMapDetailScreen({
     setSourceFindViewEnd(end);
   };
 
+  const requestSourceFind = async (anchors: {
+    anchorText: string[];
+    anchorKeywords: string[];
+  }) => {
+    const payload: { anchorText?: string[]; anchorKeywords?: string[] } = {};
+    if (Array.isArray(anchors.anchorText) && anchors.anchorText.length > 0) {
+      payload.anchorText = anchors.anchorText;
+    }
+    if (Array.isArray(anchors.anchorKeywords) && anchors.anchorKeywords.length > 0) {
+      payload.anchorKeywords = anchors.anchorKeywords;
+    }
+
+    if (isSharedView) {
+      if (!sharedToken) {
+        throw new Error(t("toasts.sourceFindFailed"));
+      }
+      const res = await fetch(`/api/share/${encodeURIComponent(sharedToken)}/source-find`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const json: SourceFindResponse = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(getApiErrorMessage(json, t("toasts.sourceFindFailed")));
+      }
+      return json;
+    }
+
+    if (!mapId) {
+      throw new Error(t("toasts.sourceFindFailed"));
+    }
+
+    const { data: sessionData, error: sessionErr } =
+      await supabase.auth.getSession();
+    if (sessionErr) {
+      throw new Error(sessionErr.message || t("toasts.sourceFindFailed"));
+    }
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) {
+      throw new Error(t("toasts.loginRequired"));
+    }
+
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!base) {
+      throw new Error("NEXT_PUBLIC_API_BASE_URL is not set.");
+    }
+
+    const sourceFindUrl = isAdminView
+      ? `${base}/admin/maps/${mapId}/source-find`
+      : `${base}/maps/${mapId}/source-find`;
+    const res = await fetch(sourceFindUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    const json: SourceFindResponse = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(getApiErrorMessage(json, t("toasts.sourceFindFailed")));
+    }
+    return json;
+  };
+
+  const applySourceFindResponse = (json: SourceFindResponse) => {
+    const candidates = Array.isArray(json?.candidates)
+      ? (json.candidates as SourceFindCandidate[])
+      : [];
+    const sourceText = typeof json?.sourceText === "string" ? json.sourceText : "";
+    const status = getDisplaySourceFindStatus(sourceText);
+
+    setSourceFindStatus(status);
+    setSourceFindCandidates(candidates);
+    setSourceFindFullText(sourceText);
+    if (sourceText) {
+      if (candidates.length > 0) {
+        setSourceFindActiveIndex(0);
+        setSourceViewAroundCandidate(sourceText, candidates[0]);
+      } else {
+        setSourceFindViewStart(0);
+        setSourceFindViewEnd(sourceText.length);
+      }
+    } else {
+      setSourceFindViewStart(0);
+      setSourceFindViewEnd(0);
+    }
+    setSourceFindMessage("");
+  };
+
   const runSourceFindForNode = async (
     selected: {
       nodeId: string;
@@ -2116,7 +2208,7 @@ export default function FullscreenMapDetailScreen({
     },
     options?: { suppressNoAnchorToast?: boolean; keepPanelOpen?: boolean }
   ) => {
-    if (!mapId || isSharedView) return;
+    if (!mapId && !sharedToken) return;
     const ownAnchorText = sanitizeAnchorTextCandidates(selected.anchorText, 2);
     const fallbackAnchorText =
       ownAnchorText.length > 0
@@ -2148,65 +2240,8 @@ export default function FullscreenMapDetailScreen({
     sourceFindInFlightRef.current = true;
 
     try {
-      const { data: sessionData, error: sessionErr } =
-        await supabase.auth.getSession();
-      if (sessionErr) {
-        throw new Error(sessionErr.message || t("toasts.sourceFindFailed"));
-      }
-      const accessToken = sessionData.session?.access_token;
-      if (!accessToken) {
-        throw new Error(t("toasts.loginRequired"));
-      }
-
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
-      if (!base) {
-        throw new Error("NEXT_PUBLIC_API_BASE_URL is not set.");
-      }
-
-      const payload: { anchorText?: string[]; anchorKeywords?: string[] } = {};
-      if (anchorText.length > 0) payload.anchorText = anchorText;
-      if (anchorKeywords.length > 0) payload.anchorKeywords = anchorKeywords;
-
-      const sourceFindUrl = isAdminView
-        ? `${base}/admin/maps/${mapId}/source-find`
-        : `${base}/maps/${mapId}/source-find`;
-      const res = await fetch(sourceFindUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(getApiErrorMessage(json, t("toasts.sourceFindFailed")));
-      }
-
-      const candidates = Array.isArray(json?.candidates)
-        ? (json.candidates as SourceFindCandidate[])
-        : [];
-      const sourceText =
-        typeof json?.sourceText === "string" ? json.sourceText : "";
-      const status = getDisplaySourceFindStatus(sourceText);
-
-      setSourceFindStatus(status);
-      setSourceFindCandidates(candidates);
-      setSourceFindFullText(sourceText);
-      if (sourceText) {
-        if (candidates.length > 0) {
-          setSourceFindActiveIndex(0);
-          setSourceViewAroundCandidate(sourceText, candidates[0]);
-        } else {
-          setSourceFindViewStart(0);
-          setSourceFindViewEnd(sourceText.length);
-        }
-      } else {
-        setSourceFindViewStart(0);
-        setSourceFindViewEnd(0);
-      }
-      setSourceFindMessage("");
+      const json = await requestSourceFind({ anchorText, anchorKeywords });
+      applySourceFindResponse(json);
     } catch (error) {
       const message = getErrorMessage(error, t("toasts.sourceFindFailed"));
       setSourceFindStatus("not_found");
@@ -2219,7 +2254,7 @@ export default function FullscreenMapDetailScreen({
   };
 
   const handleFindSourceFromSelectedNode = async () => {
-    if (!mapId || isSharedView) return;
+    if (!mapId && !sharedToken) return;
     const selected = mindRef.current?.getSelectedNodeSourceAnchors?.();
     if (!selected) {
       toast.message(t("toasts.selectNodeForSourceFind"));
@@ -2232,63 +2267,9 @@ export default function FullscreenMapDetailScreen({
     anchorText: string[];
     anchorKeywords: string[];
   }) => {
-    if (!mapId || isSharedView) return;
-    const { data: sessionData, error: sessionErr } =
-      await supabase.auth.getSession();
-    if (sessionErr) {
-      throw new Error(sessionErr.message || t("toasts.sourceFindFailed"));
-    }
-    const accessToken = sessionData.session?.access_token;
-    if (!accessToken) {
-      throw new Error(t("toasts.loginRequired"));
-    }
-    const base = process.env.NEXT_PUBLIC_API_BASE_URL;
-    if (!base) {
-      throw new Error("NEXT_PUBLIC_API_BASE_URL is not set.");
-    }
-    const payload: { anchorText?: string[]; anchorKeywords?: string[] } = {};
-    if (Array.isArray(anchors.anchorText) && anchors.anchorText.length > 0) {
-      payload.anchorText = anchors.anchorText;
-    }
-    if (Array.isArray(anchors.anchorKeywords) && anchors.anchorKeywords.length > 0) {
-      payload.anchorKeywords = anchors.anchorKeywords;
-    }
-    const sourceFindUrl = isAdminView
-      ? `${base}/admin/maps/${mapId}/source-find`
-      : `${base}/maps/${mapId}/source-find`;
-    const res = await fetch(sourceFindUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(payload),
-    });
-    const json: SourceFindResponse = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      throw new Error(getApiErrorMessage(json, t("toasts.sourceFindFailed")));
-    }
-    const candidates = Array.isArray(json?.candidates)
-      ? (json.candidates as SourceFindCandidate[])
-      : [];
-    const sourceText = typeof json?.sourceText === "string" ? json.sourceText : "";
-    const status = getDisplaySourceFindStatus(sourceText);
-    setSourceFindStatus(status);
-    setSourceFindCandidates(candidates);
-    setSourceFindFullText(sourceText);
-    if (sourceText) {
-      if (candidates.length > 0) {
-        setSourceFindActiveIndex(0);
-        setSourceViewAroundCandidate(sourceText, candidates[0]);
-      } else {
-        setSourceFindViewStart(0);
-        setSourceFindViewEnd(sourceText.length);
-      }
-    } else {
-      setSourceFindViewStart(0);
-      setSourceFindViewEnd(0);
-    }
-    setSourceFindMessage("");
+    if (!mapId && !sharedToken) return;
+    const json = await requestSourceFind(anchors);
+    applySourceFindResponse(json);
   };
 
   const handleMoveSourceCandidate = (dir: -1 | 1) => {
@@ -2343,7 +2324,7 @@ export default function FullscreenMapDetailScreen({
   }, [sourceFindExpandFlash]);
 
   useEffect(() => {
-    if (!sourceFindOpen || !mapId || isSharedView) return;
+    if (!sourceFindOpen || (!mapId && !sharedToken)) return;
     const interval = window.setInterval(() => {
       if (sourceFindInFlightRef.current) return;
       const selected = mindRef.current?.getSelectedNodeSourceAnchors?.();
@@ -2355,7 +2336,7 @@ export default function FullscreenMapDetailScreen({
       });
     }, 350);
     return () => window.clearInterval(interval);
-  }, [sourceFindOpen, mapId, isSharedView]);
+  }, [sourceFindOpen, mapId, sharedToken]);
 
   useEffect(() => {
     if (!mapId || isReadOnlyView || !draft) return;
