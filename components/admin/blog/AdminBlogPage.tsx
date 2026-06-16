@@ -149,6 +149,9 @@ export default function AdminBlogPage() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [translating, setTranslating] = useState(false);
+  const [generatingDraft, setGeneratingDraft] = useState(false);
+  const [draftIdea, setDraftIdea] = useState("");
+  const [draftSlugHint, setDraftSlugHint] = useState("");
   const [translationResults, setTranslationResults] = useState<BlogTranslationResponse["results"]>([]);
   const [lastUploadedImageUrl, setLastUploadedImageUrl] = useState("");
   const [localeFilter, setLocaleFilter] = useState<"all" | BlogLocale>("all");
@@ -301,6 +304,72 @@ export default function AdminBlogPage() {
     }
   };
 
+  const handleGenerateKoreanDraft = async () => {
+    const idea = draftIdea.trim();
+    const slugHint = slugify(draftSlugHint.trim());
+
+    if (idea.length < 20) {
+      toast.error("아이디어를 조금 더 적어 주세요. 최소 20자 이상 필요해요.");
+      return;
+    }
+
+    setGeneratingDraft(true);
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!baseUrl) {
+        throw new Error("NEXT_PUBLIC_API_BASE_URL이 설정되지 않았어요.");
+      }
+
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const accessToken = session?.access_token;
+      if (!accessToken) {
+        throw new Error("관리자 세션을 찾지 못했어요. 다시 로그인해 주세요.");
+      }
+
+      const res = await fetch(`${baseUrl}/admin/blog-posts/draft`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ idea, slugHint }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const message =
+          res.status === 401
+            ? "인증이 만료되었어요. 다시 로그인해 주세요."
+            : res.status === 403
+              ? "관리자 권한이 필요해요."
+              : json.error === "IDEA_TOO_SHORT" || json.message === "IDEA_TOO_SHORT"
+                ? "아이디어를 조금 더 적어 주세요."
+                : json.error === "IDEA_TOO_LONG" || json.message === "IDEA_TOO_LONG"
+                  ? `아이디어가 너무 길어요. 8000자 이하로 줄여 주세요.`
+                  : json.error === "INVALID_KOREAN_DRAFT_PAYLOAD" ||
+                      json.message === "INVALID_KOREAN_DRAFT_PAYLOAD"
+                    ? "초안 형식이 올바르지 않아 저장하지 않았어요."
+                    : json.error || json.message || "한국어 초안 생성에 실패했어요.";
+        throw new Error(message);
+      }
+
+      const next = json.post as BlogPostAdmin;
+      setPosts((prev) => [next, ...prev.filter((post) => post.id !== next.id)]);
+      setForm(toForm(next));
+      setLocaleFilter("ko");
+      setDraftIdea("");
+      setDraftSlugHint("");
+      toast.success("한국어 블로그 초안을 draft로 저장했어요.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "한국어 초안 생성에 실패했어요.");
+    } finally {
+      setGeneratingDraft(false);
+    }
+  };
+
   const mergePosts = (nextPosts: BlogPostAdmin[]) => {
     setPosts((prev) => {
       const byId = new Map(prev.map((post) => [post.id, post]));
@@ -396,6 +465,53 @@ export default function AdminBlogPage() {
             새 글
           </button>
         </header>
+
+        <section className="rounded-2xl border border-violet-100 bg-white p-5 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-base font-black tracking-tight">아이디어로 한국어 블로그 초안 만들기</h2>
+              <p className="mt-1 text-sm leading-6 text-slate-600">
+                대략의 생각만 적으면 한국어 글을 draft로 저장합니다. 저장된 초안은 바로 아래 편집기에서 다듬을 수 있어요.
+              </p>
+            </div>
+            <button
+              type="button"
+              disabled={generatingDraft || saving || uploading}
+              onClick={() => void handleGenerateKoreanDraft()}
+              className="inline-flex items-center gap-2 rounded-full bg-violet-600 px-4 py-2 text-sm font-black text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Icon
+                icon={generatingDraft ? "mdi:loading" : "mdi:auto-fix"}
+                className={`h-4 w-4 ${generatingDraft ? "animate-spin" : ""}`}
+              />
+              {generatingDraft ? "초안 생성 중" : "초안 생성"}
+            </button>
+          </div>
+          <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
+            <label className="flex flex-col gap-1 text-sm font-bold">
+              블로그 아이디어
+              <textarea
+                value={draftIdea}
+                onChange={(event) => setDraftIdea(event.target.value)}
+                rows={5}
+                className="rounded-xl border border-slate-300 px-3 py-2 font-medium leading-6"
+                placeholder={"예: 논문을 많이 읽는 연구자에게 요약보다 구조맵이 필요한 이유. NotebookLM 마인드맵과의 차이, 원문찾기의 중요성, Brify가 전문 문서를 다루는 방식까지 자연스럽게 설명해줘."}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm font-bold">
+              Slug 힌트
+              <input
+                value={draftSlugHint}
+                onChange={(event) => setDraftSlugHint(slugify(event.target.value))}
+                className="rounded-xl border border-slate-300 px-3 py-2 font-medium"
+                placeholder="research-paper-structure-map"
+              />
+              <span className="text-xs font-medium leading-5 text-slate-500">
+                비워두면 AI가 영어 slug를 제안하고, 중복되면 자동으로 번호를 붙입니다.
+              </span>
+            </label>
+          </div>
+        </section>
 
         <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
           <aside className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
