@@ -8,6 +8,38 @@ function jsonError(status: number, error: string) {
   return NextResponse.json({ ok: false, error }, { status });
 }
 
+function maskEmail(email: string) {
+  const [localPart, domain] = email.trim().split("@");
+  if (!localPart || !domain) return "";
+  const visible = localPart.slice(0, Math.min(2, localPart.length));
+  return `${visible}${localPart.length > 2 ? "***" : "***"}@${domain}`;
+}
+
+function cleanDisplayName(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+async function getSharedByLabel(userId: string) {
+  const { data: profile } = await adminSupabase
+    .from("profiles")
+    .select("email")
+    .eq("id", userId)
+    .maybeSingle();
+
+  const { data: authUser } = await adminSupabase.auth.admin.getUserById(userId);
+  const metadata = authUser?.user?.user_metadata ?? {};
+  const displayName =
+    cleanDisplayName(metadata.name) ||
+    cleanDisplayName(metadata.full_name) ||
+    cleanDisplayName(metadata.display_name);
+  if (displayName) return displayName;
+
+  const email =
+    cleanDisplayName(profile?.email) || cleanDisplayName(authUser?.user?.email);
+  const maskedEmail = email ? maskEmail(email) : "";
+  return maskedEmail || null;
+}
+
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ token: string }> }
@@ -19,7 +51,7 @@ export async function GET(
     const { data, error } = await adminSupabase
       .from("maps")
       .select(
-        "id, title, short_title, description, summary, tags, channel_name, source_url, source_type, thumbnail_url, credits_charged, mind_elixir, mind_theme_override, map_status, created_at, updated_at"
+        "id, user_id, title, short_title, description, summary, tags, channel_name, source_url, source_type, thumbnail_url, credits_charged, mind_elixir, mind_theme_override, map_status, created_at, updated_at"
       )
       .eq("share_token", token)
       .eq("share_enabled", true)
@@ -44,6 +76,8 @@ export async function GET(
     if (notesError) return jsonError(500, notesError.message);
     if (termsError) return jsonError(500, termsError.message);
 
+    const sharedBy = await getSharedByLabel(data.user_id);
+
     return NextResponse.json(
       {
         ok: true,
@@ -64,6 +98,7 @@ export async function GET(
           map_status: data.map_status,
           created_at: data.created_at,
           updated_at: data.updated_at,
+          shared_by: sharedBy,
           notes: Array.isArray(notesData) ? notesData : [],
           terms: Array.isArray(termsData) ? termsData : [],
         },

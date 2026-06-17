@@ -1868,6 +1868,8 @@
       "action": "Retour à l’accueil"
     },
     "readOnlyBadge": "Lecture seule",
+    "sharedBy": "Carte structurelle partagée par {name}",
+    "sharedByFallback": "Carte structurelle partagée par un utilisateur Brify",
     "expandHint": {
       "line1": "Il y a plus de contenu.",
       "line2": "Appuyez sur les nœuds avec l’icône + pour afficher les branches cachées.",

@@ -1880,6 +1880,8 @@
       "action": "Back to home"
     },
     "readOnlyBadge": "Read only",
+    "sharedBy": "Structure map shared by {name}",
+    "sharedByFallback": "Structure map shared by a Brify user",
     "expandHint": {
       "line1": "There is more content.",
       "line2": "Tap nodes with the + icon to expand and continue reading hidden branches.",

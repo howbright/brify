@@ -707,6 +707,7 @@ type SharedMapResponse = {
   map_status: string;
   created_at: string;
   updated_at: string;
+  shared_by?: string | null;
   notes?: Array<{
     id: string;
     text: string;
@@ -832,6 +833,7 @@ export default function FullscreenMapDetailScreen({
   const [shareLoading, setShareLoading] = useState(false);
   const [shareEnabled, setShareEnabled] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
+  const [sharedBy, setSharedBy] = useState<string | null>(null);
   const [sharedNotes, setSharedNotes] = useState<
     Array<{ id: string; text: string; createdAt: number; createdAtLabel: string }>
   >([]);
@@ -982,6 +984,7 @@ export default function FullscreenMapDetailScreen({
             throw new Error("공유 구조맵을 불러오지 못했어요.");
           }
           if (cancelled) return;
+          setSharedBy(typeof data.shared_by === "string" ? data.shared_by : null);
 
           setDraft(
             toDraft({
@@ -1141,6 +1144,7 @@ export default function FullscreenMapDetailScreen({
           }
           setSharedNotes([]);
           setSharedTerms([]);
+          setSharedBy(null);
 
           const override = row?.mind_theme_override ?? null;
           if (override) {
@@ -1159,6 +1163,7 @@ export default function FullscreenMapDetailScreen({
         setHasDraft(false);
         setSharedNotes([]);
         setSharedTerms([]);
+        setSharedBy(null);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -2827,6 +2832,12 @@ export default function FullscreenMapDetailScreen({
   const sharedMissingTitle = t("sharedMissing.title");
   const sharedMissingDescription = t("sharedMissing.description");
   const sharedMissingAction = t("sharedMissing.action");
+  const sharedByLabel =
+    isSharedView && sharedBy
+      ? t("sharedBy", { name: sharedBy })
+      : isSharedView
+        ? t("sharedByFallback")
+        : "";
   const isMapProcessing = Boolean(draft && isActiveMapStatus(draft.status));
   const isMapGenerating = Boolean(isMapProcessing && !mapData);
   const displayMapData = useMemo(() => {
@@ -2987,15 +2998,25 @@ export default function FullscreenMapDetailScreen({
         hideCloseButton={shouldHideFramedSharedChrome}
         titleBadge={
           isSharedView ? (
-            <span className="hidden h-5 items-center rounded-full border border-blue-300/35 bg-blue-500/15 px-2 text-[10px] font-semibold tracking-normal text-blue-50/95 dark:border-blue-300/35 dark:bg-blue-500/15 dark:text-blue-50/95 sm:inline-flex">
-              {t("readOnlyBadge")}
+            <span className="hidden min-w-0 items-center gap-1.5 sm:inline-flex">
+              <span className="h-5 shrink-0 items-center rounded-full border border-blue-300/35 bg-blue-500/15 px-2 text-[10px] font-semibold tracking-normal text-blue-50/95 dark:border-blue-300/35 dark:bg-blue-500/15 dark:text-blue-50/95 sm:inline-flex">
+                {t("readOnlyBadge")}
+              </span>
+              <span className="max-w-[260px] truncate text-[10px] font-medium tracking-normal text-blue-50/80 dark:text-blue-50/75">
+                {sharedByLabel}
+              </span>
             </span>
           ) : undefined
         }
         mobileTitleBadge={
           isSharedView ? (
-            <span className="inline-flex items-center rounded-full border border-blue-300/35 bg-blue-500/15 px-1.5 py-[1px] text-[9px] font-semibold leading-none tracking-normal text-blue-50/95 dark:border-blue-300/35 dark:bg-blue-500/15 dark:text-blue-50/95">
-              {t("readOnlyBadge")}
+            <span className="inline-flex max-w-[78vw] items-center gap-1.5">
+              <span className="shrink-0 rounded-full border border-blue-300/35 bg-blue-500/15 px-1.5 py-[1px] text-[9px] font-semibold leading-none tracking-normal text-blue-50/95 dark:border-blue-300/35 dark:bg-blue-500/15 dark:text-blue-50/95">
+                {t("readOnlyBadge")}
+              </span>
+              <span className="truncate text-[9px] font-medium leading-none tracking-normal text-blue-50/80 dark:text-blue-50/75">
+                {sharedByLabel}
+              </span>
             </span>
           ) : undefined
         }

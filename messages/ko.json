@@ -1880,6 +1880,8 @@
       "action": "홈으로 돌아가기"
     },
     "readOnlyBadge": "읽기전용",
+    "sharedBy": "{name} 님이 공유한 구조맵",
+    "sharedByFallback": "Brify 사용자가 공유한 구조맵",
     "expandHint": {
       "line1": "내용이 더 있어요.",
       "line2": "아이콘이 있는 노드를 눌러 펼치면, 숨겨진 가지까지 이어서 읽을 수 있어요.",
