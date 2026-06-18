@@ -3509,21 +3509,14 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           cursor: pointer;
         }
         me-tpc[data-highlight="gold"] {
-          background: linear-gradient(
-            135deg,
-            #fb923c 0%,
-            #fdba74 45%,
-            #fde68a 100%
-          ) !important;
-          color: #1f2937 !important;
-          box-shadow:
-            inset 0 0 0 1.5px #e11d48,
-            0 8px 18px rgba(251, 146, 60, 0.28),
-            0 0 0 2px rgba(255, 237, 213, 0.38);
+          box-shadow: none !important;
         }
         me-tpc[data-highlight="gold"] .text {
-          color: #111827 !important;
-          font-weight: 500;
+          background: rgba(253, 224, 71, 0.78);
+          border-radius: 0.18em;
+          box-decoration-break: clone;
+          -webkit-box-decoration-break: clone;
+          padding: 0.02em 0.16em;
         }
         me-tpc[data-search="true"] {
           outline: 2px solid rgba(59, 130, 246, 0.35);
