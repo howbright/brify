@@ -72,8 +72,6 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
             price: number;
             popular?: boolean;
             starter?: boolean;
-            firstPurchaseOnly?: boolean;
-            trialEligible?: boolean;
           }>;
         };
 
@@ -86,8 +84,6 @@ export default function LandingPricingSection({ isAuthed, packs }: Props) {
             priceUSD: pack.price,
             popular: pack.popular,
             starter: pack.starter,
-            firstPurchaseOnly: pack.firstPurchaseOnly,
-            trialEligible: pack.trialEligible,
           }))
         );
       } catch (error) {

@@ -53,8 +53,6 @@ declare global {
   }
 }
 
-const FIRST_PURCHASE_TRIAL_PACK_ID = "30_kr_trial";
-
 function formatPrice(amount: number, currency: BillingCurrency) {
   if (currency === "krw") {
     return new Intl.NumberFormat("ko-KR", {
@@ -627,8 +625,6 @@ function CreditPackCard({
     popular,
     starter,
     provider,
-    firstPurchaseOnly,
-    trialEligible,
   } = pack;
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -640,11 +636,6 @@ function CreditPackCard({
   const resolvedCheckoutUrl = envCheckoutUrlByCredits[credits] ?? checkoutUrl;
 
   const handleBuy = async () => {
-    if (firstPurchaseOnly && trialEligible === false) {
-      toast.error(t("errors.trialPackAlreadyUsed"));
-      return;
-    }
-
     if (!userId) {
       router.push(`/${locale}/login?next=${encodeURIComponent(`/${locale}/billing`)}`);
       return;
@@ -715,9 +706,6 @@ function CreditPackCard({
       } catch (error) {
         const { code, message } = getTossErrorInfo(error);
         const normalizedMessage = message.trim();
-        const isTrialPackNotEligible =
-          normalizedMessage === "FIRST_PURCHASE_TRIAL_NOT_ELIGIBLE" ||
-          normalizedMessage.includes("FIRST_PURCHASE_TRIAL_NOT_ELIGIBLE");
         const isUserCanceled =
           code === "USER_CANCEL" ||
           code === "PAY_PROCESS_CANCELED" ||
@@ -735,9 +723,7 @@ function CreditPackCard({
           });
         }
 
-        if (isTrialPackNotEligible) {
-          toast.error(t("errors.trialPackAlreadyUsed"));
-        } else if (isUserCanceled) {
+        if (isUserCanceled) {
           toast.message(t("errors.paymentCanceled"));
         } else if (isUnsupportedTossClientKey) {
           toast.error(t("errors.unsupportedTossClientKey"));
@@ -773,9 +759,7 @@ function CreditPackCard({
   const unit = price / credits;
   const isLargePack = !popular && !starter && credits >= 300;
   const badgeText =
-    firstPurchaseOnly || id === FIRST_PURCHASE_TRIAL_PACK_ID || credits === 30
-      ? tLanding("packs.30.badgeText")
-      : credits === 50
+    credits === 50
       ? tLanding("packs.50.badgeText")
       : credits === 150
         ? tLanding("packs.150.badgeText")
@@ -852,11 +836,6 @@ function CreditPackCard({
         <div className="text-2xl font-bold text-neutral-900 dark:text-[var(--color-card-foreground,#e5e7eb)] md:text-[28px]">
           {formatPrice(price, currency)}
         </div>
-        {firstPurchaseOnly ? (
-          <span className="mb-[3px] inline-flex h-5 items-center whitespace-nowrap rounded-full border border-slate-200/90 bg-white/80 px-2 text-[10px] font-medium tracking-[0.01em] text-slate-600 dark:border-slate-500/40 dark:bg-slate-800/45 dark:text-slate-300">
-            {tLanding("packs.30.note")}
-          </span>
-        ) : null}
       </div>
       <div className="mt-1 text-[11px] font-medium tracking-[0.01em] text-slate-500 dark:text-slate-400">
         {t("card.vatIncluded")}
@@ -873,7 +852,7 @@ function CreditPackCard({
 
       <button
         onClick={handleBuy}
-        disabled={isSubmitting || (firstPurchaseOnly && trialEligible === false)}
+        disabled={isSubmitting}
         className="
           block w-full cursor-pointer rounded-[var(--radius-lg)] px-4 py-3 text-center text-[16px] font-semibold shadow-sm
           bg-[var(--color-primary-500,#2563eb)] text-[var(--color-primary-foreground,#ffffff)]
@@ -883,11 +862,7 @@ function CreditPackCard({
 	          disabled:cursor-not-allowed disabled:opacity-65
         "
       >
-        {isSubmitting
-          ? t("card.loading")
-          : firstPurchaseOnly && trialEligible === false
-            ? t("card.ctaTrialUsed")
-            : t("card.cta")}
+        {isSubmitting ? t("card.loading") : t("card.cta")}
       </button>
         </div>
       </div>

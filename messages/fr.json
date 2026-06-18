@@ -529,11 +529,6 @@
     "refundText": "Les crédits non utilisés sont remboursables intégralement sous 7 jours après achat.",
     "seeDetails": "Voir les détails tarifaires",
     "packs": {
-      "30": {
-        "badgeText": "Pack essai premier achat",
-        "tagline": "Commencez à 3 000 KRW avec un pack d’essai réservé au premier achat.",
-        "note": "Premier achat uniquement"
-      },
       "50": {
         "badgeText": "Débutant",
         "tagline": "Un pack léger pour essayer Brify."
@@ -1087,7 +1082,6 @@
       "unitPriceSuffix": "structure maps",
       "vatIncluded": "TVA incluse",
       "cta": "Acheter",
-      "ctaTrialUsed": "Pack essai déjà utilisé",
       "loading": "Préparation de la commande..."
     },
     "bullets": {
@@ -1107,8 +1101,7 @@
       "tossSdkNotLoaded": "Le SDK de paiement Toss n’est pas encore chargé.",
       "paymentCanceled": "Le paiement a été annulé.",
       "tossPrepareFailed": "Un problème est survenu lors de la préparation du paiement Toss.",
-      "missingCheckoutUrl": "L’URL de paiement n’est pas configurée.",
-      "trialPackAlreadyUsed": "Le pack d’essai premier achat ne peut être acheté qu’une seule fois par compte."
+      "missingCheckoutUrl": "L’URL de paiement n’est pas configurée."
     }
   },
   "BillingHistoryPage": {

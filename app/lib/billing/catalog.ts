@@ -3,13 +3,11 @@ export type BillingCurrency = "krw" | "usd";
 export type BillingProvider = "toss" | "lemon_squeezy";
 
 export type BillingProductCode =
-  | "credit_pack_30_trial"
   | "credit_pack_50"
   | "credit_pack_150"
   | "credit_pack_300";
 
 export type BillingPackCode =
-  | "30_kr_trial"
   | "50_kr"
   | "150_kr"
   | "300_kr"
@@ -28,8 +26,6 @@ export type BillingCatalogItem = {
   checkoutUrl: string | null;
   popular?: boolean;
   starter?: boolean;
-  firstPurchaseOnly?: boolean;
-  trialEligible?: boolean;
 };
 
 export function getBillingCurrencyByLocale(locale: string): BillingCurrency {

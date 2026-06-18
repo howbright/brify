@@ -21,15 +21,12 @@ export default async function PricingPage({
     userId: user?.id ?? null,
   });
   const packs = billingCatalog
-    .filter((pack) => pack.credits !== 300)
     .map((pack) => ({
       id: pack.id,
       credits: pack.credits,
       priceUSD: pack.price,
       popular: pack.popular,
       starter: pack.starter,
-      firstPurchaseOnly: pack.firstPurchaseOnly,
-      trialEligible: pack.trialEligible,
     }));
 
   return (

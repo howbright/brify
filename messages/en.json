@@ -856,11 +856,6 @@
     "refundText": "Unused credits are eligible for a full refund within 7 days of purchase.",
     "seeDetails": "View pricing details",
     "packs": {
-      "30": {
-        "badgeText": "First-purchase trial",
-        "tagline": "Start at ₩3,000 with a one-time first-purchase trial pack.",
-        "note": "First purchase only"
-      },
       "50": {
         "badgeText": "Starter",
         "tagline": "A lightweight starter credit pack to try Brify out."
@@ -1252,7 +1247,6 @@
       "unitPriceSuffix": "Structure Maps",
       "vatIncluded": "VAT included",
       "cta": "Buy now",
-      "ctaTrialUsed": "Trial already used",
       "loading": "Preparing order..."
     },
     "bullets": {
@@ -1272,8 +1266,7 @@
       "tossSdkNotLoaded": "Toss payment SDK has not loaded yet.",
       "paymentCanceled": "Payment was canceled.",
       "tossPrepareFailed": "Something went wrong while preparing Toss payment.",
-      "missingCheckoutUrl": "Checkout URL is not configured.",
-      "trialPackAlreadyUsed": "The first-purchase trial pack can only be purchased once per account."
+      "missingCheckoutUrl": "Checkout URL is not configured."
     }
   },
   "BillingHistoryPage": {

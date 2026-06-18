@@ -856,11 +856,6 @@
     "refundText": "구매 후 7일 이내, 미사용 크레딧은 전액 환불 가능합니다.",
     "seeDetails": "요금 자세히 보기",
     "packs": {
-      "30": {
-        "badgeText": "첫 구매 체험팩",
-        "tagline": "첫 구매 1회 한정으로 3,000원에 시작해보세요.",
-        "note": "첫 구매 1회"
-      },
       "50": {
         "badgeText": "입문용",
         "tagline": "가볍게 써보는 스타터 크레딧 팩이에요."
@@ -1252,7 +1247,6 @@
       "unitPriceSuffix": "개 분량",
       "vatIncluded": "부가세 포함 가격",
       "cta": "지금 충전하기",
-      "ctaTrialUsed": "이미 사용한 체험팩",
       "loading": "주문 준비 중..."
     },
     "bullets": {
@@ -1272,8 +1266,7 @@
       "tossSdkNotLoaded": "토스 결제 SDK를 아직 불러오지 못했습니다.",
       "paymentCanceled": "결제가 취소되었습니다.",
       "tossPrepareFailed": "토스 결제를 준비하는 중 문제가 발생했습니다.",
-      "missingCheckoutUrl": "체크아웃 URL이 설정되어 있지 않습니다.",
-      "trialPackAlreadyUsed": "첫 구매 체험팩은 계정당 1회만 구매할 수 있어요."
+      "missingCheckoutUrl": "체크아웃 URL이 설정되어 있지 않습니다."
     }
   },
   "BillingHistoryPage": {

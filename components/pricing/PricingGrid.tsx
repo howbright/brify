@@ -16,8 +16,6 @@ export type Pack = {
   badgeText?: string;
   tagline?: string;
   starter?: boolean;
-  firstPurchaseOnly?: boolean;
-  trialEligible?: boolean;
 };
 
 type PaymentMode = "krw" | "usd";
@@ -220,9 +218,7 @@ export default function PricingGrid({
           let badge = p.badgeText;
 
           if (!badge) {
-            if (p.firstPurchaseOnly || p.id === "30_kr_trial" || p.credits === 30) {
-              badge = tLanding("packs.30.badgeText");
-            } else if (p.credits === 50) badge = tLanding("packs.50.badgeText");
+            if (p.credits === 50) badge = tLanding("packs.50.badgeText");
             else if (p.credits === 150) badge = tLanding("packs.150.badgeText");
             else if (p.credits === 300) badge = tLanding("packs.300.badgeText");
             else if (p.popular) badge = t("badge.mostPopular");
@@ -364,11 +360,6 @@ export default function PricingGrid({
                 >
                   {formatCurrency(p.priceUSD)}
                 </div>
-                {p.firstPurchaseOnly ? (
-                  <span className="mb-[3px] inline-flex h-5 items-center whitespace-nowrap rounded-full border border-slate-200/90 bg-white/80 px-2 text-[10px] font-medium tracking-[0.01em] text-slate-600 dark:border-slate-500/40 dark:bg-slate-800/45 dark:text-slate-300">
-                    {tLanding("packs.30.note")}
-                  </span>
-                ) : null}
               </div>
               <div
                 className={cx(

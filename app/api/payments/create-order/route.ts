@@ -1,9 +1,6 @@
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import {
-  FIRST_PURCHASE_TRIAL_PACK_ID,
-  fetchBillingCatalogItemById,
-} from "@/app/lib/billing/catalog.server";
+import { fetchBillingCatalogItemById } from "@/app/lib/billing/catalog.server";
 import { createClient } from "@/utils/supabase/server";
 import { adminSupabase } from "@/utils/supabase/admin";
 
@@ -46,35 +43,27 @@ export async function POST(req: NextRequest) {
     userId: user.id,
   });
   if (!catalogItem) {
-    if (normalizedPackId === FIRST_PURCHASE_TRIAL_PACK_ID) {
-      return NextResponse.json(
-        { error: "FIRST_PURCHASE_TRIAL_NOT_ELIGIBLE" },
-        { status: 409 }
-      );
-    }
     return NextResponse.json({ error: "Unknown pack" }, { status: 404 });
   }
 
   let dbPackId: string | null = null;
 
-  if (catalogItem.id !== FIRST_PURCHASE_TRIAL_PACK_ID) {
-    const { data: dbPack, error: dbPackError } = await adminSupabase
-      .from("credit_packs")
-      .select("id, credits, price, currency, is_active")
-      .eq("id", normalizedPackId)
-      .eq("is_active", true)
-      .single();
+  const { data: dbPack, error: dbPackError } = await adminSupabase
+    .from("credit_packs")
+    .select("id, credits, price, currency, is_active")
+    .eq("id", normalizedPackId)
+    .eq("is_active", true)
+    .single();
 
-    if (dbPackError || !dbPack) {
-      console.error("Active credit pack not found:", normalizedPackId, dbPackError?.message);
-      return NextResponse.json(
-        { error: "Credit pack is not available" },
-        { status: 400 }
-      );
-    }
-
-    dbPackId = dbPack.id;
+  if (dbPackError || !dbPack) {
+    console.error("Active credit pack not found:", normalizedPackId, dbPackError?.message);
+    return NextResponse.json(
+      { error: "Credit pack is not available" },
+      { status: 400 }
+    );
   }
+
+  dbPackId = dbPack.id;
 
   const providerOrderId = buildProviderOrderId(catalogItem.id);
 
@@ -93,7 +82,6 @@ export async function POST(req: NextRequest) {
         source: "create-order",
         pack_id: catalogItem.id,
         product_code: catalogItem.productCode,
-        first_purchase_only: Boolean(catalogItem.firstPurchaseOnly),
       },
     })
     .select("id, amount, credits, currency, provider, provider_order_id, status")
