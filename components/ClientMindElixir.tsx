@@ -3512,11 +3512,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           box-shadow: none !important;
         }
         me-tpc[data-highlight="gold"] .text {
+          display: inline;
           background: rgba(253, 224, 71, 0.78);
-          border-radius: 0.18em;
           box-decoration-break: clone;
           -webkit-box-decoration-break: clone;
-          padding: 0.02em 0.16em;
         }
         me-tpc[data-search="true"] {
           outline: 2px solid rgba(59, 130, 246, 0.35);
