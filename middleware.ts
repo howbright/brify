@@ -24,6 +24,12 @@ export async function middleware(request: NextRequest) {
     return await updateSession(request, res);
   }
 
+  if (pathname === "/challengeclip" || pathname.startsWith("/challengeclip/")) {
+    const res = NextResponse.next();
+    res.headers.set("x-pathname", currentPath);
+    return await updateSession(request, res);
+  }
+
   // When locale prefix is missing (e.g. "/maps"), prefer NEXT_LOCALE cookie
   // so users stay on their selected language after auth redirects.
   const hasLocalePrefix = routing.locales.some(
