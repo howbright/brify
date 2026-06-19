@@ -58,6 +58,14 @@ const EMPTY_FORM: FormState = {
   publishedAt: "",
 };
 
+const DEFAULT_BLOG_COVER_IMAGE_URL =
+  "https://ojtkmpiiquwgetwyoyqy.supabase.co/storage/v1/object/public/blog-images/en/1781139691915-2a845d34-3b57-448b-a7b8-6626b7c23d2b-4.001.jpeg";
+
+const DEFAULT_BLOG_BODY_IMAGE_URL =
+  "https://ojtkmpiiquwgetwyoyqy.supabase.co/storage/v1/object/public/blog-images/ko/1780975282822-6cc628f6-a35f-47be-b13e-9bdfa6de3045-2026-06-09-12.20.23.png";
+
+const DEFAULT_BLOG_BODY_IMAGE_MARKDOWN = `![blog image](${DEFAULT_BLOG_BODY_IMAGE_URL})`;
+
 function normalizeBlogLocale(value: string | undefined): BlogLocale {
   if (value === "ko" || value === "en" || value === "fr") return value;
   return "ko";
@@ -138,6 +146,32 @@ function getUploadErrorMessage(error: unknown) {
   }
 
   return "이미지 업로드에 실패했어요.";
+}
+
+function insertDefaultBodyImage(markdown: string) {
+  const cleanMarkdown = markdown.trim();
+  if (!cleanMarkdown || cleanMarkdown.includes(DEFAULT_BLOG_BODY_IMAGE_URL)) {
+    return cleanMarkdown;
+  }
+
+  const lines = cleanMarkdown.split(/\r?\n/);
+  const headingIndexes = lines
+    .map((line, index) => (/^##\s+/.test(line.trim()) ? index : -1))
+    .filter((index) => index > 0);
+
+  if (headingIndexes.length > 0) {
+    const midpoint = Math.floor(lines.length / 2);
+    const insertIndex =
+      headingIndexes.find((index) => index >= midpoint) ??
+      headingIndexes[Math.floor(headingIndexes.length / 2)];
+    lines.splice(insertIndex, 0, "", DEFAULT_BLOG_BODY_IMAGE_MARKDOWN, "");
+    return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  }
+
+  const blocks = cleanMarkdown.split(/\n{2,}/);
+  const insertBlockIndex = Math.max(1, Math.ceil(blocks.length / 2));
+  blocks.splice(insertBlockIndex, 0, DEFAULT_BLOG_BODY_IMAGE_MARKDOWN);
+  return blocks.join("\n\n").replace(/\n{3,}/g, "\n\n").trim();
 }
 
 export default function AdminBlogPage() {
@@ -304,6 +338,31 @@ export default function AdminBlogPage() {
     }
   };
 
+  const applyDefaultBlogImages = async (post: BlogPostAdmin) => {
+    const markdownWithImage = insertDefaultBodyImage(post.markdown ?? "");
+    const res = await fetch("/api/admin/blog", {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: post.id,
+        locale: post.locale,
+        slug: post.slug,
+        title: post.title,
+        excerpt: post.excerpt ?? "",
+        imageUrl: DEFAULT_BLOG_COVER_IMAGE_URL,
+        markdown: markdownWithImage,
+        status: post.status,
+        publishedAt: post.published_at ?? "",
+      }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || !json.post) {
+      throw new Error(json.error || json.message || "기본 이미지를 적용하지 못했어요.");
+    }
+    return json.post as BlogPostAdmin;
+  };
+
   const handleGenerateKoreanDraft = async () => {
     const idea = draftIdea.trim();
     const slugHint = slugify(draftSlugHint.trim());
@@ -356,13 +415,14 @@ export default function AdminBlogPage() {
         throw new Error(message);
       }
 
-      const next = json.post as BlogPostAdmin;
+      const generated = json.post as BlogPostAdmin;
+      const next = await applyDefaultBlogImages(generated);
       setPosts((prev) => [next, ...prev.filter((post) => post.id !== next.id)]);
       setForm(toForm(next));
       setLocaleFilter("ko");
       setDraftIdea("");
       setDraftSlugHint("");
-      toast.success("한국어 블로그 초안을 draft로 저장했어요.");
+      toast.success("한국어 블로그 초안을 기본 이미지와 함께 draft로 저장했어요.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "한국어 초안 생성에 실패했어요.");
     } finally {

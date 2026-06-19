@@ -8,5 +8,6 @@ export type BlogPost = {
   markdown: string;
   status: "draft" | "published";
   publishedAt: string | null;
+  translationGroupId: string | null;
   updatedAt: string;
 };

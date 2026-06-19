@@ -33,6 +33,7 @@ function toBlogPost(row: BlogPostRow): BlogPost {
     markdown: row.markdown ?? "",
     status: row.status,
     publishedAt: row.published_at,
+    translationGroupId: row.translation_group_id ?? null,
     updatedAt: row.updated_at,
   };
 }
@@ -96,4 +97,28 @@ export async function getBlogPostByLocaleAndSlug(
   }
 
   return data ? toBlogPost(data as BlogPostRow) : null;
+}
+
+export async function getPublishedBlogPostAlternates(post: BlogPost): Promise<BlogPost[]> {
+  const now = new Date().toISOString();
+
+  if (!post.translationGroupId) {
+    return [post];
+  }
+
+  const { data, error } = await adminSupabase
+    .from("blog_posts")
+    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,translation_group_id,updated_at")
+    .eq("translation_group_id", post.translationGroupId)
+    .eq("status", "published")
+    .or(`published_at.is.null,published_at.lte.${now}`)
+    .order("locale", { ascending: true });
+
+  if (error) {
+    console.error("[blog] failed to load alternate posts", error);
+    return [post];
+  }
+
+  const alternates = ((data ?? []) as BlogPostRow[]).map(toBlogPost);
+  return alternates.length > 0 ? alternates : [post];
 }

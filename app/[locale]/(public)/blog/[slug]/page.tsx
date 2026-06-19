@@ -1,12 +1,39 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import ReactMarkdown from "react-markdown";
-import { getBlogPostByLocaleAndSlug } from "@/app/lib/blog";
+import {
+  getBlogPostByLocaleAndSlug,
+  getPublishedBlogPostAlternates,
+} from "@/app/lib/blog";
+import type { BlogPost } from "@/app/lib/blog/types";
 import ZoomableImage from "@/components/blog/ZoomableImage";
 
 type Params = { locale: string; slug: string };
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+const BASE_URL = "https://www.brify.app";
+const DEFAULT_OG_IMAGE = "/images/snsKo.jpg";
+
+function getPostUrl(post: Pick<BlogPost, "locale" | "slug">) {
+  return `/${post.locale}/blog/${post.slug}`;
+}
+
+function getAbsolutePostUrl(post: Pick<BlogPost, "locale" | "slug">) {
+  return `${BASE_URL}${getPostUrl(post)}`;
+}
+
+function getOgLocale(locale: string) {
+  if (locale === "ko") return "ko_KR";
+  if (locale === "fr") return "fr_FR";
+  return "en_US";
+}
+
+function getImageUrl(post: BlogPost) {
+  if (!post.imageUrl) return `${BASE_URL}${DEFAULT_OG_IMAGE}`;
+  if (/^https?:\/\//i.test(post.imageUrl)) return post.imageUrl;
+  return `${BASE_URL}${post.imageUrl.startsWith("/") ? post.imageUrl : `/${post.imageUrl}`}`;
+}
 
 export async function generateMetadata({
   params,
@@ -27,9 +54,44 @@ export async function generateMetadata({
     };
   }
 
+  const alternates = await getPublishedBlogPostAlternates(post);
+  const canonical = getPostUrl(post);
+  const imageUrl = getImageUrl(post);
+  const languageAlternates = Object.fromEntries(
+    alternates.map((item) => [item.locale, getPostUrl(item)])
+  );
+
   return {
     title: `${post.title} | Brify`,
     description: post.excerpt,
+    alternates: {
+      canonical,
+      languages: languageAlternates,
+    },
+    openGraph: {
+      type: "article",
+      url: canonical,
+      title: `${post.title} | Brify`,
+      description: post.excerpt,
+      siteName: "Brify",
+      locale: getOgLocale(post.locale),
+      publishedTime: post.publishedAt ?? undefined,
+      modifiedTime: post.updatedAt,
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${post.title} | Brify`,
+      description: post.excerpt,
+      images: [imageUrl],
+    },
   };
 }
 
@@ -41,8 +103,40 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
     redirect(`/${locale}/blog`);
   }
 
+  const imageUrl = getImageUrl(post);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    image: imageUrl,
+    url: getAbsolutePostUrl(post),
+    mainEntityOfPage: getAbsolutePostUrl(post),
+    datePublished: post.publishedAt ?? post.updatedAt,
+    dateModified: post.updatedAt,
+    inLanguage: post.locale,
+    author: {
+      "@type": "Organization",
+      name: "Brify",
+      url: BASE_URL,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Brify",
+      url: BASE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${BASE_URL}/images/newlogo.png`,
+      },
+    },
+  };
+
   return (
     <main className="mx-auto w-full max-w-3xl px-6 pb-20 pt-28 md:px-10 md:pt-32">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <article>
         {post.imageUrl ? (
           <div className="mb-6 aspect-[16/9] w-full overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800">
