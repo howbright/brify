@@ -15,6 +15,23 @@ function cleanString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function normalizeSeoKeywords(value: unknown) {
+  const rawKeywords = Array.isArray(value)
+    ? value
+    : typeof value === "string"
+      ? value.split(/[,，\n]/)
+      : [];
+
+  return Array.from(
+    new Set(
+      rawKeywords
+        .map((keyword) => cleanString(keyword))
+        .filter(Boolean)
+        .slice(0, 20)
+    )
+  );
+}
+
 function normalizePublishedAt(value: unknown, status: string) {
   const raw = cleanString(value);
   if (status !== "published") return null;
@@ -29,6 +46,7 @@ function parsePostPayload(body: any) {
   const slug = cleanString(body?.slug).toLowerCase();
   const title = cleanString(body?.title);
   const excerpt = cleanString(body?.excerpt);
+  const seoKeywords = normalizeSeoKeywords(body?.seoKeywords ?? body?.seo_keywords);
   const imageUrl = cleanString(body?.imageUrl);
   const markdown = typeof body?.markdown === "string" ? body.markdown : "";
 
@@ -43,6 +61,7 @@ function parsePostPayload(body: any) {
     slug,
     title,
     excerpt,
+    seo_keywords: seoKeywords,
     image_url: imageUrl,
     markdown,
     published_at: normalizePublishedAt(body?.publishedAt, status),
@@ -78,7 +97,7 @@ export async function GET() {
 
   const { data, error } = await adminSupabase
     .from("blog_posts")
-    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,translation_group_id,created_at,updated_at")
+    .select("id,locale,slug,title,excerpt,seo_keywords,image_url,markdown,status,published_at,translation_group_id,created_at,updated_at")
     .order("updated_at", { ascending: false });
 
   if (error) {
@@ -104,7 +123,7 @@ export async function POST(request: Request) {
         ...payload,
         author_id: auth.user.id,
       })
-      .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,translation_group_id,created_at,updated_at")
+      .select("id,locale,slug,title,excerpt,seo_keywords,image_url,markdown,status,published_at,translation_group_id,created_at,updated_at")
       .single();
 
     if (error) throw error;
@@ -134,7 +153,7 @@ export async function PATCH(request: Request) {
       .from("blog_posts")
       .update(payload)
       .eq("id", id)
-      .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,translation_group_id,created_at,updated_at")
+      .select("id,locale,slug,title,excerpt,seo_keywords,image_url,markdown,status,published_at,translation_group_id,created_at,updated_at")
       .single();
 
     if (error) throw error;

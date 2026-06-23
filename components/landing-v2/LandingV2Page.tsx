@@ -1566,10 +1566,10 @@ export default function LandingV2Page({
               handleDropFile(event.dataTransfer.files?.[0] ?? null);
             }}
             className={[
-              "mt-4 w-full max-w-3xl rounded-[28px] border bg-white px-4 py-3 text-left shadow-[0_24px_70px_-50px_rgba(15,23,42,0.68)] transition dark:bg-[#0d1422] dark:shadow-[0_32px_90px_-58px_rgba(0,0,0,0.9)]",
+              "mt-4 w-full max-w-3xl rounded-[28px] border bg-white px-4 py-3 text-left shadow-[0_24px_70px_-50px_rgba(15,23,42,0.68)] transition dark:bg-[#182235] dark:shadow-[0_32px_90px_-58px_rgba(0,0,0,0.82)]",
               isDraggingFile
                 ? "border-cyan-400 ring-4 ring-cyan-300/20 dark:border-cyan-300/80"
-                : "border-slate-200 dark:border-white/12",
+                : "border-slate-200 dark:border-white/18",
             ].join(" ")}
           >
             {isDraggingFile ? (
@@ -1588,7 +1588,7 @@ export default function LandingV2Page({
                 }}
                 placeholder={copy.textareaPlaceholder}
                 style={textareaHeight ? { height: textareaHeight } : undefined}
-                className="min-h-[108px] max-h-[520px] w-full resize-none border-0 bg-transparent px-1 py-1 pr-8 text-[15px] leading-6 text-slate-900 outline-none placeholder:text-slate-400 sm:min-h-[118px] dark:text-white dark:placeholder:text-white/34"
+                className="min-h-[108px] max-h-[520px] w-full resize-none border-0 bg-transparent px-1 py-1 pr-8 text-[15px] leading-6 text-slate-900 outline-none placeholder:text-slate-400 sm:min-h-[118px] dark:text-white dark:placeholder:text-white/52"
               />
               <button
                 type="button"

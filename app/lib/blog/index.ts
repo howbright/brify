@@ -9,6 +9,7 @@ type BlogPostRow = {
   slug: string;
   title: string;
   excerpt: string | null;
+  seo_keywords?: string[] | null;
   image_url: string | null;
   markdown: string | null;
   status: BlogPost["status"];
@@ -29,6 +30,7 @@ function toBlogPost(row: BlogPostRow): BlogPost {
     slug: row.slug,
     title: row.title,
     excerpt: row.excerpt ?? "",
+    seoKeywords: Array.isArray(row.seo_keywords) ? row.seo_keywords : [],
     imageUrl: row.image_url ?? "",
     markdown: row.markdown ?? "",
     status: row.status,
@@ -43,7 +45,7 @@ export async function getBlogPostsByLocale(locale: string): Promise<BlogPost[]> 
   const now = new Date().toISOString();
   const { data, error } = await adminSupabase
     .from("blog_posts")
-    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,translation_group_id,updated_at")
+    .select("id,locale,slug,title,excerpt,seo_keywords,image_url,markdown,status,published_at,translation_group_id,updated_at")
     .eq("locale", normalized)
     .eq("status", "published")
     .or(`published_at.is.null,published_at.lte.${now}`)
@@ -62,7 +64,7 @@ export async function getAllPublishedBlogPosts(): Promise<BlogPost[]> {
   const now = new Date().toISOString();
   const { data, error } = await adminSupabase
     .from("blog_posts")
-    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,translation_group_id,updated_at")
+    .select("id,locale,slug,title,excerpt,seo_keywords,image_url,markdown,status,published_at,translation_group_id,updated_at")
     .eq("status", "published")
     .or(`published_at.is.null,published_at.lte.${now}`)
     .order("published_at", { ascending: false, nullsFirst: false })
@@ -84,7 +86,7 @@ export async function getBlogPostByLocaleAndSlug(
   const now = new Date().toISOString();
   const { data, error } = await adminSupabase
     .from("blog_posts")
-    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,translation_group_id,updated_at")
+    .select("id,locale,slug,title,excerpt,seo_keywords,image_url,markdown,status,published_at,translation_group_id,updated_at")
     .eq("locale", normalized)
     .eq("slug", slug)
     .eq("status", "published")
@@ -108,7 +110,7 @@ export async function getPublishedBlogPostAlternates(post: BlogPost): Promise<Bl
 
   const { data, error } = await adminSupabase
     .from("blog_posts")
-    .select("id,locale,slug,title,excerpt,image_url,markdown,status,published_at,translation_group_id,updated_at")
+    .select("id,locale,slug,title,excerpt,seo_keywords,image_url,markdown,status,published_at,translation_group_id,updated_at")
     .eq("translation_group_id", post.translationGroupId)
     .eq("status", "published")
     .or(`published_at.is.null,published_at.lte.${now}`)

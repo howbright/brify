@@ -4,6 +4,7 @@ export type BlogPost = {
   locale: "ko" | "en" | "fr";
   title: string;
   excerpt: string;
+  seoKeywords: string[];
   imageUrl: string;
   markdown: string;
   status: "draft" | "published";

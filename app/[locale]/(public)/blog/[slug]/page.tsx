@@ -64,6 +64,7 @@ export async function generateMetadata({
   return {
     title: `${post.title} | Brify`,
     description: post.excerpt,
+    keywords: post.seoKeywords,
     alternates: {
       canonical,
       languages: languageAlternates,

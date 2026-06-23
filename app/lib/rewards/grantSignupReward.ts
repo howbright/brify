@@ -12,98 +12,40 @@ type GrantSignupRewardResult =
   | { ok: true; alreadyGranted: false; granted: number }
   | { ok: false; error: string; detail?: string };
 
-export async function grantSignupReward(params: {
+async function ensureSignupRewardNotification(params: {
   userId: string;
-  locale?: string;
-  reward?: number; // 기본 15
-}): Promise<GrantSignupRewardResult> {
-  const userId = params.userId;
-  const reward = Number(params.reward ?? 15);
+  reward: number;
+}) {
+  const { userId, reward } = params;
+  const dedupeKey = `signup_reward:${userId}`;
 
-  if (!userId) return { ok: false, error: "MISSING_USER_ID" };
-  if (!Number.isFinite(reward) || reward <= 0)
-    return { ok: false, error: "BAD_REWARD" };
+  const { data: existingNotification, error: existingNotificationError } =
+    await adminSupabase
+      .from("notifications")
+      .select("id")
+      .eq("dedupe_key", dedupeKey)
+      .limit(1);
 
-  // 1) ✅ 중복 판단
-  const { data: existingTx, error: existingErr } = await adminSupabase
-    .from("credit_transactions")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("reason", "signup_reward")
-    .limit(1);
-
-  if (existingErr) {
-    return { ok: false, error: "TX_CHECK_FAILED", detail: existingErr.message };
-  }
-
-  if (existingTx && existingTx.length > 0) {
-    return { ok: true, alreadyGranted: true, granted: 0 };
-  }
-
-  // 2) 현재 잔액 읽기
-  const { data: profile, error: profileErr } = await adminSupabase
-    .from("profiles")
-    .select("credits_free, credits_paid")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (profileErr) {
-    return {
-      ok: false,
-      error: "PROFILE_READ_FAILED",
-      detail: profileErr.message,
-    };
-  }
-
-  const currentFree = Number(profile?.credits_free ?? 0);
-  const currentPaid = Number(profile?.credits_paid ?? 0);
-
-  const nextFree = currentFree + reward;
-  const nextPaid = currentPaid;
-  const nextTotal = nextFree + nextPaid;
-
-  // 3) profiles 업데이트
-  const { error: updateErr } = await adminSupabase
-    .from("profiles")
-    .update({ credits_free: nextFree, credits_paid: nextPaid })
-    .eq("id", userId);
-
-  if (updateErr) {
-    return {
-      ok: false,
-      error: "PROFILE_UPDATE_FAILED",
-      detail: updateErr.message,
-    };
-  }
-
-  // 4) credit_transactions 로그 insert
-  const { error: txErr } = await adminSupabase
-    .from("credit_transactions")
-    .insert({
-      user_id: userId,
-      tx_type: "bonus",
-      source: "system",
-      delta_total: reward,
-      delta_free: reward,
-      delta_paid: 0,
-      balance_total_after: nextTotal,
-      balance_free_after: nextFree,
-      balance_paid_after: nextPaid,
-      reason: "signup_reward",
-      payment_id: null,
-      summary_id: null,
+  if (existingNotificationError) {
+    console.error("[notifications.signup_reward.check] FAILED", {
+      message: existingNotificationError.message,
+      details: (existingNotificationError as any).details,
+      hint: (existingNotificationError as any).hint,
+      code: (existingNotificationError as any).code,
+      userId,
+      dedupeKey,
     });
-
-  if (txErr) {
-    return { ok: false, error: "TX_INSERT_FAILED", detail: txErr.message };
+    return;
   }
 
-  // ✅ 실수 방지: DB 제약과 동일한 union type을 써서 event_type을 고정
+  if (existingNotification && existingNotification.length > 0) {
+    return;
+  }
+
   const category: NotificationCategory = "system";
   const status: NotificationStatus = "approved";
-  const eventType: NotificationEventType = "signup_bonus"; // 👈 여기서 signup_reward 같은 오타가 컴파일 에러로 잡힘
+  const eventType: NotificationEventType = "signup_bonus";
 
-  // 5) notifications insert (실패해도 치명적이진 않게)
   const { data: notifData, error: notifError } = await adminSupabase
     .from("notifications")
     .insert({
@@ -117,25 +59,71 @@ export async function grantSignupReward(params: {
       delta_credits: reward,
       source: "system",
       entity_id: null,
-      dedupe_key: `signup_reward:${userId}`,
+      dedupe_key: dedupeKey,
       is_read: false,
     })
     .select()
     .single();
 
-  if (notifError) {
-    console.error("[notifications.insert] FAILED", {
+  if (notifError?.code === "23505") {
+    console.info("[notifications.signup_reward.insert] duplicate ignored", {
+      userId,
+      dedupeKey,
+    });
+  } else if (notifError) {
+    console.error("[notifications.signup_reward.insert] FAILED", {
       message: notifError.message,
       details: (notifError as any).details,
       hint: (notifError as any).hint,
       code: (notifError as any).code,
       userId,
       reward,
-      dedupe_key: `signup_reward:${userId}`,
+      dedupeKey,
     });
   } else {
-    console.log("[notifications.insert] OK", notifData);
+    console.log("[notifications.signup_reward.insert] OK", notifData);
+  }
+}
+
+export async function grantSignupReward(params: {
+  userId: string;
+  locale?: string;
+  reward?: number; // 기본 15
+}): Promise<GrantSignupRewardResult> {
+  const userId = params.userId;
+  const reward = Number(params.reward ?? 15);
+
+  if (!userId) return { ok: false, error: "MISSING_USER_ID" };
+  if (!Number.isFinite(reward) || reward <= 0)
+    return { ok: false, error: "BAD_REWARD" };
+
+  const { data: rewardRows, error: rewardError } = await adminSupabase.rpc(
+    "grant_signup_reward_once",
+    {
+      p_user_id: userId,
+      p_reward: reward,
+    }
+  );
+
+  if (rewardError) {
+    return {
+      ok: false,
+      error: "SIGNUP_REWARD_RPC_FAILED",
+      detail: rewardError.message,
+    };
   }
 
-  return { ok: true, alreadyGranted: false, granted: reward };
+  const rewardRow = Array.isArray(rewardRows) ? rewardRows[0] : null;
+  if (!rewardRow) {
+    return { ok: false, error: "SIGNUP_REWARD_EMPTY_RESULT" };
+  }
+
+  if (rewardRow.already_granted) {
+    await ensureSignupRewardNotification({ userId, reward });
+    return { ok: true, alreadyGranted: true, granted: 0 };
+  }
+
+  await ensureSignupRewardNotification({ userId, reward });
+
+  return { ok: true, alreadyGranted: false, granted: rewardRow.granted };
 }

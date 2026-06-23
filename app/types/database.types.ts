@@ -1559,6 +1559,16 @@ export type Database = {
           updated_at: string
         }[]
       }
+      grant_signup_reward_once: {
+        Args: { p_reward?: number; p_user_id: string }
+        Returns: {
+          already_granted: boolean
+          balance_free_after: number
+          balance_paid_after: number
+          balance_total_after: number
+          granted: number
+        }[]
+      }
       is_order_store_admin: { Args: { p_order_id: string }; Returns: boolean }
       is_store_admin: { Args: { p_store_id: string }; Returns: boolean }
     }

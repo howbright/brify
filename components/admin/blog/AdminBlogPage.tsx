@@ -16,6 +16,7 @@ type BlogPostAdmin = {
   slug: string;
   title: string;
   excerpt: string | null;
+  seo_keywords?: string[] | null;
   image_url: string | null;
   markdown: string | null;
   status: BlogStatus;
@@ -40,6 +41,7 @@ type FormState = {
   slug: string;
   title: string;
   excerpt: string;
+  seoKeywords: string;
   imageUrl: string;
   markdown: string;
   status: BlogStatus;
@@ -52,6 +54,7 @@ const EMPTY_FORM: FormState = {
   slug: "",
   title: "",
   excerpt: "",
+  seoKeywords: "",
   imageUrl: "",
   markdown: "",
   status: "draft",
@@ -108,11 +111,23 @@ function toForm(post: BlogPostAdmin): FormState {
     slug: post.slug,
     title: post.title,
     excerpt: post.excerpt ?? "",
+    seoKeywords: Array.isArray(post.seo_keywords) ? post.seo_keywords.join(", ") : "",
     imageUrl: post.image_url ?? "",
     markdown: post.markdown ?? "",
     status: post.status,
     publishedAt: toDatetimeLocal(post.published_at),
   };
+}
+
+function parseSeoKeywords(value: string) {
+  return Array.from(
+    new Set(
+      value
+        .split(/[,，\n]/)
+        .map((keyword) => keyword.trim())
+        .filter(Boolean)
+    )
+  ).slice(0, 20);
 }
 
 function getUploadErrorMessage(error: unknown) {
@@ -261,6 +276,7 @@ export default function AdminBlogPage() {
     const cleanTitle = form.title.trim();
     const cleanSlug = form.slug.trim();
     const cleanExcerpt = form.excerpt.trim();
+    const seoKeywords = parseSeoKeywords(form.seoKeywords);
     const cleanMarkdown = form.markdown.trim();
 
     if (!cleanTitle) {
@@ -292,6 +308,7 @@ export default function AdminBlogPage() {
           title: cleanTitle,
           slug: cleanSlug,
           excerpt: cleanExcerpt,
+          seoKeywords,
           markdown: cleanMarkdown,
           publishedAt: toPublishedAtPayload(form.publishedAt, form.status),
         }),
@@ -350,6 +367,7 @@ export default function AdminBlogPage() {
         slug: post.slug,
         title: post.title,
         excerpt: post.excerpt ?? "",
+        seoKeywords: Array.isArray(post.seo_keywords) ? post.seo_keywords : [],
         imageUrl: DEFAULT_BLOG_COVER_IMAGE_URL,
         markdown: markdownWithImage,
         status: post.status,
@@ -576,7 +594,12 @@ export default function AdminBlogPage() {
         <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
           <aside className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-black">글 목록</h2>
+              <h2 className="text-sm font-black">
+                글 목록
+                <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-black text-slate-500">
+                  {filteredPosts.length}/{posts.length}
+                </span>
+              </h2>
               <select
                 value={localeFilter}
                 onChange={(event) => setLocaleFilter(event.target.value as "all" | BlogLocale)}
@@ -685,6 +708,20 @@ export default function AdminBlogPage() {
                 className="rounded-xl border border-slate-300 px-3 py-2 font-medium leading-6"
                 placeholder="목록과 메타 description에 쓰일 짧은 설명"
               />
+            </label>
+
+            <label className="mt-4 flex flex-col gap-1 text-sm font-bold">
+              SEO 키워드
+              <textarea
+                value={form.seoKeywords}
+                onChange={(event) => updateForm("seoKeywords", event.target.value)}
+                rows={3}
+                className="rounded-xl border border-slate-300 px-3 py-2 font-medium leading-6"
+                placeholder="논문 구조화, 문헌리뷰 도구, AI 구조맵"
+              />
+              <span className="text-xs font-medium leading-5 text-slate-500">
+                쉼표나 줄바꿈으로 구분하세요. 공개 페이지의 metadata keywords에 반영됩니다.
+              </span>
             </label>
 
             <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-end">
