@@ -175,37 +175,3 @@ begin
   return next;
 end;
 $$;
-
-do $$
-begin
-  if not exists (
-    select 1
-    from public.credit_transactions
-    where reason = 'signup_reward'
-    group by user_id
-    having count(*) > 1
-  ) then
-    create unique index if not exists credit_transactions_one_signup_reward_per_user
-      on public.credit_transactions (user_id)
-      where reason = 'signup_reward';
-  else
-    raise notice 'Skipped credit_transactions_one_signup_reward_per_user because duplicate signup_reward rows exist.';
-  end if;
-end $$;
-
-do $$
-begin
-  if not exists (
-    select 1
-    from public.notifications
-    where dedupe_key is not null
-    group by dedupe_key
-    having count(*) > 1
-  ) then
-    create unique index if not exists notifications_dedupe_key_unique
-      on public.notifications (dedupe_key)
-      where dedupe_key is not null;
-  else
-    raise notice 'Skipped notifications_dedupe_key_unique because duplicate dedupe_key rows exist.';
-  end if;
-end $$;

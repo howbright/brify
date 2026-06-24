@@ -24,6 +24,7 @@ export type Database = {
           locale: string
           markdown: string
           published_at: string | null
+          seo_keywords: string[]
           slug: string
           status: string
           title: string
@@ -39,6 +40,7 @@ export type Database = {
           locale: string
           markdown?: string
           published_at?: string | null
+          seo_keywords?: string[]
           slug: string
           status?: string
           title: string
@@ -54,6 +56,7 @@ export type Database = {
           locale?: string
           markdown?: string
           published_at?: string | null
+          seo_keywords?: string[]
           slug?: string
           status?: string
           title?: string
@@ -99,6 +102,197 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      challenge_clip_device_purchases: {
+        Row: {
+          device_id: string
+          id: string
+          linked_at: string
+          purchase_id: string
+        }
+        Insert: {
+          device_id: string
+          id?: string
+          linked_at?: string
+          purchase_id: string
+        }
+        Update: {
+          device_id?: string
+          id?: string
+          linked_at?: string
+          purchase_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_clip_device_purchases_device_fk"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "challenge_clip_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenge_clip_device_purchases_purchase_fk"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "challenge_clip_purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenge_clip_devices: {
+        Row: {
+          active_purchase_id: string | null
+          created_at: string
+          entitlement_status: string
+          id: string
+          last_seen_at: string | null
+          last_verified_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          active_purchase_id?: string | null
+          created_at?: string
+          entitlement_status?: string
+          id: string
+          last_seen_at?: string | null
+          last_verified_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active_purchase_id?: string | null
+          created_at?: string
+          entitlement_status?: string
+          id?: string
+          last_seen_at?: string | null
+          last_verified_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_clip_devices_active_purchase_fk"
+            columns: ["active_purchase_id"]
+            isOneToOne: false
+            referencedRelation: "challenge_clip_purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenge_clip_entitlement_audits: {
+        Row: {
+          action: string
+          created_at: string
+          device_id: string | null
+          id: string
+          metadata: Json | null
+          purchase_id: string | null
+          reason: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          device_id?: string | null
+          id?: string
+          metadata?: Json | null
+          purchase_id?: string | null
+          reason?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          device_id?: string | null
+          id?: string
+          metadata?: Json | null
+          purchase_id?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_clip_entitlement_audits_device_fk"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "challenge_clip_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenge_clip_entitlement_audits_purchase_fk"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "challenge_clip_purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenge_clip_purchases: {
+        Row: {
+          acknowledgement_state: number | null
+          consumption_state: number | null
+          created_at: string
+          id: string
+          order_id: string | null
+          product_id: string
+          purchase_state: number | null
+          purchase_time_millis: string | null
+          purchase_token_hash: string
+          raw_google_payload: Json | null
+          refund_type: number | null
+          status: string
+          updated_at: string
+          voided_at: string | null
+          voided_reason: number | null
+        }
+        Insert: {
+          acknowledgement_state?: number | null
+          consumption_state?: number | null
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          product_id: string
+          purchase_state?: number | null
+          purchase_time_millis?: string | null
+          purchase_token_hash: string
+          raw_google_payload?: Json | null
+          refund_type?: number | null
+          status?: string
+          updated_at?: string
+          voided_at?: string | null
+          voided_reason?: number | null
+        }
+        Update: {
+          acknowledgement_state?: number | null
+          consumption_state?: number | null
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          product_id?: string
+          purchase_state?: number | null
+          purchase_time_millis?: string | null
+          purchase_token_hash?: string
+          raw_google_payload?: Json | null
+          refund_type?: number | null
+          status?: string
+          updated_at?: string
+          voided_at?: string | null
+          voided_reason?: number | null
+        }
+        Relationships: []
+      }
+      challenge_clip_void_sync_state: {
+        Row: {
+          id: string
+          last_sync_time_millis: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          last_sync_time_millis?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          last_sync_time_millis?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       credit_lot_consumptions: {
         Row: {
@@ -309,6 +503,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      keywords: {
+        Row: {
+          id: number
+          lang: string
+          name: string
+        }
+        Insert: {
+          id?: number
+          lang?: string
+          name: string
+        }
+        Update: {
+          id?: number
+          lang?: string
+          name?: string
+        }
+        Relationships: []
       }
       map_generation_chunks: {
         Row: {
@@ -1396,6 +1608,140 @@ export type Database = {
         }
         Relationships: []
       }
+      summaries: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          detailed_summary_text: string | null
+          diagram_json: Json | null
+          error_message: string | null
+          id: string
+          is_public: boolean | null
+          lang: string | null
+          original_expire_at: string | null
+          original_text: string | null
+          public_comment: string | null
+          source_title: string | null
+          source_type: string
+          source_url: string | null
+          status: string
+          summary_text: string | null
+          temp_diagram_json: Json | null
+          temp_summary_text: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          detailed_summary_text?: string | null
+          diagram_json?: Json | null
+          error_message?: string | null
+          id?: string
+          is_public?: boolean | null
+          lang?: string | null
+          original_expire_at?: string | null
+          original_text?: string | null
+          public_comment?: string | null
+          source_title?: string | null
+          source_type?: string
+          source_url?: string | null
+          status?: string
+          summary_text?: string | null
+          temp_diagram_json?: Json | null
+          temp_summary_text?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          detailed_summary_text?: string | null
+          diagram_json?: Json | null
+          error_message?: string | null
+          id?: string
+          is_public?: boolean | null
+          lang?: string | null
+          original_expire_at?: string | null
+          original_text?: string | null
+          public_comment?: string | null
+          source_title?: string | null
+          source_type?: string
+          source_url?: string | null
+          status?: string
+          summary_text?: string | null
+          temp_diagram_json?: Json | null
+          temp_summary_text?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      summary_keywords: {
+        Row: {
+          keyword_id: number
+          summary_id: string
+        }
+        Insert: {
+          keyword_id: number
+          summary_id: string
+        }
+        Update: {
+          keyword_id?: number
+          summary_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "summary_keywords_keyword_id_fkey"
+            columns: ["keyword_id"]
+            isOneToOne: false
+            referencedRelation: "keywords"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "summary_keywords_summary_id_fkey"
+            columns: ["summary_id"]
+            isOneToOne: false
+            referencedRelation: "summaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      summary_questions: {
+        Row: {
+          answer: string | null
+          created_at: string | null
+          id: string
+          question: string
+          summary_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          answer?: string | null
+          created_at?: string | null
+          id?: string
+          question: string
+          summary_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          answer?: string | null
+          created_at?: string | null
+          id?: string
+          question?: string
+          summary_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "summary_questions_summary_id_fkey"
+            columns: ["summary_id"]
+            isOneToOne: false
+            referencedRelation: "summaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_tickets: {
         Row: {
           category: string
@@ -1437,6 +1783,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      terminologies: {
+        Row: {
+          definition: string | null
+          id: number
+          summary_id: string | null
+          term: string
+        }
+        Insert: {
+          definition?: string | null
+          id?: number
+          summary_id?: string | null
+          term: string
+        }
+        Update: {
+          definition?: string | null
+          id?: number
+          summary_id?: string | null
+          term?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "terminologies_summary_id_fkey"
+            columns: ["summary_id"]
+            isOneToOne: false
+            referencedRelation: "summaries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transfer_reports: {
         Row: {

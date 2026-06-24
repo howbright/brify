@@ -3,6 +3,10 @@
     {
       "path": "/api/document-uploads/cleanup",
       "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/challenge-clip/v1/cron/google-play/voided-purchases/sync",
+      "schedule": "0 */6 * * *"
     }
   ]
 }
