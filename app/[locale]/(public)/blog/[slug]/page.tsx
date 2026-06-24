@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import {
@@ -23,10 +24,43 @@ function getAbsolutePostUrl(post: Pick<BlogPost, "locale" | "slug">) {
   return `${BASE_URL}${getPostUrl(post)}`;
 }
 
+function getAbsoluteBlogUrl(locale: string) {
+  return `${BASE_URL}/${locale}/blog`;
+}
+
 function getOgLocale(locale: string) {
   if (locale === "ko") return "ko_KR";
   if (locale === "fr") return "fr_FR";
   return "en_US";
+}
+
+function getPostCta(locale: string) {
+  if (locale === "ko") {
+    return {
+      title: "긴 자료를 구조맵으로 정리해보세요",
+      description: "Brify는 논문, 문서, 영상 내용을 요약을 넘어 구조로 펼쳐서 읽을 수 있게 돕습니다.",
+      primary: "AI 구조맵 만들기",
+      secondary: "기능 보기",
+    };
+  }
+
+  if (locale === "fr") {
+    return {
+      title: "Transformez vos longs contenus en carte structurelle",
+      description:
+        "Brify organise les articles, documents et vidéos pour que vous puissiez suivre la logique du contenu.",
+      primary: "Créer une carte IA",
+      secondary: "Voir les fonctionnalités",
+    };
+  }
+
+  return {
+    title: "Turn long material into a structure map",
+    description:
+      "Brify helps you organize papers, documents, and videos into a source-grounded structure you can actually navigate.",
+    primary: "Create an AI map",
+    secondary: "See features",
+  };
 }
 
 function getImageUrl(post: BlogPost) {
@@ -55,19 +89,28 @@ export async function generateMetadata({
   }
 
   const alternates = await getPublishedBlogPostAlternates(post);
-  const canonical = getPostUrl(post);
+  const canonical = getAbsolutePostUrl(post);
   const imageUrl = getImageUrl(post);
   const languageAlternates = Object.fromEntries(
-    alternates.map((item) => [item.locale, getPostUrl(item)])
+    alternates.map((item) => [item.locale, getAbsolutePostUrl(item)])
   );
+  const defaultAlternate =
+    alternates.find((item) => item.locale === "en") ?? alternates[0] ?? post;
 
   return {
     title: `${post.title} | Brify`,
     description: post.excerpt,
     keywords: post.seoKeywords,
+    robots: {
+      index: true,
+      follow: true,
+    },
     alternates: {
       canonical,
-      languages: languageAlternates,
+      languages: {
+        ...languageAlternates,
+        "x-default": getAbsolutePostUrl(defaultAlternate),
+      },
     },
     openGraph: {
       type: "article",
@@ -105,31 +148,65 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
   }
 
   const imageUrl = getImageUrl(post);
+  const cta = getPostCta(post.locale);
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: post.title,
-    description: post.excerpt,
-    image: imageUrl,
-    url: getAbsolutePostUrl(post),
-    mainEntityOfPage: getAbsolutePostUrl(post),
-    datePublished: post.publishedAt ?? post.updatedAt,
-    dateModified: post.updatedAt,
-    inLanguage: post.locale,
-    author: {
-      "@type": "Organization",
-      name: "Brify",
-      url: BASE_URL,
-    },
-    publisher: {
-      "@type": "Organization",
-      name: "Brify",
-      url: BASE_URL,
-      logo: {
-        "@type": "ImageObject",
-        url: `${BASE_URL}/images/newlogo.png`,
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        headline: post.title,
+        description: post.excerpt,
+        keywords: post.seoKeywords,
+        image: imageUrl,
+        url: getAbsolutePostUrl(post),
+        mainEntityOfPage: getAbsolutePostUrl(post),
+        datePublished: post.publishedAt ?? post.updatedAt,
+        dateModified: post.updatedAt,
+        inLanguage: post.locale,
+        author: {
+          "@type": "Organization",
+          name: "Brify",
+          url: BASE_URL,
+        },
+        publisher: {
+          "@type": "Organization",
+          name: "Brify",
+          url: BASE_URL,
+          logo: {
+            "@type": "ImageObject",
+            url: `${BASE_URL}/images/newlogo.png`,
+          },
+        },
+        isPartOf: {
+          "@type": "Blog",
+          name: "Brify Blog",
+          url: getAbsoluteBlogUrl(post.locale),
+        },
       },
-    },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Brify",
+            item: `${BASE_URL}/${post.locale}`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Blog",
+            item: getAbsoluteBlogUrl(post.locale),
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: post.title,
+            item: getAbsolutePostUrl(post),
+          },
+        ],
+      },
+    ],
   };
 
   return (
@@ -188,6 +265,29 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
         </div>
 
       </article>
+
+      <section className="mt-14 border-t border-slate-200 pt-8 dark:border-slate-700">
+        <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          {cta.title}
+        </h2>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+          {cta.description}
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link
+            href={`/${post.locale}/ai-mindmap-convert`}
+            className="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
+          >
+            {cta.primary}
+          </Link>
+          <Link
+            href={`/${post.locale}/features`}
+            className="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
+          >
+            {cta.secondary}
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }

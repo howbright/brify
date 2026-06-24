@@ -7,16 +7,46 @@ type Params = { locale: string };
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+const BASE_URL = "https://www.brify.app";
+
+function normalizeLocale(locale: string) {
+  if (locale === "ko" || locale === "fr") return locale;
+  return "en";
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "BlogPage.meta" });
+  const normalizedLocale = normalizeLocale(locale);
+  const t = await getTranslations({ locale: normalizedLocale, namespace: "BlogPage.meta" });
+  const pageUrl = `${BASE_URL}/${normalizedLocale}/blog`;
+
   return {
     title: t("title"),
     description: t("description"),
+    robots: {
+      index: true,
+      follow: true,
+    },
+    alternates: {
+      canonical: pageUrl,
+      languages: {
+        ko: `${BASE_URL}/ko/blog`,
+        en: `${BASE_URL}/en/blog`,
+        fr: `${BASE_URL}/fr/blog`,
+        "x-default": `${BASE_URL}/en/blog`,
+      },
+    },
+    openGraph: {
+      type: "website",
+      url: pageUrl,
+      title: t("title"),
+      description: t("description"),
+      siteName: "Brify",
+    },
   };
 }
 
