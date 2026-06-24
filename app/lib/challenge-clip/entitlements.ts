@@ -622,9 +622,9 @@ export async function syncVoidedPurchases() {
     .maybeSingle();
   assertSupabase(syncState, error);
 
-  const startTime = Number(
-    syncState?.last_sync_time_millis || now - 30 * 24 * 60 * 60 * 1000
-  );
+  const maxLookbackStartTime = now - 29 * 24 * 60 * 60 * 1000;
+  const savedStartTime = Number(syncState?.last_sync_time_millis || 0);
+  const startTime = Math.max(savedStartTime || maxLookbackStartTime, maxLookbackStartTime);
   let token: string | undefined;
   let voidedCount = 0;
   let affectedDevices = 0;
