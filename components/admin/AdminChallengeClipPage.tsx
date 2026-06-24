@@ -7,6 +7,7 @@ import {
   AlertCircle,
   ArrowLeft,
   CheckCircle2,
+  KeyRound,
   LoaderCircle,
   RefreshCw,
   RotateCcw,
@@ -100,6 +101,10 @@ export default function AdminChallengeClipPage() {
   const [manualReason, setManualReason] = useState("");
   const [manualLoading, setManualLoading] = useState(false);
   const [manualResult, setManualResult] = useState<unknown>(null);
+  const [tokenProductId, setTokenProductId] = useState("pro_lifetime");
+  const [purchaseToken, setPurchaseToken] = useState("");
+  const [tokenInspectLoading, setTokenInspectLoading] = useState(false);
+  const [tokenInspectResult, setTokenInspectResult] = useState<unknown>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
   async function handleRefundRevoke(event: FormEvent<HTMLFormElement>) {
@@ -208,6 +213,42 @@ export default function AdminChallengeClipPage() {
       setErrorMessage(error instanceof Error ? error.message : "수동 권한 처리에 실패했어요.");
     } finally {
       setManualLoading(false);
+    }
+  }
+
+  async function handleInspectToken(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setErrorMessage("");
+    setTokenInspectResult(null);
+
+    const productId = tokenProductId.trim();
+    const token = purchaseToken.trim();
+
+    if (!productId) {
+      setErrorMessage("productId를 입력해 주세요.");
+      return;
+    }
+
+    if (!token) {
+      setErrorMessage("purchase token을 입력해 주세요.");
+      return;
+    }
+
+    setTokenInspectLoading(true);
+    try {
+      setTokenInspectResult(
+        await requestJson("/api/admin/challenge-clip/inspect-token", {
+          method: "POST",
+          body: {
+            productId,
+            purchaseToken: token,
+          },
+        })
+      );
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "토큰 조회에 실패했어요.");
+    } finally {
+      setTokenInspectLoading(false);
     }
   }
 
@@ -341,6 +382,55 @@ export default function AdminChallengeClipPage() {
       </section>
 
       <section className="mt-5 grid gap-5 lg:grid-cols-2">
+        <form
+          onSubmit={handleInspectToken}
+          className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-extrabold tracking-tight text-neutral-950">
+                Purchase token 조회
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-neutral-600">
+                Google Play가 이 토큰을 purchased, canceled, pending 중 무엇으로 보는지 직접 확인합니다.
+              </p>
+            </div>
+            <KeyRound className="h-5 w-5 text-slate-400" />
+          </div>
+
+          <label className="mt-5 block text-xs font-bold uppercase tracking-wide text-slate-500">
+            Product ID
+          </label>
+          <input
+            value={tokenProductId}
+            onChange={(event) => setTokenProductId(event.target.value)}
+            placeholder="pro_lifetime"
+            className="mt-2 h-12 w-full rounded-2xl border border-slate-300 px-4 text-sm outline-none transition focus:border-slate-950 focus:ring-4 focus:ring-slate-200"
+          />
+
+          <label className="mt-4 block text-xs font-bold uppercase tracking-wide text-slate-500">
+            Purchase token
+          </label>
+          <textarea
+            value={purchaseToken}
+            onChange={(event) => setPurchaseToken(event.target.value)}
+            placeholder="Google Play purchase token"
+            rows={4}
+            className="mt-2 w-full resize-none rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-950 focus:ring-4 focus:ring-slate-200"
+          />
+
+          <button
+            type="submit"
+            disabled={tokenInspectLoading}
+            className="mt-4 inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {tokenInspectLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
+            토큰 조회
+          </button>
+
+          <JsonPanel title="Purchase token result" value={tokenInspectResult} />
+        </form>
+
         <form
           onSubmit={handleManualEntitlement}
           className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"

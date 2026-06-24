@@ -741,6 +741,74 @@ export async function refundOrder({
   };
 }
 
+export async function inspectPurchaseToken({
+  productId = PRO_PRODUCT_ID,
+  purchaseToken,
+}: {
+  productId?: string;
+  purchaseToken?: string;
+}): Promise<Result<Record<string, unknown>>> {
+  const trimmedProductId = String(productId || "").trim();
+  const trimmedPurchaseToken = String(purchaseToken || "").trim();
+
+  if (!trimmedProductId) {
+    return { status: 400, payload: { error: "productId is required" } };
+  }
+
+  if (!trimmedPurchaseToken) {
+    return { status: 400, payload: { error: "purchaseToken is required" } };
+  }
+
+  if (trimmedPurchaseToken.length < 20 || trimmedPurchaseToken.length > 4096) {
+    return {
+      status: 400,
+      payload: { error: "purchaseToken length is invalid" },
+    };
+  }
+
+  const purchase = await googlePlayGet<GoogleProductPurchase>(
+    `applications/${encodeURIComponent(
+      PACKAGE_NAME
+    )}/purchases/products/${encodeURIComponent(
+      trimmedProductId
+    )}/tokens/${encodeURIComponent(trimmedPurchaseToken)}`
+  );
+
+  const purchaseStateLabel =
+    purchase.purchaseState === 0
+      ? "purchased"
+      : purchase.purchaseState === 1
+        ? "canceled"
+        : purchase.purchaseState === 2
+          ? "pending"
+          : "unknown";
+  const acknowledgementStateLabel =
+    purchase.acknowledgementState === 1
+      ? "acknowledged"
+      : purchase.acknowledgementState === 0
+        ? "not_acknowledged"
+        : "unknown";
+
+  return {
+    status: 200,
+    payload: {
+      productId: trimmedProductId,
+      tokenHash: sha256(trimmedPurchaseToken),
+      orderId: purchase.orderId ?? null,
+      purchaseState: purchase.purchaseState ?? null,
+      purchaseStateLabel,
+      acknowledgementState: purchase.acknowledgementState ?? null,
+      acknowledgementStateLabel,
+      consumptionState: purchase.consumptionState ?? null,
+      purchaseTimeMillis: purchase.purchaseTimeMillis ?? null,
+      purchaseTime: purchase.purchaseTimeMillis
+        ? new Date(Number(purchase.purchaseTimeMillis)).toISOString()
+        : null,
+      rawGooglePayload: purchase,
+    },
+  };
+}
+
 export async function setManualEntitlement({
   deviceUserId,
   action,
