@@ -14,7 +14,7 @@ export default async function AdminHomePage({
         관리자 가드가 정상 동작 중이에요. 환불 처리 화면으로 바로 이동할 수 있어요.
       </p>
 
-      <section className="mt-8 grid gap-4 lg:grid-cols-5">
+      <section className="mt-8 grid gap-4 lg:grid-cols-3">
         <Link
           href={`/${locale}/admin/blog`}
           className="rounded-3xl border border-slate-300 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
@@ -38,6 +38,19 @@ export default async function AdminHomePage({
           </h2>
           <p className="mt-2 text-sm leading-6 text-neutral-600">
             이메일, 결제일, 상태, 결제사로 검색하고 환불 가능 여부를 빠르게 확인해요.
+          </p>
+        </Link>
+
+        <Link
+          href={`/${locale}/admin/cc`}
+          className="rounded-3xl border border-slate-300 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+        >
+          <div className="text-sm font-semibold text-blue-700">CHALLENGECLIP</div>
+          <h2 className="mt-2 text-xl font-extrabold tracking-tight text-neutral-950">
+            앱 결제 권한 관리
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-neutral-600">
+            Google Play refund/revoke, voided sync, Pro 권한 조회와 수동 처리를 관리해요.
           </p>
         </Link>
 
