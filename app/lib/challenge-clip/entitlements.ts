@@ -522,11 +522,12 @@ export async function verifyProductPurchase({
   const purchaseState = Number(playPurchase.purchaseState ?? 1);
   const googleActive = purchaseState === 0;
   const preservedVoidedStatus =
-    existing?.status === "voided" || existing?.status === "refunded";
-  const nextStatus = preservedVoidedStatus
-    ? existing.status
-    : googleActive
-      ? "active"
+    !googleActive &&
+    (existing?.status === "voided" || existing?.status === "refunded");
+  const nextStatus = googleActive
+    ? "active"
+    : preservedVoidedStatus
+      ? existing.status
       : "invalid";
   let acknowledgementState = Number(playPurchase.acknowledgementState ?? 0);
   let serverAcknowledged = false;
