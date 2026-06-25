@@ -342,15 +342,16 @@ async function getLinkedPurchases(deviceId: string) {
 
 async function recalculateDeviceEntitlement(deviceId: string) {
   const device = await ensureDevice(deviceId);
+  const purchases = await getLinkedPurchases(deviceId);
+  const activePurchase = purchases.find((purchase) => purchase.status === "active");
+
   if (
     device.entitlement_status === "manual_granted" ||
-    device.entitlement_status === "manual_revoked"
+    (device.entitlement_status === "manual_revoked" && !activePurchase)
   ) {
     return device;
   }
 
-  const purchases = await getLinkedPurchases(deviceId);
-  const activePurchase = purchases.find((purchase) => purchase.status === "active");
   const voidedPurchase = purchases.find((purchase) => purchase.status === "voided");
   const refundedPurchase = purchases.find(
     (purchase) => purchase.status === "refunded"
