@@ -105,6 +105,8 @@ export default function AdminChallengeClipPage() {
   const [purchaseToken, setPurchaseToken] = useState("");
   const [tokenInspectLoading, setTokenInspectLoading] = useState(false);
   const [tokenInspectResult, setTokenInspectResult] = useState<unknown>(null);
+  const [tokenConsumeLoading, setTokenConsumeLoading] = useState(false);
+  const [tokenConsumeResult, setTokenConsumeResult] = useState<unknown>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
   async function handleRefundRevoke(event: FormEvent<HTMLFormElement>) {
@@ -249,6 +251,46 @@ export default function AdminChallengeClipPage() {
       setErrorMessage(error instanceof Error ? error.message : "토큰 조회에 실패했어요.");
     } finally {
       setTokenInspectLoading(false);
+    }
+  }
+
+  async function handleConsumeCanceledToken() {
+    setErrorMessage("");
+    setTokenConsumeResult(null);
+
+    const productId = tokenProductId.trim();
+    const token = purchaseToken.trim();
+
+    if (!productId) {
+      setErrorMessage("productId를 입력해 주세요.");
+      return;
+    }
+
+    if (!token) {
+      setErrorMessage("purchase token을 입력해 주세요.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "이 작업은 취소된 purchase token을 consume 처리합니다. 정상 구매 토큰에는 사용하면 안 됩니다. 계속할까요?"
+    );
+    if (!confirmed) return;
+
+    setTokenConsumeLoading(true);
+    try {
+      setTokenConsumeResult(
+        await requestJson("/api/admin/challenge-clip/consume-token", {
+          method: "POST",
+          body: {
+            productId,
+            purchaseToken: token,
+          },
+        })
+      );
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "토큰 consume에 실패했어요.");
+    } finally {
+      setTokenConsumeLoading(false);
     }
   }
 
@@ -419,16 +461,32 @@ export default function AdminChallengeClipPage() {
             className="mt-2 w-full resize-none rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-950 focus:ring-4 focus:ring-slate-200"
           />
 
-          <button
-            type="submit"
-            disabled={tokenInspectLoading}
-            className="mt-4 inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {tokenInspectLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
-            토큰 조회
-          </button>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              type="submit"
+              disabled={tokenInspectLoading || tokenConsumeLoading}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {tokenInspectLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
+              토큰 조회
+            </button>
+            <button
+              type="button"
+              onClick={handleConsumeCanceledToken}
+              disabled={tokenInspectLoading || tokenConsumeLoading}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-amber-600 px-4 text-sm font-bold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {tokenConsumeLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+              취소된 토큰 consume
+            </button>
+          </div>
+
+          <p className="mt-3 text-xs leading-5 text-amber-700">
+            consume은 purchaseState가 canceled인 테스트/문제 토큰 정리용입니다. 서버가 정상 구매 토큰은 거부합니다.
+          </p>
 
           <JsonPanel title="Purchase token result" value={tokenInspectResult} />
+          <JsonPanel title="Consume token result" value={tokenConsumeResult} />
         </form>
 
         <form

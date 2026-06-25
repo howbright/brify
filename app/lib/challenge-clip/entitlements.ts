@@ -243,6 +243,16 @@ async function acknowledgeProductPurchase(productId: string, purchaseToken: stri
   );
 }
 
+async function consumeProductPurchase(productId: string, purchaseToken: string) {
+  await googlePlayPost(
+    `applications/${encodeURIComponent(
+      PACKAGE_NAME
+    )}/purchases/products/${encodeURIComponent(
+      productId
+    )}/tokens/${encodeURIComponent(purchaseToken)}:consume`
+  );
+}
+
 function assertSupabase<T>(data: T, error: { message: string } | null) {
   if (error) {
     throw new Error(error.message);
@@ -805,6 +815,75 @@ export async function inspectPurchaseToken({
         ? new Date(Number(purchase.purchaseTimeMillis)).toISOString()
         : null,
       rawGooglePayload: purchase,
+    },
+  };
+}
+
+export async function consumeCanceledPurchaseToken({
+  productId = PRO_PRODUCT_ID,
+  purchaseToken,
+}: {
+  productId?: string;
+  purchaseToken?: string;
+}): Promise<Result<Record<string, unknown>>> {
+  const inspected = await inspectPurchaseToken({ productId, purchaseToken });
+  if (inspected.status !== 200) {
+    return inspected;
+  }
+
+  const payload = inspected.payload as {
+    productId?: string;
+    tokenHash?: string;
+    orderId?: string | null;
+    purchaseState?: number | null;
+    purchaseStateLabel?: string;
+    consumptionState?: number | null;
+  };
+
+  if (payload.purchaseState !== 1) {
+    return {
+      status: 409,
+      payload: {
+        error: "Only canceled purchase tokens can be consumed from this admin action",
+        purchaseState: payload.purchaseState,
+        purchaseStateLabel: payload.purchaseStateLabel,
+        consumptionState: payload.consumptionState,
+        orderId: payload.orderId ?? null,
+      },
+    };
+  }
+
+  if (payload.consumptionState === 1) {
+    return {
+      status: 200,
+      payload: {
+        consumed: true,
+        alreadyConsumed: true,
+        productId: payload.productId,
+        tokenHash: payload.tokenHash,
+        orderId: payload.orderId ?? null,
+        purchaseState: payload.purchaseState,
+        purchaseStateLabel: payload.purchaseStateLabel,
+        consumptionState: payload.consumptionState,
+      },
+    };
+  }
+
+  const trimmedProductId = String(productId || PRO_PRODUCT_ID).trim();
+  const trimmedPurchaseToken = String(purchaseToken || "").trim();
+  await consumeProductPurchase(trimmedProductId, trimmedPurchaseToken);
+
+  return {
+    status: 200,
+    payload: {
+      consumed: true,
+      alreadyConsumed: false,
+      productId: payload.productId,
+      tokenHash: payload.tokenHash,
+      orderId: payload.orderId ?? null,
+      purchaseState: payload.purchaseState,
+      purchaseStateLabel: payload.purchaseStateLabel,
+      previousConsumptionState: payload.consumptionState,
     },
   };
 }
