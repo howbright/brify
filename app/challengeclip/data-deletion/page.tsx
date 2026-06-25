@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-const CONTACT_EMAIL = "support@harudrive.store";
+const CONTACT_EMAIL = "support@brify.ai";
 
 export const metadata: Metadata = {
   title: "ChallengeClip Data Deletion Request",

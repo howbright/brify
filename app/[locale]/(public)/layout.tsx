@@ -43,6 +43,7 @@ export default async function PublicLayout({
         <div className="[&>div]:!pt-4 [&>div]:md:!pt-4 [&>main]:!pt-4 [&>main]:md:!pt-4">
           {children}
         </div>
+        <Footer />
       </AppShell>
     );
   }

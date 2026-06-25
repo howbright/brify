@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-const CONTACT_EMAIL = "support@harudrive.store";
+const CONTACT_EMAIL = "support@brify.ai";
 
 const sections = [
   {
