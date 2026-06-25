@@ -5,7 +5,7 @@ const CONTACT_EMAIL = "hello@brify.app";
 export const metadata: Metadata = {
   title: "ChallengeClip Data Deletion Request",
   description:
-    "How to request deletion of ChallengeClip app data associated with your device.",
+    "How to request deletion of ChallengeClip app data associated with your Google Play order.",
 };
 
 export default function ChallengeClipDataDeletionPage() {
@@ -24,8 +24,8 @@ export default function ChallengeClipDataDeletionPage() {
           </p>
           <p className="mt-6 text-base leading-8 text-[#3f4a44]">
             This page explains how ChallengeClip users can request deletion of
-            data associated with their app device ID and Google Play Pro
-            purchase verification records.
+            server-side data associated with their Google Play Pro purchase
+            verification records.
           </p>
         </header>
 
@@ -43,8 +43,9 @@ export default function ChallengeClipDataDeletionPage() {
               with the subject line “ChallengeClip Data Deletion Request”.
             </p>
             <p>
-              If possible, include the Device ID shown in the app support
-              dialog. This helps us find the correct server-side records.
+              Include your Google Play Order ID, such as
+              GPA.xxxx-xxxx-xxxx-xxxxx. You can usually find this order number
+              in your Google Play purchase receipt email.
             </p>
           </div>
         </section>
@@ -52,9 +53,9 @@ export default function ChallengeClipDataDeletionPage() {
         <section className="mt-5 rounded-lg border border-[#d8ded7] bg-white p-5">
           <h2 className="text-lg font-bold">Data We Can Delete</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-[15px] leading-7 text-[#3f4a44]">
-            <li>ChallengeClip server device identifier records</li>
-            <li>Google Play Pro entitlement status associated with that Device ID</li>
-            <li>Pro feature usage event records associated with that Device ID</li>
+            <li>ChallengeClip server records linked to your Google Play Order ID</li>
+            <li>Google Play Pro entitlement status associated with that order</li>
+            <li>Pro feature usage event records associated with that order</li>
           </ul>
         </section>
 
