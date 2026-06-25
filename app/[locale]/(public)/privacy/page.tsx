@@ -39,7 +39,7 @@ const KO_COPY: PrivacyCopy = {
     "암호화 저장 및 접근 제어 등 합리적인 보안 조치를 통해 개인정보를 보호합니다.",
   section6Title: "6. 이용자 권리",
   section6Body:
-    "이용자는 개인정보 열람, 수정, 삭제를 요청할 수 있습니다. 문의: support@harudrive.store",
+    "이용자는 개인정보 열람, 수정, 삭제를 요청할 수 있습니다. 문의: hello@brify.app",
   section7Title: "7. 방침 변경",
   section7Body:
     "본 방침은 필요 시 변경될 수 있으며, 변경 사항은 본 페이지에 업데이트됩니다.",
@@ -65,7 +65,7 @@ const EN_COPY: PrivacyCopy = {
     "We take reasonable measures to protect your personal information, including encrypted storage and access controls.",
   section6Title: "6. Your Rights",
   section6Body:
-    "You have the right to access, modify, or delete your data. Contact us at support@harudrive.store for assistance.",
+    "You have the right to access, modify, or delete your data. Contact us at hello@brify.app for assistance.",
   section7Title: "7. Changes to This Policy",
   section7Body:
     "We may update this policy from time to time. Changes will be posted on this page with updated effective dates.",
@@ -92,7 +92,7 @@ const FR_COPY: PrivacyCopy = {
     "Nous mettons en place des mesures raisonnables pour protéger vos données personnelles, y compris le stockage chiffré et le contrôle d'accès.",
   section6Title: "6. Vos droits",
   section6Body:
-    "Vous avez le droit d'accéder, de modifier ou de supprimer vos données. Contact: support@harudrive.store",
+    "Vous avez le droit d'accéder, de modifier ou de supprimer vos données. Contact: hello@brify.app",
   section7Title: "7. Modifications de cette politique",
   section7Body:
     "Nous pouvons mettre à jour cette politique de temps à autre. Les changements seront publiés sur cette page.",

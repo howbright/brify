@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-const CONTACT_EMAIL = "support@brify.ai";
+const CONTACT_EMAIL = "hello@brify.app";
 
 const sections = [
   {

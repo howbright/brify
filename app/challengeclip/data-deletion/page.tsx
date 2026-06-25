@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-const CONTACT_EMAIL = "support@brify.ai";
+const CONTACT_EMAIL = "hello@brify.app";
 
 export const metadata: Metadata = {
   title: "ChallengeClip Data Deletion Request",
