@@ -20,6 +20,7 @@ type DeviceRow = Tables["challenge_clip_devices"]["Row"];
 type PurchaseRow = Tables["challenge_clip_purchases"]["Row"];
 type PurchaseInsert = Tables["challenge_clip_purchases"]["Insert"];
 type PurchaseUpdate = Tables["challenge_clip_purchases"]["Update"];
+type ProUsageEventRow = Tables["challenge_clip_pro_usage_events"]["Row"];
 
 type Result<T> = {
   status: number;
@@ -33,6 +34,19 @@ type EntitlementPayload = {
   productId: string;
   updatedAt: string | null;
 };
+
+type ProUsageSummary = {
+  hasUsedProBenefit: boolean;
+  eventCount: number;
+  firstUsedAt: string | null;
+  latestUsedAt: string | null;
+  events: ProUsageEventRow[];
+};
+
+const PRO_USAGE_EVENT_TYPES = new Set([
+  "created_extra_challenge",
+  "created_extra_clip",
+]);
 
 type GoogleProductPurchase = {
   orderId?: string;
@@ -340,6 +354,42 @@ async function getLinkedPurchases(deviceId: string) {
   return assertSupabase(data || [], error);
 }
 
+async function getProUsageEventsForDevice(deviceId: string) {
+  const { data, error } = await adminSupabase
+    .from("challenge_clip_pro_usage_events")
+    .select("*")
+    .eq("device_id", deviceId)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  return assertSupabase(data || [], error);
+}
+
+async function getProUsageEventsForPurchase(purchaseId: string) {
+  const { data, error } = await adminSupabase
+    .from("challenge_clip_pro_usage_events")
+    .select("*")
+    .eq("purchase_id", purchaseId)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  return assertSupabase(data || [], error);
+}
+
+function proUsageSummary(events: ProUsageEventRow[]): ProUsageSummary {
+  const sorted = [...events].sort((a, b) =>
+    a.created_at.localeCompare(b.created_at)
+  );
+
+  return {
+    hasUsedProBenefit: events.length > 0,
+    eventCount: events.length,
+    firstUsedAt: sorted[0]?.created_at || null,
+    latestUsedAt: sorted[sorted.length - 1]?.created_at || null,
+    events,
+  };
+}
+
 async function recalculateDeviceEntitlement(deviceId: string) {
   const device = await ensureDevice(deviceId);
   const purchases = await getLinkedPurchases(deviceId);
@@ -381,6 +431,86 @@ async function recalculateDeviceEntitlement(deviceId: string) {
 export async function getEntitlement(deviceId: string) {
   const device = await recalculateDeviceEntitlement(deviceId);
   return entitlementPayload(device);
+}
+
+function validateProUsageEventBody({
+  deviceUserId,
+  eventType,
+}: {
+  deviceUserId?: string;
+  eventType?: string;
+}) {
+  if (!deviceUserId || !eventType) {
+    return "deviceUserId and eventType are required";
+  }
+
+  if (!DEVICE_ID_PATTERN.test(deviceUserId)) {
+    return "Invalid deviceUserId";
+  }
+
+  if (!PRO_USAGE_EVENT_TYPES.has(eventType)) {
+    return "Invalid Pro usage eventType";
+  }
+
+  return null;
+}
+
+export async function recordProUsageEvent({
+  deviceUserId,
+  eventType,
+  metadata = null,
+}: {
+  deviceUserId?: string;
+  eventType?: string;
+  metadata?: Json | null;
+}): Promise<Result<Record<string, unknown>>> {
+  const validationError = validateProUsageEventBody({ deviceUserId, eventType });
+  if (validationError) {
+    return { status: 400, payload: { error: validationError } };
+  }
+
+  const verifiedDeviceUserId = deviceUserId as string;
+  const verifiedEventType = eventType as string;
+  const device = await recalculateDeviceEntitlement(verifiedDeviceUserId);
+  if (device.entitlement_status !== "active" && device.entitlement_status !== "manual_granted") {
+    return {
+      status: 409,
+      payload: {
+        error: "Device does not have active Pro entitlement",
+        ...entitlementPayload(device),
+      },
+    };
+  }
+
+  const { data, error } = await adminSupabase
+    .from("challenge_clip_pro_usage_events")
+    .insert({
+      device_id: verifiedDeviceUserId,
+      purchase_id: device.active_purchase_id,
+      event_type: verifiedEventType,
+      metadata,
+    })
+    .select("*")
+    .single();
+  const event = assertSupabaseRow(data, error, "Pro usage event");
+
+  await audit({
+    deviceId: verifiedDeviceUserId,
+    purchaseId: device.active_purchase_id,
+    action: "pro_usage_recorded",
+    metadata: {
+      eventType: verifiedEventType,
+      usageEventId: event.id,
+    },
+  });
+
+  return {
+    status: 200,
+    payload: {
+      recorded: true,
+      proUsage: proUsageSummary(await getProUsageEventsForDevice(verifiedDeviceUserId)),
+    },
+  };
 }
 
 async function linkDevicePurchase(deviceId: string, purchaseId: string) {
@@ -954,13 +1084,14 @@ export async function searchAdmin({
 }): Promise<Result<Record<string, unknown>>> {
   if (deviceUserId) {
     const device = await ensureDevice(deviceUserId);
+    const recalculatedDevice = await recalculateDeviceEntitlement(device.id);
+    const proUsageEvents = await getProUsageEventsForDevice(device.id);
 
     return {
       status: 200,
       payload: {
-        entitlement: entitlementPayload(
-          await recalculateDeviceEntitlement(device.id)
-        ),
+        entitlement: entitlementPayload(recalculatedDevice),
+        proUsage: proUsageSummary(proUsageEvents),
         purchases: await getLinkedPurchases(device.id),
       },
     };
@@ -976,6 +1107,7 @@ export async function searchAdmin({
       status: 200,
       payload: {
         purchase,
+        proUsage: proUsageSummary(await getProUsageEventsForPurchase(purchase.id)),
         deviceIds: await connectedDeviceIds(purchase.id),
       },
     };

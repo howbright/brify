@@ -276,6 +276,48 @@ export type Database = {
         }
         Relationships: []
       }
+      challenge_clip_pro_usage_events: {
+        Row: {
+          created_at: string
+          device_id: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          purchase_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          purchase_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          purchase_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_clip_pro_usage_events_device_fk"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "challenge_clip_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenge_clip_pro_usage_events_purchase_fk"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "challenge_clip_purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       challenge_clip_void_sync_state: {
         Row: {
           id: string

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 const CONTACT_EMAIL = "support@harudrive.store";
 
@@ -9,6 +10,7 @@ const sections = [
       "ChallengeClip stores information you create in the app, such as challenge names, goal days, clip records, and app settings, so you can create progress videos.",
       "When you use the camera or import feature, video files, recorded audio, and edited video outputs may be stored on your device.",
       "If you choose to save an exported video to your gallery, the exported video may be saved to your device's media library, such as Movies/ChallengeClip.",
+      "For Pro purchase verification and entitlement management, ChallengeClip may send a device identifier, Google Play purchase verification data, entitlement status, and Pro feature usage events to our server.",
     ],
   },
   {
@@ -31,12 +33,14 @@ const sections = [
     body: [
       "ChallengeClip Pro is a one-time in-app product provided through Google Play Billing.",
       "Payment method details such as full card numbers are processed by Google Play. ChallengeClip does not collect or store your full payment method information.",
+      "We use Google Play purchase tokens and order-related information only to verify Pro access, process entitlement changes, prevent abuse, and support refunds or revocations.",
     ],
   },
   {
     title: "5. Sharing and Third Parties",
     body: [
       "ChallengeClip does not upload your videos to our own servers or sell them to third parties.",
+      "Purchase verification data is processed through Google Play and our entitlement server.",
       "If you use your device's sharing feature to send a video to another app, that sharing is initiated by you and the receiving app's policies apply.",
     ],
   },
@@ -44,8 +48,10 @@ const sections = [
     title: "6. Retention and Deletion",
     body: [
       "Challenge records and video files are stored primarily on your device.",
+      "Server-side device identifier, purchase verification, entitlement, and Pro feature usage records may be retained as needed to provide Pro access, handle refunds, prevent abuse, and comply with legal obligations.",
       "Exported videos that you save to the gallery may remain in your device's media library even if you later delete the app, depending on your device and operating system settings.",
       "You can delete challenges or clips inside the app. If you uninstall the app, app data stored on your device may be deleted according to your operating system's behavior.",
+      "You can request deletion of server-side ChallengeClip data at https://www.brify.app/challengeclip/data-deletion.",
     ],
   },
   {
@@ -58,7 +64,7 @@ const sections = [
   {
     title: "8. Security",
     body: [
-      "ChallengeClip is designed so app data is processed on your device.",
+      "ChallengeClip uses HTTPS to transmit data between the app and our entitlement server.",
       "If you export or share videos to another app or location, the security and handling of that exported content are governed by the destination you choose.",
     ],
   },
@@ -114,7 +120,18 @@ export default function ChallengeClipPrivacyPage() {
               servers.
             </li>
             <li>
-              Pro purchases are processed through Google Play Billing.
+              Pro purchases are processed through Google Play Billing and
+              verified through our entitlement server.
+            </li>
+            <li>
+              You can request deletion of server-side ChallengeClip data at{" "}
+              <Link
+                className="font-semibold text-[#1f7a52] underline underline-offset-4"
+                href="/challengeclip/data-deletion"
+              >
+                our data deletion request page
+              </Link>
+              .
             </li>
           </ul>
         </section>

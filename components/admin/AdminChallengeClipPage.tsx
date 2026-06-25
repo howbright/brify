@@ -85,6 +85,44 @@ function StatusMessage({ message }: { message: string }) {
   );
 }
 
+function ProUsageNotice({ value }: { value: unknown }) {
+  if (!value || typeof value !== "object") return null;
+
+  const proUsage = (value as { proUsage?: unknown }).proUsage;
+  if (!proUsage || typeof proUsage !== "object") return null;
+
+  const {
+    hasUsedProBenefit,
+    eventCount,
+    firstUsedAt,
+    latestUsedAt,
+  } = proUsage as {
+    hasUsedProBenefit?: boolean;
+    eventCount?: number;
+    firstUsedAt?: string | null;
+    latestUsedAt?: string | null;
+  };
+
+  if (!hasUsedProBenefit) {
+    return (
+      <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-800">
+        아직 서버에 기록된 Pro 혜택 사용 내역이 없습니다.
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+      <div className="font-extrabold">Pro 혜택 사용됨 · 환불 제한 검토 대상</div>
+      <div className="mt-1">
+        사용 이벤트 {eventCount ?? 0}건
+        {firstUsedAt ? ` · 최초 ${firstUsedAt}` : ""}
+        {latestUsedAt ? ` · 최근 ${latestUsedAt}` : ""}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminChallengeClipPage() {
   const pathname = usePathname();
   const [orderId, setOrderId] = useState("");
@@ -419,6 +457,7 @@ export default function AdminChallengeClipPage() {
             조회
           </button>
 
+          <ProUsageNotice value={searchResult} />
           <JsonPanel title="Search result" value={searchResult} />
         </form>
       </section>
