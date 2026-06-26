@@ -68,6 +68,7 @@ const DEFAULT_BLOG_BODY_IMAGE_URL =
   "https://ojtkmpiiquwgetwyoyqy.supabase.co/storage/v1/object/public/blog-images/ko/1780975282822-6cc628f6-a35f-47be-b13e-9bdfa6de3045-2026-06-09-12.20.23.png";
 
 const DEFAULT_BLOG_BODY_IMAGE_MARKDOWN = `![blog image](${DEFAULT_BLOG_BODY_IMAGE_URL})`;
+const PUBLIC_SITE_BASE_URL = "https://www.brify.app";
 
 function normalizeBlogLocale(value: string | undefined): BlogLocale {
   if (value === "ko" || value === "en" || value === "fr") return value;
@@ -128,6 +129,34 @@ function parseSeoKeywords(value: string) {
         .filter(Boolean)
     )
   ).slice(0, 20);
+}
+
+function getPublicBlogUrl(post: Pick<BlogPostAdmin, "locale" | "slug">) {
+  return `${PUBLIC_SITE_BASE_URL}/${post.locale}/blog/${post.slug}`;
+}
+
+function isPostIndexRequestReady(post: BlogPostAdmin) {
+  if (post.status !== "published") return false;
+  if (!post.published_at) return true;
+  const publishedTime = new Date(post.published_at).getTime();
+  return Number.isFinite(publishedTime) && publishedTime <= Date.now();
+}
+
+async function copyText(value: string) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(value);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
 }
 
 function getUploadErrorMessage(error: unknown) {
@@ -209,6 +238,34 @@ export default function AdminBlogPage() {
     () => posts.filter((post) => localeFilter === "all" || post.locale === localeFilter),
     [posts, localeFilter]
   );
+  const indexReadyPosts = useMemo(
+    () => posts.filter(isPostIndexRequestReady),
+    [posts]
+  );
+
+  const copyIndexUrl = async (url: string) => {
+    try {
+      await copyText(url);
+      toast.success("URL을 복사했어요.");
+    } catch {
+      toast.error("URL 복사에 실패했어요.");
+    }
+  };
+
+  const copyAllIndexUrls = async () => {
+    const urls = indexReadyPosts.map(getPublicBlogUrl);
+    if (urls.length === 0) {
+      toast.error("복사할 published 블로그 URL이 없어요.");
+      return;
+    }
+
+    try {
+      await copyText(urls.join("\n"));
+      toast.success(`${urls.length}개 URL을 복사했어요.`);
+    } catch {
+      toast.error("URL 목록 복사에 실패했어요.");
+    }
+  };
 
   const loadPosts = async () => {
     setLoading(true);
@@ -588,6 +645,95 @@ export default function AdminBlogPage() {
                 비워두면 AI가 영어 slug를 제안하고, 중복되면 자동으로 번호를 붙입니다.
               </span>
             </label>
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-base font-black tracking-tight">색인 요청용 공개 URL</h2>
+              <p className="mt-1 text-sm leading-6 text-slate-600">
+                Search Console URL 검사에 붙여넣을 수 있는 published 블로그 URL 목록입니다. Draft와 예약 발행 글은 제외합니다.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void copyAllIndexUrls()}
+              disabled={indexReadyPosts.length === 0}
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-black text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Icon icon="mdi:content-copy" className="h-4 w-4" />
+              전체 URL 복사
+            </button>
+          </div>
+
+          <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200">
+            {loading ? (
+              <div className="bg-slate-50 p-4 text-sm text-slate-500">불러오는 중...</div>
+            ) : indexReadyPosts.length === 0 ? (
+              <div className="bg-slate-50 p-4 text-sm text-slate-500">
+                아직 색인 요청할 published 글이 없어요.
+              </div>
+            ) : (
+              <div className="max-h-80 overflow-y-auto">
+                <table className="w-full min-w-[820px] text-left text-sm">
+                  <thead className="sticky top-0 bg-slate-50 text-xs font-black uppercase text-slate-500">
+                    <tr>
+                      <th className="px-4 py-3">글</th>
+                      <th className="px-4 py-3">URL</th>
+                      <th className="px-4 py-3 text-right">작업</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white">
+                    {indexReadyPosts.map((post) => {
+                      const url = getPublicBlogUrl(post);
+                      return (
+                        <tr key={post.id} className="align-top">
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2 text-[11px] font-black uppercase text-slate-500">
+                              <span>{post.locale}</span>
+                              <span className="text-emerald-600">published</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setForm(toForm(post))}
+                              className="mt-1 line-clamp-2 text-left font-bold text-slate-900 hover:text-blue-700"
+                            >
+                              {post.title}
+                            </button>
+                          </td>
+                          <td className="px-4 py-3">
+                            <code className="block break-all rounded-xl bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-700">
+                              {url}
+                            </code>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => void copyIndexUrl(url)}
+                                className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-black text-slate-700 hover:bg-slate-50"
+                              >
+                                <Icon icon="mdi:content-copy" className="h-3.5 w-3.5" />
+                                복사
+                              </button>
+                              <Link
+                                href={`/${post.locale}/blog/${post.slug}`}
+                                target="_blank"
+                                className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-black text-slate-700 hover:bg-slate-50"
+                              >
+                                <Icon icon="mdi:open-in-new" className="h-3.5 w-3.5" />
+                                열기
+                              </Link>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </section>
 
