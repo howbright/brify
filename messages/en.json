@@ -133,14 +133,14 @@
     "generateTitle": "Generate the map",
     "creditsInfo": "{current} credits available · this run uses {required} credit(s)",
     "longCreditNotice": "Longer texts take more reading, structuring, and layout work, so they use a few more credits based on length.",
-    "generateButton": "Generate mind map",
+    "generateButton": "Generate structure map",
     "estimatingCredits": "Checking estimated credits...",
     "freeBadge": "Free",
     "blankMapButton": "Start with a blank map",
     "blankMapStarting": "Opening blank map...",
     "blankMapDescription": "Blank maps for brainstorming start instantly with no credit usage.",
     "insufficientCreditsCard": {
-      "title": "You don’t have enough credits to create a mind map",
+      "title": "You don’t have enough credits to create a structure map",
       "description": "Top up your credits and you can continue right away.",
       "balance": "Current balance: {current} credits",
       "action": "Top up credits"
@@ -156,7 +156,7 @@
     "more": "More…",
     "dialogAria": "Select output language",
     "title": "Choose an output language",
-    "description": "We’ll generate the mind map in the language you select.",
+    "description": "We’ll generate the structure map in the language you select.",
     "close": "Close",
     "searchPlaceholder": "Search languages (e.g. English, Korean, ja, zh...)",
     "noResults": "No results found. Try a different keyword.",
@@ -177,7 +177,7 @@
       "step2": "Scroll all the way down",
       "step3": "Hold Shift and click the last character",
       "step4": "Once everything is selected, copy and paste it into the input box",
-      "encourage": "Don’t let useful videos slip by just because you’re short on time. Paste the transcript and turn key ideas into a clear mind map in minutes."
+      "encourage": "Don’t let useful videos slip by just because you’re short on time. Paste the transcript and turn key ideas into a clear structure map in minutes."
     },
     "pastePrefix": "In the input field,",
     "shiftHold": "keep holding it",
@@ -565,7 +565,7 @@
     "cards": {
       "tags": {
         "title": "Tag Organization",
-        "description": "Group mind maps by theme so it becomes easier to organize and review related ideas."
+        "description": "Group structure maps by theme so it becomes easier to organize and review related ideas."
       },
       "merge": {
         "title": "Merge Maps",
@@ -573,7 +573,7 @@
       },
       "edit": {
         "title": "Edit Freely",
-        "description": "Edit your mind map freely in your own way."
+        "description": "Edit your structure map freely in your own way."
       },
       "read": {
         "title": "Highlight and Notes",
@@ -1761,7 +1761,7 @@
     "saving": "Saving..."
   },
   "FullscreenMapPage": {
-    "fallbackTitle": "Mind Map",
+    "fallbackTitle": "Structure Map",
     "backToList": "Back",
     "mode": {
       "editing": "Editing",
@@ -1775,7 +1775,7 @@
     "status": {
       "loading": "Loading",
       "loadFailed": "Load failed",
-      "fetchError": "We couldn't load the mind map."
+      "fetchError": "We couldn't load the structure map."
     },
     "modeBadge": {
       "edit": "Edit mode: you can edit/add nodes",
@@ -1855,7 +1855,7 @@
       "failed": "We couldn't save the image."
     },
     "deleteConfirm": {
-      "title": "Delete this mind map?",
+      "title": "Delete this structure map?",
       "description": "This action can’t be undone. Do you want to continue?",
       "action": "Delete",
       "actionDeleting": "Deleting..."
@@ -1933,8 +1933,8 @@
     "cancel": "Cancel"
   },
   "FullscreenDialog": {
-    "fallbackTitle": "Mind Map",
-    "title": "Mind Map Preview",
+    "fallbackTitle": "Structure Map",
+    "title": "Structure Map Preview",
     "close": "Close",
     "goList": "My maps",
     "mode": {
@@ -1954,7 +1954,7 @@
       "tutorial": "Tutorial"
     },
     "status": {
-      "fetchError": "We couldn't load the mind map."
+      "fetchError": "We couldn't load the structure map."
     },
     "modeBadge": {
       "edit": "Edit mode: you can edit/add nodes",
@@ -1965,7 +1965,7 @@
     "title": "Content Details",
     "subtitle": "Title is required; everything else is optional.",
     "fields": {
-      "sourceQuestion": "Is this mind map based on a YouTube video?",
+      "sourceQuestion": "Is this structure map based on a YouTube video?",
       "sourceTypeYes": "Yes",
       "sourceTypeNo": "No",
       "url": "URL",
@@ -1984,7 +1984,7 @@
       "channel": "Channel / Author / Source",
       "thumbnailUrl": "(optional) Thumbnail URL",
       "tags": "Type a tag and press Enter to add it",
-      "description": "Add notes, summary, or description for this mind map."
+      "description": "Add notes, summary, or description for this structure map."
     },
     "buttons": {
       "youtubeAutofill": "Fetch YouTube details",
@@ -2034,8 +2034,8 @@
   },
   "MapMetadataEditDialog": {
     "title": "Edit metadata",
-    "subtitle": "Update the current mind map title, source, tags, and description directly.",
-    "footerHint": "Saving will update this mind map metadata immediately.",
+    "subtitle": "Update the current structure map title, source, tags, and description directly.",
+    "footerHint": "Saving will update this structure map metadata immediately.",
     "buttons": {
       "save": "Save",
       "closeTagPicker": "Close tag list"
@@ -2043,12 +2043,12 @@
   },
   "YoutubeNotesPage": {
     "title": "YouTube Notes and YouTube Video Organization | Brify",
-    "description": "Brify helps you organize YouTube videos into structured notes and mind maps so you can revisit long content more easily.",
+    "description": "Brify helps you organize YouTube videos into structured notes and structure maps so you can revisit long content more easily.",
     "keywords": [
       "youtube notes",
       "youtube organization",
       "organize youtube videos",
-      "youtube mind map",
+      "youtube structure map",
       "Brify"
     ],
     "ogImage": "https://www.brify.app/images/snsEn.jpg",
@@ -2056,7 +2056,7 @@
     "lead": "If you keep saving useful YouTube videos but rarely revisit them, Brify helps you organize YouTube notes, flow, and structure into something easier to review later.",
     "body": [
       "Organizing YouTube content is hard not only because videos are long, but also because important ideas are repeated and scattered across different sections.",
-      "Brify helps you turn YouTube transcripts into structured notes and mind maps, so you can see what is central and how ideas connect at a glance.",
+      "Brify helps you turn YouTube transcripts into structured notes and structure maps, so you can see what is central and how ideas connect at a glance.",
       "That makes Brify a better fit for people who want more than a short summary and want to revisit the structure of the content later."
     ],
     "bullets": [
@@ -2066,41 +2066,41 @@
       "People who want to reopen and review what they watched"
     ],
     "ctaTitle": "If you want more structured YouTube notes",
-    "ctaBody": "Brify turns YouTube transcripts into mind maps so you can understand complex information faster and revisit it more easily.",
+    "ctaBody": "Brify turns YouTube transcripts into structure maps so you can understand complex information faster and revisit it more easily.",
     "primaryCta": "View demo",
     "secondaryCta": "See YouTube summary page",
     "demoHref": "/share/3a805093-2bcf-484c-8a2d-e9d4f676d88e",
     "relatedHref": "/en/youtube-summary"
   },
   "YoutubeSummaryPage": {
-    "title": "YouTube Summary Tool | Turn YouTube Videos into Mind Maps | Brify",
-    "description": "Brify is a YouTube summary tool that turns YouTube transcripts into mind maps, helping you understand long videos and complex information at a glance.",
+    "title": "YouTube Summary Tool | Turn YouTube Videos into Structure Maps | Brify",
+    "description": "Brify is a YouTube summary tool that turns YouTube transcripts into structure maps, helping you understand long videos and complex information at a glance.",
     "keywords": [
       "youtube summary",
       "youtube summary tool",
       "youtube notes",
-      "youtube mind map",
-      "youtube to mind map",
-      "convert youtube to mind map",
-      "mind map",
+      "youtube structure map",
+      "youtube to structure map",
+      "convert youtube to structure map",
+      "structure map",
       "webpage summary",
       "Brify"
     ],
     "ogImage": "https://www.brify.app/images/snsEn.jpg",
     "breadcrumbName": "YouTube Summary",
-    "heading": "A YouTube summary tool that turns videos into mind maps",
-    "lead": "If you want a faster way to summarize YouTube videos and turn YouTube transcripts into mind maps, Brify helps you grasp the flow and structure without watching every minute.",
+    "heading": "A YouTube summary tool that turns videos into structure maps",
+    "lead": "If you want a faster way to summarize YouTube videos and turn YouTube transcripts into structure maps, Brify helps you grasp the flow and structure without watching every minute.",
     "section1Title": "Why Brify works well for YouTube summaries and notes",
     "section1Body": [
       "YouTube is full of useful information, but long videos and complex topics are hard to summarize and organize quickly.",
-      "Brify works as a YouTube summary tool by turning YouTube transcripts into mind maps, so you can see the main flow, repeated ideas, and connected details at a glance.",
+      "Brify works as a YouTube summary tool by turning YouTube transcripts into structure maps, so you can see the main flow, repeated ideas, and connected details at a glance.",
       "Instead of ending with a plain summary, Brify helps you convert YouTube content into a structure you can revisit and understand more clearly."
     ],
     "section2Title": "Who this is for",
     "bullets": [
       "People who want to understand long YouTube videos faster",
       "People who want more structured YouTube notes and summaries",
-      "People who prefer visual mind maps for complex information",
+      "People who prefer visual structure maps for complex information",
       "People who also want to organize webpages and long text"
     ],
     "section3Title": "What you can do with Brify",
@@ -2111,10 +2111,10 @@
       },
       {
         "title": "YouTube notes",
-        "body": "Organize multiple concepts and details into a mind map you can revisit later."
+        "body": "Organize multiple concepts and details into a structure map you can revisit later."
       },
       {
-        "title": "YouTube mind maps",
+        "title": "YouTube structure maps",
         "body": "Turn transcripts into a visual structure you can compare and understand at a glance."
       },
       {
@@ -2126,11 +2126,11 @@
     "faqs": [
       {
         "question": "Is Brify a YouTube summary tool?",
-        "answer": "Yes. Brify helps you summarize YouTube content faster. Its strength is not only summarizing, but also turning YouTube transcripts into mind maps you can revisit later."
+        "answer": "Yes. Brify helps you summarize YouTube content faster. Its strength is not only summarizing, but also turning YouTube transcripts into structure maps you can revisit later."
       },
       {
-        "question": "Can I organize YouTube videos as mind maps?",
-        "answer": "Yes. Brify helps you convert YouTube transcripts into mind maps, making complex information easier to grasp and compare."
+        "question": "Can I organize YouTube videos as structure maps?",
+        "answer": "Yes. Brify helps you convert YouTube transcripts into structure maps, making complex information easier to grasp and compare."
       },
       {
         "question": "Can Brify also organize webpages and long text?",
@@ -2158,7 +2158,7 @@
     "heading": "Turn papers and long materials into structure maps",
     "lead": "AI structure map conversion helps you organize complex information in one view. Brify turns papers, research materials, and report sources into structured maps you can revisit anytime.",
     "paragraphs": [
-      "A mind map is not only a neat format. It is a way to understand relationships, hierarchy, and flow inside complex information.",
+      "A structure map is not only a neat format. It is a way to understand relationships, hierarchy, and flow inside complex information.",
       "Brify turns long materials into structure maps so key ideas and their connections become easier to see at a glance.",
       "That makes Brify especially useful for graduate students reading papers, researchers reviewing sources, and students preparing reports."
     ],
@@ -2168,7 +2168,7 @@
       "People who want visual flow and structure",
       "Students who compare multiple sources while preparing reports"
     ],
-    "ctaTitle": "Start organizing with Brify mind maps",
+    "ctaTitle": "Start organizing with Brify structure maps",
     "ctaBody": "Turn papers and long materials into structure maps to understand complex information faster.",
     "primaryCta": "Start Brify",
     "secondaryCta": "See another use case",
@@ -2415,8 +2415,8 @@
     },
     "previewEmpty": {
       "loading": "Loading the list.",
-      "noMaps": "You have not created any mind maps yet.",
-      "noMapsInRange": "No mind maps were created in the selected date range.",
+      "noMaps": "You have not created any structure maps yet.",
+      "noMapsInRange": "No structure maps were created in the selected date range.",
       "noResults": "No search results.",
       "selectFromList": "Please select a map from the list."
     },
@@ -2429,8 +2429,8 @@
       "selectionTurnsOffTagOrganize": "Tag organize mode was turned off before entering selection mode."
     },
     "empty": {
-      "noMaps": "You have not created any mind maps yet.",
-      "noMapsForFilters": "No mind maps match the selected filters.",
+      "noMaps": "You have not created any structure maps yet.",
+      "noMapsForFilters": "No structure maps match the selected filters.",
       "noSearchResults": "No results found. Try a different keyword.",
       "noMapsForSelectedTags": "There are no maps with the selected tags."
     },
@@ -2441,12 +2441,12 @@
     },
     "dialogs": {
       "deleteMap": {
-        "title": "Delete this mind map?",
+        "title": "Delete this structure map?",
         "description": "This cannot be undone. Do you want to continue?",
         "action": "Delete"
       },
       "deleteSelected": {
-        "title": "Delete selected mind maps?",
+        "title": "Delete selected structure maps?",
         "description": "Deleting selected maps cannot be undone.",
         "action": "Delete selected"
       },
@@ -2466,7 +2466,7 @@
       "description": "Selected maps will be attached as children under a new root.",
       "rootTitle": "Root node title",
       "required": "Required",
-      "placeholder": "e.g. Unified mind map",
+      "placeholder": "e.g. Unified structure map",
       "validation": "Enter a root title to continue merging.",
       "help": "Selected maps will be placed in order under the root title you enter.",
       "orderTitle": "Merge order",

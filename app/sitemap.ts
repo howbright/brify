@@ -46,18 +46,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.75,
     },
     {
-      url: `${BASE_URL}/ko/youtube-summary`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${BASE_URL}/ko/youtube-notes`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.75,
-    },
-    {
       url: `${BASE_URL}/ko/mind-map`,
       lastModified: now,
       changeFrequency: "weekly",
@@ -80,30 +68,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.75,
-    },
-    {
-      url: `${BASE_URL}/en/youtube-summary`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: `${BASE_URL}/fr/youtube-summary`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: `${BASE_URL}/en/youtube-notes`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.65,
-    },
-    {
-      url: `${BASE_URL}/fr/youtube-notes`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.65,
     },
     {
       url: `${BASE_URL}/en/mind-map`,
