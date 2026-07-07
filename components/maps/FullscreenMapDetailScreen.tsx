@@ -49,6 +49,7 @@ import {
   getMapTutorialCompleted,
   setMapTutorialCompleted,
 } from "@/app/lib/mapTutorialState";
+import { useMapOpenEvent } from "@/app/hooks/useMapOpenEvent";
 import { useMindThemePreference } from "@/components/maps/MindThemePreferenceProvider";
 import FullscreenHeader from "@/components/maps/FullscreenHeader";
 
@@ -783,6 +784,14 @@ export default function FullscreenMapDetailScreen({
   const [error, setError] = useState<string | null>(null);
   const [processingNow, setProcessingNow] = useState(() => Date.now());
   const [processingStep, setProcessingStep] = useState<string | null>(null);
+
+  useMapOpenEvent({
+    mapId: isSharedView ? null : mapId,
+    sharedToken: isSharedView ? sharedToken : null,
+    accessMode: isSharedView ? "shared" : "owner",
+    locale,
+    enabled: !isAdminView && !loading && !error && Boolean(mapData),
+  });
 
   const [leftOpen, setLeftOpen] = useState(false);
   const [leftTab, setLeftTab] = useState<"info" | "notes" | "terms">("info");

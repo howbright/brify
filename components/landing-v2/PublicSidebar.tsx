@@ -6,6 +6,7 @@ import { Icon } from "@iconify/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import MapThemePreferenceMenuItem from "@/components/layout/MapThemePreferenceMenuItem";
 
 type PublicSidebarCopy = {
   create: string;
@@ -21,6 +22,8 @@ type PublicSidebarCopy = {
   billing: string;
   billingHistory: string;
   account: string;
+  accountSettings: string;
+  mapTheme: string;
   logout: string;
   login: string;
   signup: string;
@@ -57,6 +60,7 @@ export default function PublicSidebar({ locale, isAuthed, email, copy }: Props) 
     { label: copy.myMaps, href: route(safeLocale, "/maps"), icon: "lucide:folder-open" },
     { label: copy.billing, href: route(safeLocale, "/billing"), icon: "lucide:wallet" },
     { label: copy.billingHistory, href: route(safeLocale, "/billing/history"), icon: "lucide:receipt" },
+    { label: copy.accountSettings, href: route(safeLocale, "/account"), icon: "lucide:user-cog" },
   ];
 
   const startBlankMap = async () => {
@@ -172,6 +176,10 @@ export default function PublicSidebar({ locale, isAuthed, email, copy }: Props) 
                   {item.label}
                 </a>
               ))}
+              <MapThemePreferenceMenuItem
+                label={copy.mapTheme}
+                className="flex h-10 items-center gap-3 rounded-2xl px-3 text-sm font-bold text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 dark:text-white/60 dark:hover:bg-white/8 dark:hover:text-white"
+              />
             </div>
           </div>
         ) : null}

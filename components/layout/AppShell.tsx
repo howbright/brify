@@ -7,6 +7,7 @@ import { useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import LanguageSelector from "@/components/LanguageSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import MapThemePreferenceMenuItem from "@/components/layout/MapThemePreferenceMenuItem";
 
 type AppShellProps = {
   children: ReactNode;
@@ -84,6 +85,7 @@ export default function AppShell({ children, locale, email }: AppShellProps) {
     { label: tUser("items.myMaps"), href: route(safeLocale, "/maps"), icon: "lucide:folder-open" },
     { label: tUser("items.billing"), href: route(safeLocale, "/billing"), icon: "lucide:wallet" },
     { label: tUser("items.billingHistory"), href: route(safeLocale, "/billing/history"), icon: "lucide:receipt" },
+    { label: tUser("items.accountSettings"), href: route(safeLocale, "/account"), icon: "lucide:user-cog" },
   ];
 
   const getNavClassName = (href: string) => {
@@ -170,6 +172,10 @@ export default function AppShell({ children, locale, email }: AppShellProps) {
                 {item.label}
               </a>
             ))}
+            <MapThemePreferenceMenuItem
+              label={tUser("items.mapTheme")}
+              className="flex h-10 items-center gap-3 rounded-2xl px-3 text-sm font-bold text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 dark:text-white/60 dark:hover:bg-white/8 dark:hover:text-white"
+            />
           </div>
         </div>
 

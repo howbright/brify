@@ -150,6 +150,17 @@ export default function ClientUserMenu({
 
         <DropdownMenuItem
           className="text-sm"
+          onSelect={(e) => {
+            e.preventDefault();
+            onNavigateStart?.("account", "/account");
+            router.push(`/${locale}/account`);
+          }}
+        >
+          <span>{t("userMenu.items.accountSettings")}</span>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          className="text-sm"
           onSelect={() => {
             setThemeOpen(true);
           }}

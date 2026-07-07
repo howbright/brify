@@ -1,5 +1,6 @@
 import PublicSidebar from "@/components/landing-v2/PublicSidebar";
 import { createClient } from "@/utils/supabase/server";
+import type { Metadata } from "next";
 
 type FeaturePageCopy = {
   badge: string;
@@ -35,6 +36,8 @@ const SIDEBAR_COPY: Record<string, SidebarCopy> = {
     billing: "결제/크레딧",
     billingHistory: "결제 내역",
     account: "계정",
+    accountSettings: "계정 설정",
+    mapTheme: "맵 테마 설정",
     logout: "로그아웃",
     login: "로그인",
     signup: "회원가입",
@@ -53,6 +56,8 @@ const SIDEBAR_COPY: Record<string, SidebarCopy> = {
     billing: "Billing",
     billingHistory: "Billing history",
     account: "Account",
+    accountSettings: "Account settings",
+    mapTheme: "Map theme",
     logout: "Log out",
     login: "Log in",
     signup: "Sign up",
@@ -71,6 +76,8 @@ const SIDEBAR_COPY: Record<string, SidebarCopy> = {
     billing: "Facturation",
     billingHistory: "Historique",
     account: "Compte",
+    accountSettings: "Paramètres du compte",
+    mapTheme: "Thème de carte",
     logout: "Déconnexion",
     login: "Connexion",
     signup: "Inscription",
@@ -373,6 +380,47 @@ function getCopy(locale: string) {
 function getSidebarCopy(locale: string) {
   if (locale === "en" || locale === "fr") return SIDEBAR_COPY[locale];
   return SIDEBAR_COPY.ko;
+}
+
+function normalizeLocale(locale: string) {
+  return locale === "en" || locale === "fr" ? locale : "ko";
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const pageLocale = normalizeLocale(locale);
+  const copy = getCopy(pageLocale);
+  const pageUrl = `https://www.brify.app/${pageLocale}/features`;
+
+  return {
+    title: `${copy.title} | Brify`,
+    description: copy.description,
+    alternates: {
+      canonical: pageUrl,
+      languages: {
+        ko: "https://www.brify.app/ko/features",
+        en: "https://www.brify.app/en/features",
+        fr: "https://www.brify.app/fr/features",
+        "x-default": "https://www.brify.app/en/features",
+      },
+    },
+    openGraph: {
+      title: `${copy.title} | Brify`,
+      description: copy.description,
+      url: pageUrl,
+      siteName: "Brify",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${copy.title} | Brify`,
+      description: copy.description,
+    },
+  };
 }
 
 export default async function FeaturesPage({

@@ -10,6 +10,7 @@ import YoutubeScriptDialog from "@/app/[locale]/(main)/video-to-map/YoutubeScrip
 import { useMapDraftStatusPolling } from "@/app/hooks/useMapDraftStatusPolling";
 import LanguageSelector from "@/components/LanguageSelector";
 import { getMapStructurePreview } from "@/components/maps/mapStructurePreview";
+import MapThemePreferenceMenuItem from "@/components/layout/MapThemePreferenceMenuItem";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
@@ -182,6 +183,8 @@ const COPY = {
     billing: "결제/크레딧",
     billingHistory: "결제 내역",
     account: "계정",
+    accountSettings: "계정 설정",
+    mapTheme: "맵 테마 설정",
     logout: "로그아웃",
     viewExample: "예시 보기",
     preparing: "링크 준비 중",
@@ -284,6 +287,8 @@ const COPY = {
     billing: "Billing",
     billingHistory: "Billing history",
     account: "Account",
+    accountSettings: "Account settings",
+    mapTheme: "Map theme",
     logout: "Log out",
     viewExample: "View example",
     preparing: "Link coming soon",
@@ -386,6 +391,8 @@ const COPY = {
     billing: "Facturation",
     billingHistory: "Historique",
     account: "Compte",
+    accountSettings: "Paramètres du compte",
+    mapTheme: "Thème de carte",
     logout: "Déconnexion",
     viewExample: "Voir l'exemple",
     preparing: "Lien à venir",
@@ -1380,6 +1387,7 @@ export default function LandingV2Page({
     { label: copy.myMaps, href: route("/maps"), icon: "lucide:folder-open" },
     { label: copy.billing, href: route("/billing"), icon: "lucide:wallet" },
     { label: copy.billingHistory, href: route("/billing/history"), icon: "lucide:receipt" },
+    { label: copy.accountSettings, href: route("/account"), icon: "lucide:user-cog" },
   ];
 
   return (
@@ -1467,6 +1475,10 @@ export default function LandingV2Page({
                   {item.label}
                 </a>
               ))}
+              <MapThemePreferenceMenuItem
+                label={copy.mapTheme}
+                className="flex h-10 items-center gap-3 rounded-2xl px-3 text-sm font-bold text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 dark:text-white/60 dark:hover:bg-white/8 dark:hover:text-white"
+              />
             </div>
           </div>
         ) : null}

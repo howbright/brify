@@ -276,48 +276,6 @@ export type Database = {
         }
         Relationships: []
       }
-      challenge_clip_pro_usage_events: {
-        Row: {
-          created_at: string
-          device_id: string
-          event_type: string
-          id: string
-          metadata: Json | null
-          purchase_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          device_id: string
-          event_type: string
-          id?: string
-          metadata?: Json | null
-          purchase_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          device_id?: string
-          event_type?: string
-          id?: string
-          metadata?: Json | null
-          purchase_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "challenge_clip_pro_usage_events_device_fk"
-            columns: ["device_id"]
-            isOneToOne: false
-            referencedRelation: "challenge_clip_devices"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "challenge_clip_pro_usage_events_purchase_fk"
-            columns: ["purchase_id"]
-            isOneToOne: false
-            referencedRelation: "challenge_clip_purchases"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       challenge_clip_void_sync_state: {
         Row: {
           id: string
@@ -771,6 +729,60 @@ export type Database = {
             columns: ["map_id"]
             isOneToOne: false
             referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      map_open_events: {
+        Row: {
+          access_mode: Database["public"]["Enums"]["map_open_access_mode"]
+          created_at: string
+          id: string
+          locale: string | null
+          map_id: string
+          opened_at: string
+          referrer: string | null
+          session_key: string | null
+          user_agent_hash: string | null
+          user_id: string | null
+        }
+        Insert: {
+          access_mode?: Database["public"]["Enums"]["map_open_access_mode"]
+          created_at?: string
+          id?: string
+          locale?: string | null
+          map_id: string
+          opened_at?: string
+          referrer?: string | null
+          session_key?: string | null
+          user_agent_hash?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          access_mode?: Database["public"]["Enums"]["map_open_access_mode"]
+          created_at?: string
+          id?: string
+          locale?: string | null
+          map_id?: string
+          opened_at?: string
+          referrer?: string | null
+          session_key?: string | null
+          user_agent_hash?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "map_open_events_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "map_open_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2038,6 +2050,7 @@ export type Database = {
         | "done"
         | "failed"
         | "cancelled"
+      map_open_access_mode: "owner" | "shared" | "admin"
       map_read_status: "unread" | "in_progress" | "read"
       map_source_type: "youtube" | "website" | "file" | "manual"
       map_status:
@@ -2279,6 +2292,7 @@ export const Constants = {
         "failed",
         "cancelled",
       ],
+      map_open_access_mode: ["owner", "shared", "admin"],
       map_read_status: ["unread", "in_progress", "read"],
       map_source_type: ["youtube", "website", "file", "manual"],
       map_status: [

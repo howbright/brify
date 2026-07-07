@@ -68,6 +68,32 @@ export default async function AdminHomePage({
         </Link>
 
         <Link
+          href={`/${locale}/admin/maps/recent`}
+          className="rounded-3xl border border-slate-300 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+        >
+          <div className="text-sm font-semibold text-blue-700">ADMIN RECENT MAPS</div>
+          <h2 className="mt-2 text-xl font-extrabold tracking-tight text-neutral-950">
+            최근 생성 구조맵
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-neutral-600">
+            최신 구조맵 50개의 사용자, 상태, 입력 길이, 크레딧, 처리 시간을 빠르게 확인해요.
+          </p>
+        </Link>
+
+        <Link
+          href={`/${locale}/admin/analytics/maps`}
+          className="rounded-3xl border border-slate-300 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+        >
+          <div className="text-sm font-semibold text-blue-700">ADMIN MAP ANALYTICS</div>
+          <h2 className="mt-2 text-xl font-extrabold tracking-tight text-neutral-950">
+            구조맵 열람 분석
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-neutral-600">
+            사용자가 만든 구조맵을 다시 여는지, 24시간 이후 재방문이 있는지 확인해요.
+          </p>
+        </Link>
+
+        <Link
           href={`/${locale}/admin/credits/gift`}
           className="rounded-3xl border border-slate-300 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
         >
@@ -90,6 +116,32 @@ export default async function AdminHomePage({
           </h2>
           <p className="mt-2 text-sm leading-6 text-neutral-600">
             사용자를 검색하고 그 사용자의 구조맵 목록, 실패 사유, 요약을 한 화면에서 확인해요.
+          </p>
+        </Link>
+
+        <Link
+          href={`/${locale}/admin/users/recent`}
+          className="rounded-3xl border border-slate-300 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+        >
+          <div className="text-sm font-semibold text-blue-700">ADMIN RECENT USERS</div>
+          <h2 className="mt-2 text-xl font-extrabold tracking-tight text-neutral-950">
+            최근 사용자
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-neutral-600">
+            최근 가입 유저 30명과 최근 로그인 유저 30명을 한 화면에서 확인해요.
+          </p>
+        </Link>
+
+        <Link
+          href={`/${locale}/admin/test-account`}
+          className="rounded-3xl border border-rose-200 bg-rose-50 p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+        >
+          <div className="text-sm font-semibold text-rose-700">ADMIN TEST ACCOUNT</div>
+          <h2 className="mt-2 text-xl font-extrabold tracking-tight text-rose-950">
+            테스트계정 초기화
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-rose-900/70">
+            메일 회원가입 테스트를 위해 howbright22@gmail.com 계정을 삭제하고 다시 가입할 수 있게 해요.
           </p>
         </Link>
       </section>

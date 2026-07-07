@@ -81,18 +81,26 @@ const SEO_COPY = {
   },
 } as const;
 
+function getSeoCopy(locale: string) {
+  return locale === "ko" ? SEO_COPY.ko : locale === "fr" ? SEO_COPY.fr : SEO_COPY.en;
+}
+
+function getPageLocale(locale: string) {
+  return locale === "ko" ? "ko" : locale === "fr" ? "fr" : "en";
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const copy =
-    locale === "ko" ? SEO_COPY.ko : locale === "fr" ? SEO_COPY.fr : SEO_COPY.en;
-  const pageLocale = locale === "ko" ? "ko" : locale === "fr" ? "fr" : "en";
+  const copy = getSeoCopy(locale);
+  const pageLocale = getPageLocale(locale);
   const pageUrl = `https://www.brify.app/${pageLocale}`;
 
   return {
+    applicationName: "Brify",
     title: copy.title,
     description: copy.description,
     keywords: [...copy.keywords],
@@ -164,6 +172,40 @@ export default async function RootLayout({
   const safeSession = user ? session : null;
 
   const messages = await getMessages();
+  const pageLocale = getPageLocale(locale);
+  const copy = getSeoCopy(locale);
+  const pageUrl = `https://www.brify.app/${pageLocale}`;
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://www.brify.app/#organization",
+        name: "Brify",
+        url: "https://www.brify.app",
+        logo: "https://www.brify.app/images/snsEn.jpg",
+      },
+      {
+        "@type": ["SoftwareApplication", "WebApplication"],
+        "@id": "https://www.brify.app/#software",
+        name: "Brify",
+        url: pageUrl,
+        applicationCategory: "ProductivityApplication",
+        operatingSystem: "Web",
+        inLanguage: pageLocale,
+        description: copy.description,
+        publisher: {
+          "@id": "https://www.brify.app/#organization",
+        },
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: pageLocale === "ko" ? "KRW" : "USD",
+          availability: "https://schema.org/InStock",
+        },
+      },
+    ],
+  };
 
   return (
     <ThemeProvider>
@@ -173,6 +215,10 @@ export default async function RootLayout({
         <SessionProvider session={safeSession}>
           <AuthRscRefresher /> {/* ← 여기! 헤더보다 위든 아래든 상관 없음 */}
           <NextIntlClientProvider locale={locale} messages={messages}>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+            />
             <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
             <GlobalNotificationStack />
           </NextIntlClientProvider>
