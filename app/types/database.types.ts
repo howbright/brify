@@ -222,6 +222,48 @@ export type Database = {
           },
         ]
       }
+      challenge_clip_pro_usage_events: {
+        Row: {
+          created_at: string
+          device_id: string
+          event_type: Database["public"]["Enums"]["challenge_clip_pro_usage_event_type"]
+          id: string
+          metadata: Json | null
+          purchase_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          event_type: Database["public"]["Enums"]["challenge_clip_pro_usage_event_type"]
+          id?: string
+          metadata?: Json | null
+          purchase_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          event_type?: Database["public"]["Enums"]["challenge_clip_pro_usage_event_type"]
+          id?: string
+          metadata?: Json | null
+          purchase_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_clip_pro_usage_events_device_fk"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "challenge_clip_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenge_clip_pro_usage_events_purchase_fk"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "challenge_clip_purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       challenge_clip_purchases: {
         Row: {
           acknowledgement_state: number | null
@@ -2002,6 +2044,9 @@ export type Database = {
       is_store_admin: { Args: { p_store_id: string }; Returns: boolean }
     }
     Enums: {
+      challenge_clip_pro_usage_event_type:
+        | "created_extra_challenge"
+        | "created_extra_clip"
       credit_lot_status: "active" | "depleted" | "expired" | "refunded"
       credit_transaction_source:
         | "lemon_squeezy"
@@ -2238,6 +2283,10 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      challenge_clip_pro_usage_event_type: [
+        "created_extra_challenge",
+        "created_extra_clip",
+      ],
       credit_lot_status: ["active", "depleted", "expired", "refunded"],
       credit_transaction_source: [
         "lemon_squeezy",

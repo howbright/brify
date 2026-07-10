@@ -68,7 +68,7 @@ export function useMindElixirNodeActions({
 
   const openNodeContextMenu = (
     nodeId?: string | null,
-    anchorEl?: HTMLElement | null
+    _anchorEl?: HTMLElement | null
   ) => {
     const targetId = nodeId ?? selectedNodeIdRef.current;
     if (!targetId) return;

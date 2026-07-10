@@ -21,6 +21,7 @@ type PurchaseRow = Tables["challenge_clip_purchases"]["Row"];
 type PurchaseInsert = Tables["challenge_clip_purchases"]["Insert"];
 type PurchaseUpdate = Tables["challenge_clip_purchases"]["Update"];
 type ProUsageEventRow = Tables["challenge_clip_pro_usage_events"]["Row"];
+type ProUsageEventType = "created_extra_challenge" | "created_extra_clip";
 
 type Result<T> = {
   status: number;
@@ -43,7 +44,7 @@ type ProUsageSummary = {
   events: ProUsageEventRow[];
 };
 
-const PRO_USAGE_EVENT_TYPES = new Set([
+const PRO_USAGE_EVENT_TYPES = new Set<ProUsageEventType>([
   "created_extra_challenge",
   "created_extra_clip",
 ]);
@@ -448,11 +449,18 @@ function validateProUsageEventBody({
     return "Invalid deviceUserId";
   }
 
-  if (!PRO_USAGE_EVENT_TYPES.has(eventType)) {
+  if (!isProUsageEventType(eventType)) {
     return "Invalid Pro usage eventType";
   }
 
   return null;
+}
+
+function isProUsageEventType(value: unknown): value is ProUsageEventType {
+  return (
+    typeof value === "string" &&
+    PRO_USAGE_EVENT_TYPES.has(value as ProUsageEventType)
+  );
 }
 
 export async function recordProUsageEvent({
@@ -470,7 +478,7 @@ export async function recordProUsageEvent({
   }
 
   const verifiedDeviceUserId = deviceUserId as string;
-  const verifiedEventType = eventType as string;
+  const verifiedEventType = eventType as ProUsageEventType;
   const device = await recalculateDeviceEntitlement(verifiedDeviceUserId);
   if (device.entitlement_status !== "active" && device.entitlement_status !== "manual_granted") {
     return {
