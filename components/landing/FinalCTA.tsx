@@ -19,7 +19,7 @@ type Props = {
 export default function FinalCTA({
   isAuthed = false,
   primaryHrefSignedOut = "/signup",
-  primaryHrefSignedIn = "/video-to-map",
+  primaryHrefSignedIn = "/",
   showSecondary = true,
   secondaryHref = "/pricing",
   className = "",

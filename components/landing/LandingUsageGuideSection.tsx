@@ -80,7 +80,7 @@ export default function LandingUsageGuideSection({ isAuthed = false }: { isAuthe
 
           <div className="mt-5">
             <Link
-              href={isAuthed ? "/video-to-map" : "/signup?next=%2Fvideo-to-map"}
+              href={isAuthed ? "/" : "/signup"}
               className="inline-flex items-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#1d4ed8_0%,#2563eb_45%,#3b82f6_100%)] px-5 py-3 text-sm font-bold text-white shadow-[0_20px_46px_-28px_rgba(37,99,235,0.78)] transition-transform hover:scale-[1.02]"
             >
               {t("cta")}

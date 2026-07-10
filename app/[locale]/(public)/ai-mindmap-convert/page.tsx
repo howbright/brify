@@ -115,7 +115,7 @@ export default async function AiMindMapConvertPage({ params }: PageProps) {
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
-              href={`/${locale}/signup?next=%2Fvideo-to-map`}
+              href={`/${locale}/signup`}
               className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(37,99,235,0.40)] transition-all duration-150 hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_14px_40px_rgba(79,70,229,0.60)] active:scale-100"
             >
               {content.heroPrimaryCta}
@@ -219,7 +219,7 @@ export default async function AiMindMapConvertPage({ params }: PageProps) {
           </p>
           <div className="relative mt-6 flex flex-col gap-3 sm:flex-row">
             <Link
-              href={`/${locale}/video-to-map`}
+              href={`/${locale}`}
               className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(37,99,235,0.40)] transition-all duration-150 hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_14px_40px_rgba(79,70,229,0.60)] active:scale-100"
             >
               {content.ctaPrimary}

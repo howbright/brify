@@ -85,7 +85,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
         body: JSON.stringify({ title: t("cta.blankMapDefaultTitle") }),
       });
       if (res.status === 401) {
-        router.push(`/${locale}/login?next=${encodeURIComponent(`/${locale}/video-to-map`)}`);
+        router.push(`/${locale}/login?next=${encodeURIComponent(`/${locale}`)}`);
         return;
       }
       const json = await res.json().catch(() => ({}));
@@ -228,7 +228,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                   {t("auth.login")}
                 </Link>
                 <Link
-                  href="/signup?next=%2Fvideo-to-map"
+                  href="/signup"
                   onClick={() => startNavigationFeedback("signup", "/signup")}
                   className={[
                     "text-sm px-4 py-2 rounded-full text-white transition-all active:scale-100 dark:bg-[rgb(var(--hero-a))] dark:hover:bg-[rgb(var(--hero-b))]",
@@ -275,7 +275,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                     <DropdownMenuItem
                       onSelect={(e) => {
                         e.preventDefault();
-                        router.push(`/${locale}/video-to-map`);
+                        router.push(`/${locale}`);
                       }}
                       className="flex flex-col items-start gap-0.5 py-2.5"
                     >
@@ -328,7 +328,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
             {!isAuthed && <LanguageSelector compact />}
             {!isAuthed && (
               <Link
-                href="/signup?next=%2Fvideo-to-map"
+                href="/signup"
                 onClick={() => startNavigationFeedback("signup", "/signup")}
                 className="
                   inline-flex h-8 shrink-0 items-center rounded-xl
@@ -376,7 +376,7 @@ export default function ClientHeaderShell({ isAuthed, email }: Props) {
                   <DropdownMenuItem
                     onSelect={(e) => {
                       e.preventDefault();
-                      router.push(`/${locale}/video-to-map`);
+                      router.push(`/${locale}`);
                     }}
                     className="flex flex-col items-start gap-0.5 py-2.5"
                   >

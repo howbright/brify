@@ -471,7 +471,7 @@ export default function FeedbackMissionPanel() {
           </Link>
 
           <Link
-            href={`/${locale}/video-to-map`}
+            href={`/${locale}`}
             className="
               inline-flex items-center justify-center rounded-2xl
               px-4 py-2.5 text-sm font-semibold
@@ -882,7 +882,7 @@ export default function FeedbackMissionPanel() {
                   value={steps}
                   disabled={submitCapReached}
                   onChange={(e) => setSteps(e.target.value)}
-                  placeholder={`예:\n1) video-to-map에서 URL 입력\n2) Summarize 클릭\n3) 30초 후 멈춤`}
+                  placeholder={`예:\n1) 랜딩페이지에서 원문 입력\n2) 구조맵 생성 클릭\n3) 30초 후 멈춤`}
                   rows={3}
                   className={cn(
                     "mt-1 w-full rounded-2xl px-3 py-2 text-sm outline-none",

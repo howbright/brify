@@ -15,14 +15,14 @@ export default function LandingSampleSection({
   const router = useRouter();
   const pathname = usePathname();
   const [pendingCta, setPendingCta] = useState(false);
-  const ctaHref = isAuthed ? "/video-to-map" : "/signup?next=%2Fvideo-to-map";
+  const ctaHref = isAuthed ? "/" : "/signup";
 
   useEffect(() => {
     setPendingCta(false);
   }, [pathname]);
 
   useEffect(() => {
-    void router.prefetch(isAuthed ? "/video-to-map" : "/signup");
+    void router.prefetch(isAuthed ? "/" : "/signup");
   }, [isAuthed, router]);
 
   const startNavigationFeedback = () => {

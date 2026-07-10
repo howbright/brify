@@ -21,8 +21,8 @@ function safeDecodeCookie(value: string | undefined) {
 
 function normalizeNext(raw: string | null, locale: string) {
   const next = (raw ?? "").trim();
-  if (!next || next === "/") return `/${locale}/video-to-map`;
-  if (!next.startsWith("/") || next.startsWith("//")) return `/${locale}/video-to-map`;
+  if (!next || next === "/") return `/${locale}`;
+  if (!next.startsWith("/") || next.startsWith("//")) return `/${locale}`;
   if (
     SUPPORTED_LOCALES.some(
       (supported) =>

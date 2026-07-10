@@ -251,7 +251,7 @@ export default function ClientMobileUserMenu({
                       {t("auth.login")}
                     </Link>
                     <Link
-                      href="/signup?next=%2Fvideo-to-map"
+                      href="/signup"
                       className="w-full text-white bg-primary hover:bg-primary-hover font-medium 
                         rounded-lg text-sm px-4 py-2 text-center"
                       onClick={() => {

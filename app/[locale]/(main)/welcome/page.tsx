@@ -17,7 +17,7 @@ export default function WelcomePage() {
         </h1>
 
         <Link
-          href="/video-to-map"
+          href="/"
           className="
             group mt-6 inline-flex items-center gap-2
             rounded-full px-6 py-2.5 text-sm font-semibold

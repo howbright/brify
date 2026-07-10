@@ -234,7 +234,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
   }, [titles.length]);
 
   useEffect(() => {
-    void router.prefetch(isAuthed ? "/video-to-map" : "/signup");
+    void router.prefetch(isAuthed ? "/" : "/signup");
     void router.prefetch(demoShareHref);
   }, [demoShareHref, isAuthed, router]);
 
@@ -436,7 +436,7 @@ export default function LandingBlueHero({ isAuthed = false }: { isAuthed?: boole
           {/* CTA */}
           <div className="mt-7 flex gap-4">
             <Link
-              href={isAuthed ? "/video-to-map" : "/signup?next=%2Fvideo-to-map"}
+              href={isAuthed ? "/" : "/signup"}
               onClick={() => startHeroNavigation("primary")}
               className="
                 inline-flex px-6 py-3 rounded-2xl

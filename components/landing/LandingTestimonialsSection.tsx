@@ -45,7 +45,7 @@ export default function LandingTestimonialsSection() {
   const router = useRouter();
   const pathname = usePathname();
   const [pendingCta, setPendingCta] = useState(false);
-  const ctaHref = "/signup?next=%2Fvideo-to-map";
+  const ctaHref = "/signup";
 
   useEffect(() => {
     setPendingCta(false);
