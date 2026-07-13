@@ -23,10 +23,10 @@ export const revalidate = 0;
 
 const SEO_COPY = {
   ko: {
-    title: "대학원생·연구자를 위한 AI 구조맵 도구 | Brify",
-    ogTitle: "논문과 긴 자료를 읽는 사람을 위한 AI 구조맵 도구 | Brify",
+    title: "긴 문서를 상세정보까지 담은 구조로 정리 | Brify",
+    ogTitle: "긴 문서를 상세정보까지 담은 구조맵으로 정리 | Brify",
     description:
-      "Brify는 논문과 긴 자료를 읽는 대학원생, 연구자, 리포트를 준비하는 학생을 위한 AI 구조맵 도구입니다. 긴 자료의 핵심 흐름과 세부 근거를 구조맵으로 정리해 읽고, 편집하고, 공유할 수 있습니다.",
+      "Brify는 긴 문서를 요약으로 줄이는 대신 원문 근거와 세부 흐름을 보존한 구조맵으로 변환합니다. 논문, 보고서, 전문 자료를 읽고, 편집하고, 공유하기 쉽게 정리하세요.",
     imageUrl: "https://www.brify.app/images/snsKo.jpg",
     ogLocale: "ko_KR",
     keywords: [
@@ -44,10 +44,10 @@ const SEO_COPY = {
     ],
   },
   en: {
-    title: "AI Structure Map Tool for Graduate Students and Researchers | Brify",
-    ogTitle: "AI Structure Maps for Papers, Research, and Long Materials | Brify",
+    title: "Organize Long Documents With Detail-Preserving Structure Maps | Brify",
+    ogTitle: "Turn Long Documents Into Structures That Keep the Details | Brify",
     description:
-      "Brify is an AI structure map tool for graduate students, researchers, and students preparing reports from papers and long materials. Turn dense text into editable maps you can review, refine, and share.",
+      "Brify turns long documents into source-grounded structure maps instead of reducing them to short summaries. Organize papers, reports, and professional materials in a way you can review, refine, and share.",
     imageUrl: "https://www.brify.app/images/snsEn.jpg",
     ogLocale: "en_US",
     keywords: [
@@ -62,10 +62,10 @@ const SEO_COPY = {
     ],
   },
   fr: {
-    title: "Outil de carte structurée IA pour étudiants-chercheurs et chercheurs | Brify",
-    ogTitle: "Cartes structurées IA pour articles, recherche et documents longs | Brify",
+    title: "Organiser les documents longs en cartes structurées détaillées | Brify",
+    ogTitle: "Transformez les documents longs en structures qui gardent les détails | Brify",
     description:
-      "Brify est un outil de carte structurée par IA pour les doctorants, chercheurs et étudiants qui préparent des rapports à partir d’articles et de documents longs. Transformez les textes denses en cartes modifiables à relire, affiner et partager.",
+      "Brify transforme les documents longs en cartes structurées ancrées dans le texte source, au lieu de les réduire à de simples résumés. Organisez articles, rapports et documents spécialisés pour les relire, les affiner et les partager.",
     imageUrl: "https://www.brify.app/images/snsEn.jpg",
     ogLocale: "fr_FR",
     keywords: [

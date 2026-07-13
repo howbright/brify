@@ -1893,6 +1893,8 @@
       "highlightReadOnly": "Highlights are not saved in read-only mode."
     },
     "sourceFind": {
+      "eyebrow": "Source evidence",
+      "viewTitle": "Source view",
       "title": "Find source passage",
       "loading": "Searching the source passage linked to the selected node...",
       "selectedNode": "Selected node: {topic}",

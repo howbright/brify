@@ -1881,6 +1881,8 @@
       "highlightReadOnly": "Les surlignages ne sont pas enregistrés en lecture seule."
     },
     "sourceFind": {
+      "eyebrow": "Preuve source",
+      "viewTitle": "Voir la source",
       "title": "Trouver le passage source",
       "loading": "Recherche du passage source lié au nœud sélectionné...",
       "selectedNode": "Nœud sélectionné : {topic}",

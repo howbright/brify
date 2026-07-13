@@ -1893,6 +1893,8 @@
       "highlightReadOnly": "읽기전용에서는 하이라이트가 저장되지 않습니다."
     },
     "sourceFind": {
+      "eyebrow": "원문 근거",
+      "viewTitle": "원문보기",
       "title": "원문 구간 찾기",
       "loading": "선택한 노드와 연결된 원문 구간을 찾는 중입니다...",
       "selectedNode": "선택 노드: {topic}",

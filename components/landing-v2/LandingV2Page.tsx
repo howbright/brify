@@ -102,8 +102,9 @@ const COPY = {
   ko: {
     login: "로그인",
     signup: "회원가입",
-    headline: "논문과 긴 자료를 구조맵으로 정리하세요.",
-    subhead: "",
+    headline: "긴 문서를 상세정보까지 담은 구조로 정리하세요.",
+    subhead:
+      "Brify는 긴 문서를 요약으로 줄이는 대신 원문 근거와 세부 흐름을 보존한 구조맵으로 변환합니다. 논문, 보고서, 전문 자료에 특히 잘 맞습니다.",
     textareaPlaceholder: "여기에 붙여넣기",
     uploadDoc: "문서 업로드",
     youtubeHelp: "유튜브 영상대본 복사하는 방법",
@@ -205,8 +206,9 @@ const COPY = {
   en: {
     login: "Log in",
     signup: "Sign up",
-    headline: "Turn papers and long materials into structure maps.",
-    subhead: "",
+    headline: "Turn long documents into structures that keep the details.",
+    subhead:
+      "Brify turns long documents into source-grounded structure maps instead of reducing them to short summaries. It is especially useful for papers, reports, and professional materials.",
     textareaPlaceholder: "Paste here",
     uploadDoc: "Upload document",
     youtubeHelp: "YouTube transcript",
@@ -309,8 +311,9 @@ const COPY = {
   fr: {
     login: "Connexion",
     signup: "Inscription",
-    headline: "Transformez articles et documents longs en cartes structurées.",
-    subhead: "",
+    headline: "Transformez les documents longs en structures qui gardent les détails.",
+    subhead:
+      "Brify transforme les documents longs en cartes structurées ancrées dans le texte source, au lieu de les réduire à de simples résumés. C’est particulièrement utile pour les articles, rapports et documents spécialisés.",
     textareaPlaceholder: "Collez ici",
     uploadDoc: "Importer un document",
     youtubeHelp: "Transcription YouTube",
@@ -1558,6 +1561,11 @@ export default function LandingV2Page({
           <h1 className="max-w-2xl text-[17px] font-bold leading-7 tracking-normal text-slate-700 sm:text-[19px] dark:text-white/76">
             {copy.headline}
           </h1>
+          {copy.subhead ? (
+            <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-slate-500 sm:text-[15px] dark:text-white/52">
+              {copy.subhead}
+            </p>
+          ) : null}
 
           <div
             onDragOver={(event) => {
