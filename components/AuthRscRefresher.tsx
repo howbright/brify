@@ -5,9 +5,11 @@ import { useEffect } from "react";
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
+import { useSession } from "@/components/SessionProvider";
 
 export default function AuthRscRefresher() {
   const router = useRouter();
+  const { session: serverSession } = useSession();
   const refreshTimerRef = useRef<number | null>(null);
   const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
 
@@ -36,9 +38,21 @@ export default function AuthRscRefresher() {
         return;
       }
 
-      // 첫 진입에서 발생하는 INITIAL_SESSION과 주기적 TOKEN_REFRESHED는
-      // 불필요한 RSC refresh를 만들 수 있으니 건너뛴다.
-      if (event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {
+      if (event === "INITIAL_SESSION") {
+        if (session?.user && !serverSession?.user) {
+          if (refreshTimerRef.current !== null) {
+            window.clearTimeout(refreshTimerRef.current);
+          }
+          refreshTimerRef.current = window.setTimeout(() => {
+            router.refresh();
+            refreshTimerRef.current = null;
+          }, 0);
+        }
+        return;
+      }
+
+      // 주기적 TOKEN_REFRESHED는 불필요한 RSC refresh를 만들 수 있으니 건너뛴다.
+      if (event === "TOKEN_REFRESHED") {
         return;
       }
 
@@ -64,7 +78,7 @@ export default function AuthRscRefresher() {
       }
       sub.subscription.unsubscribe();
     };
-  }, [router]);
+  }, [router, serverSession?.user]);
 
   return null;
 }
