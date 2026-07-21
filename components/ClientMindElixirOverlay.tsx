@@ -71,6 +71,7 @@ type ClientMindElixirOverlayProps = {
   onSlideshowClick: () => void;
   regenerateLabel: string;
   regenerateLoadingLabel: string;
+  regenerateProminent?: boolean;
   canRegenerate: boolean;
   isRegenerating: boolean;
   onRegenerateClick: () => void;
@@ -203,6 +204,7 @@ export default function ClientMindElixirOverlay({
   onSlideshowClick,
   regenerateLabel,
   regenerateLoadingLabel,
+  regenerateProminent = false,
   canRegenerate,
   isRegenerating,
   onRegenerateClick,
@@ -326,7 +328,7 @@ export default function ClientMindElixirOverlay({
             }}
           >
             <div className={hoverActionWrapClass}>
-              {showImagePreviewAction ? (
+              {showImagePreviewAction && !regenerateProminent ? (
                 <button
                   type="button"
                   className={`${hoverActionButtonClass} bg-sky-600 text-white ring-1 ring-sky-700/60`}
@@ -346,7 +348,11 @@ export default function ClientMindElixirOverlay({
               {canRegenerate ? (
                 <button
                   type="button"
-                  className={`${hoverActionButtonClass} bg-indigo-600 text-white ring-1 ring-indigo-700/60 disabled:cursor-wait disabled:opacity-80`}
+                  className={
+                    regenerateProminent
+                      ? "group relative inline-flex h-7 w-auto min-w-[64px] items-center justify-center gap-1.5 rounded-full bg-emerald-600 px-2.5 text-[11px] font-extrabold text-white shadow-[0_14px_30px_-16px_rgba(5,150,105,0.8)] ring-1 ring-emerald-700/60 transition hover:bg-emerald-500 disabled:cursor-wait disabled:opacity-80"
+                      : `${hoverActionButtonClass} bg-indigo-600 text-white ring-1 ring-indigo-700/60 disabled:cursor-wait disabled:opacity-80`
+                  }
                   onClick={(e) => {
                     e.stopPropagation();
                     onRegenerateClick();
@@ -356,17 +362,32 @@ export default function ClientMindElixirOverlay({
                   title={isRegenerating ? regenerateLoadingLabel : regenerateLabel}
                 >
                   <Icon
-                    icon={isRegenerating ? "mdi:loading" : "mdi:auto-fix"}
+                    icon={
+                      isRegenerating
+                        ? "mdi:loading"
+                        : regenerateProminent
+                        ? "mdi:source-branch-plus"
+                        : "mdi:auto-fix"
+                    }
                     className={`${hoverActionIconClass} ${
                       isRegenerating ? "animate-spin" : ""
                     }`}
                   />
-                  <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                  {regenerateProminent ? (
+                    <span className="whitespace-nowrap">
+                      {isRegenerating ? regenerateLoadingLabel : regenerateLabel}
+                    </span>
+                  ) : null}
+                  <span
+                    className={`pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2 py-0.5 text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100 ${
+                      regenerateProminent ? "hidden" : ""
+                    }`}
+                  >
                     {isRegenerating ? regenerateLoadingLabel : regenerateLabel}
                   </span>
                 </button>
               ) : null}
-              {showAnnotationAction ? (
+              {showAnnotationAction && !regenerateProminent ? (
                 <button
                   type="button"
                   className={`${hoverActionButtonClass} bg-red-500 text-white ring-1 ring-red-600/60`}
@@ -382,7 +403,7 @@ export default function ClientMindElixirOverlay({
                   </span>
                 </button>
               ) : null}
-              {showHighlightAction ? (
+              {showHighlightAction && !regenerateProminent ? (
                 <button
                   type="button"
                   className={`${hoverActionButtonClass} bg-yellow-400 text-black ring-1 ring-yellow-500/70`}
@@ -406,7 +427,7 @@ export default function ClientMindElixirOverlay({
                   </span>
                 </button>
               ) : null}
-              {showMobileControls && editMode === "edit" ? (
+              {showMobileControls && editMode === "edit" && !regenerateProminent ? (
                 <button
                   type="button"
                   className={`${hoverActionButtonClass} bg-slate-800 text-white ring-1 ring-slate-900/70`}
@@ -422,7 +443,7 @@ export default function ClientMindElixirOverlay({
                     {moreActionsLabel}
                   </span>
                 </button>
-              ) : showSelectionContextMenuButton && !isTouchDevice ? (
+              ) : showSelectionContextMenuButton && !isTouchDevice && !regenerateProminent ? (
                 <button
                   type="button"
                   className={`${hoverActionButtonClass} bg-slate-800 text-white ring-1 ring-slate-900/70`}

@@ -118,6 +118,10 @@ function hasSourceRangeHint(node: MindElixirNode | null) {
   );
 }
 
+function hasChildNodes(node: MindElixirNode | null) {
+  return Array.isArray(node?.children) && node.children.length > 0;
+}
+
 const PROCESSING_PLACEHOLDER_META_KEY = "brifyProcessingPlaceholder";
 const PROCESSING_PROGRESS_CAP = 97;
 const PROCESSING_BASELINE_CHARS = 32852;
@@ -126,10 +130,10 @@ const PROCESSING_MS_PER_CHAR = PROCESSING_BASELINE_MS / PROCESSING_BASELINE_CHAR
 const PROCESSING_FALLBACK_EXPECTED_MS = PROCESSING_BASELINE_MS;
 const PROCESSING_MIN_EXPECTED_MS = 20000;
 
-function getProcessingPlaceholderTopic(locale?: string) {
-  if (locale === "ko") return "구조맵을 생성하고 있어요...";
-  if (locale === "fr") return "Création de cette partie...";
-  return "Creating this section...";
+function getNodeRegenerationPlaceholderTopic(locale?: string) {
+  if (locale === "ko") return "구조화 중입니다...";
+  if (locale === "fr") return "Structuration en cours...";
+  return "Structuring...";
 }
 
 function cloneMindElixirData(data: MapRow["mind_elixir"]) {
@@ -149,34 +153,48 @@ function cloneMindElixirData(data: MapRow["mind_elixir"]) {
   }
 }
 
-function withProcessingPlaceholderNodes(
+function withNodeProcessingPlaceholderNode(
   data: MapRow["mind_elixir"],
+  nodeId: string | null,
   locale?: string
 ): MapRow["mind_elixir"] {
+  const normalizedTargetId = normalizeMindNodeId(String(nodeId ?? "").trim());
+  if (!normalizedTargetId) return data;
+
   const cloned = cloneMindElixirData(data);
   if (!cloned || typeof cloned !== "object") return data;
 
   const root = (cloned as { nodeData?: MindElixirNode }).nodeData ?? (cloned as MindElixirNode);
-  const rootChildren = Array.isArray(root.children) ? root.children : [];
-  if (!rootChildren.length) return cloned;
-
-  const placeholderTopic = getProcessingPlaceholderTopic(locale);
-  rootChildren.forEach((child, index) => {
-    const children = Array.isArray(child.children) ? child.children : [];
-    if (children.length > 0) return;
-
-    child.children = [
-      {
-        id: `__brify_processing_${child.id ?? index}`,
-        topic: placeholderTopic,
-        children: [],
-        meta: {
-          [PROCESSING_PLACEHOLDER_META_KEY]: true,
-        },
-      },
-    ];
-    child.expanded = child.expanded ?? true;
-  });
+  const stack: MindElixirNode[] = [root];
+  while (stack.length > 0) {
+    const current = stack.shift();
+    if (!current) continue;
+    if (normalizeMindNodeId(String(current.id ?? "")) === normalizedTargetId) {
+      const children = Array.isArray(current.children) ? current.children : [];
+      const alreadyHasPlaceholder = children.some((child) =>
+        Boolean(child.meta?.[PROCESSING_PLACEHOLDER_META_KEY])
+      );
+      if (children.length === 0 || alreadyHasPlaceholder) {
+        current.children = alreadyHasPlaceholder
+          ? children
+          : [
+              {
+                id: `__brify_regenerating_${current.id ?? normalizedTargetId}`,
+                topic: getNodeRegenerationPlaceholderTopic(locale),
+                children: [],
+                meta: {
+                  [PROCESSING_PLACEHOLDER_META_KEY]: true,
+                },
+              },
+            ];
+        current.expanded = true;
+      }
+      return cloned;
+    }
+    if (Array.isArray(current.children) && current.children.length > 0) {
+      stack.unshift(...current.children);
+    }
+  }
 
   return cloned;
 }
@@ -213,18 +231,79 @@ function findMindNodeById(
 ): MindElixirNode | null {
   const root = getMindElixirRoot(data);
   if (!root) return null;
+  const normalizedTargetId = normalizeMindNodeId(nodeId);
 
   const stack: MindElixirNode[] = [root];
   while (stack.length > 0) {
     const current = stack.shift();
     if (!current) continue;
-    if (current.id === nodeId) return current;
+    if (normalizeMindNodeId(String(current.id ?? "")) === normalizedTargetId) {
+      return current;
+    }
     if (Array.isArray(current.children) && current.children.length > 0) {
       stack.unshift(...current.children);
     }
   }
 
   return null;
+}
+
+function normalizeMindNodeId(nodeId: string | null) {
+  const id = String(nodeId ?? "").trim();
+  return id.startsWith("me") ? id.slice(2) : id;
+}
+
+function collectExpandedState(data: MapRow["mind_elixir"] | null) {
+  const root = getMindElixirRoot(data);
+  const state = new Map<string, boolean>();
+  if (!root) return state;
+
+  const stack: MindElixirNode[] = [root];
+  while (stack.length > 0) {
+    const current = stack.shift();
+    if (!current) continue;
+    const id = normalizeMindNodeId(String(current.id ?? ""));
+    if (id) {
+      state.set(id, current.expanded !== false);
+    }
+    if (Array.isArray(current.children) && current.children.length > 0) {
+      stack.unshift(...current.children);
+    }
+  }
+
+  return state;
+}
+
+function withExpandedState(
+  data: MapRow["mind_elixir"],
+  expandedState: Map<string, boolean>,
+  forceExpandedNodeId?: string | null
+): MapRow["mind_elixir"] {
+  if (expandedState.size === 0 && !forceExpandedNodeId) return data;
+  const cloned = cloneMindElixirData(data);
+  if (!cloned || typeof cloned !== "object") return data;
+
+  const forceId = normalizeMindNodeId(forceExpandedNodeId ?? null);
+  const root = getMindElixirRoot(cloned);
+  if (!root) return cloned;
+
+  const stack: MindElixirNode[] = [root];
+  while (stack.length > 0) {
+    const current = stack.shift();
+    if (!current) continue;
+    const id = normalizeMindNodeId(String(current.id ?? ""));
+    if (id && expandedState.has(id)) {
+      current.expanded = expandedState.get(id);
+    }
+    if (id && forceId && id === forceId) {
+      current.expanded = true;
+    }
+    if (Array.isArray(current.children) && current.children.length > 0) {
+      stack.unshift(...current.children);
+    }
+  }
+
+  return cloned;
 }
 
 function isDirectRootChildNode(
@@ -234,12 +313,9 @@ function isDirectRootChildNode(
   if (!nodeId) return false;
   const root = getMindElixirRoot(data);
   const rootChildren = Array.isArray(root?.children) ? root.children : [];
-  const normalizedNodeId = nodeId.startsWith("me") ? nodeId.slice(2) : nodeId;
+  const normalizedNodeId = normalizeMindNodeId(nodeId);
   return rootChildren.some((child) => {
-    const childId = String(child.id ?? "");
-    const normalizedChildId = childId.startsWith("me")
-      ? childId.slice(2)
-      : childId;
+    const normalizedChildId = normalizeMindNodeId(String(child.id ?? ""));
     return normalizedChildId === normalizedNodeId;
   });
 }
@@ -1690,7 +1766,8 @@ export default function FullscreenMapDetailScreen({
   };
 
   const handleRegenerateSelectedNode = async (
-    mode: RegenerateMode = "restructure"
+    mode: RegenerateMode = "restructure",
+    explicitNodeId?: string
   ) => {
     setRegenerateReasonOpen(false);
     if (!mapId || isReadOnlyView) return;
@@ -1711,12 +1788,18 @@ export default function FullscreenMapDetailScreen({
       liveSelectedId
     );
     const nodeId = String(
-      liveSelectedIsRootChild ? liveSelectedId : selectedRootChildNodeId ?? ""
+      explicitNodeId ??
+        (liveSelectedIsRootChild ? liveSelectedId : selectedRootChildNodeId ?? "")
     ).trim();
-    const targetNode =
-      selected?.id === nodeId
+    const targetNode = findMindNodeById(mapData, nodeId) ??
+      (normalizeMindNodeId(String(selected?.id ?? "")) === normalizeMindNodeId(nodeId)
         ? selected
-        : findMindNodeById(displayMapData ?? mapData, nodeId);
+        : null);
+    const isDeepViewInitialStructureNode = Boolean(
+      mode === "expand" &&
+        isDirectRootChildNode(mapData, nodeId) &&
+        !hasChildNodes(targetNode)
+    );
 
     if (!nodeId) {
       toast.message(
@@ -1751,7 +1834,7 @@ export default function FullscreenMapDetailScreen({
       return;
     }
 
-    if (hasDraft) {
+    if (hasDraft && !isDeepViewInitialStructureNode) {
       toast.message(
         locale === "ko"
           ? "먼저 현재 편집본을 반영하거나 폐기한 뒤 다시 시도해 주세요."
@@ -1768,7 +1851,10 @@ export default function FullscreenMapDetailScreen({
         (latestLocalMindPayloadRef.current &&
           latestLocalMindPayloadRef.current !== lastSavedDraftRef.current)
     );
-    if (hasUnsavedLocalChange || isSavingMeta || tagEditSubmitting) {
+    if (
+      !isDeepViewInitialStructureNode &&
+      (hasUnsavedLocalChange || isSavingMeta || tagEditSubmitting)
+    ) {
       toast.message(
         locale === "ko"
           ? "저장이 끝난 뒤 다시 시도해 주세요."
@@ -1779,7 +1865,21 @@ export default function FullscreenMapDetailScreen({
       return;
     }
 
+    const viewSnapshot = stripProcessingPlaceholderNodes(
+      mindRef.current?.getSnapshot?.() as MapRow["mind_elixir"] | null
+    );
+    const expandedState = collectExpandedState(viewSnapshot ?? mapData);
+
     try {
+      if (isDeepViewInitialStructureNode && autoSaveTimerRef.current) {
+        window.clearTimeout(autoSaveTimerRef.current);
+        autoSaveTimerRef.current = null;
+      }
+      if (isDeepViewInitialStructureNode && viewSnapshot) {
+        setMapData(viewSnapshot);
+        setPanelMindData(viewSnapshot);
+        persistMapViewState(mapId, viewSnapshot);
+      }
       regeneratingNodeIdRef.current = nodeId;
       setRegeneratingNodeId(nodeId);
       setRegeneratingMode(mode);
@@ -1861,16 +1961,21 @@ export default function FullscreenMapDetailScreen({
         );
       }
 
-      const payload = stringifyMindData(nextMindElixir);
+      const nextViewMindElixir = withExpandedState(
+        nextMindElixir,
+        expandedState,
+        mode === "expand" ? nodeId : null
+      );
+      const payload = stringifyMindData(nextViewMindElixir);
       const responseVersion = json?.version;
       const responseUpdatedAt = json?.updatedAt;
-      setMapData(nextMindElixir);
-      setPanelMindData(nextMindElixir);
+      setMapData(nextViewMindElixir);
+      setPanelMindData(nextViewMindElixir);
       if (payload) {
         lastSavedDraftRef.current = payload;
         latestLocalMindPayloadRef.current = payload;
       }
-      persistMapViewState(mapId, nextMindElixir);
+      persistMapViewState(mapId, nextViewMindElixir);
       setDraft((prev) =>
         prev
           ? {
@@ -2758,12 +2863,18 @@ export default function FullscreenMapDetailScreen({
   const findSourceButtonTooltip = sourceFindNodeSelected
     ? findSourceActionLabel
     : findSourceDisabledHint;
-  const regenerateActionLabel =
+  const regenerateMenuActionLabel =
     locale === "ko"
       ? "선택 노드 재구조화"
       : locale === "fr"
       ? "Restructurer le nœud"
       : "Regenerate selected node";
+  const structureActionLabel =
+    locale === "ko"
+      ? "깊게 보기"
+      : locale === "fr"
+      ? "Approfondir"
+      : "Go deeper";
   const regenerateLoadingActionLabel =
     locale === "ko"
       ? regeneratingMode === "expand"
@@ -2851,9 +2962,16 @@ export default function FullscreenMapDetailScreen({
   const isMapGenerating = Boolean(isMapProcessing && !mapData);
   const displayMapData = useMemo(() => {
     if (!mapData) return null;
-    if (!isMapProcessing) return mapData;
-    return withProcessingPlaceholderNodes(mapData, locale);
-  }, [isMapProcessing, locale, mapData]);
+    let nextMapData = mapData as NonNullable<MapRow["mind_elixir"]>;
+    if (regeneratingMode === "expand" && regeneratingNodeId) {
+      nextMapData = withNodeProcessingPlaceholderNode(
+        nextMapData,
+        regeneratingNodeId,
+        locale
+      ) as NonNullable<MapRow["mind_elixir"]>;
+    }
+    return nextMapData;
+  }, [locale, mapData, regeneratingMode, regeneratingNodeId]);
   const selectedMapNodeIsRootChild = useMemo(
     () => isDirectRootChildNode(displayMapData ?? mapData, selectedMapNodeId),
     [displayMapData, mapData, selectedMapNodeId]
@@ -2861,8 +2979,31 @@ export default function FullscreenMapDetailScreen({
   const regenerateTargetNodeId = selectedMapNodeIsRootChild
     ? selectedMapNodeId
     : selectedRootChildNodeId;
+  const regenerateTargetNode = useMemo(
+    () =>
+      regenerateTargetNodeId
+        ? findMindNodeById(mapData, regenerateTargetNodeId)
+        : null,
+    [mapData, regenerateTargetNodeId]
+  );
+  const regenerateTargetNeedsStructure = Boolean(
+    selectedMapNodeIsRootChild &&
+      regenerateTargetNodeId &&
+      !hasChildNodes(regenerateTargetNode)
+  );
+  const regenerateActionLabel = regenerateTargetNeedsStructure
+    ? structureActionLabel
+    : regenerateMenuActionLabel;
   const canShowRegenerateActions = Boolean(!isReadOnlyView && regenerateTargetNodeId);
   const canUseRegenerateActions = Boolean(canShowRegenerateActions && draft?.status === "done");
+  const structureActionNodeIds = useMemo(() => {
+    if (isReadOnlyView || draft?.status !== "done") return [];
+    const root = getMindElixirRoot(mapData);
+    const children = Array.isArray(root?.children) ? root.children : [];
+    return children
+      .filter((child) => child.id && !hasChildNodes(child))
+      .map((child) => String(child.id));
+  }, [draft?.status, isReadOnlyView, mapData]);
   const isRegenerateBusy = Boolean(regeneratingNodeId);
   const regenerateUnavailableLabel =
     locale === "ko"
@@ -2879,16 +3020,16 @@ export default function FullscreenMapDetailScreen({
 
   const generatingTitle =
     locale === "ko"
-      ? "구조맵을 만들고 있어요"
+      ? "큰 주제를 정리하는 중입니다"
       : locale === "fr"
-      ? "Création de la carte"
-      : "Creating your structure map";
+      ? "Organisation des grands sujets"
+      : "Organizing the main topics";
   const generatingDescription =
     locale === "ko"
-      ? "긴 글의 흐름을 분석하고 노드로 배치하는 중입니다."
+      ? "긴 문서를 먼저 큰 구조로 나누고 있어요. 완성되면 필요한 큰 주제에서 세부 구조를 요청할 수 있습니다."
       : locale === "fr"
-      ? "Analyse du texte et disposition des nœuds en cours."
-      : "Analyzing the text and arranging it into nodes.";
+      ? "Nous divisons d’abord le long document en grands axes. Vous pourrez ensuite approfondir les sujets nécessaires."
+      : "We’re first turning the long document into a high-level structure. When it’s ready, you can go deeper into the topics you need.";
   const expandingTitle =
     locale === "ko"
       ? "구조맵을 채워가고 있어요"
@@ -3355,16 +3496,24 @@ export default function FullscreenMapDetailScreen({
                 </Tooltip.Content>
               </Tooltip.Portal>
             </Tooltip.Root>
-              {canShowRegenerateActions ? (
+              {canShowRegenerateActions && !regenerateTargetNeedsStructure ? (
                 <div className="relative inline-flex" ref={regenerateActionsRef}>
                   <button
                     type="button"
                     onClick={() => {
                       if (!canUseRegenerateActions || isRegenerateBusy) return;
+                      if (regenerateTargetNeedsStructure) {
+                        void handleRegenerateSelectedNode("expand");
+                        return;
+                      }
                       setRegenerateReasonOpen((open) => !open);
                     }}
                     disabled={!canUseRegenerateActions || isRegenerateBusy}
-                    className="inline-flex h-7 items-center gap-1.5 rounded-xl border border-indigo-300/80 bg-indigo-600 px-2.5 text-[10px] font-extrabold text-white shadow-[0_16px_34px_-18px_rgba(79,70,229,0.65)] transition hover:-translate-y-[1px] hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 disabled:hover:bg-indigo-600 dark:border-indigo-200/35 dark:bg-indigo-500 dark:shadow-[0_18px_36px_-18px_rgba(129,140,248,0.42)]"
+                    className={`inline-flex h-7 items-center gap-1.5 rounded-xl px-2.5 text-[10px] font-extrabold transition disabled:cursor-not-allowed disabled:opacity-55 ${
+                      regenerateTargetNeedsStructure
+                        ? "border border-emerald-300/80 bg-emerald-600 text-white shadow-[0_16px_34px_-18px_rgba(5,150,105,0.65)] hover:-translate-y-[1px] hover:bg-emerald-500 disabled:hover:translate-y-0 disabled:hover:bg-emerald-600 dark:border-emerald-200/35 dark:bg-emerald-500 dark:shadow-[0_18px_36px_-18px_rgba(52,211,153,0.42)]"
+                        : "border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50 hover:text-slate-950 disabled:hover:bg-white dark:border-white/10 dark:bg-white/[0.05] dark:text-white/62 dark:hover:bg-white/10 dark:hover:text-white"
+                    }`}
                     aria-label={
                       regeneratingNodeId
                         ? regenerateLoadingActionLabel
@@ -3384,6 +3533,8 @@ export default function FullscreenMapDetailScreen({
                       icon={
                         regeneratingNodeId
                           ? "mdi:loading"
+                          : regenerateTargetNeedsStructure
+                          ? "mdi:source-branch-plus"
                           : "mdi:tune-variant"
                       }
                       className={`h-3.5 w-3.5 ${
@@ -3397,11 +3548,11 @@ export default function FullscreenMapDetailScreen({
                         ? regenerateLoadingActionLabel
                         : regenerateActionLabel}
                     </span>
-                    {!regeneratingNodeId ? (
+                    {!regeneratingNodeId && !regenerateTargetNeedsStructure ? (
                       <Icon icon="mdi:chevron-down" className="h-3.5 w-3.5" />
                     ) : null}
                   </button>
-                  {regenerateReasonOpen && canUseRegenerateActions ? (
+                  {regenerateReasonOpen && canUseRegenerateActions && !regenerateTargetNeedsStructure ? (
                     <div className="absolute right-0 top-full z-[280] mt-2 w-[320px] rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_26px_70px_-34px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-[#111827] dark:shadow-[0_30px_80px_-36px_rgba(2,6,23,0.9)]">
                       <div className="px-2 pb-2 pt-1 text-[11px] font-bold text-slate-500 dark:text-white/55">
                         {locale === "ko"
@@ -3763,10 +3914,18 @@ export default function FullscreenMapDetailScreen({
                 type="button"
                 onClick={() => {
                   if (!canUseRegenerateActions || isRegenerateBusy) return;
+                  if (regenerateTargetNeedsStructure) {
+                    void handleRegenerateSelectedNode("expand");
+                    return;
+                  }
                   setRegenerateReasonOpen((open) => !open);
                 }}
                 disabled={!canUseRegenerateActions || isRegenerateBusy}
-                className={`${controlIconButtonClass} disabled:cursor-not-allowed disabled:opacity-55`}
+                className={`${
+                  regenerateTargetNeedsStructure
+                    ? "inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_14px_28px_-16px_rgba(5,150,105,0.55)] transition hover:bg-emerald-500 dark:bg-emerald-500"
+                    : controlIconButtonClass
+                } disabled:cursor-not-allowed disabled:opacity-55`}
                 aria-label={
                   regeneratingNodeId
                     ? regenerateLoadingActionLabel
@@ -3783,7 +3942,13 @@ export default function FullscreenMapDetailScreen({
                 }
               >
                 <Icon
-                  icon={regeneratingNodeId ? "mdi:loading" : "mdi:tune-variant"}
+                  icon={
+                    regeneratingNodeId
+                      ? "mdi:loading"
+                      : regenerateTargetNeedsStructure
+                      ? "mdi:source-branch-plus"
+                      : "mdi:tune-variant"
+                  }
                   className={`h-4 w-4 ${regeneratingNodeId ? "animate-spin" : ""}`}
                 />
               </button>
@@ -3792,7 +3957,7 @@ export default function FullscreenMapDetailScreen({
                   ? regenerateLoadingActionLabel
                   : regenerateActionLabel}
               </span>
-              {regenerateReasonOpen && canUseRegenerateActions ? (
+              {regenerateReasonOpen && canUseRegenerateActions && !regenerateTargetNeedsStructure ? (
                 <div className="absolute right-full top-0 z-[280] mr-2 w-[284px] rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_26px_70px_-34px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-[#111827] dark:shadow-[0_30px_80px_-36px_rgba(2,6,23,0.9)]">
                   <div className="px-2 pb-2 pt-1 text-[11px] font-bold text-slate-500 dark:text-white/55">
                     {locale === "ko"
@@ -4019,8 +4184,19 @@ export default function FullscreenMapDetailScreen({
               editMode={editMode}
               onReady={applyInitialCollapse}
               onOpenSlideshow={handleOpenSlideshow}
-              onRegenerateSelectedNode={() => setRegenerateReasonOpen(true)}
+              onRegenerateSelectedNode={() => {
+                if (regenerateTargetNeedsStructure) {
+                  void handleRegenerateSelectedNode("expand");
+                  return;
+                }
+                setRegenerateReasonOpen(true);
+              }}
               canRegenerateSelectedNode={canShowRegenerateActions}
+              regenerateSelectedNodeLabel={regenerateActionLabel}
+              regenerateSelectedNodeLoadingLabel={regenerateLoadingActionLabel}
+              regenerateSelectedNodeProminent={regenerateTargetNeedsStructure}
+              structureActionNodeIds={structureActionNodeIds}
+              structureActionLabel={structureActionLabel}
               regeneratingNodeId={regeneratingNodeId}
               onChange={
                 isReadOnlyView

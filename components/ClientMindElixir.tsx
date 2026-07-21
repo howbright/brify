@@ -36,6 +36,7 @@ import { useMindElixirResponsiveState } from "@/components/useMindElixirResponsi
 
 const MIND_SCALE_MAX = 2;
 const MIND_SCALE_MIN = 0.2;
+const EMPTY_STRUCTURE_ACTION_NODE_IDS: string[] = [];
 
 type ClientMindElixirProps = {
   mapId?: string;
@@ -51,6 +52,11 @@ type ClientMindElixirProps = {
   onOpenSlideshow?: () => void;
   onRegenerateSelectedNode?: () => void;
   canRegenerateSelectedNode?: boolean;
+  regenerateSelectedNodeLabel?: string;
+  regenerateSelectedNodeLoadingLabel?: string;
+  regenerateSelectedNodeProminent?: boolean;
+  structureActionNodeIds?: string[];
+  structureActionLabel?: string;
   regeneratingNodeId?: string | null;
 
   zoomSensitivity?: number; // scaleSensitivity
@@ -571,6 +577,11 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       onOpenSlideshow,
       onRegenerateSelectedNode,
       canRegenerateSelectedNode = false,
+      regenerateSelectedNodeLabel,
+      regenerateSelectedNodeLoadingLabel,
+      regenerateSelectedNodeProminent = false,
+      structureActionNodeIds = EMPTY_STRUCTURE_ACTION_NODE_IDS,
+      structureActionLabel,
       regeneratingNodeId = null,
       zoomSensitivity = 0.1,
       dragButton = 0,
@@ -625,18 +636,47 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const annotationDeleteLabel = t("annotation.delete");
   const cancelLabel = t("common.cancel");
   const saveLabel = t("common.save");
-  const regenerateLabel =
+  const defaultRegenerateLabel =
     locale === "ko"
       ? "다시 구조화"
       : locale === "fr"
       ? "Restructurer"
       : "Regenerate";
-  const regenerateLoadingLabel =
+  const defaultRegenerateLoadingLabel =
     locale === "ko"
       ? "다시 구조화 중"
       : locale === "fr"
       ? "Restructuration..."
       : "Regenerating...";
+  const regenerateLabel = regenerateSelectedNodeLabel ?? defaultRegenerateLabel;
+  const regenerateLoadingLabel =
+    regenerateSelectedNodeLoadingLabel ?? defaultRegenerateLoadingLabel;
+  const visibleStructureActionLabel =
+    structureActionLabel ??
+    (locale === "ko" ? "깊게 보기" : locale === "fr" ? "Approfondir" : "Go deeper");
+  const structureActionNodeIdsKey = structureActionNodeIds.join("\u001f");
+
+  useEffect(() => {
+    const next = new Set<string>();
+    for (const nodeId of structureActionNodeIds) {
+      for (const variant of nodeIdVariants(nodeId)) {
+        next.add(variant);
+      }
+    }
+    structureActionNodeIdSetRef.current = next;
+    const host = elRef.current;
+    if (host) {
+      host.dispatchEvent(new Event("mind-elixir-refresh-decorations"));
+    }
+  }, [structureActionNodeIds, structureActionNodeIdsKey]);
+
+  useEffect(() => {
+    structureActionLabelRef.current = visibleStructureActionLabel;
+    const host = elRef.current;
+    if (host) {
+      host.dispatchEvent(new Event("mind-elixir-refresh-decorations"));
+    }
+  }, [visibleStructureActionLabel]);
   const imageText = useMemo(
     () => ({
       addOrReplace: t("image.addOrReplace"),
@@ -788,6 +828,8 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     : "group relative inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] shadow-sm";
   const hoverActionIconClass = isTouchDevice ? "h-4 w-4" : "h-3 w-3";
   const isDecoratingRef = useRef(false);
+  const structureActionNodeIdSetRef = useRef(new Set<string>());
+  const structureActionLabelRef = useRef("");
   const handleFocusClick = () => {
     const mind = mindRef.current;
     const nodeId = selectedNodeIdRef.current;
@@ -2731,6 +2773,28 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             el.removeAttribute("data-ts");
             if (tsBadge) tsBadge.remove();
           }
+          const shouldShowStructureHint =
+            !isFocusMode &&
+            structureActionNodeIdSetRef.current.has(nodeId) &&
+            structureActionLabelRef.current.trim().length > 0 &&
+            selectedNodeIdRef.current !== nodeId &&
+            normalizeNodeId(selectedNodeIdRef.current ?? "") !== normalizeNodeId(nodeId);
+          let structureHint =
+            el.querySelector<HTMLElement>(".brify-deep-action-hint");
+          if (shouldShowStructureHint) {
+            if (!structureHint) {
+              structureHint = document.createElement("span");
+              structureHint.className = "brify-deep-action-hint";
+              structureHint.setAttribute("data-structure-hint", "true");
+              el.appendChild(structureHint);
+            }
+            const label = structureActionLabelRef.current;
+            structureHint.setAttribute("aria-hidden", "true");
+            structureHint.setAttribute("title", label);
+            structureHint.innerHTML = `<span class="brify-deep-action-icon" aria-hidden="true">+</span><span class="brify-deep-action-label">${label}</span>`;
+          } else if (structureHint) {
+            structureHint.remove();
+          }
         });
         if (mutationObserver && elRef.current) {
           mutationObserver.observe(elRef.current, observerOptions);
@@ -2744,11 +2808,36 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
           mind.refresh = (data?: any) => {
             const originalRefresh =
               mind.__originalRefresh ?? ((_: any) => undefined);
+            const selectedId = selectedNodeIdRef.current;
+            const beforeRect =
+              data !== undefined && selectedId
+                ? (
+                    getNodeElById(selectedId) ??
+                    selectedNodeElRef.current
+                  )?.getBoundingClientRect?.()
+                : null;
             if (data !== undefined) {
               latestMindDataRef.current = cloneMindData(data);
             }
             const res = originalRefresh(data);
             syncNodeDecorations();
+            if (beforeRect && selectedId) {
+              requestAnimationFrame(() => {
+                const afterEl = getNodeElById(selectedId);
+                const afterRect = afterEl?.getBoundingClientRect?.();
+                if (!afterRect) {
+                  updateSelectedRect(selectedId);
+                  return;
+                }
+                const dx = beforeRect.left - afterRect.left;
+                const dy = beforeRect.top - afterRect.top;
+                if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+                  mind.move?.(dx, dy, true);
+                }
+                selectedNodeElRef.current = afterEl;
+                updateSelectedRect(selectedId);
+              });
+            }
             return res;
           };
         }
@@ -2912,7 +3001,9 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       mind.bus?.addListener?.("move", syncMiniMap);
       mind.bus?.addListener?.("scale", syncMiniMap);
       mind.bus?.addListener?.("refresh", syncMiniMap);
-      handleResize = () => syncSelectedRect?.();
+      handleResize = () => {
+        syncSelectedRect?.();
+      };
       handleMiniResize = () => scheduleMiniMapDraw();
       window.addEventListener("resize", handleResize);
       window.addEventListener("resize", handleMiniResize);
@@ -3505,6 +3596,52 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             0 10px 22px rgba(2, 6, 23, 0.34),
             0 0 0 1px rgba(125, 211, 252, 0.08);
         }
+        .brify-deep-action-hint {
+          position: absolute;
+          right: 5px;
+          bottom: 4px;
+          z-index: 18;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 3px;
+          min-height: 18px;
+          padding: 2px 5px;
+          border: 1px solid rgba(4, 120, 87, 0.64);
+          border-radius: 999px;
+          background: #059669;
+          color: #ffffff;
+          font-size: 9px;
+          font-weight: 900;
+          line-height: 1;
+          white-space: nowrap;
+          box-shadow:
+            0 10px 24px rgba(5, 150, 105, 0.28),
+            0 0 0 1px rgba(255, 255, 255, 0.62);
+          pointer-events: none;
+          user-select: none;
+          -webkit-user-select: none;
+          transform: translate(0, 0);
+          opacity: 0.94;
+        }
+        .brify-deep-action-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 10px;
+          height: 10px;
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.18);
+          font-size: 10px;
+          line-height: 1;
+        }
+        .${DEFAULT_DARK_CANVAS_CLASS} .brify-deep-action-hint {
+          border-color: rgba(110, 231, 183, 0.42);
+          background: #10b981;
+          box-shadow:
+            0 12px 26px rgba(2, 6, 23, 0.36),
+            0 0 0 1px rgba(110, 231, 183, 0.16);
+        }
         .${VIEW_MODE_CLASS} .me-note-dot {
           cursor: pointer;
         }
@@ -3637,9 +3774,12 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         onSlideshowClick={() => onOpenSlideshow?.()}
         regenerateLabel={regenerateLabel}
         regenerateLoadingLabel={regenerateLoadingLabel}
+        regenerateProminent={regenerateSelectedNodeProminent}
         canRegenerate={canRegenerateSelectedNode}
         isRegenerating={Boolean(
-          selectedNodeId && regeneratingNodeId === selectedNodeId
+          selectedNodeId &&
+            regeneratingNodeId &&
+            normalizeNodeId(regeneratingNodeId) === normalizeNodeId(selectedNodeId)
         )}
         onRegenerateClick={() => onRegenerateSelectedNode?.()}
         onHighlightClick={() => handleHighlightClick(selectedNodeIdRef.current)}
