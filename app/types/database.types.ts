@@ -740,6 +740,65 @@ export type Database = {
           },
         ]
       }
+      map_node_expansions: {
+        Row: {
+          attempt_count: number
+          children_json: Json | null
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          map_id: string
+          mode: Database["public"]["Enums"]["map_node_expansion_mode"]
+          node_id: string
+          queue_job_id: string | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["map_node_expansion_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempt_count?: number
+          children_json?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          map_id: string
+          mode?: Database["public"]["Enums"]["map_node_expansion_mode"]
+          node_id: string
+          queue_job_id?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["map_node_expansion_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempt_count?: number
+          children_json?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          map_id?: string
+          mode?: Database["public"]["Enums"]["map_node_expansion_mode"]
+          node_id?: string
+          queue_job_id?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["map_node_expansion_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "map_node_expansions_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       map_notes: {
         Row: {
           created_at: string
@@ -1965,6 +2024,48 @@ export type Database = {
           },
         ]
       }
+      weekly_bulletins: {
+        Row: {
+          column_content: string
+          created_at: string
+          id: string
+          message_title: string
+          published: boolean
+          published_at: string
+          scripture_reference: string
+          service_date: string
+          slug: string
+          updated_at: string
+          weekly_notice: string | null
+        }
+        Insert: {
+          column_content: string
+          created_at?: string
+          id?: string
+          message_title: string
+          published?: boolean
+          published_at?: string
+          scripture_reference: string
+          service_date: string
+          slug: string
+          updated_at?: string
+          weekly_notice?: string | null
+        }
+        Update: {
+          column_content?: string
+          created_at?: string
+          id?: string
+          message_title?: string
+          published?: boolean
+          published_at?: string
+          scripture_reference?: string
+          service_date?: string
+          slug?: string
+          updated_at?: string
+          weekly_notice?: string | null
+        }
+        Relationships: []
+      }
       youtube_scripts: {
         Row: {
           channel_name: string | null
@@ -2095,6 +2196,8 @@ export type Database = {
         | "done"
         | "failed"
         | "cancelled"
+      map_node_expansion_mode: "expand"
+      map_node_expansion_status: "queued" | "processing" | "done" | "failed"
       map_open_access_mode: "owner" | "shared" | "admin"
       map_read_status: "unread" | "in_progress" | "read"
       map_source_type: "youtube" | "website" | "file" | "manual"
@@ -2341,6 +2444,8 @@ export const Constants = {
         "failed",
         "cancelled",
       ],
+      map_node_expansion_mode: ["expand"],
+      map_node_expansion_status: ["queued", "processing", "done", "failed"],
       map_open_access_mode: ["owner", "shared", "admin"],
       map_read_status: ["unread", "in_progress", "read"],
       map_source_type: ["youtube", "website", "file", "manual"],

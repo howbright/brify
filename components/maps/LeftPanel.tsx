@@ -91,7 +91,7 @@ export default function LeftPanel({
     () => map.title?.trim() || t("untitled"),
     [map.title, t]
   );
-  const metadataPending = map.status === "processing_metadata";
+  const metadataPending = false;
   const metadataEditTooltip = t("tooltips.editMetadata");
   const tagsEditTooltip = t("tooltips.editTags");
 

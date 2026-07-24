@@ -402,6 +402,18 @@ function isActiveMapStatus(status?: MapJobStatus | null) {
   );
 }
 
+function isStructureProcessingStatus(status?: MapJobStatus | null) {
+  return (
+    status === "idle" ||
+    status === "queued" ||
+    status === "processing_structure"
+  );
+}
+
+function isMapReadyForInteraction(status?: MapJobStatus | null) {
+  return status === "done" || status === "processing_metadata";
+}
+
 function getProcessingStructurePhase(
   step: string | null,
   hasMapData: boolean
@@ -1774,7 +1786,7 @@ export default function FullscreenMapDetailScreen({
     if (regeneratingNodeIdRef.current) {
       toast.message(
         locale === "ko"
-          ? "이미 다시 구조화하고 있어요. 잠시만 기다려 주세요."
+          ? "구조화하고 있어요. 잠시만 기다려 주세요."
           : locale === "fr"
           ? "Restructuration déjà en cours. Patientez un instant."
           : "Regeneration is already in progress. Please wait."
@@ -1812,7 +1824,7 @@ export default function FullscreenMapDetailScreen({
       return;
     }
 
-    if (draft?.status !== "done") {
+    if (!isMapReadyForInteraction(draft?.status)) {
       toast.message(
         locale === "ko"
           ? "구조맵 생성이 완료된 뒤 다시 시도해 주세요."
@@ -1905,28 +1917,71 @@ export default function FullscreenMapDetailScreen({
         throw new Error("NEXT_PUBLIC_API_BASE_URL is not configured.");
       }
 
-      const response = await fetch(
-        `${base}/maps/${encodeURIComponent(mapId)}/nodes/${encodeURIComponent(
-          nodeId
-        )}/regenerate`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ mode }),
-        }
-      );
-      const json = (await response.json().catch(() => null)) as
-        | {
-            message?: unknown;
-            error?: unknown;
-            mindElixir?: MapRow["mind_elixir"];
-            version?: unknown;
-            updatedAt?: unknown;
+      const expansionPath = `${base}/maps/${encodeURIComponent(
+        mapId
+      )}/nodes/${encodeURIComponent(nodeId)}/expansion`;
+      const regeneratePath = `${base}/maps/${encodeURIComponent(
+        mapId
+      )}/nodes/${encodeURIComponent(nodeId)}/regenerate`;
+      const requestNodeUpdate = async () => {
+        const isExpansionCacheRequest = mode === "expand";
+        const response = await fetch(
+          isExpansionCacheRequest ? expansionPath : regeneratePath,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: isExpansionCacheRequest
+              ? undefined
+              : JSON.stringify({ mode }),
           }
-        | null;
+        );
+        const json = (await response.json().catch(() => null)) as
+          | {
+              status?: unknown;
+              message?: unknown;
+              error?: unknown;
+              errorMessage?: unknown;
+              mindElixir?: MapRow["mind_elixir"];
+              version?: unknown;
+              updatedAt?: unknown;
+            }
+          | null;
+
+        return { response, json };
+      };
+
+      let { response, json } = await requestNodeUpdate();
+
+      if (mode === "expand" && response.ok) {
+        const startedPollingAt = Date.now();
+        while (
+          json?.status !== "done" &&
+          (json?.status === "queued" || json?.status === "processing") &&
+          Date.now() - startedPollingAt < 90_000
+        ) {
+          await new Promise((resolve) => window.setTimeout(resolve, 2500));
+          ({ response, json } = await requestNodeUpdate());
+          if (!response.ok) break;
+        }
+
+        if (
+          response.ok &&
+          json?.status !== "done" &&
+          (json?.status === "queued" || json?.status === "processing")
+        ) {
+          toast.message(
+            locale === "ko"
+              ? "구조화하고 있어요. 잠시 후 다시 눌러 주세요."
+              : locale === "fr"
+              ? "Restructuration en cours. Réessayez dans un instant."
+              : "Structuring is in progress. Try again shortly."
+          );
+          return;
+        }
+      }
 
       if (!response.ok) {
         if (response.status === 409) {
@@ -1949,6 +2004,20 @@ export default function FullscreenMapDetailScreen({
           )
         );
       }
+
+      if (mode === "expand" && json?.status !== "done") {
+        throw new Error(
+          getApiErrorMessage(
+            json,
+            locale === "ko"
+              ? "상세 보강 결과를 아직 받지 못했습니다."
+              : locale === "fr"
+              ? "Le résultat enrichi n’est pas encore prêt."
+              : "Expanded details are not ready yet."
+          )
+        );
+      }
+
 
       const nextMindElixir = json?.mindElixir ?? null;
       if (!nextMindElixir) {
@@ -2958,7 +3027,7 @@ export default function FullscreenMapDetailScreen({
       : isSharedView
         ? t("sharedByFallback")
         : "";
-  const isMapProcessing = Boolean(draft && isActiveMapStatus(draft.status));
+  const isMapProcessing = Boolean(draft && isStructureProcessingStatus(draft.status));
   const isMapGenerating = Boolean(isMapProcessing && !mapData);
   const displayMapData = useMemo(() => {
     if (!mapData) return null;
@@ -2995,9 +3064,11 @@ export default function FullscreenMapDetailScreen({
     ? structureActionLabel
     : regenerateMenuActionLabel;
   const canShowRegenerateActions = Boolean(!isReadOnlyView && regenerateTargetNodeId);
-  const canUseRegenerateActions = Boolean(canShowRegenerateActions && draft?.status === "done");
+  const canUseRegenerateActions = Boolean(
+    canShowRegenerateActions && isMapReadyForInteraction(draft?.status)
+  );
   const structureActionNodeIds = useMemo(() => {
-    if (isReadOnlyView || draft?.status !== "done") return [];
+    if (isReadOnlyView || !isMapReadyForInteraction(draft?.status)) return [];
     const root = getMindElixirRoot(mapData);
     const children = Array.isArray(root?.children) ? root.children : [];
     return children
