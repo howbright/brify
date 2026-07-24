@@ -14,7 +14,11 @@ type MindNodeElement = HTMLElement & { nodeObj?: AnyNode };
 type MindNodeActionInstance = {
   currentNode?: MindNodeElement | null;
   currentNodes?: MindNodeElement[] | null;
+  container?: HTMLElement | null;
   map?: HTMLElement | null;
+  bus?: {
+    fire?: (eventName: string, ...args: unknown[]) => void;
+  } | null;
   __allowTouchBeginEditOnce?: boolean;
   selectNode?: (node: MindNodeElement) => void;
   addChild: (node: MindNodeElement) => void | Promise<unknown>;
@@ -68,27 +72,69 @@ export function useMindElixirNodeActions({
 
   const openNodeContextMenu = (
     nodeId?: string | null,
-    _anchorEl?: HTMLElement | null
+    anchorEl?: HTMLElement | null
   ) => {
     const targetId = nodeId ?? selectedNodeIdRef.current;
     if (!targetId) return;
-    const nodeEl = getNodeElById(targetId) ?? selectedNodeElRef.current ?? null;
+    const nodeEl =
+      (getNodeElById(targetId) as MindNodeElement | null) ??
+      (selectedNodeElRef.current as MindNodeElement | null) ??
+      null;
     if (!nodeEl) return;
-    const triggerRect = nodeEl.getBoundingClientRect();
+    const mind = mindRef.current;
+    const triggerRect = (anchorEl ?? nodeEl).getBoundingClientRect();
     const estimatedMenuHeight = 340;
     const viewportHeight =
       typeof window !== "undefined" ? window.innerHeight : 0;
     const spaceBelow = viewportHeight - triggerRect.bottom;
     const shouldOpenAbove =
       viewportHeight > 0 && spaceBelow < estimatedMenuHeight + 16;
+    const clientX = triggerRect.right + 8;
+    const clientY = shouldOpenAbove ? triggerRect.top - 8 : triggerRect.bottom + 8;
+
+    if (typeof mind?.selectNode === "function") {
+      mind.selectNode(nodeEl);
+    }
+
+    const contextMenuEvent = {
+      target: nodeEl,
+      clientX,
+      clientY,
+      button: 2,
+      buttons: 2,
+      preventDefault: () => {},
+      stopPropagation: () => {},
+    } as unknown as MouseEvent;
+
+    const revealContextMenu = () => {
+      const host =
+        mind?.container ??
+        mind?.map?.parentElement ??
+        nodeEl.ownerDocument.body;
+      const menu = host.querySelector<HTMLElement>(".context-menu");
+      const menuList =
+        menu?.querySelector<HTMLElement>(".menu-list") ??
+        host.querySelector<HTMLElement>(".context-menu .menu-list");
+      if (!menu || !menuList) return;
+      menu.hidden = false;
+      menu.style.removeProperty("display");
+      menuList.style.removeProperty("display");
+    };
+
+    if (typeof mind?.bus?.fire === "function") {
+      mind.bus.fire("showContextMenu", contextMenuEvent);
+      requestAnimationFrame(revealContextMenu);
+      return;
+    }
+
     nodeEl.dispatchEvent(
       new MouseEvent("contextmenu", {
         bubbles: true,
         cancelable: true,
         button: 2,
         buttons: 2,
-        clientX: triggerRect.right + 8,
-        clientY: shouldOpenAbove ? triggerRect.top - 8 : triggerRect.bottom + 8,
+        clientX,
+        clientY,
         view: window,
       })
     );
