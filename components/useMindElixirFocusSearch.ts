@@ -70,6 +70,19 @@ export function useMindElixirFocusSearch({
 }: Params) {
   const searchHighlightIdsRef = useRef<Set<string>>(new Set());
   const searchActiveIdRef = useRef<string | null>(null);
+  const expandingNodeLookupRef = useRef(false);
+
+  const getStableMindData = () => {
+    const latest = normalizeMindData(latestMindDataRef.current);
+    if (latest) return latest;
+
+    try {
+      const raw = mindRef.current?.getData?.() ?? mindRef.current?.getAllData?.();
+      return normalizeMindData(raw);
+    } catch {
+      return null;
+    }
+  };
 
   const focusMindContainer = () => {
     const container = mindRef.current?.container;
@@ -170,15 +183,20 @@ export function useMindElixirFocusSearch({
     }
 
     const expandToNode = (nodeId: string) => {
-      const raw = mind?.getData?.() ?? mind?.getAllData?.();
-      const normalized = normalizeMindData(raw);
+      if (expandingNodeLookupRef.current) return false;
+      const normalized = getStableMindData();
       if (!normalized) return false;
       const next = cloneMindData(normalized.data);
       const nextNode = normalizeMindData(next)?.node;
       if (!nextNode) return false;
       const found = expandPathToId(nextNode, nodeId);
       if (!found) return false;
-      mind?.refresh?.(next);
+      expandingNodeLookupRef.current = true;
+      try {
+        mind?.refresh?.(next);
+      } finally {
+        expandingNodeLookupRef.current = false;
+      }
       return true;
     };
 
@@ -351,8 +369,7 @@ export function useMindElixirFocusSearch({
       (exactSelectedEl as (HTMLElement & { nodeObj?: AnyNode }) | null)?.nodeObj ??
       null;
     const resolvedTargetId = liveNode?.id ?? selectedId;
-    const rawCurrent = mind.getData?.() ?? mind.getAllData?.() ?? null;
-    const currentNormalized = normalizeMindData(rawCurrent);
+    const currentNormalized = getStableMindData();
     const pathByRef =
       currentNormalized?.node && liveNode
         ? findNodePathByRef(currentNormalized.node, liveNode)
