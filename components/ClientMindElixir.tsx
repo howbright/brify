@@ -2238,6 +2238,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
     let handleRefreshDecorations: (() => void) | null = null;
     let mutationObserver: MutationObserver | null = null;
     let handleReorderContextMenu: (() => void) | null = null;
+    let lastDesktopMenuCopyAt = 0;
 
     (async () => {
       const mod = await import("mind-elixir");
@@ -2318,6 +2319,51 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         );
       }
 
+      function getContextMenuTargetNode() {
+        const selectedId = selectedNodeIdRef.current;
+        const selectedNormalized = selectedId ? normalizeNodeId(selectedId) : null;
+        const current = mind.currentNode?.nodeObj as AnyNode | undefined;
+        if (
+          current?.id &&
+          (!selectedNormalized || normalizeNodeId(current.id) === selectedNormalized)
+        ) {
+          return current;
+        }
+
+        const selectedEl =
+          selectedId
+            ? (getNodeElById(selectedId) as
+                | (HTMLElement & { nodeObj?: AnyNode })
+                | null)
+            : (selectedNodeElRef.current as
+                | (HTMLElement & { nodeObj?: AnyNode })
+                | null);
+        if (selectedEl?.nodeObj?.id) return selectedEl.nodeObj;
+
+        const latestRoot = normalizeMindData(latestMindDataRef.current)?.node;
+        if (latestRoot && selectedNormalized) {
+          return findNodeById(latestRoot, selectedNormalized) ?? undefined;
+        }
+        return current;
+      }
+
+      async function copyContextMenuTargetMarkdown(onlyExpanded = false) {
+        const current = getContextMenuTargetNode();
+        if (!current) {
+          toast.message(contextMenuText.copyFail);
+          return;
+        }
+        const markdown = nodeToMarkdown(current, 0, onlyExpanded);
+        if (!markdown.trim()) {
+          toast.message(contextMenuText.copyFail);
+          return;
+        }
+        const ok = await copyToClipboard(markdown);
+        toast.message(
+          ok ? contextMenuText.copySuccess : contextMenuText.copyFail
+        );
+      }
+
       const mind = new MindElixir({
         el: elRef.current,
         direction: MindElixir.RIGHT,
@@ -2340,31 +2386,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             {
               name: contextMenuText.copyMarkdown,
               onclick: async () => {
-                const current = mind.currentNode?.nodeObj as AnyNode | undefined;
-                if (!current) return;
-                const markdown = nodeToMarkdown(current);
-                if (!markdown.trim()) return;
-                const ok = await copyToClipboard(markdown);
-                if (ok) {
-                  toast.message(contextMenuText.copySuccess);
-                } else {
-                  toast.message(contextMenuText.copyFail);
-                }
+                await copyContextMenuTargetMarkdown(false);
               },
             },
             {
               name: contextMenuText.copyExpandedMarkdown,
               onclick: async () => {
-                const current = mind.currentNode?.nodeObj as AnyNode | undefined;
-                if (!current) return;
-                const markdown = nodeToMarkdown(current, 0, true);
-                if (!markdown.trim()) return;
-                const ok = await copyToClipboard(markdown);
-                if (ok) {
-                  toast.message(contextMenuText.copySuccess);
-                } else {
-                  toast.message(contextMenuText.copyFail);
-                }
+                await copyContextMenuTargetMarkdown(true);
               },
             },
             ...(editMode === "edit"
@@ -2646,6 +2674,26 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
             item.querySelector("span")?.textContent?.trim() ??
             item.textContent?.trim() ??
             "";
+          if (
+            label === contextMenuText.copyMarkdown ||
+            label === contextMenuText.copyExpandedMarkdown
+          ) {
+            const onlyExpanded = label === contextMenuText.copyExpandedMarkdown;
+            const runCopy = (event: Event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              const now = Date.now();
+              if (event.type === "click" && now - lastDesktopMenuCopyAt < 700) {
+                return;
+              }
+              lastDesktopMenuCopyAt = now;
+              const menu = item.closest<HTMLElement>(".context-menu");
+              if (menu) menu.hidden = true;
+              void copyContextMenuTargetMarkdown(onlyExpanded);
+            };
+            item.onpointerdown = runCopy;
+            item.onclick = runCopy;
+          }
           const groupIndex =
             desktopContextMenuGroupIndex.get(label) ?? Number.MAX_SAFE_INTEGER;
           const isHidden = window.getComputedStyle(item).display === "none";
