@@ -80,12 +80,11 @@ function expandStatusFilters(statusFilters: MapStatusFilter[]) {
   const expanded = new Set<MapJobStatus>();
 
   statusFilters.forEach((status) => {
-    if (status === "processing" || status === "processing_structure" || status === "processing_metadata") {
+    if (status === "processing" || status === "processing_structure") {
       expanded.add("idle");
       expanded.add("queued");
       expanded.add("retrying");
       expanded.add("processing_structure");
-      expanded.add("processing_metadata");
       return;
     }
     expanded.add(status);

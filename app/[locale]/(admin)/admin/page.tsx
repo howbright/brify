@@ -68,6 +68,19 @@ export default async function AdminHomePage({
         </Link>
 
         <Link
+          href={`/${locale}/admin/youtube-reservations`}
+          className="rounded-3xl border border-slate-300 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+        >
+          <div className="text-sm font-semibold text-blue-700">ADMIN YOUTUBE</div>
+          <h2 className="mt-2 text-xl font-extrabold tracking-tight text-neutral-950">
+            유튜브 예약 요청
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-neutral-600">
+            유튜브 URL 예약 목록과 요청자 이메일, 보유 크레딧, 수동 처리 상태를 확인해요.
+          </p>
+        </Link>
+
+        <Link
           href={`/${locale}/admin/maps/recent`}
           className="rounded-3xl border border-slate-300 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
         >

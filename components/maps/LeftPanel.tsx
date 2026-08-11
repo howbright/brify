@@ -91,7 +91,18 @@ export default function LeftPanel({
     () => map.title?.trim() || t("untitled"),
     [map.title, t]
   );
-  const metadataPending = false;
+  const hasMetadataTags = Array.isArray(map.tags) && map.tags.length > 0;
+  const hasMetadataSummary = Boolean(map.summary?.trim());
+  const hasMetadataDescription = Boolean(map.description?.trim());
+  const metadataPending =
+    map.status === "processing_metadata" &&
+    (!hasMetadataTags || !hasMetadataSummary || !hasMetadataDescription);
+  const metadataTagsPending =
+    map.status === "processing_metadata" && !hasMetadataTags;
+  const metadataSummaryPending =
+    map.status === "processing_metadata" && !hasMetadataSummary;
+  const metadataDescriptionPending =
+    map.status === "processing_metadata" && !hasMetadataDescription;
   const metadataEditTooltip = t("tooltips.editMetadata");
   const tagsEditTooltip = t("tooltips.editTags");
 
@@ -763,7 +774,7 @@ export default function LeftPanel({
                 ) : null}
               </div>
               {metadataPending ? (
-                <div className="text-[12px] font-medium text-blue-700 dark:text-blue-200/85">
+                <div className="text-[12px] font-medium text-neutral-400 dark:text-white/38">
                   {t("metadataPending")}
                 </div>
               ) : null}
@@ -900,7 +911,7 @@ export default function LeftPanel({
                     dark:shadow-[0_34px_120px_-70px_rgba(0,0,0,0.55)]
                   "
                 >
-                  {map.tags?.length ? (
+                  {hasMetadataTags ? (
                     <div className="flex flex-wrap gap-1.5">
                       {map.tags.slice(0, 24).map((t) => (
                         <span
@@ -915,7 +926,7 @@ export default function LeftPanel({
                         </span>
                       ))}
                     </div>
-                  ) : metadataPending ? (
+                  ) : metadataTagsPending ? (
                     <EmptyText>{t("metadataPendingTags")}</EmptyText>
                   ) : (
                     <EmptyText>{t("noTags")}</EmptyText>
@@ -923,7 +934,7 @@ export default function LeftPanel({
                 </div>
               </section>
 
-              {map.summary || metadataPending ? (
+              {hasMetadataSummary || metadataSummaryPending ? (
                 <section className="mb-4">
                   <div className="mb-2.5 flex items-center gap-2">
                     <div className="h-5 w-1 rounded-full bg-blue-200 dark:bg-blue-500/40" />
@@ -949,8 +960,17 @@ export default function LeftPanel({
 
               {/* ✅ description: 접기/펼치기 제거 → 항상 노출 */}
               <Section title={t("descriptionSection")}>
-                <div className="text-[15px] leading-7 text-neutral-700 dark:text-white/80 whitespace-pre-wrap break-words">
-                  {map.description ?? t("noDescription")}
+                <div
+                  className={`text-[15px] leading-7 whitespace-pre-wrap break-words ${
+                    metadataDescriptionPending
+                      ? "text-neutral-400 dark:text-white/38"
+                      : "text-neutral-700 dark:text-white/80"
+                  }`}
+                >
+                  {map.description ??
+                    (metadataDescriptionPending
+                      ? t("metadataPendingDescription")
+                      : t("noDescription"))}
                 </div>
               </Section>
 

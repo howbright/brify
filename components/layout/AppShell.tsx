@@ -83,6 +83,7 @@ export default function AppShell({ children, locale, email }: AppShellProps) {
 
   const authedNavItems = [
     { label: tUser("items.myMaps"), href: route(safeLocale, "/maps"), icon: "lucide:folder-open" },
+    { label: tUser("items.youtubeReservations"), href: route(safeLocale, "/youtube-reservations"), icon: "lucide:youtube" },
     { label: tUser("items.billing"), href: route(safeLocale, "/billing"), icon: "lucide:wallet" },
     { label: tUser("items.billingHistory"), href: route(safeLocale, "/billing/history"), icon: "lucide:receipt" },
     { label: tUser("items.accountSettings"), href: route(safeLocale, "/account"), icon: "lucide:user-cog" },

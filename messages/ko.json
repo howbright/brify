@@ -968,6 +968,7 @@
       "greetingWithEmail": "{email}님, 안녕하세요",
       "items": {
         "myMaps": "나의 맵",
+        "youtubeReservations": "유튜브 예약",
         "billing": "크레딧 충전",
         "billingHistory": "결제 내역",
         "accountSettings": "계정 설정",
@@ -1571,6 +1572,14 @@
       "title": "시스템 안내",
       "message": "서비스 안정화를 위한 점검이 예정되어 있습니다. 자세한 내용은 공지사항을 확인해 주세요."
     },
+    "youtube_reservation_admin": {
+      "title": "유튜브 예약 요청이 도착했습니다",
+      "message": "{email} 님이 유튜브 구조맵 생성을 예약했습니다. 요청 언어: {outputLanguage}"
+    },
+    "youtube_reservation_retry_admin": {
+      "title": "유튜브 예약 다시 요청",
+      "message": "사용자가 유튜브 구조맵 예약을 다시 요청했습니다."
+    },
     "ui": {
       "aria_label": "알림",
       "dismiss": "닫기",
@@ -1657,6 +1666,7 @@
     "metadataPending": "메타데이터를 생성하고 있어요.",
     "metadataPendingSummary": "한 문단 요약을 생성하고 있어요.",
     "metadataPendingTags": "태그를 생성하고 있어요.",
+    "metadataPendingDescription": "설명을 생성하고 있어요.",
     "tooltips": {
       "editMetadata": "메타데이터 편집",
       "editTags": "태그 편집"

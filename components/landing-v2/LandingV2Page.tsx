@@ -12,6 +12,8 @@ import LanguageSelector from "@/components/LanguageSelector";
 import { getMapStructurePreview } from "@/components/maps/mapStructurePreview";
 import MapThemePreferenceMenuItem from "@/components/layout/MapThemePreferenceMenuItem";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import Alert from "@/components/ui/Alert";
+import { parseYoutubeUrl } from "@/app/lib/youtubeReservations";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -123,6 +125,19 @@ const COPY = {
     createOptionsTitle: "구조맵 만들기",
     createOptionsBody: "결과 언어와 사용 크레딧을 확인해 주세요.",
     requiredCredits: "이번 생성에 필요한 크레딧 {required}개",
+    youtubeReservationTitle: "유튜브 구조맵 예약",
+    youtubeReservationAlertTitle: "예약 접수 완료",
+    youtubeUrlAlertTitle: "유튜브 URL 확인",
+    youtubeReservationBody:
+      "유튜브 주소는 24시간 이내에 운영팀이 구조맵으로 바꿔드립니다. 이 유튜브 주소를 예약하시겠어요?",
+    youtubeReservationCreditPolicy:
+      "예약 단계에서는 크레딧을 차감하지 않습니다. 영상 확인 후 구조맵 생성이 가능할 때 필요한 크레딧을 확인하고 처리합니다.",
+    youtubeReservationLanguageQuestion:
+      "이 유튜브 영상을 어떤 언어의 구조맵으로 바꾸기를 원하시나요?",
+    youtubeReservationConfirm: "예약하기",
+    youtubeReservationQueued: "유튜브 구조맵 예약이 접수되었습니다.",
+    youtubeShortsUnsupported: "유튜브 Shorts는 아직 지원하지 않습니다.",
+    youtubeInvalidUrl: "올바른 유튜브 URL을 입력해 주세요.",
     cancel: "취소",
     uploadHint: "DOCX/PDF/PPTX를 끌어다 놓거나 업로드하세요.",
     dropReady: "여기에 놓으면 문서 텍스트를 추출합니다.",
@@ -181,6 +196,7 @@ const COPY = {
     blankMap: "빈 구조맵",
     blankCreating: "만드는 중",
     myMaps: "내 구조맵",
+    youtubeReservations: "유튜브 예약",
     billing: "결제/크레딧",
     billingHistory: "결제 내역",
     account: "계정",
@@ -227,6 +243,19 @@ const COPY = {
     createOptionsTitle: "Create structure map",
     createOptionsBody: "Confirm the output language and credits.",
     requiredCredits: "{required} credits will be used",
+    youtubeReservationTitle: "Reserve a YouTube structure map",
+    youtubeReservationAlertTitle: "Reservation received",
+    youtubeUrlAlertTitle: "Check the YouTube URL",
+    youtubeReservationBody:
+      "Our operations team will turn this YouTube URL into a structure map within 24 hours. Would you like to reserve it?",
+    youtubeReservationCreditPolicy:
+      "No credits are charged at the reservation step. After checking the video, we will process it when a structure map can be generated.",
+    youtubeReservationLanguageQuestion:
+      "Which language would you like the structure map to use?",
+    youtubeReservationConfirm: "Reserve",
+    youtubeReservationQueued: "Your YouTube structure map reservation has been received.",
+    youtubeShortsUnsupported: "YouTube Shorts are not supported yet.",
+    youtubeInvalidUrl: "Please enter a valid YouTube URL.",
     cancel: "Cancel",
     uploadHint: "Drop or upload a DOCX/PDF/PPTX file.",
     dropReady: "Drop it here to extract the document text.",
@@ -286,6 +315,7 @@ const COPY = {
     blankMap: "Blank map",
     blankCreating: "Creating",
     myMaps: "My maps",
+    youtubeReservations: "YouTube reservations",
     billing: "Billing",
     billingHistory: "Billing history",
     account: "Account",
@@ -332,6 +362,19 @@ const COPY = {
     createOptionsTitle: "Créer la carte",
     createOptionsBody: "Confirmez la langue de sortie et les crédits.",
     requiredCredits: "{required} crédits seront utilisés",
+    youtubeReservationTitle: "Réserver une carte structurelle YouTube",
+    youtubeReservationAlertTitle: "Réservation reçue",
+    youtubeUrlAlertTitle: "Vérifier l’URL YouTube",
+    youtubeReservationBody:
+      "Notre équipe transformera cette URL YouTube en carte structurelle sous 24 heures. Souhaitez-vous la réserver ?",
+    youtubeReservationCreditPolicy:
+      "Aucun crédit n’est débité lors de la réservation. Après vérification de la vidéo, nous traiterons la demande si une carte structurelle peut être générée.",
+    youtubeReservationLanguageQuestion:
+      "Dans quelle langue souhaitez-vous obtenir la carte structurelle ?",
+    youtubeReservationConfirm: "Réserver",
+    youtubeReservationQueued: "Votre réservation de carte structurelle YouTube a été reçue.",
+    youtubeShortsUnsupported: "Les YouTube Shorts ne sont pas encore pris en charge.",
+    youtubeInvalidUrl: "Veuillez saisir une URL YouTube valide.",
     cancel: "Annuler",
     uploadHint: "Déposez ou importez un DOCX/PDF/PPTX.",
     dropReady: "Déposez-le ici pour extraire le texte.",
@@ -391,6 +434,7 @@ const COPY = {
     blankMap: "Carte vide",
     blankCreating: "Création",
     myMaps: "Mes cartes",
+    youtubeReservations: "Réservations YouTube",
     billing: "Facturation",
     billingHistory: "Historique",
     account: "Compte",
@@ -557,7 +601,7 @@ function getRecentMapTitle(map: RecentMapPreview) {
 }
 
 function getRecentMapTopBorderClass(status: RecentMapPreview["map_status"]) {
-  if (status === "done") {
+  if (status === "done" || status === "processing_metadata") {
     return "border-t-2 border-t-slate-300 dark:border-t-slate-500/80";
   }
   if (status === "failed") {
@@ -650,6 +694,21 @@ export default function LandingV2Page({
   const [editingDraft, setEditingDraft] = useState<MapDraft | null>(null);
   const [showMetadataDialog, setShowMetadataDialog] = useState(false);
   const [showYoutubeDialog, setShowYoutubeDialog] = useState(false);
+  const [showYoutubeReservationDialog, setShowYoutubeReservationDialog] =
+    useState(false);
+  const [pendingYoutubeUrl, setPendingYoutubeUrl] = useState("");
+  const [isReservingYoutube, setIsReservingYoutube] = useState(false);
+  const [alertState, setAlertState] = useState<{
+    open: boolean;
+    title: string;
+    text: string;
+    variant: "info" | "success" | "warning" | "error";
+  }>({
+    open: false,
+    title: "",
+    text: "",
+    variant: "info",
+  });
   const [textareaHeight, setTextareaHeight] = useState<number | null>(null);
   const [savingMetaId, setSavingMetaId] = useState<string | null>(null);
   const [pendingAutoOpenMapId, setPendingAutoOpenMapId] = useState<string | null>(null);
@@ -818,6 +877,121 @@ export default function LandingV2Page({
     setAuthOpen(true);
   };
 
+  const showLandingAlert = ({
+    title,
+    text: alertText,
+    variant = "info",
+  }: {
+    title: string;
+    text: string;
+    variant?: "info" | "success" | "warning" | "error";
+  }) => {
+    setAlertState({
+      open: true,
+      title,
+      text: alertText,
+      variant,
+    });
+  };
+
+  const prepareYoutubeReservation = (rawInput?: string) => {
+    setError(null);
+    setNotice(null);
+
+    const candidate = (rawInput ?? trimmedText).trim();
+    const urlInfo = parseYoutubeUrl(candidate);
+
+    if (!candidate || !urlInfo.isYoutube) {
+      showLandingAlert({
+        title: copy.youtubeUrlAlertTitle,
+        text: copy.youtubeInvalidUrl,
+        variant: "warning",
+      });
+      return false;
+    }
+
+    if (urlInfo.isShorts) {
+      showLandingAlert({
+        title: copy.youtubeUrlAlertTitle,
+        text: copy.youtubeShortsUnsupported,
+        variant: "warning",
+      });
+      return true;
+    }
+
+    const pendingInput: PendingLandingInput = {
+      text: candidate,
+      sourceType: "manual",
+      fileName: null,
+      savedAt: Date.now(),
+    };
+
+    if (!isAuthed) {
+      saveUnauthedInputAndOpenAuth(pendingInput);
+      return true;
+    }
+
+    setPendingYoutubeUrl(urlInfo.normalizedUrl);
+    setShowYoutubeReservationDialog(true);
+    return true;
+  };
+
+  const reserveYoutubeUrl = async () => {
+    if (!pendingYoutubeUrl || isReservingYoutube) return;
+    setError(null);
+    setNotice(null);
+    setIsReservingYoutube(true);
+
+    try {
+      const response = await fetch("/api/youtube-reservations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url: pendingYoutubeUrl,
+          output_language: outputLang || "auto",
+        }),
+      });
+      const json = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const code = typeof json?.error === "string" ? json.error : "";
+        if (code === "YOUTUBE_SHORTS_UNSUPPORTED") {
+          showLandingAlert({
+            title: copy.youtubeUrlAlertTitle,
+            text: copy.youtubeShortsUnsupported,
+            variant: "warning",
+          });
+          return;
+        }
+        showLandingAlert({
+          title: copy.youtubeUrlAlertTitle,
+          text: copy.youtubeInvalidUrl,
+          variant: "warning",
+        });
+        return;
+      }
+
+      setShowYoutubeReservationDialog(false);
+      setPendingYoutubeUrl("");
+      setText("");
+      setSourceType("manual");
+      setFileName(null);
+      showLandingAlert({
+        title: copy.youtubeReservationAlertTitle,
+        text: copy.youtubeReservationQueued,
+        variant: "success",
+      });
+    } catch (reservationError) {
+      showLandingAlert({
+        title: copy.youtubeUrlAlertTitle,
+        text: getApiMessage(reservationError, copy.youtubeInvalidUrl),
+        variant: "error",
+      });
+    } finally {
+      setIsReservingYoutube(false);
+    }
+  };
+
   const estimateCreditsForText = async (sourceText: string) => {
     const base = process.env.NEXT_PUBLIC_API_BASE_URL;
     if (!base) throw new Error(copy.missingApiBase);
@@ -865,6 +1039,11 @@ export default function LandingV2Page({
 
     if (!generationText) {
       setError(copy.empty);
+      return;
+    }
+
+    if (parseYoutubeUrl(generationText).isYoutube) {
+      prepareYoutubeReservation(generationText);
       return;
     }
 
@@ -1183,6 +1362,10 @@ export default function LandingV2Page({
   };
 
   const handleSubmit = () => {
+    if (parseYoutubeUrl(trimmedText).isYoutube) {
+      prepareYoutubeReservation(trimmedText);
+      return;
+    }
     void prepareCreateMap();
   };
 
@@ -1388,6 +1571,7 @@ export default function LandingV2Page({
 
   const authedNavItems = [
     { label: copy.myMaps, href: route("/maps"), icon: "lucide:folder-open" },
+    { label: copy.youtubeReservations, href: route("/youtube-reservations"), icon: "lucide:youtube" },
     { label: copy.billing, href: route("/billing"), icon: "lucide:wallet" },
     { label: copy.billingHistory, href: route("/billing/history"), icon: "lucide:receipt" },
     { label: copy.accountSettings, href: route("/account"), icon: "lucide:user-cog" },
@@ -1951,7 +2135,6 @@ export default function LandingV2Page({
                         textCls: "text-rose-700 dark:text-rose-200",
                       }
                     : map.map_status === "processing_structure" ||
-                      map.map_status === "processing_metadata" ||
                       map.map_status === "queued" ||
                       map.map_status === "idle"
                     ? {
@@ -2133,6 +2316,95 @@ export default function LandingV2Page({
         </div>
       ) : null}
 
+      {showYoutubeReservationDialog ? (
+        <div
+          className="fixed inset-0 z-[520] flex items-center justify-center bg-slate-950/58 px-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label={copy.youtubeReservationTitle}
+          onMouseDown={(event) => {
+            if (event.target !== event.currentTarget || isReservingYoutube) return;
+            setShowYoutubeReservationDialog(false);
+            setPendingYoutubeUrl("");
+          }}
+        >
+          <div className="w-full max-w-lg rounded-[28px] border border-white/20 bg-white p-5 shadow-[0_34px_100px_-36px_rgba(0,0,0,0.7)] dark:bg-[#0d1422]">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-red-50 text-red-600 dark:bg-red-500/12 dark:text-red-200">
+                  <Icon icon="lucide:youtube" className="h-5 w-5" />
+                </div>
+                <h2 className="mt-3 text-xl font-black tracking-normal text-slate-950 dark:text-white">
+                  {copy.youtubeReservationTitle}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-white/62">
+                  {copy.youtubeReservationBody}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (isReservingYoutube) return;
+                  setShowYoutubeReservationDialog(false);
+                  setPendingYoutubeUrl("");
+                }}
+                aria-label={copy.cancel}
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-800 dark:hover:bg-white/10 dark:hover:text-white"
+              >
+                <Icon icon="lucide:x" className="h-4.5 w-4.5" />
+              </button>
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold leading-6 text-slate-700 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/68">
+              {copy.youtubeReservationCreditPolicy}
+            </div>
+
+            <div className="mt-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-white/52">
+              <div className="mb-1 text-xs font-black uppercase tracking-normal text-slate-400 dark:text-white/35">
+                YouTube URL
+              </div>
+              <div className="break-all">{pendingYoutubeUrl}</div>
+            </div>
+
+            <div className="mt-4">
+              <div className="mb-2 text-sm font-black text-slate-900 dark:text-white">
+                {copy.youtubeReservationLanguageQuestion}
+              </div>
+              <OutputLanguageSelect
+                value={outputLang}
+                onChange={setOutputLang}
+                disabled={isReservingYoutube}
+              />
+            </div>
+
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowYoutubeReservationDialog(false);
+                  setPendingYoutubeUrl("");
+                }}
+                disabled={isReservingYoutube}
+                className="inline-flex h-10 items-center rounded-2xl px-4 text-sm font-bold text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50 dark:text-white/55 dark:hover:bg-white/10 dark:hover:text-white"
+              >
+                {copy.cancel}
+              </button>
+              <button
+                type="button"
+                onClick={() => void reserveYoutubeUrl()}
+                disabled={isReservingYoutube}
+                className="inline-flex h-10 items-center gap-2 rounded-2xl bg-slate-950 px-4 text-sm font-black text-white transition hover:bg-slate-800 disabled:opacity-50 dark:bg-cyan-400 dark:text-slate-950 dark:hover:bg-cyan-300"
+              >
+                {isReservingYoutube ? (
+                  <Icon icon="lucide:loader-circle" className="h-4 w-4 animate-spin" />
+                ) : null}
+                {copy.youtubeReservationConfirm}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {showCreditDialog ? (
         <div
           className="fixed inset-0 z-[520] flex items-center justify-center bg-slate-950/58 px-4 backdrop-blur-sm"
@@ -2256,6 +2528,14 @@ export default function LandingV2Page({
       <YoutubeScriptDialog
         open={showYoutubeDialog}
         onClose={() => setShowYoutubeDialog(false)}
+      />
+      <Alert
+        open={alertState.open}
+        onOpenChange={(open) => setAlertState((prev) => ({ ...prev, open }))}
+        title={alertState.title}
+        text={alertState.text}
+        variant={alertState.variant}
+        confirmLabel={copy.cancel === "취소" ? "확인" : copy.cancel === "Cancel" ? "OK" : "OK"}
       />
     </main>
   );

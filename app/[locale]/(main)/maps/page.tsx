@@ -297,7 +297,7 @@ export default function MapsPage() {
       queued: tCommon("status.queued"),
       processing: tCommon("status.processing"),
       processing_structure: tCommon("status.processing"),
-      processing_metadata: tCommon("status.processing"),
+      processing_metadata: tCommon("status.done"),
       done: tCommon("status.done"),
       failed: tCommon("status.failed"),
     }),

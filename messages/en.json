@@ -968,6 +968,7 @@
       "greetingWithEmail": "Hello, {email}",
       "items": {
         "myMaps": "My Maps",
+        "youtubeReservations": "YouTube reservations",
         "billing": "Top up credits",
         "billingHistory": "Billing history",
         "accountSettings": "Account settings",
@@ -1571,6 +1572,14 @@
       "title": "System notice",
       "message": "Scheduled maintenance is planned for service stability. Please check the notice for details."
     },
+    "youtube_reservation_admin": {
+      "title": "YouTube reservation received",
+      "message": "{email} reserved a YouTube structure map. Output language: {outputLanguage}"
+    },
+    "youtube_reservation_retry_admin": {
+      "title": "YouTube reservation retry requested",
+      "message": "A user requested retry processing for a YouTube structure map reservation."
+    },
     "ui": {
       "aria_label": "Notifications",
       "dismiss": "Dismiss",
@@ -1657,6 +1666,7 @@
     "metadataPending": "Generating metadata now.",
     "metadataPendingSummary": "Generating the one-paragraph summary.",
     "metadataPendingTags": "Generating tags now.",
+    "metadataPendingDescription": "Generating the description now.",
     "tooltips": {
       "editMetadata": "Edit metadata",
       "editTags": "Edit tags"

@@ -313,6 +313,7 @@
       "greetingWithEmail": "Bonjour, {email}",
       "items": {
         "myMaps": "Mes cartes",
+        "youtubeReservations": "Réservations YouTube",
         "billing": "Recharger des crédits",
         "billingHistory": "Historique des paiements",
         "accountSettings": "Paramètres du compte",
@@ -1533,6 +1534,14 @@
       "title": "Remboursement effectué",
       "message": "Votre remboursement a été traité. Son apparition sur votre relevé peut prendre un peu de temps."
     },
+    "youtube_reservation_admin": {
+      "title": "Réservation YouTube reçue",
+      "message": "{email} a réservé une carte structurelle YouTube. Langue demandée : {outputLanguage}"
+    },
+    "youtube_reservation_retry_admin": {
+      "title": "Nouvelle demande YouTube",
+      "message": "Un utilisateur a redemandé le traitement d’une réservation YouTube."
+    },
     "ui": {
       "aria_label": "Notifications",
       "dismiss": "Fermer",
@@ -1666,6 +1675,7 @@
     "metadataPending": "Génération des métadonnées en cours.",
     "metadataPendingSummary": "Génération du résumé en un paragraphe.",
     "metadataPendingTags": "Génération des tags en cours.",
+    "metadataPendingDescription": "Génération de la description en cours.",
     "tooltips": {
       "editMetadata": "Modifier les métadonnées",
       "editTags": "Modifier les tags"

@@ -2066,6 +2066,71 @@ export type Database = {
         }
         Relationships: []
       }
+      youtube_reservations: {
+        Row: {
+          admin_notes: string | null
+          charged_credits: number | null
+          created_at: string
+          credit_snapshot: number
+          id: string
+          output_language: string | null
+          processed_at: string | null
+          requester_email: string | null
+          required_credits: number | null
+          result_map_id: string | null
+          status: Database["public"]["Enums"]["youtube_reservation_status"]
+          status_reason: string | null
+          updated_at: string
+          url: string
+          user_id: string
+          video_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          charged_credits?: number | null
+          created_at?: string
+          credit_snapshot?: number
+          id?: string
+          output_language?: string | null
+          processed_at?: string | null
+          requester_email?: string | null
+          required_credits?: number | null
+          result_map_id?: string | null
+          status?: Database["public"]["Enums"]["youtube_reservation_status"]
+          status_reason?: string | null
+          updated_at?: string
+          url: string
+          user_id: string
+          video_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          charged_credits?: number | null
+          created_at?: string
+          credit_snapshot?: number
+          id?: string
+          output_language?: string | null
+          processed_at?: string | null
+          requester_email?: string | null
+          required_credits?: number | null
+          result_map_id?: string | null
+          status?: Database["public"]["Enums"]["youtube_reservation_status"]
+          status_reason?: string | null
+          updated_at?: string
+          url?: string
+          user_id?: string
+          video_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "youtube_reservations_result_map_id_fkey"
+            columns: ["result_map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       youtube_scripts: {
         Row: {
           channel_name: string | null
@@ -2259,6 +2324,17 @@ export type Database = {
       profile_role: "ADMIN" | "USER"
       store_admin_role: "owner" | "manager" | "staff"
       transfer_report_status: "submitted" | "verified" | "rejected"
+      youtube_reservation_status:
+        | "requested"
+        | "checking"
+        | "ready"
+        | "needs_credits"
+        | "processing"
+        | "done"
+        | "failed"
+        | "cancelled"
+        | "unsupported"
+        | "retry_requested"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2513,6 +2589,18 @@ export const Constants = {
       profile_role: ["ADMIN", "USER"],
       store_admin_role: ["owner", "manager", "staff"],
       transfer_report_status: ["submitted", "verified", "rejected"],
+      youtube_reservation_status: [
+        "requested",
+        "checking",
+        "ready",
+        "needs_credits",
+        "processing",
+        "done",
+        "failed",
+        "cancelled",
+        "unsupported",
+        "retry_requested",
+      ],
     },
   },
 } as const

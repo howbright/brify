@@ -79,7 +79,9 @@ export default function MapTableList({
             label: statusLabels[normalizedStatus] ?? t("status.failed"),
             cls: "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-400/25 dark:bg-rose-500/10 dark:text-rose-200",
           }
-        : normalizedStatus === "processing_structure" || normalizedStatus === "processing_metadata"
+        : normalizedStatus === "processing_structure" ||
+          normalizedStatus === "queued" ||
+          normalizedStatus === "idle"
         ? {
             label: statusLabels[normalizedStatus] ?? t("status.processing"),
             cls: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-400/25 dark:bg-blue-500/10 dark:text-blue-200",
