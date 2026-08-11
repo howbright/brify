@@ -3,7 +3,7 @@
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import LanguageSelector from "@/components/LanguageSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -32,34 +32,8 @@ export default function AppShell({ children, locale, email }: AppShellProps) {
   const tNav = useTranslations("Header.nav");
   const tCta = useTranslations("Header.cta");
   const tUser = useTranslations("Header.userMenu");
-  const [isCreatingBlank, setIsCreatingBlank] = useState(false);
 
   const safeLocale = locale === "ko" || locale === "en" || locale === "fr" ? locale : "ko";
-
-  const startBlankMap = async () => {
-    if (isCreatingBlank) return;
-    setIsCreatingBlank(true);
-    try {
-      const response = await fetch("/api/maps/blank", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: tCta("blankMapDefaultTitle") }),
-      });
-      const json = await response.json().catch(() => ({}));
-      if (response.status === 401) {
-        router.push(route(safeLocale, "/login"));
-        return;
-      }
-      if (!response.ok || typeof json?.id !== "string") {
-        throw new Error("blank_map_create_failed");
-      }
-      router.push(route(safeLocale, `/maps/${json.id}`));
-    } catch (error) {
-      console.error("[AppShell] failed to create blank map", error);
-    } finally {
-      setIsCreatingBlank(false);
-    }
-  };
 
   const handleSignOut = async () => {
     try {
@@ -133,15 +107,6 @@ export default function AppShell({ children, locale, email }: AppShellProps) {
           >
             <Icon icon="lucide:plus" className="h-4 w-4" />
             {tCta("newMap")}
-          </button>
-          <button
-            type="button"
-            onClick={() => void startBlankMap()}
-            disabled={isCreatingBlank}
-            className="flex h-10 items-center gap-3 rounded-2xl px-3 text-sm font-bold text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 disabled:opacity-55 dark:text-white/62 dark:hover:bg-white/8 dark:hover:text-white"
-          >
-            <Icon icon="lucide:file-plus-2" className="h-4 w-4" />
-            {isCreatingBlank ? tCta("blankCreating") : tCta("blankStartTitle")}
           </button>
         </div>
 

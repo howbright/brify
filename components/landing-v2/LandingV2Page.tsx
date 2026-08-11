@@ -680,7 +680,6 @@ export default function LandingV2Page({
   const [generationCharCount, setGenerationCharCount] = useState(0);
   const [recentMaps, setRecentMaps] = useState<RecentMapPreview[]>([]);
   const [isLoadingRecentMaps, setIsLoadingRecentMaps] = useState(false);
-  const [isCreatingBlank, setIsCreatingBlank] = useState(false);
   const [currentCredits, setCurrentCredits] = useState(0);
   const [isLoadingCredits, setIsLoadingCredits] = useState(false);
   const [creditEstimate, setCreditEstimate] = useState<MapCreditEstimate | null>(null);
@@ -1519,36 +1518,6 @@ export default function LandingV2Page({
     setNotice(null);
   };
 
-  const startBlankMap = async () => {
-    if (isCreatingBlank) return;
-    if (!isAuthed) {
-      router.push(loginHref);
-      return;
-    }
-
-    setIsCreatingBlank(true);
-    try {
-      const response = await fetch("/api/maps/blank", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: copy.blankMap }),
-      });
-      if (response.status === 401) {
-        router.push(loginHref);
-        return;
-      }
-      const json = await response.json().catch(() => ({}));
-      if (!response.ok || typeof json?.id !== "string") {
-        throw new Error("blank_map_create_failed");
-      }
-      router.push(route(`/maps/${json.id}`));
-    } catch (blankError) {
-      console.error("Failed to create blank map:", blankError);
-    } finally {
-      setIsCreatingBlank(false);
-    }
-  };
-
   const handleSignOut = async () => {
     try {
       await fetch(`/auth/signout?locale=${safeLocale}`, {
@@ -1611,15 +1580,6 @@ export default function LandingV2Page({
               >
                 <Icon icon="lucide:plus" className="h-4 w-4" />
                 {copy.newMap}
-              </button>
-              <button
-                type="button"
-                onClick={() => void startBlankMap()}
-                disabled={isCreatingBlank}
-                className="flex h-10 items-center gap-3 rounded-2xl px-3 text-sm font-bold text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 disabled:opacity-55 dark:text-white/62 dark:hover:bg-white/8 dark:hover:text-white"
-              >
-                <Icon icon="lucide:file-plus-2" className="h-4 w-4" />
-                {isCreatingBlank ? copy.blankCreating : copy.blankMap}
               </button>
             </>
           ) : (

@@ -10,6 +10,49 @@ function jsonError(message: string, status: number, extra?: Record<string, unkno
   return NextResponse.json({ error: message, ...(extra ?? {}) }, { status });
 }
 
+async function notifyYoutubeReservationByEmail(args: {
+  reservationId: string;
+  requesterEmail: string | null;
+  url: string;
+  outputLanguage: string;
+  creditSnapshot: number;
+  createdAt: string | null;
+}) {
+  const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const backendToken = process.env.BRIFY_BACKEND_INTERNAL_TOKEN;
+
+  if (!backendUrl || !backendToken) {
+    console.warn("[youtube-reservations] skip admin email: backend env is missing");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${backendUrl}/support/notify-youtube-reservation`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${backendToken}`,
+      },
+      body: JSON.stringify({
+        reservation_id: args.reservationId,
+        requester_email: args.requesterEmail,
+        url: args.url,
+        output_language: args.outputLanguage,
+        credit_snapshot: args.creditSnapshot,
+        created_at: args.createdAt,
+      }),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      const detail = await response.text().catch(() => "");
+      console.error("[youtube-reservations] admin email failed", response.status, detail);
+    }
+  } catch (error) {
+    console.error("[youtube-reservations] admin email request failed", error);
+  }
+}
+
 export async function GET() {
   const supabase = await createClient();
   const {
@@ -131,6 +174,15 @@ export async function POST(request: Request) {
       console.error("[youtube-reservations] admin notification failed", notificationError);
     }
   }
+
+  await notifyYoutubeReservationByEmail({
+    reservationId: String(reservation.id),
+    requesterEmail: profile.email ?? user.email ?? null,
+    url: urlInfo.normalizedUrl,
+    outputLanguage,
+    creditSnapshot: creditTotal,
+    createdAt: reservation.created_at ?? null,
+  });
 
   return NextResponse.json({
     ok: true,
