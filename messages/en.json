@@ -1001,6 +1001,39 @@
       "blankMapDefaultTitle": "Untitled"
     }
   },
+  "YoutubeReservationsPage": {
+    "title": "YouTube reservations",
+    "description": "Check the status of structure map requests reserved with YouTube URLs, and retry failed requests.",
+    "empty": "No YouTube reservations yet.",
+    "loading": "Loading reservations.",
+    "refresh": "Refresh",
+    "retry": "Request again",
+    "retrying": "Requesting...",
+    "openMap": "Open map",
+    "back": "Home",
+    "failedReason": "Reason",
+    "requestedAt": "Requested",
+    "updatedAt": "Updated",
+    "credits": "Credits",
+    "outputLanguage": "Language",
+    "retryDone": "Retry request received.",
+    "retryDoneTitle": "Retry requested",
+    "retryFailedTitle": "Retry failed",
+    "loadFailedTitle": "Could not load reservations",
+    "confirm": "OK",
+    "statuses": {
+      "requested": "Reserved",
+      "checking": "Checking",
+      "ready": "Ready",
+      "needs_credits": "Needs credits",
+      "processing": "Processing",
+      "done": "Done",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "unsupported": "Unsupported",
+      "retry_requested": "Retry requested"
+    }
+  },
   "MapControls": {
     "mode": {
       "view": "View",

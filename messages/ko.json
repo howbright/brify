@@ -1001,6 +1001,39 @@
       "blankMapDefaultTitle": "제목없음"
     }
   },
+  "YoutubeReservationsPage": {
+    "title": "유튜브 예약 목록",
+    "description": "유튜브 URL로 예약한 구조맵 요청의 상태를 확인하고, 실패한 요청은 다시 요청할 수 있습니다.",
+    "empty": "아직 유튜브 예약 요청이 없습니다.",
+    "loading": "예약 목록을 불러오고 있어요.",
+    "refresh": "새로고침",
+    "retry": "다시 요청",
+    "retrying": "요청 중...",
+    "openMap": "구조맵 열기",
+    "back": "홈으로",
+    "failedReason": "실패 사유",
+    "requestedAt": "요청일",
+    "updatedAt": "업데이트",
+    "credits": "크레딧",
+    "outputLanguage": "요청 언어",
+    "retryDone": "다시 요청이 접수되었습니다.",
+    "retryDoneTitle": "다시 요청 완료",
+    "retryFailedTitle": "다시 요청 실패",
+    "loadFailedTitle": "예약 목록을 불러오지 못했습니다",
+    "confirm": "확인",
+    "statuses": {
+      "requested": "예약됨",
+      "checking": "확인 중",
+      "ready": "생성 가능",
+      "needs_credits": "크레딧 부족",
+      "processing": "처리 중",
+      "done": "완료",
+      "failed": "실패",
+      "cancelled": "취소",
+      "unsupported": "지원 불가",
+      "retry_requested": "다시 요청"
+    }
+  },
   "MapControls": {
     "mode": {
       "view": "보기",

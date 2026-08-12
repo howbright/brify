@@ -21,6 +21,15 @@ type Reservation = {
   result_map_id: string | null;
   admin_notes: string | null;
   processed_at: string | null;
+  user_email_sent_at: string | null;
+  user_email_error: string | null;
+  admin_failure_email_sent_at: string | null;
+  admin_failure_email_error: string | null;
+  manual_email_sent_at: string | null;
+  manual_email_error: string | null;
+  refunded_credits: number;
+  refunded_at: string | null;
+  refund_error: string | null;
   created_at: string;
   updated_at: string;
   requester: {
@@ -81,20 +90,6 @@ function statusClass(status: YoutubeReservationStatus) {
   return "bg-slate-100 text-slate-700 ring-slate-200";
 }
 
-function buildMailto({
-  to,
-  subject,
-  body,
-}: {
-  to: string;
-  subject: string;
-  body: string;
-}) {
-  return `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(
-    subject
-  )}&body=${encodeURIComponent(body)}`;
-}
-
 export default function AdminYoutubeReservationsPage({
   locale,
 }: {
@@ -105,6 +100,9 @@ export default function AdminYoutubeReservationsPage({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [generatingMap, setGeneratingMap] = useState(false);
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const [generationMessage, setGenerationMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
     status: "requested" as YoutubeReservationStatus,
@@ -113,7 +111,9 @@ export default function AdminYoutubeReservationsPage({
     chargedCredits: "",
     resultMapId: "",
     adminNotes: "",
+    title: "",
     manualContent: "",
+    userMessage: "",
   });
 
   const selected = useMemo(
@@ -136,7 +136,11 @@ export default function AdminYoutubeReservationsPage({
       chargedCredits: selected.charged_credits?.toString() ?? "",
       resultMapId: selected.result_map_id ?? "",
       adminNotes: selected.admin_notes ?? "",
+      title: "",
+      manualContent: "",
+      userMessage: "",
     }));
+    setGenerationMessage(null);
   }, [selected?.id]);
 
   async function loadReservations() {
@@ -184,48 +188,110 @@ export default function AdminYoutubeReservationsPage({
     }
   }
 
+  async function generateMapForReservation() {
+    if (!selected) return;
+
+    const title = form.title.trim();
+    const content = form.manualContent.trim();
+
+    if (!title) {
+      setError("유튜브 영상 제목을 입력해 주세요.");
+      return;
+    }
+    if (!content) {
+      setError("구조맵으로 만들 원문/스크립트를 붙여넣어 주세요.");
+      return;
+    }
+
+    setGeneratingMap(true);
+    setGenerationMessage(null);
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `/api/admin/youtube-reservations/${encodeURIComponent(
+          selected.id
+        )}/generate-map`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, content }),
+        }
+      );
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(json?.message ?? json?.error ?? "failed");
+      }
+
+      if (json?.outcome === "processing") {
+        setGenerationMessage(
+          `구조맵 생성이 시작되었습니다. 요청자에게 ${json.chargedCredits ?? json.requiredCredits ?? "-"}cr가 차감되었습니다.`
+        );
+      } else if (json?.outcome === "needs_credits") {
+        setGenerationMessage(
+          `요청자의 크레딧이 부족합니다. 필요 ${json.requiredCredits ?? "-"}cr, 현재 ${json.availableCredits ?? "-"}cr입니다.`
+        );
+      } else if (json?.outcome === "failed") {
+        setGenerationMessage(`생성 요청이 실패 상태로 기록되었습니다. 사유: ${json.reason ?? "알 수 없음"}`);
+      } else {
+        setGenerationMessage("요청 처리가 완료되었습니다.");
+      }
+
+      await loadReservations();
+    } catch (generateError) {
+      setError(generateError instanceof Error ? generateError.message : "failed");
+    } finally {
+      setGeneratingMap(false);
+    }
+  }
+
+  async function sendUserMessage() {
+    if (!selected) return;
+
+    const message = form.userMessage.trim();
+    if (!message) {
+      setError("사용자에게 보낼 안내 문구를 입력해 주세요.");
+      return;
+    }
+
+    setSendingMessage(true);
+    setGenerationMessage(null);
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `/api/admin/youtube-reservations/${encodeURIComponent(
+          selected.id
+        )}/send-message`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        }
+      );
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(json?.message ?? json?.error ?? "failed");
+      }
+
+      setGenerationMessage("사용자에게 안내 메일을 보냈고, 예약 상태를 실패로 기록했습니다.");
+      await loadReservations();
+    } catch (sendError) {
+      setError(sendError instanceof Error ? sendError.message : "failed");
+    } finally {
+      setSendingMessage(false);
+    }
+  }
+
   const latestCredits = selected?.requester?.creditsTotal ?? 0;
   const requesterEmail = selected?.requester_email ?? selected?.requester?.email ?? "";
-  const noCreditMailto = selected
-    ? buildMailto({
-        to: requesterEmail,
-        subject: "[Brify] 유튜브 구조맵 예약 처리 안내",
-        body: [
-          "안녕하세요. Brify입니다.",
-          "",
-          "예약하신 유튜브 구조맵 요청을 확인했지만, 현재 보유 크레딧이 부족하여 구조맵 생성을 진행하지 못했습니다.",
-          "",
-          `예약 URL: ${selected.url}`,
-          `요청 언어: ${selected.output_language ?? "auto"}`,
-          `현재 크레딧: ${latestCredits}cr`,
-          "",
-          "크레딧을 충전하신 뒤 Brify의 유튜브 예약 목록에서 다시 요청해 주세요.",
-          "",
-          "감사합니다.",
-          "Brify",
-        ].join("\n"),
-      })
-    : "#";
-  const customFailureMailto = selected
-    ? buildMailto({
-        to: requesterEmail,
-        subject: "[Brify] 유튜브 구조맵 예약 처리 안내",
-        body: [
-          "안녕하세요. Brify입니다.",
-          "",
-          "예약하신 유튜브 구조맵 요청을 확인했지만, 아래 사유로 처리를 완료하지 못했습니다.",
-          "",
-          `예약 URL: ${selected.url}`,
-          `요청 언어: ${selected.output_language ?? "auto"}`,
-          `사유: ${form.statusReason || "(여기에 실패 사유를 입력해 주세요)"}`,
-          "",
-          "문제가 해결되었다면 Brify의 유튜브 예약 목록에서 다시 요청해 주세요.",
-          "",
-          "감사합니다.",
-          "Brify",
-        ].join("\n"),
-      })
-    : "#";
+  const generateButtonLabel =
+    selected?.status === "failed" ||
+    selected?.status === "needs_credits" ||
+    selected?.status === "retry_requested" ||
+    Boolean(selected?.result_map_id)
+      ? "구조맵 다시 생성"
+      : "요청자 명의로 구조맵 생성";
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-10">
@@ -323,6 +389,19 @@ export default function AdminYoutubeReservationsPage({
                 />
                 <Info label="video_id" value={selected.video_id ?? "-"} mono />
                 <Info label="생성 결과 map_id" value={selected.result_map_id ?? "-"} mono />
+                <Info label="사용자 자동메일" value={selected.user_email_error ? `실패: ${selected.user_email_error}` : formatDate(selected.user_email_sent_at)} />
+                <Info label="관리자 실패알림" value={selected.admin_failure_email_error ? `실패: ${selected.admin_failure_email_error}` : formatDate(selected.admin_failure_email_sent_at)} />
+                <Info label="수동 안내메일" value={selected.manual_email_error ? `실패: ${selected.manual_email_error}` : formatDate(selected.manual_email_sent_at)} />
+                <Info
+                  label="환불"
+                  value={
+                    selected.refund_error
+                      ? `실패: ${selected.refund_error}`
+                      : selected.refunded_credits > 0
+                        ? `${selected.refunded_credits}cr · ${formatDate(selected.refunded_at)}`
+                        : "-"
+                  }
+                />
               </div>
 
               <div>
@@ -433,6 +512,14 @@ export default function AdminYoutubeReservationsPage({
                 <span className="mb-2 block text-xs font-black uppercase text-slate-400">
                   수동 추출 내용 입력란
                 </span>
+                <input
+                  value={form.title}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, title: event.target.value }))
+                  }
+                  placeholder="유튜브 영상 제목을 입력하세요"
+                  className="mb-3 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-900"
+                />
                 <textarea
                   value={form.manualContent}
                   onChange={(event) =>
@@ -444,25 +531,62 @@ export default function AdminYoutubeReservationsPage({
                 />
               </label>
 
+              {generationMessage ? (
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold leading-6 text-emerald-800">
+                  {generationMessage}
+                </div>
+              ) : null}
+
+              <label className="block rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <span className="mb-2 block text-xs font-black uppercase text-slate-400">
+                  사용자에게 직접 보낼 안내
+                </span>
+                <textarea
+                  value={form.userMessage}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, userMessage: event.target.value }))
+                  }
+                  rows={4}
+                  placeholder="예: 영상 자막을 안정적으로 확보하지 못해 이번 예약은 처리하지 못했습니다. 다른 공개 영상 URL로 다시 요청해 주세요."
+                  className="w-full resize-y rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6"
+                />
+                <div className="mt-3 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => void sendUserMessage()}
+                    disabled={sendingMessage || !requesterEmail}
+                    className="inline-flex h-10 items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 text-sm font-black text-rose-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    title={
+                      requesterEmail
+                        ? "입력한 문구를 사용자에게 이메일로 보내고 예약을 실패 상태로 기록합니다."
+                        : "요청자 이메일이 없어 보낼 수 없습니다."
+                    }
+                  >
+                    <Icon icon={sendingMessage ? "lucide:loader-circle" : "lucide:send"} className={sendingMessage ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
+                    사용자에게 사유 메일 보내기
+                  </button>
+                </div>
+              </label>
+
               <div className="flex flex-wrap justify-end gap-2">
-                {requesterEmail ? (
-                  <>
-                    <a
-                      href={noCreditMailto}
-                      className="inline-flex h-10 items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 text-sm font-black text-amber-800"
-                    >
-                      <Icon icon="lucide:mail-warning" className="h-4 w-4" />
-                      크레딧 부족 메일 작성
-                    </a>
-                    <a
-                      href={customFailureMailto}
-                      className="inline-flex h-10 items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 text-sm font-black text-rose-800"
-                    >
-                      <Icon icon="lucide:mail-x" className="h-4 w-4" />
-                      실패 사유 메일 작성
-                    </a>
-                  </>
-                ) : null}
+                <button
+                  type="button"
+                  onClick={() => void generateMapForReservation()}
+                  disabled={
+                    generatingMap ||
+                    selected.status === "processing" ||
+                    selected.status === "done"
+                  }
+                  className="inline-flex h-10 items-center gap-2 rounded-2xl bg-slate-950 px-4 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  title={
+                    selected.status === "processing" || selected.status === "done"
+                      ? "이미 처리 중이거나 완료된 예약입니다."
+                      : "요청자 명의로 크레딧을 차감하고 구조맵 생성을 시작합니다."
+                  }
+                >
+                  <Icon icon={generatingMap ? "lucide:loader-circle" : "lucide:sparkles"} className={generatingMap ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
+                  {generateButtonLabel}
+                </button>
                 {form.resultMapId ? (
                   <Link
                     href={`/${locale}/admin/${form.resultMapId}`}
@@ -484,8 +608,9 @@ export default function AdminYoutubeReservationsPage({
               </div>
 
               <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-                현재 버전은 예약 큐와 수동 처리 관리 화면입니다. 요청자 명의로 구조맵 생성, 크레딧 차감,
-                이메일 발송까지 자동화하려면 NestJS 처리 API와 연결해야 합니다.
+                제목에는 유튜브 영상 제목을 넣고, 내용 입력란에는 관리자가 직접 확보한 원문/스크립트를
+                붙여넣으세요. 생성이 시작되면 요청자 크레딧이 차감됩니다. 성공 메일은 사용자에게 자동
+                발송되고, 실패 알림은 관리자에게 먼저 발송됩니다.
               </div>
             </div>
           ) : (

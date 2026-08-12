@@ -346,6 +346,39 @@
       "blankMapDefaultTitle": "Sans titre"
     }
   },
+  "YoutubeReservationsPage": {
+    "title": "Réservations YouTube",
+    "description": "Consultez l’état des demandes réservées avec des URL YouTube et relancez les demandes échouées.",
+    "empty": "Aucune réservation YouTube pour le moment.",
+    "loading": "Chargement des réservations.",
+    "refresh": "Actualiser",
+    "retry": "Redemander",
+    "retrying": "Demande...",
+    "openMap": "Ouvrir la carte",
+    "back": "Accueil",
+    "failedReason": "Raison",
+    "requestedAt": "Demandé le",
+    "updatedAt": "Mis à jour",
+    "credits": "Crédits",
+    "outputLanguage": "Langue",
+    "retryDone": "La nouvelle demande a été reçue.",
+    "retryDoneTitle": "Nouvelle demande reçue",
+    "retryFailedTitle": "Échec de la nouvelle demande",
+    "loadFailedTitle": "Impossible de charger les réservations",
+    "confirm": "OK",
+    "statuses": {
+      "requested": "Réservé",
+      "checking": "Vérification",
+      "ready": "Prêt",
+      "needs_credits": "Crédits requis",
+      "processing": "Traitement",
+      "done": "Terminé",
+      "failed": "Échec",
+      "cancelled": "Annulé",
+      "unsupported": "Non pris en charge",
+      "retry_requested": "Redemandé"
+    }
+  },
   "Footer": {
     "description": "Un outil de carte structurée par IA pour les doctorants, chercheurs et étudiants qui préparent des rapports à partir d’articles et de documents longs.",
     "contactEmail": "E-mail",

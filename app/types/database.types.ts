@@ -2068,13 +2068,20 @@ export type Database = {
       }
       youtube_reservations: {
         Row: {
+          admin_failure_email_error: string | null
+          admin_failure_email_sent_at: string | null
           admin_notes: string | null
           charged_credits: number | null
           created_at: string
           credit_snapshot: number
           id: string
+          manual_email_error: string | null
+          manual_email_sent_at: string | null
           output_language: string | null
           processed_at: string | null
+          refund_error: string | null
+          refunded_at: string | null
+          refunded_credits: number
           requester_email: string | null
           required_credits: number | null
           result_map_id: string | null
@@ -2082,17 +2089,26 @@ export type Database = {
           status_reason: string | null
           updated_at: string
           url: string
+          user_email_error: string | null
+          user_email_sent_at: string | null
           user_id: string
           video_id: string | null
         }
         Insert: {
+          admin_failure_email_error?: string | null
+          admin_failure_email_sent_at?: string | null
           admin_notes?: string | null
           charged_credits?: number | null
           created_at?: string
           credit_snapshot?: number
           id?: string
+          manual_email_error?: string | null
+          manual_email_sent_at?: string | null
           output_language?: string | null
           processed_at?: string | null
+          refund_error?: string | null
+          refunded_at?: string | null
+          refunded_credits?: number
           requester_email?: string | null
           required_credits?: number | null
           result_map_id?: string | null
@@ -2100,17 +2116,26 @@ export type Database = {
           status_reason?: string | null
           updated_at?: string
           url: string
+          user_email_error?: string | null
+          user_email_sent_at?: string | null
           user_id: string
           video_id?: string | null
         }
         Update: {
+          admin_failure_email_error?: string | null
+          admin_failure_email_sent_at?: string | null
           admin_notes?: string | null
           charged_credits?: number | null
           created_at?: string
           credit_snapshot?: number
           id?: string
+          manual_email_error?: string | null
+          manual_email_sent_at?: string | null
           output_language?: string | null
           processed_at?: string | null
+          refund_error?: string | null
+          refunded_at?: string | null
+          refunded_credits?: number
           requester_email?: string | null
           required_credits?: number | null
           result_map_id?: string | null
@@ -2118,6 +2143,8 @@ export type Database = {
           status_reason?: string | null
           updated_at?: string
           url?: string
+          user_email_error?: string | null
+          user_email_sent_at?: string | null
           user_id?: string
           video_id?: string | null
         }
