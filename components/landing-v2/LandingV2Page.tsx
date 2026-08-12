@@ -107,7 +107,7 @@ const COPY = {
     headline: "긴 문서를 상세정보까지 담은 구조로 정리하세요.",
     subhead:
       "Brify는 긴 문서를 요약으로 줄이는 대신 원문 근거와 세부 흐름을 보존한 구조맵으로 변환합니다. 논문, 보고서, 전문 자료에 특히 잘 맞습니다.",
-    textareaPlaceholder: "여기에 붙여넣기",
+    textareaPlaceholder: "긴 글 또는 유튜브 URL을 넣으세요",
     uploadDoc: "문서 업로드",
     youtubeHelp: "유튜브 영상대본 복사하는 방법",
     trySample: "예시 넣기",
@@ -225,7 +225,7 @@ const COPY = {
     headline: "Turn long documents into structures that keep the details.",
     subhead:
       "Brify turns long documents into source-grounded structure maps instead of reducing them to short summaries. It is especially useful for papers, reports, and professional materials.",
-    textareaPlaceholder: "Paste here",
+    textareaPlaceholder: "Paste long text or a YouTube URL",
     uploadDoc: "Upload document",
     youtubeHelp: "YouTube transcript",
     trySample: "Use sample",
@@ -344,7 +344,7 @@ const COPY = {
     headline: "Transformez les documents longs en structures qui gardent les détails.",
     subhead:
       "Brify transforme les documents longs en cartes structurées ancrées dans le texte source, au lieu de les réduire à de simples résumés. C’est particulièrement utile pour les articles, rapports et documents spécialisés.",
-    textareaPlaceholder: "Collez ici",
+    textareaPlaceholder: "Collez un long texte ou une URL YouTube",
     uploadDoc: "Importer un document",
     youtubeHelp: "Transcription YouTube",
     trySample: "Essayer un exemple",
