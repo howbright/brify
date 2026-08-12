@@ -100,13 +100,35 @@ const EXAMPLE_MAPS = [
   },
 ] as const;
 
+const USE_CASE_ICONS = [
+  "lucide:file-search",
+  "lucide:notebook-tabs",
+  "lucide:bar-chart-3",
+  "lucide:youtube",
+  "lucide:book-open",
+  "lucide:messages-square",
+  "lucide:scroll-text",
+  "lucide:landmark",
+] as const;
+
 const COPY = {
   ko: {
     login: "로그인",
     signup: "회원가입",
-    headline: "긴 문서를 상세정보까지 담은 구조로 정리하세요.",
-    subhead:
-      "Brify는 긴 문서를 요약으로 줄이는 대신 원문 근거와 세부 흐름을 보존한 구조맵으로 변환합니다. 논문, 보고서, 전문 자료에 특히 잘 맞습니다.",
+    headline: "긴 글을 마인드맵으로 변환합니다.",
+    subhead: "요약이 아니라 상세정보를 포함합니다.",
+    heroNote: "편집하고 공유할 수 있습니다.",
+    useCasesTitle: "이런 긴 글에 사용할 수 있어요",
+    useCases: [
+      "논문 읽기",
+      "강의 노트 정리",
+      "보고서 분석",
+      "유튜브 영상 대본 구조화",
+      "책/긴 자료 정리",
+      "회의록/인터뷰 정리",
+      "설교/강의 원고 정리",
+      "정책 문서/전문 문서 읽기",
+    ],
     textareaPlaceholder: "긴 글 또는 유튜브 URL을 넣으세요",
     uploadDoc: "문서 업로드",
     youtubeHelp: "유튜브 영상대본 복사하는 방법",
@@ -222,9 +244,20 @@ const COPY = {
   en: {
     login: "Log in",
     signup: "Sign up",
-    headline: "Turn long documents into structures that keep the details.",
-    subhead:
-      "Brify turns long documents into source-grounded structure maps instead of reducing them to short summaries. It is especially useful for papers, reports, and professional materials.",
+    headline: "Turn long text into a mind map.",
+    subhead: "Not a summary. It keeps the details.",
+    heroNote: "Edit it and share it.",
+    useCasesTitle: "Use it for long-form content like",
+    useCases: [
+      "Reading papers",
+      "Organizing lecture notes",
+      "Analyzing reports",
+      "Structuring YouTube transcripts",
+      "Organizing books and long materials",
+      "Meeting notes and interviews",
+      "Sermons and lecture scripts",
+      "Policy and professional documents",
+    ],
     textareaPlaceholder: "Paste long text or a YouTube URL",
     uploadDoc: "Upload document",
     youtubeHelp: "YouTube transcript",
@@ -341,9 +374,20 @@ const COPY = {
   fr: {
     login: "Connexion",
     signup: "Inscription",
-    headline: "Transformez les documents longs en structures qui gardent les détails.",
-    subhead:
-      "Brify transforme les documents longs en cartes structurées ancrées dans le texte source, au lieu de les réduire à de simples résumés. C’est particulièrement utile pour les articles, rapports et documents spécialisés.",
+    headline: "Transformez un long texte en carte mentale.",
+    subhead: "Ce n’est pas un résumé. Les détails restent visibles.",
+    heroNote: "Modifiez-la et partagez-la.",
+    useCasesTitle: "À utiliser pour des contenus longs comme",
+    useCases: [
+      "Lire des articles de recherche",
+      "Organiser des notes de cours",
+      "Analyser des rapports",
+      "Structurer des transcriptions YouTube",
+      "Organiser des livres et longs documents",
+      "Comptes rendus et interviews",
+      "Sermons et scripts de cours",
+      "Documents politiques et professionnels",
+    ],
     textareaPlaceholder: "Collez un long texte ou une URL YouTube",
     uploadDoc: "Importer un document",
     youtubeHelp: "Transcription YouTube",
@@ -1710,6 +1754,9 @@ export default function LandingV2Page({
               {copy.subhead}
             </p>
           ) : null}
+          <p className="mt-1 text-sm font-semibold leading-6 text-slate-500 sm:text-[15px] dark:text-white/52">
+            {copy.heroNote}
+          </p>
 
           <div
             onDragOver={(event) => {
@@ -1974,6 +2021,29 @@ export default function LandingV2Page({
             </div>
           </section>
         ) : null}
+
+        <section className="pt-10">
+          <div className="mb-4 text-center">
+            <h2 className="text-[22px] font-black tracking-normal text-slate-950 dark:text-white">
+              {copy.useCasesTitle}
+            </h2>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {copy.useCases.map((useCase, index) => (
+              <div
+                key={useCase}
+                className="flex min-h-[54px] items-center gap-3 rounded-2xl border border-slate-200 bg-white/78 px-4 py-3 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-white/[0.055]"
+              >
+                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700 dark:bg-cyan-400/12 dark:text-cyan-200">
+                  <Icon icon={USE_CASE_ICONS[index] ?? "lucide:file-text"} className="h-4.5 w-4.5" />
+                </span>
+                <span className="min-w-0 text-sm font-black leading-5 text-slate-700 dark:text-white/78">
+                  {useCase}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
 
         <section className="pt-10">
           <div className="mb-4 flex items-end justify-between gap-4">
