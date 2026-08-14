@@ -1917,10 +1917,11 @@ export default function FullscreenMapDetailScreen({
         throw new Error("NEXT_PUBLIC_API_BASE_URL is not configured.");
       }
 
-      const expansionPath = `${base}/maps/${encodeURIComponent(
+      const nodeActionBase = isAdminView ? `${base}/admin/maps` : `${base}/maps`;
+      const expansionPath = `${nodeActionBase}/${encodeURIComponent(
         mapId
       )}/nodes/${encodeURIComponent(nodeId)}/expansion`;
-      const regeneratePath = `${base}/maps/${encodeURIComponent(
+      const regeneratePath = `${nodeActionBase}/${encodeURIComponent(
         mapId
       )}/nodes/${encodeURIComponent(nodeId)}/regenerate`;
       const requestNodeUpdate = async () => {
@@ -3063,18 +3064,23 @@ export default function FullscreenMapDetailScreen({
   const regenerateActionLabel = regenerateTargetNeedsStructure
     ? structureActionLabel
     : regenerateMenuActionLabel;
-  const canShowRegenerateActions = Boolean(!isReadOnlyView && regenerateTargetNodeId);
+  const canOperateRegenerateActions = !isSharedView;
+  const canShowRegenerateActions = Boolean(
+    canOperateRegenerateActions && regenerateTargetNodeId
+  );
   const canUseRegenerateActions = Boolean(
     canShowRegenerateActions && isMapReadyForInteraction(draft?.status)
   );
   const structureActionNodeIds = useMemo(() => {
-    if (isReadOnlyView || !isMapReadyForInteraction(draft?.status)) return [];
+    if (!canOperateRegenerateActions || !isMapReadyForInteraction(draft?.status)) {
+      return [];
+    }
     const root = getMindElixirRoot(mapData);
     const children = Array.isArray(root?.children) ? root.children : [];
     return children
       .filter((child) => child.id && !hasChildNodes(child))
       .map((child) => String(child.id));
-  }, [draft?.status, isReadOnlyView, mapData]);
+  }, [canOperateRegenerateActions, draft?.status, mapData]);
   const isRegenerateBusy = Boolean(regeneratingNodeId);
   const regenerateUnavailableLabel =
     locale === "ko"

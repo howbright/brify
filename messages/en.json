@@ -1024,7 +1024,7 @@
     "statuses": {
       "requested": "Reserved",
       "checking": "Checking",
-      "ready": "Ready",
+      "ready": "Under review",
       "needs_credits": "Needs credits",
       "processing": "Processing",
       "done": "Done",

@@ -369,7 +369,7 @@
     "statuses": {
       "requested": "Réservé",
       "checking": "Vérification",
-      "ready": "Prêt",
+      "ready": "En vérification",
       "needs_credits": "Crédits requis",
       "processing": "Traitement",
       "done": "Terminé",

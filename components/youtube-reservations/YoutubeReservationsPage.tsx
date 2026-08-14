@@ -212,7 +212,7 @@ export default function YoutubeReservationsPage({ locale }: { locale: string }) 
                 ) : null}
 
                 <div className="mt-4 flex flex-wrap justify-end gap-2">
-                  {item.result_map_id ? (
+                  {item.result_map_id && item.status === "done" ? (
                     <Link
                       href={`/${safeLocale}/maps/${item.result_map_id}`}
                       className="inline-flex h-10 items-center gap-2 rounded-2xl bg-slate-950 px-4 text-sm font-black text-white dark:bg-cyan-400 dark:text-slate-950"

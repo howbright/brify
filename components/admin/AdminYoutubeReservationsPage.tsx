@@ -57,7 +57,7 @@ const STATUS_OPTIONS: YoutubeReservationStatus[] = [
 const STATUS_LABELS: Record<YoutubeReservationStatus, string> = {
   requested: "요청됨",
   checking: "확인 중",
-  ready: "생성 가능",
+  ready: "메일 발송 대기",
   needs_credits: "크레딧 부족",
   processing: "처리 중",
   done: "완료",
@@ -102,6 +102,7 @@ export default function AdminYoutubeReservationsPage({
   const [saving, setSaving] = useState(false);
   const [generatingMap, setGeneratingMap] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [sendingCompleteEmail, setSendingCompleteEmail] = useState(false);
   const [generationMessage, setGenerationMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -283,8 +284,42 @@ export default function AdminYoutubeReservationsPage({
     }
   }
 
+  async function sendCompleteEmail() {
+    if (!selected) return;
+
+    setSendingCompleteEmail(true);
+    setGenerationMessage(null);
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `/api/admin/youtube-reservations/${encodeURIComponent(
+          selected.id
+        )}/send-complete-email`,
+        {
+          method: "POST",
+        }
+      );
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok || json?.ok === false) {
+        throw new Error(json?.message ?? json?.error ?? "failed");
+      }
+
+      setGenerationMessage("완료 이메일을 사용자에게 보냈고, 예약 상태를 완료로 기록했습니다.");
+      await loadReservations();
+    } catch (sendError) {
+      setError(sendError instanceof Error ? sendError.message : "failed");
+    } finally {
+      setSendingCompleteEmail(false);
+    }
+  }
+
   const latestCredits = selected?.requester?.creditsTotal ?? 0;
   const requesterEmail = selected?.requester_email ?? selected?.requester?.email ?? "";
+  const canSendCompleteEmail =
+    Boolean(selected?.result_map_id) &&
+    selected?.status === "ready" &&
+    !selected?.user_email_sent_at;
   const generateButtonLabel =
     selected?.status === "failed" ||
     selected?.status === "needs_credits" ||
@@ -379,6 +414,7 @@ export default function AdminYoutubeReservationsPage({
           {selected ? (
             <div className="space-y-5">
               <div className="grid gap-3 rounded-2xl bg-slate-50 p-4 text-sm lg:grid-cols-2">
+                <Info label="예약 ID" value={selected.id} mono />
                 <Info label="요청자 이메일" value={selected.requester_email ?? selected.requester?.email ?? "-"} />
                 <Info label="요청자 user_id" value={selected.user_id} mono />
                 <Info label="요청 언어" value={selected.output_language ?? "auto"} />
@@ -389,9 +425,9 @@ export default function AdminYoutubeReservationsPage({
                 />
                 <Info label="video_id" value={selected.video_id ?? "-"} mono />
                 <Info label="생성 결과 map_id" value={selected.result_map_id ?? "-"} mono />
-                <Info label="사용자 자동메일" value={selected.user_email_error ? `실패: ${selected.user_email_error}` : formatDate(selected.user_email_sent_at)} />
-                <Info label="관리자 실패알림" value={selected.admin_failure_email_error ? `실패: ${selected.admin_failure_email_error}` : formatDate(selected.admin_failure_email_sent_at)} />
-                <Info label="수동 안내메일" value={selected.manual_email_error ? `실패: ${selected.manual_email_error}` : formatDate(selected.manual_email_sent_at)} />
+                <Info label="완료메일 발송 결과" value={selected.user_email_error ? `실패: ${selected.user_email_error}` : formatDate(selected.user_email_sent_at)} />
+                <Info label="관리자 실패알림 결과" value={selected.admin_failure_email_error ? `실패: ${selected.admin_failure_email_error}` : formatDate(selected.admin_failure_email_sent_at)} />
+                <Info label="수동 안내메일 결과" value={selected.manual_email_error ? `실패: ${selected.manual_email_error}` : formatDate(selected.manual_email_sent_at)} />
                 <Info
                   label="환불"
                   value={
@@ -598,6 +634,22 @@ export default function AdminYoutubeReservationsPage({
                 ) : null}
                 <button
                   type="button"
+                  onClick={() => void sendCompleteEmail()}
+                  disabled={sendingCompleteEmail || !canSendCompleteEmail || !requesterEmail}
+                  className="inline-flex h-10 items-center gap-2 rounded-2xl bg-emerald-600 px-4 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  title={
+                    !requesterEmail
+                      ? "요청자 이메일이 없어 보낼 수 없습니다."
+                      : canSendCompleteEmail
+                        ? "관리자가 결과를 확인한 뒤 사용자에게 완료 이메일을 보냅니다."
+                        : "구조맵이 메일 발송 대기 상태일 때만 보낼 수 있습니다."
+                  }
+                >
+                  <Icon icon={sendingCompleteEmail ? "lucide:loader-circle" : "lucide:mail-check"} className={sendingCompleteEmail ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
+                  완료 이메일 보내기
+                </button>
+                <button
+                  type="button"
                   onClick={() => void saveReservation()}
                   disabled={saving}
                   className="inline-flex h-10 items-center gap-2 rounded-2xl bg-blue-600 px-4 text-sm font-black text-white disabled:opacity-50"
@@ -609,8 +661,9 @@ export default function AdminYoutubeReservationsPage({
 
               <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
                 제목에는 유튜브 영상 제목을 넣고, 내용 입력란에는 관리자가 직접 확보한 원문/스크립트를
-                붙여넣으세요. 생성이 시작되면 요청자 크레딧이 차감됩니다. 성공 메일은 사용자에게 자동
-                발송되고, 실패 알림은 관리자에게 먼저 발송됩니다.
+                붙여넣으세요. 생성이 시작되면 요청자 크레딧이 차감됩니다. 구조맵 생성이 끝나면 메일
+                발송 대기 상태가 되며, 관리자가 결과를 확인한 뒤 완료 이메일을 직접 보냅니다. 실패
+                알림은 관리자에게 먼저 발송됩니다.
               </div>
             </div>
           ) : (
