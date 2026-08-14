@@ -117,6 +117,7 @@ const COPY = {
     signup: "회원가입",
     headline: "긴 글을 마인드맵으로 변환합니다.",
     subhead: "요약이 아니라 상세정보를 포함합니다.",
+    sourceNote: "각 노드에서 해당 원문을 찾아 확인할 수 있습니다.",
     heroNote: "편집하고 공유할 수 있습니다.",
     useCasesTitle: "이런 긴 글에 사용할 수 있어요",
     useCases: [
@@ -246,6 +247,7 @@ const COPY = {
     signup: "Sign up",
     headline: "Turn long text into a mind map.",
     subhead: "Not a summary. It keeps the details.",
+    sourceNote: "You can find and check the matching source text from each node.",
     heroNote: "Edit it and share it.",
     useCasesTitle: "Use it for long-form content like",
     useCases: [
@@ -376,6 +378,7 @@ const COPY = {
     signup: "Inscription",
     headline: "Transformez un long texte en carte mentale.",
     subhead: "Ce n’est pas un résumé. Les détails restent visibles.",
+    sourceNote: "Depuis chaque nœud, vous pouvez retrouver et vérifier le passage source.",
     heroNote: "Modifiez-la et partagez-la.",
     useCasesTitle: "À utiliser pour des contenus longs comme",
     useCases: [
@@ -1754,6 +1757,9 @@ export default function LandingV2Page({
               {copy.subhead}
             </p>
           ) : null}
+          <p className="mt-1 text-sm font-medium leading-6 text-slate-500 sm:text-[15px] dark:text-white/52">
+            {copy.sourceNote}
+          </p>
           <p className="mt-1 text-sm font-semibold leading-6 text-slate-500 sm:text-[15px] dark:text-white/52">
             {copy.heroNote}
           </p>

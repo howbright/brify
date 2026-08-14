@@ -1925,7 +1925,8 @@ export default function FullscreenMapDetailScreen({
         mapId
       )}/nodes/${encodeURIComponent(nodeId)}/regenerate`;
       const requestNodeUpdate = async () => {
-        const isExpansionCacheRequest = mode === "expand";
+        const isExpansionCacheRequest =
+          mode === "expand" && isDeepViewInitialStructureNode;
         const response = await fetch(
           isExpansionCacheRequest ? expansionPath : regeneratePath,
           {
