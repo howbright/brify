@@ -21,6 +21,8 @@ type Reservation = {
   result_map_id: string | null;
   admin_notes: string | null;
   processed_at: string | null;
+  admin_request_email_sent_at: string | null;
+  admin_request_email_error: string | null;
   user_email_sent_at: string | null;
   user_email_error: string | null;
   admin_failure_email_sent_at: string | null;
@@ -425,6 +427,7 @@ export default function AdminYoutubeReservationsPage({
                 />
                 <Info label="video_id" value={selected.video_id ?? "-"} mono />
                 <Info label="생성 결과 map_id" value={selected.result_map_id ?? "-"} mono />
+                <Info label="예약요청 알림메일 결과" value={selected.admin_request_email_error ? `실패: ${selected.admin_request_email_error}` : formatDate(selected.admin_request_email_sent_at)} />
                 <Info label="완료메일 발송 결과" value={selected.user_email_error ? `실패: ${selected.user_email_error}` : formatDate(selected.user_email_sent_at)} />
                 <Info label="관리자 실패알림 결과" value={selected.admin_failure_email_error ? `실패: ${selected.admin_failure_email_error}` : formatDate(selected.admin_failure_email_sent_at)} />
                 <Info label="수동 안내메일 결과" value={selected.manual_email_error ? `실패: ${selected.manual_email_error}` : formatDate(selected.manual_email_sent_at)} />

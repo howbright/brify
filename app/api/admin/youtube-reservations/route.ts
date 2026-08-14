@@ -31,7 +31,7 @@ export async function GET() {
   const { data: reservations, error } = await db
     .from("youtube_reservations")
     .select(
-      "id,user_id,requester_email,url,video_id,output_language,status,status_reason,required_credits,charged_credits,credit_snapshot,result_map_id,admin_notes,processed_at,user_email_sent_at,user_email_error,admin_failure_email_sent_at,admin_failure_email_error,manual_email_sent_at,manual_email_error,refunded_credits,refunded_at,refund_error,created_at,updated_at"
+      "id,user_id,requester_email,url,video_id,output_language,status,status_reason,required_credits,charged_credits,credit_snapshot,result_map_id,admin_notes,processed_at,admin_request_email_sent_at,admin_request_email_error,user_email_sent_at,user_email_error,admin_failure_email_sent_at,admin_failure_email_error,manual_email_sent_at,manual_email_error,refunded_credits,refunded_at,refund_error,created_at,updated_at"
     )
     .order("created_at", { ascending: false })
     .limit(100);
@@ -122,7 +122,7 @@ export async function PATCH(request: Request) {
     })
     .eq("id", id)
     .select(
-      "id,user_id,requester_email,url,video_id,output_language,status,status_reason,required_credits,charged_credits,credit_snapshot,result_map_id,admin_notes,processed_at,user_email_sent_at,user_email_error,admin_failure_email_sent_at,admin_failure_email_error,manual_email_sent_at,manual_email_error,refunded_credits,refunded_at,refund_error,created_at,updated_at"
+      "id,user_id,requester_email,url,video_id,output_language,status,status_reason,required_credits,charged_credits,credit_snapshot,result_map_id,admin_notes,processed_at,admin_request_email_sent_at,admin_request_email_error,user_email_sent_at,user_email_error,admin_failure_email_sent_at,admin_failure_email_error,manual_email_sent_at,manual_email_error,refunded_credits,refunded_at,refund_error,created_at,updated_at"
     )
     .single();
 

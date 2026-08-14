@@ -2,55 +2,13 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { adminSupabase } from "@/utils/supabase/admin";
 import { parseYoutubeUrl } from "@/app/lib/youtubeReservations";
+import { notifyYoutubeReservationByEmail } from "./_adminNotify";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 function jsonError(message: string, status: number, extra?: Record<string, unknown>) {
   return NextResponse.json({ error: message, ...(extra ?? {}) }, { status });
-}
-
-async function notifyYoutubeReservationByEmail(args: {
-  reservationId: string;
-  requesterEmail: string | null;
-  url: string;
-  outputLanguage: string;
-  creditSnapshot: number;
-  createdAt: string | null;
-}) {
-  const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const backendToken = process.env.BRIFY_BACKEND_INTERNAL_TOKEN;
-
-  if (!backendUrl || !backendToken) {
-    console.warn("[youtube-reservations] skip admin email: backend env is missing");
-    return;
-  }
-
-  try {
-    const response = await fetch(`${backendUrl}/support/notify-youtube-reservation`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${backendToken}`,
-      },
-      body: JSON.stringify({
-        reservation_id: args.reservationId,
-        requester_email: args.requesterEmail,
-        url: args.url,
-        output_language: args.outputLanguage,
-        credit_snapshot: args.creditSnapshot,
-        created_at: args.createdAt,
-      }),
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      const detail = await response.text().catch(() => "");
-      console.error("[youtube-reservations] admin email failed", response.status, detail);
-    }
-  } catch (error) {
-    console.error("[youtube-reservations] admin email request failed", error);
-  }
 }
 
 export async function GET() {
@@ -175,7 +133,7 @@ export async function POST(request: Request) {
     }
   }
 
-  await notifyYoutubeReservationByEmail({
+  const adminMailResult = await notifyYoutubeReservationByEmail({
     reservationId: String(reservation.id),
     requesterEmail: profile.email ?? user.email ?? null,
     url: urlInfo.normalizedUrl,
@@ -183,6 +141,18 @@ export async function POST(request: Request) {
     creditSnapshot: creditTotal,
     createdAt: reservation.created_at ?? null,
   });
+
+  const { error: emailAuditError } = await db
+    .from("youtube_reservations")
+    .update({
+      admin_request_email_sent_at: adminMailResult.ok ? adminMailResult.sentAt : null,
+      admin_request_email_error: adminMailResult.ok ? null : adminMailResult.error,
+    })
+    .eq("id", reservation.id);
+
+  if (emailAuditError) {
+    console.error("[youtube-reservations] admin email audit update failed", emailAuditError);
+  }
 
   return NextResponse.json({
     ok: true,
