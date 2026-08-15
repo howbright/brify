@@ -540,6 +540,7 @@ function parseScale(transform: string | null) {
 }
 
 const PAN_MODE_CLASS = "me-pan-mode";
+const MOUSE_PANNING_CLASS = "me-mouse-panning";
 const DARK_CANVAS_CLASS = "me-dark-canvas";
 const DEFAULT_DARK_CANVAS_CLASS = "me-default-dark-canvas";
 const VIEW_MODE_CLASS = "me-view-mode";
@@ -560,6 +561,35 @@ const BLOCKED_OPS = [
   "moveNodeAfter",
   "moveNodeIn",
 ];
+
+function isInteractiveMindTarget(target: EventTarget | null) {
+  if (!(target instanceof Element)) return true;
+  return Boolean(
+    target.closest(
+      [
+        "me-tpc",
+        "[data-nodeid]",
+        "[data-hover-actions='true']",
+        "me-epd",
+        "#input-box",
+        ".context-menu",
+        ".mind-elixir-toolbar",
+        ".summary",
+        ".topiclinks",
+        ".linkcontroller",
+        "button",
+        "a",
+        "input",
+        "textarea",
+        "select",
+        "[contenteditable='true']",
+        "[role='button']",
+        "[role='menu']",
+        "[role='menuitem']",
+      ].join(",")
+    )
+  );
+}
 
 const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProps>(
   function ClientMindElixir(
@@ -807,6 +837,13 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   }, [ready]);
 
   const touchPanRef = useRef<{
+    active: boolean;
+    pointerId: number | null;
+    x: number;
+    y: number;
+    moved: boolean;
+  }>({ active: false, pointerId: null, x: 0, y: 0, moved: false });
+  const mousePanRef = useRef<{
     active: boolean;
     pointerId: number | null;
     x: number;
@@ -1233,6 +1270,105 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
       };
     };
   }, [isTouchDevice]);
+
+  useEffect(() => {
+    const host = elRef.current;
+    if (!host || isTouchDevice || effectivePanMode) return;
+
+    const clearMousePan = (pointerId?: number | null) => {
+      if (
+        pointerId != null &&
+        host.hasPointerCapture?.(pointerId)
+      ) {
+        try {
+          host.releasePointerCapture(pointerId);
+        } catch {
+          // Pointer capture may already be gone if the browser cancelled it.
+        }
+      }
+      host.classList.remove(MOUSE_PANNING_CLASS);
+      wrapperRef.current?.classList.remove(MOUSE_PANNING_CLASS);
+      mousePanRef.current = {
+        active: false,
+        pointerId: null,
+        x: 0,
+        y: 0,
+        moved: false,
+      };
+    };
+
+    const handlePointerDown = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
+      if (e.button !== 0 || e.buttons !== 1) return;
+      if (isInteractiveMindTarget(e.target)) return;
+      if (typeof mindRef.current?.move !== "function") return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      mousePanRef.current = {
+        active: true,
+        pointerId: e.pointerId,
+        x: e.clientX,
+        y: e.clientY,
+        moved: false,
+      };
+      host.classList.add(MOUSE_PANNING_CLASS);
+      wrapperRef.current?.classList.add(MOUSE_PANNING_CLASS);
+      try {
+        host.setPointerCapture?.(e.pointerId);
+      } catch {
+        // Older WebKit can reject capture during edge-case pointer states.
+      }
+    };
+
+    const handlePointerMove = (e: PointerEvent) => {
+      const state = mousePanRef.current;
+      if (!state.active || state.pointerId !== e.pointerId) return;
+      if (e.pointerType !== "mouse" || (e.buttons & 1) !== 1) {
+        clearMousePan(e.pointerId);
+        return;
+      }
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      const dx = e.clientX - state.x;
+      const dy = e.clientY - state.y;
+      state.x = e.clientX;
+      state.y = e.clientY;
+      if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
+        state.moved = true;
+        mindRef.current?.move?.(dx, dy);
+      }
+    };
+
+    const handlePointerEnd = (e: PointerEvent) => {
+      const state = mousePanRef.current;
+      if (!state.active || state.pointerId !== e.pointerId) return;
+      if (state.moved) {
+        touchDragMovedAtRef.current = Date.now();
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      clearMousePan(e.pointerId);
+    };
+
+    host.addEventListener("pointerdown", handlePointerDown, true);
+    host.addEventListener("pointermove", handlePointerMove, true);
+    host.addEventListener("pointerup", handlePointerEnd, true);
+    host.addEventListener("pointercancel", handlePointerEnd, true);
+    host.addEventListener("lostpointercapture", handlePointerEnd, true);
+
+    return () => {
+      host.removeEventListener("pointerdown", handlePointerDown, true);
+      host.removeEventListener("pointermove", handlePointerMove, true);
+      host.removeEventListener("pointerup", handlePointerEnd, true);
+      host.removeEventListener("pointercancel", handlePointerEnd, true);
+      host.removeEventListener("lostpointercapture", handlePointerEnd, true);
+      clearMousePan(mousePanRef.current.pointerId);
+    };
+  }, [effectivePanMode, isTouchDevice]);
 
   useEffect(() => {
     const host = elRef.current;
@@ -3343,6 +3479,10 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
         .${PAN_MODE_CLASS} .node-box,
         .${PAN_MODE_CLASS} .topic {
           pointer-events: none;
+        }
+        .${MOUSE_PANNING_CLASS},
+        .${MOUSE_PANNING_CLASS} * {
+          cursor: grabbing !important;
         }
         .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-add_child,
         .${VIEW_MODE_CLASS} .context-menu .menu-list #cm-add_parent,
