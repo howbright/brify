@@ -1383,13 +1383,16 @@ export default function FullscreenMapDetailScreen({
         if (effectiveMind) {
           const serverPayload = stringifyMindData(effectiveMind);
           const localPayload = latestLocalMindPayloadRef.current;
+          const currentPayload = stringifyMindData(mapData);
           const hasLocalMindChange = Boolean(
             localPayload || autoSaveTimerRef.current || isSavingDraftRef.current
           );
-          if (!hasLocalMindChange || serverPayload === localPayload) {
-            setPanelMindData(effectiveMind);
-            if (!localPayload) {
-              setMapData(effectiveMind);
+          if (serverPayload && serverPayload !== currentPayload) {
+            if (!hasLocalMindChange || serverPayload === localPayload) {
+              setPanelMindData(effectiveMind);
+              if (!localPayload) {
+                setMapData(effectiveMind);
+              }
             }
           }
         }
@@ -1407,7 +1410,7 @@ export default function FullscreenMapDetailScreen({
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [draft?.status, isAdminView, isSharedView, mapId, draft?.id]);
+  }, [draft?.status, isAdminView, isSharedView, mapData, mapId, draft?.id]);
 
   useEffect(() => {
     if (!tagEditOpen) return;
@@ -3029,7 +3032,13 @@ export default function FullscreenMapDetailScreen({
       : isSharedView
         ? t("sharedByFallback")
         : "";
-  const isMapProcessing = Boolean(draft && isStructureProcessingStatus(draft.status));
+  const hasInitialStructure = useMemo(() => {
+    const root = getMindElixirRoot(mapData);
+    return Array.isArray(root?.children) && root.children.length > 0;
+  }, [mapData]);
+  const isMapProcessing = Boolean(
+    draft && isStructureProcessingStatus(draft.status) && !hasInitialStructure
+  );
   const isMapGenerating = Boolean(isMapProcessing && !mapData);
   const displayMapData = useMemo(() => {
     if (!mapData) return null;
@@ -3070,14 +3079,18 @@ export default function FullscreenMapDetailScreen({
     canOperateRegenerateActions && regenerateTargetNodeId
   );
   const canUseRegenerateActions = Boolean(
-    canShowRegenerateActions && isMapReadyForInteraction(draft?.status)
+    canShowRegenerateActions &&
+      (isMapReadyForInteraction(draft?.status) || hasInitialStructure)
   );
   const structureActionNodeIds = useMemo(() => {
-    if (!canOperateRegenerateActions || !isMapReadyForInteraction(draft?.status)) {
-      return [];
-    }
     const root = getMindElixirRoot(mapData);
     const children = Array.isArray(root?.children) ? root.children : [];
+    if (
+      !canOperateRegenerateActions ||
+      (!isMapReadyForInteraction(draft?.status) && children.length === 0)
+    ) {
+      return [];
+    }
     return children
       .filter((child) => child.id && !hasChildNodes(child))
       .map((child) => String(child.id));

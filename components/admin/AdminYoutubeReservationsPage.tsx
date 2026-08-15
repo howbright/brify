@@ -41,6 +41,13 @@ type Reservation = {
     creditsTotal: number;
     role: string;
   } | null;
+  expansion_stats?: {
+    total: number;
+    queued: number;
+    processing: number;
+    done: number;
+    failed: number;
+  };
 };
 
 const STATUS_OPTIONS: YoutubeReservationStatus[] = [
@@ -90,6 +97,11 @@ function statusClass(status: YoutubeReservationStatus) {
     return "bg-blue-50 text-blue-700 ring-blue-200";
   }
   return "bg-slate-100 text-slate-700 ring-slate-200";
+}
+
+function formatExpansionStats(stats: Reservation["expansion_stats"]) {
+  if (!stats || stats.total <= 0) return "세부 가지 없음";
+  return `전체 ${stats.total} · 완료 ${stats.done} · 진행 ${stats.queued + stats.processing} · 실패 ${stats.failed}`;
 }
 
 export default function AdminYoutubeReservationsPage({
@@ -427,6 +439,10 @@ export default function AdminYoutubeReservationsPage({
                 />
                 <Info label="video_id" value={selected.video_id ?? "-"} mono />
                 <Info label="생성 결과 map_id" value={selected.result_map_id ?? "-"} mono />
+                <Info
+                  label="세부 가지 상태"
+                  value={formatExpansionStats(selected.expansion_stats)}
+                />
                 <Info label="예약요청 알림메일 결과" value={selected.admin_request_email_error ? `실패: ${selected.admin_request_email_error}` : formatDate(selected.admin_request_email_sent_at)} />
                 <Info label="완료메일 발송 결과" value={selected.user_email_error ? `실패: ${selected.user_email_error}` : formatDate(selected.user_email_sent_at)} />
                 <Info label="관리자 실패알림 결과" value={selected.admin_failure_email_error ? `실패: ${selected.admin_failure_email_error}` : formatDate(selected.admin_failure_email_sent_at)} />

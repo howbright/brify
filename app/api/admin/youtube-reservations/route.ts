@@ -74,6 +74,45 @@ export async function GET() {
     ])
   );
 
+  const mapIds = Array.from(
+    new Set<string>(
+      (reservations ?? [])
+        .map((row: any) =>
+          typeof row.result_map_id === "string" ? row.result_map_id : ""
+        )
+        .filter(Boolean)
+    )
+  );
+
+  const { data: expansionRows, error: expansionError } = mapIds.length
+    ? await adminSupabase
+        .from("map_node_expansions")
+        .select("map_id,status")
+        .in("map_id", mapIds)
+    : { data: [], error: null };
+
+  if (expansionError) {
+    console.error("[admin/youtube-reservations] expansion stats load failed", expansionError);
+  }
+
+  const expansionStatsByMapId = new Map<
+    string,
+    { total: number; queued: number; processing: number; done: number; failed: number }
+  >();
+  for (const row of expansionRows ?? []) {
+    const mapId = typeof row.map_id === "string" ? row.map_id : "";
+    if (!mapId) continue;
+    const current =
+      expansionStatsByMapId.get(mapId) ??
+      { total: 0, queued: 0, processing: 0, done: 0, failed: 0 };
+    current.total += 1;
+    if (row.status === "queued") current.queued += 1;
+    else if (row.status === "processing") current.processing += 1;
+    else if (row.status === "done") current.done += 1;
+    else if (row.status === "failed") current.failed += 1;
+    expansionStatsByMapId.set(mapId, current);
+  }
+
   return NextResponse.json({
     reservations: (reservations ?? []).map((row: any) => {
       const profile = profilesById.get(row.user_id);
@@ -81,6 +120,16 @@ export async function GET() {
         ...row,
         requester_email: row.requester_email ?? profile?.email ?? null,
         requester: profile ?? null,
+        expansion_stats:
+          typeof row.result_map_id === "string"
+            ? expansionStatsByMapId.get(row.result_map_id) ?? {
+                total: 0,
+                queued: 0,
+                processing: 0,
+                done: 0,
+                failed: 0,
+              }
+            : { total: 0, queued: 0, processing: 0, done: 0, failed: 0 },
       };
     }),
   });
