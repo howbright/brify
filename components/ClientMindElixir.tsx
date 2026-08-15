@@ -1540,6 +1540,7 @@ const ClientMindElixir = forwardRef<ClientMindElixirHandle, ClientMindElixirProp
   const handleHighlightClick = (targetNodeId?: string | null) => {
     const result = handleHighlightClickBase(targetNodeId);
     if (!result) return;
+    latestMindDataDirtyRef.current = true;
     if (editMode === "view") {
       onReadOnlyHighlight?.();
     }
