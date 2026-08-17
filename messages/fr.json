@@ -357,6 +357,8 @@
     "openMap": "Ouvrir la carte",
     "back": "Accueil",
     "failedReason": "Raison",
+    "progressNote": "État du traitement",
+    "statusNote": "Note",
     "requestedAt": "Demandé le",
     "updatedAt": "Mis à jour",
     "credits": "Crédits",

@@ -1012,6 +1012,8 @@
     "openMap": "구조맵 열기",
     "back": "홈으로",
     "failedReason": "실패 사유",
+    "progressNote": "처리 상태",
+    "statusNote": "안내",
     "requestedAt": "요청일",
     "updatedAt": "업데이트",
     "credits": "크레딧",

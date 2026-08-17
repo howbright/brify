@@ -53,6 +53,16 @@ function canRetry(status: YoutubeReservationStatus) {
   return ["failed", "cancelled", "unsupported", "needs_credits"].includes(status);
 }
 
+function reasonLabelKey(status: YoutubeReservationStatus) {
+  if (status === "failed" || status === "cancelled" || status === "unsupported") {
+    return "failedReason";
+  }
+  if (status === "processing" || status === "checking" || status === "retry_requested") {
+    return "progressNote";
+  }
+  return "statusNote";
+}
+
 export default function YoutubeReservationsPage({ locale }: { locale: string }) {
   const safeLocale = normalizeLocale(locale);
   const t = useTranslations("YoutubeReservationsPage");
@@ -205,7 +215,7 @@ export default function YoutubeReservationsPage({ locale }: { locale: string }) 
                 {item.status_reason ? (
                   <div className="mt-3 rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold leading-6 text-slate-600 dark:bg-white/[0.05] dark:text-white/60">
                     <span className="font-black text-slate-900 dark:text-white">
-                      {t("failedReason")}:
+                      {t(reasonLabelKey(item.status))}:
                     </span>{" "}
                     {item.status_reason}
                   </div>

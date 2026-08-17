@@ -1012,6 +1012,8 @@
     "openMap": "Open map",
     "back": "Home",
     "failedReason": "Reason",
+    "progressNote": "Progress",
+    "statusNote": "Note",
     "requestedAt": "Requested",
     "updatedAt": "Updated",
     "credits": "Credits",

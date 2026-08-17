@@ -1827,7 +1827,11 @@ export default function FullscreenMapDetailScreen({
       return;
     }
 
-    if (!isMapReadyForInteraction(draft?.status)) {
+    const canRunNodeAction = isDeepViewInitialStructureNode
+      ? mapReadiness.hasOutline
+      : mapReadiness.finalReady;
+
+    if (!canRunNodeAction) {
       toast.message(
         locale === "ko"
           ? "구조맵 생성이 완료된 뒤 다시 시도해 주세요."
@@ -3032,14 +3036,29 @@ export default function FullscreenMapDetailScreen({
       : isSharedView
         ? t("sharedByFallback")
         : "";
-  const hasInitialStructure = useMemo(() => {
+  const mapReadiness = useMemo(() => {
     const root = getMindElixirRoot(mapData);
-    return Array.isArray(root?.children) && root.children.length > 0;
-  }, [mapData]);
-  const isMapProcessing = Boolean(
-    draft && isStructureProcessingStatus(draft.status) && !hasInitialStructure
-  );
-  const isMapGenerating = Boolean(isMapProcessing && !mapData);
+    const rootChildren = Array.isArray(root?.children) ? root.children : [];
+    const hasOutline = rootChildren.length > 0;
+    const finalReady = isMapReadyForInteraction(draft?.status);
+    const structurePending = Boolean(
+      draft && isStructureProcessingStatus(draft.status)
+    );
+    const waitingForOutline = structurePending && !hasOutline;
+
+    return {
+      rootChildren,
+      hasOutline,
+      finalReady,
+      structurePending,
+      waitingForOutline,
+      showMapProcessingBadge: structurePending && hasOutline,
+      showFullGeneratingOverlay: waitingForOutline && !mapData,
+    };
+  }, [draft?.status, mapData]);
+  const showMapProcessingBadge = mapReadiness.showMapProcessingBadge;
+  const isMapProcessing = mapReadiness.waitingForOutline || showMapProcessingBadge;
+  const isMapGenerating = mapReadiness.showFullGeneratingOverlay;
   const displayMapData = useMemo(() => {
     if (!mapData) return null;
     let nextMapData = mapData as NonNullable<MapRow["mind_elixir"]>;
@@ -3071,6 +3090,10 @@ export default function FullscreenMapDetailScreen({
       regenerateTargetNodeId &&
       !hasChildNodes(regenerateTargetNode)
   );
+  const canUseInitialDeepView = Boolean(
+    mapReadiness.hasOutline && regenerateTargetNeedsStructure
+  );
+  const canUseManualRegenerate = mapReadiness.finalReady;
   const regenerateActionLabel = regenerateTargetNeedsStructure
     ? structureActionLabel
     : regenerateMenuActionLabel;
@@ -3080,21 +3103,18 @@ export default function FullscreenMapDetailScreen({
   );
   const canUseRegenerateActions = Boolean(
     canShowRegenerateActions &&
-      (isMapReadyForInteraction(draft?.status) || hasInitialStructure)
+      (regenerateTargetNeedsStructure
+        ? canUseInitialDeepView
+        : canUseManualRegenerate)
   );
   const structureActionNodeIds = useMemo(() => {
-    const root = getMindElixirRoot(mapData);
-    const children = Array.isArray(root?.children) ? root.children : [];
-    if (
-      !canOperateRegenerateActions ||
-      (!isMapReadyForInteraction(draft?.status) && children.length === 0)
-    ) {
+    if (!canOperateRegenerateActions || !mapReadiness.hasOutline) {
       return [];
     }
-    return children
+    return mapReadiness.rootChildren
       .filter((child) => child.id && !hasChildNodes(child))
       .map((child) => String(child.id));
-  }, [canOperateRegenerateActions, draft?.status, mapData]);
+  }, [canOperateRegenerateActions, mapReadiness]);
   const isRegenerateBusy = Boolean(regeneratingNodeId);
   const regenerateUnavailableLabel =
     locale === "ko"
@@ -4396,7 +4416,7 @@ export default function FullscreenMapDetailScreen({
           </div>
         )}
 
-        {isMapProcessing && mapData ? (
+        {showMapProcessingBadge ? (
           <div className="pointer-events-none absolute left-1/2 top-4 z-[18] w-[min(320px,calc(100%-2rem))] -translate-x-1/2">
             <div className="rounded-2xl border border-slate-200/80 bg-white/88 px-4 py-3 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.55)] backdrop-blur-xl dark:border-white/12 dark:bg-[#0f172a]/88">
               <div className="mb-1 flex items-center justify-between gap-3 text-[11px] font-semibold text-slate-600 dark:text-white/65">
