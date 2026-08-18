@@ -34,6 +34,7 @@ export async function POST(request: Request) {
         user_id: userData.user.id,
         source_type: "manual",
         map_status: "done",
+        structure_phase: "complete",
         schema_version: 1,
         required_credits: 0,
         credits_charged: 0,
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
         description: "",
         mind_elixir: mind,
         mind_elixir_draft: mind,
-      })
+      } as any)
       .select("id")
       .single();
 
@@ -56,4 +57,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "failed" }, { status: 500 });
   }
 }
-

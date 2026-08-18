@@ -7,6 +7,8 @@ export type MapJobStatus =
   | "done"
   | "failed";
 
+export type MapStructurePhase = "outline" | "expanding" | "partial" | "complete";
+
 export type MapDraftKind = "map" | "chunk" | "merge";
 
 export type MapDraft = {
@@ -46,6 +48,7 @@ export type MapDraft = {
 
   // 작업 상태
   status: MapJobStatus;
+  structurePhase?: MapStructurePhase;
 
   // 결과(가짜)
   result?: unknown;

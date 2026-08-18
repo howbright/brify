@@ -229,13 +229,14 @@ export async function POST(request: Request) {
         mind_elixir: merged,
         mind_elixir_draft: merged,
         map_status: "done",
+        structure_phase: "complete",
         tags: Array.from(tagSet),
         description: `Merged ${orderedMapIds.length} maps`,
         extracted_text: mergedSourceText,
         source_char_count: mergedSourceText?.length ?? 0,
         source_retention_hours: mergedSourceRetentionHours,
         source_expires_at: mergedSourceExpiresAt,
-      })
+      } as any)
       .select("id")
       .single();
 

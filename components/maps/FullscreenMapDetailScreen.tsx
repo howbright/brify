@@ -43,7 +43,11 @@ import type {
   SourceFindResponse,
   SourceFindStatus,
 } from "@/app/types/mapSource";
-import type { MapDraft, MapJobStatus } from "@/app/[locale]/(main)/video-to-map/types";
+import type {
+  MapDraft,
+  MapJobStatus,
+  MapStructurePhase,
+} from "@/app/[locale]/(main)/video-to-map/types";
 import { getLoadingMindElixir } from "@/app/lib/mind-elixir/sampleData";
 import {
   getMapTutorialCompleted,
@@ -97,6 +101,9 @@ function hasValidTimestampInMindData(raw: unknown): boolean {
 
 type MapRow = Database["public"]["Tables"]["maps"]["Row"];
 type ReadStatus = Database["public"]["Enums"]["map_read_status"];
+type MapRowWithStructurePhase = MapRow & {
+  structure_phase?: MapStructurePhase | null;
+};
 type MindElixirNode = {
   id?: string;
   topic?: string;
@@ -120,6 +127,19 @@ function hasSourceRangeHint(node: MindElixirNode | null) {
 
 function hasChildNodes(node: MindElixirNode | null) {
   return Array.isArray(node?.children) && node.children.length > 0;
+}
+
+function coerceMapStructurePhase(value: unknown): MapStructurePhase | undefined {
+  return value === "outline" ||
+    value === "expanding" ||
+    value === "partial" ||
+    value === "complete"
+    ? value
+    : undefined;
+}
+
+function getRowStructurePhase(row: MapRow | MapRowWithStructurePhase | null) {
+  return coerceMapStructurePhase((row as MapRowWithStructurePhase | null)?.structure_phase);
 }
 
 const PROCESSING_PLACEHOLDER_META_KEY = "brifyProcessingPlaceholder";
@@ -223,6 +243,38 @@ function getMindElixirRoot(data: MapRow["mind_elixir"] | null): MindElixirNode |
   if (!data || typeof data !== "object") return null;
   return ((data as { nodeData?: MindElixirNode }).nodeData ??
     (data as MindElixirNode)) as MindElixirNode;
+}
+
+function countMindDescendants(data: MapRow["mind_elixir"] | null) {
+  const root = getMindElixirRoot(data);
+  if (!root) return 0;
+
+  let count = 0;
+  const stack = Array.isArray(root.children) ? [...root.children] : [];
+  while (stack.length > 0) {
+    const current = stack.shift();
+    if (!current) continue;
+    count += 1;
+    if (Array.isArray(current.children) && current.children.length > 0) {
+      stack.unshift(...current.children);
+    }
+  }
+
+  return count;
+}
+
+function chooseDisplayMind(
+  draftMind: MapRow["mind_elixir"] | null,
+  mind: MapRow["mind_elixir"] | null,
+  storedViewState?: MapRow["mind_elixir"] | null
+) {
+  if (storedViewState) return storedViewState;
+  if (!draftMind) return mind;
+  if (!mind) return draftMind;
+
+  const draftDescendants = countMindDescendants(draftMind);
+  const mindDescendants = countMindDescendants(mind);
+  return mindDescendants > draftDescendants ? mind : draftMind;
 }
 
 function findMindNodeById(
@@ -718,6 +770,7 @@ function toDraft(row: MapRow): MapDraft {
     sourceCharCount:
       typeof row.source_char_count === "number" ? row.source_char_count : undefined,
     status: coerceMapStatus(row.map_status),
+    structurePhase: getRowStructurePhase(row),
     creditsCharged:
       typeof row.credits_charged === "number" ? row.credits_charged : undefined,
   };
@@ -756,6 +809,7 @@ type AdminInspectMapResponse = {
   summary: string | null;
   tags: string[];
   mapStatus: string;
+  structurePhase?: string | null;
   sourceType: string;
   sourceUrl: string | null;
   outputLanguage: string | null;
@@ -794,6 +848,7 @@ type SharedMapResponse = {
   mind_elixir: MapRow["mind_elixir"] | null;
   mind_theme_override: string | null;
   map_status: string;
+  structure_phase?: string | null;
   created_at: string;
   updated_at: string;
   shared_by?: string | null;
@@ -832,6 +887,7 @@ function toDraftFromAdminInspect(row: AdminInspectMapResponse): MapDraft {
     description: row.description ?? undefined,
     summary: row.summary ?? undefined,
     status: coerceMapStatus(row.mapStatus),
+    structurePhase: coerceMapStructurePhase(row.structurePhase),
     creditsCharged:
       typeof row.creditsCharged === "number" ? row.creditsCharged : undefined,
   };
@@ -1099,6 +1155,7 @@ export default function FullscreenMapDetailScreen({
               summary: data.summary,
               thumbnail_url: data.thumbnail_url,
               map_status: data.map_status,
+              structure_phase: data.structure_phase,
               credits_charged: data.credits_charged,
             } as MapRow)
           );
@@ -1206,10 +1263,9 @@ export default function FullscreenMapDetailScreen({
           themeInitRef.current = true;
         } else {
           const supabase = createClient();
-          const { data, error } = await supabase
-            .from("maps")
+          const { data, error } = await (supabase.from("maps") as any)
             .select(
-              "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,source_char_count,mind_elixir,mind_elixir_draft,mind_theme_override"
+              "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,structure_phase,credits_charged,source_char_count,mind_elixir,mind_elixir_draft,mind_theme_override"
             )
             .eq("id", mapId)
             .single();
@@ -1217,7 +1273,7 @@ export default function FullscreenMapDetailScreen({
           if (cancelled) return;
           if (error) throw error;
 
-          const row = data as MapRow;
+          const row = data as unknown as MapRowWithStructurePhase;
           setDraft((prev) => mergeDraftUserState(prev, toDraft(row)));
           void fetchLatestMapGenerationStep(supabase, mapId).then((step) => {
             if (!cancelled) setProcessingStep(step);
@@ -1225,9 +1281,13 @@ export default function FullscreenMapDetailScreen({
 
           const draftMind = row?.mind_elixir_draft ?? null;
           const mind = row?.mind_elixir ?? null;
-          const effectiveMind = storedViewState ?? draftMind ?? mind ?? null;
+          const effectiveMind = chooseDisplayMind(
+            draftMind,
+            mind,
+            storedViewState
+          );
 
-          setHasDraft(Boolean(draftMind));
+          setHasDraft(Boolean(draftMind && effectiveMind === draftMind));
           if (!effectiveMind) {
             const nextDraft = toDraft(row);
             if (!isActiveMapStatus(nextDraft.status)) {
@@ -1363,23 +1423,27 @@ export default function FullscreenMapDetailScreen({
         }
 
         const supabase = createClient();
-        const { data, error } = await supabase
-          .from("maps")
+        const { data, error } = await (supabase.from("maps") as any)
           .select(
-            "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged,source_char_count,mind_elixir,mind_elixir_draft,mind_theme_override"
+            "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,structure_phase,credits_charged,source_char_count,mind_elixir,mind_elixir_draft,mind_theme_override"
           )
           .eq("id", mapId)
           .single();
 
         if (error || cancelled || !data) return;
 
-        const row = data as MapRow;
+        const row = data as unknown as MapRowWithStructurePhase;
         setDraft((prev) => mergeDraftUserState(prev, toDraft(row)));
         void fetchLatestMapGenerationStep(supabase, mapId).then((step) => {
           if (!cancelled) setProcessingStep(step);
         });
-        const effectiveMind = row?.mind_elixir_draft ?? row?.mind_elixir ?? null;
-        setHasDraft(Boolean(row?.mind_elixir_draft));
+        const effectiveMind = chooseDisplayMind(
+          row?.mind_elixir_draft ?? null,
+          row?.mind_elixir ?? null
+        );
+        setHasDraft(
+          Boolean(row?.mind_elixir_draft && effectiveMind === row.mind_elixir_draft)
+        );
         if (effectiveMind) {
           const serverPayload = stringifyMindData(effectiveMind);
           const localPayload = latestLocalMindPayloadRef.current;
@@ -2244,14 +2308,16 @@ export default function FullscreenMapDetailScreen({
       const { data, error } = await supabase
         .from("maps")
         .select(
-          "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,thumbnail_url,map_status,credits_charged"
+          "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,thumbnail_url,map_status,structure_phase,credits_charged"
         )
         .eq("id", mapId)
         .single();
 
       if (error) throw error;
       if (data) {
-        setDraft((prev) => mergeDraftUserState(prev, toDraft(data as MapRow)));
+        setDraft((prev) =>
+          mergeDraftUserState(prev, toDraft(data as unknown as MapRowWithStructurePhase))
+        );
       }
 
       setShowMetadataDialog(false);
@@ -3043,6 +3109,18 @@ export default function FullscreenMapDetailScreen({
     const hasRootChildNeedingStructure = rootChildren.some(
       (child) => child.id && !hasChildNodes(child)
     );
+    const explicitStructurePhase = draft?.structurePhase;
+    const structurePhase =
+      explicitStructurePhase ??
+      (hasOutline && draft && isStructureProcessingStatus(draft.status)
+        ? "outline"
+        : draft?.status === "done"
+          ? "complete"
+          : undefined);
+    const allowsInitialDeepView =
+      structurePhase === "outline" ||
+      structurePhase === "expanding" ||
+      structurePhase === "partial";
     const finalReady = isMapReadyForInteraction(draft?.status);
     const structurePending = Boolean(
       draft && isStructureProcessingStatus(draft.status)
@@ -3053,14 +3131,15 @@ export default function FullscreenMapDetailScreen({
       rootChildren,
       hasOutline,
       hasRootChildNeedingStructure,
+      structurePhase,
+      allowsInitialDeepView,
       finalReady,
       structurePending,
       waitingForOutline,
-      showMapProcessingBadge:
-        structurePending && hasOutline && hasRootChildNeedingStructure,
+      showMapProcessingBadge: false,
       showFullGeneratingOverlay: waitingForOutline && !mapData,
     };
-  }, [draft?.status, mapData]);
+  }, [draft?.status, draft?.structurePhase, mapData]);
   const showMapProcessingBadge = mapReadiness.showMapProcessingBadge;
   const isMapProcessing = mapReadiness.waitingForOutline || showMapProcessingBadge;
   const isMapGenerating = mapReadiness.showFullGeneratingOverlay;
@@ -3093,10 +3172,13 @@ export default function FullscreenMapDetailScreen({
   const regenerateTargetNeedsStructure = Boolean(
     selectedMapNodeIsRootChild &&
       regenerateTargetNodeId &&
-      !hasChildNodes(regenerateTargetNode)
+      !hasChildNodes(regenerateTargetNode) &&
+      mapReadiness.allowsInitialDeepView
   );
   const canUseInitialDeepView = Boolean(
-    mapReadiness.hasOutline && regenerateTargetNeedsStructure
+    mapReadiness.hasOutline &&
+      mapReadiness.allowsInitialDeepView &&
+      regenerateTargetNeedsStructure
   );
   const canUseManualRegenerate = mapReadiness.finalReady;
   const regenerateActionLabel = regenerateTargetNeedsStructure
@@ -3117,7 +3199,12 @@ export default function FullscreenMapDetailScreen({
       return [];
     }
     return mapReadiness.rootChildren
-      .filter((child) => child.id && !hasChildNodes(child))
+      .filter(
+        (child) =>
+          child.id &&
+          !hasChildNodes(child) &&
+          mapReadiness.allowsInitialDeepView
+      )
       .map((child) => String(child.id));
   }, [canOperateRegenerateActions, mapReadiness]);
   const isRegenerateBusy = Boolean(regeneratingNodeId);

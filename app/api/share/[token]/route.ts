@@ -48,10 +48,9 @@ export async function GET(
     const { token } = await params;
     if (!token) return jsonError(400, "token is required");
 
-    const { data, error } = await adminSupabase
-      .from("maps")
+    const { data, error } = await (adminSupabase.from("maps") as any)
       .select(
-        "id, user_id, title, short_title, description, summary, tags, channel_name, source_url, source_type, thumbnail_url, credits_charged, mind_elixir, mind_theme_override, map_status, created_at, updated_at"
+        "id, user_id, title, short_title, description, summary, tags, channel_name, source_url, source_type, thumbnail_url, credits_charged, mind_elixir, mind_theme_override, map_status, structure_phase, created_at, updated_at"
       )
       .eq("share_token", token)
       .eq("share_enabled", true)
@@ -96,6 +95,7 @@ export async function GET(
           mind_elixir: data.mind_elixir,
           mind_theme_override: data.mind_theme_override,
           map_status: data.map_status,
+          structure_phase: data.structure_phase,
           created_at: data.created_at,
           updated_at: data.updated_at,
           shared_by: sharedBy,

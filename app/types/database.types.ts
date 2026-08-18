@@ -546,6 +546,98 @@ export type Database = {
           },
         ]
       }
+      gallery_entries: {
+        Row: {
+          consent_confirmed: boolean
+          contains_minors: boolean
+          created_at: string
+          date_label: string | null
+          description: string | null
+          event_date: string
+          id: string
+          published_at: string
+          title: string
+          updated_at: string
+          visibility: Database["public"]["Enums"]["gallery_visibility"]
+        }
+        Insert: {
+          consent_confirmed?: boolean
+          contains_minors?: boolean
+          created_at?: string
+          date_label?: string | null
+          description?: string | null
+          event_date: string
+          id?: string
+          published_at?: string
+          title: string
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["gallery_visibility"]
+        }
+        Update: {
+          consent_confirmed?: boolean
+          contains_minors?: boolean
+          created_at?: string
+          date_label?: string | null
+          description?: string | null
+          event_date?: string
+          id?: string
+          published_at?: string
+          title?: string
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["gallery_visibility"]
+        }
+        Relationships: []
+      }
+      gallery_photos: {
+        Row: {
+          alt_text: string | null
+          caption: string | null
+          created_at: string
+          entry_id: string
+          file_size: number
+          height: number
+          id: string
+          mime_type: string
+          sort_order: number
+          storage_path: string
+          width: number
+        }
+        Insert: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          entry_id: string
+          file_size: number
+          height: number
+          id?: string
+          mime_type: string
+          sort_order?: number
+          storage_path: string
+          width: number
+        }
+        Update: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          entry_id?: string
+          file_size?: number
+          height?: number
+          id?: string
+          mime_type?: string
+          sort_order?: number
+          storage_path?: string
+          width?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gallery_photos_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "gallery_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       keywords: {
         Row: {
           id: number
@@ -1135,6 +1227,9 @@ export type Database = {
           source_retention_hours: number
           source_type: Database["public"]["Enums"]["map_source_type"]
           source_url: string | null
+          structure_phase:
+            | Database["public"]["Enums"]["map_structure_phase"]
+            | null
           summary: string | null
           tags: string[]
           terms_count: number
@@ -1172,6 +1267,9 @@ export type Database = {
           source_retention_hours?: number
           source_type?: Database["public"]["Enums"]["map_source_type"]
           source_url?: string | null
+          structure_phase?:
+            | Database["public"]["Enums"]["map_structure_phase"]
+            | null
           summary?: string | null
           tags?: string[]
           terms_count?: number
@@ -1209,6 +1307,9 @@ export type Database = {
           source_retention_hours?: number
           source_type?: Database["public"]["Enums"]["map_source_type"]
           source_url?: string | null
+          structure_phase?:
+            | Database["public"]["Enums"]["map_structure_phase"]
+            | null
           summary?: string | null
           tags?: string[]
           terms_count?: number
@@ -2071,6 +2172,8 @@ export type Database = {
           admin_failure_email_error: string | null
           admin_failure_email_sent_at: string | null
           admin_notes: string | null
+          admin_request_email_error: string | null
+          admin_request_email_sent_at: string | null
           charged_credits: number | null
           created_at: string
           credit_snapshot: number
@@ -2098,6 +2201,8 @@ export type Database = {
           admin_failure_email_error?: string | null
           admin_failure_email_sent_at?: string | null
           admin_notes?: string | null
+          admin_request_email_error?: string | null
+          admin_request_email_sent_at?: string | null
           charged_credits?: number | null
           created_at?: string
           credit_snapshot?: number
@@ -2125,6 +2230,8 @@ export type Database = {
           admin_failure_email_error?: string | null
           admin_failure_email_sent_at?: string | null
           admin_notes?: string | null
+          admin_request_email_error?: string | null
+          admin_request_email_sent_at?: string | null
           charged_credits?: number | null
           created_at?: string
           credit_snapshot?: number
@@ -2262,6 +2369,7 @@ export type Database = {
         | "admin_adjustment"
         | "system_deduction"
       currency_code: "krw" | "usd"
+      gallery_visibility: "public" | "members" | "private"
       map_extract_status:
         | "idle"
         | "queued"
@@ -2300,6 +2408,7 @@ export type Database = {
         | "done"
         | "failed"
         | "idle"
+      map_structure_phase: "outline" | "expanding" | "partial" | "complete"
       map_term_request_kind: "auto" | "custom"
       map_term_request_status:
         | "processing"
@@ -2518,6 +2627,7 @@ export const Constants = {
         "system_deduction",
       ],
       currency_code: ["krw", "usd"],
+      gallery_visibility: ["public", "members", "private"],
       map_extract_status: [
         "idle",
         "queued",
@@ -2560,6 +2670,7 @@ export const Constants = {
         "failed",
         "idle",
       ],
+      map_structure_phase: ["outline", "expanding", "partial", "complete"],
       map_term_request_kind: ["auto", "custom"],
       map_term_request_status: [
         "processing",
