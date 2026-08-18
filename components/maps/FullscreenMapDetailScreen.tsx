@@ -3040,6 +3040,9 @@ export default function FullscreenMapDetailScreen({
     const root = getMindElixirRoot(mapData);
     const rootChildren = Array.isArray(root?.children) ? root.children : [];
     const hasOutline = rootChildren.length > 0;
+    const hasRootChildNeedingStructure = rootChildren.some(
+      (child) => child.id && !hasChildNodes(child)
+    );
     const finalReady = isMapReadyForInteraction(draft?.status);
     const structurePending = Boolean(
       draft && isStructureProcessingStatus(draft.status)
@@ -3049,10 +3052,12 @@ export default function FullscreenMapDetailScreen({
     return {
       rootChildren,
       hasOutline,
+      hasRootChildNeedingStructure,
       finalReady,
       structurePending,
       waitingForOutline,
-      showMapProcessingBadge: structurePending && hasOutline,
+      showMapProcessingBadge:
+        structurePending && hasOutline && hasRootChildNeedingStructure,
       showFullGeneratingOverlay: waitingForOutline && !mapData,
     };
   }, [draft?.status, mapData]);
