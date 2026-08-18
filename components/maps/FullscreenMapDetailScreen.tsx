@@ -149,6 +149,8 @@ const PROCESSING_BASELINE_MS = 111956;
 const PROCESSING_MS_PER_CHAR = PROCESSING_BASELINE_MS / PROCESSING_BASELINE_CHARS;
 const PROCESSING_FALLBACK_EXPECTED_MS = PROCESSING_BASELINE_MS;
 const PROCESSING_MIN_EXPECTED_MS = 20000;
+const NODE_EXPANSION_POLL_INTERVAL_MS = 10000;
+const NODE_EXPANSION_POLL_TIMEOUT_MS = 10 * 60 * 1000;
 
 function getNodeRegenerationPlaceholderTopic(locale?: string) {
   if (locale === "ko") return "구조화 중입니다...";
@@ -1351,9 +1353,12 @@ export default function FullscreenMapDetailScreen({
   useEffect(() => {
     if (!mapId || !draft) return;
 
-    const isActiveStatus = isActiveMapStatus(draft.status);
+    const root = getMindElixirRoot(mapData);
+    const hasOutline = Array.isArray(root?.children) && root.children.length > 0;
+    const shouldPollUntilOutline =
+      !hasOutline && isStructureProcessingStatus(draft.status);
 
-    if (!isActiveStatus) return;
+    if (!shouldPollUntilOutline) return;
 
     let cancelled = false;
 
@@ -2033,9 +2038,11 @@ export default function FullscreenMapDetailScreen({
         while (
           json?.status !== "done" &&
           (json?.status === "queued" || json?.status === "processing") &&
-          Date.now() - startedPollingAt < 90_000
+          Date.now() - startedPollingAt < NODE_EXPANSION_POLL_TIMEOUT_MS
         ) {
-          await new Promise((resolve) => window.setTimeout(resolve, 2500));
+          await new Promise((resolve) =>
+            window.setTimeout(resolve, NODE_EXPANSION_POLL_INTERVAL_MS)
+          );
           ({ response, json } = await requestNodeUpdate());
           if (!response.ok) break;
         }
