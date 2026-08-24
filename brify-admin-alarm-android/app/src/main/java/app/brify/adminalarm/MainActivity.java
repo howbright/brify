@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,10 +25,13 @@ public class MainActivity extends Activity {
     static final String KEY_BASE_URL = "base_url";
     static final String KEY_PIN = "pin";
     static final String KEY_INTERVAL_SECONDS = "interval_seconds";
+    static final String KEY_ALARM_SOUND_URI = "alarm_sound_uri";
+    private static final int REQUEST_PICK_ALARM_SOUND = 2001;
 
     private EditText baseUrlInput;
     private EditText pinInput;
     private EditText intervalInput;
+    private TextView alarmSoundText;
     private TextView statusText;
 
     @Override
@@ -76,6 +80,18 @@ public class MainActivity extends Activity {
         intervalInput.setText(String.valueOf(prefs.getInt(KEY_INTERVAL_SECONDS, 10)));
         root.addView(label("폴링 간격"));
         root.addView(intervalInput, matchWrap());
+
+        alarmSoundText = new TextView(this);
+        alarmSoundText.setText(getAlarmSoundLabel());
+        alarmSoundText.setTextSize(14);
+        alarmSoundText.setPadding(0, dp(12), 0, dp(4));
+        root.addView(label("알람 소리"));
+        root.addView(alarmSoundText, matchWrap());
+
+        Button pickSoundButton = new Button(this);
+        pickSoundButton.setText("알람 소리 선택");
+        pickSoundButton.setOnClickListener(v -> openAlarmSoundPicker());
+        root.addView(pickSoundButton, matchWrap());
 
         Button saveButton = new Button(this);
         saveButton.setText("설정 저장");
@@ -143,6 +159,32 @@ public class MainActivity extends Activity {
         setContentView(scrollView);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != REQUEST_PICK_ALARM_SOUND || resultCode != RESULT_OK || data == null) {
+            return;
+        }
+        Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+        if (uri == null) {
+            Toast.makeText(this, "알람 소리를 선택하지 않았습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            getContentResolver().takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+            );
+        } catch (Exception ignored) {
+        }
+        getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .edit()
+                .putString(KEY_ALARM_SOUND_URI, uri.toString())
+                .apply();
+        alarmSoundText.setText(getAlarmSoundLabel());
+        Toast.makeText(this, "알람 소리를 저장했습니다.", Toast.LENGTH_SHORT).show();
+    }
+
     private void saveSettings() {
         int intervalSeconds = 10;
         try {
@@ -161,6 +203,31 @@ public class MainActivity extends Activity {
         String baseUrl = baseUrlInput.getText().toString().trim();
         if (baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(baseUrl + "/ko/admin/youtube-reservations")));
+    }
+
+    private void openAlarmSoundPicker() {
+        Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM | RingtoneManager.TYPE_NOTIFICATION);
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Brify 알람 소리 선택");
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        String savedUri = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .getString(KEY_ALARM_SOUND_URI, "");
+        Uri existingUri = savedUri == null || savedUri.trim().isEmpty()
+                ? Settings.System.DEFAULT_NOTIFICATION_URI
+                : Uri.parse(savedUri);
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, existingUri);
+        startActivityForResult(intent, REQUEST_PICK_ALARM_SOUND);
+    }
+
+    private String getAlarmSoundLabel() {
+        String uri = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .getString(KEY_ALARM_SOUND_URI, "");
+        if (uri == null || uri.trim().isEmpty()) {
+            return "현재: 기본 알림음";
+        }
+        return "현재: 선택한 소리";
     }
 
     private TextView label(String text) {

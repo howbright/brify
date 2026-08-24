@@ -83,90 +83,15 @@ export default function InputSection({
   };
 
   const handleYoutubeSubmit = async () => {
-    try {
-      const videoId = getYouTubeVideoId(textInput);
-      if (!videoId) {
-        setAlertText(labels.invalidYoutube);
-        setOpenAlert(true);
-        setIsLoading(false);
-        return;
-      }
-      const res = await fetch(`${apiBaseUrl}/youtube/transcript`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: textInput }),
-      });
-
-      const data = await res.json();
-      console.log(data.status);
-
-      if (res.ok && data.status === "cached") {
-        // ✅ 캐시에서 바로 꺼낸 결과 → 바로 처리
-        console.log("캐시 결과 사용");
-        if (typeof data.result === "string") {
-          onExtracted(
-            `${labels.youtubeExtractPrefix}\n\n${data.result}`,
-            true
-          );
-          setIsLoading(false);
-        } else {
-          onExtracted(labels.fetchResultFailed, false);
-          setIsLoading(false);
-        }
-      } else if (res.ok && data.status === "queued" && data.jobId) {
-        // ✅ Job 생성 → 폴링 시작
-        console.log("폴링 시작");
-        const jobId = data.jobId;
-
-        const poll = async () => {
-          const pollRes = await fetch(`${apiBaseUrl}/youtube/status`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ jobId, url: textInput }), // ✅ url 함께 전송
-          });
-
-          const pollData = await pollRes.json();
-          // console.log(pollData.status);
-          // console.log("pollData", pollData);
-
-          if (pollData.status !== "processing") {
-            setIsLoading(false);
-          }
-
-          if (pollRes.ok && pollData.status === "completed") {
-            if (typeof pollData.result === "string") {
-              onExtracted(
-                `${labels.youtubeExtractPrefix}\n\n${pollData.result}`,
-                true
-              );
-              setIsLoading(false);
-            } else {
-              onExtracted(labels.fetchResultFailed, false);
-              setIsLoading(false);
-            }
-          } else if (pollData.status === "failed") {
-            onExtracted(labels.youtubeTranscriptFailed, false);
-            setIsLoading(false);
-          } else if (pollData.status === "error") {
-            onExtracted(labels.requestError, false);
-            setIsLoading(false);
-          } else {
-            setTimeout(poll, 1000); // 계속 폴링
-          }
-        };
-
-        poll();
-      } else {
-        onExtracted(labels.requestFailed, false);
-        setIsLoading(false);
-      }
-    } catch (error: unknown) {
-      console.error("❌ 유튜브 요청 중 에러 발생:", error);
-      onExtracted(labels.networkError, false);
+    const videoId = getYouTubeVideoId(textInput);
+    if (!videoId) {
+      setAlertText(labels.invalidYoutube);
+      setOpenAlert(true);
       setIsLoading(false);
+      return;
     }
+    onExtracted(labels.youtubeTranscriptFailed, false);
+    setIsLoading(false);
   };
 
   const handleWebsiteSubmit = async () => {

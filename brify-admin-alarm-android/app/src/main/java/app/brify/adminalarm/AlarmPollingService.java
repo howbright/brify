@@ -249,7 +249,7 @@ public class AlarmPollingService extends Service {
         if (mediaPlayer != null && mediaPlayer.isPlaying()) return;
         stopAlarmSound();
         try {
-            Uri alarmUri = Settings.System.DEFAULT_ALARM_ALERT_URI;
+            Uri alarmUri = getConfiguredAlarmUri();
             if (alarmUri == null) {
                 alarmUri = Settings.System.DEFAULT_NOTIFICATION_URI;
             }
@@ -339,7 +339,7 @@ public class AlarmPollingService extends Service {
                 .setPriority(Notification.PRIORITY_MAX)
                 .setCategory(Notification.CATEGORY_ALARM)
                 .setContentIntent(openAdminIntent)
-                .addAction(android.R.drawable.ic_lock_silent_mode, "소리만 멈춤", stopSoundIntent)
+                .addAction(android.R.drawable.ic_lock_silent_mode, "알람 멈춤", stopSoundIntent)
                 .addAction(android.R.drawable.checkbox_on_background, "확인 처리", ackIntent)
                 .setAutoCancel(false)
                 .build();
@@ -389,6 +389,15 @@ public class AlarmPollingService extends Service {
     private String getPin() {
         String pin = getPrefs().getString(MainActivity.KEY_PIN, "");
         return pin == null ? "" : pin.trim();
+    }
+
+    private Uri getConfiguredAlarmUri() {
+        String savedUri = getPrefs().getString(MainActivity.KEY_ALARM_SOUND_URI, "");
+        if (savedUri != null && !savedUri.trim().isEmpty()) {
+            return Uri.parse(savedUri);
+        }
+        Uri alarmUri = Settings.System.DEFAULT_ALARM_ALERT_URI;
+        return alarmUri != null ? alarmUri : Settings.System.DEFAULT_NOTIFICATION_URI;
     }
 
     private SharedPreferences getPrefs() {
