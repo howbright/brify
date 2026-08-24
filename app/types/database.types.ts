@@ -2408,6 +2408,7 @@ export type Database = {
         | "done"
         | "failed"
         | "idle"
+        | "retrying"
       map_structure_phase: "outline" | "expanding" | "partial" | "complete"
       map_term_request_kind: "auto" | "custom"
       map_term_request_status:
@@ -2669,6 +2670,7 @@ export const Constants = {
         "done",
         "failed",
         "idle",
+        "retrying",
       ],
       map_structure_phase: ["outline", "expanding", "partial", "complete"],
       map_term_request_kind: ["auto", "custom"],
