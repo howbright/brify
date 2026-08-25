@@ -203,6 +203,44 @@ export default function AdminYoutubeReservationsPage({
     }
   }
 
+  async function markUnsupportedForUser() {
+    if (!selected) return;
+
+    setSaving(true);
+    setGenerationMessage(null);
+    setError(null);
+
+    const reason =
+      form.statusReason.trim() ||
+      "영상을 확인할 수 없어요. 공개된 일반 YouTube 영상 URL을 입력해 주세요.";
+
+    try {
+      const response = await fetch("/api/admin/youtube-reservations", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: selected.id,
+          status: "unsupported",
+          statusReason: reason,
+          requiredCredits: form.requiredCredits,
+          chargedCredits: form.chargedCredits,
+          resultMapId: form.resultMapId,
+          adminNotes: form.adminNotes,
+        }),
+      });
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(json?.error ?? "failed");
+      setGenerationMessage(
+        "처리 불가 상태로 저장했습니다. 사용자가 대기 화면을 열어두었다면 안내 다이얼로그가 표시됩니다."
+      );
+      await loadReservations();
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "failed");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function generateMapForReservation() {
     if (!selected) return;
 
@@ -350,10 +388,10 @@ export default function AdminYoutubeReservationsPage({
             ← Admin home
           </Link>
           <h1 className="mt-2 text-3xl font-black tracking-tight text-neutral-950">
-            유튜브 예약 요청
+            YouTube 구조맵 요청
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-neutral-600">
-            사용자가 유튜브 URL을 예약하면 여기에서 URL, 요청자 이메일, 최신 크레딧을 확인하고
+            사용자가 YouTube URL을 요청하면 여기에서 URL, 요청자 이메일, 최신 크레딧을 확인하고
             수동 처리 상태를 관리합니다.
           </p>
         </div>
@@ -378,14 +416,14 @@ export default function AdminYoutubeReservationsPage({
         <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-200 px-5 py-4">
             <div className="text-sm font-black text-slate-950">
-              예약 목록 {reservations.length.toLocaleString()}건
+              요청 목록 {reservations.length.toLocaleString()}건
             </div>
           </div>
           <div className="max-h-[720px] overflow-y-auto">
             {loading ? (
               <div className="p-5 text-sm font-bold text-slate-500">불러오는 중...</div>
             ) : reservations.length === 0 ? (
-              <div className="p-5 text-sm font-bold text-slate-500">예약 요청이 없습니다.</div>
+              <div className="p-5 text-sm font-bold text-slate-500">YouTube 요청이 없습니다.</div>
             ) : (
               reservations.map((item) => (
                 <button
@@ -428,7 +466,7 @@ export default function AdminYoutubeReservationsPage({
           {selected ? (
             <div className="space-y-5">
               <div className="grid gap-3 rounded-2xl bg-slate-50 p-4 text-sm lg:grid-cols-2">
-                <Info label="예약 ID" value={selected.id} mono />
+                <Info label="요청 ID" value={selected.id} mono />
                 <Info label="요청자 이메일" value={selected.requester_email ?? selected.requester?.email ?? "-"} />
                 <Info label="요청자 user_id" value={selected.user_id} mono />
                 <Info label="요청 언어" value={selected.output_language ?? "auto"} />
@@ -443,7 +481,7 @@ export default function AdminYoutubeReservationsPage({
                   label="세부 가지 상태"
                   value={formatExpansionStats(selected.expansion_stats)}
                 />
-                <Info label="예약요청 알림메일 결과" value={selected.admin_request_email_error ? `실패: ${selected.admin_request_email_error}` : formatDate(selected.admin_request_email_sent_at)} />
+                <Info label="요청 알림메일 결과" value={selected.admin_request_email_error ? `실패: ${selected.admin_request_email_error}` : formatDate(selected.admin_request_email_sent_at)} />
                 <Info label="완료메일 발송 결과" value={selected.user_email_error ? `실패: ${selected.user_email_error}` : formatDate(selected.user_email_sent_at)} />
                 <Info label="관리자 실패알림 결과" value={selected.admin_failure_email_error ? `실패: ${selected.admin_failure_email_error}` : formatDate(selected.admin_failure_email_sent_at)} />
                 <Info label="수동 안내메일 결과" value={selected.manual_email_error ? `실패: ${selected.manual_email_error}` : formatDate(selected.manual_email_sent_at)} />
@@ -606,6 +644,16 @@ export default function AdminYoutubeReservationsPage({
                   className="w-full resize-y rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6"
                 />
                 <div className="mt-3 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => void markUnsupportedForUser()}
+                    disabled={saving}
+                    className="mr-2 inline-flex h-10 items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 text-sm font-black text-amber-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    title="이메일을 보내지 않고, 사용자의 대기 화면과 요청 내역에 URL/영상 문제를 표시합니다."
+                  >
+                    <Icon icon={saving ? "lucide:loader-circle" : "lucide:alert-triangle"} className={saving ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
+                    URL 문제로 표시
+                  </button>
                   <button
                     type="button"
                     onClick={() => void sendUserMessage()}

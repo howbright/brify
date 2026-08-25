@@ -968,7 +968,7 @@
       "greetingWithEmail": "Hello, {email}",
       "items": {
         "myMaps": "My Maps",
-        "youtubeReservations": "YouTube reservations",
+        "youtubeReservations": "YouTube requests",
         "billing": "Top up credits",
         "billingHistory": "Billing history",
         "accountSettings": "Account settings",
@@ -1002,10 +1002,10 @@
     }
   },
   "YoutubeReservationsPage": {
-    "title": "YouTube reservations",
-    "description": "Check the status of structure map requests reserved with YouTube URLs, and retry failed requests.",
-    "empty": "No YouTube reservations yet.",
-    "loading": "Loading reservations.",
+    "title": "YouTube requests",
+    "description": "Check the status of structure map requests sent with YouTube URLs, and retry failed requests.",
+    "empty": "No YouTube requests yet.",
+    "loading": "Loading requests.",
     "refresh": "Refresh",
     "retry": "Request again",
     "retrying": "Requesting...",
@@ -1021,10 +1021,10 @@
     "retryDone": "Retry request received.",
     "retryDoneTitle": "Retry requested",
     "retryFailedTitle": "Retry failed",
-    "loadFailedTitle": "Could not load reservations",
+    "loadFailedTitle": "Could not load requests",
     "confirm": "OK",
     "statuses": {
-      "requested": "Reserved",
+      "requested": "Requested",
       "checking": "Checking",
       "ready": "Under review",
       "needs_credits": "Needs credits",
@@ -1608,12 +1608,12 @@
       "message": "Scheduled maintenance is planned for service stability. Please check the notice for details."
     },
     "youtube_reservation_admin": {
-      "title": "YouTube reservation received",
-      "message": "{email} reserved a YouTube structure map. Output language: {outputLanguage}"
+      "title": "YouTube structure map request received",
+      "message": "{email} requested a YouTube structure map. Output language: {outputLanguage}"
     },
     "youtube_reservation_retry_admin": {
-      "title": "YouTube reservation retry requested",
-      "message": "A user requested retry processing for a YouTube structure map reservation."
+      "title": "YouTube structure map retry requested",
+      "message": "A user requested retry processing for a YouTube structure map."
     },
     "ui": {
       "aria_label": "Notifications",

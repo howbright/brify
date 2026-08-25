@@ -13,7 +13,10 @@ import { getMapStructurePreview } from "@/components/maps/mapStructurePreview";
 import MapThemePreferenceMenuItem from "@/components/layout/MapThemePreferenceMenuItem";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import Alert from "@/components/ui/Alert";
-import { parseYoutubeUrl } from "@/app/lib/youtubeReservations";
+import {
+  parseYoutubeUrl,
+  type YoutubeReservationStatus,
+} from "@/app/lib/youtubeReservations";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -48,6 +51,22 @@ type MapCreditEstimate = {
   overlapChars: number;
   sourceText: string;
 };
+type ActiveYoutubeRequest = {
+  id: string;
+  createdAt: number;
+  delayedNotified: boolean;
+};
+type YoutubeRequestSnapshot = {
+  id: string;
+  status: YoutubeReservationStatus;
+  status_reason: string | null;
+  result_map_id: string | null;
+  charged_credits: number | null;
+};
+type PendingYoutubeMapOpen = {
+  mapId: string;
+  chargedCredits: number | null;
+};
 type RecentMapPreview = Pick<
   MapRow,
   | "id"
@@ -73,6 +92,7 @@ type LandingV2PageProps = {
 };
 
 const PENDING_INPUT_KEY = "brify.pendingLandingInput.v1";
+const ACTIVE_YOUTUBE_REQUEST_KEY = "brify.activeYoutubeRequest.v1";
 const CHARS_PER_CHUNK = 50_000;
 const CREDIT_TIER_1_MAX_CHARS = 3_000;
 const CREDIT_TIER_2_MAX_CHARS = 10_000;
@@ -84,6 +104,8 @@ const MIN_TEXTAREA_HEIGHT = 108;
 const MAX_TEXTAREA_HEIGHT = 520;
 const MS_PER_CHAR = 50696 / 18857;
 const PROGRESS_CAP = 97;
+const YOUTUBE_REQUEST_POLL_MS = 3000;
+const YOUTUBE_REQUEST_DELAYED_MS = 180000;
 const DRAFT_SELECT_FIELDS =
   "id,created_at,updated_at,title,youtube_title,short_title,channel_name,source_url,source_type,tags,description,summary,thumbnail_url,map_status,credits_charged";
 const FALLBACK_EXAMPLE_MAP_URL =
@@ -148,17 +170,33 @@ const COPY = {
     createOptionsTitle: "구조맵 만들기",
     createOptionsBody: "결과 언어와 사용 크레딧을 확인해 주세요.",
     requiredCredits: "이번 생성에 필요한 크레딧 {required}개",
-    youtubeReservationTitle: "유튜브 구조맵 예약",
-    youtubeReservationAlertTitle: "예약 접수 완료",
+    youtubeReservationTitle: "YouTube 구조맵 요청",
+    youtubeReservationAlertTitle: "요청 접수 완료",
     youtubeUrlAlertTitle: "유튜브 URL 확인",
     youtubeReservationBody:
-      "유튜브 주소는 24시간 이내에 운영팀이 구조맵으로 바꿔드립니다. 이 유튜브 주소를 예약하시겠어요?",
+      "이 YouTube 영상을 구조맵으로 준비할까요?",
     youtubeReservationCreditPolicy:
-      "예약 단계에서는 크레딧을 차감하지 않습니다. 영상 확인 후 구조맵 생성이 가능할 때 필요한 크레딧을 확인하고 처리합니다.",
+      "요청 단계에서는 크레딧을 차감하지 않습니다. 구조맵 생성이 시작될 때 필요한 크레딧을 확인합니다.",
     youtubeReservationLanguageQuestion:
       "이 유튜브 영상을 어떤 언어의 구조맵으로 바꾸기를 원하시나요?",
-    youtubeReservationConfirm: "예약하기",
-    youtubeReservationQueued: "유튜브 구조맵 예약이 접수되었습니다.",
+    youtubeReservationConfirm: "요청하기",
+    youtubeReservationQueued: "YouTube 영상을 구조맵으로 준비하고 있어요.",
+    youtubeReservationDelayed:
+      "영상 확인에 시간이 조금 더 걸리고 있어요. 구조맵이 완성되면 계정 이메일로 알려드릴게요.",
+    youtubeReservationReadyTitle: "구조맵 생성이 시작되었습니다",
+    youtubeReservationReadyWithCredits:
+      "이번 YouTube 구조맵 생성에 {credits}크레딧이 차감되었습니다. 확인을 누르면 구조맵 화면으로 이동합니다.",
+    youtubeReservationReadyWithoutCredits:
+      "구조맵 화면으로 이동합니다. 차감 크레딧은 구조맵 목록에서 다시 확인할 수 있습니다.",
+    youtubeReservationNeedsCreditsTitle: "크레딧이 부족해요",
+    youtubeReservationNeedsCredits:
+      "이 영상을 구조맵으로 변환하려면 크레딧 충전이 필요합니다.",
+    youtubeReservationUnsupportedTitle: "영상을 확인할 수 없어요",
+    youtubeReservationUnsupported:
+      "공개된 일반 YouTube 영상 URL을 입력해 주세요.",
+    youtubeReservationFailedTitle: "구조맵으로 변환하기 어려웠어요",
+    youtubeReservationFailed:
+      "다른 YouTube URL을 입력하거나, 자막/대본을 직접 붙여넣어 주세요.",
     youtubeShortsUnsupported: "유튜브 Shorts는 아직 지원하지 않습니다.",
     youtubeInvalidUrl: "올바른 유튜브 URL을 입력해 주세요.",
     cancel: "취소",
@@ -219,7 +257,7 @@ const COPY = {
     blankMap: "빈 구조맵",
     blankCreating: "만드는 중",
     myMaps: "내 구조맵",
-    youtubeReservations: "유튜브 예약",
+    youtubeReservations: "YouTube 요청",
     billing: "결제/크레딧",
     billingHistory: "결제 내역",
     account: "계정",
@@ -278,17 +316,33 @@ const COPY = {
     createOptionsTitle: "Create structure map",
     createOptionsBody: "Confirm the output language and credits.",
     requiredCredits: "{required} credits will be used",
-    youtubeReservationTitle: "Reserve a YouTube structure map",
-    youtubeReservationAlertTitle: "Reservation received",
+    youtubeReservationTitle: "Request a YouTube structure map",
+    youtubeReservationAlertTitle: "Request received",
     youtubeUrlAlertTitle: "Check the YouTube URL",
     youtubeReservationBody:
-      "Our operations team will turn this YouTube URL into a structure map within 24 hours. Would you like to reserve it?",
+      "Would you like Brify to prepare this YouTube video as a structure map?",
     youtubeReservationCreditPolicy:
-      "No credits are charged at the reservation step. After checking the video, we will process it when a structure map can be generated.",
+      "Credits are not charged when you send the request. We check the required credits when structure map generation starts.",
     youtubeReservationLanguageQuestion:
       "Which language would you like the structure map to use?",
-    youtubeReservationConfirm: "Reserve",
-    youtubeReservationQueued: "Your YouTube structure map reservation has been received.",
+    youtubeReservationConfirm: "Request",
+    youtubeReservationQueued: "Preparing this YouTube video as a structure map.",
+    youtubeReservationDelayed:
+      "Checking the video is taking a little longer. We will email your account when the structure map is ready.",
+    youtubeReservationReadyTitle: "Structure map generation has started",
+    youtubeReservationReadyWithCredits:
+      "{credits} credits were used for this YouTube structure map. Press OK to open it.",
+    youtubeReservationReadyWithoutCredits:
+      "Opening the structure map. You can check the credits used again from your map list.",
+    youtubeReservationNeedsCreditsTitle: "Not enough credits",
+    youtubeReservationNeedsCredits:
+      "You need to add credits before this video can be converted into a structure map.",
+    youtubeReservationUnsupportedTitle: "We could not check this video",
+    youtubeReservationUnsupported:
+      "Please enter a public standard YouTube video URL.",
+    youtubeReservationFailedTitle: "This video could not be converted",
+    youtubeReservationFailed:
+      "Try another YouTube URL, or paste the transcript/script directly.",
     youtubeShortsUnsupported: "YouTube Shorts are not supported yet.",
     youtubeInvalidUrl: "Please enter a valid YouTube URL.",
     cancel: "Cancel",
@@ -350,7 +404,7 @@ const COPY = {
     blankMap: "Blank map",
     blankCreating: "Creating",
     myMaps: "My maps",
-    youtubeReservations: "YouTube reservations",
+    youtubeReservations: "YouTube requests",
     billing: "Billing",
     billingHistory: "Billing history",
     account: "Account",
@@ -409,17 +463,33 @@ const COPY = {
     createOptionsTitle: "Créer la carte",
     createOptionsBody: "Confirmez la langue de sortie et les crédits.",
     requiredCredits: "{required} crédits seront utilisés",
-    youtubeReservationTitle: "Réserver une carte structurelle YouTube",
-    youtubeReservationAlertTitle: "Réservation reçue",
+    youtubeReservationTitle: "Demander une carte structurelle YouTube",
+    youtubeReservationAlertTitle: "Demande reçue",
     youtubeUrlAlertTitle: "Vérifier l’URL YouTube",
     youtubeReservationBody:
-      "Notre équipe transformera cette URL YouTube en carte structurelle sous 24 heures. Souhaitez-vous la réserver ?",
+      "Voulez-vous que Brify prépare cette vidéo YouTube sous forme de carte structurelle ?",
     youtubeReservationCreditPolicy:
-      "Aucun crédit n’est débité lors de la réservation. Après vérification de la vidéo, nous traiterons la demande si une carte structurelle peut être générée.",
+      "Aucun crédit n’est déduit au moment de la demande. Les crédits nécessaires sont vérifiés lorsque la génération commence.",
     youtubeReservationLanguageQuestion:
       "Dans quelle langue souhaitez-vous obtenir la carte structurelle ?",
-    youtubeReservationConfirm: "Réserver",
-    youtubeReservationQueued: "Votre réservation de carte structurelle YouTube a été reçue.",
+    youtubeReservationConfirm: "Demander",
+    youtubeReservationQueued: "Préparation de cette vidéo YouTube en carte structurelle.",
+    youtubeReservationDelayed:
+      "La vérification de la vidéo prend un peu plus de temps. Nous vous enverrons un e-mail quand la carte structurelle sera prête.",
+    youtubeReservationReadyTitle: "La création de la carte a commencé",
+    youtubeReservationReadyWithCredits:
+      "{credits} crédits ont été utilisés pour cette carte structurelle YouTube. Appuyez sur OK pour l’ouvrir.",
+    youtubeReservationReadyWithoutCredits:
+      "Ouverture de la carte structurelle. Vous pourrez vérifier les crédits utilisés dans votre liste de cartes.",
+    youtubeReservationNeedsCreditsTitle: "Crédits insuffisants",
+    youtubeReservationNeedsCredits:
+      "Vous devez ajouter des crédits pour convertir cette vidéo en carte structurelle.",
+    youtubeReservationUnsupportedTitle: "Impossible de vérifier cette vidéo",
+    youtubeReservationUnsupported:
+      "Veuillez saisir l’URL d’une vidéo YouTube publique standard.",
+    youtubeReservationFailedTitle: "Cette vidéo n’a pas pu être convertie",
+    youtubeReservationFailed:
+      "Essayez une autre URL YouTube, ou collez directement la transcription/le script.",
     youtubeShortsUnsupported: "Les YouTube Shorts ne sont pas encore pris en charge.",
     youtubeInvalidUrl: "Veuillez saisir une URL YouTube valide.",
     cancel: "Annuler",
@@ -481,7 +551,7 @@ const COPY = {
     blankMap: "Carte vide",
     blankCreating: "Création",
     myMaps: "Mes cartes",
-    youtubeReservations: "Réservations YouTube",
+    youtubeReservations: "Demandes YouTube",
     billing: "Facturation",
     billingHistory: "Historique",
     account: "Compte",
@@ -531,6 +601,39 @@ function savePendingInput(input: PendingLandingInput) {
 function clearPendingInput() {
   if (typeof window === "undefined") return;
   window.sessionStorage.removeItem(PENDING_INPUT_KEY);
+}
+
+function loadActiveYoutubeRequest(): ActiveYoutubeRequest | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(ACTIVE_YOUTUBE_REQUEST_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<ActiveYoutubeRequest>;
+    if (!parsed?.id || typeof parsed.id !== "string") return null;
+    return {
+      id: parsed.id,
+      createdAt:
+        typeof parsed.createdAt === "number" && Number.isFinite(parsed.createdAt)
+          ? parsed.createdAt
+          : Date.now(),
+      delayedNotified: Boolean(parsed.delayedNotified),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function saveActiveYoutubeRequest(request: ActiveYoutubeRequest) {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.setItem(
+    ACTIVE_YOUTUBE_REQUEST_KEY,
+    JSON.stringify(request)
+  );
+}
+
+function clearActiveYoutubeRequest() {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.removeItem(ACTIVE_YOUTUBE_REQUEST_KEY);
 }
 
 function deriveTitle(text: string, fallback: string) {
@@ -744,6 +847,10 @@ export default function LandingV2Page({
     useState(false);
   const [pendingYoutubeUrl, setPendingYoutubeUrl] = useState("");
   const [isReservingYoutube, setIsReservingYoutube] = useState(false);
+  const [activeYoutubeRequest, setActiveYoutubeRequest] =
+    useState<ActiveYoutubeRequest | null>(null);
+  const [pendingYoutubeMapOpen, setPendingYoutubeMapOpen] =
+    useState<PendingYoutubeMapOpen | null>(null);
   const [alertState, setAlertState] = useState<{
     open: boolean;
     title: string;
@@ -794,6 +901,8 @@ export default function LandingV2Page({
   const canCreate =
     charCount > 0 &&
     !isGenerating &&
+    !activeYoutubeRequest &&
+    !pendingYoutubeMapOpen &&
     !isExtractingFile &&
     !isEstimatingCredits &&
     !creditInfo.tooLarge;
@@ -801,12 +910,33 @@ export default function LandingV2Page({
 
   useEffect(() => {
     const pending = loadPendingInput();
-    if (!pending) return;
-    setResumeInput(pending);
-    setText(pending.text);
-    setSourceType(pending.sourceType ?? "manual");
-    setFileName(pending.fileName ?? null);
+    if (pending) {
+      setResumeInput(pending);
+      setText(pending.text);
+      setSourceType(pending.sourceType ?? "manual");
+      setFileName(pending.fileName ?? null);
+    }
+
+    const activeRequest = loadActiveYoutubeRequest();
+    if (activeRequest) {
+      setActiveYoutubeRequest(activeRequest);
+    }
   }, []);
+
+  useEffect(() => {
+    if (!isAuthed) {
+      clearActiveYoutubeRequest();
+      setActiveYoutubeRequest(null);
+    }
+  }, [isAuthed]);
+
+  useEffect(() => {
+    if (activeYoutubeRequest) {
+      saveActiveYoutubeRequest(activeYoutubeRequest);
+    } else {
+      clearActiveYoutubeRequest();
+    }
+  }, [activeYoutubeRequest]);
 
   useEffect(() => {
     setCreditEstimate((estimate) =>
@@ -815,7 +945,7 @@ export default function LandingV2Page({
   }, [trimmedText]);
 
   useEffect(() => {
-    if (!isGenerating) {
+    if (!isGenerating && !activeYoutubeRequest) {
       setLoadingStep(0);
       setGenerationStartedAt(null);
       setGenerationCharCount(0);
@@ -825,7 +955,7 @@ export default function LandingV2Page({
       setLoadingStep((step) => (step + 1) % copy.loadingSteps.length);
     }, 2200);
     return () => window.clearInterval(timer);
-  }, [copy.loadingSteps.length, isGenerating]);
+  }, [activeYoutubeRequest, copy.loadingSteps.length, isGenerating]);
 
   useEffect(() => {
     if (!isGenerating) return;
@@ -940,6 +1070,150 @@ export default function LandingV2Page({
     });
   };
 
+  const showYoutubeRequestStatusAlert = (snapshot: YoutubeRequestSnapshot) => {
+    const reason = snapshot.status_reason?.trim();
+
+    if (snapshot.status === "needs_credits") {
+      showLandingAlert({
+        title: copy.youtubeReservationNeedsCreditsTitle,
+        text: reason || copy.youtubeReservationNeedsCredits,
+        variant: "warning",
+      });
+      return true;
+    }
+
+    if (snapshot.status === "unsupported" || snapshot.status === "cancelled") {
+      showLandingAlert({
+        title: copy.youtubeReservationUnsupportedTitle,
+        text: reason || copy.youtubeReservationUnsupported,
+        variant: "warning",
+      });
+      return true;
+    }
+
+    if (snapshot.status === "failed") {
+      showLandingAlert({
+        title: copy.youtubeReservationFailedTitle,
+        text: reason || copy.youtubeReservationFailed,
+        variant: "error",
+      });
+      return true;
+    }
+
+    return false;
+  };
+
+  const handleYoutubeRequestSnapshot = (snapshot: YoutubeRequestSnapshot) => {
+    if (
+      snapshot.result_map_id &&
+      (snapshot.status === "processing" ||
+        snapshot.status === "ready" ||
+        snapshot.status === "done")
+    ) {
+      setActiveYoutubeRequest(null);
+      setPendingYoutubeMapOpen({
+        mapId: snapshot.result_map_id,
+        chargedCredits: snapshot.charged_credits,
+      });
+      showLandingAlert({
+        title: copy.youtubeReservationReadyTitle,
+        text:
+          typeof snapshot.charged_credits === "number" &&
+          Number.isFinite(snapshot.charged_credits)
+            ? templateCopy(copy.youtubeReservationReadyWithCredits, {
+                credits: snapshot.charged_credits.toLocaleString(),
+              })
+            : copy.youtubeReservationReadyWithoutCredits,
+        variant: "success",
+      });
+      return;
+    }
+
+    if (showYoutubeRequestStatusAlert(snapshot)) {
+      setActiveYoutubeRequest(null);
+    }
+  };
+
+  useEffect(() => {
+    if (!activeYoutubeRequest) return;
+
+    let cancelled = false;
+
+    const poll = async () => {
+      try {
+        const response = await fetch(
+          `/api/youtube-reservations/${encodeURIComponent(activeYoutubeRequest.id)}`,
+          { cache: "no-store" }
+        );
+        const json = await response.json().catch(() => ({}));
+        if (cancelled) return;
+
+        if (!response.ok) {
+          if (response.status === 404 || response.status === 401) {
+            setActiveYoutubeRequest(null);
+          }
+          return;
+        }
+
+        const reservation = json?.reservation as Partial<YoutubeRequestSnapshot> | undefined;
+        if (
+          reservation &&
+          typeof reservation.id === "string" &&
+          typeof reservation.status === "string"
+        ) {
+          handleYoutubeRequestSnapshot({
+            id: reservation.id,
+            status: reservation.status as YoutubeReservationStatus,
+            status_reason:
+              typeof reservation.status_reason === "string"
+                ? reservation.status_reason
+                : null,
+            result_map_id:
+              typeof reservation.result_map_id === "string"
+                ? reservation.result_map_id
+                : null,
+            charged_credits:
+              typeof reservation.charged_credits === "number" &&
+              Number.isFinite(reservation.charged_credits)
+                ? reservation.charged_credits
+                : null,
+          });
+        }
+      } catch {
+        // Keep waiting; transient network failures should not interrupt the request.
+      }
+    };
+
+    void poll();
+    const timer = window.setInterval(poll, YOUTUBE_REQUEST_POLL_MS);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [activeYoutubeRequest?.id, router, safeLocale]);
+
+  useEffect(() => {
+    if (!activeYoutubeRequest || activeYoutubeRequest.delayedNotified) return;
+
+    const remaining =
+      YOUTUBE_REQUEST_DELAYED_MS - (Date.now() - activeYoutubeRequest.createdAt);
+    const timer = window.setTimeout(() => {
+      setActiveYoutubeRequest((current) => {
+        if (!current || current.id !== activeYoutubeRequest.id || current.delayedNotified) {
+          return current;
+        }
+        showLandingAlert({
+          title: copy.youtubeReservationAlertTitle,
+          text: copy.youtubeReservationDelayed,
+          variant: "info",
+        });
+        return { ...current, delayedNotified: true };
+      });
+    }, Math.max(0, remaining));
+
+    return () => window.clearTimeout(timer);
+  }, [activeYoutubeRequest, copy.youtubeReservationAlertTitle, copy.youtubeReservationDelayed]);
+
   const prepareYoutubeReservation = (rawInput?: string) => {
     setError(null);
     setNotice(null);
@@ -947,7 +1221,7 @@ export default function LandingV2Page({
     const candidate = (rawInput ?? trimmedText).trim();
     const urlInfo = parseYoutubeUrl(candidate);
 
-    if (!candidate || !urlInfo.isYoutube) {
+    if (!candidate || !urlInfo.isYoutube || !urlInfo.videoId) {
       showLandingAlert({
         title: copy.youtubeUrlAlertTitle,
         text: copy.youtubeInvalidUrl,
@@ -1019,6 +1293,15 @@ export default function LandingV2Page({
 
       setShowYoutubeReservationDialog(false);
       setPendingYoutubeUrl("");
+      const reservationId =
+        typeof json?.reservation?.id === "string" ? json.reservation.id : "";
+      if (reservationId) {
+        setActiveYoutubeRequest({
+          id: reservationId,
+          createdAt: Date.now(),
+          delayedNotified: false,
+        });
+      }
       setText("");
       setSourceType("manual");
       setFileName(null);
@@ -1973,6 +2256,24 @@ export default function LandingV2Page({
                 </div>
               </div>
             ) : null}
+
+            {activeYoutubeRequest && !isGenerating ? (
+              <div className="mt-3 rounded-2xl bg-red-50 px-4 py-4 dark:bg-red-500/10">
+                <div className="flex items-center gap-3">
+                  <Icon icon="lucide:loader-circle" className="h-5 w-5 animate-spin text-red-600 dark:text-red-200" />
+                  <div className="min-w-0">
+                    <div className="text-sm font-black text-slate-900 dark:text-white">
+                      {copy.youtubeReservationQueued}
+                    </div>
+                    <div className="mt-1 text-sm leading-6 text-slate-500 dark:text-white/52">
+                      {activeYoutubeRequest.delayedNotified
+                        ? copy.youtubeReservationDelayed
+                        : copy.loadingSteps[loadingStep]}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <button
@@ -2567,7 +2868,14 @@ export default function LandingV2Page({
       />
       <Alert
         open={alertState.open}
-        onOpenChange={(open) => setAlertState((prev) => ({ ...prev, open }))}
+        onOpenChange={(open) => {
+          setAlertState((prev) => ({ ...prev, open }));
+          if (!open && pendingYoutubeMapOpen) {
+            const targetMapId = pendingYoutubeMapOpen.mapId;
+            setPendingYoutubeMapOpen(null);
+            router.push(`/${safeLocale}/maps/${targetMapId}`);
+          }
+        }}
         title={alertState.title}
         text={alertState.text}
         variant={alertState.variant}

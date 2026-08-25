@@ -313,7 +313,7 @@
       "greetingWithEmail": "Bonjour, {email}",
       "items": {
         "myMaps": "Mes cartes",
-        "youtubeReservations": "Réservations YouTube",
+        "youtubeReservations": "Demandes YouTube",
         "billing": "Recharger des crédits",
         "billingHistory": "Historique des paiements",
         "accountSettings": "Paramètres du compte",
@@ -347,10 +347,10 @@
     }
   },
   "YoutubeReservationsPage": {
-    "title": "Réservations YouTube",
-    "description": "Consultez l’état des demandes réservées avec des URL YouTube et relancez les demandes échouées.",
-    "empty": "Aucune réservation YouTube pour le moment.",
-    "loading": "Chargement des réservations.",
+    "title": "Demandes YouTube",
+    "description": "Consultez l’état des demandes envoyées avec des URL YouTube et relancez les demandes échouées.",
+    "empty": "Aucune demande YouTube pour le moment.",
+    "loading": "Chargement des demandes.",
     "refresh": "Actualiser",
     "retry": "Redemander",
     "retrying": "Demande...",
@@ -366,10 +366,10 @@
     "retryDone": "La nouvelle demande a été reçue.",
     "retryDoneTitle": "Nouvelle demande reçue",
     "retryFailedTitle": "Échec de la nouvelle demande",
-    "loadFailedTitle": "Impossible de charger les réservations",
+    "loadFailedTitle": "Impossible de charger les demandes",
     "confirm": "OK",
     "statuses": {
-      "requested": "Réservé",
+      "requested": "Demandé",
       "checking": "Vérification",
       "ready": "En vérification",
       "needs_credits": "Crédits requis",
@@ -1570,12 +1570,12 @@
       "message": "Votre remboursement a été traité. Son apparition sur votre relevé peut prendre un peu de temps."
     },
     "youtube_reservation_admin": {
-      "title": "Réservation YouTube reçue",
-      "message": "{email} a réservé une carte structurelle YouTube. Langue demandée : {outputLanguage}"
+      "title": "Demande de carte structurelle YouTube reçue",
+      "message": "{email} a demandé une carte structurelle YouTube. Langue demandée : {outputLanguage}"
     },
     "youtube_reservation_retry_admin": {
       "title": "Nouvelle demande YouTube",
-      "message": "Un utilisateur a redemandé le traitement d’une réservation YouTube."
+      "message": "Un utilisateur a redemandé le traitement d’une carte structurelle YouTube."
     },
     "ui": {
       "aria_label": "Notifications",

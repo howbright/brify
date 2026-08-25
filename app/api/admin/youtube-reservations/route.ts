@@ -153,7 +153,11 @@ export async function PATCH(request: Request) {
   }
 
   const processedAt =
-    status === "done" || status === "failed" || status === "cancelled"
+    status === "done" ||
+    status === "failed" ||
+    status === "cancelled" ||
+    status === "unsupported" ||
+    status === "needs_credits"
       ? new Date().toISOString()
       : null;
 

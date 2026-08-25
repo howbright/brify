@@ -59,7 +59,7 @@ export async function POST(request: Request) {
       : "auto";
   const urlInfo = parseYoutubeUrl(rawUrl);
 
-  if (!rawUrl || !urlInfo.isYoutube) {
+  if (!rawUrl || !urlInfo.isYoutube || !urlInfo.videoId) {
     return jsonError("INVALID_YOUTUBE_URL", 400);
   }
 

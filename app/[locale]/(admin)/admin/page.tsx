@@ -73,10 +73,10 @@ export default async function AdminHomePage({
         >
           <div className="text-sm font-semibold text-blue-700">ADMIN YOUTUBE</div>
           <h2 className="mt-2 text-xl font-extrabold tracking-tight text-neutral-950">
-            유튜브 예약 요청
+            YouTube 구조맵 요청
           </h2>
           <p className="mt-2 text-sm leading-6 text-neutral-600">
-            유튜브 URL 예약 목록과 요청자 이메일, 보유 크레딧, 수동 처리 상태를 확인해요.
+            YouTube URL 요청 목록과 요청자 이메일, 보유 크레딧, 수동 처리 상태를 확인해요.
           </p>
         </Link>
 
