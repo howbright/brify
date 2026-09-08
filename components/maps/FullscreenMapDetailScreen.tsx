@@ -1044,7 +1044,9 @@ export default function FullscreenMapDetailScreen({
   } | null>(null);
   const [sourceFindManualAnchor, setSourceFindManualAnchor] = useState("");
   const [adminRecoveryLoading, setAdminRecoveryLoading] = useState(false);
+  const [adminCompensationLoading, setAdminCompensationLoading] = useState(false);
   const [adminRecoveryEmailLoading, setAdminRecoveryEmailLoading] = useState(false);
+  const [adminRecoveryPreviewEmailLoading, setAdminRecoveryPreviewEmailLoading] = useState(false);
   const [adminRecoveryResult, setAdminRecoveryResult] = useState<string | null>(null);
   const sourceFindTrackedNodeIdRef = useRef<string | null>(null);
   const sourceFindInFlightRef = useRef(false);
@@ -1935,6 +1937,78 @@ export default function FullscreenMapDetailScreen({
       toast.error(message);
     } finally {
       setAdminRecoveryEmailLoading(false);
+    }
+  };
+
+  const handleAdminSendRecoveryPreviewEmail = async () => {
+    if (!isAdminView || adminRecoveryPreviewEmailLoading) return;
+    setAdminRecoveryPreviewEmailLoading(true);
+    setAdminRecoveryResult(null);
+    try {
+      const { accessToken, base } = await getAdminAccessToken();
+      const response = await fetch(
+        `${base}/admin/maps/${encodeURIComponent(mapId)}/send-recovery-preview-email`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ locale }),
+        }
+      );
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(json?.message || json?.error || "관리자 미리보기 메일 발송에 실패했어요.");
+      }
+
+      const message = `관리자 미리보기 메일 발송 완료 · ${json?.email ?? "관리자"}`;
+      setAdminRecoveryResult(message);
+      toast.success(message);
+    } catch (error) {
+      const message = getErrorMessage(error, "관리자 미리보기 메일 발송에 실패했어요.");
+      setAdminRecoveryResult(message);
+      toast.error(message);
+    } finally {
+      setAdminRecoveryPreviewEmailLoading(false);
+    }
+  };
+
+  const handleAdminCompensateFailure = async () => {
+    if (!isAdminView || adminCompensationLoading) return;
+    setAdminCompensationLoading(true);
+    setAdminRecoveryResult(null);
+    try {
+      const { accessToken, base } = await getAdminAccessToken();
+      const response = await fetch(
+        `${base}/admin/maps/${encodeURIComponent(mapId)}/compensate-failure`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ compensationCredits: 50 }),
+        }
+      );
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(json?.message || json?.error || "보상 지급에 실패했어요.");
+      }
+
+      const compensated = Number(json?.compensationCredits ?? 0);
+      const alreadyGranted = Boolean(json?.compensationAlreadyGranted);
+      const message = alreadyGranted
+        ? `이미 보상 지급됨 · ${compensated}cr`
+        : `보상 지급 완료 · ${compensated}cr`;
+      setAdminRecoveryResult(message);
+      toast.success(message);
+    } catch (error) {
+      const message = getErrorMessage(error, "보상 지급에 실패했어요.");
+      setAdminRecoveryResult(message);
+      toast.error(message);
+    } finally {
+      setAdminCompensationLoading(false);
     }
   };
 
@@ -4634,8 +4708,13 @@ export default function FullscreenMapDetailScreen({
               <button
                 type="button"
                 onClick={handleAdminRecoverFailure}
-                disabled={adminRecoveryLoading || adminRecoveryEmailLoading}
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 font-black text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-55 dark:border-blue-300/20 dark:bg-blue-400/10 dark:text-blue-200 dark:hover:bg-blue-400/15"
+                disabled={
+                  adminRecoveryLoading ||
+                  adminCompensationLoading ||
+                  adminRecoveryEmailLoading ||
+                  adminRecoveryPreviewEmailLoading
+                }
+                className="inline-flex items-center justify-center gap-1 rounded-xl border border-blue-200 bg-blue-50 px-2 py-2 font-black text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-55 dark:border-blue-300/20 dark:bg-blue-400/10 dark:text-blue-200 dark:hover:bg-blue-400/15"
               >
                 <Icon
                   icon={adminRecoveryLoading ? "mdi:loading" : "mdi:backup-restore"}
@@ -4645,15 +4724,54 @@ export default function FullscreenMapDetailScreen({
               </button>
               <button
                 type="button"
+                onClick={handleAdminCompensateFailure}
+                disabled={
+                  adminRecoveryLoading ||
+                  adminCompensationLoading ||
+                  adminRecoveryEmailLoading ||
+                  adminRecoveryPreviewEmailLoading
+                }
+                className="inline-flex items-center justify-center gap-1 rounded-xl border border-amber-200 bg-amber-50 px-2 py-2 font-black text-amber-700 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-55 dark:border-amber-300/20 dark:bg-amber-400/10 dark:text-amber-200 dark:hover:bg-amber-400/15"
+              >
+                <Icon
+                  icon={adminCompensationLoading ? "mdi:loading" : "mdi:gift-outline"}
+                  className={`h-4 w-4 ${adminCompensationLoading ? "animate-spin" : ""}`}
+                />
+                50cr 보상
+              </button>
+              <button
+                type="button"
                 onClick={handleAdminSendRecoveryEmail}
-                disabled={adminRecoveryLoading || adminRecoveryEmailLoading}
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 font-black text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-55 dark:border-emerald-300/20 dark:bg-emerald-400/10 dark:text-emerald-200 dark:hover:bg-emerald-400/15"
+                disabled={
+                  adminRecoveryLoading ||
+                  adminCompensationLoading ||
+                  adminRecoveryEmailLoading ||
+                  adminRecoveryPreviewEmailLoading
+                }
+                className="inline-flex items-center justify-center gap-1 rounded-xl border border-emerald-200 bg-emerald-50 px-2 py-2 font-black text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-55 dark:border-emerald-300/20 dark:bg-emerald-400/10 dark:text-emerald-200 dark:hover:bg-emerald-400/15"
               >
                 <Icon
                   icon={adminRecoveryEmailLoading ? "mdi:loading" : "mdi:email-check-outline"}
                   className={`h-4 w-4 ${adminRecoveryEmailLoading ? "animate-spin" : ""}`}
                 />
                 완료 메일
+              </button>
+              <button
+                type="button"
+                onClick={handleAdminSendRecoveryPreviewEmail}
+                disabled={
+                  adminRecoveryLoading ||
+                  adminCompensationLoading ||
+                  adminRecoveryEmailLoading ||
+                  adminRecoveryPreviewEmailLoading
+                }
+                className="inline-flex items-center justify-center gap-1 rounded-xl border border-violet-200 bg-violet-50 px-2 py-2 font-black text-violet-700 transition hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-55 dark:border-violet-300/20 dark:bg-violet-400/10 dark:text-violet-200 dark:hover:bg-violet-400/15"
+              >
+                <Icon
+                  icon={adminRecoveryPreviewEmailLoading ? "mdi:loading" : "mdi:email-eye-outline"}
+                  className={`h-4 w-4 ${adminRecoveryPreviewEmailLoading ? "animate-spin" : ""}`}
+                />
+                내게 미리보기
               </button>
             </div>
             {adminRecoveryResult ? (
@@ -4662,7 +4780,7 @@ export default function FullscreenMapDetailScreen({
               </div>
             ) : (
               <div className="mt-2 leading-5 text-slate-500 dark:text-white/55">
-                먼저 복구를 눌러 무료 재생성하고, 맵 확인 후 완료 메일을 보내세요.
+                자동복구된 맵은 보상만 지급하고, 맵 확인 후 완료 메일을 보내세요.
               </div>
             )}
           </div>
