@@ -1043,6 +1043,9 @@ export default function FullscreenMapDetailScreen({
     anchorKeywords: string[];
   } | null>(null);
   const [sourceFindManualAnchor, setSourceFindManualAnchor] = useState("");
+  const [adminRecoveryLoading, setAdminRecoveryLoading] = useState(false);
+  const [adminRecoveryEmailLoading, setAdminRecoveryEmailLoading] = useState(false);
+  const [adminRecoveryResult, setAdminRecoveryResult] = useState<string | null>(null);
   const sourceFindTrackedNodeIdRef = useRef<string | null>(null);
   const sourceFindInFlightRef = useRef(false);
   const mapStateTouchedRef = useRef<string | null>(null);
@@ -1833,6 +1836,105 @@ export default function FullscreenMapDetailScreen({
     }
     if (options?.persistViewState && mapId) {
       persistMapViewState(mapId, snapshot);
+    }
+  };
+
+  const getAdminAccessToken = async () => {
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
+
+    if (sessionError) throw sessionError;
+    const accessToken = session?.access_token;
+    if (!accessToken) {
+      throw new Error("관리자 세션을 찾지 못했어요. 다시 로그인해 주세요.");
+    }
+
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!base) {
+      throw new Error("NEXT_PUBLIC_API_BASE_URL is not configured.");
+    }
+
+    return { accessToken, base };
+  };
+
+  const handleAdminRecoverFailure = async () => {
+    if (!isAdminView || adminRecoveryLoading) return;
+    setAdminRecoveryLoading(true);
+    setAdminRecoveryResult(null);
+    try {
+      const { accessToken, base } = await getAdminAccessToken();
+      const response = await fetch(
+        `${base}/admin/maps/${encodeURIComponent(mapId)}/recover-failure`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ compensationCredits: 50 }),
+        }
+      );
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(json?.message || json?.error || "복구 처리에 실패했어요.");
+      }
+
+      const refunded = Number(json?.refundedCredits ?? 0);
+      const compensated = Number(json?.compensationCredits ?? 0);
+      const message = `복구 큐 등록 완료 · 환불 ${refunded}cr · 보상 ${compensated}cr`;
+      setAdminRecoveryResult(message);
+      toast.success(message);
+      setDraft((prev) =>
+        prev
+          ? {
+              ...prev,
+              status: "queued",
+              structurePhase: "outline",
+            }
+          : prev
+      );
+    } catch (error) {
+      const message = getErrorMessage(error, "복구 처리에 실패했어요.");
+      setAdminRecoveryResult(message);
+      toast.error(message);
+    } finally {
+      setAdminRecoveryLoading(false);
+    }
+  };
+
+  const handleAdminSendRecoveryEmail = async () => {
+    if (!isAdminView || adminRecoveryEmailLoading) return;
+    setAdminRecoveryEmailLoading(true);
+    setAdminRecoveryResult(null);
+    try {
+      const { accessToken, base } = await getAdminAccessToken();
+      const response = await fetch(
+        `${base}/admin/maps/${encodeURIComponent(mapId)}/send-recovery-email`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ locale }),
+        }
+      );
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(json?.message || json?.error || "안내 메일 발송에 실패했어요.");
+      }
+
+      const message = `복구 안내 메일 발송 완료 · ${json?.email ?? "사용자"}`;
+      setAdminRecoveryResult(message);
+      toast.success(message);
+    } catch (error) {
+      const message = getErrorMessage(error, "안내 메일 발송에 실패했어요.");
+      setAdminRecoveryResult(message);
+      toast.error(message);
+    } finally {
+      setAdminRecoveryEmailLoading(false);
     }
   };
 
@@ -4516,6 +4618,55 @@ export default function FullscreenMapDetailScreen({
             </span>
           </div>
         )}
+
+        {isAdminView ? (
+          <div className="absolute right-4 top-3 z-[24] w-[min(360px,calc(100%-2rem))] rounded-2xl border border-slate-200/85 bg-white/92 p-3 text-xs shadow-[0_18px_55px_-35px_rgba(15,23,42,0.5)] backdrop-blur-xl dark:border-white/12 dark:bg-[#0f172a]/92">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <span className="inline-flex min-w-0 items-center gap-1.5 font-black text-slate-800 dark:text-white">
+                <Icon icon="mdi:lifebuoy" className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-300" />
+                <span className="truncate">관리자 복구</span>
+              </span>
+              <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 font-bold text-slate-500 dark:bg-white/10 dark:text-white/60">
+                {draft?.status ?? "unknown"}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={handleAdminRecoverFailure}
+                disabled={adminRecoveryLoading || adminRecoveryEmailLoading}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 font-black text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-55 dark:border-blue-300/20 dark:bg-blue-400/10 dark:text-blue-200 dark:hover:bg-blue-400/15"
+              >
+                <Icon
+                  icon={adminRecoveryLoading ? "mdi:loading" : "mdi:backup-restore"}
+                  className={`h-4 w-4 ${adminRecoveryLoading ? "animate-spin" : ""}`}
+                />
+                복구+50cr
+              </button>
+              <button
+                type="button"
+                onClick={handleAdminSendRecoveryEmail}
+                disabled={adminRecoveryLoading || adminRecoveryEmailLoading}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 font-black text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-55 dark:border-emerald-300/20 dark:bg-emerald-400/10 dark:text-emerald-200 dark:hover:bg-emerald-400/15"
+              >
+                <Icon
+                  icon={adminRecoveryEmailLoading ? "mdi:loading" : "mdi:email-check-outline"}
+                  className={`h-4 w-4 ${adminRecoveryEmailLoading ? "animate-spin" : ""}`}
+                />
+                완료 메일
+              </button>
+            </div>
+            {adminRecoveryResult ? (
+              <div className="mt-2 rounded-xl bg-slate-50 px-3 py-2 font-semibold leading-5 text-slate-600 dark:bg-white/8 dark:text-white/70">
+                {adminRecoveryResult}
+              </div>
+            ) : (
+              <div className="mt-2 leading-5 text-slate-500 dark:text-white/55">
+                먼저 복구를 눌러 무료 재생성하고, 맵 확인 후 완료 메일을 보내세요.
+              </div>
+            )}
+          </div>
+        ) : null}
 
         {showMapProcessingBadge ? (
           <div className="pointer-events-none absolute left-1/2 top-4 z-[18] w-[min(320px,calc(100%-2rem))] -translate-x-1/2">

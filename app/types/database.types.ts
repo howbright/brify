@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      bible_college_content: {
+        Row: {
+          address: string
+          calendar_events: Json
+          created_at: string
+          curriculum: Json
+          id: string
+          inquiry_email: string
+          instructors: Json
+          introduction: string
+          notices: Json
+          semester_name: string
+          student_photo_alt: string | null
+          student_photo_caption: string | null
+          student_photo_path: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string
+          calendar_events?: Json
+          created_at?: string
+          curriculum?: Json
+          id?: string
+          inquiry_email?: string
+          instructors?: Json
+          introduction?: string
+          notices?: Json
+          semester_name?: string
+          student_photo_alt?: string | null
+          student_photo_caption?: string | null
+          student_photo_path?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          calendar_events?: Json
+          created_at?: string
+          curriculum?: Json
+          id?: string
+          inquiry_email?: string
+          instructors?: Json
+          introduction?: string
+          notices?: Json
+          semester_name?: string
+          student_photo_alt?: string | null
+          student_photo_caption?: string | null
+          student_photo_path?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author_id: string | null
@@ -1054,6 +1105,79 @@ export type Database = {
           recent_total?: number
         }
         Relationships: []
+      }
+      map_recovery_notices: {
+        Row: {
+          admin_user_id: string | null
+          compensation_credits: number
+          created_at: string
+          email: string
+          error_message: string | null
+          id: string
+          locale: string | null
+          map_id: string
+          map_url: string
+          refunded_credits: number
+          sent_at: string | null
+          status: Database["public"]["Enums"]["map_recovery_notice_status"]
+          subject: string
+          user_id: string
+        }
+        Insert: {
+          admin_user_id?: string | null
+          compensation_credits?: number
+          created_at?: string
+          email: string
+          error_message?: string | null
+          id?: string
+          locale?: string | null
+          map_id: string
+          map_url: string
+          refunded_credits?: number
+          sent_at?: string | null
+          status: Database["public"]["Enums"]["map_recovery_notice_status"]
+          subject: string
+          user_id: string
+        }
+        Update: {
+          admin_user_id?: string | null
+          compensation_credits?: number
+          created_at?: string
+          email?: string
+          error_message?: string | null
+          id?: string
+          locale?: string | null
+          map_id?: string
+          map_url?: string
+          refunded_credits?: number
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["map_recovery_notice_status"]
+          subject?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "map_recovery_notices_admin_user_id_fkey"
+            columns: ["admin_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "map_recovery_notices_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "map_recovery_notices_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       map_term_requests: {
         Row: {
@@ -2128,6 +2252,7 @@ export type Database = {
       weekly_bulletins: {
         Row: {
           column_content: string
+          column_content_rich: Json | null
           created_at: string
           id: string
           message_title: string
@@ -2141,6 +2266,7 @@ export type Database = {
         }
         Insert: {
           column_content: string
+          column_content_rich?: Json | null
           created_at?: string
           id?: string
           message_title: string
@@ -2154,6 +2280,7 @@ export type Database = {
         }
         Update: {
           column_content?: string
+          column_content_rich?: Json | null
           created_at?: string
           id?: string
           message_title?: string
@@ -2169,6 +2296,8 @@ export type Database = {
       }
       youtube_reservations: {
         Row: {
+          admin_alert_acknowledged_at: string | null
+          admin_alert_acknowledged_by: string | null
           admin_failure_email_error: string | null
           admin_failure_email_sent_at: string | null
           admin_notes: string | null
@@ -2198,6 +2327,8 @@ export type Database = {
           video_id: string | null
         }
         Insert: {
+          admin_alert_acknowledged_at?: string | null
+          admin_alert_acknowledged_by?: string | null
           admin_failure_email_error?: string | null
           admin_failure_email_sent_at?: string | null
           admin_notes?: string | null
@@ -2227,6 +2358,8 @@ export type Database = {
           video_id?: string | null
         }
         Update: {
+          admin_alert_acknowledged_at?: string | null
+          admin_alert_acknowledged_by?: string | null
           admin_failure_email_error?: string | null
           admin_failure_email_sent_at?: string | null
           admin_notes?: string | null
@@ -2400,6 +2533,7 @@ export type Database = {
       map_node_expansion_status: "queued" | "processing" | "done" | "failed"
       map_open_access_mode: "owner" | "shared" | "admin"
       map_read_status: "unread" | "in_progress" | "read"
+      map_recovery_notice_status: "sent" | "failed"
       map_source_type: "youtube" | "website" | "file" | "manual"
       map_status:
         | "queued"
@@ -2487,12 +2621,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2516,11 +2650,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2541,11 +2675,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2566,11 +2700,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2583,11 +2717,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2662,6 +2796,7 @@ export const Constants = {
       map_node_expansion_status: ["queued", "processing", "done", "failed"],
       map_open_access_mode: ["owner", "shared", "admin"],
       map_read_status: ["unread", "in_progress", "read"],
+      map_recovery_notice_status: ["sent", "failed"],
       map_source_type: ["youtube", "website", "file", "manual"],
       map_status: [
         "queued",
