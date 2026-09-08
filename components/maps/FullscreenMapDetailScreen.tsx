@@ -451,6 +451,7 @@ function isActiveMapStatus(status?: MapJobStatus | null) {
   return (
     status === "idle" ||
     status === "queued" ||
+    status === "retrying" ||
     status === "processing_structure" ||
     status === "processing_metadata"
   );
@@ -460,6 +461,7 @@ function isStructureProcessingStatus(status?: MapJobStatus | null) {
   return (
     status === "idle" ||
     status === "queued" ||
+    status === "retrying" ||
     status === "processing_structure"
   );
 }
