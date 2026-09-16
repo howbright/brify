@@ -1117,7 +1117,8 @@ export default function FullscreenMapDetailScreen({
     if (!mapId) return;
 
     let cancelled = false;
-    const storedViewState = getStoredMapViewState(mapId);
+    const storedViewState =
+      isAdminView || isSharedView ? null : getStoredMapViewState(mapId);
     const hasStoredViewState = Boolean(storedViewState);
     if (storedViewState) {
       setMapData(storedViewState);

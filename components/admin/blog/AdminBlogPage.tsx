@@ -9,6 +9,8 @@ import { createClient } from "@/utils/supabase/client";
 
 type BlogLocale = "ko" | "en" | "fr";
 type BlogStatus = "draft" | "published";
+type DraftTarget = "general" | "research" | "youtube" | "lecture" | "sermon" | "report";
+type DraftTone = "practical" | "founder" | "seo" | "community";
 
 type BlogPostAdmin = {
   id: string;
@@ -230,6 +232,8 @@ export default function AdminBlogPage() {
   const [generatingDraft, setGeneratingDraft] = useState(false);
   const [draftIdea, setDraftIdea] = useState("");
   const [draftSlugHint, setDraftSlugHint] = useState("");
+  const [draftTarget, setDraftTarget] = useState<DraftTarget>("general");
+  const [draftTone, setDraftTone] = useState<DraftTone>("practical");
   const [translationResults, setTranslationResults] = useState<BlogTranslationResponse["results"]>([]);
   const [lastUploadedImageUrl, setLastUploadedImageUrl] = useState("");
   const [localeFilter, setLocaleFilter] = useState<"all" | BlogLocale>("all");
@@ -470,7 +474,12 @@ export default function AdminBlogPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ idea, slugHint }),
+        body: JSON.stringify({
+          idea,
+          slugHint,
+          target: draftTarget,
+          tone: draftTone,
+        }),
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -497,6 +506,8 @@ export default function AdminBlogPage() {
       setLocaleFilter("ko");
       setDraftIdea("");
       setDraftSlugHint("");
+      setDraftTarget("general");
+      setDraftTone("practical");
       toast.success("한국어 블로그 초안을 기본 이미지와 함께 draft로 저장했어요.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "한국어 초안 생성에 실패했어요.");
@@ -622,7 +633,7 @@ export default function AdminBlogPage() {
               {generatingDraft ? "초안 생성 중" : "초안 생성"}
             </button>
           </div>
-          <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
+          <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px_220px_260px]">
             <label className="flex flex-col gap-1 text-sm font-bold">
               블로그 아이디어
               <textarea
@@ -630,8 +641,42 @@ export default function AdminBlogPage() {
                 onChange={(event) => setDraftIdea(event.target.value)}
                 rows={5}
                 className="rounded-xl border border-slate-300 px-3 py-2 font-medium leading-6"
-                placeholder={"예: 논문을 많이 읽는 연구자에게 요약보다 구조맵이 필요한 이유. NotebookLM 마인드맵과의 차이, 원문찾기의 중요성, Brify가 전문 문서를 다루는 방식까지 자연스럽게 설명해줘."}
+                placeholder={"예: 긴 유튜브 강의를 그냥 요약하는 대신, 상세정보를 포함한 마인드맵으로 바꿔 공부하면 좋은 이유. 원문찾기, 편집, 공유까지 자연스럽게 설명해줘."}
               />
+            </label>
+            <label className="flex flex-col gap-1 text-sm font-bold">
+              타깃
+              <select
+                value={draftTarget}
+                onChange={(event) => setDraftTarget(event.target.value as DraftTarget)}
+                className="rounded-xl border border-slate-300 px-3 py-2 font-medium"
+              >
+                <option value="general">긴 글 독자 전반</option>
+                <option value="research">논문/연구자</option>
+                <option value="youtube">유튜브 강의/강연</option>
+                <option value="lecture">강의 노트/학습 자료</option>
+                <option value="sermon">설교/강의 원고</option>
+                <option value="report">보고서/전문 문서</option>
+              </select>
+              <span className="text-xs font-medium leading-5 text-slate-500">
+                같은 기능도 독자에 따라 예시와 검색어가 달라집니다.
+              </span>
+            </label>
+            <label className="flex flex-col gap-1 text-sm font-bold">
+              문체
+              <select
+                value={draftTone}
+                onChange={(event) => setDraftTone(event.target.value as DraftTone)}
+                className="rounded-xl border border-slate-300 px-3 py-2 font-medium"
+              >
+                <option value="practical">실용적인 제품 블로그</option>
+                <option value="founder">창업자 목소리</option>
+                <option value="seo">검색 친화형</option>
+                <option value="community">커뮤니티 공유형</option>
+              </select>
+              <span className="text-xs font-medium leading-5 text-slate-500">
+                자동 게시용이 아니라, 사람이 다듬기 좋은 초안을 만듭니다.
+              </span>
             </label>
             <label className="flex flex-col gap-1 text-sm font-bold">
               Slug 힌트
