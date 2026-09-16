@@ -2,7 +2,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,11 +22,15 @@ type SupportTicketFormValues = {
   message: string;
   email?: string | null;
   needs_reply?: boolean;
-  meta?: Record<string, any> | null;
+  meta?: Record<string, unknown> | null;
 };
 
 export default function SupportPage() {
   const t = useTranslations("Support");
+  const searchParams = useSearchParams();
+  const rewardIntent = searchParams.get("intent") === "bug-reward";
+  const sourcePath = searchParams.get("from") ?? "";
+  const didPrefillReward = useRef(false);
 
   const [status, setStatus] = useState<"idle" | "success" | "warn" | "error">(
     "idle"
@@ -48,7 +53,7 @@ export default function SupportPage() {
           ])
           .optional(),
         needs_reply: z.boolean().optional(),
-        meta: z.record(z.string(), z.any()).nullable().optional(),
+        meta: z.record(z.string(), z.unknown()).nullable().optional(),
       }),
     [t]
   );
@@ -85,6 +90,30 @@ export default function SupportPage() {
 
   const category = watch("category");
   const needsReply = watch("needs_reply");
+
+  useEffect(() => {
+    if (!rewardIntent || didPrefillReward.current) return;
+    didPrefillReward.current = true;
+
+    setValue("category", "bug", { shouldDirty: true });
+    setValue("title", t("reward.prefillTitle"), { shouldDirty: true });
+    setValue(
+      "message",
+      t("reward.prefillMessage", {
+        url: sourcePath || "-",
+      }),
+      { shouldDirty: true }
+    );
+    setValue(
+      "meta",
+      {
+        source: "feedback_reward_fab",
+        rewardCredits: 10,
+        sourcePath: sourcePath || null,
+      },
+      { shouldDirty: true }
+    );
+  }, [rewardIntent, setValue, sourcePath, t]);
 
   async function onSubmit(values: SupportTicketFormValues) {
     setStatus("idle");
@@ -176,6 +205,15 @@ export default function SupportPage() {
             <p className="mt-1 text-xs text-muted-foreground dark:text-white/60 sm:text-sm">
               {t("form.subtitle")}
             </p>
+
+            {rewardIntent ? (
+              <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold leading-6 text-red-800 dark:border-red-300/25 dark:bg-red-500/12 dark:text-red-100">
+                <div className="font-black">{t("reward.title")}</div>
+                <div className="mt-1 text-red-700 dark:text-red-100/80">
+                  {t("reward.description")}
+                </div>
+              </div>
+            ) : null}
 
             <form
               className="mt-4 flex flex-col gap-4"

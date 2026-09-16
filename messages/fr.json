@@ -1490,9 +1490,20 @@
     },
     "close": "Fermer"
   },
+  "FeedbackRewardFab": {
+    "aria": "Signaler un problème ou un résultat étrange",
+    "title": "Un problème ?",
+    "reward": "10 crédits après vérification"
+  },
   "Support": {
     "badge": "Support / Retour",
     "title": "Envoyer un message à Brify",
+    "reward": {
+      "title": "Un problème ?",
+      "description": "Signalez un bug ou un résultat étrange et, pendant la bêta, nous ajouterons 10 crédits après vérification.",
+      "prefillTitle": "Signalement de bug ou de résultat étrange",
+      "prefillMessage": "Page concernée : {url}\n\nQu’est-ce qui semblait incorrect ?\n\nSi possible, indiquez les étapes pour reproduire le problème et le résultat attendu."
+    },
     "form": {
       "title": "Rédigez votre demande",
       "subtitle": "Plus vous donnez de détails, plus l’aide sera rapide et précise.",
@@ -1556,6 +1567,10 @@
     "signup_reward": {
       "title": "Bonus d’inscription accordé",
       "message": "{credits} crédits ont été ajoutés en bonus d’inscription."
+    },
+    "admin_gift_credits": {
+      "title": "Crédits offerts reçus",
+      "message": "Un administrateur vous a accordé {credits} crédits gratuits."
     },
     "payment_completed": {
       "title": "Paiement confirmé",

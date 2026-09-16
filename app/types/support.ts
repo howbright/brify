@@ -23,7 +23,7 @@ export type SupportTicketCreateBody = {
   message: string;
   email?: string | null;
   needs_reply?: boolean; // default true
-  meta?: Record<string, any> | null;
+  meta?: Record<string, unknown> | null;
 };
 
 // ✅ Next.js -> brify-backend 로 보낼 payload (ticket_id만)

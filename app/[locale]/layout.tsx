@@ -15,6 +15,7 @@ import { createClient } from "@/utils/supabase/server";
 import AuthRscRefresher from "@/components/AuthRscRefresher";
 import ThemeProvider from "@/components/ThemeProvider";
 import GlobalNotificationStack from "@/components/notifications/GlobalNotificationStack";
+import FeedbackRewardFab from "@/components/FeedbackRewardFab";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -228,6 +229,7 @@ export default async function RootLayout({
               dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
             />
             <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+            <FeedbackRewardFab />
             <GlobalNotificationStack />
           </NextIntlClientProvider>
           <Toaster

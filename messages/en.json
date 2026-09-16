@@ -1508,9 +1508,20 @@
     "title": "Welcome to Brify 🎉",
     "cta": "Get started"
   },
+  "FeedbackRewardFab": {
+    "aria": "Report a problem or strange result",
+    "title": "Found a problem?",
+    "reward": "10 credits after review"
+  },
   "Support": {
     "badge": "Support / Feedback",
     "title": "Send a note to Brify",
+    "reward": {
+      "title": "Found a problem?",
+      "description": "Report a bug or strange result and, during beta, we’ll add 10 credits after review.",
+      "prefillTitle": "Bug or strange result report",
+      "prefillMessage": "Page where it happened: {url}\n\nWhat looked wrong?\n\nIf possible, include steps to reproduce and what you expected."
+    },
     "form": {
       "title": "Write your message",
       "subtitle": "The more details you provide, the faster and more accurately we can help.",

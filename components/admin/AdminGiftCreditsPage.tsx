@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, CheckCircle2, Gift, LoaderCircle } from "lucide-react";
 import { toast } from "sonner";
 
@@ -64,17 +64,37 @@ function formatDateTime(value: string | null) {
 
 export default function AdminGiftCreditsPage() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const didApplyPrefill = useRef(false);
   const [searchText, setSearchText] = useState("");
   const [selectedUser, setSelectedUser] = useState<AdminUserSearchItem | null>(null);
   const [searchResults, setSearchResults] = useState<AdminUserSearchItem[]>([]);
   const [searching, setSearching] = useState(false);
   const [credits, setCredits] = useState("10");
   const [memo, setMemo] = useState("");
+  const [sourceTicketId, setSourceTicketId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [result, setResult] = useState<GiftCreditsResponse | null>(null);
 
   const parsedCredits = useMemo(() => Number(credits), [credits]);
+
+  useEffect(() => {
+    if (didApplyPrefill.current) return;
+    didApplyPrefill.current = true;
+
+    const email = searchParams.get("email")?.trim();
+    const prefillCredits = searchParams.get("credits")?.trim();
+    const prefillMemo = searchParams.get("memo")?.trim();
+    const ticketId = searchParams.get("ticketId")?.trim();
+
+    if (email) setSearchText(email);
+    if (prefillCredits && Number.isFinite(Number(prefillCredits))) {
+      setCredits(prefillCredits);
+    }
+    if (prefillMemo) setMemo(prefillMemo);
+    if (ticketId) setSourceTicketId(ticketId);
+  }, [searchParams]);
 
   useEffect(() => {
     const normalizedSearch = searchText.trim().toLowerCase();
@@ -200,6 +220,18 @@ export default function AdminGiftCreditsPage() {
       const data = (await response.json()) as GiftCreditsResponse;
       setResult(data);
       toast.success(`${data.email} 에게 ${data.grantedCredits} free credits를 지급했어요.`);
+
+      if (sourceTicketId) {
+        const resolveResponse = await fetch(
+          `/api/admin/support-tickets/${encodeURIComponent(sourceTicketId)}/resolve`,
+          { method: "POST" }
+        );
+        if (resolveResponse.ok) {
+          toast.success(`문의 티켓 #${sourceTicketId} 상태를 resolved로 변경했어요.`);
+        } else {
+          toast.error(`크레딧은 지급됐지만 문의 티켓 #${sourceTicketId} 상태 변경은 실패했어요.`);
+        }
+      }
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "크레딧 선물 지급 중 오류가 발생했어요.";

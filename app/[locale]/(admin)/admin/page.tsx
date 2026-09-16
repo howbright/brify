@@ -120,6 +120,19 @@ export default async function AdminHomePage({
         </Link>
 
         <Link
+          href={`/${locale}/admin/support`}
+          className="rounded-3xl border border-red-200 bg-red-50 p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+        >
+          <div className="text-sm font-semibold text-red-700">ADMIN SUPPORT</div>
+          <h2 className="mt-2 text-xl font-extrabold tracking-tight text-red-950">
+            문의/버그 제보
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-red-900/70">
+            10크레딧 제보 문의를 확인하고, 유효한 제보를 크레딧 지급 화면으로 연결해요.
+          </p>
+        </Link>
+
+        <Link
           href={`/${locale}/admin/users/maps`}
           className="rounded-3xl border border-slate-300 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
         >
