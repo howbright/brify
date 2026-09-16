@@ -4755,7 +4755,7 @@ export default function FullscreenMapDetailScreen({
                   icon={adminRecoveryEmailLoading ? "mdi:loading" : "mdi:email-check-outline"}
                   className={`h-4 w-4 ${adminRecoveryEmailLoading ? "animate-spin" : ""}`}
                 />
-                완료 메일
+                복구 메일
               </button>
               <button
                 type="button"

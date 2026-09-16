@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireBlogAdmin } from "@/app/api/admin/blog/_auth";
+import { adminSupabase } from "@/utils/supabase/admin";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -54,5 +55,27 @@ export async function POST(
   );
 
   const json = await response.json().catch(() => ({}));
+  if (!response.ok || json?.ok === false) {
+    return NextResponse.json(json, { status: response.status });
+  }
+
+  const now = new Date().toISOString();
+  const { error: updateError } = await adminSupabase
+    .from("youtube_reservations")
+    .update({
+      status: "done",
+      status_reason: "구조맵 완료 이메일을 사용자에게 발송했습니다.",
+      user_email_sent_at: now,
+      user_email_error: null,
+      processed_at: now,
+      updated_at: now,
+    })
+    .eq("id", reservationId);
+
+  if (updateError) {
+    console.error("[admin/youtube-reservations/send-complete-email] update failed", updateError);
+    return NextResponse.json({ ...json, error: "reservation_update_failed" }, { status: 500 });
+  }
+
   return NextResponse.json(json, { status: response.status });
 }

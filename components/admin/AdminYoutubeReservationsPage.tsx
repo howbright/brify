@@ -370,8 +370,9 @@ export default function AdminYoutubeReservationsPage({
   const requesterEmail = selected?.requester_email ?? selected?.requester?.email ?? "";
   const canSendCompleteEmail =
     Boolean(selected?.result_map_id) &&
-    selected?.status === "ready" &&
-    !selected?.user_email_sent_at;
+    (selected?.status === "ready" || selected?.status === "done");
+  const completeEmailButtonLabel =
+    selected?.status === "done" ? "완료 이메일 다시 보내기" : "완료 이메일 보내기";
   const generateButtonLabel =
     selected?.status === "failed" ||
     selected?.status === "needs_credits" ||
@@ -708,12 +709,12 @@ export default function AdminYoutubeReservationsPage({
                     !requesterEmail
                       ? "요청자 이메일이 없어 보낼 수 없습니다."
                       : canSendCompleteEmail
-                        ? "관리자가 결과를 확인한 뒤 사용자에게 완료 이메일을 보냅니다."
-                        : "구조맵이 메일 발송 대기 상태일 때만 보낼 수 있습니다."
+                        ? "요청자에게 구조맵 완료 안내 이메일을 보냅니다. 완료된 예약에도 재발송할 수 있습니다."
+                        : "결과 구조맵이 있고 메일 발송 대기 또는 완료 상태일 때 보낼 수 있습니다."
                   }
                 >
                   <Icon icon={sendingCompleteEmail ? "lucide:loader-circle" : "lucide:mail-check"} className={sendingCompleteEmail ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
-                  완료 이메일 보내기
+                  {completeEmailButtonLabel}
                 </button>
                 <button
                   type="button"
