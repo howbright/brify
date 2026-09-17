@@ -109,6 +109,15 @@ type MindElixirNode = {
   topic?: string;
   root?: boolean;
   expanded?: boolean;
+  highlight?: { variant?: string } | null;
+  note?: string | null;
+  image?: {
+    url?: string;
+    width?: number;
+    height?: number;
+    fit?: "fill" | "contain" | "cover";
+  } | null;
+  dangerouslySetInnerHTML?: string | null;
   children?: MindElixirNode[];
   meta?: Record<string, unknown>;
 };
@@ -265,18 +274,71 @@ function countMindDescendants(data: MapRow["mind_elixir"] | null) {
   return count;
 }
 
+function mergeMindUserAnnotations(
+  mind: MapRow["mind_elixir"],
+  draftMind: MapRow["mind_elixir"]
+) {
+  const merged = cloneMindElixirData(mind);
+  const mergedRoot = getMindElixirRoot(merged);
+  const draftRoot = getMindElixirRoot(draftMind);
+  if (!merged || !mergedRoot || !draftRoot) return draftMind;
+
+  const draftNodes = new Map<string, MindElixirNode>();
+  const draftStack = [draftRoot];
+  while (draftStack.length > 0) {
+    const node = draftStack.pop();
+    if (!node) continue;
+    const id = normalizeMindNodeId(String(node.id ?? ""));
+    if (id) draftNodes.set(id, node);
+    if (Array.isArray(node.children)) draftStack.push(...node.children);
+  }
+
+  const mergedStack = [mergedRoot];
+  while (mergedStack.length > 0) {
+    const node = mergedStack.pop();
+    if (!node) continue;
+    const id = normalizeMindNodeId(String(node.id ?? ""));
+    const draftNode = id ? draftNodes.get(id) : undefined;
+    if (draftNode) {
+      node.expanded = draftNode.expanded;
+      if (draftNode.highlight?.variant) node.highlight = draftNode.highlight;
+      if (typeof draftNode.note === "string" && draftNode.note.trim()) {
+        node.note = draftNode.note;
+      }
+      if (draftNode.image?.url) node.image = draftNode.image;
+      if (draftNode.dangerouslySetInnerHTML) {
+        node.topic = draftNode.topic;
+        node.dangerouslySetInnerHTML = draftNode.dangerouslySetInnerHTML;
+      }
+    }
+    if (Array.isArray(node.children)) mergedStack.push(...node.children);
+  }
+
+  return merged;
+}
+
 function chooseDisplayMind(
   draftMind: MapRow["mind_elixir"] | null,
   mind: MapRow["mind_elixir"] | null,
   storedViewState?: MapRow["mind_elixir"] | null
 ) {
-  if (storedViewState) return storedViewState;
-  if (!draftMind) return mind;
-  if (!mind) return draftMind;
+  let displayMind: MapRow["mind_elixir"] | null;
+  if (!draftMind) {
+    displayMind = mind;
+  } else if (!mind) {
+    displayMind = draftMind;
+  } else {
+    const draftDescendants = countMindDescendants(draftMind);
+    const mindDescendants = countMindDescendants(mind);
+    displayMind =
+      mindDescendants > draftDescendants
+        ? mergeMindUserAnnotations(mind, draftMind)
+        : draftMind;
+  }
 
-  const draftDescendants = countMindDescendants(draftMind);
-  const mindDescendants = countMindDescendants(mind);
-  return mindDescendants > draftDescendants ? mind : draftMind;
+  if (!storedViewState) return displayMind;
+  if (!displayMind) return storedViewState;
+  return mergeMindUserAnnotations(displayMind, storedViewState);
 }
 
 function findMindNodeById(
