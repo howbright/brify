@@ -1003,7 +1003,7 @@
   },
   "YoutubeReservationsPage": {
     "title": "YouTube requests",
-    "description": "Check the status of structure map requests sent with YouTube URLs, and retry failed requests.",
+    "description": "Check the status of structure map requests sent with YouTube URLs. Requests are usually reviewed within 2 hours, and we email your account when the map is ready.",
     "empty": "No YouTube requests yet.",
     "loading": "Loading requests.",
     "refresh": "Refresh",

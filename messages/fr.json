@@ -348,7 +348,7 @@
   },
   "YoutubeReservationsPage": {
     "title": "Demandes YouTube",
-    "description": "Consultez l’état des demandes envoyées avec des URL YouTube et relancez les demandes échouées.",
+    "description": "Consultez l’état des demandes envoyées avec des URL YouTube. Elles sont généralement vérifiées sous 2 heures, puis nous vous envoyons un e-mail quand la carte est prête.",
     "empty": "Aucune demande YouTube pour le moment.",
     "loading": "Chargement des demandes.",
     "refresh": "Actualiser",

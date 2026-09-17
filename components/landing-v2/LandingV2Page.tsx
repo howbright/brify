@@ -155,6 +155,7 @@ const COPY = {
     textareaPlaceholder: "긴 글 또는 유튜브 URL을 넣으세요",
     uploadDoc: "문서 업로드",
     youtubeHelp: "유튜브 영상대본 복사하는 방법",
+    youtubeTranscriptPasteNow: "유튜브 대본 직접 붙여넣기",
     trySample: "예시 넣기",
     moreActions: "더보기",
     create: "구조맵 만들기",
@@ -174,15 +175,15 @@ const COPY = {
     youtubeReservationAlertTitle: "요청 접수 완료",
     youtubeUrlAlertTitle: "유튜브 URL 확인",
     youtubeReservationBody:
-      "이 YouTube 영상을 구조맵으로 준비할까요?",
+      "이 YouTube 영상을 구조맵으로 요청할까요? 보통 최대 2시간 이내에 확인하고, 완료되면 계정 이메일로 알려드립니다.",
     youtubeReservationCreditPolicy:
       "요청 단계에서는 크레딧을 차감하지 않습니다. 구조맵 생성이 시작될 때 필요한 크레딧을 확인합니다.",
     youtubeReservationLanguageQuestion:
       "이 유튜브 영상을 어떤 언어의 구조맵으로 바꾸기를 원하시나요?",
     youtubeReservationConfirm: "요청하기",
-    youtubeReservationQueued: "YouTube 영상을 구조맵으로 준비하고 있어요.",
+    youtubeReservationQueued: "요청이 접수되었습니다. 최대 2시간 이내에 확인하고 완료되면 이메일로 알려드릴게요.",
     youtubeReservationDelayed:
-      "영상 확인에 시간이 조금 더 걸리고 있어요. 구조맵이 완성되면 계정 이메일로 알려드릴게요.",
+      "요청을 확인하고 있어요. 구조맵이 완성되면 계정 이메일로 알려드릴게요.",
     youtubeReservationReadyTitle: "구조맵 생성이 시작되었습니다",
     youtubeReservationReadyWithCredits:
       "이번 YouTube 구조맵 생성에 {credits}크레딧이 차감되었습니다. 확인을 누르면 구조맵 화면으로 이동합니다.",
@@ -301,6 +302,7 @@ const COPY = {
     textareaPlaceholder: "Paste long text or a YouTube URL",
     uploadDoc: "Upload document",
     youtubeHelp: "YouTube transcript",
+    youtubeTranscriptPasteNow: "Paste transcript directly",
     trySample: "Use sample",
     moreActions: "More",
     create: "Create structure map",
@@ -320,15 +322,15 @@ const COPY = {
     youtubeReservationAlertTitle: "Request received",
     youtubeUrlAlertTitle: "Check the YouTube URL",
     youtubeReservationBody:
-      "Would you like Brify to prepare this YouTube video as a structure map?",
+      "Would you like to request a structure map for this YouTube video? We usually review it within 2 hours and email your account when it is ready.",
     youtubeReservationCreditPolicy:
       "Credits are not charged when you send the request. We check the required credits when structure map generation starts.",
     youtubeReservationLanguageQuestion:
       "Which language would you like the structure map to use?",
     youtubeReservationConfirm: "Request",
-    youtubeReservationQueued: "Preparing this YouTube video as a structure map.",
+    youtubeReservationQueued: "Request received. We will review it within 2 hours and email you when it is ready.",
     youtubeReservationDelayed:
-      "Checking the video is taking a little longer. We will email your account when the structure map is ready.",
+      "We are reviewing your request. We will email your account when the structure map is ready.",
     youtubeReservationReadyTitle: "Structure map generation has started",
     youtubeReservationReadyWithCredits:
       "{credits} credits were used for this YouTube structure map. Press OK to open it.",
@@ -448,6 +450,7 @@ const COPY = {
     textareaPlaceholder: "Collez un long texte ou une URL YouTube",
     uploadDoc: "Importer un document",
     youtubeHelp: "Transcription YouTube",
+    youtubeTranscriptPasteNow: "Coller directement la transcription",
     trySample: "Essayer un exemple",
     moreActions: "Plus",
     create: "Créer la carte",
@@ -467,15 +470,15 @@ const COPY = {
     youtubeReservationAlertTitle: "Demande reçue",
     youtubeUrlAlertTitle: "Vérifier l’URL YouTube",
     youtubeReservationBody:
-      "Voulez-vous que Brify prépare cette vidéo YouTube sous forme de carte structurelle ?",
+      "Voulez-vous demander une carte structurelle pour cette vidéo YouTube ? Nous la vérifions généralement sous 2 heures et vous enverrons un e-mail quand elle sera prête.",
     youtubeReservationCreditPolicy:
       "Aucun crédit n’est déduit au moment de la demande. Les crédits nécessaires sont vérifiés lorsque la génération commence.",
     youtubeReservationLanguageQuestion:
       "Dans quelle langue souhaitez-vous obtenir la carte structurelle ?",
     youtubeReservationConfirm: "Demander",
-    youtubeReservationQueued: "Préparation de cette vidéo YouTube en carte structurelle.",
+    youtubeReservationQueued: "Demande reçue. Nous la vérifierons sous 2 heures et vous enverrons un e-mail quand elle sera prête.",
     youtubeReservationDelayed:
-      "La vérification de la vidéo prend un peu plus de temps. Nous vous enverrons un e-mail quand la carte structurelle sera prête.",
+      "Nous vérifions votre demande. Nous vous enverrons un e-mail quand la carte structurelle sera prête.",
     youtubeReservationReadyTitle: "La création de la carte a commencé",
     youtubeReservationReadyWithCredits:
       "{credits} crédits ont été utilisés pour cette carte structurelle YouTube. Appuyez sur OK pour l’ouvrir.",
@@ -2154,7 +2157,7 @@ export default function LandingV2Page({
                         setShowYoutubeDialog(true);
                         setIsToolMenuOpen(false);
                       }}
-                      className="flex h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-sm font-bold text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 dark:text-white/66 dark:hover:bg-white/8 dark:hover:text-white"
+                      className="hidden h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-sm font-bold text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 md:flex dark:text-white/66 dark:hover:bg-white/8 dark:hover:text-white"
                     >
                       <Icon icon="lucide:youtube" className="h-4 w-4" />
                       {copy.youtubeHelp}
@@ -2695,6 +2698,23 @@ export default function LandingV2Page({
             <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold leading-6 text-slate-700 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/68">
               {copy.youtubeReservationCreditPolicy}
             </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (isReservingYoutube) return;
+                setShowYoutubeReservationDialog(false);
+                setPendingYoutubeUrl("");
+                setText("");
+                setSourceType("manual");
+                setShowYoutubeDialog(true);
+              }}
+              disabled={isReservingYoutube}
+              className="mt-3 hidden w-full items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-black text-red-700 transition hover:bg-red-100 disabled:opacity-50 md:inline-flex dark:border-red-300/20 dark:bg-red-500/10 dark:text-red-200 dark:hover:bg-red-500/15"
+            >
+              <Icon icon="lucide:clipboard-paste" className="h-4 w-4" />
+              {copy.youtubeTranscriptPasteNow}
+            </button>
 
             <div className="mt-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-white/52">
               <div className="mb-1 text-xs font-black uppercase tracking-normal text-slate-400 dark:text-white/35">
